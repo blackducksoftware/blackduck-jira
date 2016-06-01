@@ -30,11 +30,7 @@ var successStatus = "success";
 var spinning = false;
 
 function updateConfig() {
-		putConfig(AJS.contextPath() + '/rest/hub-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
-	}
-
-function testConnection() {
-		putConfig(AJS.contextPath() + '/rest/hub-integration/1.0/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 
 function putConfig(restUrl, successMessage, failureMessage) {
@@ -43,44 +39,16 @@ function putConfig(restUrl, successMessage, failureMessage) {
 		    type: "PUT",
 		    dataType: "json",
 		    contentType: "application/json",
-		    data: '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
-		    + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
-		    + '", "username": "' + encodeURI(AJS.$("#hubUsername").val())
-		    + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
-		    + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
-		    + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
-		    + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
-		    + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
-		    + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
+		    data: '{ "checkHowOften": "' + encodeURI(AJS.$("#checkHowOften").val())
 		    + '"}',
 		    processData: false,
 		    success: function() {
-		    	hideError('hubServerUrlError');
-		    	hideError('hubTimeoutError');
-		    	hideError('hubUsernameError');
-		    	hideError('hubPasswordError');
-		    	hideError('proxyHostError');
-		    	hideError('proxyPortError');
-			    hideError('proxyUsernameError');
-			    hideError('proxyPasswordError');
-			    hideError('noProxyHostError');
-			    hideError('testConnectionError');
-			      
 			    showStatusMessage(successStatus, 'Success!', successMessage);
 			    stopProgressSpinner();
 		    },
 		    error: function(response){
 		    	var config = JSON.parse(response.responseText);
-		    	handleError('hubServerUrlError', config.hubUrlError);
-			    handleError('hubTimeoutError', config.timeoutError);
-			    handleError('hubUsernameError', config.usernameError);
-			    handleError('hubPasswordError', config.passwordError);
-			    handleError('proxyHostError', config.hubProxyHostError);
-			    handleError('proxyPortError', config.hubProxyPortError);
-			    handleError('proxyUsernameError', config.hubProxyUserError);
-			    handleError('proxyPasswordError', config.hubProxyPasswordError);
-			    handleError('noProxyHostError', config.hubNoProxyHostsError);
-			    handleError('testConnectionError', config.testConnectionError);
+		    	handleError('checkHowOftenError', config.checkHowOften);
 			    
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 			    stopProgressSpinner();
@@ -90,28 +58,12 @@ function putConfig(restUrl, successMessage, failureMessage) {
 
 function populateForm() {
 	  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-integration/1.0/",
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/",
 	    dataType: "json",
 	    success: function(config) {
-	      updateValue("hubServerUrl", config.hubUrl);
-	      updateValue("hubTimeout", config.timeout);
-	      updateValue("hubUsername", config.username);
-	      updateValue("hubPassword", config.password);
-	      updateValue("proxyHost", config.hubProxyHost);
-	      updateValue("proxyPort", config.hubProxyPort);
-	      updateValue("proxyUsername", config.hubProxyUser);
-	      updateValue("proxyPassword", config.hubProxyPassword);
-	      updateValue("noProxyHost", config.hubNoProxyHosts);
+	      updateValue("checkHowOften", config.checkHowOften);
 	      
-	      handleError('hubServerUrlError', config.hubUrlError);
-	      handleError('hubTimeoutError', config.timeoutError);
-	      handleError('hubUsernameError', config.usernameError);
-	      handleError('hubPasswordError', config.passwordError);
-	      handleError('proxyHostError', config.hubProxyHostError);
-	      handleError('proxyPortError', config.hubProxyPortError);
-	      handleError('proxyUsernameError', config.hubProxyUserError);
-	      handleError('proxyPasswordError', config.hubProxyPasswordError);
-	      handleError('noProxyHostError', config.hubNoProxyHostsError);
+	      handleError('checkHowOftenError', config.checkHowOftenError);
 	    }
 	  });
 	}

@@ -19,9 +19,11 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.api;
+package com.blackducksoftware.integration.jira.utils;
 
-public interface HubJiraComponent
-{
-    String getName();
+public class HubJiraConfigKeys {
+
+	public final static String HUB_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
+	public final static String CONFIG_HUB_HOW_OFTEN_TO_CHECK = HUB_CONFIG_KEY_PREFIX + ".howoftentocheck";
+
 }

@@ -19,11 +19,29 @@
         <context>hub-jira</context>
     </web-resource>
     
+    <servlet name="Hub Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.HubJiraServlet">
+  		<url-pattern>/hub-jira-integration</url-pattern>
+	</servlet>
+    
     <!-- publish our component -->
     <component name="Hub Jira Component" key="hubJiraComponent" class="com.blackducksoftware.integration.jira.impl.HubJiraComponentImpl" public="true">
         <interface>com.blackducksoftware.integration.jira.api.HubJiraComponent</interface>
     </component>
     
-    <!-- import from the product container -->
     <component-import name="Application Properties" key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+    <component-import name="Plugin Settings Factory" key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
+	<component-import name="Transaction Template" key="transactionTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate" />
+	<component-import name="User Manager" key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+	<component-import name="Login Uri Provider" key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
+	<component-import name="Template Renderer" key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+
+	<rest name="Hub Jira Rest" key="rest" path="/hub-jira-integration" version="1.0">
+	  <description>Provides REST resources for the admin UI.</description>
+	</rest>
+	
+	<web-item key="jira-menu-item" name="Hub Jira" section="system.admin/globalsettings" weight="10" application="jira">
+	  <description>Link to hub jira page.</description> 
+	  <label key="hub.integration.jira.label" /> 
+	  <link linkId="hub-admin-link">/plugins/servlet/hub-jira-integration</link> 
+	</web-item>
 </atlassian-plugin>

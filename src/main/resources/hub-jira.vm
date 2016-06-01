@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>$i18n.getText("hub.integration.jira.label")</title>
+    <meta name="decorator" content="atl.admin" />
+   		$webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-resources")
+  </head>
+  <body>
+    <form id="hub-jira" class="aui">
+      <div class="spinner"></div>
+      <div id="aui-hub-message-field" class="aui-message hidden">
+      	<p class="title">
+        	<span id="aui-hub-message-title" class="aui-icon"></span>
+        	<strong id="aui-hub-message-title-text"></strong>
+    	</p>
+    	<p id="aui-hub-message-text"></p>
+      </div>
+      
+      <div class="field-group">
+        <label for="checkHowOften">$i18n.getText("hub.integration.jira.checkHowOften.label")<span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span></label>
+        <input type="text" id="checkHowOften" name="checkHowOften" class="text long-field">
+      </div>
+      <div class="field-group">
+      	<label> </label>
+      	<div id="checkHowOftenError" class="error hidden"></div>
+      </div>
+      
+	  <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.admin.save.label")" class="aui-button aui-button-primary">
+    </form>
+  </body>
+</html>
