@@ -17,8 +17,17 @@
   <description>Hub Jira Integration</description>
 
   <properties>
+
+    <!-- For production builds: -->
     <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+
+    <!-- In order for quickReload to work:
+    <amps.version>6.2.4</amps.version>
+    <jira.version>7.1.4</jira.version>
+	-->
+
+    <atlassian.spring.scanner.version>1.2.6</atlassian.spring.scanner.version>
     <jira.version>5.2.11</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
@@ -68,6 +77,12 @@
   </pluginRepositories>
 
   <dependencies>
+    <dependency>
+      <groupId>com.atlassian.plugin</groupId>
+      <artifactId>atlassian-spring-scanner-annotation</artifactId>
+      <version>${atlassian.spring.scanner.version}</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
@@ -120,6 +135,19 @@
       <artifactId>atlassian-template-renderer-api</artifactId>
       <version>1.1.1</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.plugin</groupId>
+      <artifactId>atlassian-spring-scanner-runtime</artifactId>
+      <version>${atlassian.spring.scanner.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -179,6 +207,8 @@
         <configuration>
           <productVersion>${jira.version}</productVersion>
           <productDataVersion>${jira.version}</productDataVersion>
+          <enableQuickReload>true</enableQuickReload>
+          <enableFastdev>false</enableFastdev>
           <!-- Uncomment to install TestKit backdoor in JIRA. -->
           <!--
 					<pluginArtifacts>
