@@ -17,6 +17,17 @@
   <description>Hub Jira Integration</description>
 
   <properties>
+
+    <!-- 
+   For production builds, use: 
+   amps.version: 5.0.13
+   jira.version: 5.2.11
+   
+   To use quickReload, use:
+   amps.version: 6.2.4
+   jira.version: 7.1.4
+   -->
+
     <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
     <jira.version>5.2.11</jira.version>
@@ -146,6 +157,13 @@
     </dependency>
 
     <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.10</version>
@@ -202,6 +220,8 @@
         <configuration>
           <productVersion>${jira.version}</productVersion>
           <productDataVersion>${jira.version}</productDataVersion>
+          <enableQuickReload>true</enableQuickReload>
+          <enableFastdev>false</enableFastdev>
           <!-- Uncomment to install TestKit backdoor in JIRA. -->
           <!--
 					<pluginArtifacts>
