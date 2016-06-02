@@ -18,15 +18,18 @@
 
   <properties>
 
-    <!-- For production builds: -->
+    <!-- 
+   For production builds, use: 
+   amps.version: 5.0.13
+   jira.version: 5.2.11
+   
+   To use quickReload, use:
+   amps.version: 6.2.4
+   jira.version: 7.1.4
+   -->
+
     <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-
-    <!-- In order for quickReload to work:
-    <amps.version>6.2.4</amps.version>
-    <jira.version>7.1.4</jira.version>
-	-->
-
     <atlassian.spring.scanner.version>1.2.6</atlassian.spring.scanner.version>
     <jira.version>5.2.11</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
