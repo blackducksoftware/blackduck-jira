@@ -30,7 +30,7 @@
     
     <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.impl.HubMonitor"
              system="true" public="true">
-        <description>The plugin component that schedules the test task.</description>
+        <description>The plugin component that schedules the Hub notification check task.</description>
         <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
         <interface>com.blackducksoftware.integration.jira.api.NotificationMonitor</interface>
     </component>
@@ -41,12 +41,7 @@
 	<component-import name="User Manager" key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
 	<component-import name="Login Uri Provider" key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
 	<component-import name="Template Renderer" key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
-
-	<!-- TODO: refactor to be consistent -->
-	<component-import key="pluginScheduler">
-        <description>SAL Scheduler</description>
-        <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>
-    </component-import>
+	<component-import name="SAL Scheduler" key="pluginScheduler" interface="com.atlassian.sal.api.scheduling.PluginScheduler" />
     
 	<rest name="Hub Jira Rest" key="rest" path="/hub-jira-integration" version="1.0">
 	  <description>Provides REST resources for the admin UI.</description>
