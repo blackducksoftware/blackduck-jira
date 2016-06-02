@@ -27,6 +27,11 @@ var statusMessageTextId = "aui-hub-message-text";
 var errorStatus = "error";
 var successStatus = "success";
 
+var hiddenClass = "hidden";
+
+var hubProjectMappingContainer = "hubProjectMappingContainer";
+var hubProjectMappingElement = "hubProjectMappingElement";
+
 var spinning = false;
 
 function updateConfig() {
@@ -35,25 +40,33 @@ function updateConfig() {
 
 function putConfig(restUrl, successMessage, failureMessage) {
 	  AJS.$.ajax({
-		    url: restUrl,
-		    type: "PUT",
-		    dataType: "json",
-		    contentType: "application/json",
-		    data: '{ "checkHowOften": "' + encodeURI(AJS.$("#checkHowOften").val())
-		    + '"}',
-		    processData: false,
-		    success: function() {
-			    showStatusMessage(successStatus, 'Success!', successMessage);
-			    stopProgressSpinner();
-		    },
-		    error: function(response){
-		    	var config = JSON.parse(response.responseText);
-		    	handleError('checkHowOftenError', config.checkHowOften);
-			    
-			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
-			    stopProgressSpinner();
-		    }
-		  });
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
+	    + '"}',
+	    processData: false,
+	    success: function() {
+	    	hideError('intervalBetweenChecksError');
+	    	
+		    showStatusMessage(successStatus, 'Success!', successMessage);
+		    stopProgressSpinner();
+	    },
+	    error: function(response){
+	    	var config = JSON.parse(response.responseText);
+	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
+		    
+		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+		    stopProgressSpinner();
+	    }
+	  });
+}
+
+function getJsonArrayFromMapping(){
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	
+	alert();
 }
 
 function populateForm() {
@@ -61,11 +74,15 @@ function populateForm() {
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/",
 	    dataType: "json",
 	    success: function(config) {
-	      updateValue("checkHowOften", config.checkHowOften);
+	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      
-	      handleError('checkHowOftenError', config.checkHowOftenError);
+	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	    }
 	  });
+	  if(AJS.$("#" + hubProjectMappingContainer).children().length == 0){
+		  setTimeout(null,1000);
+		  addNewElement(hubProjectMappingElement);
+	  }
 	}
 
 function updateValue(fieldId, configField) {
@@ -84,12 +101,12 @@ function handleError(fieldId, configField) {
 
 function showError(fieldId, configField) {
 	  AJS.$("#" + fieldId).text(decodeURI(configField));
-  	  removeClassFromField(fieldId, 'hidden');
+  	  removeClassFromField(fieldId, hiddenClass);
 }
 
 function hideError(fieldId) {
 	  AJS.$("#" + fieldId).text('');
-  	  addClassToField(fieldId, 'hidden');
+  	  addClassToField(fieldId, hiddenClass);
 }
 
 function showStatusMessage(status, statusTitle, message) {
@@ -103,7 +120,7 @@ function showStatusMessage(status, statusTitle, message) {
 	}
 	AJS.$("#" + statusMessageTitleTextId).text(statusTitle);
 	AJS.$("#" + statusMessageTextId).text(message);
-	removeClassFromField(statusMessageFieldId, 'hidden');
+	removeClassFromField(statusMessageFieldId, hiddenClass);
 }
 
 function resetStatusMessage() {
@@ -113,7 +130,7 @@ function resetStatusMessage() {
 	removeClassFromField(statusMessageTitleId,'icon-success');
 	AJS.$("#" + statusMessageTitleTextId).text('');
 	AJS.$("#" + statusMessageTextId).text('');
-	addClassToField(statusMessageFieldId, 'hidden');
+	addClassToField(statusMessageFieldId, hiddenClass);
 }
 
 function addClassToField(fieldId, cssClass){
@@ -131,7 +148,7 @@ function removeClassFromField(fieldId, cssClass){
 function startProgressSpinner(){
 	 if (!spinning) {
 		 var spinner = AJS.$('.spinner');
-		 AJS.$('.spinner').spin('large');
+		 spinner.spin('large');
 		 spinning = true;
 	 }
 }
@@ -141,6 +158,18 @@ function stopProgressSpinner(){
 		 AJS.$('.spinner').spinStop();
          spinning = false;
 	 }
+}
+
+function addNewElement(fieldId){
+	var elementToAdd = AJS.$("#" + fieldId).clone();
+	elementToAdd.id = "";
+	elementToAdd.appendTo("#" + hubProjectMappingContainer);
+}
+
+function removeMappingElement(childElement){
+	if(AJS.$("#" + hubProjectMappingContainer).children().length > 1){
+		AJS.$(childElement).closest("#" + hubProjectMappingElement).remove();
+	}
 }
 
 (function ($) {

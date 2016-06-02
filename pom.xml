@@ -69,6 +69,29 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.blackducksoftware.integration</groupId>
+      <artifactId>hub-common</artifactId>
+      <version>1.4.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.thoughtworks.xstream</groupId>
+          <artifactId>xstream</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-recorder-mvn30</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-recorder-mvn31</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-common</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
       <version>${jira.version}</version>
@@ -189,6 +212,10 @@
 						</pluginArtifact>
 					</pluginArtifacts>
 					-->
+          <enableQuickReload>true</enableQuickReload>
+          <!-- doc says this is the default -->
+          <enableFastdev>false</enableFastdev>
+          <!-- the old mechanism must be off (it interferes) -->
         </configuration>
       </plugin>
     </plugins>
