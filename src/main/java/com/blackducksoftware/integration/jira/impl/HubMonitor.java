@@ -15,15 +15,11 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.plugin.spring.scanner.annotation.export.ExportAsService;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
 import com.blackducksoftware.integration.jira.task.HubNotificationCheckTask;
 
-@ExportAsService({ NotificationMonitor.class })
-@Named("notificationMonitor")
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 	/* package */static final String KEY = HubMonitor.class.getName() + ":instance";
@@ -31,7 +27,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 	private final Logger logger = Logger.getLogger(HubMonitor.class);
 
-	// @ComponentImport
 	private final PluginScheduler pluginScheduler; // provided by SAL
 
 	private long interval = 5000L; // default job interval (5 sec)
@@ -39,7 +34,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	private Date lastRun = null; // time when the last search returned
 
 	@Inject
-	public HubMonitor(@ComponentImport PluginScheduler pluginScheduler) {
+	public HubMonitor(PluginScheduler pluginScheduler) {
 		log("HubMonitor ctor called.");
 		this.pluginScheduler = pluginScheduler;
 	}
@@ -70,11 +65,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	/* package */void setLastRun(Date lastRun) {
 		log("HubMonitor setLastRun() called.");
 		this.lastRun = lastRun;
-	}
-
-	// @Override
-	public void onStop() {
-		log("HubMonitor onStop() called.");
 	}
 
 	public String getName() {

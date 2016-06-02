@@ -30,7 +30,6 @@
 
     <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-    <atlassian.spring.scanner.version>1.2.6</atlassian.spring.scanner.version>
     <jira.version>5.2.11</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
@@ -80,12 +79,6 @@
   </pluginRepositories>
 
   <dependencies>
-    <dependency>
-      <groupId>com.atlassian.plugin</groupId>
-      <artifactId>atlassian-spring-scanner-annotation</artifactId>
-      <version>${atlassian.spring.scanner.version}</version>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
@@ -145,12 +138,6 @@
       <artifactId>javax.inject</artifactId>
       <version>1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.plugin</groupId>
-      <artifactId>atlassian-spring-scanner-runtime</artifactId>
-      <version>${atlassian.spring.scanner.version}</version>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>
