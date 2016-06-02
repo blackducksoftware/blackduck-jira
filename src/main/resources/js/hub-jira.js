@@ -32,6 +32,9 @@ var hiddenClass = "hidden";
 var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 
+var jiraProjectField = "jiraProject";
+var hubProjectLinkField = "hubProjectLink";
+
 var spinning = false;
 
 function updateConfig() {
@@ -39,12 +42,14 @@ function updateConfig() {
 	}
 
 function putConfig(restUrl, successMessage, failureMessage) {
+	var jsonMappingArray = getJsonArrayFromMapping();
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
 	    dataType: "json",
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
+	    + '", "hubProjectMappings": "' + jsonMappingArray
 	    + '"}',
 	    processData: false,
 	    success: function() {
@@ -64,9 +69,22 @@ function putConfig(restUrl, successMessage, failureMessage) {
 }
 
 function getJsonArrayFromMapping(){
+	var jsonArray = "[";
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-	
-	alert();
+	var mappingElements = mappingContainer.children();
+	for (i = 0; i < mappingElements.length; i++) {
+		if(i > 0){
+			jsonArray += ","
+		}
+		var mappingElement = mappingElements[i];
+		var jiraProjectSelect = AJS.$(mappingElement).find("select[name*='jiraProjects']");
+		var jiraProjectValue = AJS.$(jiraProjectSelect).find("option:selected").val();
+		var hubProjectSelect = AJS.$(mappingElement).find("select[name*='hubProjects']");
+		var hubProjectValue = AJS.$(hubProjectSelect).find("option:selected").val();
+		jsonArray += "{'" + jiraProjectField + "':'" + jiraProjectValue + "','" + hubProjectLinkField + "':'" + hubProjectValue + "'}";
+	}
+	jsonArray += "]";
+	return jsonArray;
 }
 
 function populateForm() {

@@ -21,8 +21,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.config;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -73,7 +71,7 @@ public class HubJiraConfigController {
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-				final List<HubProjectMapping> hubProjectMappings = (List<HubProjectMapping>) getValue(settings,
+				final String hubProjectMappings = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS);
 
 				setConfigValues(config, intervalBetweenChecks, hubProjectMappings);
@@ -115,7 +113,7 @@ public class HubJiraConfigController {
 	}
 
 	private void setConfigValues(final HubJiraConfigSerializable config, final String intervalBetweenChecks,
-			final List<HubProjectMapping> hubProjectMappings) {
+			final String hubProjectMappings) {
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
 		config.setHubProjectMappings(hubProjectMappings);
 
@@ -129,9 +127,9 @@ public class HubJiraConfigController {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
 		}
-		if (hubProjectMappings == null || hubProjectMappings.isEmpty()) {
-			config.setHubProjectMappingError("No project mappings were found.");
-		}
+		// if (hubProjectMappings == null || hubProjectMappings.isEmpty()) {
+		// config.setHubProjectMappingError("No project mappings were found.");
+		// }
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {
