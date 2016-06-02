@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -43,10 +44,14 @@ public class HubJiraConfigSerializable implements Serializable {
 	private String intervalBetweenChecksError;
 
 	@XmlElement
-	private String hubProjectMappings;
+	private List<HubProjectMapping> hubProjectMappings;
 
 	@XmlElement
 	private String hubProjectMappingError;
+
+	public HubJiraConfigSerializable() {
+
+	}
 
 	public boolean hasErrors() {
 		boolean hasErrors = false;
@@ -72,11 +77,15 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.intervalBetweenChecksError = intervalBetweenChecksError;
 	}
 
-	public String getHubProjectMappings() {
+	public void HubProjectMappings(final String intervalBetweenChecksError) {
+		this.intervalBetweenChecksError = intervalBetweenChecksError;
+	}
+
+	public List<HubProjectMapping> getHubProjectMappings() {
 		return hubProjectMappings;
 	}
 
-	public void setHubProjectMappings(final String hubProjectMappings) {
+	public void setHubProjectMappings(final List<HubProjectMapping> hubProjectMappings) {
 		this.hubProjectMappings = hubProjectMappings;
 	}
 

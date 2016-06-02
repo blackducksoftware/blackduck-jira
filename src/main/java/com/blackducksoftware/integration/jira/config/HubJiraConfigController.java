@@ -21,6 +21,9 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -40,6 +43,8 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -61,7 +66,6 @@ public class HubJiraConfigController {
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
@@ -71,11 +75,16 @@ public class HubJiraConfigController {
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-				final String hubProjectMappings = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS);
-
+				//				final HubProjectMappings hubProjectMappings = (HubProjectMappings) getValue(settings,
+				//						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS);
+				final List<HubProjectMapping> hubProjectMappings = new ArrayList<HubProjectMapping>();
+				final HubProjectMapping map = new HubProjectMapping();
+				map.setHubProjectLink("HUB PROJECT ");
+				map.setJiraProject("JIRAPROJCT");
+				hubProjectMappings.add(map);
 				setConfigValues(config, intervalBetweenChecks, hubProjectMappings);
-
+				final Gson gson = new GsonBuilder().create();
+				System.out.println("GET CONFIG : " + gson.toJson(config));
 				return config;
 			}
 		});
@@ -90,7 +99,8 @@ public class HubJiraConfigController {
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
+		final Gson gson = new GsonBuilder().create();
+		System.out.println("PUT CONFIG : " + gson.toJson(config));
 		transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
@@ -113,7 +123,7 @@ public class HubJiraConfigController {
 	}
 
 	private void setConfigValues(final HubJiraConfigSerializable config, final String intervalBetweenChecks,
-			final String hubProjectMappings) {
+			final List<HubProjectMapping> hubProjectMappings) {
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
 		config.setHubProjectMappings(hubProjectMappings);
 

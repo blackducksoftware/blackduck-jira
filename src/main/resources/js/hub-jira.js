@@ -49,8 +49,8 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    dataType: "json",
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
-	    + '", "hubProjectMappings": "' + jsonMappingArray
-	    + '"}',
+	    + '", "hubProjectMappings": ' + jsonMappingArray
+	    + '}',
 	    processData: false,
 	    success: function() {
 	    	hideError('intervalBetweenChecksError');
@@ -81,7 +81,8 @@ function getJsonArrayFromMapping(){
 		var jiraProjectValue = AJS.$(jiraProjectSelect).find("option:selected").val();
 		var hubProjectSelect = AJS.$(mappingElement).find("select[name*='hubProjects']");
 		var hubProjectValue = AJS.$(hubProjectSelect).find("option:selected").val();
-		jsonArray += "{'" + jiraProjectField + "':'" + jiraProjectValue + "','" + hubProjectLinkField + "':'" + hubProjectValue + "'}";
+		//jsonArray += "{'" + jiraProjectField + "':'" + jiraProjectValue + "','" + hubProjectLinkField + "':'" + hubProjectValue + "'}";
+		jsonArray += '{"' + jiraProjectField + '":"' + jiraProjectValue + '","' + hubProjectLinkField + '":"' + hubProjectValue + '"}';
 	}
 	jsonArray += "]";
 	return jsonArray;
