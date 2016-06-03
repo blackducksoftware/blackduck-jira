@@ -83,15 +83,15 @@ function getJsonArrayFromMapping(){
 		var mappingElement = mappingElements[i];
 		var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
 		
-		var currentJiraProjectDisplayName = currentJiraProject.text();
-		var currentJiraProjectValue = currentJiraProject.val();
-		var currentJiraProjectExists = true; //currentJiraProject.data('projectExists');
+		var currentJiraProjectDisplayName = currentJiraProject.val();
+		var currentJiraProjectValue = currentJiraProject.attr('projectKey');
+		var currentJiraProjectExists = currentJiraProject.attr('projectExists');
 		
 		var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 		
-		var currentHubProjectDisplayName = currentHubProject.text();
-		var currentHubProjectValue = currentHubProject.val();
-		var currentHubProjectExists = true; //currentHubProject.data('projectExists');
+		var currentHubProjectDisplayName = currentHubProject.val();
+		var currentHubProjectValue = currentJiraProject.attr('projectKey');
+		var currentHubProjectExists = currentHubProject.attr('projectExists');
 		
 		jsonArray += '{"' 
 			+ jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName 
@@ -154,11 +154,14 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedJiraProjectExists = storedMapping.jiraProjectExists;
 	
 	if(!storedJiraProjectExists){
-		currentJiraProject.css("background-color", "red");
+		currentJiraProject.css("color", "red");
+	} else{
+		currentJiraProject.css("color", "black");
 	}
+	
 	currentJiraProject.val(storedJiraProjectDisplayName);
-	currentJiraProject.data("projectKey", storedJiraProjectValue);
-	currentJiraProject.data("projectExists",storedJiraProjectExists)
+	currentJiraProject.attr("projectKey", storedJiraProjectValue);
+	currentJiraProject.attr("projectExists",storedJiraProjectExists)
 	
 	var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 	
@@ -167,11 +170,13 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedHubProjectExists = storedMapping.hubProjectExists;
 	
 	if(!storedHubProjectExists){
-		currentHubProject.css("background-color", "red");
+		currentHubProject.css("color", "red");
+	} else{
+		currentHubProject.css("color", "black");
 	}
 	currentHubProject.val(storedHubProjectDisplayName);
-	currentHubProject.data("projectKey", storedHubProjectValue);
-	currentHubProject.data("projectExists",storedHubProjectExists)
+	currentHubProject.attr("projectKey", storedHubProjectValue);
+	currentHubProject.attr("projectExists",storedHubProjectExists)
 }
 
 function handleError(fieldId, configField) {
@@ -254,6 +259,38 @@ function removeMappingElement(childElement){
 	if(AJS.$("#" + hubProjectMappingContainer).children().length > 1){
 		AJS.$(childElement).closest("#" + hubProjectMappingElement).remove();
 	}
+}
+
+function onMappingInputChange(inputField){
+	var field = AJS.$(inputField);
+	var datalist = inputField.list;
+	var options = datalist.options;
+	
+	var optionFound = false;
+    for (var i=0;i<options.length;i++){
+       if (options[i].value == inputField.value) { 
+    	   optionFound = true;
+    	   var option = AJS.$(options[i]);
+    	   
+    	   var projectKey = option.attr("projectKey");
+    	   var projectExists = option.attr("projectExists");
+    	   field.val(option.val());
+    	   field.attr("projectKey", projectKey);
+    	   field.attr("projectExists", projectExists)
+    	   
+    	   if(projectExists === 'false'){
+    		   field.css("color", "red");
+    		} else{
+    			field.css("color", "black");
+    		}
+    	   break;
+    	}
+    }
+    if(!optionFound){
+  	   field.attr("projectKey", "");
+  	   field.attr("projectExists", "false")
+  	   field.css("color", "red");
+    }
 }
 
 (function ($) {
