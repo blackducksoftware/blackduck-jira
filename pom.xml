@@ -28,9 +28,10 @@
    jira.version: 7.1.4
    -->
 
-    <amps.version>5.0.13</amps.version>
+    <amps.version>6.2.4</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-    <jira.version>5.2.11</jira.version>
+
+    <jira.version>7.1.4</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
     <testkit.version>5.2.26</testkit.version>
@@ -79,6 +80,26 @@
   </pluginRepositories>
 
   <dependencies>
+    <dependency>
+      <groupId>com.blackducksoftware.integration</groupId>
+      <artifactId>hub-common</artifactId>
+      <version>1.4.1-SNAPSHOT</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.thoughtworks.xstream</groupId>
+          <artifactId>xstream</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
@@ -199,6 +220,20 @@
           <productDataVersion>${jira.version}</productDataVersion>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
+
+          <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
+
+          <instructions>
+            <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
+            <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
+          </instructions>
+
+          <pluginDependencies>
+            <pluginDependency>
+              <groupId>com.blackducksoftware.integration</groupId>
+              <artifactId>hub-common</artifactId>
+            </pluginDependency>
+          </pluginDependencies>
           <!-- Uncomment to install TestKit backdoor in JIRA. -->
           <!--
 					<pluginArtifacts>

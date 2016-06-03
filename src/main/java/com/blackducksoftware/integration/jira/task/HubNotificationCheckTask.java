@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.jira.hub.HubNotificationService;
+import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 
 public class HubNotificationCheckTask implements PluginJob {
 
@@ -18,11 +20,29 @@ public class HubNotificationCheckTask implements PluginJob {
 
 	@Override
 	public void execute(Map<String, Object> jobDataMap) {
-		System.out.println("HubNotificationCheckTask.execute() called 4.");
 		log("HubNotificationCheckTask.execute() called 4.");
+
+		// TODO should not recreate every time
+		HubNotificationService svc;
+		try {
+			svc = new HubNotificationService("http://eng-hub-valid01.dc1.lan/", "sysadmin", "blackduck");
+		} catch (HubNotificationServiceException e) {
+			// TODO This will have to change (or move)
+			throw new IllegalArgumentException("Error connecting to the Hub: " + e.getMessage(), e);
+		}
+		String hubVersion;
+		try {
+			hubVersion = svc.getVersion();
+		} catch (HubNotificationServiceException e) {
+			// TODO revisit this
+			throw new IllegalArgumentException("Error getting Hub version: " + e.getMessage(), e);
+		}
+		// TODO
+		System.out.println("Hub version: " + hubVersion);
 	}
 
 	private void log(String msg) {
+		System.out.println(msg);
 		logger.info(msg);
 		String filename = "/tmp/HubNotificationCheckTask_log.txt";
 		msg = "[INFO] " + (new Date()).toString() + ": " + msg + "\n";
