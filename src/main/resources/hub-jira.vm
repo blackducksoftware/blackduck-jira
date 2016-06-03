@@ -33,17 +33,19 @@
 			  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 			  	</td>
 			    <td>
-			    	<select name="jiraProjects">
-						<option value="jira1">JIRA1</option>
-  						<option value="jira2">JIRA2</option>
-			     	</select>
+			    	<input type="text" name="jiraProject" list="jiraProjects" data-projectExists="" data-projectKey="">
+					<datalist id="jiraProjects">
+					  <option data-projectExists="true" value="JIRA1">jira1</option>
+					  <option data-projectExists="true" value="JIRA2">jira2</option>
+					</datalist>
 			    </td>
 			    <td> = </td>
 			    <td>
-			    	<select name="hubProjects">
-			    		<option value="hub1">HUB1</option>
-  						<option value="hub2">HUB2</option>
-			    	</select>
+			    	<input type="text" name="hubProject" list="hubProjects" data-projectExists="" data-projectKey="">
+					<datalist id="hubProjects">
+					  <option data-projectExists="true" value="HUB1">hub1</option>
+					  <option data-projectExists="false" value="HUB2">hub2</option>
+					</datalist>
 			    </td>
 			  </tr>
 			</table>
@@ -53,7 +55,7 @@
       	<label> </label>
       	<div id="hubProjectMappingsError" class="error hidden"></div>
       </div>
-      <input onclick="addNewElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
+      <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
       
 	  <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
     </form>

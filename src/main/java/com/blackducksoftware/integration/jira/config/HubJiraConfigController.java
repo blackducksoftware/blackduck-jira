@@ -21,9 +21,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,16 +32,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -75,16 +68,14 @@ public class HubJiraConfigController {
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-				//				final HubProjectMappings hubProjectMappings = (HubProjectMappings) getValue(settings,
-				//						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS);
-				final List<HubProjectMapping> hubProjectMappings = new ArrayList<HubProjectMapping>();
-				final HubProjectMapping map = new HubProjectMapping();
-				map.setHubProjectLink("HUB PROJECT ");
-				map.setJiraProject("JIRAPROJCT");
-				hubProjectMappings.add(map);
-				setConfigValues(config, intervalBetweenChecks, hubProjectMappings);
-				final Gson gson = new GsonBuilder().create();
-				System.out.println("GET CONFIG : " + gson.toJson(config));
+
+				final String hubProjectMappingsJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+				config.setIntervalBetweenChecks(intervalBetweenChecks);
+				config.setHubProjectMappingsJson(hubProjectMappingsJson);
+
+				checkConfigErrors(config);
 				return config;
 			}
 		});
@@ -99,8 +90,6 @@ public class HubJiraConfigController {
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		final Gson gson = new GsonBuilder().create();
-		System.out.println("PUT CONFIG : " + gson.toJson(config));
 		transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
@@ -108,10 +97,11 @@ public class HubJiraConfigController {
 
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS, config.getHubProjectMappings());
 
-				setConfigValues(config, config.getIntervalBetweenChecks(), config.getHubProjectMappings());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
+						config.getHubProjectMappingsJson());
 
+				checkConfigErrors(config);
 				return null;
 			}
 		});
@@ -122,17 +112,12 @@ public class HubJiraConfigController {
 		return Response.noContent().build();
 	}
 
-	private void setConfigValues(final HubJiraConfigSerializable config, final String intervalBetweenChecks,
-			final List<HubProjectMapping> hubProjectMappings) {
-		config.setIntervalBetweenChecks(intervalBetweenChecks);
-		config.setHubProjectMappings(hubProjectMappings);
-
-		final String intervalString = StringUtils.trimToNull(intervalBetweenChecks);
-		if (intervalString == null) {
+	private void checkConfigErrors(final HubJiraConfigSerializable config) {
+		if (config.getIntervalBetweenChecks() == null) {
 			config.setIntervalBetweenChecksError("No interval between checks was found.");
 		} else {
 			try {
-				stringToInteger(intervalString);
+				stringToInteger(config.getIntervalBetweenChecks());
 			} catch (final IllegalArgumentException e) {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
@@ -154,7 +139,7 @@ public class HubJiraConfigController {
 		if (value == null) {
 			settings.remove(key);
 		} else {
-			settings.put(key, String.valueOf(value));
+			settings.put(key, value);
 		}
 	}
 

@@ -32,8 +32,12 @@ var hiddenClass = "hidden";
 var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 
-var jiraProjectField = "jiraProject";
-var hubProjectLinkField = "hubProjectLink";
+var jiraProjectDisplayName = "jiraProjectDisplayName";
+var jiraProjectKey = "jiraProjectKey";
+var jiraProjectExists = "jiraProjectExists";
+var hubProjectDisplayName = "hubProjectDisplayName";
+var hubProjectKey = "hubProjectKey";
+var hubProjectExists = "hubProjectExists";
 
 var spinning = false;
 
@@ -77,12 +81,31 @@ function getJsonArrayFromMapping(){
 			jsonArray += ","
 		}
 		var mappingElement = mappingElements[i];
-		var jiraProjectSelect = AJS.$(mappingElement).find("select[name*='jiraProjects']");
-		var jiraProjectValue = AJS.$(jiraProjectSelect).find("option:selected").val();
-		var hubProjectSelect = AJS.$(mappingElement).find("select[name*='hubProjects']");
-		var hubProjectValue = AJS.$(hubProjectSelect).find("option:selected").val();
-		//jsonArray += "{'" + jiraProjectField + "':'" + jiraProjectValue + "','" + hubProjectLinkField + "':'" + hubProjectValue + "'}";
-		jsonArray += '{"' + jiraProjectField + '":"' + jiraProjectValue + '","' + hubProjectLinkField + '":"' + hubProjectValue + '"}';
+		var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
+		
+		var currentJiraProjectDisplayName = currentJiraProject.text();
+		var currentJiraProjectValue = currentJiraProject.val();
+		var currentJiraProjectExists = true; //currentJiraProject.data('projectExists');
+		
+		var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+		
+		var currentHubProjectDisplayName = currentHubProject.text();
+		var currentHubProjectValue = currentHubProject.val();
+		var currentHubProjectExists = true; //currentHubProject.data('projectExists');
+		
+		jsonArray += '{"' 
+			+ jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName 
+			+ '","' 
+			+ jiraProjectKey + '":"' + currentJiraProjectValue 
+			+ '","' 
+			+ jiraProjectExists + '":"' + currentJiraProjectExists 
+			+ '","' 
+			+  hubProjectDisplayName + '":"' + currentHubProjectDisplayName
+			+ '","' 
+			+  hubProjectKey + '":"' + currentHubProjectValue
+			+ '","' 
+			+  hubProjectExists + '":"' + currentHubProjectExists
+			+ '"}';
 	}
 	jsonArray += "]";
 	return jsonArray;
@@ -94,13 +117,14 @@ function populateForm() {
 	    dataType: "json",
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
+	      fillInMappings(config.hubProjectMappings);
 	      
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	    }
 	  });
 	  if(AJS.$("#" + hubProjectMappingContainer).children().length == 0){
 		  setTimeout(null,1000);
-		  addNewElement(hubProjectMappingElement);
+		  addNewMappingElement(hubProjectMappingElement);
 	  }
 	}
 
@@ -108,6 +132,46 @@ function updateValue(fieldId, configField) {
 	if(configField){
 		 AJS.$("#" + fieldId).val(decodeURI(configField));
     }
+}
+
+function fillInMappings(storedMappings){
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	var mappingElements = mappingContainer.children();
+	// On loading the page, there should only be one original mapping element
+	fillInMapping(mappingElements[0], storedMappings[0]);
+	
+	for (i = 1; i < storedMappings.length; i++) {
+		var newMappingElement = addNewMappingElement(hubProjectMappingElement);
+		fillInMapping(newMappingElement, storedMappings[i]);
+	}
+}
+
+function fillInMapping(mappingElement, storedMapping){
+	var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
+	
+	var storedJiraProjectDisplayName = storedMapping.jiraProjectDisplayName;
+	var storedJiraProjectValue = storedMapping.jiraProjectKey;
+	var storedJiraProjectExists = storedMapping.jiraProjectExists;
+	
+	if(!storedJiraProjectExists){
+		currentJiraProject.css("background-color", "red");
+	}
+	currentJiraProject.val(storedJiraProjectDisplayName);
+	currentJiraProject.data("projectKey", storedJiraProjectValue);
+	currentJiraProject.data("projectExists",storedJiraProjectExists)
+	
+	var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+	
+	var storedHubProjectDisplayName = storedMapping.hubProjectDisplayName;
+	var storedHubProjectValue = storedMapping.hubProjectKey;
+	var storedHubProjectExists = storedMapping.hubProjectExists;
+	
+	if(!storedHubProjectExists){
+		currentHubProject.css("background-color", "red");
+	}
+	currentHubProject.val(storedHubProjectDisplayName);
+	currentHubProject.data("projectKey", storedHubProjectValue);
+	currentHubProject.data("projectExists",storedHubProjectExists)
 }
 
 function handleError(fieldId, configField) {
@@ -179,10 +243,11 @@ function stopProgressSpinner(){
 	 }
 }
 
-function addNewElement(fieldId){
+function addNewMappingElement(fieldId){
 	var elementToAdd = AJS.$("#" + fieldId).clone();
 	elementToAdd.id = "";
 	elementToAdd.appendTo("#" + hubProjectMappingContainer);
+	return elementToAdd;
 }
 
 function removeMappingElement(childElement){
