@@ -16,15 +16,48 @@
       </div>
       
       <div class="field-group">
-        <label for="checkHowOften">$i18n.getText("hub.integration.jira.checkHowOften.label")<span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span></label>
-        <input type="text" id="checkHowOften" name="checkHowOften" class="text long-field">
+        <label for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")<span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span></label>
+        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="text long-field">
       </div>
       <div class="field-group">
       	<label> </label>
-      	<div id="checkHowOftenError" class="error hidden"></div>
+      	<div id="intervalBetweenChecksError" class="error hidden"></div>
       </div>
       
-	  <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.admin.save.label")" class="aui-button aui-button-primary">
+      <label for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")<span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span></label>
+      <div id="hubProjectMappingContainer">
+      	<div id="hubProjectMappingElement" class="field-group">
+	      	<table width="50%">
+			  <tr class="">
+			  	<td>
+			  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
+			  	</td>
+			    <td>
+			    	<input type="text" name="jiraProject" list="jiraProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+					<datalist id="jiraProjects">
+					  <option projectExists=true projectKey="jira1" value="JIRA1"></option>
+					  <option projectExists=true projectKey="jira2" value="JIRA2"></option>
+					</datalist>
+			    </td>
+			    <td> = </td>
+			    <td>
+			    	<input type="text" name="hubProject" list="hubProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+					<datalist id="hubProjects">
+					  <option projectExists=true projectKey="hub1" value="HUB1"></option>
+					  <option projectExists=false projectKey="hub2" value="HUB2"></option>
+					</datalist>
+			    </td>
+			  </tr>
+			</table>
+		</div>
+      </div>
+      <div class="field-group">
+      	<label> </label>
+      	<div id="hubProjectMappingsError" class="error hidden"></div>
+      </div>
+      <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
+      
+	  <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
     </form>
   </body>
 </html>

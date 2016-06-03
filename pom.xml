@@ -90,6 +90,18 @@
           <groupId>com.thoughtworks.xstream</groupId>
           <artifactId>xstream</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-recorder-mvn30</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-recorder-mvn31</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>build-info-common</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 

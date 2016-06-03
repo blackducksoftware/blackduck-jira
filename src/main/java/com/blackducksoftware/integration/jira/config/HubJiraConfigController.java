@@ -59,7 +59,6 @@ public class HubJiraConfigController {
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
@@ -67,8 +66,16 @@ public class HubJiraConfigController {
 
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
-				config.setCheckHowOften(getValue(settings, HubJiraConfigKeys.CONFIG_HUB_HOW_OFTEN_TO_CHECK));
+				final String intervalBetweenChecks = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
+				final String hubProjectMappingsJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+				config.setIntervalBetweenChecks(intervalBetweenChecks);
+				config.setHubProjectMappingsJson(hubProjectMappingsJson);
+
+				checkConfigErrors(config);
 				return config;
 			}
 		});
@@ -83,30 +90,64 @@ public class HubJiraConfigController {
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
 		transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-				setValue(settings, HubJiraConfigKeys.CONFIG_HUB_HOW_OFTEN_TO_CHECK, config.getCheckHowOften());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
+						config.getIntervalBetweenChecks());
 
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
+						config.getHubProjectMappingsJson());
+
+				checkConfigErrors(config);
 				return null;
 			}
 		});
+		if (config.hasErrors()) {
+			return Response.ok(config).status(Status.BAD_REQUEST).build();
+		}
 
 		return Response.noContent().build();
 	}
 
-	private String getValue(final PluginSettings settings, final String key) {
-		return (String) settings.get(key);
+	private void checkConfigErrors(final HubJiraConfigSerializable config) {
+		if (config.getIntervalBetweenChecks() == null) {
+			config.setIntervalBetweenChecksError("No interval between checks was found.");
+		} else {
+			try {
+				stringToInteger(config.getIntervalBetweenChecks());
+			} catch (final IllegalArgumentException e) {
+				config.setIntervalBetweenChecksError(e.getMessage());
+			}
+		}
+		// if (hubProjectMappings == null || hubProjectMappings.isEmpty()) {
+		// config.setHubProjectMappingError("No project mappings were found.");
+		// }
+	}
+
+	private Object getValue(final PluginSettings settings, final String key) {
+		return settings.get(key);
+	}
+
+	private String getStringValue(final PluginSettings settings, final String key) {
+		return (String) getValue(settings, key);
 	}
 
 	private void setValue(final PluginSettings settings, final String key, final Object value) {
 		if (value == null) {
 			settings.remove(key);
 		} else {
-			settings.put(key, String.valueOf(value));
+			settings.put(key, value);
+		}
+	}
+
+	private int stringToInteger(final String integer) throws IllegalArgumentException {
+		try {
+			return Integer.valueOf(integer);
+		} catch (final NumberFormatException e) {
+			throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.", e);
 		}
 	}
 

@@ -23,7 +23,9 @@ package com.blackducksoftware.integration.jira.utils;
 
 public class HubJiraConfigKeys {
 
-	public final static String HUB_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
-	public final static String CONFIG_HUB_HOW_OFTEN_TO_CHECK = HUB_CONFIG_KEY_PREFIX + ".howoftentocheck";
-
+	public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
+	public final static String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX
+			+ ".intervalBetweenChecks";
+	public final static String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX
+			+ ".hubProjectMappings";
 }
