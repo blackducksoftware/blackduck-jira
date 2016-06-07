@@ -30,6 +30,7 @@
 
     <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+
     <jira.version>5.2.11</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
@@ -82,7 +83,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -102,6 +103,22 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
+    <dependency>
+      <groupId>com.sun.net.httpserver</groupId>
+      <artifactId>http</artifactId>
+      <version>20070405</version>
+      <scope>compile</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -227,6 +244,20 @@
           <productDataVersion>${jira.version}</productDataVersion>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
+
+          <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
+
+          <instructions>
+            <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
+            <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
+          </instructions>
+
+          <pluginDependencies>
+            <pluginDependency>
+              <groupId>com.blackducksoftware.integration</groupId>
+              <artifactId>hub-common</artifactId>
+            </pluginDependency>
+          </pluginDependencies>
           <!-- Uncomment to install TestKit backdoor in JIRA. -->
           <!--
 					<pluginArtifacts>
@@ -237,10 +268,6 @@
 						</pluginArtifact>
 					</pluginArtifacts>
 					-->
-          <enableQuickReload>true</enableQuickReload>
-          <!-- doc says this is the default -->
-          <enableFastdev>false</enableFastdev>
-          <!-- the old mechanism must be off (it interferes) -->
         </configuration>
       </plugin>
     </plugins>
