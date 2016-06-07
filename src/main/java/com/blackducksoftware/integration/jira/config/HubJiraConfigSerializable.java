@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.config;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = -7842817229604772101L;
+	private static final long serialVersionUID = -958236560953806484L;
 
 	@XmlElement
 	private String intervalBetweenChecks;
@@ -49,7 +50,13 @@ public class HubJiraConfigSerializable implements Serializable {
 	private String intervalBetweenChecksError;
 
 	@XmlElement
-	private List<HubProjectMapping> hubProjectMappings;
+	private List<JiraProject> jiraProjects;
+
+	@XmlElement
+	private List<HubProject> hubProjects;
+
+	@XmlElement
+	private Set<HubProjectMapping> hubProjectMappings;
 
 	@XmlElement
 	private String hubProjectMappingError;
@@ -78,19 +85,35 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.intervalBetweenChecksError = intervalBetweenChecksError;
 	}
 
-	public List<HubProjectMapping> getHubProjectMappings() {
+	public List<JiraProject> getJiraProjects() {
+		return jiraProjects;
+	}
+
+	public void setJiraProjects(final List<JiraProject> jiraProjects) {
+		this.jiraProjects = jiraProjects;
+	}
+
+	public List<HubProject> getHubProjects() {
+		return hubProjects;
+	}
+
+	public void setHubProjects(final List<HubProject> hubProjects) {
+		this.hubProjects = hubProjects;
+	}
+
+	public Set<HubProjectMapping> getHubProjectMappings() {
 		return hubProjectMappings;
 	}
 
-	public void setHubProjectMappings(final List<HubProjectMapping> hubProjectMappings) {
+	public void setHubProjectMappings(final Set<HubProjectMapping> hubProjectMappings) {
 		this.hubProjectMappings = hubProjectMappings;
 	}
 
 	public void setHubProjectMappingsJson(final String hubProjectMappingsJson) {
 		final Gson gson = new GsonBuilder().create();
-		final Type listType = new TypeToken<List<HubProjectMapping>>() {
+		final Type mappingType = new TypeToken<Set<HubProjectMapping>>() {
 		}.getType();
-		this.hubProjectMappings = gson.fromJson(hubProjectMappingsJson, listType);
+		this.hubProjectMappings = gson.fromJson(hubProjectMappingsJson, mappingType);
 	}
 
 	public String getHubProjectMappingsJson() {
@@ -123,8 +146,10 @@ public class HubJiraConfigSerializable implements Serializable {
 		int result = 1;
 		result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
 		result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
+		result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
 		result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
 		result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
+		result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
 		return result;
 	}
 
@@ -154,6 +179,13 @@ public class HubJiraConfigSerializable implements Serializable {
 		} else if (!hubProjectMappings.equals(other.hubProjectMappings)) {
 			return false;
 		}
+		if (hubProjects == null) {
+			if (other.hubProjects != null) {
+				return false;
+			}
+		} else if (!hubProjects.equals(other.hubProjects)) {
+			return false;
+		}
 		if (intervalBetweenChecks == null) {
 			if (other.intervalBetweenChecks != null) {
 				return false;
@@ -168,6 +200,13 @@ public class HubJiraConfigSerializable implements Serializable {
 		} else if (!intervalBetweenChecksError.equals(other.intervalBetweenChecksError)) {
 			return false;
 		}
+		if (jiraProjects == null) {
+			if (other.jiraProjects != null) {
+				return false;
+			}
+		} else if (!jiraProjects.equals(other.jiraProjects)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -178,6 +217,10 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(intervalBetweenChecks);
 		builder.append(", intervalBetweenChecksError=");
 		builder.append(intervalBetweenChecksError);
+		builder.append(", jiraProjects=");
+		builder.append(jiraProjects);
+		builder.append(", hubProjects=");
+		builder.append(hubProjects);
 		builder.append(", hubProjectMappings=");
 		builder.append(hubProjectMappings);
 		builder.append(", hubProjectMappingError=");
@@ -185,5 +228,6 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
+
 
 }

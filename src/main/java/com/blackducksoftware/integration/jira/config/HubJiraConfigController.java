@@ -21,6 +21,9 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -32,6 +35,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
@@ -44,12 +51,14 @@ public class HubJiraConfigController {
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
 	private final TransactionTemplate transactionTemplate;
+	private final ProjectManager projectManager;
 
 	public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
-			final TransactionTemplate transactionTemplate) {
+			final TransactionTemplate transactionTemplate, final ProjectManager projectManager) {
 		this.userManager = userManager;
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.transactionTemplate = transactionTemplate;
+		this.projectManager = projectManager;
 	}
 
 	@GET
@@ -64,7 +73,13 @@ public class HubJiraConfigController {
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
+				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+				final List<HubProject> hubProjects = getHubProjects(settings);
+
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				config.setJiraProjects(jiraProjects);
+				config.setHubProjects(hubProjects);
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
@@ -101,6 +116,12 @@ public class HubJiraConfigController {
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 
+				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+				final List<HubProject> hubProjects = getHubProjects(settings);
+
+				config.setJiraProjects(jiraProjects);
+				config.setHubProjects(hubProjects);
+
 				checkConfigErrors(config);
 				return null;
 			}
@@ -122,9 +143,43 @@ public class HubJiraConfigController {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
 		}
-		// if (hubProjectMappings == null || hubProjectMappings.isEmpty()) {
-		// config.setHubProjectMappingError("No project mappings were found.");
-		// }
+		if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
+			for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+				boolean jiraProjectExists = false;
+				if (mapping.getJiraProject() != null) {
+					if (mapping.getJiraProject().getProjectId() != null) {
+						for (final JiraProject jiraProject : config.getJiraProjects()) {
+							if (jiraProject.getProjectId().equals(mapping.getJiraProject().getProjectId())) {
+								jiraProjectExists = true;
+								break;
+							}
+						}
+					}
+					if (jiraProjectExists) {
+						mapping.getJiraProject().setProjectExists(true);
+					} else {
+						mapping.getJiraProject().setProjectExists(false);
+					}
+				}
+
+				boolean hubProjectExists = false;
+				if (mapping.getHubProject() != null) {
+					if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
+						for (final HubProject hubProject : config.getHubProjects()) {
+							if (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl())) {
+								hubProjectExists = true;
+								break;
+							}
+						}
+					}
+					if (hubProjectExists) {
+						mapping.getHubProject().setProjectExists(true);
+					} else {
+						mapping.getHubProject().setProjectExists(false);
+					}
+				}
+			}
+		}
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {
@@ -151,4 +206,38 @@ public class HubJiraConfigController {
 		}
 	}
 
+	private List<JiraProject> getJiraProjects(final List<Project> jiraProjects) {
+		final List<JiraProject> newJiraProjects = new ArrayList<JiraProject>();
+		for (final Project oldProject : jiraProjects) {
+			final JiraProject newProject = new JiraProject();
+			newProject.setProjectName(oldProject.getName());
+			newProject.setProjectId(oldProject.getId());
+			newProject.setProjectExists(true);
+			newJiraProjects.add(newProject);
+		}
+		return newJiraProjects;
+	}
+
+	private List<HubProject> getHubProjects(final PluginSettings settings) {
+		final List<HubProject> hubProjects = new ArrayList<HubProject>();
+		final HubProject project1 = new HubProject();
+		project1.setProjectName("HubProject 1");
+		project1.setProjectUrl("Project URL 1");
+		project1.setProjectExists(true);
+
+		final HubProject project2 = new HubProject();
+		project2.setProjectName("HubProject 2");
+		project2.setProjectUrl("Project URL 2");
+		project2.setProjectExists(true);
+
+		final HubProject project3 = new HubProject();
+		project3.setProjectName("HubProject 3");
+		project3.setProjectUrl("Project URL 3");
+		project3.setProjectExists(false);
+
+		hubProjects.add(project1);
+		hubProjects.add(project2);
+		hubProjects.add(project3);
+		return hubProjects;
+	}
 }
