@@ -28,10 +28,10 @@
    jira.version: 7.1.4
    -->
 
-    <amps.version>6.2.4</amps.version>
+    <amps.version>5.0.13</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
 
-    <jira.version>7.1.4</jira.version>
+    <jira.version>5.2.11</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
     <testkit.version>5.2.26</testkit.version>
@@ -169,6 +169,14 @@
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
+    <dependency>
+      <groupId>com.sun.net.httpserver</groupId>
+      <artifactId>http</artifactId>
+      <version>20070405</version>
       <scope>provided</scope>
     </dependency>
 

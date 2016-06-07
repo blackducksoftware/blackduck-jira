@@ -27,7 +27,7 @@
 				org.eclipse.gemini.blueprint.service.exporter.support;resolution:=optional,
 				org.eclipse.gemini.blueprint.service.importer.support;resolution:=optional,
 				sun.misc;resolution:=optional,
-				com.sun.net.httpserver;resolution:=optional,
+				com.sun.net.httpserver;version="0.0";resolution:=optional,
 				org.joda.convert;resolution:=optional,
 				com.atlassian.spring.container,
 				com.atlassian.plugin.osgi.factory,
@@ -68,7 +68,8 @@
 				org.w3c.dom,
 				org.w3c.dom.ls,
 				org.xml.sax,
-				org.xml.sax.helpers
+				org.xml.sax.helpers,
+				*;resolution:=optional
 			</Import-Package>
 		</bundle-instructions>
     </plugin-info>
