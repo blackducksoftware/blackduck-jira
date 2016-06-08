@@ -2,8 +2,10 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,14 +21,45 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-
 import com.google.gson.reflect.TypeToken;
 
+/**
+ * Hub Notification get methods. TODO: Move to hub-common.
+ * 
+ * @author sbillings
+ * 
+ */
 public class HubNotificationService {
 	private final RestConnection restConnection;
 	private final HubIntRestService hub;
 	private final HubItemsService<NotificationItem> hubItemsService;
 
+	private final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+
+	/**
+	 * Construct with given hub-access objects.
+	 * 
+	 * @param restConnection
+	 *            fully initialized (setCookies() has been called)
+	 * @param hub
+	 * @param hubItemsService
+	 */
+	public HubNotificationService(RestConnection restConnection, HubIntRestService hub,
+			HubItemsService<NotificationItem> hubItemsService) {
+		super();
+		this.restConnection = restConnection;
+		this.hub = hub;
+		this.hubItemsService = hubItemsService;
+	}
+
+	/**
+	 * Construct with given Hub connection details.
+	 * 
+	 * @param hubUrl
+	 * @param username
+	 * @param password
+	 * @throws HubNotificationServiceException
+	 */
 	public HubNotificationService(final String hubUrl, final String username, final String password)
 			throws HubNotificationServiceException {
 		restConnection = new RestConnection(hubUrl);
@@ -53,29 +86,7 @@ public class HubNotificationService {
 				typeToSubclassMap);
 	}
 
-	public <T> T getFromRelativeUrl(final Class<T> modelClass, final List<String> urlSegments,
-			final Set<AbstractMap.SimpleEntry<String, String>> queryParameters) throws HubNotificationServiceException {
-
-		try {
-			return restConnection.httpGetFromRelativeUrl(modelClass, urlSegments, queryParameters);
-		} catch (URISyntaxException | IOException | ResourceDoesNotExistException | BDRestException e) {
-			throw new HubNotificationServiceException("Error getting resource from relative url segments "
-					+ urlSegments + " and query parameters " + queryParameters + "; errorCode: " + e.getMessage());
-		}
-	}
-
-	public <T> T getFromAbsoluteUrl(final Class<T> modelClass, final String url) throws HubNotificationServiceException {
-		if (url == null) {
-			return null;
-		}
-		try {
-			return restConnection.httpGetFromAbsoluteUrl(modelClass, url);
-		} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
-			throw new HubNotificationServiceException("Error getting resource from " + url + ": " + e.getMessage());
-		}
-	}
-
-	public String getVersion() throws HubNotificationServiceException {
+	public String getHubVersion() throws HubNotificationServiceException {
 		try {
 			return hub.getHubVersion();
 		} catch (IOException | BDRestException | URISyntaxException e) {
@@ -83,16 +94,19 @@ public class HubNotificationService {
 		}
 	}
 
-	public List<NotificationItem> getNotifications(final String startDate, final String endDate, final int limit)
+	public List<NotificationItem> getNotifications(final Date startDate, final Date endDate, final int limit)
 			throws HubNotificationServiceException {
+
+		String startDateString = dateFormatter.format(startDate);
+		String endDateString = dateFormatter.format(endDate);
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
 		urlSegments.add("notifications");
 
 		final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
-		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", startDate));
-		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", endDate));
+		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", startDateString));
+		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", endDateString));
 		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(limit)));
 		try {
 			return hubItemsService.httpGetItemList(urlSegments, queryParameters);

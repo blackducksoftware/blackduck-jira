@@ -5,14 +5,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
+import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 
 public class HubNotificationCheckTask implements PluginJob {
 
@@ -32,13 +37,25 @@ public class HubNotificationCheckTask implements PluginJob {
 		}
 		String hubVersion;
 		try {
-			hubVersion = svc.getVersion();
-		} catch (HubNotificationServiceException e) {
+			hubVersion = svc.getHubVersion();
+			// TODO
+			System.out.println("Hub version: " + hubVersion);
+
+			// TODO much of this is temporary hard coding
+			final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
+			final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
+			SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+			Date startDate = dateFormatter.parse(START_DATE_STRING);
+			Date endDate = dateFormatter.parse(END_DATE_STRING);
+			int limit = 10;
+			List<NotificationItem> notifs = svc.getNotifications(startDate, endDate, limit);
+			System.out.println("Successfully fetched " + notifs.size() + " notifications from Hub");
+
+		} catch (HubNotificationServiceException | ParseException e) {
 			// TODO revisit this
 			throw new IllegalArgumentException("Error getting Hub version: " + e.getMessage(), e);
 		}
-		// TODO
-		System.out.println("Hub version: " + hubVersion);
+
 	}
 
 	private void log(String msg) {
