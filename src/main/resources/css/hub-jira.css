@@ -1,3 +1,7 @@
 .hidden {
 	display: none;
 }
+
+.longInput {
+	width: 90%;
+}

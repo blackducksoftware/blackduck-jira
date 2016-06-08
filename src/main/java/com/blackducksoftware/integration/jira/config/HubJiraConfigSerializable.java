@@ -66,6 +66,9 @@ public class HubJiraConfigSerializable implements Serializable {
 		if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
 			hasErrors = true;
 		}
+		if (StringUtils.isNotBlank(getHubProjectMappingError())) {
+			hasErrors = true;
+		}
 		return hasErrors;
 	}
 

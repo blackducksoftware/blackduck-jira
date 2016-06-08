@@ -44,6 +44,8 @@ var hubProjectExists = "projectExists";
 
 var spinning = false;
 
+var mappingElementCounter = 0;
+
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
@@ -61,6 +63,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    processData: false,
 	    success: function() {
 	    	hideError('intervalBetweenChecksError');
+	    	hideError('hubProjectMappingsError');
 	    	
 		    showStatusMessage(successStatus, 'Success!', successMessage);
 		    stopProgressSpinner();
@@ -68,7 +71,8 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    error: function(response){
 	    	var config = JSON.parse(response.responseText);
 	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
-		    
+	    	handleError('hubProjectMappingsError', config.hubProjectMappingError);
+	    	
 		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 		    stopProgressSpinner();
 	    }
@@ -126,12 +130,9 @@ function populateForm() {
 	      fillInMappings(config.hubProjectMappings);
 	      
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
+	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
 	    }
 	  });
-	  if(AJS.$("#" + hubProjectMappingContainer).children().length == 0){
-		  setTimeout(null,1000);
-		  addNewMappingElement(hubProjectMappingElement);
-	  }
 	}
 
 function updateValue(fieldId, configField) {
@@ -143,24 +144,28 @@ function updateValue(fieldId, configField) {
 function fillInProjects(jiraProjects, hubProjects){
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
 	var jiraProjectList = mappingElement.find("datalist[id='"+ jiraProjectListId +"']");
-	for (j = 0; j < jiraProjects.length; j++) {
-		var newOption = AJS.$('<option>', {
-		    value: jiraProjects[j].projectName,
-		    projectKey: jiraProjects[j].projectId,
-		    projectExists: jiraProjects[j].projectExists
-		});
-		
-		jiraProjectList.append(newOption);
+	if(jiraProjects != null && jiraProjects.length > 0){
+		for (j = 0; j < jiraProjects.length; j++) {
+			var newOption = AJS.$('<option>', {
+			    value: jiraProjects[j].projectName,
+			    projectKey: jiraProjects[j].projectId,
+			    projectExists: jiraProjects[j].projectExists
+			});
+			
+			jiraProjectList.append(newOption);
+		}
 	}
 	
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
-	for (h = 0; h < hubProjects.length; h++) {
-		var newOption = AJS.$('<option>', {
-		    value: hubProjects[h].projectName,
-		    projectKey: hubProjects[h].projectUrl,
-		    projectExists: hubProjects[h].projectExists
-		});
-		hubProjectList.append(newOption);
+	if(hubProjects != null && hubProjects.length > 0){
+		for (h = 0; h < hubProjects.length; h++) {
+			var newOption = AJS.$('<option>', {
+			    value: hubProjects[h].projectName,
+			    projectKey: hubProjects[h].projectUrl,
+			    projectExists: hubProjects[h].projectExists
+			});
+			hubProjectList.append(newOption);
+		}
 	}
 }
 
@@ -168,11 +173,13 @@ function fillInMappings(storedMappings){
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.children();
 	// On loading the page, there should only be one original mapping element
-	fillInMapping(mappingElements[0], storedMappings[0]);
-	
-	for (i = 1; i < storedMappings.length; i++) {
-		var newMappingElement = addNewMappingElement(hubProjectMappingElement);
-		fillInMapping(newMappingElement, storedMappings[i]);
+	if(storedMappings != null && storedMappings.length > 0){
+		fillInMapping(mappingElements[0], storedMappings[0]);
+		
+		for (i = 1; i < storedMappings.length; i++) {
+			var newMappingElement = addNewMappingElement(hubProjectMappingElement);
+			fillInMapping(newMappingElement, storedMappings[i]);
+		}
 	}
 }
 
@@ -282,7 +289,8 @@ function stopProgressSpinner(){
 
 function addNewMappingElement(fieldId){
 	var elementToAdd = AJS.$("#" + fieldId).clone();
-	elementToAdd.id = "";
+	mappingElementCounter = mappingElementCounter + 1;
+	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
 	elementToAdd.appendTo("#" + hubProjectMappingContainer);
 	
 	var currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
@@ -304,7 +312,7 @@ function addNewMappingElement(fieldId){
 
 function removeMappingElement(childElement){
 	if(AJS.$("#" + hubProjectMappingContainer).children().length > 1){
-		AJS.$(childElement).closest("#" + hubProjectMappingElement).remove();
+		AJS.$(childElement).closest("div[name*='"+ hubProjectMappingElement + "']").remove();
 	}
 }
 
