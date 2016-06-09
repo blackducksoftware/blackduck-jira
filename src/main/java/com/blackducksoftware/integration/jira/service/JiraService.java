@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 
+/**
+ * Generates JIRA tickets.
+ * 
+ * @author sbillings
+ * 
+ */
 public class JiraService {
 	public int generateTickets(List<NotificationItem> notifs) {
 		System.out.println("Generating tickets for " + notifs.size() + " notifications");
@@ -12,6 +18,7 @@ public class JiraService {
 			System.out.println("Generating ticket for: " + notif);
 			ticketCount++;
 		}
+		System.out.println("Generated " + ticketCount + " tickets.");
 		return ticketCount;
 	}
 }

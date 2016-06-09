@@ -65,6 +65,7 @@ public class TicketGeneratorIT {
 
 		NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
 		int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(notificationDateRange);
+
 		assertEquals(100, ticketCount);
 	}
 

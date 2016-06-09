@@ -58,8 +58,6 @@ public class HubNotificationServiceTest {
 		Date endDate = dateFormatter.parse(END_DATE_STRING);
 		System.out.println("endDate: " + endDate.toString());
 
-		int limit = 10;
-
 		RestConnection mockRestConnection = mock(RestConnection.class);
 
 		HubIntRestService mockHubIntRestService = mock(HubIntRestService.class);
@@ -68,7 +66,7 @@ public class HubNotificationServiceTest {
 				mockHubIntRestService, mockHubItemsService);
 
 		NotificationDateRange dateRange = new NotificationDateRange(startDate, endDate);
-		List<NotificationItem> notifs = hubNotificationService.getNotifications(dateRange, limit);
+		List<NotificationItem> notifs = hubNotificationService.fetchNotifications(dateRange);
 
 		// Verify
 		List<String> expectedUrlSegments = new ArrayList<>();
@@ -78,7 +76,12 @@ public class HubNotificationServiceTest {
 		Set<SimpleEntry<String, String>> expectedQueryParameters = new HashSet<>();
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", START_DATE_STRING));
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", END_DATE_STRING));
-		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(limit)));
+		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(100))); // TODO
+																												// this
+																												// will
+																												// need
+																												// to
+																												// change
 
 		verify(mockHubItemsService).httpGetItemList(expectedUrlSegments, expectedQueryParameters);
 
