@@ -67,7 +67,8 @@ public class HubNotificationServiceTest {
 		HubNotificationService hubNotificationService = new HubNotificationService(mockRestConnection,
 				mockHubIntRestService, mockHubItemsService);
 
-		List<NotificationItem> notifs = hubNotificationService.getNotifications(startDate, endDate, limit);
+		NotificationDateRange dateRange = new NotificationDateRange(startDate, endDate);
+		List<NotificationItem> notifs = hubNotificationService.getNotifications(dateRange, limit);
 
 		// Verify
 		List<String> expectedUrlSegments = new ArrayList<>();

@@ -94,11 +94,11 @@ public class HubNotificationService {
 		}
 	}
 
-	public List<NotificationItem> getNotifications(final Date startDate, final Date endDate, final int limit)
+	public List<NotificationItem> getNotifications(final NotificationDateRange dateRange, final int limit)
 			throws HubNotificationServiceException {
 
-		String startDateString = dateFormatter.format(startDate);
-		String endDateString = dateFormatter.format(endDate);
+		String startDateString = dateFormatter.format(dateRange.getStartDate());
+		String endDateString = dateFormatter.format(dateRange.getEndDate());
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
