@@ -28,4 +28,6 @@ public class HubJiraConfigKeys {
 			+ ".intervalBetweenChecks";
 	public final static String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX
 			+ ".hubProjectMappings";
+
+	public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
 }

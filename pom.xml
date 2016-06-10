@@ -32,6 +32,7 @@
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
 
     <jira.version>5.2.11</jira.version>
+    <!--  <jira.version>6.4</jira.version> -->
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
     <testkit.version>5.2.26</testkit.version>
@@ -80,6 +81,7 @@
   </pluginRepositories>
 
   <dependencies>
+
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
@@ -124,6 +126,26 @@
       <artifactId>gson</artifactId>
       <version>2.3.1</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.blackducksoftware.integration</groupId>
+      <artifactId>hub-atlassian-config</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.atlassian.sal</groupId>
+          <artifactId>sal-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.atlassian.templaterenderer</groupId>
+          <artifactId>atlassian-template-renderer-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>

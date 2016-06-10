@@ -18,7 +18,7 @@
 				com.blackducksoftware.integration.hub.jira.api;version=0;resolution:=optional,
 				javax.inject;version=0;resolution:=optional,
 				com.blackducksoftware.integration.hub;version="0.0";resolution:=optional,
-				com.blackducksoftware.integration.hub.exception;version=0;resolution:=optional,
+				com.blackducksoftware.integration.hub.exception;version="0.0"";resolution:=optional,
 				com.blackducksoftware.integration.hub.*;version="0.0";resolution:=optional,
 				com.blackducksoftware.integration.hub*;version="0.0";resolution:=optional,
 				org.springframework.osgi.service.exporter.support;resolution:=optional,
@@ -71,6 +71,9 @@
 				org.xml.sax.helpers,
 				*;resolution:=optional
 			</Import-Package>
+			<Require-Bundle>
+				com.blackducksoftware.integration:hub-atlassian-config
+			</Require-Bundle>
 		</bundle-instructions>
     </plugin-info>
     
@@ -80,9 +83,11 @@
     <web-resource key="hub-jira-resources" name="Hub Jira Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-spinner</dependency> 
+        <dependency>com.atlassian.auiplugin:aui-dropdown2</dependency> 
         <resource type="download" name="hub-jira.css" location="/css/hub-jira.css"/>
         <resource type="download" name="hub-jira.js" location="/js/hub-jira.js"/>
         <resource type="download" name="images/" location="/images"/>
+        <resource type="download" name="font-awesome-4.5.0/" location="/font-awesome-4.5.0"/>
         <context>hub-jira</context>
     </web-resource>
     

@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -47,10 +48,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.builder.HubProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
-import com.blackducksoftware.integration.hub.config.HubConfigKeys;
 import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
@@ -133,11 +134,6 @@ public class HubJiraConfigController {
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
-						config.getIntervalBetweenChecks());
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
-						config.getHubProjectMappingsJson());
-
 				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
 				final HubIntRestService restService = getHubRestService(settings, config);
@@ -149,6 +145,16 @@ public class HubJiraConfigController {
 				config.setJiraProjects(jiraProjects);
 
 				checkConfigErrors(config);
+
+				if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
+					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, new DateTime().toString());
+				}
+
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
+						config.getIntervalBetweenChecks());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
+						config.getHubProjectMappingsJson());
+
 				return null;
 			}
 		});
@@ -205,6 +211,18 @@ public class HubJiraConfigController {
 						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
 							for (final HubProject hubProject : config.getHubProjects()) {
 								if (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl())) {
+									mapping.getHubProject().setProjectName(hubProject.getProjectName());
+									hubProjectExists = true;
+									break;
+								}
+							}
+						}
+					} else if (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
+						hubProjectBlank = false;
+						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
+							for (final HubProject hubProject : config.getHubProjects()) {
+								if (hubProject.getProjectName().equals(mapping.getHubProject().getProjectName())) {
+									mapping.getHubProject().setProjectUrl(hubProject.getProjectUrl());
 									hubProjectExists = true;
 									break;
 								}
@@ -223,7 +241,13 @@ public class HubJiraConfigController {
 				}
 			}
 			if(hasEmptyMapping){
-				config.setHubProjectMappingError(MAPPING_HAS_EMPTY_ERROR);
+				String errorMsg = "";
+				if (StringUtils.isNotBlank(config.getHubProjectMappingError())) {
+					errorMsg = config.getHubProjectMappingError();
+					errorMsg += " ";
+				}
+				errorMsg += MAPPING_HAS_EMPTY_ERROR;
+				config.setHubProjectMappingError(errorMsg);
 			}
 		}
 
@@ -332,14 +356,15 @@ public class HubJiraConfigController {
 			config.setHubProjectMappingError(newError);
 		}
 
-		for (final ProjectItem project : hubProjectItems) {
-			final HubProject newHubProject = new HubProject();
-			newHubProject.setProjectExists(true);
-			newHubProject.setProjectName(project.getName());
-			newHubProject.setProjectUrl(project.get_meta().getHref());
-			hubProjects.add(newHubProject);
+		if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
+			for (final ProjectItem project : hubProjectItems) {
+				final HubProject newHubProject = new HubProject();
+				newHubProject.setProjectExists(true);
+				newHubProject.setProjectName(project.getName());
+				newHubProject.setProjectUrl(project.get_meta().getHref());
+				hubProjects.add(newHubProject);
+			}
 		}
-
 		return hubProjects;
 	}
 }

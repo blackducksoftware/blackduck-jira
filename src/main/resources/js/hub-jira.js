@@ -31,6 +31,7 @@ var hiddenClass = "hidden";
 
 var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
+var hubMappingStatus = "mappingStatus";
 
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
@@ -99,6 +100,12 @@ function getJsonArrayFromMapping(){
 		var currentHubProjectDisplayName = currentHubProject.val();
 		var currentHubProjectValue = currentHubProject.attr('projectKey');
 		var currentHubProjectExists = currentHubProject.attr('projectExists');
+		
+		if(isNullOrWhitespace(currentJiraProjectValue) || isNullOrWhitespace(currentHubProjectValue) || !currentJiraProjectExists || !currentHubProjectExists){
+			addMappingErrorStatus(mappingElement);
+		} else {
+			removeMappingErrorStatus(mappingElement);
+		}
 		
 		jsonArray += '{"'
 			+'jiraProject" : {"' 
@@ -216,75 +223,12 @@ function fillInMapping(mappingElement, storedMapping){
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
 	currentHubProject.attr("projectExists",storedHubProjectExists)
-}
-
-function handleError(fieldId, configField) {
-	if(configField){
-		showError(fieldId, configField);
-    } else{
-    	hideError(fieldId);
-    }
-}
-
-function showError(fieldId, configField) {
-	  AJS.$("#" + fieldId).text(decodeURI(configField));
-  	  removeClassFromField(fieldId, hiddenClass);
-}
-
-function hideError(fieldId) {
-	  AJS.$("#" + fieldId).text('');
-  	  addClassToField(fieldId, hiddenClass);
-}
-
-function showStatusMessage(status, statusTitle, message) {
-	resetStatusMessage();
-	if(status == errorStatus){
-		addClassToField(statusMessageFieldId, 'error');
-		addClassToField(statusMessageTitleId, 'icon-error');
-	} else if (status == successStatus){
-		addClassToField(statusMessageFieldId, 'success');
-		addClassToField(statusMessageTitleId, 'icon-success');
+	
+	if(isNullOrWhitespace(storedJiraProjectValue) || isNullOrWhitespace(storedHubProjectValue) || !storedJiraProjectExists || !storedHubProjectExists){
+		addMappingErrorStatus(mappingElement);
+	} else {
+		removeMappingErrorStatus(mappingElement);
 	}
-	AJS.$("#" + statusMessageTitleTextId).text(statusTitle);
-	AJS.$("#" + statusMessageTextId).text(message);
-	removeClassFromField(statusMessageFieldId, hiddenClass);
-}
-
-function resetStatusMessage() {
-	removeClassFromField(statusMessageFieldId,'error');
-	removeClassFromField(statusMessageFieldId,'success');
-	removeClassFromField(statusMessageTitleId,'icon-error');
-	removeClassFromField(statusMessageTitleId,'icon-success');
-	AJS.$("#" + statusMessageTitleTextId).text('');
-	AJS.$("#" + statusMessageTextId).text('');
-	addClassToField(statusMessageFieldId, hiddenClass);
-}
-
-function addClassToField(fieldId, cssClass){
-	if(!AJS.$("#" + fieldId).hasClass(cssClass)){
-		AJS.$("#" + fieldId).addClass(cssClass);
-	}
-}
-
-function removeClassFromField(fieldId, cssClass){
-	if(AJS.$("#" + fieldId).hasClass(cssClass)){
-		AJS.$("#" + fieldId).removeClass(cssClass);
-	}
-}
-
-function startProgressSpinner(){
-	 if (!spinning) {
-		 var spinner = AJS.$('.spinner');
-		 spinner.spin('large');
-		 spinning = true;
-	 }
-}
-
-function stopProgressSpinner(){
-	 if (spinning) {
-		 AJS.$('.spinner').spinStop();
-         spinning = false;
-	 }
 }
 
 function addNewMappingElement(fieldId){
@@ -292,6 +236,8 @@ function addNewMappingElement(fieldId){
 	mappingElementCounter = mappingElementCounter + 1;
 	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
 	elementToAdd.appendTo("#" + hubProjectMappingContainer);
+	
+	removeMappingErrorStatus(elementToAdd);
 	
 	var currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
 	
@@ -348,7 +294,113 @@ function onMappingInputChange(inputField){
     }
 }
 
+function handleError(fieldId, configField) {
+	if(configField){
+		showError(fieldId, configField);
+    } else{
+    	hideError(fieldId);
+    }
+}
+
+function showError(fieldId, configField) {
+	  AJS.$("#" + fieldId).text(decodeURI(configField));
+  	  removeClassFromFieldById(fieldId, hiddenClass);
+}
+
+function hideError(fieldId) {
+	  AJS.$("#" + fieldId).text('');
+  	  addClassToFieldById(fieldId, hiddenClass);
+}
+
+function showStatusMessage(status, statusTitle, message) {
+	resetStatusMessage();
+	if(status == errorStatus){
+		addClassToFieldById(statusMessageFieldId, 'error');
+		addClassToFieldById(statusMessageTitleId, 'icon-error');
+	} else if (status == successStatus){
+		addClassToFieldById(statusMessageFieldId, 'success');
+		addClassToFieldById(statusMessageTitleId, 'icon-success');
+	}
+	AJS.$("#" + statusMessageTitleTextId).text(statusTitle);
+	AJS.$("#" + statusMessageTextId).text(message);
+	removeClassFromFieldById(statusMessageFieldId, hiddenClass);
+}
+
+function resetStatusMessage() {
+	removeClassFromFieldById(statusMessageFieldId,'error');
+	removeClassFromFieldById(statusMessageFieldId,'success');
+	removeClassFromFieldById(statusMessageTitleId,'icon-error');
+	removeClassFromFieldById(statusMessageTitleId,'icon-success');
+	AJS.$("#" + statusMessageTitleTextId).text('');
+	AJS.$("#" + statusMessageTextId).text('');
+	addClassToFieldById(statusMessageFieldId, hiddenClass);
+}
+
+function addClassToFieldById(fieldId, cssClass){
+	if(!AJS.$("#" + fieldId).hasClass(cssClass)){
+		AJS.$("#" + fieldId).addClass(cssClass);
+	}
+}
+
+function removeClassFromFieldById(fieldId, cssClass){
+	if(AJS.$("#" + fieldId).hasClass(cssClass)){
+		AJS.$("#" + fieldId).removeClass(cssClass);
+	}
+}
+
+function addClassToField(field, cssClass){
+	if(!AJS.$(field).hasClass(cssClass)){
+		AJS.$(field).addClass(cssClass);
+	}
+}
+
+function removeClassFromField(field, cssClass){
+	if(AJS.$(field).hasClass(cssClass)){
+		AJS.$(field).removeClass(cssClass);
+	}
+}
+
+function addMappingErrorStatus(mappingElement){
+	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+	if(mappingStatus.find("i").length == 0){
+		var newStatus = AJS.$('<i>', {});
+		AJS.$(newStatus).addClass("fa");
+		AJS.$(newStatus).addClass("fa-times");
+
+		newStatus.appendTo(mappingStatus);
+	}
+}
+
+function removeMappingErrorStatus(mappingElement){
+	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+	if(mappingStatus.children().length > 0){
+		AJS.$(mappingStatus).remove("i");
+	}
+}
+
+function startProgressSpinner(){
+	 if (!spinning) {
+		 var spinner = AJS.$('.spinner');
+		 spinner.spin('large');
+		 spinning = true;
+	 }
+}
+
+function stopProgressSpinner(){
+	 if (spinning) {
+		 AJS.$('.spinner').spinStop();
+         spinning = false;
+	 }
+}
+
+function isNullOrWhitespace(input) {
+    if (input == null){ 
+    	return true;
+    }
+    input = String(input);
+    return input.trim().length < 1;
+}
+
 (function ($) {
 	populateForm();
 })(AJS.$ || jQuery);
-
