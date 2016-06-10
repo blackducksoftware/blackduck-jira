@@ -29,6 +29,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverr
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -101,7 +102,7 @@ public class HubNotificationCheckTask implements PluginJob {
 		}
 		try {
 			ticketGenerator.generateTicketsForRecentNotifications(notificationDateRange);
-		} catch (HubNotificationServiceException e) {
+		} catch (HubNotificationServiceException | JiraServiceException e) {
 			throw new IllegalArgumentException(e);
 		}
 

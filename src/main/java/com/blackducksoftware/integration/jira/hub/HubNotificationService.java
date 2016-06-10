@@ -97,8 +97,8 @@ public class HubNotificationService {
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 
-		int limit = 100; // TODO will need chunking and maybe retry logic to
-							// handle large sets
+		int limit = 1; // TODO will need chunking and maybe retry logic to
+						// handle large sets
 
 		String startDateString = dateFormatter.format(dateRange.getStartDate());
 		String endDateString = dateFormatter.format(dateRange.getEndDate());

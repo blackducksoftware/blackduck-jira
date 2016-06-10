@@ -7,6 +7,7 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
@@ -26,7 +27,7 @@ public class TicketGenerator {
 	}
 
 	public int generateTicketsForRecentNotifications(NotificationDateRange notificationDateRange)
-			throws HubNotificationServiceException {
+			throws HubNotificationServiceException, JiraServiceException {
 		List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
 		return jiraService.generateTickets(notifs);
 	}

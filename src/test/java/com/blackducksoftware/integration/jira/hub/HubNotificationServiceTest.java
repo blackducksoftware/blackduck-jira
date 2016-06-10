@@ -76,7 +76,7 @@ public class HubNotificationServiceTest {
 		Set<SimpleEntry<String, String>> expectedQueryParameters = new HashSet<>();
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", START_DATE_STRING));
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", END_DATE_STRING));
-		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(100))); // TODO
+		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1))); // TODO
 																												// this
 																												// will
 																												// need

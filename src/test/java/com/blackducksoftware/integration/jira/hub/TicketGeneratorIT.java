@@ -22,6 +22,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverr
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
 public class TicketGeneratorIT {
@@ -37,7 +38,8 @@ public class TicketGeneratorIT {
 	}
 
 	@Test
-	public void test() throws URISyntaxException, ParseException, HubNotificationServiceException, BDRestException {
+	public void test() throws URISyntaxException, ParseException, HubNotificationServiceException, BDRestException,
+			JiraServiceException {
 		RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
 		restConnection.setCookies("sysadmin", "blackduck");
 		HubIntRestService hub = new HubIntRestService(restConnection);
