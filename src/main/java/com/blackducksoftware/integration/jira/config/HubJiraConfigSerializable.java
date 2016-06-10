@@ -41,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = -958236560953806484L;
+	private static final long serialVersionUID = 1490082138759753213L;
 
 	@XmlElement
 	private String intervalBetweenChecks;
@@ -60,6 +60,9 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	@XmlElement
 	private String hubProjectMappingError;
+
+	@XmlElement
+	private List<PolicyRuleCondition> policyRuleConditions;
 
 	public boolean hasErrors() {
 		boolean hasErrors = false;
@@ -143,6 +146,26 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.hubProjectMappingError = hubProjectMappingError;
 	}
 
+	public List<PolicyRuleCondition> getPolicyRuleConditions() {
+		return policyRuleConditions;
+	}
+
+	public void setPolicyRuleConditions(final List<PolicyRuleCondition> policyRuleConditions) {
+		this.policyRuleConditions = policyRuleConditions;
+	}
+
+	public void setPolicyRuleConditionsJson(final String policyRuleConditionsJson) {
+		final Gson gson = new GsonBuilder().create();
+		final Type mappingType = new TypeToken<List<PolicyRuleCondition>>() {
+		}.getType();
+		this.policyRuleConditions = gson.fromJson(policyRuleConditionsJson, mappingType);
+	}
+
+	public String getPolicyRuleConditionsJson() {
+		final Gson gson = new GsonBuilder().create();
+		return gson.toJson(policyRuleConditions);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -153,6 +176,7 @@ public class HubJiraConfigSerializable implements Serializable {
 		result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
 		result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
 		result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
+		result = prime * result + ((policyRuleConditions == null) ? 0 : policyRuleConditions.hashCode());
 		return result;
 	}
 
@@ -210,6 +234,13 @@ public class HubJiraConfigSerializable implements Serializable {
 		} else if (!jiraProjects.equals(other.jiraProjects)) {
 			return false;
 		}
+		if (policyRuleConditions == null) {
+			if (other.policyRuleConditions != null) {
+				return false;
+			}
+		} else if (!policyRuleConditions.equals(other.policyRuleConditions)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -228,6 +259,8 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(hubProjectMappings);
 		builder.append(", hubProjectMappingError=");
 		builder.append(hubProjectMappingError);
+		builder.append(", policyRuleConditions=");
+		builder.append(policyRuleConditions);
 		builder.append("]");
 		return builder.toString();
 	}

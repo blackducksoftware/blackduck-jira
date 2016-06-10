@@ -31,20 +31,30 @@
 		<fieldset class="fieldSection">
 			<legend class="legend">Ticket Criteria</legend>
 			<table width="100%">
-				<tr>
-					<td id="policyConditionTicketCreation">
-			      		<input type="checkbox" value="Bike"> I have a bike<br>
-			  			<input type="checkbox" value="Car" checked> I have a car<br>
-			  		</td>
-			  		<td id="vulnerabilityTicketCreation">
-			      		<input type="checkbox" value="Bike"> I have a bike<br>
-			  			<input type="checkbox" value="Car" checked> I have a car<br>
-			  		</td>
-			  		<td id="vulnerabilityTicketClosure">
-			      		<input type="checkbox" value="Bike"> I have a bike<br>
-			  			<input type="checkbox" value="Car" checked> I have a car<br>
-			  		</td>
-      			</tr>
+				<thead>
+					<tr>
+						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')
+						</th>
+						<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForCreation.label')
+						</th>
+						<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForClosure.label')
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td id="policyConditionTicketCreation">
+				  		</td>
+				  		<td id="vulnerabilityTicketCreation">
+				      		<input type="checkbox" value="Bike"> I have a bike<br>
+				  			<input type="checkbox" value="Car"> I have a car<br>
+				  		</td>
+				  		<td id="vulnerabilityTicketClosure">
+				      		<input type="checkbox" value="Bike"> I have a bike<br>
+				  			<input type="checkbox" value="Car"> I have a car<br>
+				  		</td>
+	      			</tr>
+      			</tbody>
       		</table>	
       	
       	</fieldSet>
