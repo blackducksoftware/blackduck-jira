@@ -38,21 +38,24 @@ public class JiraService {
 		int ticketCount = 0;
 		for (NotificationItem notif : notifs) {
 			System.out.println("Generating ticket for: " + notif);
-			String typeString = "<null>";
+			String hubProjectName = "<unknown>";
+			String notificationTypeString = "<null>";
 			if (notif instanceof VulnerabilityNotificationItem) {
-				typeString = "Vulnerability";
+				notificationTypeString = "Vulnerability";
 			} else if (notif instanceof RuleViolationNotificationItem) {
-				typeString = "RuleViolation";
+				notificationTypeString = "RuleViolation";
+				RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
+				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
 			} else if (notif instanceof PolicyOverrideNotificationItem) {
-				typeString = "PolicyOverride";
+				notificationTypeString = "PolicyOverride";
 			}
 
 			if (notif.getType() != null) {
-				typeString = notif.getType().toString();
+				notificationTypeString = notif.getType().toString();
 			}
 			String projectKey = "DEMO";
-			makeJiraIssue(projectKey, "Black Duck issue: Type: " + typeString, "Created at: "
-					+ notif.getCreatedAt().toString());
+			makeJiraIssue(projectKey, "Black Duck issue: Type: " + notificationTypeString + " on Hub Project '"
+					+ hubProjectName + "'", "Created at: " + notif.getCreatedAt().toString());
 			ticketCount++;
 		}
 		System.out.println("Generated " + ticketCount + " tickets.");
