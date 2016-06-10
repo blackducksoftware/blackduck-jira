@@ -1,78 +1,132 @@
 package com.blackducksoftware.integration.jira.task;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
+import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
+import com.blackducksoftware.integration.jira.hub.TicketGenerator;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.impl.HubMonitor;
+import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.service.JiraServiceException;
+import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.google.gson.reflect.TypeToken;
 
+/**
+ * A scheduled JIRA task that collects recent notifications from the Hub, and
+ * generates JIRA tickets for them.
+ * 
+ * @author sbillings
+ * 
+ */
 public class HubNotificationCheckTask implements PluginJob {
 
 	private final Logger logger = Logger.getLogger(HubNotificationCheckTask.class);
+	private final TicketGenerator ticketGenerator;
+
+	public HubNotificationCheckTask() {
+		// TODO The code below is temporary / overly hard-coded.
+		final RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
+		try {
+			restConnection.setCookies("sysadmin", "blackduck");
+		} catch (final URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		} catch (final BDRestException e) {
+			throw new IllegalArgumentException(e);
+		}
+		HubIntRestService hub;
+		try {
+			hub = new HubIntRestService(restConnection);
+		} catch (final URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
+
+		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
+		};
+		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
+		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
+		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
+		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
+
+		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
+				NotificationItem.class, typeToken, typeToSubclassMap);
+
+		final JiraService jiraService = new JiraService();
+		ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
+
+	}
 
 	@Override
-	public void execute(Map<String, Object> jobDataMap) {
-		log("HubNotificationCheckTask.execute() called 4.");
+	public void execute(final Map<String, Object> jobDataMap) {
 
-		// TODO should not recreate every time
-		HubNotificationService svc;
-		try {
-			svc = new HubNotificationService("http://eng-hub-valid01.dc1.lan/", "sysadmin", "blackduck");
-		} catch (HubNotificationServiceException e) {
-			// TODO This will have to change (or move)
-			throw new IllegalArgumentException("Error connecting to the Hub: " + e.getMessage(), e);
+		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+		// TODO The code below is temporary / overly hard-coded.
+		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
+		System.out.println("Interval: "
+				+ getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
+
+		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
+		System.out.println("Last run date: " + lastRunDateString);
+		if (lastRunDateString == null) {
+			System.out
+					.println("No lastRunDate provided; Not doing anything this time, we'll collect notifications next time");
+			settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(new Date()));
+			return;
 		}
-		String hubVersion;
+
+		Date lastRunDate;
 		try {
-			hubVersion = svc.getHubVersion();
-			// TODO
-			System.out.println("Hub version: " + hubVersion);
+			lastRunDate = dateFormatter.parse(lastRunDateString);
+		} catch (final ParseException e1) {
+			throw new IllegalArgumentException("Error parsing lastRunDate read from settings: '" + lastRunDateString
+					+ "': " + e1.getMessage(), e1);
+		}
+		System.out.println("Last run date: " + lastRunDate);
 
-			// TODO much of this is temporary hard coding
-			final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
-			final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
-			SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-			Date startDate = dateFormatter.parse(START_DATE_STRING);
-			Date endDate = dateFormatter.parse(END_DATE_STRING);
-			int limit = 10;
-			List<NotificationItem> notifs = svc.getNotifications(startDate, endDate, limit);
-			System.out.println("Successfully fetched " + notifs.size() + " notifications from Hub");
+		final Date startDate = lastRunDate;
+		final Date endDate = new Date();
 
-		} catch (HubNotificationServiceException | ParseException e) {
-			// TODO revisit this
-			throw new IllegalArgumentException("Error getting Hub version: " + e.getMessage(), e);
+		settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(endDate));
+
+		System.out.println("Getting notifications from " + startDate + " to " + endDate);
+
+		NotificationDateRange notificationDateRange;
+		try {
+			notificationDateRange = new NotificationDateRange(startDate, endDate);
+		} catch (final ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+		try {
+			ticketGenerator.generateTicketsForRecentNotifications(notificationDateRange);
+		} catch (HubNotificationServiceException | JiraServiceException e) {
+			throw new IllegalArgumentException(e);
 		}
 
 	}
 
-	private void log(String msg) {
-		System.out.println(msg);
-		logger.info(msg);
-		String filename = "/tmp/HubNotificationCheckTask_log.txt";
-		msg = "[INFO] " + (new Date()).toString() + ": " + msg + "\n";
-		try {
-			File file = new File(filename);
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-
-			Files.write(Paths.get(filename), msg.getBytes(), StandardOpenOption.APPEND);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("IO error in log(): " + e.getMessage());
-		}
+	private Object getValue(final PluginSettings settings, final String key) {
+		return settings.get(key);
 	}
 
+	private String getStringValue(final PluginSettings settings, final String key) {
+		return (String) getValue(settings, key);
+	}
 }

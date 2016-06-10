@@ -1,8 +1,6 @@
 package com.blackducksoftware.integration.jira.impl;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,32 +9,35 @@ import java.util.Date;
 import java.util.HashMap;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
 import com.blackducksoftware.integration.jira.task.HubNotificationCheckTask;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
-	/* package */static final String KEY = HubMonitor.class.getName() + ":instance";
+	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
+	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
 
 	private final Logger logger = Logger.getLogger(HubMonitor.class);
 
 	private final PluginScheduler pluginScheduler; // provided by SAL
+	private final PluginSettingsFactory pluginSettingsFactory;
 
 	private long interval = 5000L; // default job interval (5 sec)
 	private String serverName = "initialServerName";
 	private Date lastRun = null; // time when the last search returned
 
 	@Inject
-	public HubMonitor(PluginScheduler pluginScheduler) {
+	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
 		log("HubMonitor ctor called.");
 		this.pluginScheduler = pluginScheduler;
+		this.pluginSettingsFactory = pluginSettingsFactory;
 	}
 
 	@Override
@@ -45,8 +46,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		reschedule(serverName, interval);
 	}
 
-	public void reschedule(String serverName, long interval) {
+	@Override
+	public void reschedule(final String serverName, final long interval) {
 		log("HubMonitor reschedule() called.");
+		log("pluginSettingsFactory: " + pluginSettingsFactory); // TODO
+
 		this.interval = interval;
 		this.serverName = serverName;
 
@@ -54,7 +58,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				HubNotificationCheckTask.class, // class of the job
 				new HashMap<String, Object>() {
 					{
-						put(KEY, HubMonitor.this);
+						put(KEY_INSTANCE, HubMonitor.this);
+						put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 					}
 				}, // data that needs to be passed to the job
 				new Date(), // the time the job is to start
@@ -62,7 +67,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		logger.info(String.format("Twitter search task scheduled to run every %dms", interval));
 	}
 
-	/* package */void setLastRun(Date lastRun) {
+	/* package */void setLastRun(final Date lastRun) {
 		log("HubMonitor setLastRun() called.");
 		this.lastRun = lastRun;
 	}
@@ -77,16 +82,16 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	}
 
 	private void log(String msg) {
-		String filename = "/tmp/HubMonitor_log.txt";
+		final String filename = "/tmp/HubMonitor_log.txt";
 		msg = "[INFO] " + (new Date()).toString() + ": " + msg + "\n";
 		try {
-			File file = new File(filename);
+			final File file = new File(filename);
 			if (!file.exists()) {
 				file.createNewFile();
 			}
 
 			Files.write(Paths.get(filename), msg.getBytes(), StandardOpenOption.APPEND);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new IllegalArgumentException("IO error in log(): " + e.getMessage());
 		}
 	}

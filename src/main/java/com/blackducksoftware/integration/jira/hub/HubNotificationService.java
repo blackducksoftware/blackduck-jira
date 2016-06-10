@@ -34,7 +34,7 @@ public class HubNotificationService {
 	private final HubIntRestService hub;
 	private final HubItemsService<NotificationItem> hubItemsService;
 
-	private final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+	private SimpleDateFormat dateFormatter;
 
 	/**
 	 * Construct with given hub-access objects.
@@ -50,6 +50,9 @@ public class HubNotificationService {
 		this.restConnection = restConnection;
 		this.hub = hub;
 		this.hubItemsService = hubItemsService;
+
+		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 	}
 
 	/**
@@ -94,11 +97,17 @@ public class HubNotificationService {
 		}
 	}
 
-	public List<NotificationItem> getNotifications(final Date startDate, final Date endDate, final int limit)
+	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 
-		String startDateString = dateFormatter.format(startDate);
-		String endDateString = dateFormatter.format(endDate);
+		int limit = 1000; // TODO will need chunking and maybe retry logic to
+							// handle large sets
+
+		String startDateString = dateFormatter.format(dateRange.getStartDate());
+		String endDateString = dateFormatter.format(dateRange.getEndDate());
+
+		System.out.println("fetchNotifications(): Getting notifications from " + startDateString + " to "
+				+ endDateString); // TODO
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");

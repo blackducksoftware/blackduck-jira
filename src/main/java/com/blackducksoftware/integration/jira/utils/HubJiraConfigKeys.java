@@ -30,4 +30,7 @@ public class HubJiraConfigKeys {
 			+ ".hubProjectMappings";
 
 	public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
+
+	public final static String LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
+
 }
