@@ -16,27 +16,32 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
+import com.blackducksoftware.integration.hub.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
 import com.blackducksoftware.integration.jira.task.HubNotificationCheckTask;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
-	/* package */static final String KEY = HubMonitor.class.getName() + ":instance";
+	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
+	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
 
 	private final Logger logger = Logger.getLogger(HubMonitor.class);
 
 	private final PluginScheduler pluginScheduler; // provided by SAL
+	private final PluginSettingsFactory pluginSettingsFactory;
 
 	private long interval = 5000L; // default job interval (5 sec)
 	private String serverName = "initialServerName";
 	private Date lastRun = null; // time when the last search returned
 
 	@Inject
-	public HubMonitor(PluginScheduler pluginScheduler) {
+	public HubMonitor(PluginScheduler pluginScheduler, PluginSettingsFactory pluginSettingsFactory) {
 		log("HubMonitor ctor called.");
 		this.pluginScheduler = pluginScheduler;
+		this.pluginSettingsFactory = pluginSettingsFactory;
 	}
 
 	@Override
@@ -47,6 +52,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 	public void reschedule(String serverName, long interval) {
 		log("HubMonitor reschedule() called.");
+		log("pluginSettingsFactory: " + pluginSettingsFactory); // TODO
+
 		this.interval = interval;
 		this.serverName = serverName;
 
@@ -54,7 +61,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				HubNotificationCheckTask.class, // class of the job
 				new HashMap<String, Object>() {
 					{
-						put(KEY, HubMonitor.this);
+						put(KEY_INSTANCE, HubMonitor.this);
+						put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 					}
 				}, // data that needs to be passed to the job
 				new Date(), // the time the job is to start

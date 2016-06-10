@@ -34,9 +34,6 @@ public class JiraService {
 
 	public int generateTickets(List<NotificationItem> notifs) throws JiraServiceException {
 
-		String responseString = httpGetString("http://localhost:2990/jira/rest/api/2/application-properties");
-		System.out.println("Response as string: " + responseString);
-
 		System.out.println("Generating tickets for " + notifs.size() + " notifications");
 		int ticketCount = 0;
 		for (NotificationItem notif : notifs) {

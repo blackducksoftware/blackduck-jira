@@ -51,6 +51,7 @@ public class HubNotificationServiceTest {
 			IOException, ResourceDoesNotExistException {
 
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 
 		Date startDate = dateFormatter.parse(START_DATE_STRING);
 		System.out.println("startDate: " + startDate.toString());
@@ -76,12 +77,12 @@ public class HubNotificationServiceTest {
 		Set<SimpleEntry<String, String>> expectedQueryParameters = new HashSet<>();
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", START_DATE_STRING));
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", END_DATE_STRING));
-		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1))); // TODO
-																												// this
-																												// will
-																												// need
-																												// to
-																												// change
+		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1000))); // TODO
+																													// this
+																													// will
+																													// need
+																													// to
+																													// change
 
 		verify(mockHubItemsService).httpGetItemList(expectedUrlSegments, expectedQueryParameters);
 

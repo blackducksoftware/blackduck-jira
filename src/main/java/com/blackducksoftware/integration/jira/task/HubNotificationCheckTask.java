@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.config.HubConfigKeys;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -28,9 +29,13 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.impl.HubMonitor;
 import com.blackducksoftware.integration.jira.service.JiraService;
 import com.blackducksoftware.integration.jira.service.JiraServiceException;
+import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 import com.google.gson.reflect.TypeToken;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -79,20 +84,38 @@ public class HubNotificationCheckTask implements PluginJob {
 	@Override
 	public void execute(Map<String, Object> jobDataMap) {
 
-		// TODO The code below is temporary / overly hard-coded.
-
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 
-		final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
-		final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
-		Date startDate;
-		Date endDate;
-		try {
-			startDate = dateFormatter.parse(START_DATE_STRING);
-			endDate = dateFormatter.parse(END_DATE_STRING);
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(e);
+		// TODO The code below is temporary / overly hard-coded.
+		PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
+		System.out.println("Interval: "
+				+ getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
+
+		String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
+		System.out.println("Last run date: " + lastRunDateString);
+		if (lastRunDateString == null) {
+			System.out
+					.println("No lastRunDate provided; Not doing anything this time, we'll collect notifications next time");
+			settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(new Date()));
+			return;
 		}
+
+		Date lastRunDate;
+		try {
+			lastRunDate = dateFormatter.parse(lastRunDateString);
+		} catch (ParseException e1) {
+			throw new IllegalArgumentException("Error parsing lastRunDate read from settings: '" + lastRunDateString
+					+ "': " + e1.getMessage(), e1);
+		}
+		System.out.println("Last run date: " + lastRunDate);
+
+		Date startDate = lastRunDate;
+		Date endDate = new Date();
+
+		settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(endDate));
+
+		System.out.println("Getting notifications from " + startDate + " to " + endDate);
 
 		NotificationDateRange notificationDateRange;
 		try {
@@ -106,5 +129,13 @@ public class HubNotificationCheckTask implements PluginJob {
 			throw new IllegalArgumentException(e);
 		}
 
+	}
+
+	private Object getValue(final PluginSettings settings, final String key) {
+		return settings.get(key);
+	}
+
+	private String getStringValue(final PluginSettings settings, final String key) {
+		return (String) getValue(settings, key);
 	}
 }
