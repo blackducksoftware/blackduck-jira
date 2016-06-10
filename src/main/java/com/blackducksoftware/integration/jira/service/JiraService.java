@@ -42,12 +42,16 @@ public class JiraService {
 			String notificationTypeString = "<null>";
 			if (notif instanceof VulnerabilityNotificationItem) {
 				notificationTypeString = "Vulnerability";
+				System.out.println("This is a vulnerability notification; skipping it.");
+				continue;
 			} else if (notif instanceof RuleViolationNotificationItem) {
 				notificationTypeString = "RuleViolation";
 				RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
 				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
 			} else if (notif instanceof PolicyOverrideNotificationItem) {
 				notificationTypeString = "PolicyOverride";
+				PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
+				hubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
 			}
 
 			if (notif.getType() != null) {
