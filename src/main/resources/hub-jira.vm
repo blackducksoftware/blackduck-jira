@@ -15,10 +15,10 @@
     	<p id="aui-hub-message-text"></p>
       </div>
       
-      <fieldset>
-      	 <legend>Interval</legend>
+      <fieldset class="fieldSection">
+      	 <legend class="legend">Interval</legend>
 	      <div class="field-group">
-	        <label for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
+	        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 	        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 	        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="text long-field">
 	      </div>
@@ -28,18 +28,31 @@
 	      </div>
       </fieldset>
       
-		<fieldset>
-			<legend>Ticket Criteria</legend>
-     <!-- <input type="checkbox" name="vehicle" value="Bike"> I have a bike<br>
-  		<input type="checkbox" name="vehicle" value="Car" checked> I have a car<br>
-  		-->
+		<fieldset class="fieldSection">
+			<legend class="legend">Ticket Criteria</legend>
+			<table width="100%">
+				<tr>
+					<td id="policyConditionTicketCreation">
+			      		<input type="checkbox" value="Bike"> I have a bike<br>
+			  			<input type="checkbox" value="Car" checked> I have a car<br>
+			  		</td>
+			  		<td id="vulnerabilityTicketCreation">
+			      		<input type="checkbox" value="Bike"> I have a bike<br>
+			  			<input type="checkbox" value="Car" checked> I have a car<br>
+			  		</td>
+			  		<td id="vulnerabilityTicketClosure">
+			      		<input type="checkbox" value="Bike"> I have a bike<br>
+			  			<input type="checkbox" value="Car" checked> I have a car<br>
+			  		</td>
+      			</tr>
+      		</table>	
       	
       	</fieldSet>
       	
       
-		<fieldset>
-      	 <legend>Project Mapping</legend>
-			  <label for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
+		<fieldset class="fieldSection">
+      	 <legend class="legend">Project Mapping</legend>
+			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 			  <div class="field-group">
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>

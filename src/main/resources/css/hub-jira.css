@@ -6,3 +6,22 @@
 	width: 90%;
 }
 
+.legend {
+	display : block !important;
+}
+
+.label {
+	width : auto !important;
+	text-align : left !important;
+	white-space : nowrap !important;
+}
+
+.fieldSection {
+	border : 1px solid !important;
+	padding : 5px 5px 5px 15px !important; 
+}
+
+.fieldSection {
+	border : 1px solid !important;
+	padding : 5px 5px 5px 15px !important; 
+}
