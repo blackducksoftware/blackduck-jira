@@ -6,3 +6,29 @@
 	width: 90%;
 }
 
+.legend {
+	font-size : 15px;
+	font-weight : bold;
+	display : block !important;
+}
+
+.label {
+	font-weight : bold;
+	width : auto !important;
+	text-align : left !important;
+	white-space : nowrap !important;
+}
+
+.fieldSection {
+	border : 1px solid !important;
+	padding : 5px 5px 5px 15px !important; 
+}
+
+.fieldSection {
+	border : 1px solid !important;
+	padding : 5px 5px 5px 15px !important; 
+}
+
+.errorMapping {
+	color : red;
+}

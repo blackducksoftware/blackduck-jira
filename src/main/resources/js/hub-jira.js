@@ -43,6 +43,15 @@ var hubProjectDisplayName = "projectName";
 var hubProjectKey = "projectUrl";
 var hubProjectExists = "projectExists";
 
+var policyConditionTicketCreation = "policyConditionTicketCreation";  
+var policyConditionName = "name";
+var policyConditionValue = "value";
+var policyConditionChecked = "checked";
+
+
+var vulnerabilityTicketCreation = "vulnerabilityTicketCreation"; 
+var vulnerabilityTicketClosure = "vulnerabilityTicketClosure"; 
+
 var spinning = false;
 
 var mappingElementCounter = 0;
@@ -51,8 +60,25 @@ function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 
+function populateForm() {
+	  AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/",
+	    dataType: "json",
+	    success: function(config) {
+	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
+	      fillInProjects(config.jiraProjects, config.hubProjects);
+	      fillInMappings(config.hubProjectMappings);
+	      addPolicyViolationConditions(config.policyRuleConditions);
+	      
+	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
+	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
+	    }
+	  });
+}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
+	var policyConditionArray = getJsonArrayFromPolicyConditions();
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -60,6 +86,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
 	    + '", "hubProjectMappings": ' + jsonMappingArray
+	    + ', "policyRuleConditions": ' + policyConditionArray
 	    + '}',
 	    processData: false,
 	    success: function() {
@@ -127,25 +154,57 @@ function getJsonArrayFromMapping(){
 	return jsonArray;
 }
 
-function populateForm() {
-	  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/",
-	    dataType: "json",
-	    success: function(config) {
-	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
-	      fillInProjects(config.jiraProjects, config.hubProjects);
-	      fillInMappings(config.hubProjectMappings);
-	      
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
-	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
-	    }
-	  });
+function getJsonArrayFromPolicyConditions(){
+	var jsonArray = "[";
+	var policyConditionContainer = AJS.$("#" + policyConditionTicketCreation);
+	var policyConditions = policyConditionContainer.find("input");
+	for (i = 0; i < policyConditions.length; i++) {
+		if(i > 0){
+			jsonArray += ","
+		}
+		var policyCondition = policyConditions[i];
+
+		var currentPolicyConditionValue = policyCondition.value;
+		var currentPolicyConditionName = policyCondition.name;
+		var currentPolicyConditionChecked = policyCondition.checked;
+		
+		jsonArray += '{"'
+			+ policyConditionName + '":"' + currentPolicyConditionName 
+			+ '","' 
+			+ policyConditionValue + '":"' + currentPolicyConditionValue 
+			+ '","' 
+			+ policyConditionChecked + '":"' + currentPolicyConditionChecked 
+			+ '"}';
 	}
+	jsonArray += "]";
+	return jsonArray;
+}
 
 function updateValue(fieldId, configField) {
 	if(configField){
 		 AJS.$("#" + fieldId).val(decodeURI(configField));
     }
+}
+
+function addPolicyViolationConditions(policyRuleConditions){
+	var policyConditionContainer = AJS.$("#" + policyConditionTicketCreation);
+	if(policyRuleConditions != null && policyRuleConditions.length > 0){
+		for (p = 0; p < policyRuleConditions.length; p++) {
+			var newPolicyConditionCheckbox = AJS.$('<input>', {
+			    type: "checkbox",
+			    value: policyRuleConditions[p].value,
+			    name: policyRuleConditions[p].name,
+			    checked : policyRuleConditions[p].checked
+			});
+			var newPolicyLabel = AJS.$('<label>', {
+				text: policyRuleConditions[p].name
+			});
+			var newBreak = AJS.$('<br/>', {});
+			newPolicyConditionCheckbox.appendTo(policyConditionContainer);
+			newPolicyLabel.appendTo(policyConditionContainer);
+			newBreak.appendTo(policyConditionContainer);
+		}
+	}
 }
 
 function fillInProjects(jiraProjects, hubProjects){
@@ -363,9 +422,12 @@ function removeClassFromField(field, cssClass){
 function addMappingErrorStatus(mappingElement){
 	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
 	if(mappingStatus.find("i").length == 0){
-		var newStatus = AJS.$('<i>', {});
+		var newStatus = AJS.$('<i>', {
+			text : "X"
+		});
 		AJS.$(newStatus).addClass("fa");
 		AJS.$(newStatus).addClass("fa-times");
+		AJS.$(newStatus).addClass("errorMapping");
 
 		newStatus.appendTo(mappingStatus);
 	}
@@ -374,7 +436,7 @@ function addMappingErrorStatus(mappingElement){
 function removeMappingErrorStatus(mappingElement){
 	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
 	if(mappingStatus.children().length > 0){
-		AJS.$(mappingStatus).remove("i");
+		AJS.$(mappingStatus).empty();
 	}
 }
 

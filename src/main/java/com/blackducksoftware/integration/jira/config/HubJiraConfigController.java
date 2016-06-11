@@ -57,6 +57,7 @@ import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubProxyInfo;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRuleConditionFieldEnum;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
@@ -108,12 +109,41 @@ public class HubJiraConfigController {
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
+				final String policyConditionJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_CONDITIONS);
+
 				final String hubProjectMappingsJson = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 
 				config.setIntervalBetweenChecks(intervalBetweenChecks);
 				config.setHubProjectMappingsJson(hubProjectMappingsJson);
 
+				if (StringUtils.isNotBlank(policyConditionJson)) {
+					config.setPolicyRuleConditionsJson(policyConditionJson);
+				}
+				List<PolicyRuleCondition> policyConditions = new ArrayList<PolicyRuleCondition>();
+				if (config.getPolicyRuleConditions() == null || config.getPolicyRuleConditions().isEmpty()) {
+					policyConditions = new ArrayList<PolicyRuleCondition>();
+				} else {
+					policyConditions = config.getPolicyRuleConditions();
+				}
+				for (final PolicyRuleConditionFieldEnum policyConditionEnum : PolicyRuleConditionFieldEnum.values()) {
+					if (policyConditionEnum != PolicyRuleConditionFieldEnum.UNKNOWN_RULE_CONDTION) {
+						boolean alreadyInList = false;
+						for(final PolicyRuleCondition cond : policyConditions){
+							if (policyConditionEnum.name().equals(cond.getValue())) {
+								alreadyInList = true;
+							}
+						}
+						if (!alreadyInList) {
+							final PolicyRuleCondition newCondition = new PolicyRuleCondition();
+							newCondition.setName(policyConditionEnum.getDisplayValue());
+							newCondition.setValue(policyConditionEnum.name());
+							policyConditions.add(newCondition);
+						}
+					}
+				}
+				config.setPolicyRuleConditions(policyConditions);
 				checkConfigErrors(config);
 				return config;
 			}
@@ -152,6 +182,8 @@ public class HubJiraConfigController {
 
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_CONDITIONS,
+						config.getPolicyRuleConditionsJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 
