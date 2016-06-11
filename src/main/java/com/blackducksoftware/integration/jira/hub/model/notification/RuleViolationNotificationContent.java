@@ -34,6 +34,26 @@ public class RuleViolationNotificationContent {
 		return projectVersionLink;
 	}
 
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public void setProjectVersionName(String projectVersionName) {
+		this.projectVersionName = projectVersionName;
+	}
+
+	public void setComponentVersionsInViolation(int componentVersionsInViolation) {
+		this.componentVersionsInViolation = componentVersionsInViolation;
+	}
+
+	public void setComponentVersionStatuses(List<ComponentVersionStatus> componentVersionStatuses) {
+		this.componentVersionStatuses = componentVersionStatuses;
+	}
+
+	public void setProjectVersionLink(String projectVersionLink) {
+		this.projectVersionLink = projectVersionLink;
+	}
+
 	@Override
 	public String toString() {
 		return "RuleViolationNotificationContent [projectName=" + projectName + ", projectVersionName="

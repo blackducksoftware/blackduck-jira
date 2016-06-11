@@ -66,7 +66,9 @@ public class TicketGeneratorIT {
 		System.out.println("endDate: " + endDate.toString());
 
 		NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
-		int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(notificationDateRange);
+
+		// TODO have to pass in the mappings
+		int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(null, notificationDateRange);
 
 		assertEquals(100, ticketCount);
 	}

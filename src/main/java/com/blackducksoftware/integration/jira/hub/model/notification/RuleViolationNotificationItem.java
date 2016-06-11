@@ -7,6 +7,10 @@ public class RuleViolationNotificationItem extends NotificationItem {
 		return content;
 	}
 
+	public void setContent(RuleViolationNotificationContent content) {
+		this.content = content;
+	}
+
 	@Override
 	public String toString() {
 		return "RuleViolationNotificationItem [content=" + content + ", contentType=" + contentType + ", type=" + type

@@ -15,6 +15,8 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
@@ -92,6 +94,18 @@ public class HubNotificationCheckTask implements PluginJob {
 			return;
 		}
 
+		String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+		if (configJson == null) {
+			System.out.println("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
+			return;
+		}
+		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+		config.setHubProjectMappingsJson(configJson);
+		System.out.println("Mappings:");
+		for (HubProjectMapping mapping : config.getHubProjectMappings()) {
+			System.out.println(mapping);
+		}
+
 		Date lastRunDate;
 		try {
 			lastRunDate = dateFormatter.parse(lastRunDateString);
@@ -115,7 +129,8 @@ public class HubNotificationCheckTask implements PluginJob {
 			throw new IllegalArgumentException(e);
 		}
 		try {
-			ticketGenerator.generateTicketsForRecentNotifications(notificationDateRange);
+			ticketGenerator
+					.generateTicketsForRecentNotifications(config.getHubProjectMappings(), notificationDateRange);
 		} catch (HubNotificationServiceException | JiraServiceException e) {
 			throw new IllegalArgumentException(e);
 		}
