@@ -21,6 +21,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.jira.service.JiraService;
 import com.atlassian.jira.project.ProjectManager;
 
 public class JiraNotificationFilterTest {
@@ -49,6 +50,9 @@ public class JiraNotificationFilterTest {
 		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
 		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
 
+		JiraService jiraService = new JiraService();
+		jiraService.setJiraProjectManager(mockJiraProjectManager);
+
 		List<HubProjectMapping> mappings = new ArrayList<>();
 
 		for (int i = 0; i < 5; i++) {
@@ -68,8 +72,7 @@ public class JiraNotificationFilterTest {
 			mappings.add(mapping);
 		}
 
-		JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mockJiraProjectManager,
-				mappings);
+		JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService, mappings);
 		List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
 			RuleViolationNotificationItem notif = new RuleViolationNotificationItem();

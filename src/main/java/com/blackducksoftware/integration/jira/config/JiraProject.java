@@ -20,6 +20,9 @@ public class JiraProject implements Serializable {
 	private Long projectId;
 
 	@XmlElement
+	private String projectKey;
+
+	@XmlElement
 	private Boolean projectExists;
 
 	public String getProjectName() {
@@ -36,6 +39,14 @@ public class JiraProject implements Serializable {
 
 	public void setProjectId(final Long projectId) {
 		this.projectId = projectId;
+	}
+
+	public String getProjectKey() {
+		return projectKey;
+	}
+
+	public void setProjectKey(String projectKey) {
+		this.projectKey = projectKey;
 	}
 
 	public Boolean getProjectExists() {

@@ -17,8 +17,10 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
+import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.logging.LogLevel;
+import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -31,6 +33,29 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Vulnerabili
  * 
  */
 public class JiraService {
+	private ProjectManager jiraProjectManager;
+
+	public void setJiraProjectManager(ProjectManager jiraProjectManager) {
+		this.jiraProjectManager = jiraProjectManager;
+	}
+
+	public JiraProject getProject(long jiraProjectId) throws JiraServiceException {
+		if (jiraProjectManager == null) {
+			throw new JiraServiceException("The JIRA projectManager has not been set");
+		}
+		com.atlassian.jira.project.Project atlassianJiraProject = jiraProjectManager.getProjectObj(jiraProjectId);
+		if (atlassianJiraProject == null) {
+			throw new JiraServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+		}
+		String jiraProjectKey = atlassianJiraProject.getKey();
+		String jiraProjectName = atlassianJiraProject.getName();
+		JiraProject bdsJiraProject = new JiraProject();
+		bdsJiraProject.setProjectExists(true);
+		bdsJiraProject.setProjectId(jiraProjectId);
+		bdsJiraProject.setProjectKey(jiraProjectKey);
+		bdsJiraProject.setProjectName(jiraProjectName);
+		return bdsJiraProject;
+	}
 
 	public int generateTickets(List<NotificationItem> notifs) throws JiraServiceException {
 

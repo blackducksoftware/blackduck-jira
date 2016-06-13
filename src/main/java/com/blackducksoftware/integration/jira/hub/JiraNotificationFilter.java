@@ -9,17 +9,18 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
 public class JiraNotificationFilter {
 	private final HubNotificationService hubNotificationService;
 	private final List<HubProjectMapping> mappings;
-	private final ProjectManager jiraProjectManager;
+	private final JiraService jiraService;
 
-	public JiraNotificationFilter(HubNotificationService hubNotificationService, ProjectManager jiraProjectManager,
+	public JiraNotificationFilter(HubNotificationService hubNotificationService, JiraService jiraService,
 			List<HubProjectMapping> mappings) {
 		this.hubNotificationService = hubNotificationService;
-		this.jiraProjectManager = jiraProjectManager;
+		this.jiraService = jiraService;
 		this.mappings = mappings;
 	}
 
@@ -52,35 +53,31 @@ public class JiraNotificationFilter {
 				// TODO log error
 				System.out.println("Error extracting details from the Hub notification: " + notif + ": "
 						+ e.getMessage());
+				continue;
 			}
 
 			HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
 			if (mapping == null) {
 				System.out.println("No mapping matching this notification found; skipping this notification");
-			}
-
-			JiraProject bdsJiraProject = mapping.getJiraProject();
-			// TODO get the jira interaction out of this class? Move it to
-			// JiraService
-			String mappingHubProjectName = mapping.getHubProject().getProjectName();
-			String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
-
-			long jiraProjectId = bdsJiraProject.getProjectId();
-			com.atlassian.jira.project.Project atlassianJiraProject = jiraProjectManager.getProjectObj(jiraProjectId);
-			if (atlassianJiraProject == null) {
-				System.out.println("Error: JIRA Project '" + bdsJiraProject.getProjectName() + "' with ID "
-						+ jiraProjectId + " not found. No tickets will be created for it");
-				// TODO remove it from the mapping
 				continue;
 			}
-			String jiraProjectKey = atlassianJiraProject.getKey();
-			String jiraProjectName = atlassianJiraProject.getName();
+
+			JiraProject mappingJiraProject = mapping.getJiraProject();
+			JiraProject freshBdsJiraProject;
+			try {
+				freshBdsJiraProject = jiraService.getProject(mappingJiraProject.getProjectId());
+			} catch (JiraServiceException e) {
+				System.out.println("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
+						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
+				continue;
+			}
 
 			System.out.println("Notification hub project " + notifHubProjectName + " matches mapping hub project: "
-					+ mappingHubProjectName);
-			System.out.println("The corresponding JIRA project is: " + jiraProjectName);
-			JiraReadyNotification jiraReadyNotification = new JiraReadyNotification(jiraProjectKey, jiraProjectName,
-					notifHubProjectName, notif);
+					+ mapping.getHubProject().getProjectName());
+			System.out.println("The corresponding JIRA project is: " + freshBdsJiraProject.getProjectName());
+			JiraReadyNotification jiraReadyNotification = new JiraReadyNotification(
+					freshBdsJiraProject.getProjectKey(), freshBdsJiraProject.getProjectName(), notifHubProjectName,
+					notif);
 			jiraReadyNotifications.add(jiraReadyNotification);
 		}
 		return jiraReadyNotifications;
