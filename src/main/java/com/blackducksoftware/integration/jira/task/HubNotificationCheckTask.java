@@ -16,6 +16,7 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
@@ -40,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
  */
 public class HubNotificationCheckTask implements PluginJob {
 
-	private final Logger logger = Logger.getLogger(HubNotificationCheckTask.class);
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final TicketGenerator ticketGenerator;
 	private final JiraService jiraService;
 
@@ -92,22 +93,21 @@ public class HubNotificationCheckTask implements PluginJob {
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
 		logger.debug("Last run date: " + lastRunDateString);
 		if (lastRunDateString == null) {
-			System.out
-					.println("No lastRunDate provided; Not doing anything this time, we'll collect notifications next time");
+			logger.info("No lastRunDate provided; Not doing anything this time, will collect notifications next time");
 			settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(new Date()));
 			return;
 		}
 
 		String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		if (configJson == null) {
-			logger.debug("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
+			logger.info("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
 			return;
 		}
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setHubProjectMappingsJson(configJson);
 		logger.debug("Mappings:");
 		for (HubProjectMapping mapping : config.getHubProjectMappings()) {
-			logger.debug(mapping);
+			logger.debug(mapping.toString());
 		}
 
 		Date lastRunDate;
@@ -124,7 +124,7 @@ public class HubNotificationCheckTask implements PluginJob {
 
 		settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(endDate));
 
-		logger.debug("Getting notifications from " + startDate + " to " + endDate);
+		logger.info("Getting Hub notifications from " + startDate + " to " + endDate);
 
 		NotificationDateRange notificationDateRange;
 		try {
