@@ -1,13 +1,9 @@
 package com.blackducksoftware.integration.jira.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.net.CookieHandler;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.restlet.Response;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
@@ -133,39 +129,6 @@ public class JiraService {
 					+ resource.getResponse().toString());
 		}
 		return resource;
-	}
-
-	private String httpGetString(String url) throws JiraServiceException {
-		logger.debug("Getting from URL: " + url);
-		ClientResource resource = new ClientResource(url);
-		resource.setMethod(Method.GET);
-		resource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "admin", "admin");
-		handleRequest(resource);
-		logger.debug("Response: " + resource.getResponse());
-		// TODO test status code
-		String responseString;
-		try {
-			responseString = readResponseAsString(resource.getResponse());
-		} catch (IOException e) {
-			throw new JiraServiceException(e);
-		}
-		return responseString;
-	}
-
-	private String readResponseAsString(final Response response) throws IOException {
-		final StringBuilder sb = new StringBuilder();
-		final Reader reader = response.getEntity().getReader();
-		final BufferedReader bufReader = new BufferedReader(reader);
-		try {
-			String line;
-			while ((line = bufReader.readLine()) != null) {
-				sb.append(line);
-				sb.append("\n");
-			}
-		} finally {
-			bufReader.close();
-		}
-		return sb.toString();
 	}
 
 	private void handleRequest(final ClientResource resource) throws JiraServiceException {

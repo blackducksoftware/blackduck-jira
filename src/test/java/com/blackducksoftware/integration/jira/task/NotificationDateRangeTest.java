@@ -30,10 +30,4 @@ public class NotificationDateRangeTest {
 		assertEquals(startDate, r.getStartDate());
 		assertTrue(r.getEndDate().getTime() > r.getStartDate().getTime());
 	}
-
-	@Test
-	public void testWithoutGivenStartTime() throws HubNotificationServiceException {
-		NotificationDateRange r = new NotificationDateRange();
-		assertTrue(r.getEndDate().getTime() > r.getStartDate().getTime());
-	}
 }

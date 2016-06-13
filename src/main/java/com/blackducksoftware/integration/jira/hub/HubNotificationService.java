@@ -107,13 +107,13 @@ public class HubNotificationService {
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 
-		int limit = 1000; // TODO will need chunking and maybe retry logic to
+		int limit = 1000; // TODO may need chunking and maybe retry logic to
 							// handle large sets
 
 		String startDateString = dateFormatter.format(dateRange.getStartDate());
 		String endDateString = dateFormatter.format(dateRange.getEndDate());
 
-		logger.info("fetchNotifications(): Getting notifications from " + startDateString + " to " + endDateString); // TODO
+		logger.info("fetchNotifications(): Getting notifications from " + startDateString + " to " + endDateString);
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");

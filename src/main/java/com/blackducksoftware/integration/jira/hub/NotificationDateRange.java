@@ -1,27 +1,11 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.blackducksoftware.integration.hub.rest.RestConnection;
-
 public class NotificationDateRange {
-	// TODO temp
-	private static final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
 	private final Date startDate;
 	private final Date endDate;
-
-	public NotificationDateRange() throws HubNotificationServiceException {
-		// TODO temp
-		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-		try {
-			this.startDate = dateFormatter.parse(START_DATE_STRING);
-		} catch (ParseException e) {
-			throw new HubNotificationServiceException(e.getMessage());
-		}
-		this.endDate = new Date();
-	}
 
 	public NotificationDateRange(Date startDate) throws ParseException {
 		this.startDate = startDate;
