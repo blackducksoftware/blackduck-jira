@@ -298,6 +298,7 @@
 						</pluginArtifact>
 					</pluginArtifacts>
 					-->
+          <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
       </plugin>
     </plugins>

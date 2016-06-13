@@ -87,11 +87,10 @@ public class HubNotificationCheckTask implements PluginJob {
 
 		// TODO The code below is temporary / overly hard-coded.
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-		System.out.println("Interval: "
-				+ getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
+		logger.debug("Interval: " + getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
-		System.out.println("Last run date: " + lastRunDateString);
+		logger.debug("Last run date: " + lastRunDateString);
 		if (lastRunDateString == null) {
 			System.out
 					.println("No lastRunDate provided; Not doing anything this time, we'll collect notifications next time");
@@ -101,14 +100,14 @@ public class HubNotificationCheckTask implements PluginJob {
 
 		String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		if (configJson == null) {
-			System.out.println("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
+			logger.debug("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
 			return;
 		}
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setHubProjectMappingsJson(configJson);
-		System.out.println("Mappings:");
+		logger.debug("Mappings:");
 		for (HubProjectMapping mapping : config.getHubProjectMappings()) {
-			System.out.println(mapping);
+			logger.debug(mapping);
 		}
 
 		Date lastRunDate;
@@ -118,14 +117,14 @@ public class HubNotificationCheckTask implements PluginJob {
 			throw new IllegalArgumentException("Error parsing lastRunDate read from settings: '" + lastRunDateString
 					+ "': " + e1.getMessage(), e1);
 		}
-		System.out.println("Last run date: " + lastRunDate);
+		logger.debug("Last run date: " + lastRunDate);
 
 		final Date startDate = lastRunDate;
 		final Date endDate = new Date();
 
 		settings.put(HubJiraConfigKeys.LAST_RUN_DATE, dateFormatter.format(endDate));
 
-		System.out.println("Getting notifications from " + startDate + " to " + endDate);
+		logger.debug("Getting notifications from " + startDate + " to " + endDate);
 
 		NotificationDateRange notificationDateRange;
 		try {
