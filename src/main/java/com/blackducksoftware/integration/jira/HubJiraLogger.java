@@ -31,7 +31,7 @@ public class HubJiraLogger implements IntLogger {
 	@Override
 	public void info(String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.INFO)) {
-			logMessage(txt);
+			logMessageInfo(txt);
 		}
 	}
 
@@ -59,14 +59,14 @@ public class HubJiraLogger implements IntLogger {
 	@Override
 	public void warn(String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.WARN)) {
-			logMessage(txt);
+			logMessageWarn(txt);
 		}
 	}
 
 	@Override
 	public void trace(String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.TRACE)) {
-			logMessage(txt);
+			logMessageTrace(txt);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class HubJiraLogger implements IntLogger {
 	@Override
 	public void debug(String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.DEBUG)) {
-			logMessage(txt);
+			logMessageDebug(txt);
 		}
 	}
 
@@ -91,10 +91,40 @@ public class HubJiraLogger implements IntLogger {
 		}
 	}
 
-	private void logMessage(final String txt) {
+	private void logMessageInfo(final String txt) {
 		if (txt != null) {
 			if (jiraLogger != null) {
 				jiraLogger.info(txt);
+			} else {
+				System.out.println(txt);
+			}
+		}
+	}
+
+	private void logMessageDebug(final String txt) {
+		if (txt != null) {
+			if (jiraLogger != null) {
+				jiraLogger.debug(txt);
+			} else {
+				System.out.println(txt);
+			}
+		}
+	}
+
+	private void logMessageWarn(final String txt) {
+		if (txt != null) {
+			if (jiraLogger != null) {
+				jiraLogger.warn(txt);
+			} else {
+				System.out.println(txt);
+			}
+		}
+	}
+
+	private void logMessageTrace(final String txt) {
+		if (txt != null) {
+			if (jiraLogger != null) {
+				jiraLogger.trace(txt);
 			} else {
 				System.out.println(txt);
 			}
