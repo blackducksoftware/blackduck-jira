@@ -16,6 +16,7 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
@@ -122,5 +123,13 @@ public class HubNotificationService {
 		} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
 			throw new HubNotificationServiceException("Error parsing NotificationItemList: " + e.getMessage(), e);
 		}
+	}
+
+	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException {
+		return null; // TODO
+	}
+
+	private ProjectItem getProjectForProjectRelease(final String versionUrl) throws HubNotificationServiceException {
+		return null; // TODO
 	}
 }

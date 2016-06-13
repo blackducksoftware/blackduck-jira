@@ -12,10 +12,13 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Vulnerabili
 import com.atlassian.jira.project.ProjectManager;
 
 public class JiraNotificationFilter {
+	private final HubNotificationService hubNotificationService;
 	private final List<HubProjectMapping> mappings;
 	private final ProjectManager jiraProjectManager;
 
-	public JiraNotificationFilter(ProjectManager jiraProjectManager, List<HubProjectMapping> mappings) {
+	public JiraNotificationFilter(HubNotificationService hubNotificationService, ProjectManager jiraProjectManager,
+			List<HubProjectMapping> mappings) {
+		this.hubNotificationService = hubNotificationService;
 		this.jiraProjectManager = jiraProjectManager;
 		this.mappings = mappings;
 	}
@@ -26,23 +29,35 @@ public class JiraNotificationFilter {
 		for (NotificationItem notif : notifications) {
 			String notifHubProjectName = "<unknown>";
 			String notifHubProjectUrl = "<unknown>";
-			String notificationTypeString = "<null>";
-			if (notif instanceof VulnerabilityNotificationItem) {
-				notificationTypeString = "Vulnerability";
-				System.out.println("This is a vulnerability notification; skipping it.");
-				continue;
-			} else if (notif instanceof RuleViolationNotificationItem) {
-				notificationTypeString = "RuleViolation";
-				RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
-				notifHubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-				notifHubProjectUrl = ruleViolationNotificationItem.getMeta().getHref();
-			} else if (notif instanceof PolicyOverrideNotificationItem) {
-				notificationTypeString = "PolicyOverride";
-				PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
-				notifHubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
-				notifHubProjectUrl = policyOverrideNotificationItem.getMeta().getHref();
+			try {
+				if (notif instanceof VulnerabilityNotificationItem) {
+					System.out.println("This is a vulnerability notification; skipping it.");
+					continue;
+				} else if (notif instanceof RuleViolationNotificationItem) {
+					RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
+					notifHubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
+					String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
+							.getProjectVersionLink();
+					notifHubProjectUrl = hubNotificationService
+							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+				} else if (notif instanceof PolicyOverrideNotificationItem) {
+					PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
+					notifHubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
+					String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
+							.getProjectVersionLink();
+					notifHubProjectUrl = hubNotificationService
+							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+				}
+			} catch (HubNotificationServiceException e) {
+				// TODO log error
+				System.out.println("Error extracting details from the Hub notification: " + notif + ": "
+						+ e.getMessage());
 			}
 
+			// TODO THIS IS WRONG
+			// it's checking the project/version URL, but it needs to go to the
+			// project/version, and get the "project"
+			// link, and use that
 			HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
 			if (mapping == null) {
 				System.out.println("No mapping matching this notification found; skipping this notification");
@@ -64,13 +79,6 @@ public class JiraNotificationFilter {
 			String jiraProjectKey = atlassianJiraProject.getKey();
 			String jiraProjectName = atlassianJiraProject.getName();
 
-			// Does the notification match the mapping?
-
-			if (!mappingHubProjectUrl.equals(notifHubProjectUrl)) {
-				System.out.println("Based on their URLs, Hub project " + mappingHubProjectName + " does not match "
-						+ notifHubProjectName + "; Passing over it");
-				continue;
-			}
 			System.out.println("Notification hub project " + notifHubProjectName + " matches mapping hub project: "
 					+ mappingHubProjectName);
 			System.out.println("The corresponding JIRA project is: " + jiraProjectName);

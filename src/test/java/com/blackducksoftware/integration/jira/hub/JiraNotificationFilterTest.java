@@ -34,7 +34,14 @@ public class JiraNotificationFilterTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws HubNotificationServiceException {
+		HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
+		for (int i = 0; i < 3; i++) {
+			Mockito.when(
+					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
+					.thenReturn("http://test.project.url" + i);
+		}
+
 		ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
 		Project mockJiraProject = Mockito.mock(Project.class);
 		Mockito.when(mockJiraProject.getKey()).thenReturn("TEST0a");
@@ -61,17 +68,19 @@ public class JiraNotificationFilterTest {
 			mappings.add(mapping);
 		}
 
-		JiraNotificationFilter filter = new JiraNotificationFilter(mockJiraProjectManager, mappings);
+		JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mockJiraProjectManager,
+				mappings);
 		List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
 			RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			MetaInformation meta = new MetaInformation(null, "http://test.project.url" + i, null);
+			MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
 			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);
+			content.setProjectVersionLink("http://test.projectversion.url" + i);
 			notif.setContent(content);
 			System.out.println("Notif: " + notif);
 			notifications.add(notif);
@@ -81,6 +90,11 @@ public class JiraNotificationFilterTest {
 		System.out.println("JIRA-ready notifications:");
 		for (JiraReadyNotification notif : jiraReadyNotifs) {
 			System.out.println(notif);
+			RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif
+					.getNotificationItem();
+			assertTrue(ruleViolationNotif.getContent().getProjectVersionLink()
+					.startsWith("http://test.projectversion.url"));
+
 		}
 		assertEquals(3, jiraReadyNotifs.size());
 	}
