@@ -54,17 +54,14 @@ public class JiraNotificationFilter {
 						+ e.getMessage());
 			}
 
-			// TODO THIS IS WRONG
-			// it's checking the project/version URL, but it needs to go to the
-			// project/version, and get the "project"
-			// link, and use that
 			HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
 			if (mapping == null) {
 				System.out.println("No mapping matching this notification found; skipping this notification");
 			}
 
 			JiraProject bdsJiraProject = mapping.getJiraProject();
-			// TODO get the jira interaction out of this class?
+			// TODO get the jira interaction out of this class? Move it to
+			// JiraService
 			String mappingHubProjectName = mapping.getHubProject().getProjectName();
 			String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 
