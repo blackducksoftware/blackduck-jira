@@ -18,6 +18,7 @@ import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistExcep
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -31,6 +32,7 @@ import com.google.gson.reflect.TypeToken;
  * 
  */
 public class HubNotificationService {
+	private static final String PROJECT_LINK = "project";
 	private final RestConnection restConnection;
 	private final HubIntRestService hub;
 	private final HubItemsService<NotificationItem> hubItemsService;
@@ -126,10 +128,14 @@ public class HubNotificationService {
 	}
 
 	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException {
-		return null; // TODO
-	}
-
-	private ProjectItem getProjectForProjectRelease(final String versionUrl) throws HubNotificationServiceException {
-		return null; // TODO
+		String projectUrl;
+		ReleaseItem projectVersion;
+		try {
+			projectVersion = hub.getProjectVersion(versionUrl);
+			projectUrl = projectVersion.getLink(PROJECT_LINK);
+		} catch (IOException | BDRestException | URISyntaxException e) {
+			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl);
+		}
+		return projectUrl;
 	}
 }

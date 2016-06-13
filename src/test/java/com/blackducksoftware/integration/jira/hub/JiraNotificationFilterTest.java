@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,7 +55,7 @@ public class JiraNotificationFilterTest {
 		JiraService jiraService = new JiraService();
 		jiraService.setJiraProjectManager(mockJiraProjectManager);
 
-		List<HubProjectMapping> mappings = new ArrayList<>();
+		Set<HubProjectMapping> mappings = new HashSet<>();
 
 		for (int i = 0; i < 5; i++) {
 			HubProjectMapping mapping = new HubProjectMapping();

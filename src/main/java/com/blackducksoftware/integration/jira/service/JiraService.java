@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.CookieHandler;
-import java.net.URI;
+
 import java.util.List;
 
-import org.restlet.Context;
 import org.restlet.Response;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.CharacterSet;
@@ -18,10 +17,8 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
-import com.blackducksoftware.integration.hub.logging.LogLevel;
 import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.hub.JiraReadyNotification;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
@@ -57,34 +54,37 @@ public class JiraService {
 		return bdsJiraProject;
 	}
 
-	public int generateTickets(List<NotificationItem> notifs) throws JiraServiceException {
+	public int generateTickets(List<JiraReadyNotification> notifs) throws JiraServiceException {
 
-		System.out.println("Generating tickets for " + notifs.size() + " notifications");
+		System.out.println("Generating tickets for " + notifs.size() + " JIRA-ready notifications");
 		int ticketCount = 0;
-		for (NotificationItem notif : notifs) {
+		for (JiraReadyNotification notif : notifs) {
 			System.out.println("Generating ticket for: " + notif);
 			String hubProjectName = "<unknown>";
 			String notificationTypeString = "<null>";
-			if (notif instanceof VulnerabilityNotificationItem) {
+			if (notif.getNotificationItem() instanceof VulnerabilityNotificationItem) {
 				notificationTypeString = "Vulnerability";
 				System.out.println("This is a vulnerability notification; skipping it.");
 				continue;
-			} else if (notif instanceof RuleViolationNotificationItem) {
+			} else if (notif.getNotificationItem() instanceof RuleViolationNotificationItem) {
 				notificationTypeString = "RuleViolation";
-				RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
+				RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif
+						.getNotificationItem();
 				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-			} else if (notif instanceof PolicyOverrideNotificationItem) {
+			} else if (notif.getNotificationItem() instanceof PolicyOverrideNotificationItem) {
 				notificationTypeString = "PolicyOverride";
-				PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
+				PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif
+						.getNotificationItem();
 				hubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
 			}
 
-			if (notif.getType() != null) {
-				notificationTypeString = notif.getType().toString();
+			if (notif.getNotificationItem().getType() != null) {
+				notificationTypeString = notif.getNotificationItem().getType().toString();
 			}
-			String projectKey = "DEMO";
-			makeJiraIssue(projectKey, "Black Duck issue: Type: " + notificationTypeString + " on Hub Project '"
-					+ hubProjectName + "'", "Created at: " + notif.getCreatedAt().toString());
+
+			makeJiraIssue(notif.getJiraProjectKey(), "Black Duck issue: Type: " + notificationTypeString
+					+ " on Hub Project '" + hubProjectName + "'", "Created at: "
+					+ notif.getNotificationItem().getCreatedAt().toString());
 			ticketCount++;
 		}
 		System.out.println("Generated " + ticketCount + " tickets.");

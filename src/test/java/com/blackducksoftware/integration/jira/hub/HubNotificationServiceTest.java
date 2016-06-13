@@ -24,11 +24,14 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.project.ProjectVersion;
 import com.google.gson.reflect.TypeToken;
 
 import static org.mockito.Mockito.*;
@@ -38,8 +41,21 @@ public class HubNotificationServiceTest {
 	private static final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
 	private static final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
 
+	private static HubNotificationService hubNotificationService;
+	private static HubItemsService<NotificationItem> mockHubItemsService;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+
+		RestConnection mockRestConnection = mock(RestConnection.class);
+
+		HubIntRestService mockHubIntRestService = mock(HubIntRestService.class);
+		mockHubItemsService = mock(HubItemsService.class);
+		ReleaseItem mockProjectVersion = mock(ReleaseItem.class);
+		when(mockProjectVersion.getLink("project")).thenReturn("http://test.project.url");
+		when(mockHubIntRestService.getProjectVersion("http://test.projectVersion.url")).thenReturn(mockProjectVersion);
+		hubNotificationService = new HubNotificationService(mockRestConnection, mockHubIntRestService,
+				mockHubItemsService);
 	}
 
 	@AfterClass
@@ -47,8 +63,8 @@ public class HubNotificationServiceTest {
 	}
 
 	@Test
-	public void test() throws HubNotificationServiceException, URISyntaxException, BDRestException, ParseException,
-			IOException, ResourceDoesNotExistException {
+	public void testFetchNotifications() throws HubNotificationServiceException, URISyntaxException, BDRestException,
+			ParseException, IOException, ResourceDoesNotExistException {
 
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
@@ -58,13 +74,6 @@ public class HubNotificationServiceTest {
 
 		Date endDate = dateFormatter.parse(END_DATE_STRING);
 		System.out.println("endDate: " + endDate.toString());
-
-		RestConnection mockRestConnection = mock(RestConnection.class);
-
-		HubIntRestService mockHubIntRestService = mock(HubIntRestService.class);
-		HubItemsService<NotificationItem> mockHubItemsService = mock(HubItemsService.class);
-		HubNotificationService hubNotificationService = new HubNotificationService(mockRestConnection,
-				mockHubIntRestService, mockHubItemsService);
 
 		NotificationDateRange dateRange = new NotificationDateRange(startDate, endDate);
 		List<NotificationItem> notifs = hubNotificationService.fetchNotifications(dateRange);
@@ -77,17 +86,18 @@ public class HubNotificationServiceTest {
 		Set<SimpleEntry<String, String>> expectedQueryParameters = new HashSet<>();
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", START_DATE_STRING));
 		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", END_DATE_STRING));
-		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1000))); // TODO
-																													// this
-																													// will
-																													// need
-																													// to
-																													// change
+		// TODO this will need to change
+		expectedQueryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1000)));
 
 		verify(mockHubItemsService).httpGetItemList(expectedUrlSegments, expectedQueryParameters);
+	}
 
-		for (NotificationItem notif : notifs) {
-			System.out.println(notif);
-		}
+	@Test
+	public void testGetProjectUrlFromProjectReleaseUrl() throws HubNotificationServiceException {
+		String versionUrl = "http://test.projectVersion.url";
+
+		String projectUrl = hubNotificationService.getProjectUrlFromProjectReleaseUrl(versionUrl);
+
+		assertEquals("http://test.project.url", projectUrl);
 	}
 }

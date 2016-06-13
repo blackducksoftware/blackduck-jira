@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -41,6 +42,7 @@ public class HubNotificationCheckTask implements PluginJob {
 
 	private final Logger logger = Logger.getLogger(HubNotificationCheckTask.class);
 	private final TicketGenerator ticketGenerator;
+	private final JiraService jiraService;
 
 	public HubNotificationCheckTask() {
 		// TODO The code below is temporary / overly hard-coded.
@@ -69,7 +71,7 @@ public class HubNotificationCheckTask implements PluginJob {
 		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
 				NotificationItem.class, typeToken, typeToSubclassMap);
 
-		final JiraService jiraService = new JiraService();
+		jiraService = new JiraService();
 		ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
 	}
@@ -79,6 +81,9 @@ public class HubNotificationCheckTask implements PluginJob {
 
 		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
+		jiraService.setJiraProjectManager(jiraProjectManager);
 
 		// TODO The code below is temporary / overly hard-coded.
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);

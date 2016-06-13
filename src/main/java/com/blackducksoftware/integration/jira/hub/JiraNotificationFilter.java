@@ -2,6 +2,7 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
@@ -14,11 +15,11 @@ import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
 public class JiraNotificationFilter {
 	private final HubNotificationService hubNotificationService;
-	private final List<HubProjectMapping> mappings;
+	private final Set<HubProjectMapping> mappings;
 	private final JiraService jiraService;
 
 	public JiraNotificationFilter(HubNotificationService hubNotificationService, JiraService jiraService,
-			List<HubProjectMapping> mappings) {
+			Set<HubProjectMapping> mappings) {
 		this.hubNotificationService = hubNotificationService;
 		this.jiraService = jiraService;
 		this.mappings = mappings;
@@ -27,7 +28,10 @@ public class JiraNotificationFilter {
 	public List<JiraReadyNotification> extractJiraReadyNotifications(List<NotificationItem> notifications) {
 		List<JiraReadyNotification> jiraReadyNotifications = new ArrayList<>();
 
+		System.out.println("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through "
+				+ notifications.size() + " notifications");
 		for (NotificationItem notif : notifications) {
+			System.out.println("Notification: " + notif);
 			String notifHubProjectName = "<unknown>";
 			String notifHubProjectUrl = "<unknown>";
 			try {
@@ -58,7 +62,8 @@ public class JiraNotificationFilter {
 
 			HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
 			if (mapping == null) {
-				System.out.println("No mapping matching this notification found; skipping this notification");
+				System.out
+						.println("No configuration project mapping matching this notification found; skipping this notification");
 				continue;
 			}
 
@@ -84,7 +89,10 @@ public class JiraNotificationFilter {
 	}
 
 	private HubProjectMapping getMatchingMapping(String notifHubProjectUrl) {
+		System.out.println("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
+				+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
 		for (HubProjectMapping mapping : mappings) {
+			System.out.println("Mapping: " + mapping);
 			String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
 				return mapping;

@@ -30,7 +30,10 @@ public class TicketGenerator {
 
 	public int generateTicketsForRecentNotifications(Set<HubProjectMapping> hubProjectMappings,
 			NotificationDateRange notificationDateRange) throws HubNotificationServiceException, JiraServiceException {
+
 		List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
-		return jiraService.generateTickets(notifs);
+		JiraNotificationFilter filter = new JiraNotificationFilter(notificationService, jiraService, hubProjectMappings);
+		List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifs);
+		return jiraService.generateTickets(jiraReadyNotifs);
 	}
 }
