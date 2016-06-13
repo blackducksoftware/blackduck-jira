@@ -41,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = 1490082138759753213L;
+	private static final long serialVersionUID = -7249608185766253911L;
 
 	@XmlElement
 	private String intervalBetweenChecks;
@@ -62,7 +62,10 @@ public class HubJiraConfigSerializable implements Serializable {
 	private String hubProjectMappingError;
 
 	@XmlElement
-	private List<PolicyRuleCondition> policyRuleConditions;
+	private List<PolicyRuleSerializable> policyRules;
+
+	@XmlElement
+	private String policyRulesError;
 
 	public boolean hasErrors() {
 		boolean hasErrors = false;
@@ -70,6 +73,9 @@ public class HubJiraConfigSerializable implements Serializable {
 			hasErrors = true;
 		}
 		if (StringUtils.isNotBlank(getHubProjectMappingError())) {
+			hasErrors = true;
+		}
+		if (StringUtils.isNotBlank(getPolicyRulesError())) {
 			hasErrors = true;
 		}
 		return hasErrors;
@@ -146,24 +152,32 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.hubProjectMappingError = hubProjectMappingError;
 	}
 
-	public List<PolicyRuleCondition> getPolicyRuleConditions() {
-		return policyRuleConditions;
+	public List<PolicyRuleSerializable> getPolicyRules() {
+		return policyRules;
 	}
 
-	public void setPolicyRuleConditions(final List<PolicyRuleCondition> policyRuleConditions) {
-		this.policyRuleConditions = policyRuleConditions;
+	public void setPolicyRules(final List<PolicyRuleSerializable> policyRules) {
+		this.policyRules = policyRules;
 	}
 
-	public void setPolicyRuleConditionsJson(final String policyRuleConditionsJson) {
+	public void setPolicyRulesJson(final String policyRulesJson) {
 		final Gson gson = new GsonBuilder().create();
-		final Type mappingType = new TypeToken<List<PolicyRuleCondition>>() {
+		final Type mappingType = new TypeToken<List<PolicyRuleSerializable>>() {
 		}.getType();
-		this.policyRuleConditions = gson.fromJson(policyRuleConditionsJson, mappingType);
+		this.policyRules = gson.fromJson(policyRulesJson, mappingType);
 	}
 
-	public String getPolicyRuleConditionsJson() {
+	public String getPolicyRulesJson() {
 		final Gson gson = new GsonBuilder().create();
-		return gson.toJson(policyRuleConditions);
+		return gson.toJson(policyRules);
+	}
+
+	public String getPolicyRulesError() {
+		return policyRulesError;
+	}
+
+	public void setPolicyRulesError(final String policyRulesError) {
+		this.policyRulesError = policyRulesError;
 	}
 
 	@Override
@@ -176,7 +190,8 @@ public class HubJiraConfigSerializable implements Serializable {
 		result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
 		result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
 		result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
-		result = prime * result + ((policyRuleConditions == null) ? 0 : policyRuleConditions.hashCode());
+		result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
+		result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
 		return result;
 	}
 
@@ -234,11 +249,18 @@ public class HubJiraConfigSerializable implements Serializable {
 		} else if (!jiraProjects.equals(other.jiraProjects)) {
 			return false;
 		}
-		if (policyRuleConditions == null) {
-			if (other.policyRuleConditions != null) {
+		if (policyRules == null) {
+			if (other.policyRules != null) {
 				return false;
 			}
-		} else if (!policyRuleConditions.equals(other.policyRuleConditions)) {
+		} else if (!policyRules.equals(other.policyRules)) {
+			return false;
+		}
+		if (policyRulesError == null) {
+			if (other.policyRulesError != null) {
+				return false;
+			}
+		} else if (!policyRulesError.equals(other.policyRulesError)) {
 			return false;
 		}
 		return true;
@@ -259,11 +281,14 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(hubProjectMappings);
 		builder.append(", hubProjectMappingError=");
 		builder.append(hubProjectMappingError);
-		builder.append(", policyRuleConditions=");
-		builder.append(policyRuleConditions);
+		builder.append(", policyRules=");
+		builder.append(policyRules);
+		builder.append(", policyRulesError=");
+		builder.append(policyRulesError);
 		builder.append("]");
 		return builder.toString();
 	}
+
 
 
 }

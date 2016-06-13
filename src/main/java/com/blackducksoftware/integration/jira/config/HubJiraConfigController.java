@@ -23,8 +23,11 @@ package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -55,12 +58,15 @@ import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
+import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubProxyInfo;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRuleConditionFieldEnum;
+import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.google.gson.reflect.TypeToken;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -109,8 +115,7 @@ public class HubJiraConfigController {
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
-				final String policyConditionJson = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_CONDITIONS);
+				final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES);
 
 				final String hubProjectMappingsJson = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
@@ -118,32 +123,11 @@ public class HubJiraConfigController {
 				config.setIntervalBetweenChecks(intervalBetweenChecks);
 				config.setHubProjectMappingsJson(hubProjectMappingsJson);
 
-				if (StringUtils.isNotBlank(policyConditionJson)) {
-					config.setPolicyRuleConditionsJson(policyConditionJson);
+				if (StringUtils.isNotBlank(policyRulesJson)) {
+					config.setPolicyRulesJson(policyRulesJson);
 				}
-				List<PolicyRuleCondition> policyConditions = new ArrayList<PolicyRuleCondition>();
-				if (config.getPolicyRuleConditions() == null || config.getPolicyRuleConditions().isEmpty()) {
-					policyConditions = new ArrayList<PolicyRuleCondition>();
-				} else {
-					policyConditions = config.getPolicyRuleConditions();
-				}
-				for (final PolicyRuleConditionFieldEnum policyConditionEnum : PolicyRuleConditionFieldEnum.values()) {
-					if (policyConditionEnum != PolicyRuleConditionFieldEnum.UNKNOWN_RULE_CONDTION) {
-						boolean alreadyInList = false;
-						for(final PolicyRuleCondition cond : policyConditions){
-							if (policyConditionEnum.name().equals(cond.getValue())) {
-								alreadyInList = true;
-							}
-						}
-						if (!alreadyInList) {
-							final PolicyRuleCondition newCondition = new PolicyRuleCondition();
-							newCondition.setName(policyConditionEnum.getDisplayValue());
-							newCondition.setValue(policyConditionEnum.name());
-							policyConditions.add(newCondition);
-						}
-					}
-				}
-				config.setPolicyRuleConditions(policyConditions);
+				setHubPolicyRules(restService.getRestConnection(),
+						config);
 				checkConfigErrors(config);
 				return config;
 			}
@@ -182,8 +166,8 @@ public class HubJiraConfigController {
 
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_CONDITIONS,
-						config.getPolicyRuleConditionsJson());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES,
+						config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 
@@ -398,5 +382,49 @@ public class HubJiraConfigController {
 			}
 		}
 		return hubProjects;
+	}
+
+	private void setHubPolicyRules(final RestConnection restConnection,
+			final HubJiraConfigSerializable config) {
+		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
+		};
+		final HubItemsService<PolicyRule> policyService = new HubItemsService<PolicyRule>(
+				restConnection, PolicyRule.class, typeToken);
+
+		final List<String> urlSegments = new ArrayList<>();
+		urlSegments.add("api");
+		urlSegments.add("notifications");
+
+		final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
+		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
+
+		List<PolicyRule> policyRules = null;
+		try {
+			policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
+		} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
+			config.setPolicyRulesError(e.getMessage());
+		}
+
+		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
+		if (policyRules != null && !policyRules.isEmpty()) {
+			for (final PolicyRule rule : policyRules) {
+				final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
+				newRule.setConditions(rule.getExpression());
+				newRule.setDescription(rule.getDescription());
+				newRule.setName(rule.getName());
+				newRule.setPolicyUrl(rule.getMeta().getHref());
+			}
+		}
+		if (config.getPolicyRules() != null) {
+			for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
+				for (final PolicyRuleSerializable newRule : newPolicyRules) {
+					if (oldRule.getName().equals(newRule.getName())) {
+						newRule.setChecked(oldRule.isChecked());
+						break;
+					}
+				}
+			}
+		}
+		config.setPolicyRules(newPolicyRules);
 	}
 }
