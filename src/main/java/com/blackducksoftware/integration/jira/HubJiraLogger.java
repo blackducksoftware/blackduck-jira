@@ -10,7 +10,7 @@ import com.blackducksoftware.integration.hub.logging.LogLevel;
 
 public class HubJiraLogger implements IntLogger {
 	private final Logger jiraLogger;
-	private LogLevel logLevel = LogLevel.INFO;
+	private LogLevel logLevel = LogLevel.DEBUG;
 
 	public HubJiraLogger(Logger jiraLogger) {
 		this.jiraLogger = jiraLogger;
