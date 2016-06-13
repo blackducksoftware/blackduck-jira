@@ -32,3 +32,8 @@
 .errorMapping {
 	color : red;
 }
+
+.ticketCriteriaTable {
+	width : 100%;
+	table-layout : fixed;
+}

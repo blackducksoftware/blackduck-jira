@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +15,6 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
-import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
@@ -27,9 +25,9 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Hub Notification get methods. TODO: Move to hub-common.
- * 
+ *
  * @author sbillings
- * 
+ *
  */
 public class HubNotificationService {
 	private static final String PROJECT_LINK = "project";
@@ -41,14 +39,14 @@ public class HubNotificationService {
 
 	/**
 	 * Construct with given hub-access objects.
-	 * 
+	 *
 	 * @param restConnection
 	 *            fully initialized (setCookies() has been called)
 	 * @param hub
 	 * @param hubItemsService
 	 */
-	public HubNotificationService(RestConnection restConnection, HubIntRestService hub,
-			HubItemsService<NotificationItem> hubItemsService) {
+	public HubNotificationService(final RestConnection restConnection, final HubIntRestService hub,
+			final HubItemsService<NotificationItem> hubItemsService) {
 		super();
 		this.restConnection = restConnection;
 		this.hub = hub;
@@ -60,7 +58,7 @@ public class HubNotificationService {
 
 	/**
 	 * Construct with given Hub connection details.
-	 * 
+	 *
 	 * @param hubUrl
 	 * @param username
 	 * @param password
@@ -77,7 +75,7 @@ public class HubNotificationService {
 
 		try {
 			hub = new HubIntRestService(restConnection);
-		} catch (URISyntaxException e) {
+		} catch (final URISyntaxException e) {
 			throw new HubNotificationServiceException("");
 		}
 
@@ -103,11 +101,11 @@ public class HubNotificationService {
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 
-		int limit = 1000; // TODO will need chunking and maybe retry logic to
-							// handle large sets
+		final int limit = 1000; // TODO will need chunking and maybe retry logic to
+		// handle large sets
 
-		String startDateString = dateFormatter.format(dateRange.getStartDate());
-		String endDateString = dateFormatter.format(dateRange.getEndDate());
+		final String startDateString = dateFormatter.format(dateRange.getStartDate());
+		final String endDateString = dateFormatter.format(dateRange.getEndDate());
 
 		System.out.println("fetchNotifications(): Getting notifications from " + startDateString + " to "
 				+ endDateString); // TODO

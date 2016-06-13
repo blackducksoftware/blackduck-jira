@@ -20,9 +20,6 @@ public class PolicyRuleSerializable implements Serializable {
 	private String description;
 
 	@XmlElement
-	private String conditions;
-
-	@XmlElement
 	private String policyUrl;
 
 	@XmlElement
@@ -42,14 +39,6 @@ public class PolicyRuleSerializable implements Serializable {
 
 	public void setDescription(final String description) {
 		this.description = description;
-	}
-
-	public String getConditions() {
-		return conditions;
-	}
-
-	public void setConditions(final String conditions) {
-		this.conditions = conditions;
 	}
 
 	public String getPolicyUrl() {
@@ -73,7 +62,6 @@ public class PolicyRuleSerializable implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (checked ? 1231 : 1237);
-		result = prime * result + ((conditions == null) ? 0 : conditions.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((policyUrl == null) ? 0 : policyUrl.hashCode());
@@ -93,13 +81,6 @@ public class PolicyRuleSerializable implements Serializable {
 		}
 		final PolicyRuleSerializable other = (PolicyRuleSerializable) obj;
 		if (checked != other.checked) {
-			return false;
-		}
-		if (conditions == null) {
-			if (other.conditions != null) {
-				return false;
-			}
-		} else if (!conditions.equals(other.conditions)) {
 			return false;
 		}
 		if (description == null) {
@@ -133,8 +114,6 @@ public class PolicyRuleSerializable implements Serializable {
 		builder.append(name);
 		builder.append(", description=");
 		builder.append(description);
-		builder.append(", conditions=");
-		builder.append(conditions);
 		builder.append(", policyUrl=");
 		builder.append(policyUrl);
 		builder.append(", checked=");

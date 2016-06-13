@@ -30,7 +30,7 @@
       
 		<fieldset class="fieldSection">
 			<legend class="legend">Ticket Criteria</legend>
-			<table width="100%">
+			<table class="ticketCriteriaTable">
 				<thead>
 					<tr>
 						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')
@@ -43,7 +43,7 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td id="policyConditionTicketCreation">
+						<td id="policyRuleTicketCreation">
 				  		</td>
 				  		<td id="vulnerabilityTicketCreation">
 				      		<input type="checkbox" value="Bike"> I have a bike<br>
@@ -53,6 +53,17 @@
 				      		<input type="checkbox" value="Bike"> I have a bike<br>
 				  			<input type="checkbox" value="Car"> I have a car<br>
 				  		</td>
+	      			</tr>
+	      			<tr>
+	      				<td>
+					      	<div id="policyRulesError" class="error hidden"></div>
+					    </td>
+					    <td>
+					      	<div id="" class="error hidden"></div>
+					    </td>
+					    <td >
+					      	<div id="" class="error hidden"></div>
+					    </td>
 	      			</tr>
       			</tbody>
       		</table>	

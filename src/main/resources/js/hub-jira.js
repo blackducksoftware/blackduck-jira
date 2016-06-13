@@ -43,10 +43,11 @@ var hubProjectDisplayName = "projectName";
 var hubProjectKey = "projectUrl";
 var hubProjectExists = "projectExists";
 
-var policyConditionTicketCreation = "policyConditionTicketCreation";  
-var policyConditionName = "name";
-var policyConditionValue = "value";
-var policyConditionChecked = "checked";
+var policyRuleTicketCreation = "policyRuleTicketCreation";  
+var policyRuleName = "name";
+var policyRuleDescription = "description";
+var policyRuleUrl = "policyUrl";
+var policyRuleChecked = "checked";
 
 
 var vulnerabilityTicketCreation = "vulnerabilityTicketCreation"; 
@@ -68,17 +69,18 @@ function populateForm() {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      fillInProjects(config.jiraProjects, config.hubProjects);
 	      fillInMappings(config.hubProjectMappings);
-	      addPolicyViolationConditions(config.policyRuleConditions);
+	      addPolicyViolationRules(config.policyRules);
 	      
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
+	      handleError('policyRulesError', config.policyRulesError);
 	    }
 	  });
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
-	var policyConditionArray = getJsonArrayFromPolicyConditions();
+	var policyRuleArray = getJsonArrayFromPolicyRules();
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -86,12 +88,13 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
 	    + '", "hubProjectMappings": ' + jsonMappingArray
-	    + ', "policyRuleConditions": ' + policyConditionArray
+	    + ', "policyRules": ' + policyRuleArray
 	    + '}',
 	    processData: false,
 	    success: function() {
 	    	hideError('intervalBetweenChecksError');
 	    	hideError('hubProjectMappingsError');
+	    	hideError('policyRulesError');
 	    	
 		    showStatusMessage(successStatus, 'Success!', successMessage);
 		    stopProgressSpinner();
@@ -100,6 +103,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	var config = JSON.parse(response.responseText);
 	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	    	handleError('hubProjectMappingsError', config.hubProjectMappingError);
+	    	handleError('policyRulesError', config.policyRulesError);
 	    	
 		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 		    stopProgressSpinner();
@@ -154,26 +158,29 @@ function getJsonArrayFromMapping(){
 	return jsonArray;
 }
 
-function getJsonArrayFromPolicyConditions(){
+function getJsonArrayFromPolicyRules(){
 	var jsonArray = "[";
-	var policyConditionContainer = AJS.$("#" + policyConditionTicketCreation);
-	var policyConditions = policyConditionContainer.find("input");
-	for (i = 0; i < policyConditions.length; i++) {
+	var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+	var policyRules = policyRuleContainer.find("input");
+	for (i = 0; i < policyRules.length; i++) {
 		if(i > 0){
 			jsonArray += ","
 		}
-		var policyCondition = policyConditions[i];
+		var policyRule = policyRules[i];
 
-		var currentPolicyConditionValue = policyCondition.value;
-		var currentPolicyConditionName = policyCondition.name;
-		var currentPolicyConditionChecked = policyCondition.checked;
+		var currentPolicyRuleUrl = policyRule.policyUrl;
+		var currentPolicyRuleDescription = policyRule.title;
+		var currentPolicyRuleName = policyRule.name;
+		var currentPolicyRuleChecked = policyRule.checked;
 		
 		jsonArray += '{"'
-			+ policyConditionName + '":"' + currentPolicyConditionName 
+			+ policyRuleName + '":"' + currentPolicyRuleName 
 			+ '","' 
-			+ policyConditionValue + '":"' + currentPolicyConditionValue 
+			+ policyRuleUrl + '":"' + currentPolicyRuleUrl 
 			+ '","' 
-			+ policyConditionChecked + '":"' + currentPolicyConditionChecked 
+			+ policyRuleDescription + '":"' + currentPolicyRuleDescription 
+			+ '","' 
+			+ policyRuleChecked + '":"' + currentPolicyRuleChecked 
 			+ '"}';
 	}
 	jsonArray += "]";
@@ -186,23 +193,25 @@ function updateValue(fieldId, configField) {
     }
 }
 
-function addPolicyViolationConditions(policyRuleConditions){
-	var policyConditionContainer = AJS.$("#" + policyConditionTicketCreation);
-	if(policyRuleConditions != null && policyRuleConditions.length > 0){
-		for (p = 0; p < policyRuleConditions.length; p++) {
-			var newPolicyConditionCheckbox = AJS.$('<input>', {
+function addPolicyViolationRules(policyRules){
+	var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+	if(policyRules != null && policyRules.length > 0){
+		for (p = 0; p < policyRules.length; p++) {
+			var newPolicyRuleCheckbox = AJS.$('<input>', {
 			    type: "checkbox",
-			    value: policyRuleConditions[p].value,
-			    name: policyRuleConditions[p].name,
-			    checked : policyRuleConditions[p].checked
+			    policyUrl: decodeURI(policyRules[p].policyUrl),
+			    title: decodeURI(policyRules[p].description),
+			    name: decodeURI(policyRules[p].name),
+			    checked : policyRules[p].checked
 			});
 			var newPolicyLabel = AJS.$('<label>', {
-				text: policyRuleConditions[p].name
+				text: policyRules[p].name,
+				title: decodeURI(policyRules[p].description),
 			});
 			var newBreak = AJS.$('<br/>', {});
-			newPolicyConditionCheckbox.appendTo(policyConditionContainer);
-			newPolicyLabel.appendTo(policyConditionContainer);
-			newBreak.appendTo(policyConditionContainer);
+			newPolicyRuleCheckbox.appendTo(policyRuleContainer);
+			newPolicyLabel.appendTo(policyRuleContainer);
+			newBreak.appendTo(policyRuleContainer);
 		}
 	}
 }

@@ -53,6 +53,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.builder.HubProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
@@ -74,6 +75,7 @@ public class HubJiraConfigController {
 	public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
 	public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
 	public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s) with empty Project(s).";
+	public static final String HUB_SERVER_NO_POLICY_SUPPORT = "This version of the Hub does not support Policies.";
 
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
@@ -126,8 +128,10 @@ public class HubJiraConfigController {
 				if (StringUtils.isNotBlank(policyRulesJson)) {
 					config.setPolicyRulesJson(policyRulesJson);
 				}
-				setHubPolicyRules(restService.getRestConnection(),
-						config);
+				if (restService != null) {
+					setHubPolicyRules(restService,
+							config);
+				}
 				checkConfigErrors(config);
 				return config;
 			}
@@ -384,47 +388,61 @@ public class HubJiraConfigController {
 		return hubProjects;
 	}
 
-	private void setHubPolicyRules(final RestConnection restConnection,
+	private void setHubPolicyRules(final HubIntRestService restService,
 			final HubJiraConfigSerializable config) {
-		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
-		};
-		final HubItemsService<PolicyRule> policyService = new HubItemsService<PolicyRule>(
-				restConnection, PolicyRule.class, typeToken);
 
-		final List<String> urlSegments = new ArrayList<>();
-		urlSegments.add("api");
-		urlSegments.add("notifications");
-
-		final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
-		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
-
-		List<PolicyRule> policyRules = null;
+		final HubSupportHelper supportHelper = new HubSupportHelper();
 		try {
-			policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
-		} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
-			config.setPolicyRulesError(e.getMessage());
-		}
+			supportHelper.checkHubSupport(restService, null);
 
-		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
-		if (policyRules != null && !policyRules.isEmpty()) {
-			for (final PolicyRule rule : policyRules) {
-				final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-				newRule.setConditions(rule.getExpression());
-				newRule.setDescription(rule.getDescription());
-				newRule.setName(rule.getName());
-				newRule.setPolicyUrl(rule.getMeta().getHref());
-			}
-		}
-		if (config.getPolicyRules() != null) {
-			for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
-				for (final PolicyRuleSerializable newRule : newPolicyRules) {
-					if (oldRule.getName().equals(newRule.getName())) {
-						newRule.setChecked(oldRule.isChecked());
-						break;
+			if (supportHelper.isPolicyApiSupport()) {
+
+				final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
+				};
+				final HubItemsService<PolicyRule> policyService = new HubItemsService<PolicyRule>(
+						restService.getRestConnection(), typeToken);
+
+				final List<String> urlSegments = new ArrayList<>();
+				urlSegments.add("api");
+				urlSegments.add("policy-rules");
+
+				final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
+				queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
+
+				List<PolicyRule> policyRules = null;
+				try {
+					policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
+				} catch (IOException | URISyntaxException | ResourceDoesNotExistException
+						| BDRestException e) {
+					config.setPolicyRulesError(e.getMessage());
+				}
+
+				final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
+				if (policyRules != null && !policyRules.isEmpty()) {
+					for (final PolicyRule rule : policyRules) {
+						final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
+						newRule.setDescription(rule.getDescription().trim());
+						newRule.setName(rule.getName().trim());
+						newRule.setPolicyUrl(rule.getMeta().getHref());
+						newPolicyRules.add(newRule);
 					}
 				}
+				if (config.getPolicyRules() != null) {
+					for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
+						for (final PolicyRuleSerializable newRule : newPolicyRules) {
+							if (oldRule.getName().equals(newRule.getName())) {
+								newRule.setChecked(oldRule.isChecked());
+								break;
+							}
+						}
+					}
+				}
+				config.setPolicyRules(newPolicyRules);
+			} else {
+				config.setPolicyRulesError(HUB_SERVER_NO_POLICY_SUPPORT);
 			}
+		} catch (IOException | URISyntaxException e) {
+			config.setPolicyRulesError(e.getMessage());
 		}
-		config.setPolicyRules(newPolicyRules);
 	}
 }
