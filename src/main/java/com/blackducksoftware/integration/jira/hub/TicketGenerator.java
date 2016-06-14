@@ -14,26 +14,28 @@ import com.blackducksoftware.integration.jira.service.JiraServiceException;
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
  * them.
- * 
+ *
  * @author sbillings
- * 
+ *
  */
 public class TicketGenerator {
 	private final HubNotificationService notificationService;
 	private final JiraService jiraService;
 
-	public TicketGenerator(RestConnection restConnection, HubIntRestService hub,
-			HubItemsService<NotificationItem> hubItemsService, JiraService jiraService) {
+	public TicketGenerator(final RestConnection restConnection, final HubIntRestService hub,
+			final HubItemsService<NotificationItem> hubItemsService, final JiraService jiraService) {
 		notificationService = new HubNotificationService(restConnection, hub, hubItemsService);
 		this.jiraService = jiraService;
 	}
 
-	public int generateTicketsForRecentNotifications(Set<HubProjectMapping> hubProjectMappings,
-			NotificationDateRange notificationDateRange) throws HubNotificationServiceException, JiraServiceException {
+	public int generateTicketsForRecentNotifications(final Set<HubProjectMapping> hubProjectMappings,
+			final List<String> linksOfRulesToMonitor,
+			final NotificationDateRange notificationDateRange) throws HubNotificationServiceException, JiraServiceException {
 
-		List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
-		JiraNotificationFilter filter = new JiraNotificationFilter(notificationService, jiraService, hubProjectMappings);
-		List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifs);
+		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
+		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService, jiraService,
+				hubProjectMappings, linksOfRulesToMonitor);
+		final List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifs);
 		return jiraService.generateTickets(jiraReadyNotifs);
 	}
 }

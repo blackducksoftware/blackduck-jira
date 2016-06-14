@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -144,10 +145,15 @@ public class HubJiraTask {
 			final NotificationDateRange notificationDateRange = new NotificationDateRange(lastRunDate,
 					runDate);
 
+			final List<String> linksOfRulesToMonitor = null; // TODO get from
+																// config once
+																// its there
+
 			// Generate Jira Issues based on recent notifications
 
 			ticketGenerator
-			.generateTicketsForRecentNotifications(config.getHubProjectMappings(), notificationDateRange);
+.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
+					linksOfRulesToMonitor, notificationDateRange);
 		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
 				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);

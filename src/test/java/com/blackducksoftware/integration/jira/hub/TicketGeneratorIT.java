@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -25,7 +26,7 @@ import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
 public class TicketGeneratorIT {
-	private static final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
+	private static final String END_DATE_STRING = "2016-05-02T00:00:00.000Z";
 	private static final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
 
 	@BeforeClass
@@ -36,7 +37,7 @@ public class TicketGeneratorIT {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
-	// @Test TODO THIS CREATES TOO MANY TICKETS
+	@Test
 	public void test() throws URISyntaxException, ParseException, HubNotificationServiceException, BDRestException,
 	JiraServiceException {
 		final RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
@@ -54,9 +55,9 @@ public class TicketGeneratorIT {
 				NotificationItem.class, typeToken, typeToSubclassMap);
 
 		final JiraService jiraService = new JiraService(null, "Bug"); // TODO
-																		// this
-																		// won't
-																		// work
+		// this
+		// won't
+		// work
 		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
 		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -70,7 +71,8 @@ public class TicketGeneratorIT {
 		final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
 
 		// TODO have to pass in the mappings
-		final int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(null, notificationDateRange);
+		final int ticketCount = ticketGenerator
+				.generateTicketsForRecentNotifications(null, null, notificationDateRange);
 
 		assertEquals(100, ticketCount);
 	}

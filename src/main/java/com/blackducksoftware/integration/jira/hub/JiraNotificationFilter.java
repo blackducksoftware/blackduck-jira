@@ -20,21 +20,23 @@ public class JiraNotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final HubNotificationService hubNotificationService;
 	private final Set<HubProjectMapping> mappings;
+	private final List<String> linksOfRulesToMonitor;
 	private final JiraService jiraService;
 
-	public JiraNotificationFilter(HubNotificationService hubNotificationService, JiraService jiraService,
-			Set<HubProjectMapping> mappings) {
+	public JiraNotificationFilter(final HubNotificationService hubNotificationService, final JiraService jiraService,
+			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor) {
 		this.hubNotificationService = hubNotificationService;
 		this.jiraService = jiraService;
 		this.mappings = mappings;
+		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
 
-	public List<JiraReadyNotification> extractJiraReadyNotifications(List<NotificationItem> notifications) {
-		List<JiraReadyNotification> jiraReadyNotifications = new ArrayList<>();
+	public List<JiraReadyNotification> extractJiraReadyNotifications(final List<NotificationItem> notifications) {
+		final List<JiraReadyNotification> jiraReadyNotifications = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 				+ " notifications");
-		for (NotificationItem notif : notifications) {
+		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 			String notifHubProjectName = "<unknown>";
 			String notifHubProjectUrl = "<unknown>";
@@ -43,36 +45,48 @@ public class JiraNotificationFilter {
 					logger.debug("This is a vulnerability notification; skipping it.");
 					continue;
 				} else if (notif instanceof RuleViolationNotificationItem) {
-					RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
+					final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
 					notifHubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-					String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
+					final String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
 							.getProjectVersionLink();
 					notifHubProjectUrl = hubNotificationService
 							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+					final List<String> linksOfRulesViolated = hubNotificationService
+							.getLinksOfRulesViolated(ruleViolationNotificationItem);
+					logger.debug("Rules violated: " + linksOfRulesViolated);
+					if (linksOfRulesToMonitor == null) {
+						logger.debug("There is no list of rules to monitor, so we'll generate a ticket for the violation of any rule (as long as it's on a project being monitored)");
+					} else {
+						logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
+						if (!overlap(linksOfRulesToMonitor, linksOfRulesViolated)) {
+							logger.debug("None of the violated rules are in the configured list of rules to monitor");
+							continue;
+						}
+					}
 				} else if (notif instanceof PolicyOverrideNotificationItem) {
-					PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
+					final PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
 					notifHubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
-					String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
+					final String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
 							.getProjectVersionLink();
 					notifHubProjectUrl = hubNotificationService
 							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
 				}
-			} catch (HubNotificationServiceException e) {
+			} catch (final HubNotificationServiceException e) {
 				logger.error("Error extracting details from the Hub notification: " + notif + ": " + e.getMessage());
 				continue;
 			}
 
-			HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
+			final HubProjectMapping mapping = getMatchingMapping(notifHubProjectUrl);
 			if (mapping == null) {
 				logger.debug("No configuration project mapping matching this notification found; skipping this notification");
 				continue;
 			}
 
-			JiraProject mappingJiraProject = mapping.getJiraProject();
+			final JiraProject mappingJiraProject = mapping.getJiraProject();
 			JiraProject freshBdsJiraProject;
 			try {
 				freshBdsJiraProject = jiraService.getProject(mappingJiraProject.getProjectId());
-			} catch (JiraServiceException e) {
+			} catch (final JiraServiceException e) {
 				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
 				continue;
@@ -81,7 +95,7 @@ public class JiraNotificationFilter {
 			logger.debug("Notification hub project " + notifHubProjectName + " matches mapping hub project: "
 					+ mapping.getHubProject().getProjectName());
 			logger.debug("The corresponding JIRA project is: " + freshBdsJiraProject.getProjectName());
-			JiraReadyNotification jiraReadyNotification = new JiraReadyNotification(
+			final JiraReadyNotification jiraReadyNotification = new JiraReadyNotification(
 					freshBdsJiraProject.getProjectKey(), freshBdsJiraProject.getProjectName(), notifHubProjectName,
 					notif);
 			jiraReadyNotifications.add(jiraReadyNotification);
@@ -89,12 +103,21 @@ public class JiraNotificationFilter {
 		return jiraReadyNotifications;
 	}
 
-	private HubProjectMapping getMatchingMapping(String notifHubProjectUrl) {
+	private boolean overlap(final List<String> list1, final List<String> list2) {
+		for (final String s1 : list1) {
+			if (list2.contains(s1)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private HubProjectMapping getMatchingMapping(final String notifHubProjectUrl) {
 		logger.debug("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
 				+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
-		for (HubProjectMapping mapping : mappings) {
+		for (final HubProjectMapping mapping : mappings) {
 			logger.debug("Mapping: " + mapping);
-			String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
+			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
 				return mapping;
 			}

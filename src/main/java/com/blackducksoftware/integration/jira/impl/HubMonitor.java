@@ -117,7 +117,12 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 			intervalMinutes = 1;
 		}
 		logger.info("Interval in minutes: " + intervalMinutes);
-		final long intervalMillisec = intervalMinutes * 60 * 1000;
+		// Lop off 30 seconds to give the task room to run. Otherwise, the
+		// runtime
+		// of the task pushes the next scheduled runtime out beyond the targeted
+		// once-a-minute opportunity to run
+		final long intervalSeconds = (intervalMinutes * 60) - 30;
+		final long intervalMillisec = intervalSeconds * 1000;
 		return intervalMillisec;
 	}
 }

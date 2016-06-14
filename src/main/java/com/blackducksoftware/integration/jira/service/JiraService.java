@@ -20,7 +20,6 @@ import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.JiraReadyNotification;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
@@ -76,14 +75,6 @@ public class JiraService {
 				final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif
 						.getNotificationItem();
 				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-				final List<ComponentVersionStatus> compVerStatuses = ruleViolationNotificationItem.getContent()
-						.getComponentVersionStatuses();
-				for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
-					final String bomCompVerPolicyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
-					logger.debug("bomCompVerPolicyStatusUrl: " + bomCompVerPolicyStatusUrl);
-					// TODO Need to collect these so we know what rules were
-					// violated (but not in this class)
-				}
 			} else if (notif.getNotificationItem() instanceof PolicyOverrideNotificationItem) {
 				notificationTypeString = "PolicyOverride";
 				final PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif
