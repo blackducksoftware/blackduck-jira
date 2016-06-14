@@ -24,9 +24,9 @@
 	padding : 5px 5px 5px 15px !important; 
 }
 
-.fieldSection {
-	border : 1px solid !important;
-	padding : 5px 5px 5px 15px !important; 
+.mappingContainer {
+	overflow-y: scroll; 
+	height:300px;
 }
 
 .errorMapping {
@@ -36,4 +36,9 @@
 .ticketCriteriaTable {
 	width : 100%;
 	table-layout : fixed;
+}
+
+.ticketCriteriaSection {
+	overflow : scroll; 
+	height : 200px;
 }
