@@ -12,8 +12,11 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
@@ -42,52 +45,75 @@ import com.google.gson.reflect.TypeToken;
 public class HubNotificationCheckTask implements PluginJob {
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final TicketGenerator ticketGenerator;
-	private final JiraService jiraService;
 
 	public HubNotificationCheckTask() {
-		// TODO The code below is temporary / overly hard-coded.
-		final RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
+	}
+
+	@Override
+	public void execute(final Map<String, Object> jobDataMap) {
+
+		// TODO this method needs to be broken up
+
+		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
+		JiraService jiraService = new JiraService(jiraProjectManager);
+
+		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
+		String hubUrl = (String) settings.get(HubConfigKeys.CONFIG_HUB_URL);
+		String hubUsername = (String) settings.get(HubConfigKeys.CONFIG_HUB_USER);
+		String hubPasswordEncrypted = (String) settings.get(HubConfigKeys.CONFIG_HUB_PASS);
+		String hubTimeoutString = (String) settings.get(HubConfigKeys.CONFIG_HUB_TIMEOUT);
+
+		// TODO TEMP don't expose password!
+		logger.debug("Hub connection details: " + hubUrl + ", " + hubUsername + ", " + hubPasswordEncrypted);
+
+		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
+			logger.debug("The Hub connection details have not been configured; Exiting");
+			return;
+		}
+
+		String hubPassword;
 		try {
-			restConnection.setCookies("sysadmin", "blackduck");
+			hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
+		} catch (IllegalArgumentException | EncryptionException e2) {
+			logger.error("Error decrypting Hub password", e2);
+			return;
+		}
+
+		final RestConnection restConnection = new RestConnection(hubUrl);
+		try {
+			restConnection.setCookies(hubUsername, hubPassword);
+
 		} catch (final URISyntaxException e) {
 			throw new IllegalArgumentException(e);
 		} catch (final BDRestException e) {
 			throw new IllegalArgumentException(e);
 		}
+
+		if (hubTimeoutString != null) {
+			int hubTimeout = Integer.parseInt(hubTimeoutString);
+			logger.debug("Setting Hub timeout to: " + hubTimeout);
+			restConnection.setTimeout(hubTimeout);
+		}
+
 		HubIntRestService hub;
 		try {
 			hub = new HubIntRestService(restConnection);
 		} catch (final URISyntaxException e) {
 			throw new IllegalArgumentException(e);
 		}
-
 		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
 		};
 		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
 		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
 		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
 		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-
 		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
 				NotificationItem.class, typeToken, typeToSubclassMap);
+		TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
-		jiraService = new JiraService();
-		ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
-
-	}
-
-	@Override
-	public void execute(final Map<String, Object> jobDataMap) {
-
-		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-
-		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
-		jiraService.setJiraProjectManager(jiraProjectManager);
-
-		// TODO The code below is temporary / overly hard-coded.
-		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		logger.debug("Interval: " + getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);

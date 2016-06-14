@@ -28,9 +28,9 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Vulnerabili
  */
 public class JiraService {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private ProjectManager jiraProjectManager;
+	private final ProjectManager jiraProjectManager;
 
-	public void setJiraProjectManager(ProjectManager jiraProjectManager) {
+	public JiraService(ProjectManager jiraProjectManager) {
 		this.jiraProjectManager = jiraProjectManager;
 	}
 

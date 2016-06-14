@@ -54,7 +54,7 @@ public class TicketGeneratorIT {
 		HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
 				NotificationItem.class, typeToken, typeToSubclassMap);
 
-		JiraService jiraService = new JiraService();
+		JiraService jiraService = new JiraService(null); // TODO this won't work
 		TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
