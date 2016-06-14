@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PolicyRuleSerializable implements Serializable {
 
-	private static final long serialVersionUID = -4449986971190551171L;
+	private static final long serialVersionUID = 1310657755035315309L;
 
 	@XmlElement
 	private String name;
@@ -56,6 +56,7 @@ public class PolicyRuleSerializable implements Serializable {
 	public void setChecked(final boolean checked) {
 		this.checked = checked;
 	}
+
 
 	@Override
 	public int hashCode() {
@@ -110,7 +111,7 @@ public class PolicyRuleSerializable implements Serializable {
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("PolicyRule [name=");
+		builder.append("PolicyRuleSerializable [name=");
 		builder.append(name);
 		builder.append(", description=");
 		builder.append(description);
