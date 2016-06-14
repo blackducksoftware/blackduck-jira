@@ -43,15 +43,19 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td id="policyRuleTicketCreation">
+						<td>
+							<div id="policyRuleTicketCreation" class="ticketCriteriaSection">
+							</div>
 				  		</td>
-				  		<td id="vulnerabilityTicketCreation">
-				      		<input type="checkbox" value="Bike"> I have a bike<br>
-				  			<input type="checkbox" value="Car"> I have a car<br>
+				  		<td>
+				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
+					  			N/A
+							</div>
 				  		</td>
-				  		<td id="vulnerabilityTicketClosure">
-				      		<input type="checkbox" value="Bike"> I have a bike<br>
-				  			<input type="checkbox" value="Car"> I have a car<br>
+				  		<td>
+				  			<div id="vulnerabilityTicketClosure" class="ticketCriteriaSection">
+					  			N/A
+							</div>
 				  		</td>
 	      			</tr>
 	      			<tr>
@@ -78,7 +82,7 @@
 			  <div class="field-group">
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
-			  <div id="hubProjectMappingContainer" style="overflow-y: scroll; height:300px;">
+			  <div id="hubProjectMappingContainer" class="mappingContainer">
 			  	<div name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
 			      	<table width="70%">
 					  <tr class="">
