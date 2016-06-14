@@ -54,14 +54,13 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.builder.HubProxyInfoBuilder;
+import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
-import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
-import com.blackducksoftware.integration.hub.global.HubProxyInfo;
+import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
@@ -108,17 +107,16 @@ public class HubJiraConfigController {
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
 				final HubIntRestService restService = getHubRestService(settings, config);
-				if (restService != null) {
-					final List<HubProject> hubProjects = getHubProjects(restService, config);
-					config.setHubProjects(hubProjects);
-				}
+				final List<HubProject> hubProjects = getHubProjects(restService, config);
+				config.setHubProjects(hubProjects);
 
 				config.setJiraProjects(jiraProjects);
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
-				final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES);
+				final String policyRulesJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
 
 				final String hubProjectMappingsJson = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
@@ -156,10 +154,8 @@ public class HubJiraConfigController {
 				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
 				final HubIntRestService restService = getHubRestService(settings, config);
-				if (restService != null) {
-					final List<HubProject> hubProjects = getHubProjects(restService, config);
-					config.setHubProjects(hubProjects);
-				}
+				final List<HubProject> hubProjects = getHubProjects(restService, config);
+				config.setHubProjects(hubProjects);
 
 				config.setJiraProjects(jiraProjects);
 
@@ -171,7 +167,7 @@ public class HubJiraConfigController {
 
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES,
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
 						config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
@@ -300,20 +296,23 @@ public class HubJiraConfigController {
 
 	private List<JiraProject> getJiraProjects(final List<Project> jiraProjects) {
 		final List<JiraProject> newJiraProjects = new ArrayList<JiraProject>();
-		for (final Project oldProject : jiraProjects) {
-			final JiraProject newProject = new JiraProject();
-			newProject.setProjectName(oldProject.getName());
-			newProject.setProjectId(oldProject.getId());
-			newProject.setProjectExists(true);
-			newJiraProjects.add(newProject);
+		if (jiraProjects != null && !jiraProjects.isEmpty()) {
+			for (final Project oldProject : jiraProjects) {
+				final JiraProject newProject = new JiraProject();
+				newProject.setProjectName(oldProject.getName());
+				newProject.setProjectId(oldProject.getId());
+				newProject.setProjectExists(true);
+				newJiraProjects.add(newProject);
+			}
 		}
 		return newJiraProjects;
 	}
 
-	private HubIntRestService getHubRestService(final PluginSettings settings, final HubJiraConfigSerializable config){
+	public HubIntRestService getHubRestService(final PluginSettings settings, final HubJiraConfigSerializable config) {
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
 		final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
+		final String encHubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
 		final String hubTimeout = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
 
 		if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword)
@@ -335,55 +334,66 @@ public class HubJiraConfigController {
 
 		HubIntRestService hubRestService = null;
 		try{
-			final RestConnection restConnection = new RestConnection(hubUrl);
-			final String hubPassword = PasswordDecrypter.decrypt(encHubPassword);
-			restConnection.setTimeout(NumberUtils.toInt(hubTimeout));
+			final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
+			configBuilder.setHubUrl(hubUrl);
+			configBuilder.setUsername(hubUser);
+			configBuilder.setPassword(encHubPassword);
+			configBuilder.setPasswordLength(NumberUtils.toInt(encHubPasswordLength));
+			configBuilder.setTimeout(hubTimeout);
+			configBuilder.setProxyHost(hubProxyHost);
+			configBuilder.setProxyPort(hubProxyPort);
+			configBuilder.setIgnoredProxyHosts(hubNoProxyHost);
+			configBuilder.setProxyUsername(hubProxyUser);
+			configBuilder.setProxyPassword(encHubProxyPassword);
+			configBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPasswordLength));
 
-			final HubProxyInfoBuilder proxyBuilder = new HubProxyInfoBuilder(true);
-			proxyBuilder.setHost(hubProxyHost);
-			proxyBuilder.setPort(hubProxyPort);
-			proxyBuilder.setIgnoredProxyHosts(hubNoProxyHost);
-			proxyBuilder.setUsername(hubProxyUser);
-			proxyBuilder.setPassword(encHubProxyPassword);
-			proxyBuilder.setPasswordLength(NumberUtils.toInt(hubProxyPasswordLength));
-			final ValidationResults<GlobalFieldKey, HubProxyInfo> result = proxyBuilder.build();
-			final HubProxyInfo proxyInfo = result.getConstructedObject();
+			final ValidationResults<GlobalFieldKey, HubServerConfig> result = configBuilder.build();
+			final HubServerConfig serverConfig = result.getConstructedObject();
 
-			restConnection.setProxyProperties(proxyInfo);
+			final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
+			restConnection.setTimeout(serverConfig.getTimeout());
+			restConnection.setProxyProperties(serverConfig.getProxyInfo());
+			restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
+					serverConfig.getGlobalCredentials().getDecryptedPassword());
 
-			restConnection.setCookies(hubUser, hubPassword);
 			hubRestService = new HubIntRestService(restConnection);
 
-		} catch (BDRestException | IllegalArgumentException | URISyntaxException | EncryptionException e) {
+			if(result.hasErrors()){
+				config.setHubProjectMappingError(CHECK_HUB_SERVER_CONFIGURATION);
+			}
+		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
 			config.setHubProjectMappingError(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
 			return null;
 		}
 		return hubRestService;
 	}
 
+
 	private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
 			final HubJiraConfigSerializable config) {
 		final List<HubProject> hubProjects = new ArrayList<HubProject>();
-		List<ProjectItem> hubProjectItems = null;
-		try {
-			hubProjectItems = hubRestService.getProjectMatches(null);
-		} catch (IOException | BDRestException | URISyntaxException e) {
-			final String originalError = config.getHubProjectMappingError();
-			String newError = null;
-			if (StringUtils.isNotBlank(originalError)) {
-				newError = originalError + " :: ";
+		if (hubRestService != null) {
+			List<ProjectItem> hubProjectItems = null;
+			try {
+				hubProjectItems = hubRestService.getProjectMatches(null);
+			} catch (IOException | BDRestException | URISyntaxException e) {
+				final String originalError = config.getHubProjectMappingError();
+				String newError = null;
+				if (StringUtils.isNotBlank(originalError)) {
+					newError = originalError + " :: ";
+				}
+				newError += e.getMessage();
+				config.setHubProjectMappingError(newError);
 			}
-			newError += e.getMessage();
-			config.setHubProjectMappingError(newError);
-		}
 
-		if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
-			for (final ProjectItem project : hubProjectItems) {
-				final HubProject newHubProject = new HubProject();
-				newHubProject.setProjectExists(true);
-				newHubProject.setProjectName(project.getName());
-				newHubProject.setProjectUrl(project.get_meta().getHref());
-				hubProjects.add(newHubProject);
+			if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
+				for (final ProjectItem project : hubProjectItems) {
+					final HubProject newHubProject = new HubProject();
+					newHubProject.setProjectExists(true);
+					newHubProject.setProjectName(project.getName());
+					newHubProject.setProjectUrl(project.get_meta().getHref());
+					hubProjects.add(newHubProject);
+				}
 			}
 		}
 		return hubProjects;
@@ -398,10 +408,7 @@ public class HubJiraConfigController {
 
 			if (supportHelper.isPolicyApiSupport()) {
 
-				final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
-				};
-				final HubItemsService<PolicyRule> policyService = new HubItemsService<PolicyRule>(
-						restService.getRestConnection(), typeToken);
+				final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
 
 				final List<String> urlSegments = new ArrayList<>();
 				urlSegments.add("api");
@@ -449,5 +456,11 @@ public class HubJiraConfigController {
 		} catch (IOException | URISyntaxException e) {
 			config.setPolicyRulesError(e.getMessage());
 		}
+	}
+
+	public HubItemsService<PolicyRule> getPolicyService(final RestConnection restConnection) {
+		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
+		};
+		return new HubItemsService<PolicyRule>(restConnection, typeToken);
 	}
 }

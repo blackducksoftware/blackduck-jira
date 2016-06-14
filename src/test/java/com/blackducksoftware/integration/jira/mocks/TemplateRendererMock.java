@@ -19,20 +19,41 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.utils;
+package com.blackducksoftware.integration.jira.mocks;
 
-public class HubJiraConfigKeys {
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
-	public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
-	public final static String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".intervalBetweenChecks";
-	public final static String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".hubProjectMappings";
+import com.atlassian.templaterenderer.RenderingException;
+import com.atlassian.templaterenderer.TemplateRenderer;
 
-	public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
+public class TemplateRendererMock implements TemplateRenderer {
 
-	public final static String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
+	String renderedString;
 
-	public final static String LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
+	public String getRenderedString() {
+		return renderedString;
+	}
+
+	@Override
+	public void render(final String arg0, final Writer arg1) throws RenderingException, IOException {
+		renderedString = arg0;
+	}
+
+	@Override
+	public void render(final String arg0, final Map<String, Object> arg1, final Writer arg2) throws RenderingException, IOException {
+
+	}
+
+	@Override
+	public String renderFragment(final String arg0, final Map<String, Object> arg1) throws RenderingException {
+		return null;
+	}
+
+	@Override
+	public boolean resolve(final String arg0) {
+		return false;
+	}
 
 }

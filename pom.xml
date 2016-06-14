@@ -104,7 +104,29 @@
         </exclusion>
       </exclusions>
     </dependency>
-     <dependency>
+
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
+    <dependency>
+      <groupId>com.sun.net.httpserver</groupId>
+      <artifactId>http</artifactId>
+      <version>20070405</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.3.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-atlassian-config</artifactId>
       <version>1.0.1-SNAPSHOT</version>
@@ -125,28 +147,6 @@
       </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>stax</groupId>
-      <artifactId>stax-api</artifactId>
-      <version>1.0.1</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
-    <dependency>
-      <groupId>com.sun.net.httpserver</groupId>
-      <artifactId>http</artifactId>
-      <version>20070405</version>
-      <scope>compile</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3.1</version>
-      <scope>compile</scope>
-    </dependency>
-    
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
