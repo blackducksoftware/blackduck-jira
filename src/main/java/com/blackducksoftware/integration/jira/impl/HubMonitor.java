@@ -13,7 +13,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
-import com.blackducksoftware.integration.jira.task.HubNotificationCheckTask;
+import com.blackducksoftware.integration.jira.task.JiraTask;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
@@ -57,7 +57,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		this.serverName = serverName;
 
 		pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
-				HubNotificationCheckTask.class, // class of the job
+				JiraTask.class, // class of the job
 				new HashMap<String, Object>() {
 					{
 						put(KEY_INSTANCE, HubMonitor.this);

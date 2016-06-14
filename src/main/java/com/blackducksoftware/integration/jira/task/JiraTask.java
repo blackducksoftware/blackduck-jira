@@ -19,11 +19,11 @@ import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
  * @author sbillings
  *
  */
-public class HubNotificationCheckTask implements PluginJob {
+public class JiraTask implements PluginJob {
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public HubNotificationCheckTask() {
+	public JiraTask() {
 	}
 
 	@Override
@@ -41,9 +41,9 @@ public class HubNotificationCheckTask implements PluginJob {
 		final String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
 
-		final HubNotificationChecker checker = new HubNotificationChecker(hubUrl, hubUsername, hubPasswordEncrypted,
+		final HubJiraTask checker = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
 				hubTimeoutString, intervalString, lastRunDateString, configJson, jiraProjectManager);
-		final String runDateString = checker.check();
+		final String runDateString = checker.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.LAST_RUN_DATE, runDateString);
 		}

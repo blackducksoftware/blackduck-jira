@@ -30,7 +30,7 @@ import com.blackducksoftware.integration.jira.service.JiraService;
 import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
-public class HubNotificationChecker {
+public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final String hubUrl;
 	private final String hubUsername;
@@ -45,7 +45,7 @@ public class HubNotificationChecker {
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
 
-	public HubNotificationChecker(final String hubUrl, final String hubUsername, final String hubPasswordEncrypted,
+	public HubJiraTask(final String hubUrl, final String hubUsername, final String hubPasswordEncrypted,
 			final String hubTimeoutString, final String intervalString, final String lastRunDateString,
 			final String configJson,
 			final ProjectManager jiraProjectManager) {
@@ -65,61 +65,23 @@ public class HubNotificationChecker {
 	}
 
 	/**
+	 * Setup, then generate JIRA tickets based on recent notifications
 	 *
 	 * @return this execution's run date/time string on success, null otherwise
 	 */
-	public String check() {
+	public String execute() {
 
-		final JiraService jiraService = new JiraService(jiraProjectManager);
-
-		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
+		// Validate input
 
 		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
-			logger.debug("The Hub connection details have not been configured; Exiting");
+			logger.debug("The Hub connection details have not been configured, therefore there is nothing to do.");
 			return null;
 		}
 
-		String hubPassword;
-		try {
-			hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
-		} catch (IllegalArgumentException | EncryptionException e2) {
-			logger.error("Error decrypting Hub password", e2);
+		if (configJson == null) {
+			logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
 			return null;
 		}
-
-		final RestConnection restConnection = new RestConnection(hubUrl);
-		try {
-			restConnection.setCookies(hubUsername, hubPassword);
-
-		} catch (final URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		} catch (final BDRestException e) {
-			throw new IllegalArgumentException(e);
-		}
-
-		if (hubTimeoutString != null) {
-			final int hubTimeout = Integer.parseInt(hubTimeoutString);
-			logger.debug("Setting Hub timeout to: " + hubTimeout);
-			restConnection.setTimeout(hubTimeout);
-		}
-
-		HubIntRestService hub;
-		try {
-			hub = new HubIntRestService(restConnection);
-		} catch (final URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
-		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
-		};
-		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
-		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
-		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
-		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
-				NotificationItem.class, typeToken, typeToSubclassMap);
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
-
-		logger.debug("Interval: " + intervalString);
 
 		logger.debug("Last run date: " + lastRunDateString);
 		if (lastRunDateString == null) {
@@ -127,11 +89,9 @@ public class HubNotificationChecker {
 			return runDateString;
 		}
 
+		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
+		logger.debug("Interval: " + intervalString);
 
-		if (configJson == null) {
-			logger.info("HubNotificationCheckTask: Project Mappings not configured. Nothing to do.");
-			return null;
-		}
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setHubProjectMappingsJson(configJson);
 		logger.debug("Mappings:");
@@ -139,27 +99,52 @@ public class HubNotificationChecker {
 			logger.debug(mapping.toString());
 		}
 
-		Date lastRunDate;
 		try {
-			lastRunDate = dateFormatter.parse(lastRunDateString);
-		} catch (final ParseException e1) {
-			throw new IllegalArgumentException("Error parsing lastRunDate read from settings: '" + lastRunDateString
-					+ "': " + e1.getMessage(), e1);
-		}
-		logger.debug("Last run date: " + lastRunDate);
-		logger.info("Getting Hub notifications from " + lastRunDate + " to " + runDate);
+			// TODO: Use interval; seems like it has to happen within HubMonitor
+			final int interval = Integer.parseInt(intervalString);
 
-		NotificationDateRange notificationDateRange;
-		try {
-			notificationDateRange = new NotificationDateRange(lastRunDate, runDate);
-		} catch (final ParseException e) {
-			throw new IllegalArgumentException(e);
-		}
-		try {
+			// Connect to Hub and Jira
+
+			final JiraService jiraService = new JiraService(jiraProjectManager);
+			final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
+
+			final RestConnection restConnection = new RestConnection(hubUrl);
+			restConnection.setCookies(hubUsername, hubPassword);
+
+			if (hubTimeoutString != null) {
+				final int hubTimeout = Integer.parseInt(hubTimeoutString);
+				logger.debug("Setting Hub timeout to: " + hubTimeout);
+				restConnection.setTimeout(hubTimeout);
+			}
+
+			final HubIntRestService hub = new HubIntRestService(restConnection);
+
+			final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
+			};
+			final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
+			typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
+			typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
+			typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
+			final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
+					NotificationItem.class, typeToken, typeToSubclassMap);
+			final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
+
+			final Date lastRunDate = dateFormatter.parse(lastRunDateString);
+
+			logger.debug("Last run date: " + lastRunDate);
+			logger.info("Getting Hub notifications from " + lastRunDate + " to " + runDate);
+
+			final NotificationDateRange notificationDateRange = new NotificationDateRange(lastRunDate,
+					runDate);
+
+			// Generate Jira Issues based on recent notifications
+
 			ticketGenerator
 			.generateTicketsForRecentNotifications(config.getHubProjectMappings(), notificationDateRange);
-		} catch (HubNotificationServiceException | JiraServiceException e) {
-			throw new IllegalArgumentException(e);
+		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
+				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
 		}
 		return runDateString;
 	}
