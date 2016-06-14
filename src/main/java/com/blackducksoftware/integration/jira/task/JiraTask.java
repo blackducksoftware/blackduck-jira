@@ -39,13 +39,16 @@ public class JiraTask implements PluginJob {
 		final String intervalString = getStringValue(settings,
 				HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 		final String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.LAST_RUN_DATE);
+		final String jiraIssueTypeName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_TYPE_NAME);
+		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+
 
 		final HubJiraTask checker = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
-				hubTimeoutString, intervalString, lastRunDateString, configJson, jiraProjectManager);
+ hubTimeoutString,
+				intervalString, jiraIssueTypeName, lastRunDateString, configJson, jiraProjectManager);
 		final String runDateString = checker.execute();
 		if (runDateString != null) {
-			settings.put(HubJiraConfigKeys.LAST_RUN_DATE, runDateString);
+			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
 		}
 	}
 

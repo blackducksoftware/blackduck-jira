@@ -32,11 +32,13 @@ import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Bug";
 	private final String hubUrl;
 	private final String hubUsername;
 	private final String hubPasswordEncrypted;
 	private final String hubTimeoutString;
 	private final String intervalString;
+	private final String jiraIssueTypeName;
 	private final String lastRunDateString;
 	private final String configJson;
 	private final ProjectManager jiraProjectManager;
@@ -46,7 +48,8 @@ public class HubJiraTask {
 	private final SimpleDateFormat dateFormatter;
 
 	public HubJiraTask(final String hubUrl, final String hubUsername, final String hubPasswordEncrypted,
-			final String hubTimeoutString, final String intervalString, final String lastRunDateString,
+			final String hubTimeoutString, final String intervalString, final String jiraIssueTypeName,
+			final String lastRunDateString,
 			final String configJson,
 			final ProjectManager jiraProjectManager) {
 		this.hubUrl = hubUrl;
@@ -54,6 +57,11 @@ public class HubJiraTask {
 		this.hubPasswordEncrypted = hubPasswordEncrypted;
 		this.hubTimeoutString = hubTimeoutString;
 		this.intervalString = intervalString;
+		if (jiraIssueTypeName != null) {
+			this.jiraIssueTypeName = jiraIssueTypeName;
+		} else {
+			this.jiraIssueTypeName = JIRA_ISSUE_TYPE_NAME_DEFAULT;
+		}
 		this.lastRunDateString = lastRunDateString;
 		this.configJson = configJson;
 		this.jiraProjectManager = jiraProjectManager;
@@ -62,6 +70,7 @@ public class HubJiraTask {
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 		this.runDateString = dateFormatter.format(runDate);
+
 	}
 
 	/**
@@ -100,12 +109,10 @@ public class HubJiraTask {
 		}
 
 		try {
-			// TODO: Use interval; seems like it has to happen within HubMonitor
-			final int interval = Integer.parseInt(intervalString);
 
 			// Connect to Hub and Jira
 
-			final JiraService jiraService = new JiraService(jiraProjectManager);
+			final JiraService jiraService = new JiraService(jiraProjectManager, jiraIssueTypeName);
 			final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
 
 			final RestConnection restConnection = new RestConnection(hubUrl);

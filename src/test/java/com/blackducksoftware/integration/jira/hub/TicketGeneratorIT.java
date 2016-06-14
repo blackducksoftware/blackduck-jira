@@ -1,6 +1,6 @@
 package com.blackducksoftware.integration.jira.hub;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -39,10 +38,10 @@ public class TicketGeneratorIT {
 
 	// @Test TODO THIS CREATES TOO MANY TICKETS
 	public void test() throws URISyntaxException, ParseException, HubNotificationServiceException, BDRestException,
-			JiraServiceException {
-		RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
+	JiraServiceException {
+		final RestConnection restConnection = new RestConnection("http://eng-hub-valid03.dc1.lan/");
 		restConnection.setCookies("sysadmin", "blackduck");
-		HubIntRestService hub = new HubIntRestService(restConnection);
+		final HubIntRestService hub = new HubIntRestService(restConnection);
 
 		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
 		};
@@ -51,24 +50,27 @@ public class TicketGeneratorIT {
 		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
 		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
 
-		HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
+		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
 				NotificationItem.class, typeToken, typeToSubclassMap);
 
-		JiraService jiraService = new JiraService(null); // TODO this won't work
-		TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
+		final JiraService jiraService = new JiraService(null, "Bug"); // TODO
+																		// this
+																		// won't
+																		// work
+		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
-		SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 
-		Date startDate = dateFormatter.parse(START_DATE_STRING);
+		final Date startDate = dateFormatter.parse(START_DATE_STRING);
 		System.out.println("startDate: " + startDate.toString());
 
-		Date endDate = dateFormatter.parse(END_DATE_STRING);
+		final Date endDate = dateFormatter.parse(END_DATE_STRING);
 		System.out.println("endDate: " + endDate.toString());
 
-		NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
+		final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
 
 		// TODO have to pass in the mappings
-		int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(null, notificationDateRange);
+		final int ticketCount = ticketGenerator.generateTicketsForRecentNotifications(null, notificationDateRange);
 
 		assertEquals(100, ticketCount);
 	}
