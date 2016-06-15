@@ -40,6 +40,7 @@ public class HubJiraTask {
 	private final String hubTimeoutString;
 	private final String intervalString;
 	private final String jiraIssueTypeName;
+	private final String installDateString;
 	private final String lastRunDateString;
 	private final String configJson;
 	private final ProjectManager jiraProjectManager;
@@ -50,6 +51,7 @@ public class HubJiraTask {
 
 	public HubJiraTask(final String hubUrl, final String hubUsername, final String hubPasswordEncrypted,
 			final String hubTimeoutString, final String intervalString, final String jiraIssueTypeName,
+			final String installDateString,
 			final String lastRunDateString,
 			final String configJson,
 			final ProjectManager jiraProjectManager) {
@@ -63,6 +65,7 @@ public class HubJiraTask {
 		} else {
 			this.jiraIssueTypeName = JIRA_ISSUE_TYPE_NAME_DEFAULT;
 		}
+		this.installDateString = installDateString;
 		this.lastRunDateString = lastRunDateString;
 		this.configJson = configJson;
 		this.jiraProjectManager = jiraProjectManager;
@@ -72,6 +75,8 @@ public class HubJiraTask {
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 		this.runDateString = dateFormatter.format(runDate);
 
+		logger.debug("Install date: " + installDateString);
+		logger.debug("Last run date: " + lastRunDateString);
 	}
 
 	/**
@@ -94,11 +99,6 @@ public class HubJiraTask {
 		}
 
 		logger.debug("Last run date: " + lastRunDateString);
-		if (lastRunDateString == null) {
-			logger.info("No lastRunDate provided; Not doing anything this time, will collect notifications next time");
-			return runDateString;
-		}
-
 		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
 		logger.debug("Interval: " + intervalString);
 
@@ -137,22 +137,29 @@ public class HubJiraTask {
 					NotificationItem.class, typeToken, typeToSubclassMap);
 			final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
 
-			final Date lastRunDate = dateFormatter.parse(lastRunDateString);
 
-			logger.debug("Last run date: " + lastRunDate);
-			logger.info("Getting Hub notifications from " + lastRunDate + " to " + runDate);
+			final Date startDate;
+			try {
+				startDate = deriveStartDate(installDateString, lastRunDateString);
+			} catch (final ParseException e) {
+				logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+				return runDateString;
+			}
 
-			final NotificationDateRange notificationDateRange = new NotificationDateRange(lastRunDate,
+
+			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+
+			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
 					runDate);
 
 			final List<String> linksOfRulesToMonitor = null; // TODO get from
-																// config once
-																// its there
+			// config once
+			// its there
 
 			// Generate Jira Issues based on recent notifications
 
 			ticketGenerator
-.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
+			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
 					linksOfRulesToMonitor, notificationDateRange);
 		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
 				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
@@ -162,4 +169,17 @@ public class HubJiraTask {
 		return runDateString;
 	}
 
+	private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
+		final Date startDate;
+		if (lastRunDateString == null) {
+			logger.info("No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
+					+ installDateString);
+
+			startDate = dateFormatter.parse(installDateString);
+
+		} else {
+			startDate = dateFormatter.parse(lastRunDateString);
+		}
+		return startDate;
+	}
 }

@@ -40,13 +40,14 @@ public class JiraTask implements PluginJob {
 				HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 		final String configJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		final String jiraIssueTypeName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_TYPE_NAME);
+		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
 
-		final HubJiraTask checker = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
- hubTimeoutString,
-				intervalString, jiraIssueTypeName, lastRunDateString, configJson, jiraProjectManager);
-		final String runDateString = checker.execute();
+		final HubJiraTask processor = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
+				hubTimeoutString,
+				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, configJson, jiraProjectManager);
+		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
 		}
