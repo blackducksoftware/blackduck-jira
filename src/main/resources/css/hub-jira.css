@@ -2,6 +2,11 @@
 	display: none;
 }
 
+.error {
+	color : red;
+	font-weight : bold;
+}
+
 .longInput {
 	width: 90%;
 }
@@ -27,10 +32,6 @@
 .mappingContainer {
 	overflow-y: scroll; 
 	height:300px;
-}
-
-.errorMapping {
-	color : red;
 }
 
 .ticketCriteriaTable {

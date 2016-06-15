@@ -15,6 +15,9 @@
     	<p id="aui-hub-message-text"></p>
       </div>
       
+      <div id="error-message-field" class="error hidden">
+      </div>
+      
       <fieldset class="fieldSection">
       	 <legend class="legend">Interval</legend>
 	      <div class="field-group">

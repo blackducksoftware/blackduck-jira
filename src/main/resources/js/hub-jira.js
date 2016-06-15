@@ -24,6 +24,8 @@ var statusMessageTitleId = "aui-hub-message-title";
 var statusMessageTitleTextId = "aui-hub-message-title-text";
 var statusMessageTextId = "aui-hub-message-text";
 
+var errorMessageFieldId = "error-message-field";
+
 var errorStatus = "error";
 var successStatus = "success";
 
@@ -71,6 +73,7 @@ function populateForm() {
 	      fillInMappings(config.hubProjectMappings);
 	      addPolicyViolationRules(config.policyRules);
 	      
+	      handleError(errorMessageFieldId, config.errorMessage);
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
 	      handleError('policyRulesError', config.policyRulesError);
@@ -92,6 +95,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    + '}',
 	    processData: false,
 	    success: function() {
+	    	hideError(errorMessageFieldId);
 	    	hideError('intervalBetweenChecksError');
 	    	hideError('hubProjectMappingsError');
 	    	hideError('policyRulesError');
@@ -101,6 +105,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    },
 	    error: function(response){
 	    	var config = JSON.parse(response.responseText);
+	    	handleError(errorMessageFieldId, config.errorMessage);
 	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
 	    	handleError('hubProjectMappingsError', config.hubProjectMappingError);
 	    	handleError('policyRulesError', config.policyRulesError);
@@ -267,9 +272,13 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedJiraProjectExists = storedJiraProject.projectExists;
 	
 	if(!storedJiraProjectExists){
-		currentJiraProject.css("color", "red");
+		if(!currentJiraProject.hasClass('error')){
+			currentJiraProject.addClass('error');
+		}
 	} else{
-		currentJiraProject.css("color", "black");
+		if(currentJiraProject.hasClass('error')){
+			currentJiraProject.removeClass('error');
+		}
 	}
 	
 	currentJiraProject.val(storedJiraProjectDisplayName);
@@ -284,9 +293,13 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedHubProjectExists = storedHubProject.projectExists;
 	
 	if(!storedHubProjectExists){
-		currentHubProject.css("color", "red");
+		if(!currentHubProject.hasClass('error')){
+			currentHubProject.addClass('error');
+		}
 	} else{
-		currentHubProject.css("color", "black");
+		if(currentHubProject.hasClass('error')){
+			currentHubProject.removeClass('error');
+		}
 	}
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
@@ -348,9 +361,13 @@ function onMappingInputChange(inputField){
     	   field.attr("projectExists", projectExists)
     	   
     	   if(projectExists === 'false'){
-    		   field.css("color", "red");
+    		   if(!field.hasClass('error')){
+       			   field.addClass('error');
+       			}
     		} else{
-    			field.css("color", "black");
+    			if(field.hasClass('error')){
+       			   field.removeClass('error');
+       			}
     		}
     	   break;
     	}
@@ -436,7 +453,7 @@ function addMappingErrorStatus(mappingElement){
 		});
 		AJS.$(newStatus).addClass("fa");
 		AJS.$(newStatus).addClass("fa-times");
-		AJS.$(newStatus).addClass("errorMapping");
+		AJS.$(newStatus).addClass("error");
 
 		newStatus.appendTo(mappingStatus);
 	}

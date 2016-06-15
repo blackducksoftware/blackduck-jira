@@ -75,7 +75,9 @@ public class HubJiraConfigController {
 	public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
 	public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s) with empty Project(s).";
 	public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
-	public static final String NO_POLICY_RULES_FOUND_ERROR = "This version of the Hub does not support Policies.";
+	public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
+
+	public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
@@ -127,10 +129,8 @@ public class HubJiraConfigController {
 				if (StringUtils.isNotBlank(policyRulesJson)) {
 					config.setPolicyRulesJson(policyRulesJson);
 				}
-				if (restService != null) {
-					setHubPolicyRules(restService,
-							config);
-				}
+				setHubPolicyRules(restService,
+						config);
 				checkConfigErrors(config);
 				return config;
 			}
@@ -183,8 +183,8 @@ public class HubJiraConfigController {
 	}
 
 	private void checkConfigErrors(final HubJiraConfigSerializable config) {
-		if (config.getIntervalBetweenChecks() == null) {
-			config.setIntervalBetweenChecksError("No interval between checks was found.");
+		if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
+			config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
 		} else {
 			try {
 				stringToInteger(config.getIntervalBetweenChecks());
@@ -317,11 +317,11 @@ public class HubJiraConfigController {
 
 		if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword)
 				&& StringUtils.isBlank(hubTimeout)) {
-			config.setHubProjectMappingError(HUB_CONFIG_PLUGIN_MISSING);
+			config.setErrorMessage(HUB_CONFIG_PLUGIN_MISSING);
 			return null;
 		} else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword)
 				|| StringUtils.isBlank(hubTimeout)) {
-			config.setHubProjectMappingError(HUB_SERVER_MISCONFIGURATION + CHECK_HUB_SERVER_CONFIGURATION);
+			config.setErrorMessage(HUB_SERVER_MISCONFIGURATION + CHECK_HUB_SERVER_CONFIGURATION);
 			return null;
 		}
 
@@ -359,7 +359,7 @@ public class HubJiraConfigController {
 			hubRestService = new HubIntRestService(restConnection);
 
 			if(result.hasErrors()){
-				config.setHubProjectMappingError(CHECK_HUB_SERVER_CONFIGURATION);
+				config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION);
 			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
 			config.setHubProjectMappingError(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
@@ -402,60 +402,68 @@ public class HubJiraConfigController {
 	private void setHubPolicyRules(final HubIntRestService restService,
 			final HubJiraConfigSerializable config) {
 
-		final HubSupportHelper supportHelper = new HubSupportHelper();
-		try {
-			supportHelper.checkHubSupport(restService, null);
+		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
+		if (restService != null) {
+			final HubSupportHelper supportHelper = new HubSupportHelper();
+			try {
+				supportHelper.checkHubSupport(restService, null);
 
-			if (supportHelper.isPolicyApiSupport()) {
+				if (supportHelper.isPolicyApiSupport()) {
 
-				final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
+					final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
 
-				final List<String> urlSegments = new ArrayList<>();
-				urlSegments.add("api");
-				urlSegments.add("policy-rules");
+					final List<String> urlSegments = new ArrayList<>();
+					urlSegments.add("api");
+					urlSegments.add("policy-rules");
 
-				final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
-				queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
+					final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
+					queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
 
-				List<PolicyRule> policyRules = null;
-				try {
-					policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
-				} catch (IOException | URISyntaxException | ResourceDoesNotExistException
-						| BDRestException e) {
-					config.setPolicyRulesError(e.getMessage());
-				}
-
-				final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
-				if (policyRules != null && !policyRules.isEmpty()) {
-					for (final PolicyRule rule : policyRules) {
-						final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-						newRule.setDescription(rule.getDescription().trim());
-						newRule.setName(rule.getName().trim());
-						newRule.setPolicyUrl(rule.getMeta().getHref());
-						newPolicyRules.add(newRule);
+					List<PolicyRule> policyRules = null;
+					try {
+						policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
+					} catch (IOException | URISyntaxException | ResourceDoesNotExistException
+							| BDRestException e) {
+						config.setPolicyRulesError(e.getMessage());
 					}
-				}
-				if (config.getPolicyRules() != null) {
-					for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
-						for (final PolicyRuleSerializable newRule : newPolicyRules) {
-							if (oldRule.getName().equals(newRule.getName())) {
-								newRule.setChecked(oldRule.isChecked());
-								break;
+
+					if (policyRules != null && !policyRules.isEmpty()) {
+						for (final PolicyRule rule : policyRules) {
+							final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
+							newRule.setDescription(rule.getDescription().trim());
+							newRule.setName(rule.getName().trim());
+							newRule.setPolicyUrl(rule.getMeta().getHref());
+							newPolicyRules.add(newRule);
+						}
+					}
+					if (config.getPolicyRules() != null) {
+						for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
+							for (final PolicyRuleSerializable newRule : newPolicyRules) {
+								if (oldRule.getName().equals(newRule.getName())) {
+									newRule.setChecked(oldRule.isChecked());
+									break;
+								}
 							}
 						}
 					}
+				} else {
+					config.setPolicyRulesError(HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
 				}
-				config.setPolicyRules(newPolicyRules);
-
-				if (config.getPolicyRules().isEmpty()) {
-					config.setPolicyRulesError(NO_POLICY_RULES_FOUND_ERROR);
-				}
-			} else {
-				config.setPolicyRulesError(HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
+			} catch (IOException | URISyntaxException e) {
+				config.setPolicyRulesError(e.getMessage());
 			}
-		} catch (IOException | URISyntaxException e) {
-			config.setPolicyRulesError(e.getMessage());
 		}
+		config.setPolicyRules(newPolicyRules);
+		if (config.getPolicyRules().isEmpty()) {
+			String errorMsg = "";
+			if (StringUtils.isNotBlank(config.getPolicyRulesError())) {
+				errorMsg = config.getPolicyRulesError();
+				errorMsg += " ";
+			}
+			errorMsg += NO_POLICY_RULES_FOUND_ERROR;
+			config.setPolicyRulesError(errorMsg);
+		}
+
 	}
 
 	public HubItemsService<PolicyRule> getPolicyService(final RestConnection restConnection) {

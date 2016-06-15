@@ -41,7 +41,10 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = -7249608185766253911L;
+	private static final long serialVersionUID = 3441873196129154263L;
+
+	@XmlElement
+	private String errorMessage;
 
 	@XmlElement
 	private String intervalBetweenChecks;
@@ -69,6 +72,9 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	public boolean hasErrors() {
 		boolean hasErrors = false;
+		if (StringUtils.isNotBlank(getErrorMessage())) {
+			hasErrors = true;
+		}
 		if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
 			hasErrors = true;
 		}
@@ -180,10 +186,19 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.policyRulesError = policyRulesError;
 	}
 
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(final String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
 		result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
 		result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
 		result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
@@ -207,6 +222,13 @@ public class HubJiraConfigSerializable implements Serializable {
 			return false;
 		}
 		final HubJiraConfigSerializable other = (HubJiraConfigSerializable) obj;
+		if (errorMessage == null) {
+			if (other.errorMessage != null) {
+				return false;
+			}
+		} else if (!errorMessage.equals(other.errorMessage)) {
+			return false;
+		}
 		if (hubProjectMappingError == null) {
 			if (other.hubProjectMappingError != null) {
 				return false;
@@ -269,7 +291,9 @@ public class HubJiraConfigSerializable implements Serializable {
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("HubJiraConfigSerializable [intervalBetweenChecks=");
+		builder.append("HubJiraConfigSerializable [errorMessage=");
+		builder.append(errorMessage);
+		builder.append(", intervalBetweenChecks=");
 		builder.append(intervalBetweenChecks);
 		builder.append(", intervalBetweenChecksError=");
 		builder.append(intervalBetweenChecksError);
@@ -288,7 +312,6 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
-
 
 
 }

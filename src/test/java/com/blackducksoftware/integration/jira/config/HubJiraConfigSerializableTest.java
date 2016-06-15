@@ -17,6 +17,7 @@ public class HubJiraConfigSerializableTest {
 
 	@Test
 	public void testHubJiraConfigSerializable() {
+		final String errorMessage1 = "errorMessage1";
 		final String intervalBetweenChecks1 = "intervalBetweenChecks1";
 		final String intervalBetweenChecksError1 = "intervalBetweenChecksError1";
 		final String hubProjectMappingError1 = "hubProjectMappingError1";
@@ -53,6 +54,7 @@ public class HubJiraConfigSerializableTest {
 		hub1.setProjectUrl(hubProjectUrl1);
 		hub1.setProjectExists(hubProjectExists1);
 
+		final String errorMessage2 = "";
 		final String intervalBetweenChecks2 = "";
 		final String intervalBetweenChecksError2 = "";
 		final String hubProjectMappingError2 = "";
@@ -122,6 +124,7 @@ public class HubJiraConfigSerializableTest {
 
 
 		final HubJiraConfigSerializable item1 = new HubJiraConfigSerializable();
+		item1.setErrorMessage(errorMessage1);
 		item1.setHubProjectMappingError(hubProjectMappingError1);
 		item1.setHubProjectMappings(mappings1);
 		item1.setHubProjects(hubProjects1);
@@ -132,6 +135,7 @@ public class HubJiraConfigSerializableTest {
 		item1.setPolicyRulesError(policyRulesError1);
 
 		final HubJiraConfigSerializable item2 = new HubJiraConfigSerializable();
+		item2.setErrorMessage(errorMessage2);
 		item2.setHubProjectMappingError(hubProjectMappingError2);
 		item2.setHubProjectMappings(mappings2);
 		item2.setHubProjects(hubProjects2);
@@ -147,6 +151,7 @@ public class HubJiraConfigSerializableTest {
 		final String rulesJson = gson.toJson(policyRules1);
 
 		final HubJiraConfigSerializable item3 = new HubJiraConfigSerializable();
+		item3.setErrorMessage(errorMessage1);
 		item3.setHubProjectMappingError(hubProjectMappingError1);
 		item3.setHubProjectMappingsJson(mappingJson);
 		item3.setHubProjects(hubProjects1);
@@ -156,6 +161,7 @@ public class HubJiraConfigSerializableTest {
 		item3.setPolicyRulesJson(rulesJson);
 		item3.setPolicyRulesError(policyRulesError1);
 
+		assertEquals(errorMessage1, item1.getErrorMessage());
 		assertEquals(hubProjectMappingError1, item1.getHubProjectMappingError());
 		assertEquals(mappings1, item1.getHubProjectMappings());
 		assertEquals(hubProjects1, item1.getHubProjects());
@@ -165,6 +171,7 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(policyRules1, item1.getPolicyRules());
 		assertEquals(policyRulesError1, item1.getPolicyRulesError());
 
+		assertEquals(errorMessage2, item2.getErrorMessage());
 		assertEquals(hubProjectMappingError2, item2.getHubProjectMappingError());
 		assertEquals(mappings2, item2.getHubProjectMappings());
 		assertEquals(hubProjects2, item2.getHubProjects());
@@ -174,6 +181,7 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(policyRules2, item2.getPolicyRules());
 		assertEquals(policyRulesError2, item2.getPolicyRulesError());
 
+		assertEquals(errorMessage1, item3.getErrorMessage());
 		assertEquals(hubProjectMappingError1, item3.getHubProjectMappingError());
 		assertEquals(mappings1, item3.getHubProjectMappings());
 		assertEquals(mappingJson, item3.getHubProjectMappingsJson());
@@ -192,7 +200,9 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(item1.hashCode(), item3.hashCode());
 
 		final StringBuilder builder = new StringBuilder();
-		builder.append("HubJiraConfigSerializable [intervalBetweenChecks=");
+		builder.append("HubJiraConfigSerializable [errorMessage=");
+		builder.append(item1.getErrorMessage());
+		builder.append(", intervalBetweenChecks=");
 		builder.append(item1.getIntervalBetweenChecks());
 		builder.append(", intervalBetweenChecksError=");
 		builder.append(item1.getIntervalBetweenChecksError());
