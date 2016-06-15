@@ -375,7 +375,9 @@ function onMappingInputChange(inputField){
     if(!optionFound){
   	   field.attr("projectKey", "");
   	   field.attr("projectExists", "false")
-  	   field.css("color", "red");
+  	   if(!field.hasClass('error')){
+  		   field.addClass('error');
+  	   }
     }
 }
 
