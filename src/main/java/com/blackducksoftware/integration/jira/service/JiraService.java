@@ -1,13 +1,9 @@
 package com.blackducksoftware.integration.jira.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.net.CookieHandler;
-
 import java.util.List;
 
-import org.restlet.Response;
+import org.apache.log4j.Logger;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
@@ -17,6 +13,7 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.JiraReadyNotification;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
@@ -30,9 +27,10 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Vulnerabili
  * 
  */
 public class JiraService {
-	private ProjectManager jiraProjectManager;
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+	private final ProjectManager jiraProjectManager;
 
-	public void setJiraProjectManager(ProjectManager jiraProjectManager) {
+	public JiraService(ProjectManager jiraProjectManager) {
 		this.jiraProjectManager = jiraProjectManager;
 	}
 
@@ -56,15 +54,15 @@ public class JiraService {
 
 	public int generateTickets(List<JiraReadyNotification> notifs) throws JiraServiceException {
 
-		System.out.println("Generating tickets for " + notifs.size() + " JIRA-ready notifications");
+		logger.info("Generating tickets for " + notifs.size() + " JIRA-ready notifications");
 		int ticketCount = 0;
 		for (JiraReadyNotification notif : notifs) {
-			System.out.println("Generating ticket for: " + notif);
+			logger.debug("Generating ticket for: " + notif);
 			String hubProjectName = "<unknown>";
 			String notificationTypeString = "<null>";
 			if (notif.getNotificationItem() instanceof VulnerabilityNotificationItem) {
 				notificationTypeString = "Vulnerability";
-				System.out.println("This is a vulnerability notification; skipping it.");
+				logger.debug("This is a vulnerability notification; skipping it.");
 				continue;
 			} else if (notif.getNotificationItem() instanceof RuleViolationNotificationItem) {
 				notificationTypeString = "RuleViolation";
@@ -87,7 +85,7 @@ public class JiraService {
 					+ notif.getNotificationItem().getCreatedAt().toString());
 			ticketCount++;
 		}
-		System.out.println("Generated " + ticketCount + " tickets.");
+		logger.info("Generated " + ticketCount + " tickets.");
 		return ticketCount;
 	}
 
@@ -111,7 +109,7 @@ public class JiraService {
 	}
 
 	private ClientResource httpPostString(String url, String data) throws JiraServiceException {
-		System.out.println("Posting to URL: " + url + "; Data: " + data);
+		logger.debug("Posting to URL: " + url + "; Data: " + data);
 		ClientResource resource = new ClientResource(url);
 		resource.setMethod(Method.POST);
 		resource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "admin", "admin");
@@ -123,7 +121,7 @@ public class JiraService {
 
 		handleRequest(resource);
 
-		System.out.println("Response: " + resource.getResponse());
+		logger.debug("Response: " + resource.getResponse());
 
 		int statusCode = resource.getResponse().getStatus().getCode();
 		if (statusCode != 201) {
@@ -131,39 +129,6 @@ public class JiraService {
 					+ resource.getResponse().toString());
 		}
 		return resource;
-	}
-
-	private String httpGetString(String url) throws JiraServiceException {
-		System.out.println("Getting from URL: " + url);
-		ClientResource resource = new ClientResource(url);
-		resource.setMethod(Method.GET);
-		resource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "admin", "admin");
-		handleRequest(resource);
-		System.out.println("Response: " + resource.getResponse());
-		// TODO test status code
-		String responseString;
-		try {
-			responseString = readResponseAsString(resource.getResponse());
-		} catch (IOException e) {
-			throw new JiraServiceException(e);
-		}
-		return responseString;
-	}
-
-	private String readResponseAsString(final Response response) throws IOException {
-		final StringBuilder sb = new StringBuilder();
-		final Reader reader = response.getEntity().getReader();
-		final BufferedReader bufReader = new BufferedReader(reader);
-		try {
-			String line;
-			while ((line = bufReader.readLine()) != null) {
-				sb.append(line);
-				sb.append("\n");
-			}
-		} finally {
-			bufReader.close();
-		}
-		return sb.toString();
 	}
 
 	private void handleRequest(final ClientResource resource) throws JiraServiceException {
@@ -182,6 +147,6 @@ public class JiraService {
 				CookieHandler.setDefault(originalCookieHandler);
 			}
 		}
-		System.out.println("Status Code : " + resource.getResponse().getStatus().getCode());
+		logger.debug("Status Code : " + resource.getResponse().getStatus().getCode());
 	}
 }

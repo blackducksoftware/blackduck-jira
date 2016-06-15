@@ -52,8 +52,7 @@ public class JiraNotificationFilterTest {
 		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
 		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
 
-		final JiraService jiraService = new JiraService();
-		jiraService.setJiraProjectManager(mockJiraProjectManager);
+		final JiraService jiraService = new JiraService(mockJiraProjectManager);
 
 		final Set<HubProjectMapping> mappings = new HashSet<>();
 

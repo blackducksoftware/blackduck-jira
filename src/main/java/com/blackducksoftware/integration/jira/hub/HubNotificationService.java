@@ -11,12 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -30,6 +33,7 @@ import com.google.gson.reflect.TypeToken;
  *
  */
 public class HubNotificationService {
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private static final String PROJECT_LINK = "project";
 	private final RestConnection restConnection;
 	private final HubIntRestService hub;
@@ -101,14 +105,13 @@ public class HubNotificationService {
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 
-		final int limit = 1000; // TODO will need chunking and maybe retry logic to
-		// handle large sets
+		final int limit = 1000; // TODO may need chunking and maybe retry logic to
+							// handle large sets
 
 		final String startDateString = dateFormatter.format(dateRange.getStartDate());
 		final String endDateString = dateFormatter.format(dateRange.getEndDate());
 
-		System.out.println("fetchNotifications(): Getting notifications from " + startDateString + " to "
-				+ endDateString); // TODO
+		logger.info("fetchNotifications(): Getting notifications from " + startDateString + " to " + endDateString);
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
