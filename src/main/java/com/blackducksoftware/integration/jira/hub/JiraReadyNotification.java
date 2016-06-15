@@ -1,5 +1,7 @@
 package com.blackducksoftware.integration.jira.hub;
 
+import java.util.List;
+
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 
 public class JiraReadyNotification {
@@ -7,13 +9,15 @@ public class JiraReadyNotification {
 	private final String jiraProjectKey;
 	private final String hubProjectName;
 	private final NotificationItem notificationItem;
+	private final List<String> ruleUrls;
 
-	public JiraReadyNotification(String jiraProjectKey, String jiraProjectName, String hubProjectName,
-			NotificationItem notificationItem) {
+	public JiraReadyNotification(final String jiraProjectKey, final String jiraProjectName, final String hubProjectName,
+ final NotificationItem notificationItem, final List<String> ruleUrls) {
 		this.jiraProjectKey = jiraProjectKey;
 		this.jiraProjectName = jiraProjectName;
 		this.hubProjectName = hubProjectName;
 		this.notificationItem = notificationItem;
+		this.ruleUrls = ruleUrls;
 	}
 
 	public String getJiraProjectKey() {
@@ -30,6 +34,10 @@ public class JiraReadyNotification {
 
 	public NotificationItem getNotificationItem() {
 		return notificationItem;
+	}
+
+	public List<String> getRuleUrls() {
+		return ruleUrls;
 	}
 
 	@Override

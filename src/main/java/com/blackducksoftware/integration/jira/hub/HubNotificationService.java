@@ -149,9 +149,10 @@ public class HubNotificationService {
 						+ e.getMessage(), e);
 			}
 			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
-			final String ruleUrl = bomComponentVersionPolicyStatus.getLink("policy-rule");
-			logger.debug("Rule violated: " + ruleUrl);
-			linksOfRulesViolated.add(ruleUrl);
+			final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
+			logger.debug("Rules violated: " + ruleUrls);
+			// TODO: In fact, we need a list of rules per component
+			linksOfRulesViolated.addAll(ruleUrls);
 		}
 		return linksOfRulesViolated;
 	}

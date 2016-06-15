@@ -40,6 +40,7 @@ public class JiraNotificationFilter {
 			logger.debug("Notification: " + notif);
 			String notifHubProjectName = "<unknown>";
 			String notifHubProjectUrl = "<unknown>";
+			List<String> ruleUrls = null;
 			try {
 				if (notif instanceof VulnerabilityNotificationItem) {
 					logger.debug("This is a vulnerability notification; skipping it.");
@@ -48,7 +49,8 @@ public class JiraNotificationFilter {
 					final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
 					notifHubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
 					notifHubProjectUrl = getNotifHubProjectUrl(ruleViolationNotificationItem);
-					if (!isRuleMatch(ruleViolationNotificationItem)) {
+					ruleUrls = hubNotificationService.getLinksOfRulesViolated(ruleViolationNotificationItem);
+					if (!isRuleMatch(ruleUrls)) {
 						continue;
 					}
 				} else if (notif instanceof PolicyOverrideNotificationItem) {
@@ -82,17 +84,15 @@ public class JiraNotificationFilter {
 			logger.debug("The corresponding JIRA project is: " + freshBdsJiraProject.getProjectName());
 			final JiraReadyNotification jiraReadyNotification = new JiraReadyNotification(
 					freshBdsJiraProject.getProjectKey(), freshBdsJiraProject.getProjectName(), notifHubProjectName,
-					notif);
+					notif, ruleUrls);
 			jiraReadyNotifications.add(jiraReadyNotification);
 		}
 		return jiraReadyNotifications;
 	}
 
-	private boolean isRuleMatch(final RuleViolationNotificationItem ruleViolationNotificationItem)
+	private boolean isRuleMatch(final List<String> linksOfRulesViolated)
 			throws HubNotificationServiceException {
 
-		final List<String> linksOfRulesViolated = hubNotificationService
-				.getLinksOfRulesViolated(ruleViolationNotificationItem);
 		logger.debug("Rules violated: " + linksOfRulesViolated);
 		if (linksOfRulesToMonitor == null) {
 			logger.debug("There is no list of rules to monitor, so we'll generate a ticket for the violation of any rule (as long as it's on a project being monitored)");

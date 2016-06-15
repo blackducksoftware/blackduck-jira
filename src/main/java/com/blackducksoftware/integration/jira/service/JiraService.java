@@ -65,6 +65,7 @@ public class JiraService {
 		for (final JiraReadyNotification notif : notifs) {
 			logger.debug("Generating ticket for: " + notif);
 			String hubProjectName = "<unknown>";
+			String hubProjectVersionName = "<unknown>";
 			String notificationTypeString = "<null>";
 			if (notif.getNotificationItem() instanceof VulnerabilityNotificationItem) {
 				notificationTypeString = "Vulnerability";
@@ -75,11 +76,14 @@ public class JiraService {
 				final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif
 						.getNotificationItem();
 				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
+				hubProjectVersionName = ruleViolationNotificationItem.getContent().getProjectVersionName();
+
 			} else if (notif.getNotificationItem() instanceof PolicyOverrideNotificationItem) {
 				notificationTypeString = "PolicyOverride";
 				final PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif
 						.getNotificationItem();
 				hubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
+				hubProjectVersionName = policyOverrideNotificationItem.getContent().getProjectVersionName();
 			}
 
 			if (notif.getNotificationItem().getType() != null) {
@@ -88,7 +92,7 @@ public class JiraService {
 
 			final String issueSummary = notificationTypeString + " detected on Hub Project '" + hubProjectName + "'";
 			final String issueDescription = "The Black Duck Hub has detected a " + notificationTypeString
-					+ " on Hub Project '" + hubProjectName + "'";
+					+ " on Hub Project '" + hubProjectName + "'. The relevant rules are: " + notif.getRuleUrls();
 
 			makeJiraIssue(notif.getJiraProjectKey(), issueSummary, issueDescription);
 			ticketCount++;
@@ -130,6 +134,7 @@ public class JiraService {
 		logger.debug("Posting to URL: " + url + "; Data: " + data);
 		final ClientResource resource = new ClientResource(url);
 		resource.setMethod(Method.POST);
+		// TODO fix this
 		resource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "admin", "admin");
 
 		final StringRepresentation stringRep = new StringRepresentation(data);
