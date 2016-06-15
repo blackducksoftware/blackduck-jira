@@ -20,6 +20,8 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
+import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -106,7 +108,7 @@ public class HubNotificationService {
 			throws HubNotificationServiceException {
 
 		final int limit = 1000; // TODO may need chunking and maybe retry logic to
-							// handle large sets
+		// handle large sets
 
 		final String startDateString = dateFormatter.format(dateRange.getStartDate());
 		final String endDateString = dateFormatter.format(dateRange.getEndDate());
@@ -121,11 +123,35 @@ public class HubNotificationService {
 		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("startDate", startDateString));
 		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("endDate", endDateString));
 		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(limit)));
+		List<NotificationItem> items;
 		try {
-			return hubItemsService.httpGetItemList(urlSegments, queryParameters);
+			items = hubItemsService.httpGetItemList(urlSegments, queryParameters);
 		} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
 			throw new HubNotificationServiceException("Error parsing NotificationItemList: " + e.getMessage(), e);
 		}
+		return items;
+	}
+
+	public List<String> getLinksOfRulesViolated(final RuleViolationNotificationItem ruleViolationNotificationItem)
+			throws HubNotificationServiceException {
+		final List<String> linksOfRulesViolated = new ArrayList<>();
+		for (final ComponentVersionStatus compVerStatus : ruleViolationNotificationItem.getContent()
+				.getComponentVersionStatuses()) {
+			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
+			BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
+			try {
+				bomComponentVersionPolicyStatus = restConnection.httpGetFromAbsoluteUrl(
+						BomComponentVersionPolicyStatus.class, policyStatusUrl);
+			} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
+				throw new HubNotificationServiceException("Error getting a BomComponentVersionPolicyStatus: "
+						+ e.getMessage(), e);
+			}
+			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
+			final String ruleUrl = bomComponentVersionPolicyStatus.getLink("policy-rule");
+			logger.debug("Rule violated: " + ruleUrl);
+			linksOfRulesViolated.add(ruleUrl);
+		}
+		return linksOfRulesViolated;
 	}
 
 	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException {
