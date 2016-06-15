@@ -86,8 +86,91 @@ public class HubJiraTask {
 	 */
 	public String execute() {
 
-		// Validate input
+		final HubJiraConfigSerializable config = validateInput();
+		if (config == null) {
+			return null;
+		}
 
+		final Date startDate;
+		try {
+			startDate = deriveStartDate(installDateString, lastRunDateString);
+		} catch (final ParseException e) {
+			logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+			return runDateString;
+		}
+
+		try {
+			final JiraService jiraService = initJiraService();
+			final RestConnection restConnection = initRestConnection();
+			final HubIntRestService hub = initHubRestService(restConnection);
+			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
+			final TicketGenerator ticketGenerator = initTicketGenerator(jiraService, restConnection, hub,
+					hubItemsService);
+
+			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+
+			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
+					runDate);
+
+			// TODO get from config once its there
+			final List<String> linksOfRulesToMonitor = null; // null means all
+
+			// Generate Jira Issues based on recent notifications
+
+			ticketGenerator
+			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
+					linksOfRulesToMonitor, notificationDateRange);
+		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
+				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		}
+		return runDateString;
+	}
+
+	private TicketGenerator initTicketGenerator(final JiraService jiraService, final RestConnection restConnection,
+			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
+		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
+		return ticketGenerator;
+	}
+
+	private HubItemsService<NotificationItem> initHubItemsService(final RestConnection restConnection) {
+		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
+		};
+		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
+		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
+		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
+		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
+		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
+				NotificationItem.class, typeToken, typeToSubclassMap);
+		return hubItemsService;
+	}
+
+	private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
+		final HubIntRestService hub = new HubIntRestService(restConnection);
+		return hub;
+	}
+
+	private JiraService initJiraService() {
+		final JiraService jiraService = new JiraService(jiraProjectManager, jiraIssueTypeName);
+		return jiraService;
+	}
+
+	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
+		final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
+
+		final RestConnection restConnection = new RestConnection(hubUrl);
+		restConnection.setCookies(hubUsername, hubPassword);
+
+		if (hubTimeoutString != null) {
+			final int hubTimeout = Integer.parseInt(hubTimeoutString);
+			logger.debug("Setting Hub timeout to: " + hubTimeout);
+			restConnection.setTimeout(hubTimeout);
+		}
+		return restConnection;
+	}
+
+	private HubJiraConfigSerializable validateInput() {
 		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
 			logger.debug("The Hub connection details have not been configured, therefore there is nothing to do.");
 			return null;
@@ -108,65 +191,7 @@ public class HubJiraTask {
 		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
 			logger.debug(mapping.toString());
 		}
-
-		try {
-
-			// Connect to Hub and Jira
-
-			final JiraService jiraService = new JiraService(jiraProjectManager, jiraIssueTypeName);
-			final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
-
-			final RestConnection restConnection = new RestConnection(hubUrl);
-			restConnection.setCookies(hubUsername, hubPassword);
-
-			if (hubTimeoutString != null) {
-				final int hubTimeout = Integer.parseInt(hubTimeoutString);
-				logger.debug("Setting Hub timeout to: " + hubTimeout);
-				restConnection.setTimeout(hubTimeout);
-			}
-
-			final HubIntRestService hub = new HubIntRestService(restConnection);
-
-			final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
-			};
-			final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
-			typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
-			typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
-			typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-			final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
-					NotificationItem.class, typeToken, typeToSubclassMap);
-			final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
-
-
-			final Date startDate;
-			try {
-				startDate = deriveStartDate(installDateString, lastRunDateString);
-			} catch (final ParseException e) {
-				logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-				return runDateString;
-			}
-
-
-			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-
-			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
-					runDate);
-
-			final List<String> linksOfRulesToMonitor = null; // TODO get from
-			// config once
-			// its there
-
-			// Generate Jira Issues based on recent notifications
-
-			ticketGenerator
-			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
-					linksOfRulesToMonitor, notificationDateRange);
-		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
-				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		}
-		return runDateString;
+		return config;
 	}
 
 	private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {

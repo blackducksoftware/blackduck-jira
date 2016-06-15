@@ -47,29 +47,14 @@ public class JiraNotificationFilter {
 				} else if (notif instanceof RuleViolationNotificationItem) {
 					final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif;
 					notifHubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-					final String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
-							.getProjectVersionLink();
-					notifHubProjectUrl = hubNotificationService
-							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
-					final List<String> linksOfRulesViolated = hubNotificationService
-							.getLinksOfRulesViolated(ruleViolationNotificationItem);
-					logger.debug("Rules violated: " + linksOfRulesViolated);
-					if (linksOfRulesToMonitor == null) {
-						logger.debug("There is no list of rules to monitor, so we'll generate a ticket for the violation of any rule (as long as it's on a project being monitored)");
-					} else {
-						logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
-						if (!overlap(linksOfRulesToMonitor, linksOfRulesViolated)) {
-							logger.debug("None of the violated rules are in the configured list of rules to monitor");
-							continue;
-						}
+					notifHubProjectUrl = getNotifHubProjectUrl(ruleViolationNotificationItem);
+					if (!isRuleMatch(ruleViolationNotificationItem)) {
+						continue;
 					}
 				} else if (notif instanceof PolicyOverrideNotificationItem) {
 					final PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif;
 					notifHubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
-					final String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
-							.getProjectVersionLink();
-					notifHubProjectUrl = hubNotificationService
-							.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+					notifHubProjectUrl = getNotifHubProjectUrl(policyOverrideNotificationItem);
 				}
 			} catch (final HubNotificationServiceException e) {
 				logger.error("Error extracting details from the Hub notification: " + notif + ": " + e.getMessage());
@@ -101,6 +86,44 @@ public class JiraNotificationFilter {
 			jiraReadyNotifications.add(jiraReadyNotification);
 		}
 		return jiraReadyNotifications;
+	}
+
+	private boolean isRuleMatch(final RuleViolationNotificationItem ruleViolationNotificationItem)
+			throws HubNotificationServiceException {
+
+		final List<String> linksOfRulesViolated = hubNotificationService
+				.getLinksOfRulesViolated(ruleViolationNotificationItem);
+		logger.debug("Rules violated: " + linksOfRulesViolated);
+		if (linksOfRulesToMonitor == null) {
+			logger.debug("There is no list of rules to monitor, so we'll generate a ticket for the violation of any rule (as long as it's on a project being monitored)");
+		} else {
+			logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
+			if (!overlap(linksOfRulesToMonitor, linksOfRulesViolated)) {
+				logger.debug("None of the violated rules are in the configured list of rules to monitor");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String getNotifHubProjectUrl(final PolicyOverrideNotificationItem policyOverrideNotificationItem)
+			throws HubNotificationServiceException {
+		String notifHubProjectUrl;
+		final String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
+				.getProjectVersionLink();
+		notifHubProjectUrl = hubNotificationService
+				.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		return notifHubProjectUrl;
+	}
+
+	private String getNotifHubProjectUrl(final RuleViolationNotificationItem ruleViolationNotificationItem)
+			throws HubNotificationServiceException {
+		String notifHubProjectUrl;
+		final String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
+				.getProjectVersionLink();
+		notifHubProjectUrl = hubNotificationService
+				.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		return notifHubProjectUrl;
 	}
 
 	private boolean overlap(final List<String> list1, final List<String> list2) {
