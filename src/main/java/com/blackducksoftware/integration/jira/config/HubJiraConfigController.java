@@ -361,7 +361,7 @@ public class HubJiraConfigController {
 				config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION);
 			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
-			config.setHubProjectMappingError(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+			config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
 			return null;
 		}
 		return hubRestService;
