@@ -421,6 +421,67 @@ public class HubJiraConfigControllerTest {
 	}
 
 	@Test
+	public void testGetConfigNoPolicyRulesOldHub() throws Exception {
+		final String intervalBetweenChecks = "30";
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+		settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
+		settings.put(HubConfigKeys.CONFIG_HUB_USER, "Test User");
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
+		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		controller = Mockito.spy(controller);
+
+		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+
+		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+
+		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
+
+		final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+
+		Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
+
+		Mockito.doReturn("2.5.0").when(restServiceMock).getHubVersion();
+
+		Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(PluginSettings.class),
+				Mockito.any(HubJiraConfigSerializable.class));
+
+		final Response response = controller.get(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getHubProjectMappingError());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertEquals(HubJiraConfigController.HUB_SERVER_NO_POLICY_SUPPORT_ERROR + " : "
+				+ HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
+		assertTrue(config.getJiraProjects().isEmpty());
+		assertTrue(!config.getHubProjects().isEmpty());
+		assertNull(config.getHubProjectMappings());
+		assertTrue(config.getPolicyRules().isEmpty());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
 	public void testGetConfigNoPolicyRules() throws Exception {
 		final String intervalBetweenChecks = "30";
 
@@ -751,6 +812,7 @@ public class HubJiraConfigControllerTest {
 		assertTrue(config.hasErrors());
 
 	}
+
 
 	@Test
 	public void testSaveConfigNoUpdate() throws Exception {

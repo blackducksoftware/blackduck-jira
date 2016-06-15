@@ -262,13 +262,8 @@ public class HubJiraConfigController {
 				}
 			}
 			if(hasEmptyMapping){
-				String errorMsg = "";
-				if (StringUtils.isNotBlank(config.getHubProjectMappingError())) {
-					errorMsg = config.getHubProjectMappingError();
-					errorMsg += " ";
-				}
-				errorMsg += MAPPING_HAS_EMPTY_ERROR;
-				config.setHubProjectMappingError(errorMsg);
+				config.setHubProjectMappingError(
+						concatErrorMessage(config.getHubProjectMappingError(), MAPPING_HAS_EMPTY_ERROR));
 			}
 		}
 
@@ -381,13 +376,7 @@ public class HubJiraConfigController {
 			try {
 				hubProjectItems = hubRestService.getProjectMatches(null);
 			} catch (IOException | BDRestException | URISyntaxException e) {
-				final String originalError = config.getHubProjectMappingError();
-				String newError = null;
-				if (StringUtils.isNotBlank(originalError)) {
-					newError = originalError + " :: ";
-				}
-				newError += e.getMessage();
-				config.setHubProjectMappingError(newError);
+				config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
 			}
 
 			if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
@@ -459,15 +448,19 @@ public class HubJiraConfigController {
 		}
 		config.setPolicyRules(newPolicyRules);
 		if (config.getPolicyRules().isEmpty()) {
-			String errorMsg = "";
-			if (StringUtils.isNotBlank(config.getPolicyRulesError())) {
-				errorMsg = config.getPolicyRulesError();
-				errorMsg += " ";
-			}
-			errorMsg += NO_POLICY_RULES_FOUND_ERROR;
-			config.setPolicyRulesError(errorMsg);
+			config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), NO_POLICY_RULES_FOUND_ERROR));
 		}
 
+	}
+
+	private String concatErrorMessage(final String originalMessage, final String newMessage) {
+		String errorMsg = "";
+		if (StringUtils.isNotBlank(originalMessage)) {
+			errorMsg = originalMessage;
+			errorMsg += " : ";
+		}
+		errorMsg += newMessage;
+		return errorMsg;
 	}
 
 	public HubItemsService<PolicyRule> getPolicyService(final RestConnection restConnection) {

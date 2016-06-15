@@ -19,6 +19,7 @@
 				javax.inject;version=0;resolution:=optional,
 				com.blackducksoftware.integration.hub;version="0.0";resolution:=optional,
 				com.blackducksoftware.integration.hub.exception;version="0.0"";resolution:=optional,
+				com.blackducksoftware.integration.hub.logging;version="0.0";resolution:=optional,
 				com.blackducksoftware.integration.hub.*;version="0.0";resolution:=optional,
 				com.blackducksoftware.integration.hub*;version="0.0";resolution:=optional,
 				org.springframework.osgi.service.exporter.support;resolution:=optional,
