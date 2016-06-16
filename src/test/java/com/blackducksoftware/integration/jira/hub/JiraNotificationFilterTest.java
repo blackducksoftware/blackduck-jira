@@ -42,7 +42,7 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
 					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
+			.thenReturn("http://test.project.url" + i);
 		}
 
 		final List<String> violatedRules = new ArrayList<>();
@@ -51,7 +51,7 @@ public class JiraNotificationFilterTest {
 		violatedRules.add("rule3");
 		Mockito.when(
 				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
+		.thenReturn(violatedRules);
 
 		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
 		final Project mockJiraProject = Mockito.mock(Project.class);
@@ -85,11 +85,10 @@ public class JiraNotificationFilterTest {
 				mappings, null);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);
@@ -118,7 +117,7 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
 					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
+			.thenReturn("http://test.project.url" + i);
 		}
 
 		final List<String> violatedRules = new ArrayList<>();
@@ -127,7 +126,7 @@ public class JiraNotificationFilterTest {
 		violatedRules.add("rule3");
 		Mockito.when(
 				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
+		.thenReturn(violatedRules);
 
 		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
 		final Project mockJiraProject = Mockito.mock(Project.class);
@@ -164,11 +163,10 @@ public class JiraNotificationFilterTest {
 				mappings, linksOfRulesToMonitor);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);
@@ -197,7 +195,7 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
 					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
+			.thenReturn("http://test.project.url" + i);
 		}
 
 		final List<String> violatedRules = new ArrayList<>();
@@ -206,7 +204,7 @@ public class JiraNotificationFilterTest {
 		violatedRules.add("rule3");
 		Mockito.when(
 				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
+		.thenReturn(violatedRules);
 
 		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
 		final Project mockJiraProject = Mockito.mock(Project.class);
@@ -243,11 +241,10 @@ public class JiraNotificationFilterTest {
 				mappings, linksOfRulesToMonitor);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);

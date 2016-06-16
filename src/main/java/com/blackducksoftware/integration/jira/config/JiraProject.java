@@ -11,7 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JiraProject implements Serializable {
 
-	private static final long serialVersionUID = 8278577774809760400L;
+
+	private static final long serialVersionUID = 1196405477363584146L;
 
 	@XmlElement
 	private String projectName;
@@ -45,7 +46,7 @@ public class JiraProject implements Serializable {
 		return projectKey;
 	}
 
-	public void setProjectKey(String projectKey) {
+	public void setProjectKey(final String projectKey) {
 		this.projectKey = projectKey;
 	}
 
@@ -63,6 +64,7 @@ public class JiraProject implements Serializable {
 		int result = 1;
 		result = prime * result + ((projectExists == null) ? 0 : projectExists.hashCode());
 		result = prime * result + ((projectId == null) ? 0 : projectId.hashCode());
+		result = prime * result + ((projectKey == null) ? 0 : projectKey.hashCode());
 		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
 		return result;
 	}
@@ -93,6 +95,13 @@ public class JiraProject implements Serializable {
 		} else if (!projectId.equals(other.projectId)) {
 			return false;
 		}
+		if (projectKey == null) {
+			if (other.projectKey != null) {
+				return false;
+			}
+		} else if (!projectKey.equals(other.projectKey)) {
+			return false;
+		}
 		if (projectName == null) {
 			if (other.projectName != null) {
 				return false;
@@ -110,10 +119,13 @@ public class JiraProject implements Serializable {
 		builder.append(projectName);
 		builder.append(", projectId=");
 		builder.append(projectId);
+		builder.append(", projectKey=");
+		builder.append(projectKey);
 		builder.append(", projectExists=");
 		builder.append(projectExists);
 		builder.append("]");
 		return builder.toString();
 	}
+
 
 }
