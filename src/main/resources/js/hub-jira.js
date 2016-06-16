@@ -499,8 +499,13 @@ function handleError(fieldId, configField) {
 }
 
 function showError(fieldId, configField) {
-	  AJS.$("#" + fieldId).text(decodeURI(configField));
-  	  removeClassFromFieldById(fieldId, hiddenClass);
+	var oldMessage = AJS.$("#" + fieldId).text().trim();
+	var newMessage = decodeURI(configField);
+	if(oldMessage && oldMessage != newMessage){
+		newMessage = oldMessage + ' .... ' + newMessage;
+	}
+	AJS.$("#" + fieldId).text(newMessage);
+  	removeClassFromFieldById(fieldId, hiddenClass);
 }
 
 function hideError(fieldId) {
