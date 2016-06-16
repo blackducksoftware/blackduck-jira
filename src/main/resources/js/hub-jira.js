@@ -59,26 +59,150 @@ var spinning = false;
 
 var mappingElementCounter = 0;
 
+var gotJiraProjects = false;
+var gotHubProjects = false;
+var gotProjectMappings = false;
+
+var jiraProjectMap = new Map();
+var hubProjectMap = new Map();
+
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 
+AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
+	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
+	
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
+	
+	  if (mappingElements.length > 0 ) {
+		  for (m = 0; m < mappingElements.length; m++) {
+			  var currentJiraProject = AJS.$(mappingElements[m]).find("input[name*='jiraProject']");
+			  var jiraProjectExists = false;
+			  if(currentJiraProject != null){
+				  var key = parseInt(currentJiraProject.attr("projectkey"));
+				  if(!isNaN(key)){
+					  var test = jiraProjectMap.get(key);
+					  if(test) {
+						  jiraProjectExists = true;
+					  }
+					  
+				  }
+			  }
+			  currentJiraProject.attr("projectExists", jiraProjectExists)
+			  
+			  if(!jiraProjectExists){
+					if(!currentJiraProject.hasClass('error')){
+						currentJiraProject.addClass('error');
+					}
+				} else{
+					if(currentJiraProject.hasClass('error')){
+						currentJiraProject.removeClass('error');
+					}
+				}
+			  
+			  var currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
+			  var hubProjectExists = false;
+			  if(currentHubProject != null){
+				  var key = String(currentHubProject.attr("projectkey"));
+				  if(key){
+					  var test = hubProjectMap.get(key);
+					  if(test) {
+						  hubProjectExists = true;
+					  }
+					  
+				  }
+			  }
+			  currentHubProject.attr("projectExists", hubProjectExists)
+			  if(!hubProjectExists){
+					if(!currentHubProject.hasClass('error')){
+						currentHubProject.addClass('error');
+					}
+				} else{
+					if(currentHubProject.hasClass('error')){
+						currentHubProject.removeClass('error');
+					}
+				}
+			  if(!jiraProjectExists || !hubProjectExists){
+					addMappingErrorStatus(AJS.$(mappingElements[m]));
+			  } else {
+					removeMappingErrorStatus(AJS.$(mappingElements[m]));
+			  }
+		  }
+	  }
+	}
+});
+
 function populateForm() {
 	  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/",
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/interval/",
 	    dataType: "json",
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
-	      fillInProjects(config.jiraProjects, config.hubProjects);
-	      fillInMappings(config.hubProjectMappings);
-	      addPolicyViolationRules(config.policyRules);
 	      
-	      handleError(errorMessageFieldId, config.errorMessage);
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
-	      handleError('hubProjectMappingsError', config.hubProjectMappingError);
-	      handleError('policyRulesError', config.policyRulesError);
+	    },
+	    error: function(response){
+	    	alert("Failure getting the interval");
 	    }
 	  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/jiraProjects/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInJiraProjects(config.jiraProjects);
+		      
+		      handleError(errorMessageFieldId, config.errorMessage);
+		      
+		      gotJiraProjects = true;
+		    },
+		    error: function(response){
+		    	alert("Failure getting the jira projects");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubProjects/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInHubProjects(config.hubProjects);
+
+		      handleError(errorMessageFieldId, config.errorMessage);
+		      
+		      gotHubProjects = true;
+		    },
+		    error: function(response){
+		    	alert("Failure getting the hub projects");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubPolicies/",
+		    dataType: "json",
+		    success: function(config) {
+		      addPolicyViolationRules(config.policyRules);
+
+		      handleError(errorMessageFieldId, config.errorMessage);
+		      handleError('policyRulesError', config.policyRulesError);
+		    },
+		    error: function(response){
+		    	alert("Failure getting the hub policies");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInMappings(config.hubProjectMappings);
+		      
+		      handleError(errorMessageFieldId, config.errorMessage);
+		      handleError('hubProjectMappingsError', config.hubProjectMappingError);
+		      
+		      gotProjectMappings = true;
+		    },
+		    error: function(response){
+		    	alert("Failure getting the mappings");
+		    }
+		  });
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {
@@ -119,7 +243,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 function getJsonArrayFromMapping(){
 	var jsonArray = "[";
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-	var mappingElements = mappingContainer.children();
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
 	for (i = 0; i < mappingElements.length; i++) {
 		if(i > 0){
 			jsonArray += ","
@@ -221,11 +345,12 @@ function addPolicyViolationRules(policyRules){
 	}
 }
 
-function fillInProjects(jiraProjects, hubProjects){
+function fillInJiraProjects(jiraProjects){
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
 	var jiraProjectList = mappingElement.find("datalist[id='"+ jiraProjectListId +"']");
 	if(jiraProjects != null && jiraProjects.length > 0){
 		for (j = 0; j < jiraProjects.length; j++) {
+			jiraProjectMap.set(jiraProjects[j].projectId, jiraProjects[j]);
 			var newOption = AJS.$('<option>', {
 			    value: jiraProjects[j].projectName,
 			    projectKey: jiraProjects[j].projectId,
@@ -235,10 +360,15 @@ function fillInProjects(jiraProjects, hubProjects){
 			jiraProjectList.append(newOption);
 		}
 	}
+}
+
+function fillInHubProjects(hubProjects){
+	var mappingElement = AJS.$("#" + hubProjectMappingElement);
 	
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
+			hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
 			var newOption = AJS.$('<option>', {
 			    value: hubProjects[h].projectName,
 			    projectKey: hubProjects[h].projectUrl,
@@ -251,7 +381,7 @@ function fillInProjects(jiraProjects, hubProjects){
 
 function fillInMappings(storedMappings){
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-	var mappingElements = mappingContainer.children();
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
 	// On loading the page, there should only be one original mapping element
 	if(storedMappings != null && storedMappings.length > 0){
 		fillInMapping(mappingElements[0], storedMappings[0]);
@@ -271,16 +401,6 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedJiraProjectValue = storedJiraProject.projectId;
 	var storedJiraProjectExists = storedJiraProject.projectExists;
 	
-	if(!storedJiraProjectExists){
-		if(!currentJiraProject.hasClass('error')){
-			currentJiraProject.addClass('error');
-		}
-	} else{
-		if(currentJiraProject.hasClass('error')){
-			currentJiraProject.removeClass('error');
-		}
-	}
-	
 	currentJiraProject.val(storedJiraProjectDisplayName);
 	currentJiraProject.attr("projectKey", storedJiraProjectValue);
 	currentJiraProject.attr("projectExists",storedJiraProjectExists)
@@ -292,24 +412,9 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedHubProjectValue = storedHubProject.projectUrl;
 	var storedHubProjectExists = storedHubProject.projectExists;
 	
-	if(!storedHubProjectExists){
-		if(!currentHubProject.hasClass('error')){
-			currentHubProject.addClass('error');
-		}
-	} else{
-		if(currentHubProject.hasClass('error')){
-			currentHubProject.removeClass('error');
-		}
-	}
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
 	currentHubProject.attr("projectExists",storedHubProjectExists)
-	
-	if(isNullOrWhitespace(storedJiraProjectValue) || isNullOrWhitespace(storedHubProjectValue) || !storedJiraProjectExists || !storedHubProjectExists){
-		addMappingErrorStatus(mappingElement);
-	} else {
-		removeMappingErrorStatus(mappingElement);
-	}
 }
 
 function addNewMappingElement(fieldId){
@@ -325,21 +430,25 @@ function addNewMappingElement(fieldId){
 	currentJiraProject.val("");
 	currentJiraProject.attr("projectKey", "");
 	currentJiraProject.attr("projectExists","true");
-	currentJiraProject.css("color", "black");
+	if(currentJiraProject.hasClass('error')){
+		currentJiraProject.removeClass('error');
+	}
 	
 	var currentHubProject = AJS.$(elementToAdd).find("input[name*='hubProject']");
 	
 	currentHubProject.val("");
 	currentHubProject.attr("projectKey", "");
 	currentHubProject.attr("projectExists","true");
-	currentHubProject.css("color", "black");
+	if(currentHubProject.hasClass('error')){
+		currentHubProject.removeClass('error');
+	}
 	
 	return elementToAdd;
 }
 
 function removeMappingElement(childElement){
-	if(AJS.$("#" + hubProjectMappingContainer).children().length > 1){
-		AJS.$(childElement).closest("div[name*='"+ hubProjectMappingElement + "']").remove();
+	if(AJS.$("#" + hubProjectMappingContainer).find("tr[name*='"+ hubProjectMappingElement + "']").length > 1){
+		AJS.$(childElement).closest("tr[name*='"+ hubProjectMappingElement + "']").remove();
 	}
 }
 

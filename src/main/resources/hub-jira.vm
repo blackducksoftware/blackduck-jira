@@ -85,10 +85,8 @@
 			  <div class="field-group">
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
-			  <div id="hubProjectMappingContainer" class="mappingContainer">
-			  	<div name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
-			      	<table width="70%">
-					  <tr class="">
+			  	<table width="100%" id="hubProjectMappingContainer" class="mappingContainer">
+					  <tr name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
 					  	<td>
 					  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 					  	</td>
@@ -103,11 +101,10 @@
 							<datalist id="hubProjects">
 							</datalist>
 					    </td>
-					    <td id="mappingStatus"><td>
-					  </tr>
-					</table>
-				</div>
-			  </div>
+					    <td id="mappingStatus">
+					    <td>
+				  </tr>
+				</table>
 
 		</fieldset>
 		

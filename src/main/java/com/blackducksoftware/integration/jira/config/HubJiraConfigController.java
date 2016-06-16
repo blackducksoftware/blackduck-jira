@@ -93,9 +93,10 @@ public class HubJiraConfigController {
 		this.projectManager = projectManager;
 	}
 
+	@Path("/interval")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response get(@Context final HttpServletRequest request) {
+	public Response getInterval(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
@@ -105,34 +106,14 @@ public class HubJiraConfigController {
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-				final HubIntRestService restService = getHubRestService(settings, config);
-				final List<HubProject> hubProjects = getHubProjects(restService, config);
-				config.setHubProjects(hubProjects);
-
-				config.setJiraProjects(jiraProjects);
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
-				final String policyRulesJson = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-
-				final String hubProjectMappingsJson = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-
 				config.setIntervalBetweenChecks(intervalBetweenChecks);
-				config.setHubProjectMappingsJson(hubProjectMappingsJson);
 
-				if (StringUtils.isNotBlank(policyRulesJson)) {
-					config.setPolicyRulesJson(policyRulesJson);
-				}
-				setHubPolicyRules(restService,
-						config);
-				checkConfigErrors(config);
+				checkIntervalErrors(config);
 				return config;
 			}
 		});
@@ -181,7 +162,7 @@ public class HubJiraConfigController {
 
 				final List<HubProject> hubProjects = getHubProjects(restService, config);
 				config.setHubProjects(hubProjects);
-				return null;
+				return config;
 			}
 		});
 		return Response.ok(obj).build();
@@ -199,12 +180,46 @@ public class HubJiraConfigController {
 			@Override
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final String policyRulesJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
 				final HubIntRestService restService = getHubRestService(settings, config);
 
+				if (StringUtils.isNotBlank(policyRulesJson)) {
+					config.setPolicyRulesJson(policyRulesJson);
+				}
 				setHubPolicyRules(restService, config);
-				return null;
+				return config;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/mappings")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getMappings(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final String hubProjectMappingsJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+				config.setHubProjectMappingsJson(hubProjectMappingsJson);
+
+				checkMappingErrors(config);
+				return config;
 			}
 		});
 		return Response.ok(obj).build();
@@ -227,36 +242,31 @@ public class HubJiraConfigController {
 				final HubIntRestService restService = getHubRestService(settings, config);
 				final List<HubProject> hubProjects = getHubProjects(restService, config);
 				config.setHubProjects(hubProjects);
-
 				config.setJiraProjects(jiraProjects);
-
-				checkConfigErrors(config);
-
+				checkIntervalErrors(config);
+				checkMappingErrors(config);
 				if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
 					final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 					dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
 							dateFormatter.format(new Date()));
 				}
-
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
 						config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
-
 				return null;
 			}
 		});
 		if (config.hasErrors()) {
 			return Response.ok(config).status(Status.BAD_REQUEST).build();
 		}
-
 		return Response.noContent().build();
 	}
 
-	private void checkConfigErrors(final HubJiraConfigSerializable config) {
+	private void checkIntervalErrors(final HubJiraConfigSerializable config) {
 		if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
 			config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
 		} else {
@@ -266,67 +276,26 @@ public class HubJiraConfigController {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
 		}
+	}
 
+	private void checkMappingErrors(final HubJiraConfigSerializable config) {
 		if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
-
 			boolean hasEmptyMapping = false;
 			for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-
 				boolean jiraProjectBlank = true;
 				boolean hubProjectBlank = true;
-
-				boolean jiraProjectExists = false;
 				if (mapping.getJiraProject() != null) {
 					if (mapping.getJiraProject().getProjectId() != null) {
 						jiraProjectBlank = false;
-						if (config.getJiraProjects() != null && !config.getJiraProjects().isEmpty()) {
-							for (final JiraProject jiraProject : config.getJiraProjects()) {
-								if (jiraProject.getProjectId().equals(mapping.getJiraProject().getProjectId())) {
-									jiraProjectExists = true;
-									break;
-								}
-							}
-						}
-					}
-					if (jiraProjectExists) {
-						mapping.getJiraProject().setProjectExists(true);
-					} else {
-						mapping.getJiraProject().setProjectExists(false);
 					}
 				}
-
-				boolean hubProjectExists = false;
 				if (mapping.getHubProject() != null) {
 					if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
 						hubProjectBlank = false;
-						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
-							for (final HubProject hubProject : config.getHubProjects()) {
-								if (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl())) {
-									mapping.getHubProject().setProjectName(hubProject.getProjectName());
-									hubProjectExists = true;
-									break;
-								}
-							}
-						}
 					} else if (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
 						hubProjectBlank = false;
-						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
-							for (final HubProject hubProject : config.getHubProjects()) {
-								if (hubProject.getProjectName().equals(mapping.getHubProject().getProjectName())) {
-									mapping.getHubProject().setProjectUrl(hubProject.getProjectUrl());
-									hubProjectExists = true;
-									break;
-								}
-							}
-						}
-					}
-					if (hubProjectExists) {
-						mapping.getHubProject().setProjectExists(true);
-					} else {
-						mapping.getHubProject().setProjectExists(false);
 					}
 				}
-
 				if(jiraProjectBlank || hubProjectBlank){
 					hasEmptyMapping = true;
 				}
@@ -336,8 +305,101 @@ public class HubJiraConfigController {
 						concatErrorMessage(config.getHubProjectMappingError(), MAPPING_HAS_EMPTY_ERROR));
 			}
 		}
-
 	}
+
+	// private void checkErrors(final HubJiraConfigSerializable config) {
+	// if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
+	// config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
+	// } else {
+	// try {
+	// stringToInteger(config.getIntervalBetweenChecks());
+	// } catch (final IllegalArgumentException e) {
+	// config.setIntervalBetweenChecksError(e.getMessage());
+	// }
+	// }
+	//
+	// if (config.getHubProjectMappings() != null &&
+	// !config.getHubProjectMappings().isEmpty()) {
+	//
+	// boolean hasEmptyMapping = false;
+	// for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+	//
+	// boolean jiraProjectBlank = true;
+	// boolean hubProjectBlank = true;
+	//
+	// boolean jiraProjectExists = false;
+	// if (mapping.getJiraProject() != null) {
+	// if (mapping.getJiraProject().getProjectId() != null) {
+	// jiraProjectBlank = false;
+	// if (config.getJiraProjects() != null &&
+	// !config.getJiraProjects().isEmpty()) {
+	// for (final JiraProject jiraProject : config.getJiraProjects()) {
+	// if
+	// (jiraProject.getProjectId().equals(mapping.getJiraProject().getProjectId()))
+	// {
+	// jiraProjectExists = true;
+	// break;
+	// }
+	// }
+	// }
+	// }
+	// if (jiraProjectExists) {
+	// mapping.getJiraProject().setProjectExists(true);
+	// } else {
+	// mapping.getJiraProject().setProjectExists(false);
+	// }
+	// }
+	//
+	// boolean hubProjectExists = false;
+	// if (mapping.getHubProject() != null) {
+	// if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
+	// hubProjectBlank = false;
+	// if (config.getHubProjects() != null &&
+	// !config.getHubProjects().isEmpty()) {
+	// for (final HubProject hubProject : config.getHubProjects()) {
+	// if
+	// (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl()))
+	// {
+	// mapping.getHubProject().setProjectName(hubProject.getProjectName());
+	// hubProjectExists = true;
+	// break;
+	// }
+	// }
+	// }
+	// } else if
+	// (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
+	// hubProjectBlank = false;
+	// if (config.getHubProjects() != null &&
+	// !config.getHubProjects().isEmpty()) {
+	// for (final HubProject hubProject : config.getHubProjects()) {
+	// if
+	// (hubProject.getProjectName().equals(mapping.getHubProject().getProjectName()))
+	// {
+	// mapping.getHubProject().setProjectUrl(hubProject.getProjectUrl());
+	// hubProjectExists = true;
+	// break;
+	// }
+	// }
+	// }
+	// }
+	// if (hubProjectExists) {
+	// mapping.getHubProject().setProjectExists(true);
+	// } else {
+	// mapping.getHubProject().setProjectExists(false);
+	// }
+	// }
+	//
+	// if (jiraProjectBlank || hubProjectBlank) {
+	// hasEmptyMapping = true;
+	// }
+	// }
+	// if (hasEmptyMapping) {
+	// config.setHubProjectMappingError(
+	// concatErrorMessage(config.getHubProjectMappingError(),
+	// MAPPING_HAS_EMPTY_ERROR));
+	// }
+	// }
+	// }
 
 	private Object getValue(final PluginSettings settings, final String key) {
 		return settings.get(key);
