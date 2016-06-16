@@ -140,6 +140,76 @@ public class HubJiraConfigController {
 		return Response.ok(obj).build();
 	}
 
+	@Path("/jiraProjects")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getJiraProjects(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				config.setJiraProjects(jiraProjects);
+				return config;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/hubProjects")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubProjects(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final HubIntRestService restService = getHubRestService(settings, config);
+
+				final List<HubProject> hubProjects = getHubProjects(restService, config);
+				config.setHubProjects(hubProjects);
+				return null;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/hubPolicies")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubPolicies(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final HubIntRestService restService = getHubRestService(settings, config);
+
+				setHubPolicyRules(restService, config);
+				return null;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
