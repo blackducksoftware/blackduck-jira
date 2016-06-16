@@ -101,6 +101,7 @@ public class JiraService {
 			throws JiraServiceException {
 		final String data = generateBody(projectKey, issueSummary, issueDescription);
 		try {
+			// TODO Get actual jira URL
 			httpPostString("http://localhost:2990/jira/rest/api/2/issue", data);
 		} catch (final JiraServiceException e) {
 			throw new JiraServiceException("Error generating JIRA ticket for JIRA project with key '" + projectKey

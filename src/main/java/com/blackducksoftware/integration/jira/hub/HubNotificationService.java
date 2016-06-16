@@ -20,7 +20,9 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
+import com.blackducksoftware.integration.jira.hub.model.NameVersion;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
@@ -152,6 +154,31 @@ public class HubNotificationService {
 			linksOfRulesViolated.add(ruleUrl);
 		}
 		return linksOfRulesViolated;
+	}
+
+	public List<NameVersion> getComponents(final RuleViolationNotificationItem ruleViolationNotificationItem)
+			throws HubNotificationServiceException {
+		final List<ComponentVersionStatus> compVersionStatuses = ruleViolationNotificationItem.getContent()
+				.getComponentVersionStatuses();
+		final List<NameVersion> components = new ArrayList<>(compVersionStatuses.size());
+		logger.debug("Processing " + compVersionStatuses.size()
+				+ " component version status objects for rule violation: " + ruleViolationNotificationItem);
+		for (final ComponentVersionStatus compVerStatus : compVersionStatuses) {
+			logger.debug("Processing component version status: " + compVerStatus);
+			final String componentName = compVerStatus.getComponentName();
+			final String componentVersionUrl = compVerStatus.getComponentVersionLink();
+			ComponentVersion componentVersion;
+			try {
+				componentVersion = restConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, componentVersionUrl);
+			} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
+				throw new HubNotificationServiceException("Error getting a component version: " + e.getMessage(), e);
+			}
+			final String componentVersionName = componentVersion.getVersionName();
+			final NameVersion component = new NameVersion(componentName, componentVersionName);
+			logger.debug("Component: " + component);
+			components.add(component);
+		}
+		return components;
 	}
 
 	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException {
