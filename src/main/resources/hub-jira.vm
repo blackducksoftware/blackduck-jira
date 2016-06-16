@@ -86,23 +86,23 @@
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
 			  	<table width="100%" id="hubProjectMappingContainer" class="mappingContainer">
-					  <tr name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
-					  	<td>
-					  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
-					  	</td>
-					    <td>
-					    	<input class="longInput" type="text" name="jiraProject" list="jiraProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
-							<datalist id="jiraProjects">
-							</datalist>
-					    </td>
-					    <td> = </td>
-					    <td>
-					    	<input class="longInput" type="text" name="hubProject" list="hubProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
-							<datalist id="hubProjects">
-							</datalist>
-					    </td>
-					    <td id="mappingStatus">
-					    <td>
+				  <tr name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
+				  	<td>
+				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
+				  	</td>
+				    <td>
+				    	<input class="longInput" type="text" name="jiraProject" list="jiraProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+						<datalist id="jiraProjects">
+						</datalist>
+				    </td>
+				    <td> = </td>
+				    <td>
+				    	<input class="longInput" type="text" name="hubProject" list="hubProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+						<datalist id="hubProjects">
+						</datalist>
+				    </td>
+				    <td id="mappingStatus">
+				    <td>
 				  </tr>
 				</table>
 
