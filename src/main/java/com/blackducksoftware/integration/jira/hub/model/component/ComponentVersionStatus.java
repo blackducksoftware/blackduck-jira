@@ -23,6 +23,18 @@ public class ComponentVersionStatus {
 		return bomComponentVersionPolicyStatusLink;
 	}
 
+	public void setComponentName(final String componentName) {
+		this.componentName = componentName;
+	}
+
+	public void setComponentVersionLink(final String componentVersionLink) {
+		this.componentVersionLink = componentVersionLink;
+	}
+
+	public void setBomComponentVersionPolicyStatusLink(final String bomComponentVersionPolicyStatusLink) {
+		this.bomComponentVersionPolicyStatusLink = bomComponentVersionPolicyStatusLink;
+	}
+
 	@Override
 	public String toString() {
 		return "ComponentVersionStatus [componentName=" + componentName + ", componentVersion=" + componentVersionLink
