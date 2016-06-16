@@ -70,70 +70,6 @@ function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 
-AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
-	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
-	
-	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
-	
-	  if (mappingElements.length > 0 ) {
-		  for (m = 0; m < mappingElements.length; m++) {
-			  var currentJiraProject = AJS.$(mappingElements[m]).find("input[name*='jiraProject']");
-			  var jiraProjectExists = false;
-			  if(currentJiraProject != null){
-				  var key = parseInt(currentJiraProject.attr("projectkey"));
-				  if(!isNaN(key)){
-					  var test = jiraProjectMap.get(key);
-					  if(test) {
-						  jiraProjectExists = true;
-					  }
-					  
-				  }
-			  }
-			  currentJiraProject.attr("projectExists", jiraProjectExists)
-			  
-			  if(!jiraProjectExists){
-					if(!currentJiraProject.hasClass('error')){
-						currentJiraProject.addClass('error');
-					}
-				} else{
-					if(currentJiraProject.hasClass('error')){
-						currentJiraProject.removeClass('error');
-					}
-				}
-			  
-			  var currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
-			  var hubProjectExists = false;
-			  if(currentHubProject != null){
-				  var key = String(currentHubProject.attr("projectkey"));
-				  if(key){
-					  var test = hubProjectMap.get(key);
-					  if(test) {
-						  hubProjectExists = true;
-					  }
-					  
-				  }
-			  }
-			  currentHubProject.attr("projectExists", hubProjectExists)
-			  if(!hubProjectExists){
-					if(!currentHubProject.hasClass('error')){
-						currentHubProject.addClass('error');
-					}
-				} else{
-					if(currentHubProject.hasClass('error')){
-						currentHubProject.removeClass('error');
-					}
-				}
-			  if(!jiraProjectExists || !hubProjectExists){
-					addMappingErrorStatus(AJS.$(mappingElements[m]));
-			  } else {
-					removeMappingErrorStatus(AJS.$(mappingElements[m]));
-			  }
-		  }
-	  }
-	}
-});
-
 function populateForm() {
 	  AJS.$.ajax({
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/interval/",
@@ -204,6 +140,70 @@ function populateForm() {
 		    }
 		  });
 }
+
+AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
+	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
+	
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
+	
+	  if (mappingElements.length > 0 ) {
+		  for (m = 0; m < mappingElements.length; m++) {
+			  var currentJiraProject = AJS.$(mappingElements[m]).find("input[name*='jiraProject']");
+			  var jiraProjectExists = false;
+			  if(currentJiraProject != null){
+				  var key = String(currentJiraProject.attr("projectkey"));
+				  if(key){
+					  var test = jiraProjectMap.get(key);
+					  if(test) {
+						  jiraProjectExists = true;
+					  }
+					  
+				  }
+			  }
+			  currentJiraProject.attr("projectExists", jiraProjectExists)
+			  
+			  if(!jiraProjectExists){
+					if(!currentJiraProject.hasClass('error')){
+						currentJiraProject.addClass('error');
+					}
+				} else{
+					if(currentJiraProject.hasClass('error')){
+						currentJiraProject.removeClass('error');
+					}
+				}
+			  
+			  var currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
+			  var hubProjectExists = false;
+			  if(currentHubProject != null){
+				  var key = String(currentHubProject.attr("projectkey"));
+				  if(key){
+					  var test = hubProjectMap.get(key);
+					  if(test) {
+						  hubProjectExists = true;
+					  }
+					  
+				  }
+			  }
+			  currentHubProject.attr("projectExists", hubProjectExists)
+			  if(!hubProjectExists){
+					if(!currentHubProject.hasClass('error')){
+						currentHubProject.addClass('error');
+					}
+				} else{
+					if(currentHubProject.hasClass('error')){
+						currentHubProject.removeClass('error');
+					}
+				}
+			  if(!jiraProjectExists || !hubProjectExists){
+					addMappingErrorStatus(AJS.$(mappingElements[m]));
+			  } else {
+					removeMappingErrorStatus(AJS.$(mappingElements[m]));
+			  }
+		  }
+	  }
+	}
+});
 
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
@@ -350,10 +350,10 @@ function fillInJiraProjects(jiraProjects){
 	var jiraProjectList = mappingElement.find("datalist[id='"+ jiraProjectListId +"']");
 	if(jiraProjects != null && jiraProjects.length > 0){
 		for (j = 0; j < jiraProjects.length; j++) {
-			jiraProjectMap.set(jiraProjects[j].projectId, jiraProjects[j]);
+			jiraProjectMap.set(String(jiraProjects[j].projectId), jiraProjects[j]);
 			var newOption = AJS.$('<option>', {
 			    value: jiraProjects[j].projectName,
-			    projectKey: jiraProjects[j].projectId,
+			    projectKey: String(jiraProjects[j].projectId),
 			    projectExists: jiraProjects[j].projectExists
 			});
 			
