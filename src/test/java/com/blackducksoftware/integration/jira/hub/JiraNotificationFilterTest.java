@@ -18,16 +18,40 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
+import com.blackducksoftware.integration.hub.meta.MetaLink;
+import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
+import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
+import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.jira.issue.Issue;
+import com.blackducksoftware.integration.jira.issue.IssueLevel;
 import com.blackducksoftware.integration.jira.service.JiraService;
 
 public class JiraNotificationFilterTest {
+
+	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
+	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
+	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
+	private static final String NOTIF_URL_PREFIX = "http://test.notif.url";
+	private static final String JIRA_PROJECT_PREFIX = "Test JIRA Project";
+	private static final long JIRA_PROJECT_ID_BASE = 122L;
+	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
+	private static final String JIRA_ISSUE_TYPE = "Bug";
+	private static final String CURRENT_JIRA_PROJECT_NAME = "test JIRA Project0a";
+	private static final String CURRENT_JIRA_PROJECT_KEY = "TEST0a";
+	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX = "bomComponentVersionPolicyStatusLink";
+	private static final String COMPONENT_VERSION_LINK_PREFIX = "componentVersionLink";
+	private static final String VERSION_NAME_PREFIX = "versionName";
+	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
+	private static final String RULE_PREFIX = "rule";
+	private static final String RULE_LINK_NAME = "policy-rule";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -38,233 +62,205 @@ public class JiraNotificationFilterTest {
 	}
 
 	@Test
-	public void testWithoutRuleList() throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
-		for (int i = 0; i < 3; i++) {
-			Mockito.when(
-					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
-		}
+	public void testWithRuleListWithMatches() throws HubNotificationServiceException, UnexpectedHubResponseException {
+		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
+		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
 
-		final List<String> violatedRules = new ArrayList<>();
-		violatedRules.add("rule1");
-		violatedRules.add("rule2");
-		violatedRules.add("rule3");
-		Mockito.when(
-				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
+		final Set<HubProjectMapping> mappings = createMappings(true);
 
-		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
-		final Project mockJiraProject = Mockito.mock(Project.class);
-		Mockito.when(mockJiraProject.getKey()).thenReturn("TEST0a");
-		Mockito.when(mockJiraProject.getName()).thenReturn("test JIRA Project0a");
-		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
-		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
 
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "Bug");
-
-		final Set<HubProjectMapping> mappings = new HashSet<>();
-
-		for (int i = 0; i < 5; i++) {
-			final HubProjectMapping mapping = new HubProjectMapping();
-			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
-			hubProject.setProjectName("Test Hub Project" + i);
-			hubProject.setProjectUrl("http://test.project.url" + i);
-			mapping.setHubProject(hubProject);
-			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
-			jiraProject.setProjectId(122L + i);
-			jiraProject.setProjectName("Test JIRA Project" + i);
-			mapping.setJiraProject(jiraProject);
-
-			System.out.println("Mapping: " + mapping);
-			mappings.add(mapping);
-		}
+		final List<NotificationItem> notifications = createNotifications();
+		final List<String> rulesToMonitor = new ArrayList<>();
+		rulesToMonitor.add("rule0");
+		rulesToMonitor.add("rule1");
 
 		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, null);
-		final List<NotificationItem> notifications = new ArrayList<>();
-		for (int i = 2; i >= 0; i--) {
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
-			notif.setContentType("test content type");
-			notif.setCreatedAt(new Date());
-			notif.setType(NotificationType.RULE_VIOLATION);
-			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-			content.setProjectName("test Hub Project" + i);
-			content.setProjectVersionLink("http://test.projectversion.url" + i);
-			notif.setContent(content);
-			System.out.println("Notif: " + notif);
-			notifications.add(notif);
-		}
-		final List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifications);
+				mappings, rulesToMonitor);
+		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
 
-		System.out.println("JIRA-ready notifications:");
-		for (final JiraReadyNotification notif : jiraReadyNotifs) {
-			System.out.println(notif);
-			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif
-					.getNotificationItem();
-			assertTrue(ruleViolationNotif.getContent().getProjectVersionLink()
-					.startsWith("http://test.projectversion.url"));
-
+		System.out.println("Issues:");
+		for (final Issue issue : issues) {
+			System.out.println(issue);
+			assertEquals(IssueLevel.COMPONENT, issue.getLevel());
+			assertTrue(issue.getHubProject().getName().startsWith(HUB_PROJECT_NAME_PREFIX));
+			assertTrue(issue.getHubProject().getVersion().startsWith(TEST_PROJECT_VERSION_PREFIX));
+			assertTrue(issue.getHubComponent().getName().startsWith(HUB_COMPONENT_NAME_PREFIX));
+			assertTrue(issue.getHubComponent().getVersion().startsWith(VERSION_NAME_PREFIX));
+			assertEquals(CURRENT_JIRA_PROJECT_KEY, issue.getJiraProjectKey());
+			assertTrue(issue.getRuleUrl().startsWith(RULE_PREFIX));
 		}
-		assertEquals(3, jiraReadyNotifs.size());
+		assertEquals(6, issues.size());
 	}
 
 	@Test
 	public void testWithRuleListNoMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
-		for (int i = 0; i < 3; i++) {
-			Mockito.when(
-					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
-		}
+		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(false);
+		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
 
-		final List<String> violatedRules = new ArrayList<>();
-		violatedRules.add("rule1");
-		violatedRules.add("rule2");
-		violatedRules.add("rule3");
-		Mockito.when(
-				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
+		final Set<HubProjectMapping> mappings = createMappings(true);
 
-		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
-		final Project mockJiraProject = Mockito.mock(Project.class);
-		Mockito.when(mockJiraProject.getKey()).thenReturn("TEST0a");
-		Mockito.when(mockJiraProject.getName()).thenReturn("test JIRA Project0a");
-		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
-		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
+		final List<NotificationItem> notifications = createNotifications();
 
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "Bug");
-
-		final Set<HubProjectMapping> mappings = new HashSet<>();
-
-		for (int i = 0; i < 5; i++) {
-			final HubProjectMapping mapping = new HubProjectMapping();
-			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
-			hubProject.setProjectName("Test Hub Project" + i);
-			hubProject.setProjectUrl("http://test.project.url" + i);
-			mapping.setHubProject(hubProject);
-			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
-			jiraProject.setProjectId(122L + i);
-			jiraProject.setProjectName("Test JIRA Project" + i);
-			mapping.setJiraProject(jiraProject);
-
-			System.out.println("Mapping: " + mapping);
-			mappings.add(mapping);
-		}
-
-		final List<String> linksOfRulesToMonitor = new ArrayList<>();
-		linksOfRulesToMonitor.add("testRule");
-
+		final List<String> rulesToMonitor = new ArrayList<>();
+		rulesToMonitor.add("rule0");
+		rulesToMonitor.add("rule1");
 		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, linksOfRulesToMonitor);
-		final List<NotificationItem> notifications = new ArrayList<>();
-		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(new MetaInformation(null,
-					"http://test.notif.url" + i, null));
-			notif.setContentType("test content type");
-			notif.setCreatedAt(new Date());
-			notif.setType(NotificationType.RULE_VIOLATION);
-			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-			content.setProjectName("test Hub Project" + i);
-			content.setProjectVersionLink("http://test.projectversion.url" + i);
-			notif.setContent(content);
-			System.out.println("Notif: " + notif);
-			notifications.add(notif);
-		}
-		final List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifications);
+				mappings, rulesToMonitor);
+		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
 
-		System.out.println("JIRA-ready notifications:");
-		for (final JiraReadyNotification notif : jiraReadyNotifs) {
-			System.out.println(notif);
-			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif
-					.getNotificationItem();
-			assertTrue(ruleViolationNotif.getContent().getProjectVersionLink()
-					.startsWith("http://test.projectversion.url"));
+		System.out.println("Issues: " + issues);
 
-		}
-		assertEquals(0, jiraReadyNotifs.size());
+		assertEquals(0, issues.size());
 	}
 
 	@Test
-	public void testWithRuleListWithMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
-		for (int i = 0; i < 3; i++) {
-			Mockito.when(
-					mockHubNotificationService.getProjectUrlFromProjectReleaseUrl("http://test.projectversion.url" + i))
-					.thenReturn("http://test.project.url" + i);
+	public void testNoMappingMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
+		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
+		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+
+		final Set<HubProjectMapping> mappings = createMappings(false);
+
+		final List<NotificationItem> notifications = createNotifications();
+
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
+				mappings, null);
+		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+
+		System.out.println("Issues: " + issues);
+
+		assertEquals(0, issues.size());
+	}
+
+	@Test
+	public void testWithoutMappings() throws HubNotificationServiceException, UnexpectedHubResponseException {
+		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
+		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+
+		final Set<HubProjectMapping> mappings = null;
+
+		final List<NotificationItem> notifications = createNotifications();
+
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
+				mappings, null);
+		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+
+		System.out.println("Issues:");
+		assertEquals(0, issues.size());
+	}
+
+	private List<NotificationItem> createNotifications() {
+		final List<NotificationItem> notifications = new ArrayList<>();
+		for (int i = 2; i >= 0; i--) {
+			final MetaInformation meta = new MetaInformation(null, NOTIF_URL_PREFIX + i, null);
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
+			notif.setCreatedAt(new Date());
+			notif.setType(NotificationType.RULE_VIOLATION);
+			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
+			content.setProjectName(HUB_PROJECT_NAME_PREFIX + i);
+			content.setProjectVersionLink(PROJECTVERSION_URL_PREFIX + i);
+			final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
+			final ComponentVersionStatus compVerStatus = new ComponentVersionStatus();
+			compVerStatus.setComponentName(HUB_COMPONENT_NAME_PREFIX + i);
+			compVerStatus.setComponentVersionLink(COMPONENT_VERSION_LINK_PREFIX + i);
+			compVerStatus.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX + i);
+			componentVersionStatuses.add(compVerStatus);
+			content.setComponentVersionStatuses(componentVersionStatuses);
+			notif.setContent(content);
+			System.out.println("Notif: " + notif);
+			notifications.add(notif);
 		}
+		return notifications;
+	}
 
-		final List<String> violatedRules = new ArrayList<>();
-		violatedRules.add("rule1");
-		violatedRules.add("testRule");
-		violatedRules.add("rule3");
-		Mockito.when(
-				mockHubNotificationService.getLinksOfRulesViolated(Mockito.any(RuleViolationNotificationItem.class)))
-				.thenReturn(violatedRules);
-
-		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
-		final Project mockJiraProject = Mockito.mock(Project.class);
-		Mockito.when(mockJiraProject.getKey()).thenReturn("TEST0a");
-		Mockito.when(mockJiraProject.getName()).thenReturn("test JIRA Project0a");
-		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
-		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
-
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "Bug");
-
+	private Set<HubProjectMapping> createMappings(final boolean match) {
+		String suffix;
+		if (match) {
+			suffix = "";
+		} else {
+			suffix = "XX";
+		}
 		final Set<HubProjectMapping> mappings = new HashSet<>();
 
 		for (int i = 0; i < 5; i++) {
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
 			hubProject.setProjectExists(true);
-			hubProject.setProjectName("Test Hub Project" + i);
-			hubProject.setProjectUrl("http://test.project.url" + i);
+			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX + i);
+			hubProject.setProjectUrl(PROJECT_URL_PREFIX + i + suffix);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
 			jiraProject.setProjectExists(true);
-			jiraProject.setProjectId(122L + i);
-			jiraProject.setProjectName("Test JIRA Project" + i);
+			jiraProject.setProjectId(JIRA_PROJECT_ID_BASE + i);
+			jiraProject.setProjectName(JIRA_PROJECT_PREFIX + i);
 			mapping.setJiraProject(jiraProject);
 
 			System.out.println("Mapping: " + mapping);
 			mappings.add(mapping);
 		}
-
-		final List<String> linksOfRulesToMonitor = new ArrayList<>();
-		linksOfRulesToMonitor.add("testRule");
-
-		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, linksOfRulesToMonitor);
-		final List<NotificationItem> notifications = new ArrayList<>();
-		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(new MetaInformation(null,
-					"http://test.notif.url" + i, null));
-			notif.setContentType("test content type");
-			notif.setCreatedAt(new Date());
-			notif.setType(NotificationType.RULE_VIOLATION);
-			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-			content.setProjectName("test Hub Project" + i);
-			content.setProjectVersionLink("http://test.projectversion.url" + i);
-			notif.setContent(content);
-			System.out.println("Notif: " + notif);
-			notifications.add(notif);
-		}
-		final List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifications);
-
-		System.out.println("JIRA-ready notifications:");
-		for (final JiraReadyNotification notif : jiraReadyNotifs) {
-			System.out.println(notif);
-			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif
-					.getNotificationItem();
-			assertTrue(ruleViolationNotif.getContent().getProjectVersionLink()
-					.startsWith("http://test.projectversion.url"));
-
-		}
-		assertEquals(3, jiraReadyNotifs.size());
+		return mappings;
 	}
+
+	private ProjectManager createMockJiraProjectManager() {
+		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
+		final Project mockJiraProject = Mockito.mock(Project.class);
+		Mockito.when(mockJiraProject.getKey()).thenReturn(CURRENT_JIRA_PROJECT_KEY);
+		Mockito.when(mockJiraProject.getName()).thenReturn(CURRENT_JIRA_PROJECT_NAME);
+		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
+		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
+		return mockJiraProjectManager;
+	}
+
+	private HubNotificationService createMockHubNotificationService(final boolean ruleMatches)
+			throws HubNotificationServiceException,
+			UnexpectedHubResponseException {
+		String suffix;
+		if (ruleMatches) {
+			suffix = "";
+		} else {
+			suffix = "XX";
+		}
+		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
+		for (int i = 0; i < 3; i++) {
+			final ReleaseItem releaseItem = getReleaseItem(i);
+			Mockito.when(
+					mockHubNotificationService
+					.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX + i))
+					.thenReturn(releaseItem);
+			List<MetaLink> links = new ArrayList<>();
+			MetaInformation meta = new MetaInformation(null, null, links);
+			final ComponentVersion componentVersion = new ComponentVersion(meta);
+			componentVersion.setVersionName(VERSION_NAME_PREFIX + i);
+			Mockito.when(mockHubNotificationService.getComponentVersion(COMPONENT_VERSION_LINK_PREFIX + i))
+			.thenReturn(componentVersion);
+
+			links = new ArrayList<>();
+			for (int j = 0; j < 3; j++) {
+				links.add(new MetaLink(RULE_LINK_NAME, RULE_PREFIX + j + suffix));
+			}
+			meta = new MetaInformation(null, null, links);
+			final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
+			Mockito.when(mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX + i))
+			.thenReturn(status);
+		}
+		return mockHubNotificationService;
+	}
+
+
+
+	private ReleaseItem getReleaseItem(final int i) {
+		final List<MetaLink> links = new ArrayList<>();
+		final MetaLink link = new MetaLink("project", PROJECT_URL_PREFIX + i);
+		links.add(link);
+		final MetaInformation _meta = new MetaInformation(null, null, links);
+		final ReleaseItem releaseItem = new ReleaseItem(TEST_PROJECT_VERSION_PREFIX + i, "testPhase",
+				"testDistribution",
+				"testSource", _meta);
+		return releaseItem;
+	}
+
+
 }

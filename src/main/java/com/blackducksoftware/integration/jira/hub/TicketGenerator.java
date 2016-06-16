@@ -8,6 +8,7 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.service.JiraService;
 import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
@@ -35,7 +36,7 @@ public class TicketGenerator {
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
 		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService, jiraService,
 				hubProjectMappings, linksOfRulesToMonitor);
-		final List<JiraReadyNotification> jiraReadyNotifs = filter.extractJiraReadyNotifications(notifs);
-		return jiraService.generateTickets(jiraReadyNotifs);
+		final List<Issue> issues = filter.extractJiraReadyNotifications(notifs);
+		return jiraService.generateTickets(issues);
 	}
 }

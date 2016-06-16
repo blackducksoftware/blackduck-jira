@@ -19,10 +19,7 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.JiraReadyNotification;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.issue.Issue;
 
 /**
  * Generates JIRA tickets.
@@ -58,43 +55,59 @@ public class JiraService {
 		return bdsJiraProject;
 	}
 
-	public int generateTickets(final List<JiraReadyNotification> notifs) throws JiraServiceException {
+	public int generateTickets(final List<Issue> issues) throws JiraServiceException {
 
-		logger.info("Generating tickets for " + notifs.size() + " JIRA-ready notifications");
+		logger.info("Generating tickets for " + issues.size() + " JIRA-ready notifications");
 		int ticketCount = 0;
-		for (final JiraReadyNotification notif : notifs) {
-			logger.debug("Generating ticket for: " + notif);
-			String hubProjectName = "<unknown>";
-			String hubProjectVersionName = "<unknown>";
-			String notificationTypeString = "<null>";
-			if (notif.getNotificationItem() instanceof VulnerabilityNotificationItem) {
-				notificationTypeString = "Vulnerability";
-				logger.debug("This is a vulnerability notification; skipping it.");
-				continue;
-			} else if (notif.getNotificationItem() instanceof RuleViolationNotificationItem) {
-				notificationTypeString = "RuleViolation";
-				final RuleViolationNotificationItem ruleViolationNotificationItem = (RuleViolationNotificationItem) notif
-						.getNotificationItem();
-				hubProjectName = ruleViolationNotificationItem.getContent().getProjectName();
-				hubProjectVersionName = ruleViolationNotificationItem.getContent().getProjectVersionName();
+		for (final Issue issue : issues) {
+			logger.debug("Generating ticket for: " + issue);
+			final String hubProjectName = issue.getHubProject().getName();
+			final String hubProjectVersionName = issue.getHubProject().getVersion();
+			final String notificationTypeString = "<null>"; // TODO need this in
+			// issue
 
-			} else if (notif.getNotificationItem() instanceof PolicyOverrideNotificationItem) {
-				notificationTypeString = "PolicyOverride";
-				final PolicyOverrideNotificationItem policyOverrideNotificationItem = (PolicyOverrideNotificationItem) notif
-						.getNotificationItem();
-				hubProjectName = policyOverrideNotificationItem.getContent().getProjectName();
-				hubProjectVersionName = policyOverrideNotificationItem.getContent().getProjectVersionName();
-			}
+			// if (issue.getNotificationItem() instanceof
+			// VulnerabilityNotificationItem) {
+			// notificationTypeString = "Vulnerability";
+			// logger.debug("This is a vulnerability notification; skipping it.");
+			// continue;
+			// } else if (notif.getNotificationItem() instanceof
+			// RuleViolationNotificationItem) {
+			// notificationTypeString = "RuleViolation";
+			// final RuleViolationNotificationItem ruleViolationNotificationItem
+			// = (RuleViolationNotificationItem) notif
+			// .getNotificationItem();
+			// hubProjectName =
+			// ruleViolationNotificationItem.getContent().getProjectName();
+			// hubProjectVersionName =
+			// ruleViolationNotificationItem.getContent().getProjectVersionName();
+			//
+			// } else if (notif.getNotificationItem() instanceof
+			// PolicyOverrideNotificationItem) {
+			// notificationTypeString = "PolicyOverride";
+			// final PolicyOverrideNotificationItem
+			// policyOverrideNotificationItem = (PolicyOverrideNotificationItem)
+			// notif
+			// .getNotificationItem();
+			// hubProjectName =
+			// policyOverrideNotificationItem.getContent().getProjectName();
+			// hubProjectVersionName =
+			// policyOverrideNotificationItem.getContent().getProjectVersionName();
+			// }
 
-			if (notif.getNotificationItem().getType() != null) {
-				notificationTypeString = notif.getNotificationItem().getType().toString();
-			}
+			// if (notif.getNotificationItem().getType() != null) {
+			// notificationTypeString =
+			// notif.getNotificationItem().getType().toString();
+			// }
 
-			final String issueSummary = notificationTypeString + " detected on Hub Project '" + hubProjectName + "'";
+			final String issueSummary = notificationTypeString + " detected on Hub Project '" + hubProjectName
+					+ "', component '" + issue.getHubComponent().getName() + "' / '"
+					+ issue.getHubComponent().getVersion() + "'";
 			final String issueDescription = "The Black Duck Hub has detected a " + notificationTypeString
-					+ " on Hub Project '" + hubProjectName + "'. The relevant rules are: " + notif.getRuleUrls();
+					+ " on Hub Project '" + hubProjectName + "', component '" + issue.getHubComponent().getName()
+					+ "' / '" + issue.getHubComponent().getVersion() + "'. The rule violated is: " + issue.getRuleUrl();
 
-			makeJiraIssue(notif.getJiraProjectKey(), issueSummary, issueDescription);
+			makeJiraIssue(issue.getJiraProjectKey(), issueSummary, issueDescription);
 			ticketCount++;
 		}
 		logger.info("Generated " + ticketCount + " tickets.");

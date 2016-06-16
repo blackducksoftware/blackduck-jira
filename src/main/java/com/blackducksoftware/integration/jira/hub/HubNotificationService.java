@@ -135,6 +135,7 @@ public class HubNotificationService {
 		return items;
 	}
 
+	// TODO this should be obsolete
 	public List<String> getLinksOfRulesViolated(final RuleViolationNotificationItem ruleViolationNotificationItem)
 			throws HubNotificationServiceException {
 		final List<String> linksOfRulesViolated = new ArrayList<>();
@@ -156,6 +157,33 @@ public class HubNotificationService {
 			linksOfRulesViolated.addAll(ruleUrls);
 		}
 		return linksOfRulesViolated;
+	}
+
+	public BomComponentVersionPolicyStatus getPolicyStatus(final String policyStatusUrl)
+			throws HubNotificationServiceException {
+		BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
+		try {
+			bomComponentVersionPolicyStatus = restConnection.httpGetFromAbsoluteUrl(
+					BomComponentVersionPolicyStatus.class, policyStatusUrl);
+		} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
+			throw new HubNotificationServiceException("Error getting a BomComponentVersionPolicyStatus: "
+					+ e.getMessage(), e);
+		}
+		return bomComponentVersionPolicyStatus;
+	}
+
+	// TODO check for obsolete/unused public methods
+
+	public ComponentVersion getComponentVersion(final String componentVersionUrl)
+			throws HubNotificationServiceException {
+		ComponentVersion componentVersion;
+		try {
+			componentVersion = restConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, componentVersionUrl);
+		} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
+			throw new HubNotificationServiceException("Error getting component version from: " + componentVersionUrl
+					+ ": " + e.getMessage(), e);
+		}
+		return componentVersion;
 	}
 
 	public List<NameVersion> getComponents(final RuleViolationNotificationItem ruleViolationNotificationItem)
@@ -183,19 +211,19 @@ public class HubNotificationService {
 		return components;
 	}
 
-	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException,
+	public ReleaseItem getProjectReleaseItemFromProjectReleaseUrl(final String versionUrl)
+			throws HubNotificationServiceException,
 			UnexpectedHubResponseException {
-		String projectUrl;
 		ReleaseItem projectVersion;
 		try {
 			projectVersion = hub.getProjectVersion(versionUrl);
-			projectUrl = getProjectLink(projectVersion);
 		} catch (IOException | BDRestException | URISyntaxException e) {
 			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl);
 		}
-		return projectUrl;
+		return projectVersion;
 	}
 
+	// TODO obsolete
 	private String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
 		final List<String> versionLinks = version.getLinks(PROJECT_LINK);
 		if (versionLinks.size() != 1) {

@@ -100,12 +100,11 @@ public class HubNotificationServiceTest {
 
 	@Test
 	public void testGetProjectUrlFromProjectReleaseUrl() throws HubNotificationServiceException,
-			UnexpectedHubResponseException {
+	UnexpectedHubResponseException {
 		final String versionUrl = "http://test.projectVersion.url";
 
-		final String projectUrl = hubNotificationService.getProjectUrlFromProjectReleaseUrl(versionUrl);
-
-		assertEquals("http://test.project.url", projectUrl);
+		final ReleaseItem releaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(versionUrl);
+		assertEquals("http://test.project.url", releaseItem.getLinks("project").get(0));
 	}
 
 	@Test
