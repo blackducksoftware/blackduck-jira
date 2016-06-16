@@ -108,7 +108,8 @@ public class HubNotificationServiceTest {
 	@Test
 	public void testGetComponents() throws HubNotificationServiceException, ResourceDoesNotExistException,
 	URISyntaxException, IOException, BDRestException {
-		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+		final MetaInformation meta = null;
+		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
 
@@ -123,13 +124,11 @@ public class HubNotificationServiceTest {
 		notif.setContent(content);
 		notif.setContentType("RULE_VIOLATION");
 		notif.setCreatedAt(new Date());
-		final MetaInformation meta = null;
-		notif.setMeta(meta);
 		final NotificationType type = NotificationType.RULE_VIOLATION;
 		notif.setType(type);
 
 		for (int i = 0; i < 2; i++) {
-			final ComponentVersion testComponentVersion = new ComponentVersion();
+			final ComponentVersion testComponentVersion = new ComponentVersion(meta);
 			testComponentVersion.setVersionName(TEST_COMPONENT_VERSION_NAME + i);
 
 			when(mockRestConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, TEST_COMPONENT_VERSION_LINK + i))
