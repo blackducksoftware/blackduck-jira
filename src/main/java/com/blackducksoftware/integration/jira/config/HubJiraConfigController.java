@@ -397,7 +397,7 @@ public class HubJiraConfigController {
 				final HubProject newHubProject = new HubProject();
 				newHubProject.setProjectExists(true);
 				newHubProject.setProjectName(project.getName());
-				newHubProject.setProjectUrl(project.get_meta().getHref());
+				newHubProject.setProjectUrl(project.getMeta().getHref());
 				hubProjects.add(newHubProject);
 			}
 		}

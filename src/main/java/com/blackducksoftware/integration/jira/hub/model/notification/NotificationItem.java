@@ -3,8 +3,13 @@ package com.blackducksoftware.integration.jira.hub.model.notification;
 import java.util.Date;
 
 import com.blackducksoftware.integration.hub.item.HubItem;
+import com.blackducksoftware.integration.hub.meta.MetaInformation;
 
 public class NotificationItem extends HubItem {
+	public NotificationItem(final MetaInformation meta) {
+		super(meta);
+	}
+
 	public String contentType;
 	public NotificationType type;
 	public Date createdAt;
@@ -21,15 +26,15 @@ public class NotificationItem extends HubItem {
 		return createdAt;
 	}
 
-	public void setContentType(String contentType) {
+	public void setContentType(final String contentType) {
 		this.contentType = contentType;
 	}
 
-	public void setType(NotificationType type) {
+	public void setType(final NotificationType type) {
 		this.type = type;
 	}
 
-	public void setCreatedAt(Date createdAt) {
+	public void setCreatedAt(final Date createdAt) {
 		this.createdAt = createdAt;
 	}
 

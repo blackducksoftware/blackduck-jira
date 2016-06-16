@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
+import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
@@ -182,15 +183,26 @@ public class HubNotificationService {
 		return components;
 	}
 
-	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException {
+	public String getProjectUrlFromProjectReleaseUrl(final String versionUrl) throws HubNotificationServiceException,
+			UnexpectedHubResponseException {
 		String projectUrl;
 		ReleaseItem projectVersion;
 		try {
 			projectVersion = hub.getProjectVersion(versionUrl);
-			projectUrl = projectVersion.getLink(PROJECT_LINK);
+			projectUrl = getProjectLink(projectVersion);
 		} catch (IOException | BDRestException | URISyntaxException e) {
 			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl);
 		}
 		return projectUrl;
+	}
+
+	private String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
+		final List<String> versionLinks = version.getLinks(PROJECT_LINK);
+		if (versionLinks.size() != 1) {
+			throw new UnexpectedHubResponseException("The release " + version.getVersionName() + " has "
+					+ versionLinks.size() + " " + PROJECT_LINK + " links; expected one");
+		}
+		final String versionLink = versionLinks.get(0);
+		return versionLink;
 	}
 }

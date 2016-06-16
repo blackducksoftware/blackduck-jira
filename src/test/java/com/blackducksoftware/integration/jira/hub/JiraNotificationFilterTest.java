@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
@@ -37,7 +38,7 @@ public class JiraNotificationFilterTest {
 	}
 
 	@Test
-	public void testWithoutRuleList() throws HubNotificationServiceException {
+	public void testWithoutRuleList() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
@@ -85,11 +86,10 @@ public class JiraNotificationFilterTest {
 				mappings, null);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);
@@ -113,7 +113,7 @@ public class JiraNotificationFilterTest {
 	}
 
 	@Test
-	public void testWithRuleListNoMatch() throws HubNotificationServiceException {
+	public void testWithRuleListNoMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
@@ -164,11 +164,10 @@ public class JiraNotificationFilterTest {
 				mappings, linksOfRulesToMonitor);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(new MetaInformation(null,
+					"http://test.notif.url" + i, null));
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);
@@ -192,7 +191,7 @@ public class JiraNotificationFilterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatch() throws HubNotificationServiceException {
+	public void testWithRuleListWithMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
 		for (int i = 0; i < 3; i++) {
 			Mockito.when(
@@ -243,11 +242,10 @@ public class JiraNotificationFilterTest {
 				mappings, linksOfRulesToMonitor);
 		final List<NotificationItem> notifications = new ArrayList<>();
 		for (int i = 2; i >= 0; i--) {
-			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+			final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(new MetaInformation(null,
+					"http://test.notif.url" + i, null));
 			notif.setContentType("test content type");
 			notif.setCreatedAt(new Date());
-			final MetaInformation meta = new MetaInformation(null, "http://test.notif.url" + i, null);
-			notif.setMeta(meta);
 			notif.setType(NotificationType.RULE_VIOLATION);
 			final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 			content.setProjectName("test Hub Project" + i);

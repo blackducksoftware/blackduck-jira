@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
@@ -111,8 +112,12 @@ public class JiraNotificationFilter {
 		String notifHubProjectUrl;
 		final String notifHubProjectVersionUrl = policyOverrideNotificationItem.getContent()
 				.getProjectVersionLink();
-		notifHubProjectUrl = hubNotificationService
-				.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		try {
+			notifHubProjectUrl = hubNotificationService.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		} catch (final UnexpectedHubResponseException e) {
+			throw new HubNotificationServiceException("Error getting project URL for: " + notifHubProjectVersionUrl
+					+ ": " + e.getMessage(), e);
+		}
 		return notifHubProjectUrl;
 	}
 
@@ -121,8 +126,12 @@ public class JiraNotificationFilter {
 		String notifHubProjectUrl;
 		final String notifHubProjectVersionUrl = ruleViolationNotificationItem.getContent()
 				.getProjectVersionLink();
-		notifHubProjectUrl = hubNotificationService
-				.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		try {
+			notifHubProjectUrl = hubNotificationService.getProjectUrlFromProjectReleaseUrl(notifHubProjectVersionUrl);
+		} catch (final UnexpectedHubResponseException e) {
+			throw new HubNotificationServiceException("Error getting project URL for: " + notifHubProjectVersionUrl
+					+ ": " + e.getMessage(), e);
+		}
 		return notifHubProjectUrl;
 	}
 

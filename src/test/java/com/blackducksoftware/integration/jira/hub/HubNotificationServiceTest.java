@@ -24,8 +24,8 @@ import org.junit.Test;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
+import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
-import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.hub.model.NameVersion;
@@ -56,7 +56,9 @@ public class HubNotificationServiceTest {
 		final HubIntRestService mockHubIntRestService = mock(HubIntRestService.class);
 		mockHubItemsService = mock(HubItemsService.class);
 		final ReleaseItem mockProjectVersion = mock(ReleaseItem.class);
-		when(mockProjectVersion.getLink("project")).thenReturn("http://test.project.url");
+		final List<String> links = new ArrayList<>();
+		links.add("http://test.project.url");
+		when(mockProjectVersion.getLinks("project")).thenReturn(links);
 		when(mockHubIntRestService.getProjectVersion("http://test.projectVersion.url")).thenReturn(mockProjectVersion);
 		hubNotificationService = new HubNotificationService(mockRestConnection, mockHubIntRestService,
 				mockHubItemsService);
@@ -97,7 +99,8 @@ public class HubNotificationServiceTest {
 	}
 
 	@Test
-	public void testGetProjectUrlFromProjectReleaseUrl() throws HubNotificationServiceException {
+	public void testGetProjectUrlFromProjectReleaseUrl() throws HubNotificationServiceException,
+			UnexpectedHubResponseException {
 		final String versionUrl = "http://test.projectVersion.url";
 
 		final String projectUrl = hubNotificationService.getProjectUrlFromProjectReleaseUrl(versionUrl);
@@ -108,7 +111,7 @@ public class HubNotificationServiceTest {
 	@Test
 	public void testGetComponents() throws HubNotificationServiceException, ResourceDoesNotExistException,
 	URISyntaxException, IOException, BDRestException {
-		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem();
+		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(null);
 		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
 		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
 
@@ -123,13 +126,11 @@ public class HubNotificationServiceTest {
 		notif.setContent(content);
 		notif.setContentType("RULE_VIOLATION");
 		notif.setCreatedAt(new Date());
-		final MetaInformation meta = null;
-		notif.setMeta(meta);
 		final NotificationType type = NotificationType.RULE_VIOLATION;
 		notif.setType(type);
 
 		for (int i = 0; i < 2; i++) {
-			final ComponentVersion testComponentVersion = new ComponentVersion();
+			final ComponentVersion testComponentVersion = new ComponentVersion(null);
 			testComponentVersion.setVersionName(TEST_COMPONENT_VERSION_NAME + i);
 
 			when(mockRestConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, TEST_COMPONENT_VERSION_LINK + i))
