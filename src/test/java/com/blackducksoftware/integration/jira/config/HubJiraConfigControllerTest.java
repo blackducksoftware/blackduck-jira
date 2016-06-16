@@ -149,123 +149,521 @@ public class HubJiraConfigControllerTest {
 		return mappings;
 	}
 
-	// @Test
-	// public void testGetConfigNullUser() {
-	// final UserManagerMock managerMock = new UserManagerMock();
-	// final PluginSettingsFactoryMock settingsFactory = new
-	// PluginSettingsFactoryMock();
-	// final TransactionTemplateMock transactionManager = new
-	// TransactionTemplateMock();
-	// final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-	// final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-	//
-	// final HubJiraConfigController controller = new
-	// HubJiraConfigController(managerMock, settingsFactory,
-	// transactionManager, projectManagerMock);
-	//
-	// final Response response = controller.get(requestMock);
-	// assertNotNull(response);
-	// assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()),
-	// Integer.valueOf(response.getStatus()));
-	// }
-	//
-	// @Test
-	// public void testGetConfigNotAdmin() {
-	// final UserManagerMock managerMock = new UserManagerMock();
-	// managerMock.setRemoteUsername("User");
-	// final PluginSettingsFactoryMock settingsFactory = new
-	// PluginSettingsFactoryMock();
-	// final TransactionTemplateMock transactionManager = new
-	// TransactionTemplateMock();
-	// final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-	// final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-	//
-	// final HubJiraConfigController controller = new
-	// HubJiraConfigController(managerMock, settingsFactory,
-	// transactionManager, projectManagerMock);
-	//
-	// final Response response = controller.get(requestMock);
-	// assertNotNull(response);
-	// assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()),
-	// Integer.valueOf(response.getStatus()));
-	// }
-	//
-	// @Test
-	// public void testGetConfigEmpty() {
-	// final UserManagerMock managerMock = new UserManagerMock();
-	// managerMock.setRemoteUsername("User");
-	// managerMock.setIsSystemAdmin(true);
-	// final PluginSettingsFactoryMock settingsFactory = new
-	// PluginSettingsFactoryMock();
-	// final TransactionTemplateMock transactionManager = new
-	// TransactionTemplateMock();
-	// final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-	// final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-	//
-	// final HubJiraConfigController controller = new
-	// HubJiraConfigController(managerMock, settingsFactory,
-	// transactionManager, projectManagerMock);
-	//
-	// final Response response = controller.get(requestMock);
-	// assertNotNull(response);
-	// final Object configObject = response.getEntity();
-	// assertNotNull(configObject);
-	// final HubJiraConfigSerializable config = (HubJiraConfigSerializable)
-	// configObject;
-	// assertNull(config.getIntervalBetweenChecks());
-	// assertTrue(config.getPolicyRules().isEmpty());
-	// assertTrue(config.getJiraProjects().isEmpty());
-	// assertTrue(config.getHubProjects().isEmpty());
-	// assertNull(config.getHubProjectMappings());
-	//
-	// assertEquals(HubJiraConfigController.HUB_CONFIG_PLUGIN_MISSING,
-	// config.getErrorMessage());
-	// assertNotNull(config.getIntervalBetweenChecksError());
-	// assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR,
-	// config.getPolicyRulesError());
-	// assertNull(config.getHubProjectMappingError());
-	// assertTrue(config.hasErrors());
-	// }
-	//
-	// @Test
-	// public void testGetConfigWithInvalidInterval() throws Exception {
-	// final String intervalBetweenChecks = "intervalBetweenChecks";
-	// final UserManagerMock managerMock = new UserManagerMock();
-	// managerMock.setRemoteUsername("User");
-	// managerMock.setIsSystemAdmin(true);
-	// final PluginSettingsFactoryMock settingsFactory = new
-	// PluginSettingsFactoryMock();
-	//
-	// final PluginSettings settings = settingsFactory.createGlobalSettings();
-	// settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
-	// intervalBetweenChecks);
-	//
-	// final TransactionTemplateMock transactionManager = new
-	// TransactionTemplateMock();
-	// final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-	// final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-	//
-	// final HubJiraConfigController controller = new
-	// HubJiraConfigController(managerMock, settingsFactory,
-	// transactionManager, projectManagerMock);
-	//
-	// final Response response = controller.get(requestMock);
-	// assertNotNull(response);
-	// final Object configObject = response.getEntity();
-	// assertNotNull(configObject);
-	// final HubJiraConfigSerializable config = (HubJiraConfigSerializable)
-	// configObject;
-	//
-	// assertEquals(HubJiraConfigController.HUB_CONFIG_PLUGIN_MISSING,
-	// config.getErrorMessage());
-	// assertNull(config.getHubProjectMappingError());
-	// assertEquals("The String : " + intervalBetweenChecks + " , is not an
-	// Integer.",
-	// config.getIntervalBetweenChecksError());
-	//
-	// assertTrue(config.hasErrors());
-	// }
-	//
+	@Test
+	public void testGetIntervalNullUser() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetIntervalNotAdmin() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetIntervalEmpty() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertNull(config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetIntervalInvalid() {
+		final String intervalBetweenChecks = "intervalBetweenChecks";
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertEquals("The String : " + intervalBetweenChecks + " , is not an Integer.",
+				config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetIntervalValid() {
+		final String intervalBetweenChecks = "30";
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(!config.hasErrors());
+	}
+
+	@Test
+	public void testGetHubPoliciesNullUser() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubPoliciesNotAdmin() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubPoliciesWithNoServerConfig() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getIntervalBetweenChecks());
+		assertTrue(config.getPolicyRules().isEmpty());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertEquals(HubJiraConfigController.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetHubPoliciesWithPartialServerConfig() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubConfigKeys.CONFIG_HUB_URL, "Test Server Url");
+		settings.put(HubConfigKeys.CONFIG_HUB_USER, "Test User");
+		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getIntervalBetweenChecks());
+		assertTrue(config.getPolicyRules().isEmpty());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertEquals(HubJiraConfigController.HUB_SERVER_MISCONFIGURATION
+				+ HubJiraConfigController.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetHubPoliciesNoPolicyRulesOldHub() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
+		settings.put(HubConfigKeys.CONFIG_HUB_USER, "Test User");
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
+		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		controller = Mockito.spy(controller);
+
+		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+
+		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+
+		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
+
+		final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+
+		Mockito.doReturn("2.5.0").when(restServiceMock).getHubVersion();
+
+		Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(PluginSettings.class),
+				Mockito.any(HubJiraConfigSerializable.class));
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getIntervalBetweenChecks());
+		assertTrue(config.getPolicyRules().isEmpty());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertEquals(HubJiraConfigController.HUB_SERVER_NO_POLICY_SUPPORT_ERROR + " : "
+				+ HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetHubPoliciesNoPolicyRules() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
+		settings.put(HubConfigKeys.CONFIG_HUB_USER, "Test User");
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
+		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		controller = Mockito.spy(controller);
+
+		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+
+		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+
+		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
+
+		final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+
+		Mockito.doReturn("3.1.0").when(restServiceMock).getHubVersion();
+
+		Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(PluginSettings.class),
+				Mockito.any(HubJiraConfigSerializable.class));
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getIntervalBetweenChecks());
+		assertTrue(config.getPolicyRules().isEmpty());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetHubPoliciesWithPolicyRules() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
+		settings.put(HubConfigKeys.CONFIG_HUB_USER, "Test User");
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
+		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
+		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		controller = Mockito.spy(controller);
+
+		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+
+		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
+
+		final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+
+		Mockito.doReturn("3.1.0").when(restServiceMock).getHubVersion();
+
+		Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(PluginSettings.class),
+				Mockito.any(HubJiraConfigSerializable.class));
+
+		final Response response = controller.getHubPolicies(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+
+		assertNull(config.getIntervalBetweenChecks());
+		assertTrue(!config.getPolicyRules().isEmpty());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(!config.hasErrors());
+	}
+
+	// TODO
+
+	@Test
+	public void testGetJiraProjectsNullUser() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getJiraProjects(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetJiraProjectsNotAdmin() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getJiraProjects(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubProjectsNullUser() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubProjects(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubProjectsNotAdmin() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubProjects(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetMappingsNullUser() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getMappings(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetMappingsNotAdmin() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getMappings(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	// TODO
+
 	// @Test
 	// public void testGetConfigWithEmptyMapping() throws Exception {
 	// final String intervalBetweenChecks = "30";
