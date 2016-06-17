@@ -339,14 +339,16 @@ public class HubJiraConfigController {
 				if(oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()){
 					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
 				} else {
-					final boolean foundBugType = false;
-					for (final IssueType issueType : oldProject.getIssueTypes()) {
-						System.out.println(issueType.getName());
-						System.out.println(issueType.getId());
-						System.out.println(issueType.getPropertySet());
-						System.out.println(issueType.getDescription());
-						System.out.println(issueType.getGenericValue().toString());
-
+					boolean projectHasBugType = false;
+					if (oldProject.getIssueTypes() != null && !oldProject.getIssueTypes().isEmpty()) {
+						for (final IssueType issueType : oldProject.getIssueTypes()) {
+							if (issueType.getName().equals("Bug")) {
+								projectHasBugType = true;
+							}
+						}
+					}
+					if (!projectHasBugType) {
+						newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR);
 					}
 				}
 
