@@ -289,12 +289,12 @@ function getJsonArrayFromPolicyRules(){
 		if(i > 0){
 			jsonArray += ","
 		}
-		var policyRule = policyRules[i];
+		var policyRule = AJS.$(policyRules[i]);
 
-		var currentPolicyRuleUrl = policyRule.policyUrl;
-		var currentPolicyRuleDescription = policyRule.title;
-		var currentPolicyRuleName = policyRule.name;
-		var currentPolicyRuleChecked = policyRule.checked;
+		var currentPolicyRuleUrl = policyRule.attr("policyurl");
+		var currentPolicyRuleDescription = policyRule.attr("title");
+		var currentPolicyRuleName = policyRule.attr("name");
+		var currentPolicyRuleChecked = policyRule.attr("checked");
 		
 		jsonArray += '{"'
 			+ policyRuleName + '":"' + currentPolicyRuleName 
@@ -322,7 +322,7 @@ function addPolicyViolationRules(policyRules){
 		for (p = 0; p < policyRules.length; p++) {
 			var newPolicyRuleCheckbox = AJS.$('<input>', {
 			    type: "checkbox",
-			    policyUrl: decodeURI(policyRules[p].policyUrl),
+			    policyurl: decodeURI(policyRules[p].policyUrl),
 			    title: decodeURI(policyRules[p].description),
 			    name: decodeURI(policyRules[p].name),
 			    checked : policyRules[p].checked
