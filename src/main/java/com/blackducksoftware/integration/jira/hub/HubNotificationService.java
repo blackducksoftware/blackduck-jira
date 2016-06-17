@@ -18,6 +18,7 @@ import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
@@ -170,6 +171,16 @@ public class HubNotificationService {
 					+ e.getMessage(), e);
 		}
 		return bomComponentVersionPolicyStatus;
+	}
+
+	public PolicyRule getPolicyRule(final String ruleUrl) throws HubNotificationServiceException {
+		PolicyRule rule;
+		try {
+			rule = restConnection.httpGetFromAbsoluteUrl(PolicyRule.class, ruleUrl);
+		} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
+			throw new HubNotificationServiceException("Error getting rule from: " + ruleUrl + ": " + e.getMessage(), e);
+		}
+		return rule;
 	}
 
 	// TODO check for obsolete/unused public methods

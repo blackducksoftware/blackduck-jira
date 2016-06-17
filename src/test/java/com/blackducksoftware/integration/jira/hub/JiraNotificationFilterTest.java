@@ -19,6 +19,7 @@ import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
@@ -50,7 +51,8 @@ public class JiraNotificationFilterTest {
 	private static final String COMPONENT_VERSION_LINK_PREFIX = "componentVersionLink";
 	private static final String VERSION_NAME_PREFIX = "versionName";
 	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
-	private static final String RULE_PREFIX = "rule";
+	private static final String RULE_URL_PREFIX = "ruleUrl";
+	private static final String RULE_NAME_PREFIX = "ruleName";
 	private static final String RULE_LINK_NAME = "policy-rule";
 
 	@BeforeClass
@@ -72,8 +74,8 @@ public class JiraNotificationFilterTest {
 
 		final List<NotificationItem> notifications = createNotifications();
 		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("rule0");
-		rulesToMonitor.add("rule1");
+		rulesToMonitor.add("ruleUrl0");
+		rulesToMonitor.add("ruleUrl1");
 
 		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
 				mappings, rulesToMonitor);
@@ -88,7 +90,7 @@ public class JiraNotificationFilterTest {
 			assertTrue(issue.getHubComponent().getName().startsWith(HUB_COMPONENT_NAME_PREFIX));
 			assertTrue(issue.getHubComponent().getVersion().startsWith(VERSION_NAME_PREFIX));
 			assertEquals(CURRENT_JIRA_PROJECT_KEY, issue.getJiraProjectKey());
-			assertTrue(issue.getRuleUrl().startsWith(RULE_PREFIX));
+			assertTrue(issue.getRuleUrl().startsWith(RULE_URL_PREFIX));
 		}
 		assertEquals(6, issues.size());
 	}
@@ -239,7 +241,11 @@ public class JiraNotificationFilterTest {
 
 			links = new ArrayList<>();
 			for (int j = 0; j < 3; j++) {
-				links.add(new MetaLink(RULE_LINK_NAME, RULE_PREFIX + j + suffix));
+				links.add(new MetaLink(RULE_LINK_NAME, RULE_URL_PREFIX + j + suffix));
+
+				final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX + j, "description", true, true, "createdAt",
+						"createdBy", "updatedAt", "updatedBy");
+				Mockito.when(mockHubNotificationService.getPolicyRule(RULE_URL_PREFIX + j)).thenReturn(rule);
 			}
 			meta = new MetaInformation(null, null, links);
 			final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);

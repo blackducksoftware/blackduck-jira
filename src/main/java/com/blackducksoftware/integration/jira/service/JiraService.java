@@ -63,49 +63,15 @@ public class JiraService {
 			logger.debug("Generating ticket for: " + issue);
 			final String hubProjectName = issue.getHubProject().getName();
 			final String hubProjectVersionName = issue.getHubProject().getVersion();
-			final String notificationTypeString = "<null>"; // TODO need this in
-			// issue
-
-			// if (issue.getNotificationItem() instanceof
-			// VulnerabilityNotificationItem) {
-			// notificationTypeString = "Vulnerability";
-			// logger.debug("This is a vulnerability notification; skipping it.");
-			// continue;
-			// } else if (notif.getNotificationItem() instanceof
-			// RuleViolationNotificationItem) {
-			// notificationTypeString = "RuleViolation";
-			// final RuleViolationNotificationItem ruleViolationNotificationItem
-			// = (RuleViolationNotificationItem) notif
-			// .getNotificationItem();
-			// hubProjectName =
-			// ruleViolationNotificationItem.getContent().getProjectName();
-			// hubProjectVersionName =
-			// ruleViolationNotificationItem.getContent().getProjectVersionName();
-			//
-			// } else if (notif.getNotificationItem() instanceof
-			// PolicyOverrideNotificationItem) {
-			// notificationTypeString = "PolicyOverride";
-			// final PolicyOverrideNotificationItem
-			// policyOverrideNotificationItem = (PolicyOverrideNotificationItem)
-			// notif
-			// .getNotificationItem();
-			// hubProjectName =
-			// policyOverrideNotificationItem.getContent().getProjectName();
-			// hubProjectVersionName =
-			// policyOverrideNotificationItem.getContent().getProjectVersionName();
-			// }
-
-			// if (notif.getNotificationItem().getType() != null) {
-			// notificationTypeString =
-			// notif.getNotificationItem().getType().toString();
-			// }
+			final String notificationTypeString = issue.getIssueTypeDescription();
 
 			final String issueSummary = notificationTypeString + " detected on Hub Project '" + hubProjectName
-					+ "', component '" + issue.getHubComponent().getName() + "' / '"
-					+ issue.getHubComponent().getVersion() + "'";
+					+ "' / '" + hubProjectVersionName + "', component '" + issue.getHubComponent().getName() + "' / '"
+					+ issue.getHubComponent().getVersion() + "' [Rule: '" + issue.getRuleName() + "']";
 			final String issueDescription = "The Black Duck Hub has detected a " + notificationTypeString
 					+ " on Hub Project '" + hubProjectName + "', component '" + issue.getHubComponent().getName()
-					+ "' / '" + issue.getHubComponent().getVersion() + "'. The rule violated is: " + issue.getRuleUrl();
+					+ "' / '" + issue.getHubComponent().getVersion() + "'. The rule violated is: '"
+					+ issue.getRuleName() + "' [" + issue.getRuleUrl() + "]";
 
 			makeJiraIssue(issue.getJiraProjectKey(), issueSummary, issueDescription);
 			ticketCount++;

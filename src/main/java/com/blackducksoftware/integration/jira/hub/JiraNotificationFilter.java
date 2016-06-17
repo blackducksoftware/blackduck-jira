@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
@@ -24,6 +25,9 @@ import com.blackducksoftware.integration.jira.service.JiraService;
 import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
 public class JiraNotificationFilter {
+	private static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Rule Violation";
+	private static final String ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE = "Policy Override";
+	private static final String ISSUE_TYPE_DESCRIPTION_VULNERABILITY = "Vulnerability";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
@@ -63,20 +67,24 @@ public class JiraNotificationFilter {
 	private List<Issue> convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final List<Issue> issues = new ArrayList<>();
+		String issueTypeDescription;
 		String projectName;
 		String projectVersionName;
 		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
 		if (notif instanceof RuleViolationNotificationItem) {
 			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
+			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION;
 			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
 			projectName = ruleViolationNotif.getContent().getProjectName();
 			notifHubProjectReleaseItem = hubNotificationService
 					.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
 			projectVersionName = notifHubProjectReleaseItem.getVersionName();
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
+			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE;
 			return issues; // TODO
 		} else if (notif instanceof VulnerabilityNotificationItem) {
+			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_VULNERABILITY;
 			return issues; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
@@ -120,7 +128,10 @@ public class JiraNotificationFilter {
 
 			for (final String ruleUrl : ruleUrls) {
 				if (isRuleMatch(ruleUrl)) {
-					final Issue issue = new Issue(IssueLevel.COMPONENT, project, component, ruleUrl,
+					final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
+					logger.debug("Rule violated: " + rule);
+					final Issue issue = new Issue(issueTypeDescription, IssueLevel.COMPONENT, project, component,
+							ruleUrl, rule.getName(),
 							freshBdsJiraProject.getProjectKey());
 					issues.add(issue);
 				}
