@@ -35,6 +35,8 @@ public class HubJiraConfigKeys {
 
 	public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
 
+	public final static String HUB_CONFIG_JIRA_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
+
 	public final static String HUB_CONFIG_JIRA_ISSUE_TYPE_NAME = HUB_CONFIG_JIRA_KEY_PREFIX + ".issueTypeName";
 
 }
