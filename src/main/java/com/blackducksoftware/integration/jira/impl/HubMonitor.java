@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.project.ProjectManager;
@@ -63,6 +64,9 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		logger.debug("HubMonitor reschedule() called.");
 		logger.debug("pluginSettingsFactory: " + pluginSettingsFactory);
 
+		final IssueService issueService = ComponentAccessor.getIssueService();
+		logger.debug("issueService: " + issueService);
+
 		final String jiraBaseUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
 		logger.debug("JIRA base URL: " + jiraBaseUrl);
 
@@ -77,7 +81,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_INSTANCE, HubMonitor.this);
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 				put(KEY_PROJECT_MANAGER, projectManager);
-						put(KEY_JIRA_BASE_URL, jiraBaseUrl);
+				put(KEY_JIRA_BASE_URL, jiraBaseUrl);
 			}
 		}, // data that needs to be passed to the job
 		new Date(), // the time the job is to start
