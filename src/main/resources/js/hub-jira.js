@@ -294,7 +294,7 @@ function getJsonArrayFromPolicyRules(){
 		var currentPolicyRuleUrl = policyRule.attr("policyurl");
 		var currentPolicyRuleDescription = policyRule.attr("title");
 		var currentPolicyRuleName = policyRule.attr("name");
-		var currentPolicyRuleChecked = policyRule.attr("checked");
+		var currentPolicyRuleChecked = policyRules[i].checked;
 		
 		jsonArray += '{"'
 			+ policyRuleName + '":"' + currentPolicyRuleName 

@@ -342,6 +342,8 @@ public class HubJiraConfigController {
 					final boolean foundBugType = false;
 					for (final IssueType issueType : oldProject.getIssueTypes()) {
 						System.out.println(issueType.getName());
+						System.out.println(issueType.getId());
+						System.out.println(issueType.getPropertySet());
 						System.out.println(issueType.getDescription());
 						System.out.println(issueType.getGenericValue().toString());
 
