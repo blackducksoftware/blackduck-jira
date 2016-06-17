@@ -19,22 +19,29 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.utils;
+package com.blackducksoftware.integration.jira.mocks;
 
-public class HubJiraConfigKeys {
+import java.util.HashMap;
 
-	public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
-	public final static String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".intervalBetweenChecks";
-	public final static String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".hubProjectMappings";
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
 
-	public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
+public class PluginSettingsMock implements PluginSettings {
 
-	public final static String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
+	private final HashMap<String, Object> settings = new HashMap<String, Object>();
 
-	public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
+	@Override
+	public Object get(final String key) {
+		return settings.get(key);
+	}
 
-	public final static String HUB_CONFIG_JIRA_ISSUE_TYPE_NAME = HUB_CONFIG_JIRA_KEY_PREFIX + ".issueTypeName";
+	@Override
+	public Object put(final String key, final Object value) {
+		return settings.put(key, value);
+	}
+
+	@Override
+	public Object remove(final String key) {
+		return settings.remove(key);
+	}
 
 }

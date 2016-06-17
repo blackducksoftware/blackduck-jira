@@ -6,12 +6,12 @@ import com.blackducksoftware.integration.hub.item.HubItem;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 
 public class ComponentVersion extends HubItem {
+	private String versionName;
+	private Date releasedOn;
+
 	public ComponentVersion(final MetaInformation meta) {
 		super(meta);
 	}
-
-	private String versionName;
-	private Date releasedOn;
 
 	// License goes here
 

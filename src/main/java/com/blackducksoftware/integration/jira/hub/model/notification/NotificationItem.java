@@ -6,13 +6,13 @@ import com.blackducksoftware.integration.hub.item.HubItem;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 
 public class NotificationItem extends HubItem {
-	public NotificationItem(final MetaInformation meta) {
-		super(meta);
-	}
-
 	public String contentType;
 	public NotificationType type;
 	public Date createdAt;
+
+	public NotificationItem(final MetaInformation meta) {
+		super(meta);
+	}
 
 	public String getContentType() {
 		return contentType;

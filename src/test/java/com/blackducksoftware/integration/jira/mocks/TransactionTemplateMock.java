@@ -19,22 +19,16 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.utils;
+package com.blackducksoftware.integration.jira.mocks;
 
-public class HubJiraConfigKeys {
+import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.sal.api.transaction.TransactionTemplate;
 
-	public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
-	public final static String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".intervalBetweenChecks";
-	public final static String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX
-			+ ".hubProjectMappings";
+public class TransactionTemplateMock implements TransactionTemplate {
 
-	public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
-
-	public final static String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
-
-	public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
-
-	public final static String HUB_CONFIG_JIRA_ISSUE_TYPE_NAME = HUB_CONFIG_JIRA_KEY_PREFIX + ".issueTypeName";
+	@Override
+	public Object execute(final TransactionCallback action) {
+		return action.doInTransaction();
+	}
 
 }
