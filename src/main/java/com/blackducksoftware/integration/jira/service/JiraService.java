@@ -65,13 +65,14 @@ public class JiraService {
 			final String hubProjectVersionName = issue.getHubProject().getVersion();
 			final String notificationTypeString = issue.getIssueTypeDescription();
 
-			final String issueSummary = notificationTypeString + " detected on Hub Project '" + hubProjectName
+			final String issueSummary = "Black Duck " + notificationTypeString + " detected on Hub Project '"
+					+ hubProjectName
 					+ "' / '" + hubProjectVersionName + "', component '" + issue.getHubComponent().getName() + "' / '"
 					+ issue.getHubComponent().getVersion() + "' [Rule: '" + issue.getRuleName() + "']";
 			final String issueDescription = "The Black Duck Hub has detected a " + notificationTypeString
 					+ " on Hub Project '" + hubProjectName + "', component '" + issue.getHubComponent().getName()
 					+ "' / '" + issue.getHubComponent().getVersion() + "'. The rule violated is: '"
-					+ issue.getRuleName() + "' [" + issue.getRuleUrl() + "]";
+					+ issue.getRuleName() + "'";
 
 			makeJiraIssue(issue.getJiraProjectKey(), issueSummary, issueDescription);
 			ticketCount++;
