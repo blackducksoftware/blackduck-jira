@@ -194,12 +194,10 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 5; i++) {
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
 			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX + i);
 			hubProject.setProjectUrl(PROJECT_URL_PREFIX + i + suffix);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
 			jiraProject.setProjectId(JIRA_PROJECT_ID_BASE + i);
 			jiraProject.setProjectName(JIRA_PROJECT_PREFIX + i);
 			mapping.setJiraProject(jiraProject);

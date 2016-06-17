@@ -44,8 +44,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -67,22 +67,11 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 import com.google.gson.reflect.TypeToken;
 
 @Path("/")
 public class HubJiraConfigController {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
-	public static final String HUB_SERVER_MISCONFIGURATION = "There was a problem with the Hub Server configuration. ";
-	public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
-	public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
-	public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s) with empty Project(s).";
-	public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
-	public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
-
-	public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
@@ -97,9 +86,10 @@ public class HubJiraConfigController {
 		this.projectManager = projectManager;
 	}
 
+	@Path("/interval")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response get(@Context final HttpServletRequest request) {
+	public Response getInterval(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
 		if (username == null || !userManager.isSystemAdmin(username)) {
 			return Response.status(Status.UNAUTHORIZED).build();
@@ -109,38 +99,122 @@ public class HubJiraConfigController {
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-				final HubIntRestService restService = getHubRestService(settings, config);
-				final List<HubProject> hubProjects = getHubProjects(restService, config);
-				config.setHubProjects(hubProjects);
-
-				config.setJiraProjects(jiraProjects);
 
 				final String intervalBetweenChecks = getStringValue(settings,
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
-				final String policyRulesJson = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-
-				final String hubProjectMappingsJson = getStringValue(settings,
-						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-
 				config.setIntervalBetweenChecks(intervalBetweenChecks);
-				config.setHubProjectMappingsJson(hubProjectMappingsJson);
 
-				if (StringUtils.isNotBlank(policyRulesJson)) {
-					config.setPolicyRulesJson(policyRulesJson);
-				}
-				setHubPolicyRules(restService,
-						config);
-				checkConfigErrors(config);
+				checkIntervalErrors(config);
 				return config;
 			}
 		});
 
+		return Response.ok(obj).build();
+	}
+
+	@Path("/jiraProjects")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getJiraProjects(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				config.setJiraProjects(jiraProjects);
+				return config;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/hubProjects")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubProjects(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final HubIntRestService restService = getHubRestService(settings, config);
+
+				final List<HubProject> hubProjects = getHubProjects(restService, config);
+				config.setHubProjects(hubProjects);
+				return config;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/hubPolicies")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubPolicies(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final String policyRulesJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final HubIntRestService restService = getHubRestService(settings, config);
+
+				if (StringUtils.isNotBlank(policyRulesJson)) {
+					config.setPolicyRulesJson(policyRulesJson);
+				}
+				setHubPolicyRules(restService, config);
+				return config;
+			}
+		});
+		return Response.ok(obj).build();
+	}
+
+	@Path("/mappings")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getMappings(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || !userManager.isSystemAdmin(username)) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final String hubProjectMappingsJson = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+				config.setHubProjectMappingsJson(hubProjectMappingsJson);
+
+				checkMappingErrors(config);
+				return config;
+			}
+		});
 		return Response.ok(obj).build();
 	}
 
@@ -161,119 +235,75 @@ public class HubJiraConfigController {
 				final HubIntRestService restService = getHubRestService(settings, config);
 				final List<HubProject> hubProjects = getHubProjects(restService, config);
 				config.setHubProjects(hubProjects);
-
 				config.setJiraProjects(jiraProjects);
-
-				checkConfigErrors(config);
-
+				checkIntervalErrors(config);
+				checkMappingErrors(config);
 				if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
 					final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 					dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
 							dateFormatter.format(new Date()));
 				}
-
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
-				final String rulesJson = config.getPolicyRulesJson();
-				logger.debug("Rules JSON: " + rulesJson);
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
- rulesJson);
+ config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
-
 				return null;
 			}
 		});
 		if (config.hasErrors()) {
 			return Response.ok(config).status(Status.BAD_REQUEST).build();
 		}
-
 		return Response.noContent().build();
 	}
 
-	private void checkConfigErrors(final HubJiraConfigSerializable config) {
+	private void checkIntervalErrors(final HubJiraConfigSerializable config) {
 		if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-			config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
+			config.setIntervalBetweenChecksError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
 		} else {
 			try {
-				stringToInteger(config.getIntervalBetweenChecks());
+				final int interval = stringToInteger(config.getIntervalBetweenChecks());
+				if (interval <= 0) {
+					config.setIntervalBetweenChecksError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
+				}
 			} catch (final IllegalArgumentException e) {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
 		}
+	}
 
+	private void checkMappingErrors(final HubJiraConfigSerializable config) {
 		if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
-
 			boolean hasEmptyMapping = false;
 			for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-
 				boolean jiraProjectBlank = true;
 				boolean hubProjectBlank = true;
-
-				boolean jiraProjectExists = false;
 				if (mapping.getJiraProject() != null) {
 					if (mapping.getJiraProject().getProjectId() != null) {
 						jiraProjectBlank = false;
-						if (config.getJiraProjects() != null && !config.getJiraProjects().isEmpty()) {
-							for (final JiraProject jiraProject : config.getJiraProjects()) {
-								if (jiraProject.getProjectId().equals(mapping.getJiraProject().getProjectId())) {
-									jiraProjectExists = true;
-									break;
-								}
-							}
-						}
-					}
-					if (jiraProjectExists) {
-						mapping.getJiraProject().setProjectExists(true);
-					} else {
-						mapping.getJiraProject().setProjectExists(false);
 					}
 				}
-
-				boolean hubProjectExists = false;
 				if (mapping.getHubProject() != null) {
 					if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
 						hubProjectBlank = false;
-						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
-							for (final HubProject hubProject : config.getHubProjects()) {
-								if (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl())) {
-									mapping.getHubProject().setProjectName(hubProject.getProjectName());
-									hubProjectExists = true;
-									break;
-								}
-							}
-						}
 					} else if (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
 						hubProjectBlank = false;
-						if (config.getHubProjects() != null && !config.getHubProjects().isEmpty()) {
-							for (final HubProject hubProject : config.getHubProjects()) {
-								if (hubProject.getProjectName().equals(mapping.getHubProject().getProjectName())) {
-									mapping.getHubProject().setProjectUrl(hubProject.getProjectUrl());
-									hubProjectExists = true;
-									break;
-								}
-							}
-						}
-					}
-					if (hubProjectExists) {
-						mapping.getHubProject().setProjectExists(true);
-					} else {
-						mapping.getHubProject().setProjectExists(false);
 					}
 				}
-
 				if(jiraProjectBlank || hubProjectBlank){
 					hasEmptyMapping = true;
 				}
 			}
 			if(hasEmptyMapping){
 				config.setHubProjectMappingError(
-						concatErrorMessage(config.getHubProjectMappingError(), MAPPING_HAS_EMPTY_ERROR));
+						concatErrorMessage(config.getHubProjectMappingError(),
+								JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
 			}
 		}
-
 	}
+
 
 	private Object getValue(final PluginSettings settings, final String key) {
 		return settings.get(key);
@@ -306,7 +336,23 @@ public class HubJiraConfigController {
 				final JiraProject newProject = new JiraProject();
 				newProject.setProjectName(oldProject.getName());
 				newProject.setProjectId(oldProject.getId());
-				newProject.setProjectExists(true);
+
+				if(oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()){
+					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
+				} else {
+					boolean projectHasBugType = false;
+					if (oldProject.getIssueTypes() != null && !oldProject.getIssueTypes().isEmpty()) {
+						for (final IssueType issueType : oldProject.getIssueTypes()) {
+							if (issueType.getName().equals("Bug")) {
+								projectHasBugType = true;
+							}
+						}
+					}
+					if (!projectHasBugType) {
+						newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR);
+					}
+				}
+
 				newJiraProjects.add(newProject);
 			}
 		}
@@ -322,11 +368,12 @@ public class HubJiraConfigController {
 
 		if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword)
 				&& StringUtils.isBlank(hubTimeout)) {
-			config.setErrorMessage(HUB_CONFIG_PLUGIN_MISSING);
+			config.setErrorMessage(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING);
 			return null;
 		} else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword)
 				|| StringUtils.isBlank(hubTimeout)) {
-			config.setErrorMessage(HUB_SERVER_MISCONFIGURATION + CHECK_HUB_SERVER_CONFIGURATION);
+			config.setErrorMessage(
+					JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
 			return null;
 		}
 
@@ -364,10 +411,10 @@ public class HubJiraConfigController {
 			hubRestService = new HubIntRestService(restConnection);
 
 			if(result.hasErrors()){
-				config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION);
+				config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
 			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
-			config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+			config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
 			return null;
 		}
 		return hubRestService;
@@ -388,7 +435,6 @@ public class HubJiraConfigController {
 			if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
 				for (final ProjectItem project : hubProjectItems) {
 					final HubProject newHubProject = new HubProject();
-					newHubProject.setProjectExists(true);
 					newHubProject.setProjectName(project.getName());
 					newHubProject.setProjectUrl(project.getMeta().getHref());
 					hubProjects.add(newHubProject);
@@ -446,7 +492,7 @@ public class HubJiraConfigController {
 						}
 					}
 				} else {
-					config.setPolicyRulesError(HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
+					config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
 				}
 			} catch (IOException | URISyntaxException e) {
 				config.setPolicyRulesError(e.getMessage());
@@ -454,7 +500,8 @@ public class HubJiraConfigController {
 		}
 		config.setPolicyRules(newPolicyRules);
 		if (config.getPolicyRules().isEmpty()) {
-			config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), NO_POLICY_RULES_FOUND_ERROR));
+			config.setPolicyRulesError(
+					concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
 		}
 
 	}

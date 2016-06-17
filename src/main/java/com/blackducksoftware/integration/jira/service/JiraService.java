@@ -50,7 +50,6 @@ public class JiraService {
 		final String jiraProjectKey = atlassianJiraProject.getKey();
 		final String jiraProjectName = atlassianJiraProject.getName();
 		final JiraProject bdsJiraProject = new JiraProject();
-		bdsJiraProject.setProjectExists(true);
 		bdsJiraProject.setProjectId(jiraProjectId);
 		bdsJiraProject.setProjectKey(jiraProjectKey);
 		bdsJiraProject.setProjectName(jiraProjectName);
