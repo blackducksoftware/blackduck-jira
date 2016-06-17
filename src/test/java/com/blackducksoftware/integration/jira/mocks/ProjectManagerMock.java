@@ -28,8 +28,19 @@ public class ProjectManagerMock implements ProjectManager {
 		this.jiraProjects = jiraProjects;
 	}
 
-	public static List<Project> getTestProjectObjects() throws DataAccessException {
+	public static List<Project> getTestProjectObjectsNullIssueTypes() throws DataAccessException {
+		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
+
+		for(final Project project : jiraProjects){
+			final ProjectMock pMock = (ProjectMock) project;
+			pMock.setIssueTypes(null);
+		}
+		return jiraProjects;
+	}
+
+	public static List<Project> getTestProjectObjectsWithoutIssueTypes() throws DataAccessException {
 		final List<Project> jiraProjects = new ArrayList<Project>();
+
 		final ProjectMock jiraProject1 = new ProjectMock();
 		jiraProject1.setId(0L);
 		jiraProject1.setName("Project1");
@@ -42,6 +53,43 @@ public class ProjectManagerMock implements ProjectManager {
 		jiraProjects.add(jiraProject2);
 		return jiraProjects;
 	}
+
+	public static List<Project> getTestProjectObjectsWithoutBugIssueType() throws DataAccessException {
+		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
+
+		final IssueTypeMock issueType1 = new IssueTypeMock();
+		issueType1.setName("Issue");
+		final IssueTypeMock issueType2 = new IssueTypeMock();
+		issueType2.setName("Task");
+
+		for (final Project project : jiraProjects) {
+			final ProjectMock pMock = (ProjectMock) project;
+			pMock.addIssueType(issueType1);
+			pMock.addIssueType(issueType2);
+		}
+		return jiraProjects;
+	}
+
+	public static List<Project> getTestProjectObjectsWithBugIssueType() throws DataAccessException {
+		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
+
+		final IssueTypeMock issueType1 = new IssueTypeMock();
+		issueType1.setName("Bug");
+		final IssueTypeMock issueType2 = new IssueTypeMock();
+		issueType2.setName("Task");
+		final IssueTypeMock issueType3 = new IssueTypeMock();
+		issueType3.setName("Issue");
+
+		for (final Project project : jiraProjects) {
+			final ProjectMock pMock = (ProjectMock) project;
+			pMock.addIssueType(issueType1);
+			pMock.addIssueType(issueType2);
+			pMock.addIssueType(issueType3);
+		}
+		return jiraProjects;
+	}
+
+
 
 	@Override
 	public List<Project> convertToProjectObjects(final Collection<Long> arg0) {

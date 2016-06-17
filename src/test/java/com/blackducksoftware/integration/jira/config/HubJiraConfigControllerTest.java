@@ -703,7 +703,7 @@ public class HubJiraConfigControllerTest {
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -716,6 +716,120 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getIntervalBetweenChecks());
 		assertNull(config.getPolicyRules());
 		assertTrue(!config.getJiraProjects().isEmpty());
+		for (final JiraProject proj : config.getJiraProjects()) {
+			assertNull(proj.getProjectError());
+		}
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(!config.hasErrors());
+	}
+
+	@Test
+	public void testGetJiraProjectsMultipleProjectsWithOutBugType() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithoutBugIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getJiraProjects(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertNull(config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertTrue(!config.getJiraProjects().isEmpty());
+		for (final JiraProject proj : config.getJiraProjects()) {
+			assertEquals(JiraConfigErrors.JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR, proj.getProjectError());
+		}
+
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(!config.hasErrors());
+	}
+
+	@Test
+	public void testGetJiraProjectsMultipleProjectsWithOutIssuesTypes() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithoutIssueTypes());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getJiraProjects(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertNull(config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertTrue(!config.getJiraProjects().isEmpty());
+		for (final JiraProject proj : config.getJiraProjects()) {
+			assertEquals(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR, proj.getProjectError());
+		}
+
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertNull(config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(!config.hasErrors());
+	}
+
+	@Test
+	public void testGetJiraProjectsMultipleProjectsNullIssuesTypes() {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsNullIssueTypes());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getJiraProjects(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertNull(config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertTrue(!config.getJiraProjects().isEmpty());
+		for (final JiraProject proj : config.getJiraProjects()) {
+			assertEquals(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR, proj.getProjectError());
+		}
+
 		assertNull(config.getHubProjects());
 		assertNull(config.getHubProjectMappings());
 
@@ -942,7 +1056,7 @@ public class HubJiraConfigControllerTest {
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -983,7 +1097,7 @@ public class HubJiraConfigControllerTest {
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1089,7 +1203,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1153,7 +1267,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1227,7 +1341,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1291,7 +1405,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1369,7 +1483,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
@@ -1452,7 +1566,7 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
-		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjects());
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithBugIssueType());
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
 				transactionManager, projectManagerMock);
