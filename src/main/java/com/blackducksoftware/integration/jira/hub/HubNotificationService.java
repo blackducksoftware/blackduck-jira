@@ -22,10 +22,8 @@ import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.hub.model.NameVersion;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -40,7 +38,6 @@ import com.google.gson.reflect.TypeToken;
  */
 public class HubNotificationService {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private static final String PROJECT_LINK = "project";
 	private final RestConnection restConnection;
 	private final HubIntRestService hub;
 	private final HubItemsService<NotificationItem> hubItemsService;
@@ -136,30 +133,6 @@ public class HubNotificationService {
 		return items;
 	}
 
-	// TODO this should be obsolete
-	public List<String> getLinksOfRulesViolated(final RuleViolationNotificationItem ruleViolationNotificationItem)
-			throws HubNotificationServiceException {
-		final List<String> linksOfRulesViolated = new ArrayList<>();
-		for (final ComponentVersionStatus compVerStatus : ruleViolationNotificationItem.getContent()
-				.getComponentVersionStatuses()) {
-			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
-			BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
-			try {
-				bomComponentVersionPolicyStatus = restConnection.httpGetFromAbsoluteUrl(
-						BomComponentVersionPolicyStatus.class, policyStatusUrl);
-			} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
-				throw new HubNotificationServiceException("Error getting a BomComponentVersionPolicyStatus: "
-						+ e.getMessage(), e);
-			}
-			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
-			final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
-			logger.debug("Rules violated: " + ruleUrls);
-			// TODO: In fact, we need a list of rules per component
-			linksOfRulesViolated.addAll(ruleUrls);
-		}
-		return linksOfRulesViolated;
-	}
-
 	public BomComponentVersionPolicyStatus getPolicyStatus(final String policyStatusUrl)
 			throws HubNotificationServiceException {
 		BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
@@ -183,8 +156,6 @@ public class HubNotificationService {
 		return rule;
 	}
 
-	// TODO check for obsolete/unused public methods
-
 	public ComponentVersion getComponentVersion(final String componentVersionUrl)
 			throws HubNotificationServiceException {
 		ComponentVersion componentVersion;
@@ -197,31 +168,6 @@ public class HubNotificationService {
 		return componentVersion;
 	}
 
-	public List<NameVersion> getComponents(final RuleViolationNotificationItem ruleViolationNotificationItem)
-			throws HubNotificationServiceException {
-		final List<ComponentVersionStatus> compVersionStatuses = ruleViolationNotificationItem.getContent()
-				.getComponentVersionStatuses();
-		final List<NameVersion> components = new ArrayList<>(compVersionStatuses.size());
-		logger.debug("Processing " + compVersionStatuses.size()
-				+ " component version status objects for rule violation: " + ruleViolationNotificationItem);
-		for (final ComponentVersionStatus compVerStatus : compVersionStatuses) {
-			logger.debug("Processing component version status: " + compVerStatus);
-			final String componentName = compVerStatus.getComponentName();
-			final String componentVersionUrl = compVerStatus.getComponentVersionLink();
-			ComponentVersion componentVersion;
-			try {
-				componentVersion = restConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, componentVersionUrl);
-			} catch (ResourceDoesNotExistException | URISyntaxException | IOException | BDRestException e) {
-				throw new HubNotificationServiceException("Error getting a component version: " + e.getMessage(), e);
-			}
-			final String componentVersionName = componentVersion.getVersionName();
-			final NameVersion component = new NameVersion(componentName, componentVersionName);
-			logger.debug("Component: " + component);
-			components.add(component);
-		}
-		return components;
-	}
-
 	public ReleaseItem getProjectReleaseItemFromProjectReleaseUrl(final String versionUrl)
 			throws HubNotificationServiceException,
 			UnexpectedHubResponseException {
@@ -232,16 +178,5 @@ public class HubNotificationService {
 			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl);
 		}
 		return projectVersion;
-	}
-
-	// TODO obsolete
-	private String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
-		final List<String> versionLinks = version.getLinks(PROJECT_LINK);
-		if (versionLinks.size() != 1) {
-			throw new UnexpectedHubResponseException("The release " + version.getVersionName() + " has "
-					+ versionLinks.size() + " " + PROJECT_LINK + " links; expected one");
-		}
-		final String versionLink = versionLinks.get(0);
-		return versionLink;
 	}
 }

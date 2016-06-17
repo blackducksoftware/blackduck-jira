@@ -63,7 +63,6 @@ public class JiraNotificationFilter {
 		return allIssues;
 	}
 
-	// Fix exceptions... this is throwing the wrong exception type?
 	private List<Issue> convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final List<Issue> issues = new ArrayList<>();
@@ -146,7 +145,8 @@ public class JiraNotificationFilter {
 		logger.debug("Rule violated: " + ruleViolated);
 		logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
 		if (linksOfRulesToMonitor == null) {
-			logger.debug("No rules-to-monitor provided, so we're monitoring all rules");
+			// TODO this behavior is probably wrong for production
+			logger.debug("No rules-to-monitor provided, so we're monitoring ALL rules");
 			return true;
 		}
 		if (!linksOfRulesToMonitor.contains(ruleViolated)) {
@@ -155,16 +155,6 @@ public class JiraNotificationFilter {
 		}
 
 		return true;
-	}
-
-
-	private boolean overlap(final List<String> list1, final List<String> list2) {
-		for (final String s1 : list1) {
-			if (list2.contains(s1)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private HubProjectMapping getMatchingMapping(final String notifHubProjectUrl) {

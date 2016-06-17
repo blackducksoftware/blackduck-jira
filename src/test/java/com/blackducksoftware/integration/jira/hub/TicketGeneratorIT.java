@@ -28,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * DELETE THIS WHOLE CLASS; I'm just using them temporarily during development.
- * 
+ *
  * @author sbillings
  *
  */
@@ -84,7 +84,7 @@ public class TicketGeneratorIT {
 		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
 				NotificationItem.class, typeToken, typeToSubclassMap);
 
-		final JiraService jiraService = new JiraService(null, "Bug"); // TODO
+		final JiraService jiraService = new JiraService(null, "http://bds00829:2990/jira", "Bug"); // TODO
 		// this
 		// won't
 		// work

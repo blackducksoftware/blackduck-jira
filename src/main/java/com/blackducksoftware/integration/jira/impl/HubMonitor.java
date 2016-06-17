@@ -7,6 +7,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -23,6 +25,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	public static final String KEY_PROJECT_MANAGER = HubMonitor.class.getName() + ":projectManager";
+	public static final String KEY_JIRA_BASE_URL = HubMonitor.class.getName() + ":jiraBaseUrl";
 
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
 
@@ -60,6 +63,9 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		logger.debug("HubMonitor reschedule() called.");
 		logger.debug("pluginSettingsFactory: " + pluginSettingsFactory);
 
+		final String jiraBaseUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
+		logger.debug("JIRA base URL: " + jiraBaseUrl);
+
 		final long actualInterval = getIntervalMillisec();
 
 		this.serverName = serverName;
@@ -71,6 +77,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_INSTANCE, HubMonitor.this);
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 				put(KEY_PROJECT_MANAGER, projectManager);
+						put(KEY_JIRA_BASE_URL, jiraBaseUrl);
 			}
 		}, // data that needs to be passed to the job
 		new Date(), // the time the job is to start

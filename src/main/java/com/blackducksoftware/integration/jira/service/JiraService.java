@@ -31,9 +31,11 @@ public class JiraService {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final ProjectManager jiraProjectManager;
 	private final String jiraIssueTypeName;
+	private final String jiraBaseUrl;
 
-	public JiraService(final ProjectManager jiraProjectManager, final String jiraIssueTypeName) {
+	public JiraService(final ProjectManager jiraProjectManager, final String jiraBaseUrl, final String jiraIssueTypeName) {
 		this.jiraProjectManager = jiraProjectManager;
+		this.jiraBaseUrl = jiraBaseUrl;
 		this.jiraIssueTypeName = jiraIssueTypeName;
 	}
 
@@ -85,8 +87,7 @@ public class JiraService {
 			throws JiraServiceException {
 		final String data = generateBody(projectKey, issueSummary, issueDescription);
 		try {
-			// TODO Get actual jira URL
-			httpPostString("http://localhost:2990/jira/rest/api/2/issue", data);
+			httpPostString(jiraBaseUrl + "/rest/api/2/issue", data);
 		} catch (final JiraServiceException e) {
 			throw new JiraServiceException("Error generating JIRA ticket for JIRA project with key '" + projectKey
 					+ "'", e);

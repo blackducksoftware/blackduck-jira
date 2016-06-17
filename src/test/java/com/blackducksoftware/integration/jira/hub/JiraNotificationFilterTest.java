@@ -67,7 +67,8 @@ public class JiraNotificationFilterTest {
 	public void testWithRuleListWithMatches() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
+				JIRA_ISSUE_TYPE);
 
 		final Set<HubProjectMapping> mappings = createMappings(true);
 
@@ -99,7 +100,8 @@ public class JiraNotificationFilterTest {
 	public void testWithRuleListNoMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(false);
 		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
+				JIRA_ISSUE_TYPE);
 
 		final Set<HubProjectMapping> mappings = createMappings(true);
 
@@ -121,7 +123,8 @@ public class JiraNotificationFilterTest {
 	public void testNoMappingMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
+				JIRA_ISSUE_TYPE);
 
 		final Set<HubProjectMapping> mappings = createMappings(false);
 
@@ -140,7 +143,8 @@ public class JiraNotificationFilterTest {
 	public void testWithoutMappings() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, JIRA_ISSUE_TYPE);
+		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
+				JIRA_ISSUE_TYPE);
 
 		final Set<HubProjectMapping> mappings = null;
 

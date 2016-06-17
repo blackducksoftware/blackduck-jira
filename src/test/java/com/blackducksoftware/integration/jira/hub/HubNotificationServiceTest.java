@@ -28,13 +28,7 @@ import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseExce
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
-import com.blackducksoftware.integration.jira.hub.model.NameVersion;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 
 public class HubNotificationServiceTest {
 
@@ -105,43 +99,5 @@ public class HubNotificationServiceTest {
 
 		final ReleaseItem releaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(versionUrl);
 		assertEquals("http://test.project.url", releaseItem.getLinks("project").get(0));
-	}
-
-	@Test
-	public void testGetComponents() throws HubNotificationServiceException, ResourceDoesNotExistException,
-	URISyntaxException, IOException, BDRestException {
-		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(null);
-		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
-
-		for (int i = 0; i < 2; i++) {
-			final ComponentVersionStatus compVerStatus = new ComponentVersionStatus();
-			compVerStatus.setComponentName(TEST_COMPONENT_NAME + i);
-			compVerStatus.setComponentVersionLink(TEST_COMPONENT_VERSION_LINK + i);
-			componentVersionStatuses.add(compVerStatus);
-		}
-
-		content.setComponentVersionStatuses(componentVersionStatuses);
-		notif.setContent(content);
-		notif.setContentType("RULE_VIOLATION");
-		notif.setCreatedAt(new Date());
-		final NotificationType type = NotificationType.RULE_VIOLATION;
-		notif.setType(type);
-
-		for (int i = 0; i < 2; i++) {
-			final ComponentVersion testComponentVersion = new ComponentVersion(null);
-			testComponentVersion.setVersionName(TEST_COMPONENT_VERSION_NAME + i);
-
-			when(mockRestConnection.httpGetFromAbsoluteUrl(ComponentVersion.class, TEST_COMPONENT_VERSION_LINK + i))
-			.thenReturn(testComponentVersion);
-		}
-
-		final List<NameVersion> componentVersions = hubNotificationService.getComponents(notif);
-
-		assertEquals(TEST_COMPONENT_NAME + 0, componentVersions.get(0).getName());
-		assertEquals(TEST_COMPONENT_VERSION_NAME + 0, componentVersions.get(0).getVersion());
-
-		assertEquals(TEST_COMPONENT_NAME + 1, componentVersions.get(1).getName());
-		assertEquals(TEST_COMPONENT_VERSION_NAME + 1, componentVersions.get(1).getVersion());
 	}
 }

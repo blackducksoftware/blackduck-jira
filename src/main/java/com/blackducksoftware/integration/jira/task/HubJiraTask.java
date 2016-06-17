@@ -3,6 +3,7 @@ package com.blackducksoftware.integration.jira.task;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
@@ -42,8 +44,10 @@ public class HubJiraTask {
 	private final String jiraIssueTypeName;
 	private final String installDateString;
 	private final String lastRunDateString;
-	private final String configJson;
+	private final String projectMappingJson;
+	private final String policyRulesJson;
 	private final ProjectManager jiraProjectManager;
+	private final String jiraBaseUrl;
 
 	private final Date runDate;
 	private final String runDateString;
@@ -53,8 +57,9 @@ public class HubJiraTask {
 			final String hubTimeoutString, final String intervalString, final String jiraIssueTypeName,
 			final String installDateString,
 			final String lastRunDateString,
-			final String configJson,
-			final ProjectManager jiraProjectManager) {
+			final String projectMappingJson,
+			final String policyRulesJson,
+ final ProjectManager jiraProjectManager, final String jiraBaseUrl) {
 		this.hubUrl = hubUrl;
 		this.hubUsername = hubUsername;
 		this.hubPasswordEncrypted = hubPasswordEncrypted;
@@ -67,8 +72,10 @@ public class HubJiraTask {
 		}
 		this.installDateString = installDateString;
 		this.lastRunDateString = lastRunDateString;
-		this.configJson = configJson;
+		this.projectMappingJson = projectMappingJson;
+		this.policyRulesJson = policyRulesJson;
 		this.jiraProjectManager = jiraProjectManager;
+		this.jiraBaseUrl = jiraBaseUrl;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -112,8 +119,7 @@ public class HubJiraTask {
 			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
 					runDate);
 
-			// TODO get from config once its there
-			final List<String> linksOfRulesToMonitor = null; // null means all
+			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
 			// Generate Jira Issues based on recent notifications
 
@@ -126,6 +132,25 @@ public class HubJiraTask {
 			return null;
 		}
 		return runDateString;
+	}
+
+	private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
+		final List<String> ruleUrls = new ArrayList<>();
+		final List<PolicyRuleSerializable> rules = config.getPolicyRules();
+		for (final PolicyRuleSerializable rule : rules) {
+			final String ruleUrl = rule.getPolicyUrl();
+			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
+					+ rule.isChecked());
+			if ((rule.isChecked()) && (!ruleUrl.equals("undefined"))) {
+				ruleUrls.add(ruleUrl);
+			}
+		}
+		if (ruleUrls.size() > 0) {
+			return ruleUrls;
+		} else {
+			logger.error("No valid rule URLs found in configuration");
+			return null;
+		}
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraService jiraService, final RestConnection restConnection,
@@ -152,7 +177,7 @@ public class HubJiraTask {
 	}
 
 	private JiraService initJiraService() {
-		final JiraService jiraService = new JiraService(jiraProjectManager, jiraIssueTypeName);
+		final JiraService jiraService = new JiraService(jiraProjectManager, jiraBaseUrl, jiraIssueTypeName);
 		return jiraService;
 	}
 
@@ -176,8 +201,13 @@ public class HubJiraTask {
 			return null;
 		}
 
-		if (configJson == null) {
+		if (projectMappingJson == null) {
 			logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+			return null;
+		}
+
+		if (policyRulesJson == null) {
+			logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
 			return null;
 		}
 
@@ -186,10 +216,15 @@ public class HubJiraTask {
 		logger.debug("Interval: " + intervalString);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-		config.setHubProjectMappingsJson(configJson);
+		config.setHubProjectMappingsJson(projectMappingJson);
+		config.setPolicyRulesJson(policyRulesJson);
 		logger.debug("Mappings:");
 		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
 			logger.debug(mapping.toString());
+		}
+		logger.debug("Policy Rules:");
+		for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
+			logger.debug(rule.toString());
 		}
 		return config;
 	}
