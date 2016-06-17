@@ -1388,6 +1388,7 @@ public class HubJiraConfigControllerTest {
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
+		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
 	}
 
 	@Test
@@ -1466,6 +1467,7 @@ public class HubJiraConfigControllerTest {
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
+		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
 	}
 
 	@Test
@@ -1545,6 +1547,7 @@ public class HubJiraConfigControllerTest {
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
+		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
 	}
 
 	@Test
@@ -1632,6 +1635,7 @@ public class HubJiraConfigControllerTest {
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
+		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
 	}
 
 }

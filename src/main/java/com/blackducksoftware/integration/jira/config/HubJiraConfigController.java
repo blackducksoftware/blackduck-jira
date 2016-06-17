@@ -249,6 +249,7 @@ public class HubJiraConfigController {
 						config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
 				return null;
 			}
 		});
