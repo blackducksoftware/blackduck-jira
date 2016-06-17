@@ -134,6 +134,9 @@ public class JiraService {
 
 		final int statusCode = resource.getResponse().getStatus().getCode();
 		if (statusCode != 201) {
+			// TODO: if the issue type name does not exist, we'll get a 400, and
+			// perhaps should remove that project from the config so we don't
+			// keep trying to create issues for it
 			throw new JiraServiceException("Error on POST to '" + url + "' with data '" + data + "': "
 					+ resource.getResponse().toString());
 		}
