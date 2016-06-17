@@ -1,6 +1,8 @@
 package com.blackducksoftware.integration.jira.mocks;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -16,6 +18,21 @@ public class ProjectMock implements Project {
 
 	private String name;
 	private Long id;
+	private List<IssueType> issueTypes = new ArrayList<IssueType>();
+
+	@Override
+	public Collection<IssueType> getIssueTypes() {
+
+		return issueTypes;
+	}
+
+	public void addIssueType(final IssueType issue) {
+		issueTypes.add(issue);
+	}
+
+	public void setIssueTypes(final List<IssueType> issueTypes) {
+		this.issueTypes = issueTypes;
+	}
 
 	@Override
 	public Long getId() {
@@ -74,12 +91,6 @@ public class ProjectMock implements Project {
 
 	@Override
 	public GenericValue getGenericValue() {
-
-		return null;
-	}
-
-	@Override
-	public Collection<IssueType> getIssueTypes() {
 
 		return null;
 	}

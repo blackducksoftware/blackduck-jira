@@ -128,15 +128,20 @@ public class HubJiraConfigSerializable implements Serializable {
 	}
 
 	public void setHubProjectMappingsJson(final String hubProjectMappingsJson) {
-		final Gson gson = new GsonBuilder().create();
-		final Type mappingType = new TypeToken<Set<HubProjectMapping>>() {
-		}.getType();
-		this.hubProjectMappings = gson.fromJson(hubProjectMappingsJson, mappingType);
+		if (StringUtils.isNotBlank(hubProjectMappingsJson)) {
+			final Gson gson = new GsonBuilder().create();
+			final Type mappingType = new TypeToken<Set<HubProjectMapping>>() {
+			}.getType();
+			this.hubProjectMappings = gson.fromJson(hubProjectMappingsJson, mappingType);
+		}
 	}
 
 	public String getHubProjectMappingsJson() {
-		final Gson gson = new GsonBuilder().create();
-		return gson.toJson(hubProjectMappings);
+		if (hubProjectMappings != null) {
+			final Gson gson = new GsonBuilder().create();
+			return gson.toJson(hubProjectMappings);
+		}
+		return null;
 	}
 
 	public String toJson() {
@@ -145,9 +150,12 @@ public class HubJiraConfigSerializable implements Serializable {
 	}
 
 	public static HubJiraConfigSerializable fromJson(final String jsonString) {
-		final Gson gson = new GsonBuilder().create();
-		final HubJiraConfigSerializable config = gson.fromJson(jsonString, HubJiraConfigSerializable.class);
-		return config;
+		if (StringUtils.isNotBlank(jsonString)) {
+			final Gson gson = new GsonBuilder().create();
+			final HubJiraConfigSerializable config = gson.fromJson(jsonString, HubJiraConfigSerializable.class);
+			return config;
+		}
+		return null;
 	}
 
 	public String getHubProjectMappingError() {
@@ -167,15 +175,20 @@ public class HubJiraConfigSerializable implements Serializable {
 	}
 
 	public void setPolicyRulesJson(final String policyRulesJson) {
-		final Gson gson = new GsonBuilder().create();
-		final Type mappingType = new TypeToken<List<PolicyRuleSerializable>>() {
-		}.getType();
-		this.policyRules = gson.fromJson(policyRulesJson, mappingType);
+		if (StringUtils.isNotBlank(policyRulesJson)) {
+			final Gson gson = new GsonBuilder().create();
+			final Type mappingType = new TypeToken<List<PolicyRuleSerializable>>() {
+			}.getType();
+			this.policyRules = gson.fromJson(policyRulesJson, mappingType);
+		}
 	}
 
 	public String getPolicyRulesJson() {
-		final Gson gson = new GsonBuilder().create();
-		return gson.toJson(policyRules);
+		if (policyRules != null) {
+			final Gson gson = new GsonBuilder().create();
+			return gson.toJson(policyRules);
+		}
+		return null;
 	}
 
 	public String getPolicyRulesError() {
