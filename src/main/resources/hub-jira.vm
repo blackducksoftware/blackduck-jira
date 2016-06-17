@@ -91,13 +91,15 @@
 				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 				  	</td>
 				    <td>
-				    	<input class="longInput" type="text" name="jiraProject" list="jiraProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="jiraProjects">
 						</datalist>
+						<div id="jiraProjectError">
+				    	</div>
 				    </td>
 				    <td> = </td>
 				    <td>
-				    	<input class="longInput" type="text" name="hubProject" list="hubProjects" projectExists projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="hubProjects">
 						</datalist>
 				    </td>

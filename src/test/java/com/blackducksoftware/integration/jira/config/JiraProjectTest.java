@@ -12,38 +12,38 @@ public class JiraProjectTest {
 		final String name1 = "name1";
 		final Long id1 = 0L;
 		final String key1 = "key1";
-		final Boolean projectExists1 = true;
+		final String projectError1 = "error1";
 
 		final String name2 = "name2";
 		final Long id2 = 2L;
 		final String key2 = "key2";
-		final Boolean projectExists2 = true;
+		final String projectError2 = "error2";
 
 		final JiraProject item1 = new JiraProject();
 		item1.setProjectName(name1);
 		item1.setProjectId(id1);
 		item1.setProjectKey(key1);
-		item1.setProjectExists(projectExists1);
+		item1.setProjectError(projectError1);
 		final JiraProject item2 = new JiraProject();
 		item2.setProjectName(name2);
 		item2.setProjectId(id2);
 		item2.setProjectKey(key2);
-		item2.setProjectExists(projectExists2);
+		item2.setProjectError(projectError2);
 		final JiraProject item3 = new JiraProject();
 		item3.setProjectName(name1);
 		item3.setProjectId(id1);
 		item3.setProjectKey(key1);
-		item3.setProjectExists(projectExists1);
+		item3.setProjectError(projectError1);
 
 		assertEquals(name1, item1.getProjectName());
 		assertEquals(id1, item1.getProjectId());
 		assertEquals(key1, item1.getProjectKey());
-		assertEquals(projectExists1, item1.getProjectExists());
+		assertEquals(projectError1, item1.getProjectError());
 
 		assertEquals(name2, item2.getProjectName());
 		assertEquals(id2, item2.getProjectId());
 		assertEquals(key2, item2.getProjectKey());
-		assertEquals(projectExists2, item2.getProjectExists());
+		assertEquals(projectError2, item2.getProjectError());
 
 		assertTrue(!item1.equals(item2));
 		assertTrue(item1.equals(item3));
@@ -58,8 +58,8 @@ public class JiraProjectTest {
 		builder.append(item1.getProjectId());
 		builder.append(", projectKey=");
 		builder.append(item1.getProjectKey());
-		builder.append(", projectExists=");
-		builder.append(item1.getProjectExists());
+		builder.append(", projectError=");
+		builder.append(item1.getProjectError());
 		builder.append("]");
 
 		assertEquals(builder.toString(), item1.toString());

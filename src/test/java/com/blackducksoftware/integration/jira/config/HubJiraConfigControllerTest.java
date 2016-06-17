@@ -106,23 +106,19 @@ public class HubJiraConfigControllerTest {
 		jiraProject1.setProjectName("Project1");
 		jiraProject1.setProjectKey("ProjectKey");
 		jiraProject1.setProjectId(0L);
-		jiraProject1.setProjectExists(true);
 
 		final HubProject hubProject1 = new HubProject();
 		hubProject1.setProjectName("HubProject1");
 		hubProject1.setProjectUrl("projectURL1");
-		hubProject1.setProjectExists(true);
 
 		final JiraProject jiraProject2 = new JiraProject();
 		jiraProject2.setProjectName("Project2");
 		jiraProject2.setProjectKey("ProjectKey");
 		jiraProject2.setProjectId(153L);
-		jiraProject2.setProjectExists(true);
 
 		final HubProject hubProject2 = new HubProject();
 		hubProject2.setProjectName("HubProject2");
 		hubProject2.setProjectUrl("projectURL2");
-		hubProject2.setProjectExists(true);
 
 		final HubProjectMapping mapping1 = new HubProjectMapping();
 		mapping1.setHubProject(hubProject1);
@@ -207,7 +203,7 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjectMappings());
 
 		assertNull(config.getErrorMessage());
-		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertEquals(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
@@ -245,6 +241,78 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getErrorMessage());
 		assertEquals("The String : " + intervalBetweenChecks + " , is not an Integer.",
 				config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetIntervalNegative() {
+		final String intervalBetweenChecks = "-30";
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertEquals(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertNull(config.getPolicyRulesError());
+		assertNull(config.getHubProjectMappingError());
+		assertTrue(config.hasErrors());
+	}
+
+	@Test
+	public void testGetIntervalZero() {
+		final String intervalBetweenChecks = "0";
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+
+		final Response response = controller.getInterval(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubJiraConfigSerializable config = (HubJiraConfigSerializable) configObject;
+		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
+		assertNull(config.getPolicyRules());
+		assertNull(config.getJiraProjects());
+		assertNull(config.getHubProjects());
+		assertNull(config.getHubProjectMappings());
+
+		assertNull(config.getErrorMessage());
+		assertEquals(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
@@ -345,9 +413,9 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjects());
 		assertNull(config.getHubProjectMappings());
 
-		assertEquals(HubJiraConfigController.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
-		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
 	}
@@ -383,10 +451,10 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjects());
 		assertNull(config.getHubProjectMappings());
 
-		assertEquals(HubJiraConfigController.HUB_SERVER_MISCONFIGURATION
-				+ HubJiraConfigController.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION
+				+ JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
-		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
 	}
@@ -443,8 +511,8 @@ public class HubJiraConfigControllerTest {
 
 		assertNull(config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
-		assertEquals(HubJiraConfigController.HUB_SERVER_NO_POLICY_SUPPORT_ERROR + " : "
-				+ HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertEquals(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR + " : "
+				+ JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
 	}
@@ -501,7 +569,7 @@ public class HubJiraConfigControllerTest {
 
 		assertNull(config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
-		assertEquals(HubJiraConfigController.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+		assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
 		assertTrue(config.hasErrors());
 	}
@@ -722,8 +790,8 @@ public class HubJiraConfigControllerTest {
 		assertTrue(config.getHubProjects().isEmpty());
 		assertNull(config.getHubProjectMappings());
 
-		assertEquals(HubJiraConfigController.HUB_SERVER_MISCONFIGURATION
-				+ HubJiraConfigController.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION
+				+ JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
@@ -1000,8 +1068,8 @@ public class HubJiraConfigControllerTest {
 		assertNotNull(configObject);
 		config = (HubJiraConfigSerializable) configObject;
 
-		assertEquals(HubJiraConfigController.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
-		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertEquals(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertNull(config.getHubProjectMappingError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getIntervalBetweenChecks());
@@ -1059,7 +1127,7 @@ public class HubJiraConfigControllerTest {
 		config = (HubJiraConfigSerializable) configObject;
 
 		assertNull(config.getErrorMessage());
-		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertEquals(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertNull(config.getHubProjectMappingError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getIntervalBetweenChecks());
@@ -1127,7 +1195,7 @@ public class HubJiraConfigControllerTest {
 		config = (HubJiraConfigSerializable) configObject;
 
 		assertNull(config.getErrorMessage());
-		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertEquals(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertNull(config.getHubProjectMappingError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getIntervalBetweenChecks());
@@ -1268,7 +1336,7 @@ public class HubJiraConfigControllerTest {
 		config = (HubJiraConfigSerializable) configObject;
 
 		assertNull(config.getErrorMessage());
-		assertEquals(HubJiraConfigController.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
+		assertEquals(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR, config.getIntervalBetweenChecksError());
 		assertEquals(intervalBetweenChecks, config.getIntervalBetweenChecks());
 		assertNull(config.getHubProjectMappingError());
 		assertNull(config.getPolicyRulesError());
@@ -1413,12 +1481,11 @@ public class HubJiraConfigControllerTest {
 		jiraProject.setProjectName("Project");
 		jiraProject.setProjectKey("ProjectKey");
 		jiraProject.setProjectId(0L);
-		jiraProject.setProjectExists(true);
+		jiraProject.setProjectError("");
 
 		final HubProject hubProject = new HubProject();
 		hubProject.setProjectName("HubProject");
 		hubProject.setProjectUrl("projectURL");
-		hubProject.setProjectExists(true);
 
 		final HubProjectMapping newMapping = new HubProjectMapping();
 		newMapping.setHubProject(hubProject);

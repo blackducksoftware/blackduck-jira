@@ -19,9 +19,6 @@ public class HubProject implements Serializable {
 	@XmlElement
 	private String projectUrl;
 
-	@XmlElement
-	private Boolean projectExists;
-
 	public String getProjectName() {
 		return projectName;
 	}
@@ -38,19 +35,10 @@ public class HubProject implements Serializable {
 		this.projectUrl = projectUrl;
 	}
 
-	public Boolean getProjectExists() {
-		return projectExists;
-	}
-
-	public void setProjectExists(final Boolean projectExists) {
-		this.projectExists = projectExists;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((projectExists == null) ? 0 : projectExists.hashCode());
 		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
 		result = prime * result + ((projectUrl == null) ? 0 : projectUrl.hashCode());
 		return result;
@@ -68,13 +56,6 @@ public class HubProject implements Serializable {
 			return false;
 		}
 		final HubProject other = (HubProject) obj;
-		if (projectExists == null) {
-			if (other.projectExists != null) {
-				return false;
-			}
-		} else if (!projectExists.equals(other.projectExists)) {
-			return false;
-		}
 		if (projectName == null) {
 			if (other.projectName != null) {
 				return false;
@@ -99,8 +80,6 @@ public class HubProject implements Serializable {
 		builder.append(projectName);
 		builder.append(", projectUrl=");
 		builder.append(projectUrl);
-		builder.append(", projectExists=");
-		builder.append(projectExists);
 		builder.append("]");
 		return builder.toString();
 	}

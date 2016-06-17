@@ -12,42 +12,38 @@ public class HubProjectMappingTest {
 		final String jiraName1 = "name1";
 		final Long jiraId1 = 0L;
 		final String jiraKey1 = "key1";
-		final Boolean jiraProjectExists1 = true;
+		final String jiraProjectError1 = "error1";
 
 		final JiraProject jira1 = new JiraProject();
 		jira1.setProjectName(jiraName1);
 		jira1.setProjectId(jiraId1);
 		jira1.setProjectKey(jiraKey1);
-		jira1.setProjectExists(jiraProjectExists1);
+		jira1.setProjectError(jiraProjectError1);
 
 		final String hubName1 = "name1";
 		final String hubProjectUrl1 = "projectUrl1";
-		final Boolean hubProjectExists1 = true;
 
 		final HubProject hub1 = new HubProject();
 		hub1.setProjectName(hubName1);
 		hub1.setProjectUrl(hubProjectUrl1);
-		hub1.setProjectExists(hubProjectExists1);
 
 		final String jiraName2 = "name2";
 		final Long jiraId2 = 2L;
 		final String jiraKey2 = "key2";
-		final Boolean jiraProjectExists2 = false;
+		final String jiraProjectError2 = "error2";
 
 		final JiraProject jira2 = new JiraProject();
 		jira2.setProjectName(jiraName2);
 		jira2.setProjectId(jiraId2);
 		jira2.setProjectKey(jiraKey2);
-		jira2.setProjectExists(jiraProjectExists2);
+		jira2.setProjectError(jiraProjectError2);
 
 		final String hubName2 = "name2";
 		final String hubProjectUrl2 = "projectUrl2";
-		final Boolean hubProjectExists2 = false;
 
 		final HubProject hub2 = new HubProject();
 		hub2.setProjectName(hubName2);
 		hub2.setProjectUrl(hubProjectUrl2);
-		hub2.setProjectExists(hubProjectExists2);
 
 		final HubProjectMapping item1 = new HubProjectMapping();
 		item1.setJiraProject(jira1);

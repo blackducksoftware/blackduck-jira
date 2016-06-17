@@ -24,7 +24,7 @@ public class JiraProject implements Serializable {
 	private String projectKey;
 
 	@XmlElement
-	private Boolean projectExists;
+	private String projectError;
 
 	public String getProjectName() {
 		return projectName;
@@ -50,19 +50,19 @@ public class JiraProject implements Serializable {
 		this.projectKey = projectKey;
 	}
 
-	public Boolean getProjectExists() {
-		return projectExists;
+	public String getProjectError() {
+		return projectError;
 	}
 
-	public void setProjectExists(final Boolean projectExists) {
-		this.projectExists = projectExists;
+	public void setProjectError(final String projectError) {
+		this.projectError = projectError;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((projectExists == null) ? 0 : projectExists.hashCode());
+		result = prime * result + ((projectError == null) ? 0 : projectError.hashCode());
 		result = prime * result + ((projectId == null) ? 0 : projectId.hashCode());
 		result = prime * result + ((projectKey == null) ? 0 : projectKey.hashCode());
 		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
@@ -81,11 +81,11 @@ public class JiraProject implements Serializable {
 			return false;
 		}
 		final JiraProject other = (JiraProject) obj;
-		if (projectExists == null) {
-			if (other.projectExists != null) {
+		if (projectError == null) {
+			if (other.projectError != null) {
 				return false;
 			}
-		} else if (!projectExists.equals(other.projectExists)) {
+		} else if (!projectError.equals(other.projectError)) {
 			return false;
 		}
 		if (projectId == null) {
@@ -121,8 +121,8 @@ public class JiraProject implements Serializable {
 		builder.append(projectId);
 		builder.append(", projectKey=");
 		builder.append(projectKey);
-		builder.append(", projectExists=");
-		builder.append(projectExists);
+		builder.append(", projectError=");
+		builder.append(projectError);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -77,7 +77,7 @@ function populateForm() {
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
+	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, false);
 	    },
 	    error: function(response){
 	    	alert("Failure getting the interval");
@@ -89,7 +89,7 @@ function populateForm() {
 		    success: function(config) {
 		      fillInJiraProjects(config.jiraProjects);
 		      
-		      handleError(errorMessageFieldId, config.errorMessage);
+		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      
 		      gotJiraProjects = true;
 		    },
@@ -103,7 +103,7 @@ function populateForm() {
 		    success: function(config) {
 		      fillInHubProjects(config.hubProjects);
 
-		      handleError(errorMessageFieldId, config.errorMessage);
+		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      
 		      gotHubProjects = true;
 		    },
@@ -117,8 +117,8 @@ function populateForm() {
 		    success: function(config) {
 		      addPolicyViolationRules(config.policyRules);
 
-		      handleError(errorMessageFieldId, config.errorMessage);
-		      handleError('policyRulesError', config.policyRulesError);
+		      handleError(errorMessageFieldId, config.errorMessage, false);
+		      handleError('policyRulesError', config.policyRulesError, false);
 		    },
 		    error: function(response){
 		    	alert("Failure getting the hub policies");
@@ -131,7 +131,7 @@ function populateForm() {
 		      fillInMappings(config.hubProjectMappings);
 		      
 		      handleError(errorMessageFieldId, config.errorMessage);
-		      handleError('hubProjectMappingsError', config.hubProjectMappingError);
+		      handleError('hubProjectMappingsError', config.hubProjectMappingError, false);
 		      
 		      gotProjectMappings = true;
 		    },
@@ -161,8 +161,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 					  
 				  }
 			  }
-			  currentJiraProject.attr("projectExists", jiraProjectExists)
-			  
+
 			  if(!jiraProjectExists){
 					if(!currentJiraProject.hasClass('error')){
 						currentJiraProject.addClass('error');
@@ -185,7 +184,6 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 					  
 				  }
 			  }
-			  currentHubProject.attr("projectExists", hubProjectExists)
 			  if(!hubProjectExists){
 					if(!currentHubProject.hasClass('error')){
 						currentHubProject.addClass('error');
@@ -229,10 +227,10 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    },
 	    error: function(response){
 	    	var config = JSON.parse(response.responseText);
-	    	handleError(errorMessageFieldId, config.errorMessage);
-	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError);
-	    	handleError('hubProjectMappingsError', config.hubProjectMappingError);
-	    	handleError('policyRulesError', config.policyRulesError);
+	    	handleError(errorMessageFieldId, config.errorMessage, true);
+	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
+	    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
+	    	handleError('policyRulesError', config.policyRulesError, true);
 	    	
 		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 		    stopProgressSpinner();
@@ -272,15 +270,11 @@ function getJsonArrayFromMapping(){
 			+ jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName 
 			+ '","' 
 			+ jiraProjectKey + '":"' + currentJiraProjectValue 
-			+ '","' 
-			+ jiraProjectExists + '":"' + currentJiraProjectExists 
 			+'"},"' 
 			+ 'hubProject" : {"' 
 			+  hubProjectDisplayName + '":"' + currentHubProjectDisplayName
 			+ '","' 
 			+  hubProjectKey + '":"' + currentHubProjectValue
-			+ '","' 
-			+  hubProjectExists + '":"' + currentHubProjectExists
 			+ '"}}';
 	}
 	jsonArray += "]";
@@ -399,22 +393,20 @@ function fillInMapping(mappingElement, storedMapping){
 	var storedJiraProject = storedMapping.jiraProject;
 	var storedJiraProjectDisplayName = storedJiraProject.projectName;
 	var storedJiraProjectValue = storedJiraProject.projectId;
-	var storedJiraProjectExists = storedJiraProject.projectExists;
+	var storedJiraProjectError = storedJiraProject.projectError;
 	
 	currentJiraProject.val(storedJiraProjectDisplayName);
 	currentJiraProject.attr("projectKey", storedJiraProjectValue);
-	currentJiraProject.attr("projectExists",storedJiraProjectExists)
+	currentJiraProject.closest("#" + jiraProjectError).val(storedJiraProjectError);
 	
 	var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 	
 	var storedHubProject = storedMapping.hubProject;
 	var storedHubProjectDisplayName = storedHubProject.projectName;
 	var storedHubProjectValue = storedHubProject.projectUrl;
-	var storedHubProjectExists = storedHubProject.projectExists;
 	
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
-	currentHubProject.attr("projectExists",storedHubProjectExists)
 }
 
 function addNewMappingElement(fieldId){
@@ -429,7 +421,6 @@ function addNewMappingElement(fieldId){
 	
 	currentJiraProject.val("");
 	currentJiraProject.attr("projectKey", "");
-	currentJiraProject.attr("projectExists","true");
 	if(currentJiraProject.hasClass('error')){
 		currentJiraProject.removeClass('error');
 	}
@@ -438,7 +429,6 @@ function addNewMappingElement(fieldId){
 	
 	currentHubProject.val("");
 	currentHubProject.attr("projectKey", "");
-	currentHubProject.attr("projectExists","true");
 	if(currentHubProject.hasClass('error')){
 		currentHubProject.removeClass('error');
 	}
@@ -464,10 +454,8 @@ function onMappingInputChange(inputField){
     	   var option = AJS.$(options[i]);
     	   
     	   var projectKey = option.attr("projectKey");
-    	   var projectExists = option.attr("projectExists");
     	   field.val(option.val());
     	   field.attr("projectKey", projectKey);
-    	   field.attr("projectExists", projectExists)
     	   
     	   if(projectExists === 'false'){
     		   if(!field.hasClass('error')){
@@ -483,26 +471,27 @@ function onMappingInputChange(inputField){
     }
     if(!optionFound){
   	   field.attr("projectKey", "");
-  	   field.attr("projectExists", "false")
   	   if(!field.hasClass('error')){
   		   field.addClass('error');
   	   }
     }
 }
 
-function handleError(fieldId, configField) {
+function handleError(fieldId, configField, clearOldMessage) {
 	if(configField){
-		showError(fieldId, configField);
+		showError(fieldId, configField, clearOldMessage);
     } else{
     	hideError(fieldId);
     }
 }
 
-function showError(fieldId, configField) {
-	var oldMessage = AJS.$("#" + fieldId).text().trim();
-	var newMessage = decodeURI(configField);
-	if(oldMessage && oldMessage != newMessage){
-		newMessage = oldMessage + ' .... ' + newMessage;
+function showError(fieldId, configField, clearOldMessage) {
+	var newMessage = decodeURI(configField).trim();
+	if(!clearOldMessage){
+		var oldMessage = AJS.$("#" + fieldId).text().trim();
+		if(oldMessage && oldMessage != newMessage){
+			newMessage = oldMessage + ' .... ' + newMessage;
+		}
 	}
 	AJS.$("#" + fieldId).text(newMessage);
   	removeClassFromFieldById(fieldId, hiddenClass);

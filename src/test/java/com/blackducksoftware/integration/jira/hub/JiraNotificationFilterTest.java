@@ -67,12 +67,10 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 5; i++) {
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
 			hubProject.setProjectName("Test Hub Project" + i);
 			hubProject.setProjectUrl("http://test.project.url" + i);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
 			jiraProject.setProjectId(122L + i);
 			jiraProject.setProjectName("Test JIRA Project" + i);
 			mapping.setJiraProject(jiraProject);
@@ -142,12 +140,10 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 5; i++) {
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
 			hubProject.setProjectName("Test Hub Project" + i);
 			hubProject.setProjectUrl("http://test.project.url" + i);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
 			jiraProject.setProjectId(122L + i);
 			jiraProject.setProjectName("Test JIRA Project" + i);
 			mapping.setJiraProject(jiraProject);
@@ -220,12 +216,10 @@ public class JiraNotificationFilterTest {
 		for (int i = 0; i < 5; i++) {
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectExists(true);
 			hubProject.setProjectName("Test Hub Project" + i);
 			hubProject.setProjectUrl("http://test.project.url" + i);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectExists(true);
 			jiraProject.setProjectId(122L + i);
 			jiraProject.setProjectName("Test JIRA Project" + i);
 			mapping.setJiraProject(jiraProject);

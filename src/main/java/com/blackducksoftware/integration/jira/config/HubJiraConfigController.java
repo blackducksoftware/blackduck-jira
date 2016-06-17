@@ -45,6 +45,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -71,15 +72,6 @@ import com.google.gson.reflect.TypeToken;
 
 @Path("/")
 public class HubJiraConfigController {
-	public static final String HUB_SERVER_MISCONFIGURATION = "There was a problem with the Hub Server configuration. ";
-	public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
-	public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
-	public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s) with empty Project(s).";
-	public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
-	public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
-
-	public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
-
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
 	private final TransactionTemplate transactionTemplate;
@@ -268,10 +260,13 @@ public class HubJiraConfigController {
 
 	private void checkIntervalErrors(final HubJiraConfigSerializable config) {
 		if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-			config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
+			config.setIntervalBetweenChecksError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
 		} else {
 			try {
-				stringToInteger(config.getIntervalBetweenChecks());
+				final int interval = stringToInteger(config.getIntervalBetweenChecks());
+				if (interval <= 0) {
+					config.setIntervalBetweenChecksError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
+				}
 			} catch (final IllegalArgumentException e) {
 				config.setIntervalBetweenChecksError(e.getMessage());
 			}
@@ -302,104 +297,12 @@ public class HubJiraConfigController {
 			}
 			if(hasEmptyMapping){
 				config.setHubProjectMappingError(
-						concatErrorMessage(config.getHubProjectMappingError(), MAPPING_HAS_EMPTY_ERROR));
+						concatErrorMessage(config.getHubProjectMappingError(),
+								JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
 			}
 		}
 	}
 
-	// private void checkErrors(final HubJiraConfigSerializable config) {
-	// if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-	// config.setIntervalBetweenChecksError(NO_INTERVAL_FOUND_ERROR);
-	// } else {
-	// try {
-	// stringToInteger(config.getIntervalBetweenChecks());
-	// } catch (final IllegalArgumentException e) {
-	// config.setIntervalBetweenChecksError(e.getMessage());
-	// }
-	// }
-	//
-	// if (config.getHubProjectMappings() != null &&
-	// !config.getHubProjectMappings().isEmpty()) {
-	//
-	// boolean hasEmptyMapping = false;
-	// for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-	//
-	// boolean jiraProjectBlank = true;
-	// boolean hubProjectBlank = true;
-	//
-	// boolean jiraProjectExists = false;
-	// if (mapping.getJiraProject() != null) {
-	// if (mapping.getJiraProject().getProjectId() != null) {
-	// jiraProjectBlank = false;
-	// if (config.getJiraProjects() != null &&
-	// !config.getJiraProjects().isEmpty()) {
-	// for (final JiraProject jiraProject : config.getJiraProjects()) {
-	// if
-	// (jiraProject.getProjectId().equals(mapping.getJiraProject().getProjectId()))
-	// {
-	// jiraProjectExists = true;
-	// break;
-	// }
-	// }
-	// }
-	// }
-	// if (jiraProjectExists) {
-	// mapping.getJiraProject().setProjectExists(true);
-	// } else {
-	// mapping.getJiraProject().setProjectExists(false);
-	// }
-	// }
-	//
-	// boolean hubProjectExists = false;
-	// if (mapping.getHubProject() != null) {
-	// if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
-	// hubProjectBlank = false;
-	// if (config.getHubProjects() != null &&
-	// !config.getHubProjects().isEmpty()) {
-	// for (final HubProject hubProject : config.getHubProjects()) {
-	// if
-	// (hubProject.getProjectUrl().equals(mapping.getHubProject().getProjectUrl()))
-	// {
-	// mapping.getHubProject().setProjectName(hubProject.getProjectName());
-	// hubProjectExists = true;
-	// break;
-	// }
-	// }
-	// }
-	// } else if
-	// (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
-	// hubProjectBlank = false;
-	// if (config.getHubProjects() != null &&
-	// !config.getHubProjects().isEmpty()) {
-	// for (final HubProject hubProject : config.getHubProjects()) {
-	// if
-	// (hubProject.getProjectName().equals(mapping.getHubProject().getProjectName()))
-	// {
-	// mapping.getHubProject().setProjectUrl(hubProject.getProjectUrl());
-	// hubProjectExists = true;
-	// break;
-	// }
-	// }
-	// }
-	// }
-	// if (hubProjectExists) {
-	// mapping.getHubProject().setProjectExists(true);
-	// } else {
-	// mapping.getHubProject().setProjectExists(false);
-	// }
-	// }
-	//
-	// if (jiraProjectBlank || hubProjectBlank) {
-	// hasEmptyMapping = true;
-	// }
-	// }
-	// if (hasEmptyMapping) {
-	// config.setHubProjectMappingError(
-	// concatErrorMessage(config.getHubProjectMappingError(),
-	// MAPPING_HAS_EMPTY_ERROR));
-	// }
-	// }
-	// }
 
 	private Object getValue(final PluginSettings settings, final String key) {
 		return settings.get(key);
@@ -432,7 +335,19 @@ public class HubJiraConfigController {
 				final JiraProject newProject = new JiraProject();
 				newProject.setProjectName(oldProject.getName());
 				newProject.setProjectId(oldProject.getId());
-				newProject.setProjectExists(true);
+
+				if(oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()){
+					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
+				} else {
+					final boolean foundBugType = false;
+					for (final IssueType issueType : oldProject.getIssueTypes()) {
+						System.out.println(issueType.getName());
+						System.out.println(issueType.getDescription());
+						System.out.println(issueType.getGenericValue().toString());
+
+					}
+				}
+
 				newJiraProjects.add(newProject);
 			}
 		}
@@ -448,11 +363,12 @@ public class HubJiraConfigController {
 
 		if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword)
 				&& StringUtils.isBlank(hubTimeout)) {
-			config.setErrorMessage(HUB_CONFIG_PLUGIN_MISSING);
+			config.setErrorMessage(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING);
 			return null;
 		} else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword)
 				|| StringUtils.isBlank(hubTimeout)) {
-			config.setErrorMessage(HUB_SERVER_MISCONFIGURATION + CHECK_HUB_SERVER_CONFIGURATION);
+			config.setErrorMessage(
+					JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
 			return null;
 		}
 
@@ -490,10 +406,10 @@ public class HubJiraConfigController {
 			hubRestService = new HubIntRestService(restConnection);
 
 			if(result.hasErrors()){
-				config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION);
+				config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
 			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
-			config.setErrorMessage(CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+			config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
 			return null;
 		}
 		return hubRestService;
@@ -514,7 +430,6 @@ public class HubJiraConfigController {
 			if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
 				for (final ProjectItem project : hubProjectItems) {
 					final HubProject newHubProject = new HubProject();
-					newHubProject.setProjectExists(true);
 					newHubProject.setProjectName(project.getName());
 					newHubProject.setProjectUrl(project.get_meta().getHref());
 					hubProjects.add(newHubProject);
@@ -572,7 +487,7 @@ public class HubJiraConfigController {
 						}
 					}
 				} else {
-					config.setPolicyRulesError(HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
+					config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
 				}
 			} catch (IOException | URISyntaxException e) {
 				config.setPolicyRulesError(e.getMessage());
@@ -580,7 +495,8 @@ public class HubJiraConfigController {
 		}
 		config.setPolicyRules(newPolicyRules);
 		if (config.getPolicyRules().isEmpty()) {
-			config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), NO_POLICY_RULES_FOUND_ERROR));
+			config.setPolicyRulesError(
+					concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
 		}
 
 	}
