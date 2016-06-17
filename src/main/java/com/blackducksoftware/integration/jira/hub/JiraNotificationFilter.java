@@ -144,10 +144,9 @@ public class JiraNotificationFilter {
 
 		logger.debug("Rule violated: " + ruleViolated);
 		logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
-		if (linksOfRulesToMonitor == null) {
-			// TODO this behavior is probably wrong for production
-			logger.debug("No rules-to-monitor provided, so we're monitoring ALL rules");
-			return true;
+		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
+			logger.debug("No rules-to-monitor provided, so no JIRA issues will be generated");
+			return false;
 		}
 		final String fixedRuleUrl = fixRuleUrl(ruleViolated);
 		if (!linksOfRulesToMonitor.contains(fixedRuleUrl)) {
