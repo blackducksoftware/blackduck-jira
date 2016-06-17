@@ -59,7 +59,7 @@ public class HubJiraTask {
 			final String lastRunDateString,
 			final String projectMappingJson,
 			final String policyRulesJson,
- final ProjectManager jiraProjectManager, final String jiraBaseUrl) {
+			final ProjectManager jiraProjectManager, final String jiraBaseUrl) {
 		this.hubUrl = hubUrl;
 		this.hubUsername = hubUsername;
 		this.hubPasswordEncrypted = hubPasswordEncrypted;

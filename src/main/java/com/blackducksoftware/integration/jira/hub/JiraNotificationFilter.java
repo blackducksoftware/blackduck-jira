@@ -149,12 +149,32 @@ public class JiraNotificationFilter {
 			logger.debug("No rules-to-monitor provided, so we're monitoring ALL rules");
 			return true;
 		}
-		if (!linksOfRulesToMonitor.contains(ruleViolated)) {
+		final String fixedRuleUrl = fixRuleUrl(ruleViolated);
+		if (!linksOfRulesToMonitor.contains(fixedRuleUrl)) {
 			logger.debug("This rule is not one of the rules we are monitoring");
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * In Hub versions prior to 3.2, the rule URLs contained in notifications
+	 * are internal. To match the configured rule URLs, the "internal" segment
+	 * of the URL from the notification must be removed. This is the workaround
+	 * recommended by Rob P. In Hub 3.2 on, these URLs will exclude the
+	 * "internal" segment.
+	 *
+	 * @param origRuleUrl
+	 * @return
+	 */
+	private String fixRuleUrl(final String origRuleUrl) {
+		String fixedRuleUrl = origRuleUrl;
+		if (origRuleUrl.contains("/internal/")) {
+			fixedRuleUrl = origRuleUrl.replace("/internal/", "/");
+			logger.debug("Adjusted rule URL from " + origRuleUrl + " to " + fixedRuleUrl);
+		}
+		return fixedRuleUrl;
 	}
 
 	private HubProjectMapping getMatchingMapping(final String notifHubProjectUrl) {
