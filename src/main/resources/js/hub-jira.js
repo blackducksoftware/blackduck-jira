@@ -57,8 +57,6 @@ var policyRuleChecked = "checked";
 var vulnerabilityTicketCreation = "vulnerabilityTicketCreation"; 
 var vulnerabilityTicketClosure = "vulnerabilityTicketClosure"; 
 
-var spinning = false;
-
 var mappingElementCounter = 0;
 
 var gotJiraProjects = false;
@@ -124,6 +122,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	alert("Failure getting the hub policies");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 AJS.$('#policyRuleSpinner').remove();
 		    }
 		  });
 	  AJS.$.ajax({
@@ -139,6 +140,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	alert("Failure getting the mappings");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 AJS.$('#projectMappingSpinner').remove();
 		    }
 		  });
 }
@@ -265,15 +269,16 @@ function getJsonArrayFromMapping(){
 		
 		var currentJiraProjectDisplayName = currentJiraProject.val();
 		var currentJiraProjectValue = currentJiraProject.attr('projectKey');
-		var currentJiraProjectExists = currentJiraProject.attr('projectExists');
+		var currentJiraProjectError = currentJiraProject.attr('projectError');
 		
 		var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 		
 		var currentHubProjectDisplayName = currentHubProject.val();
 		var currentHubProjectValue = currentHubProject.attr('projectKey');
-		var currentHubProjectExists = currentHubProject.attr('projectExists');
+		var currentHubProjectError = currentHubProject.attr('projectError');
 		
-		if(isNullOrWhitespace(currentJiraProjectValue) || isNullOrWhitespace(currentHubProjectValue) || !currentJiraProjectExists || !currentHubProjectExists){
+		
+		if(isNullOrWhitespace(currentJiraProjectValue) || isNullOrWhitespace(currentHubProjectValue) || currentJiraProjectError || currentHubProjectError){
 			addMappingErrorStatus(mappingElement);
 		} else {
 			removeMappingErrorStatus(mappingElement);
@@ -581,11 +586,11 @@ function addMappingErrorStatus(mappingElement){
 	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
 	if(mappingStatus.find("i").length == 0){
 		var newStatus = AJS.$('<i>', {
-			text : "X"
 		});
+		AJS.$(newStatus).addClass("error");
+		AJS.$(newStatus).addClass("largeIcon");
 		AJS.$(newStatus).addClass("fa");
 		AJS.$(newStatus).addClass("fa-times");
-		AJS.$(newStatus).addClass("error");
 
 		newStatus.appendTo(mappingStatus);
 	}
@@ -599,18 +604,26 @@ function removeMappingErrorStatus(mappingElement){
 }
 
 function startProgressSpinner(){
-	 if (!spinning) {
-		 var spinner = AJS.$('.spinner');
-		 spinner.spin('large');
-		 spinning = true;
+	 var spinner = AJS.$('#saveSpinner');
+	 
+	 if(spinner.find("i").length == 0){
+		var newSpinnerIcon = AJS.$('<i>', {
+		});
+		AJS.$(newSpinnerIcon).addClass("largeIcon");
+		AJS.$(newSpinnerIcon).addClass("fa");
+		AJS.$(newSpinnerIcon).addClass("fa-spinner");
+		AJS.$(newSpinnerIcon).addClass("fa-spin");
+		AJS.$(newSpinnerIcon).addClass("fa-fw");
+		
+		newSpinnerIcon.appendTo(spinner);
 	 }
 }
 
 function stopProgressSpinner(){
-	 if (spinning) {
-		 AJS.$('.spinner').spinStop();
-         spinning = false;
-	 }
+	var spinner = AJS.$('#saveSpinner');
+	if(spinner.children().length > 0){
+		AJS.$(spinner).empty();
+	}
 }
 
 function isNullOrWhitespace(input) {

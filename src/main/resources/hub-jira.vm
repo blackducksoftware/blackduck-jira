@@ -3,10 +3,10 @@
     <title>$i18n.getText("hub.integration.jira.label")</title>
     <meta name="decorator" content="atl.admin" />
    		$webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-resources")
+   		
   </head>
   <body>
     <form id="hub-jira" class="aui">
-      <div class="spinner"></div>
       <div id="aui-hub-message-field" class="aui-message hidden">
       	<p class="title">
         	<span id="aui-hub-message-title" class="aui-icon"></span>
@@ -15,11 +15,13 @@
     	<p id="aui-hub-message-text"></p>
       </div>
       
+      <div id="saveSpinner"></div>
+      
       <div id="error-message-field" class="error hidden">
       </div>
       
       <fieldset class="fieldSection">
-      	 <legend class="legend">Interval</legend>
+      	 <legend class="legend">$i18n.getText("hub.integration.jira.intervalSection.label")</legend>
 	      <div class="field-group">
 	        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 	        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
@@ -32,7 +34,7 @@
       </fieldset>
       
 		<fieldset class="fieldSection">
-			<legend class="legend">Ticket Criteria</legend>
+			<legend class="legend">$i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
 			<table class="ticketCriteriaTable">
 				<thead>
 					<tr>
@@ -47,6 +49,7 @@
 				<tbody>
 					<tr>
 						<td>
+							<div id="policyRuleSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
 							<div id="policyRuleTicketCreation" class="ticketCriteriaSection">
 							</div>
 				  		</td>
@@ -79,13 +82,14 @@
       	
       
 		<fieldset class="fieldSection">
-      	 <legend class="legend">Project Mapping</legend>
+      	 <legend class="legend">$i18n.getText("hub.integration.jira.hubProjectMappingSection.label")</legend>
 			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 			  <div class="field-group">
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
 			  	<table width="100%" id="hubProjectMappingContainer" class="mappingContainer">
+			  	  <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
 				  <tr name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
 				  	<td>
 				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">

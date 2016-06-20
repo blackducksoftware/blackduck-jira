@@ -7,6 +7,10 @@
 	font-weight : bold;
 }
 
+.largeIcon {
+	font-size : 25px !important;
+}
+
 .longInput {
 	width: 300px;
 }
