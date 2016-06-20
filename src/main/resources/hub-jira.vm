@@ -21,7 +21,7 @@
       </div>
       
       <fieldset class="fieldSection">
-      	 <legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'intervalArea');""> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
+      	 <legend class="legend"><i class="fa fa-minus-circle" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
 		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
@@ -35,7 +35,7 @@
       </fieldset>
       
 		<fieldset class="fieldSection">
-			<legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'ticketCriteriaArea');""> $i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
+			<legend class="legend"><i class="fa fa-minus-circle" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
 			<div id="ticketCriteriaArea">
 			<table class="ticketCriteriaTable">
 				<thead>
@@ -84,7 +84,7 @@
       	
       
 		<fieldset class="fieldSection">
-      	  <legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'mappingArea');"> $i18n.getText("hub.integration.jira.hubProjectMappingSection.label") </legend>
+      	  <legend class="legend"><i class="fa fa-minus-circle" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText("hub.integration.jira.hubProjectMappingSection.label") </legend>
 			<div id="mappingArea">
 			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>

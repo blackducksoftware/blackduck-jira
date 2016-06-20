@@ -34,6 +34,7 @@
 }
 
 .legend {
+	font-family: arial,tahoma,verdana,sans-serif;
 	font-size : 16px !important;
 	font-weight : bold !important;
 	display : block !important;
