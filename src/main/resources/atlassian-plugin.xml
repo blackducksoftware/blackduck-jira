@@ -87,8 +87,8 @@
         <resource type="download" name="hub-jira.css" location="/css/hub-jira.css"/>
         <resource type="download" name="hub-jira.js" location="/js/hub-jira.js"/>
         <resource type="download" name="images/" location="/images"/>
-        <resource type="download" name="fonts/" location="/font-awesome-4.5.0/fonts"/>
-        <resource type="download" name="font-awesome.min.css" location="/font-awesome-4.5.0/css/font-awesome.min.css"/>
+        <resource type="download" name="font-awesome-4.5.0/fonts/" location="/font-awesome-4.5.0/fonts"/>
+        <resource type="download" name="font-awesome-4.5.0/css/font-awesome.min.css" location="/font-awesome-4.5.0/css/font-awesome.min.css"/>
         <context>hub-jira</context>
     </web-resource>
     
