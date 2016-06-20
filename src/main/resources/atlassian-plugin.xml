@@ -84,7 +84,6 @@
      <!-- add our web resources -->
     <web-resource key="hub-jira-resources" name="Hub Jira Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <dependency>com.atlassian.auiplugin:aui-spinner</dependency> 
         <resource type="download" name="hub-jira.css" location="/css/hub-jira.css"/>
         <resource type="download" name="hub-jira.js" location="/js/hub-jira.js"/>
         <resource type="download" name="images/" location="/images"/>
