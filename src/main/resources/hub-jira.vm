@@ -6,7 +6,7 @@
    		
   </head>
   <body>
-    <form id="hub-jira" class="aui">
+    <form id="hub-jira" class="">
       <div id="aui-hub-message-field" class="aui-message hidden">
       	<p class="title">
         	<span id="aui-hub-message-title" class="aui-icon"></span>
@@ -21,20 +21,22 @@
       </div>
       
       <fieldset class="fieldSection">
-      	 <legend class="legend">$i18n.getText("hub.integration.jira.intervalSection.label")</legend>
-	      <div class="field-group">
-	        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
-	        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
-	        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="text long-field">
-	      </div>
-	      <div class="field-group">
-	      	<label> </label>
-	      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+      	 <legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'intervalArea');""> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
+      	 <div id="intervalArea">
+		      <div class="field-group">
+		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="longInput textStyle">
+		      </div>
+		      <div class="field-group">
+		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+		      </div>
 	      </div>
       </fieldset>
       
 		<fieldset class="fieldSection">
-			<legend class="legend">$i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
+			<legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'ticketCriteriaArea');""> $i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
+			<div id="ticketCriteriaArea">
 			<table class="ticketCriteriaTable">
 				<thead>
 					<tr>
@@ -77,12 +79,13 @@
 	      			</tr>
       			</tbody>
       		</table>	
-      	
+      		</div>
       	</fieldSet>
       	
       
 		<fieldset class="fieldSection">
-      	 <legend class="legend">$i18n.getText("hub.integration.jira.hubProjectMappingSection.label")</legend>
+      	  <legend class="legend fa fa-minus-circle" onclick="toggleDisplay(this,'mappingArea');"> $i18n.getText("hub.integration.jira.hubProjectMappingSection.label") </legend>
+			<div id="mappingArea">
 			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 			  <div class="field-group">
@@ -95,7 +98,7 @@
 				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 				  	</td>
 				    <td>
-				    	<input class="longInput" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="jiraProjects">
 						</datalist>
 						<div id="jiraProjectError">
@@ -103,7 +106,7 @@
 				    </td>
 				    <td> = </td>
 				    <td>
-				    	<input class="longInput" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="hubProjects">
 						</datalist>
 				    </td>
@@ -111,7 +114,7 @@
 				    <td>
 				  </tr>
 				</table>
-
+			</div>
 		</fieldset>
 		
       <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">

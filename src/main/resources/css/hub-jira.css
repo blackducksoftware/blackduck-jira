@@ -3,7 +3,7 @@
 }
 
 .error {
-	color : red;
+	color : #c00;
 	font-weight : bold;
 }
 
@@ -11,13 +11,31 @@
 	font-size : 25px !important;
 }
 
+.infoIcon {
+	color: #CCCCCC;
+}
+
+.field-group {
+	clear: both;
+    display: block;
+    margin-bottom: 5px;
+    min-height: 1.6em;
+    padding: 0 0 5px 10px;
+}
+
 .longInput {
-	width: 300px;
+	width: 400px;
+}
+
+.textStyle {
+	font-family: arial,tahoma,verdana,sans-serif;
+    font-size: 13px;
+    padding : 2px 5px 2px 5px;
 }
 
 .legend {
-	font-size : 15px;
-	font-weight : bold;
+	font-size : 16px !important;
+	font-weight : bold !important;
 	display : block !important;
 }
 
@@ -30,7 +48,7 @@
 
 .fieldSection {
 	border : 1px solid !important;
-	padding : 5px 5px 5px 15px !important; 
+	padding : 10px 5px 5px 15px !important; 
 }
 
 .mappingContainer {

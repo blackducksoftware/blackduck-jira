@@ -339,6 +339,8 @@ function addPolicyViolationRules(policyRules){
 	var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
 	if(policyRules != null && policyRules.length > 0){
 		for (p = 0; p < policyRules.length; p++) {
+			var newPolicy = AJS.$('<div>', {});
+			
 			var newPolicyRuleCheckbox = AJS.$('<input>', {
 			    type: "checkbox",
 			    policyurl: decodeURI(policyRules[p].policyUrl),
@@ -346,14 +348,29 @@ function addPolicyViolationRules(policyRules){
 			    name: decodeURI(policyRules[p].name),
 			    checked : policyRules[p].checked
 			});
+			var description = decodeURI(policyRules[p].description);
 			var newPolicyLabel = AJS.$('<label>', {
 				text: policyRules[p].name,
-				title: decodeURI(policyRules[p].description),
+				title: description,
 			});
-			var newBreak = AJS.$('<br/>', {});
-			newPolicyRuleCheckbox.appendTo(policyRuleContainer);
-			newPolicyLabel.appendTo(policyRuleContainer);
-			newBreak.appendTo(policyRuleContainer);
+			newPolicyLabel.addClass("textStyle");
+			newPolicyLabel.css("padding" , "0px 5px 0px 5px")
+			
+			newPolicy.append(newPolicyRuleCheckbox, newPolicyLabel)
+			
+			if(description){
+				var newDescription = AJS.$('<i>', {
+					title: description,
+				});
+				AJS.$(newDescription).addClass("fa");
+				AJS.$(newDescription).addClass("fa-info-circle");
+				AJS.$(newDescription).addClass("infoIcon");
+				newPolicy.append(newDescription);
+			}
+			
+			newPolicy.appendTo(policyRuleContainer);
+			
+			
 		}
 	}
 }
@@ -579,6 +596,21 @@ function addClassToField(field, cssClass){
 function removeClassFromField(field, cssClass){
 	if(AJS.$(field).hasClass(cssClass)){
 		AJS.$(field).removeClass(cssClass);
+	}
+}
+
+function toggleDisplay(icon, fieldId){
+	var iconObject = AJS.$(icon);
+	if(iconObject.hasClass('fa-minus-circle')){
+		removeClassFromField(icon, 'fa-minus-circle');
+		addClassToField(icon, 'fa-plus-circle');
+		
+		addClassToFieldById(fieldId, hiddenClass);
+	} else if(iconObject.hasClass('fa-plus-circle')){
+		removeClassFromField(icon, 'fa-plus-circle');
+		addClassToField(icon, 'fa-minus-circle');
+	
+		removeClassFromFieldById(fieldId, hiddenClass);
 	}
 }
 
