@@ -341,15 +341,15 @@ public class HubJiraConfigController {
 				if(oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()){
 					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
 				} else {
-					boolean projectHasBugType = false;
+					boolean projectHasTaskType = false;
 					if (oldProject.getIssueTypes() != null && !oldProject.getIssueTypes().isEmpty()) {
 						for (final IssueType issueType : oldProject.getIssueTypes()) {
 							if (issueType.getName().equals("Task")) {
-								projectHasBugType = true;
+								projectHasTaskType = true;
 							}
 						}
 					}
-					if (!projectHasBugType) {
+					if (!projectHasTaskType) {
 						newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR);
 					}
 				}
