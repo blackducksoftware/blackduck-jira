@@ -500,9 +500,9 @@ function onMappingInputChange(inputField){
     	   
 			var projectError = option.attr("projectError");
 			
-			if(projectError){
 			var fieldParent = field.parent();
 			var fieldError = fieldParent.children("#"+jiraProjectErrorId);
+			if(projectError){
 			fieldError.text(projectError);
 				if(!fieldError.hasClass('error')){
 					fieldError.addClass('error');
@@ -511,6 +511,7 @@ function onMappingInputChange(inputField){
 		   			field.addClass('error');
 		   		}
 			} else{
+				fieldError.text("");
 				if(field.hasClass('error')){
 					field.removeClass('error');
 				}
