@@ -13,6 +13,6 @@ public class JiraConfigErrors {
 	public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 
 	public static final String JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR = "The Jira project does not have any issue types, we will not be able to create tickets for this project.";
-	public static final String JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR = "The Jira project is missing the Bug issue type.";
+	public static final String JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR = "The Jira project is missing the Task issue type.";
 
 }

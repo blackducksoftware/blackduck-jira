@@ -247,7 +247,7 @@ public class HubJiraConfigController {
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
- config.getPolicyRulesJson());
+						config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
@@ -344,7 +344,7 @@ public class HubJiraConfigController {
 					boolean projectHasBugType = false;
 					if (oldProject.getIssueTypes() != null && !oldProject.getIssueTypes().isEmpty()) {
 						for (final IssueType issueType : oldProject.getIssueTypes()) {
-							if (issueType.getName().equals("Bug")) {
+							if (issueType.getName().equals("Task")) {
 								projectHasBugType = true;
 							}
 						}
