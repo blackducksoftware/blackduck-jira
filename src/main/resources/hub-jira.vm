@@ -15,8 +15,6 @@
     	<p id="aui-hub-message-text"></p>
       </div>
       
-      <div id="saveSpinner"></div>
-      
       <div id="error-message-field" class="error hidden">
       </div>
       
@@ -29,6 +27,7 @@
 		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="longInput textStyle">
 		      </div>
 		      <div class="field-group">
+		      	<label> </label>
 		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
 		      </div>
 	      </div>
@@ -73,7 +72,7 @@
 					    <td>
 					      	<div id="" class="error hidden"></div>
 					    </td>
-					    <td >
+					    <td>
 					      	<div id="" class="error hidden"></div>
 					    </td>
 	      			</tr>
@@ -117,9 +116,13 @@
 			</div>
 		</fieldset>
 		
-      <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
+	   <div style="padding-top : 10px;">
+		   <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
       
-	  <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  
+	       <div id="saveSpinner" style="display: inline-block;"></div>
+	  </div>
     </form>
   </body>
 </html>

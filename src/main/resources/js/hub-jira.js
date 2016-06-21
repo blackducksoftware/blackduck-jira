@@ -241,7 +241,6 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	hideError('policyRulesError');
 	    	
 		    showStatusMessage(successStatus, 'Success!', successMessage);
-		    stopProgressSpinner();
 	    },
 	    error: function(response){
 	    	var config = JSON.parse(response.responseText);
@@ -251,7 +250,9 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	handleError('policyRulesError', config.policyRulesError, true);
 	    	
 		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
-		    stopProgressSpinner();
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 stopProgressSpinner();
 	    }
 	  });
 }
