@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.bc.issue.IssueService;
+import com.atlassian.jira.issue.IssueInputParameters;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
@@ -34,25 +36,28 @@ public class JiraNotificationFilter {
 	private final Set<HubProjectMapping> mappings;
 	private final List<String> linksOfRulesToMonitor;
 	private final JiraService jiraService;
+	private final IssueService issueService;
 
 	public JiraNotificationFilter(final HubNotificationService hubNotificationService, final JiraService jiraService,
-			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor) {
+			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
+			final IssueService issueService) {
 		this.hubNotificationService = hubNotificationService;
 		this.jiraService = jiraService;
 		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
+		this.issueService = issueService;
 	}
 
-	public List<Issue> extractJiraReadyNotifications(final List<NotificationItem> notifications)
+	public List<IssueInputParameters> extractJiraReadyNotifications(final List<NotificationItem> notifications)
 			throws HubNotificationServiceException {
-		final List<Issue> allIssues = new ArrayList<>();
+		final List<IssueInputParameters> allIssues = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-				+ " notifications");
+		+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			List<Issue> notifIssues;
+			List<IssueInputParameters> notifIssues;
 			try {
 				notifIssues = convertNotificationToIssues(notif);
 			} catch (final UnexpectedHubResponseException e) {
@@ -63,9 +68,9 @@ public class JiraNotificationFilter {
 		return allIssues;
 	}
 
-	private List<Issue> convertNotificationToIssues(final NotificationItem notif)
+	private List<IssueInputParameters> convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<Issue> issues = new ArrayList<>();
+		final List<IssueInputParameters> issues = new ArrayList<>();
 		String issueTypeDescription;
 		String projectName;
 		String projectVersionName;
@@ -129,7 +134,22 @@ public class JiraNotificationFilter {
 				if (isRuleMatch(ruleUrl)) {
 					final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
 					logger.debug("Rule violated: " + rule);
-					final Issue issue = new Issue(issueTypeDescription, IssueLevel.COMPONENT, project, component,
+
+					final IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+					issueInputParameters.setProjectId(12345L)
+					.setIssueTypeId("2");
+					.setSummary("This is a summary");
+					.setReporterId("joeuser");
+					.setAssigneeId("otheruser");
+					.setDescription("I am a description");
+					.setEnvironment("I am an environment");
+					.setStatusId("2");
+					.setPriorityId("2");
+					.setResolutionId("2");
+					.setSecurityLevelId(10000L);
+					.setFixVersionIds(10000L, 10001L);
+
+					final IssueInputParameters issue = new IssueInputParameters(issueTypeDescription, IssueLevel.COMPONENT, project, component,
 							ruleUrl, rule.getName(),
 							freshBdsJiraProject.getProjectKey());
 					issues.add(issue);
@@ -183,7 +203,7 @@ public class JiraNotificationFilter {
 		}
 
 		logger.debug("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
-				+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
+		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
 		for (final HubProjectMapping mapping : mappings) {
 			logger.debug("Mapping: " + mapping);
 			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();

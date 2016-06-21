@@ -84,41 +84,47 @@
       
 		<fieldset class="fieldSection">
       	  <legend class="legend"><i class="fa fa-minus-circle" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText("hub.integration.jira.hubProjectMappingSection.label") </legend>
-			<div id="mappingArea">
+			<div id="mappingArea" class="mappingContainer">
 			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 			  <div class="field-group">
 			  	<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
-			  	<table width="100%" id="hubProjectMappingContainer" class="mappingContainer">
-			  	  <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
-				  <tr name="hubProjectMappingElement" id="hubProjectMappingElement" class="field-group">
-				  	<td>
+			  <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
+			  	<table width="100%" id="hubProjectMappingContainer">
+			  	  <tr>
+			  	  		<td></td>
+			  	  		<td id="jiraProjectListError" class="error hidden longInput mappingTableCell"/>
+			  	  		<td></td>
+			  	  		<td id="hubProjectListError" class="error hidden longInput mappingTableCell"/>
+			  	  		<td></td>
+			  	  </tr>
+				  <tr name="hubProjectMappingElement" id="hubProjectMappingElement">
+				  	<td class="mappingTableCell" width="100px">
 				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 				  	</td>
-				    <td>
+				    <td class="mappingTableCell">
 				    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="jiraProjects">
 						</datalist>
 						<div id="jiraProjectError">
 				    	</div>
 				    </td>
-				    <td> = </td>
-				    <td>
+				    <td class="mappingTableCell" width="25px"> = </td>
+				    <td class="mappingTableCell">
 				    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);">
 						<datalist id="hubProjects">
 						</datalist>
 				    </td>
-				    <td id="mappingStatus">
-				    <td>
+				    <td class="mappingTableCell" id="mappingStatus">
+				    </td>
 				  </tr>
 				</table>
 			</div>
+			<input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
 		</fieldset>
 		
 	   <div style="padding-top : 10px;">
-		   <input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button aui-button-primary">
-      
 	  	   <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  
 	       <div id="saveSpinner" style="display: inline-block;"></div>

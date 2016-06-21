@@ -11,6 +11,7 @@ import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -25,7 +26,9 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
+	public static final String KEY_ISSUE_SERVICE = HubMonitor.class.getName() + ":issueService";
 	public static final String KEY_PROJECT_MANAGER = HubMonitor.class.getName() + ":projectManager";
+	public static final String KEY_USER_UTIL = HubMonitor.class.getName() + ":userUtil";
 	public static final String KEY_JIRA_BASE_URL = HubMonitor.class.getName() + ":jiraBaseUrl";
 
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
@@ -70,6 +73,9 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		final String jiraBaseUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
 		logger.debug("JIRA base URL: " + jiraBaseUrl);
 
+		final UserUtil userUtil = ComponentAccessor.getUserUtil();
+		logger.debug("userUtil: " + userUtil);
+
 		final long actualInterval = getIntervalMillisec();
 
 		this.serverName = serverName;
@@ -80,12 +86,14 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 			{
 				put(KEY_INSTANCE, HubMonitor.this);
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
+				put(KEY_ISSUE_SERVICE, issueService);
 				put(KEY_PROJECT_MANAGER, projectManager);
+				put(KEY_USER_UTIL, userUtil);
 				put(KEY_JIRA_BASE_URL, jiraBaseUrl);
 			}
 		}, // data that needs to be passed to the job
-		new Date(), // the time the job is to start
-		actualInterval); // interval between repeats, in milliseconds
+				new Date(), // the time the job is to start
+				actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
 	}
 

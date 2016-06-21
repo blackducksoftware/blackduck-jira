@@ -80,7 +80,7 @@ function populateForm() {
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, false);
 	    },
 	    error: function(response){
-	    	alert("Failure getting the interval");
+	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the Interval.", "Interval Error");
 	    }
 	  });
 	  AJS.$.ajax({
@@ -94,7 +94,7 @@ function populateForm() {
 		      gotJiraProjects = true;
 		    },
 		    error: function(response){
-		    	alert("Failure getting the jira projects");
+		    	handleDataRetrievalError(response, "jiraProjectListError", "There was a problem retrieving the Jira Projects.", "Jira Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -108,7 +108,7 @@ function populateForm() {
 		      gotHubProjects = true;
 		    },
 		    error: function(response){
-		    	alert("Failure getting the hub projects");
+		    	handleDataRetrievalError(response, "hubProjectListError", "There was a problem retrieving the Hub Projects.", "Hub Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -121,7 +121,7 @@ function populateForm() {
 		      handleError('policyRulesError', config.policyRulesError, false);
 		    },
 		    error: function(response){
-		    	alert("Failure getting the hub policies");
+		    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Hub Policy Rules.", "Hub Policy Rules Error");
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	 AJS.$('#policyRuleSpinner').remove();
@@ -139,12 +139,55 @@ function populateForm() {
 		      gotProjectMappings = true;
 		    },
 		    error: function(response){
-		    	alert("Failure getting the mappings");
+		    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	 AJS.$('#projectMappingSpinner').remove();
 		    }
 		  });
+}
+
+function handleDataRetrievalError(response, errorId, errorText, dialogTitle){
+	var errorField = AJS.$('#' + errorId);
+	errorField.text(errorText);
+	removeClassFromField(errorField, hiddenClass);
+	addClassToField(errorField, "clickable");
+	var error = JSON.parse(response.responseText);
+	error = AJS.$(error);
+	errorField.click(function() {showErrorDialog(dialogTitle, error.attr("message"), error.attr("status-code"), error.attr("stack-trace")) });
+}
+
+function showErrorDialog(header, errorMessage, errorCode, stackTrace){
+	var errorDialog = new AJS.Dialog({
+	    width: 800, 
+	    height: 500, 
+	    id: 'error-dialog', 
+	    closeOnOutsideClick: true
+	});
+
+	errorDialog.addHeader(header);
+	
+	var errorBody = AJS.$('<div>', {
+	});
+	var errorMessage = AJS.$('<p>', {
+		text : "Error Message : "+ errorMessage
+	});
+	var errorCode = AJS.$('<p>', {
+		text : "Error Code : "+ errorCode
+	});
+	var errorStackTrace = AJS.$('<p>', {
+		text : stackTrace
+	});
+	
+	errorBody.append(errorMessage, errorCode, errorStackTrace);
+	
+	errorDialog.addPanel(header, errorBody, "panel-body");
+	
+	errorDialog.addButton("OK", function (dialog) {
+		errorDialog.hide();
+	});
+
+	errorDialog.show();
 }
 
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
@@ -473,6 +516,8 @@ function addNewMappingElement(fieldId){
 	if(currentHubProject.hasClass('error')){
 		currentHubProject.removeClass('error');
 	}
+	
+	AJS.$('#mappingArea').scrollTop(AJS.$('#mappingArea')[0].scrollHeight);
 	
 	return elementToAdd;
 }

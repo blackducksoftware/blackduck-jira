@@ -4,7 +4,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
@@ -30,6 +32,8 @@ public class JiraTask implements PluginJob {
 	public void execute(final Map<String, Object> jobDataMap) {
 
 		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
+		final UserUtil jiraUserUtil = (UserUtil) jobDataMap.get(HubMonitor.KEY_USER_UTIL);
+		final IssueService jiraIssueService = (IssueService) jobDataMap.get(HubMonitor.KEY_ISSUE_SERVICE);
 
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		final String jiraBaseUrl = (String) jobDataMap.get(HubMonitor.KEY_JIRA_BASE_URL);
@@ -45,11 +49,13 @@ public class JiraTask implements PluginJob {
 		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
+		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+
 
 		final HubJiraTask processor = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
 				hubTimeoutString,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
-				policyRulesJson, jiraProjectManager, jiraBaseUrl);
+				policyRulesJson, jiraProjectManager, jiraUserUtil, jiraIssueService, jiraUser, jiraBaseUrl);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
