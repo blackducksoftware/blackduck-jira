@@ -54,13 +54,13 @@ public class ProjectManagerMock implements ProjectManager {
 		return jiraProjects;
 	}
 
-	public static List<Project> getTestProjectObjectsWithoutBugIssueType() throws DataAccessException {
+	public static List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
 		final IssueTypeMock issueType1 = new IssueTypeMock();
 		issueType1.setName("Issue");
 		final IssueTypeMock issueType2 = new IssueTypeMock();
-		issueType2.setName("Task");
+		issueType2.setName("Bug");
 
 		for (final Project project : jiraProjects) {
 			final ProjectMock pMock = (ProjectMock) project;
@@ -70,7 +70,7 @@ public class ProjectManagerMock implements ProjectManager {
 		return jiraProjects;
 	}
 
-	public static List<Project> getTestProjectObjectsWithBugIssueType() throws DataAccessException {
+	public static List<Project> getTestProjectObjectsWithTaskIssueType() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
 		final IssueTypeMock issueType1 = new IssueTypeMock();
