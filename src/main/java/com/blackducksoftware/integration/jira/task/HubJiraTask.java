@@ -4,7 +4,6 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +11,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.user.util.UserUtil;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -34,13 +33,11 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.service.JiraService;
-import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Bug";
+	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Task";
 	private final String hubUrl;
 	private final String hubUsername;
 	private final String hubPasswordEncrypted;
@@ -52,10 +49,10 @@ public class HubJiraTask {
 	private final String projectMappingJson;
 	private final String policyRulesJson;
 	private final ProjectManager jiraProjectManager;
-	private final UserUtil jiraUserUtil;
+	private final UserManager jiraUserManager;
 	private final IssueService jiraIssueService;
+	private final JiraAuthenticationContext authContext;
 	private final String jiraUser;
-	private final String jiraBaseUrl;
 
 	private final Date runDate;
 	private final String runDateString;
@@ -67,8 +64,8 @@ public class HubJiraTask {
 			final String lastRunDateString,
 			final String projectMappingJson,
 			final String policyRulesJson,
-			final ProjectManager jiraProjectManager, final UserUtil jiraUserUtil,
-			final IssueService jiraIssueService, final String jiraUser, final String jiraBaseUrl) {
+			final ProjectManager jiraProjectManager, final UserManager jiraUserManager,
+			final IssueService jiraIssueService, final JiraAuthenticationContext authContext, final String jiraUser) {
 
 		this.hubUrl = hubUrl;
 		this.hubUsername = hubUsername;
@@ -85,10 +82,10 @@ public class HubJiraTask {
 		this.projectMappingJson = projectMappingJson;
 		this.policyRulesJson = policyRulesJson;
 		this.jiraProjectManager = jiraProjectManager;
-		this.jiraUserUtil = jiraUserUtil;
+		this.jiraUserManager = jiraUserManager;
 		this.jiraIssueService = jiraIssueService;
+		this.authContext = authContext;
 		this.jiraUser = jiraUser;
-		this.jiraBaseUrl = jiraBaseUrl;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -120,25 +117,19 @@ public class HubJiraTask {
 		}
 
 		try {
-			final JiraService jiraService = initJiraService();
 			final RestConnection restConnection = initRestConnection();
 			final HubIntRestService hub = initHubRestService(restConnection);
 			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
 
-			User jiraSysAdmin = null;
-			final Collection<User> sysAdmins = ComponentAccessor.getUserUtil().getJiraSystemAdministrators();
-			for (final User sysAdmin : sysAdmins) {
-				if (sysAdmin.getName().equals(jiraUser)) {
-					jiraSysAdmin = sysAdmin;
-					break;
-				}
-			}
+
+			final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 			if (jiraSysAdmin == null) {
 				logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
 				return null;
 			}
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(jiraSysAdmin, jiraIssueService, jiraService,
+			final TicketGenerator ticketGenerator = initTicketGenerator(jiraSysAdmin, jiraIssueTypeName,
+					jiraIssueService, authContext,
 					restConnection,
 					hub,
 					hubItemsService);
@@ -156,7 +147,7 @@ public class HubJiraTask {
 			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
 					linksOfRulesToMonitor, notificationDateRange);
 		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
-				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
+				| HubNotificationServiceException | URISyntaxException e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
 			return null;
 		}
@@ -168,7 +159,7 @@ public class HubJiraTask {
 		final List<PolicyRuleSerializable> rules = config.getPolicyRules();
 		for (final PolicyRuleSerializable rule : rules) {
 			final String ruleUrl = rule.getPolicyUrl();
-			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
+			logger.trace("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
 					+ rule.isChecked());
 			if ((rule.isChecked()) && (!ruleUrl.equals("undefined"))) {
 				ruleUrls.add(ruleUrl);
@@ -182,12 +173,13 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGenerator initTicketGenerator(final User jiraUser, final IssueService issueService,
-			final JiraService jiraService,
+	private TicketGenerator initTicketGenerator(final ApplicationUser jiraUser, final String issueTypeName,
+			final IssueService issueService, final JiraAuthenticationContext authContext,
 			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService,
-				issueService, jiraUser);
+		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService,
+				jiraProjectManager,
+				issueService, authContext, jiraUser, issueTypeName);
 		return ticketGenerator;
 	}
 
@@ -208,10 +200,6 @@ public class HubJiraTask {
 		return hub;
 	}
 
-	private JiraService initJiraService() {
-		final JiraService jiraService = new JiraService(jiraProjectManager, jiraBaseUrl, jiraIssueTypeName);
-		return jiraService;
-	}
 
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
 		final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
@@ -243,20 +231,20 @@ public class HubJiraTask {
 			return null;
 		}
 
-		logger.debug("Last run date: " + lastRunDateString);
-		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
-		logger.debug("Interval: " + intervalString);
+		logger.trace("Last run date: " + lastRunDateString);
+		logger.trace("Hub url / username: " + hubUrl + " / " + hubUsername);
+		logger.trace("Interval: " + intervalString);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setHubProjectMappingsJson(projectMappingJson);
 		config.setPolicyRulesJson(policyRulesJson);
-		logger.debug("Mappings:");
+		logger.trace("Mappings:");
 		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-			logger.debug(mapping.toString());
+			logger.trace(mapping.toString());
 		}
-		logger.debug("Policy Rules:");
+		logger.trace("Policy Rules:");
 		for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-			logger.debug(rule.toString());
+			logger.trace(rule.toString());
 		}
 		return config;
 	}

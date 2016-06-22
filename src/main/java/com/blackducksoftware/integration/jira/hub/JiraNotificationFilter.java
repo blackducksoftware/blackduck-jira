@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
@@ -21,13 +24,9 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.issue.Issue;
-import com.blackducksoftware.integration.jira.issue.IssueLevel;
-import com.blackducksoftware.integration.jira.service.JiraService;
-import com.blackducksoftware.integration.jira.service.JiraServiceException;
 
 public class JiraNotificationFilter {
-	private static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Rule Violation";
+	private static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Policy Violation";
 	private static final String ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE = "Policy Override";
 	private static final String ISSUE_TYPE_DESCRIPTION_VULNERABILITY = "Vulnerability";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -35,17 +34,23 @@ public class JiraNotificationFilter {
 	private final HubNotificationService hubNotificationService;
 	private final Set<HubProjectMapping> mappings;
 	private final List<String> linksOfRulesToMonitor;
-	private final JiraService jiraService;
+	private final ProjectManager jiraProjectManager;
 	private final IssueService issueService;
+	private final String jiraIssueTypeName;
+	private final String reporterUserName;
 
-	public JiraNotificationFilter(final HubNotificationService hubNotificationService, final JiraService jiraService,
+	public JiraNotificationFilter(final HubNotificationService hubNotificationService,
 			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
-			final IssueService issueService) {
+			final ProjectManager jiraProjectManager,
+			final IssueService issueService,
+			final String jiraIssueTypeName, final String reporterUserName) {
 		this.hubNotificationService = hubNotificationService;
-		this.jiraService = jiraService;
 		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
+		this.jiraProjectManager = jiraProjectManager;
 		this.issueService = issueService;
+		this.jiraIssueTypeName = jiraIssueTypeName;
+		this.reporterUserName = reporterUserName;
 	}
 
 	public List<IssueInputParameters> extractJiraReadyNotifications(final List<NotificationItem> notifications)
@@ -102,23 +107,26 @@ public class JiraNotificationFilter {
 		}
 
 		final JiraProject mappingJiraProject = mapping.getJiraProject();
-		JiraProject freshBdsJiraProject;
+		final JiraProject jiraProject;
 		try {
-			freshBdsJiraProject = jiraService.getProject(mappingJiraProject.getProjectId());
-		} catch (final JiraServiceException e) {
+			jiraProject = getProject(mappingJiraProject.getProjectId());
+		} catch (final HubNotificationServiceException e) {
 			logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 					+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
 			return issues;
 		}
-		logger.debug("JIRA Project: " + freshBdsJiraProject);
+		if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
+			logger.error(jiraProject.getProjectError());
+			return issues;
+		}
+
+		logger.debug("JIRA Project: " + jiraProject);
 
 		for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
 
-			final NameVersion project = new NameVersion(projectName, projectVersionName);
-			String componentVersionName;
-
-			componentVersionName = hubNotificationService.getComponentVersion(
-					compVerStatus.getComponentVersionLink()).getVersionName();
+			final String componentVersionName = hubNotificationService
+					.getComponentVersion(
+							compVerStatus.getComponentVersionLink()).getVersionName();
 
 			final NameVersion component = new NameVersion(compVerStatus.getComponentName(), componentVersionName);
 			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
@@ -135,24 +143,27 @@ public class JiraNotificationFilter {
 					final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
 					logger.debug("Rule violated: " + rule);
 
-					final IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
-					issueInputParameters.setProjectId(12345L)
-					.setIssueTypeId("2");
-					.setSummary("This is a summary");
-					.setReporterId("joeuser");
-					.setAssigneeId("otheruser");
-					.setDescription("I am a description");
-					.setEnvironment("I am an environment");
-					.setStatusId("2");
-					.setPriorityId("2");
-					.setResolutionId("2");
-					.setSecurityLevelId(10000L);
-					.setFixVersionIds(10000L, 10001L);
 
-					final IssueInputParameters issue = new IssueInputParameters(issueTypeDescription, IssueLevel.COMPONENT, project, component,
-							ruleUrl, rule.getName(),
-							freshBdsJiraProject.getProjectKey());
-					issues.add(issue);
+					final String issueSummary = "Black Duck " + issueTypeDescription + " detected on Hub Project '"
+							+ projectName
+							+ "' / '" + projectVersionName + "', component '" + component.getName() + "' / '"
+							+ component.getVersion() + "' [Rule: '" + rule.getName() + "']";
+					final String issueDescription = "The Black Duck Hub has detected a " + issueTypeDescription
+							+ " on Hub Project '" + projectName + "', component '" + component.getName()
+							+ "' / '" + component.getVersion() + "'. The rule violated is: '"
+							+ rule.getName() + "'";
+
+					// TODO make sure the parameters are correct for issue type
+					// and reporter
+					final IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+					issueInputParameters.setProjectId(mappingJiraProject.getProjectId())
+					.setIssueTypeId(jiraProject.getIssueTypeId()).setSummary(issueSummary)
+					.setReporterId(reporterUserName)
+					.setDescription(issueDescription).setStatusId("2")
+					.setPriorityId("2").setResolutionId("2")
+					.setSecurityLevelId(10000L);
+
+					issues.add(issueInputParameters);
 				}
 			}
 		}
@@ -162,15 +173,15 @@ public class JiraNotificationFilter {
 	private boolean isRuleMatch(final String ruleViolated)
 			throws HubNotificationServiceException {
 
-		logger.debug("Rule violated: " + ruleViolated);
-		logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
+		logger.trace("Rule violated: " + ruleViolated);
+		logger.trace("Rules we're monitoring: " + linksOfRulesToMonitor);
 		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
-			logger.debug("No rules-to-monitor provided, so no JIRA issues will be generated");
+			logger.warn("No rules-to-monitor provided, so no JIRA issues will be generated");
 			return false;
 		}
 		final String fixedRuleUrl = fixRuleUrl(ruleViolated);
 		if (!linksOfRulesToMonitor.contains(fixedRuleUrl)) {
-			logger.debug("This rule is not one of the rules we are monitoring");
+			logger.debug("This rule is not one of the rules we are monitoring : " + fixedRuleUrl);
 			return false;
 		}
 
@@ -191,21 +202,21 @@ public class JiraNotificationFilter {
 		String fixedRuleUrl = origRuleUrl;
 		if (origRuleUrl.contains("/internal/")) {
 			fixedRuleUrl = origRuleUrl.replace("/internal/", "/");
-			logger.debug("Adjusted rule URL from " + origRuleUrl + " to " + fixedRuleUrl);
+			logger.trace("Adjusted rule URL from " + origRuleUrl + " to " + fixedRuleUrl);
 		}
 		return fixedRuleUrl;
 	}
 
 	private HubProjectMapping getMatchingMapping(final String notifHubProjectUrl) {
 		if ((mappings == null) || (mappings.size() == 0)) {
-			logger.debug("No mappings provided");
+			logger.warn("No mappings provided");
 			return null;
 		}
 
-		logger.debug("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
+		logger.trace("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
 		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
 		for (final HubProjectMapping mapping : mappings) {
-			logger.debug("Mapping: " + mapping);
+			logger.trace("Mapping: " + mapping);
 			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
 				return mapping;
@@ -222,5 +233,40 @@ public class JiraNotificationFilter {
 		}
 		final String versionLink = versionLinks.get(0);
 		return versionLink;
+	}
+
+	public JiraProject getProject(final long jiraProjectId) throws HubNotificationServiceException {
+		if (jiraProjectManager == null) {
+			throw new HubNotificationServiceException("The JIRA projectManager has not been set");
+		}
+		final com.atlassian.jira.project.Project atlassianJiraProject = jiraProjectManager.getProjectObj(jiraProjectId);
+		if (atlassianJiraProject == null) {
+			throw new HubNotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+		}
+		final String jiraProjectKey = atlassianJiraProject.getKey();
+		final String jiraProjectName = atlassianJiraProject.getName();
+		final JiraProject bdsJiraProject = new JiraProject();
+		bdsJiraProject.setProjectId(jiraProjectId);
+		bdsJiraProject.setProjectKey(jiraProjectKey);
+		bdsJiraProject.setProjectName(jiraProjectName);
+
+		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
+			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
+			+ " does not have any issue types, we will not be able to create tickets for this project.");
+		} else {
+			boolean projectHasIssueType = false;
+			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
+				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
+					if (issueType.getName().equals(jiraIssueTypeName)) {
+						bdsJiraProject.setIssueTypeId(issueType.getId());
+						projectHasIssueType = true;
+					}
+				}
+			}
+			if (!projectHasIssueType) {
+				bdsJiraProject.setProjectError("The Jira project is missing the " + jiraIssueTypeName + " issue type.");
+			}
+		}
+		return bdsJiraProject;
 	}
 }

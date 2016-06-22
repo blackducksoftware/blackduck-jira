@@ -54,7 +54,6 @@ public class HubNotificationService {
 	 */
 	public HubNotificationService(final RestConnection restConnection, final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService) {
-		super();
 		this.restConnection = restConnection;
 		this.hub = hub;
 		this.hubItemsService = hubItemsService;

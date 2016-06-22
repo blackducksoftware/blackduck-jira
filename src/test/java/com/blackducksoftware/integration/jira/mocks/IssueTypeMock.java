@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.util.I18nHelper;
 import com.opensymphony.module.propertyset.PropertySet;
@@ -143,6 +144,11 @@ public class IssueTypeMock implements IssueType {
 	public boolean isSubTask() {
 
 		return false;
+	}
+
+	@Override
+	public Avatar getAvatar() {
+		return null;
 	}
 
 }

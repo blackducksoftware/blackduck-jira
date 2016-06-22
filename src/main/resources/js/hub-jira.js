@@ -304,8 +304,8 @@ function getJsonArrayFromMapping(){
 	var jsonArray = "[";
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
-	for (i = 0; i < mappingElements.length; i++) {
-		if(i > 0){
+	for (i = 1; i < mappingElements.length; i++) {
+		if(i > 1){
 			jsonArray += ","
 		}
 		var mappingElement = mappingElements[i];
@@ -457,12 +457,12 @@ function fillInMappings(storedMappings){
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
 	// On loading the page, there should only be one original mapping element
 	if(storedMappings != null && storedMappings.length > 0){
-		fillInMapping(mappingElements[0], storedMappings[0]);
-		
-		for (i = 1; i < storedMappings.length; i++) {
+		for (i = 0; i < storedMappings.length; i++) {
 			var newMappingElement = addNewMappingElement(hubProjectMappingElement);
 			fillInMapping(newMappingElement, storedMappings[i]);
 		}
+	} else{
+		addNewMappingElement(hubProjectMappingElement);
 	}
 }
 
@@ -493,6 +493,8 @@ function addNewMappingElement(fieldId){
 	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
 	elementToAdd.appendTo("#" + hubProjectMappingContainer);
 	
+	removeClassFromField(elementToAdd, hiddenClass);
+	
 	removeMappingErrorStatus(elementToAdd);
 	
 	var currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
@@ -517,7 +519,7 @@ function addNewMappingElement(fieldId){
 		currentHubProject.removeClass('error');
 	}
 	
-	AJS.$('#mappingArea').scrollTop(AJS.$('#mappingArea')[0].scrollHeight);
+		AJS.$('#mappingArea').scrollTop(AJS.$('#mappingArea')[0].scrollHeight);
 	
 	return elementToAdd;
 }

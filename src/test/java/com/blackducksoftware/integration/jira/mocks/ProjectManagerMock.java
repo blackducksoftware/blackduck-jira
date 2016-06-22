@@ -3,6 +3,7 @@ package com.blackducksoftware.integration.jira.mocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -14,6 +15,7 @@ import com.atlassian.jira.project.DefaultAssigneeException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.user.ApplicationUser;
 
 public class ProjectManagerMock implements ProjectManager {
 
@@ -397,6 +399,37 @@ public class ProjectManagerMock implements ProjectManager {
 	@Override
 	public void updateProjectCategory(final ProjectCategory arg0) throws DataAccessException {
 
+	}
+
+	@Override
+	public Set<String> getAllProjectKeys(final Long arg0) {
+		return null;
+	}
+
+	@Override
+	public Project getProjectByCurrentKey(final String arg0) {
+		return null;
+	}
+
+	@Override
+	public Project getProjectByCurrentKeyIgnoreCase(final String arg0) {
+		return null;
+	}
+
+	@Override
+	public long getProjectCount() throws DataAccessException {
+		return 0;
+	}
+
+	@Override
+	public List<Project> getProjectsLeadBy(final ApplicationUser arg0) {
+		return null;
+	}
+
+	@Override
+	public Project updateProject(final Project arg0, final String arg1, final String arg2, final String arg3,
+			final String arg4, final Long arg5, final Long arg6, final String arg7) {
+		return null;
 	}
 
 }

@@ -99,7 +99,7 @@
 			  	  		<td id="hubProjectListError" class="error hidden longInput mappingTableCell"/>
 			  	  		<td></td>
 			  	  </tr>
-				  <tr name="hubProjectMappingElement" id="hubProjectMappingElement">
+			  	  <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
 				  	<td class="mappingTableCell" width="100px">
 				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button aui-button-primary">
 				  	</td>
