@@ -141,8 +141,6 @@ public class JiraNotificationFilter {
 							+ "' / '" + componentVersionName + "'. The rule violated is: '"
 							+ rule.getName() + "'";
 
-					// TODO make sure the parameters are correct for issue type
-					// and reporter
 					final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService()
 							.newIssueInputParameters();
 					issueInputParameters.setProjectId(mappingJiraProject.getProjectId())
