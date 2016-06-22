@@ -29,6 +29,7 @@ import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
+import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
@@ -128,8 +129,10 @@ public class HubJiraTask {
 				return null;
 			}
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(jiraSysAdmin, jiraIssueTypeName,
-					jiraIssueService, authContext,
+			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraProjectManager, jiraSysAdmin,
+					jiraIssueTypeName, jiraIssueService, authContext);
+
+			final TicketGenerator ticketGenerator = initTicketGenerator(ticketServices,
 					restConnection,
 					hub,
 					hubItemsService);
@@ -173,13 +176,19 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGenerator initTicketGenerator(final ApplicationUser jiraUser, final String issueTypeName,
-			final IssueService issueService, final JiraAuthenticationContext authContext,
+	private TicketGeneratorInfo initTicketGeneratorInfo(final ProjectManager projectManager,
+			final ApplicationUser jiraUser, final String issueTypeName, final IssueService issueService,
+			final JiraAuthenticationContext authContext) {
+		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(projectManager, issueService,
+				jiraUser, issueTypeName, authContext);
+		return ticketServices;
+	}
+
+	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
 			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
 		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService,
-				jiraProjectManager,
-				issueService, authContext, jiraUser, issueTypeName);
+				ticketServices);
 		return ticketGenerator;
 	}
 

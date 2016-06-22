@@ -6,14 +6,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
@@ -32,24 +28,14 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final HubNotificationService notificationService;
-	private final ProjectManager jiraProjectManager;
-	private final IssueService issueService;
-	private final ApplicationUser jiraUser;
-	private final String jiraIssueTypeName;
-	private final JiraAuthenticationContext authContext;
+	private final TicketGeneratorInfo ticketGenInfo;
 
 
 	public TicketGenerator(final RestConnection restConnection, final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService,
-			final ProjectManager jiraProjectManager,
-			final IssueService issueService, final JiraAuthenticationContext authContext,
-			final ApplicationUser jiraUser, final String jiraIssueTypeName) {
+			final TicketGeneratorInfo ticketGenInfo) {
 		notificationService = new HubNotificationService(restConnection, hub, hubItemsService);
-		this.jiraProjectManager = jiraProjectManager;
-		this.issueService = issueService;
-		this.authContext = authContext;
-		this.jiraUser = jiraUser;
-		this.jiraIssueTypeName = jiraIssueTypeName;
+		this.ticketGenInfo = ticketGenInfo;
 	}
 
 	public int generateTicketsForRecentNotifications(final Set<HubProjectMapping> hubProjectMappings,
@@ -58,17 +44,17 @@ public class TicketGenerator {
 
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
 		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService,
-				hubProjectMappings, linksOfRulesToMonitor, jiraProjectManager, issueService, jiraIssueTypeName,
-				jiraUser.getName());
+				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
 		final List<IssueInputParameters> issueParametersList = filter.extractJiraReadyNotifications(notifs);
 		int ticketCount = 0;
 		for(final IssueInputParameters issueParameters: issueParametersList){
-			logger.trace("Setting logged in User : " + jiraUser.getDisplayName());
-			logger.trace("User active : " + jiraUser.isActive());
+			logger.trace("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
+			logger.trace("User active : " + ticketGenInfo.getJiraUser().isActive());
 
-			authContext.setLoggedInUser(jiraUser);
-			final CreateValidationResult validationResult = issueService.validateCreate(jiraUser, issueParameters);
+			ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
+			final CreateValidationResult validationResult = ticketGenInfo.getIssueService()
+					.validateCreate(ticketGenInfo.getJiraUser(), issueParameters);
 			ErrorCollection errors = null;
 
 			if (!validationResult.isValid()) {
@@ -82,7 +68,8 @@ public class TicketGenerator {
 					}
 				}
 			} else {
-				final IssueResult result = issueService.create(jiraUser, validationResult);
+				final IssueResult result = ticketGenInfo.getIssueService().create(ticketGenInfo.getJiraUser(),
+						validationResult);
 				errors = result.getErrorCollection();
 				if (errors.hasAnyErrors()) {
 					for (final Entry<String, String> error : errors.getErrors().entrySet()) {

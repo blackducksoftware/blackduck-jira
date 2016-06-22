@@ -7,10 +7,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
@@ -33,23 +31,15 @@ public class JiraNotificationFilter {
 	private final HubNotificationService hubNotificationService;
 	private final Set<HubProjectMapping> mappings;
 	private final List<String> linksOfRulesToMonitor;
-	private final ProjectManager jiraProjectManager;
-	private final IssueService issueService;
-	private final String jiraIssueTypeName;
-	private final String reporterUserName;
+	private final TicketGeneratorInfo ticketGenInfo;
 
 	public JiraNotificationFilter(final HubNotificationService hubNotificationService,
 			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
-			final ProjectManager jiraProjectManager,
-			final IssueService issueService,
-			final String jiraIssueTypeName, final String reporterUserName) {
+			final TicketGeneratorInfo ticketGenInfo) {
 		this.hubNotificationService = hubNotificationService;
 		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
-		this.jiraProjectManager = jiraProjectManager;
-		this.issueService = issueService;
-		this.jiraIssueTypeName = jiraIssueTypeName;
-		this.reporterUserName = reporterUserName;
+		this.ticketGenInfo = ticketGenInfo;
 	}
 
 	public List<IssueInputParameters> extractJiraReadyNotifications(final List<NotificationItem> notifications)
@@ -153,10 +143,11 @@ public class JiraNotificationFilter {
 
 					// TODO make sure the parameters are correct for issue type
 					// and reporter
-					final IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+					final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService()
+							.newIssueInputParameters();
 					issueInputParameters.setProjectId(mappingJiraProject.getProjectId())
 					.setIssueTypeId(jiraProject.getIssueTypeId()).setSummary(issueSummary)
-					.setReporterId(reporterUserName)
+					.setReporterId(ticketGenInfo.getJiraUser().getName())
 					.setDescription(issueDescription).setStatusId("2")
 					.setPriorityId("2").setResolutionId("2")
 					.setSecurityLevelId(10000L);
@@ -234,10 +225,11 @@ public class JiraNotificationFilter {
 	}
 
 	public JiraProject getProject(final long jiraProjectId) throws HubNotificationServiceException {
-		if (jiraProjectManager == null) {
+		if (ticketGenInfo.getJiraProjectManager() == null) {
 			throw new HubNotificationServiceException("The JIRA projectManager has not been set");
 		}
-		final com.atlassian.jira.project.Project atlassianJiraProject = jiraProjectManager.getProjectObj(jiraProjectId);
+		final com.atlassian.jira.project.Project atlassianJiraProject = ticketGenInfo.getJiraProjectManager()
+				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
 			throw new HubNotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
 		}
@@ -255,14 +247,15 @@ public class JiraNotificationFilter {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
 				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
-					if (issueType.getName().equals(jiraIssueTypeName)) {
+					if (issueType.getName().equals(ticketGenInfo.getJiraIssueTypeName())) {
 						bdsJiraProject.setIssueTypeId(issueType.getId());
 						projectHasIssueType = true;
 					}
 				}
 			}
 			if (!projectHasIssueType) {
-				bdsJiraProject.setProjectError("The Jira project is missing the " + jiraIssueTypeName + " issue type.");
+				bdsJiraProject.setProjectError(
+						"The Jira project is missing the " + ticketGenInfo.getJiraIssueTypeName() + " issue type.");
 			}
 		}
 		return bdsJiraProject;
