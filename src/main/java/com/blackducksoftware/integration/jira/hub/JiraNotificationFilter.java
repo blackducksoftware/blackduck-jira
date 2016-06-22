@@ -71,13 +71,18 @@ public class JiraNotificationFilter {
 		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
 		if (notif instanceof RuleViolationNotificationItem) {
-			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION;
-			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
-			projectName = ruleViolationNotif.getContent().getProjectName();
-			notifHubProjectReleaseItem = hubNotificationService
-					.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
-			projectVersionName = notifHubProjectReleaseItem.getVersionName();
+			try {
+				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
+				issueTypeDescription = ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION;
+				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
+				projectName = ruleViolationNotif.getContent().getProjectName();
+				notifHubProjectReleaseItem = hubNotificationService
+						.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
+				projectVersionName = notifHubProjectReleaseItem.getVersionName();
+			} catch (final HubNotificationServiceException e) {
+				logger.error(e);
+				return issues;
+			}
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE;
 			return issues; // TODO
@@ -160,8 +165,8 @@ public class JiraNotificationFilter {
 	private boolean isRuleMatch(final String ruleViolated)
 			throws HubNotificationServiceException {
 
-		logger.trace("Rule violated: " + ruleViolated);
-		logger.trace("Rules we're monitoring: " + linksOfRulesToMonitor);
+		logger.debug("Rule violated: " + ruleViolated);
+		logger.debug("Rules we're monitoring: " + linksOfRulesToMonitor);
 		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
 			logger.warn("No rules-to-monitor provided, so no JIRA issues will be generated");
 			return false;
@@ -189,7 +194,7 @@ public class JiraNotificationFilter {
 		String fixedRuleUrl = origRuleUrl;
 		if (origRuleUrl.contains("/internal/")) {
 			fixedRuleUrl = origRuleUrl.replace("/internal/", "/");
-			logger.trace("Adjusted rule URL from " + origRuleUrl + " to " + fixedRuleUrl);
+			logger.debug("Adjusted rule URL from " + origRuleUrl + " to " + fixedRuleUrl);
 		}
 		return fixedRuleUrl;
 	}
@@ -200,10 +205,10 @@ public class JiraNotificationFilter {
 			return null;
 		}
 
-		logger.trace("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
+		logger.debug("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
 		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
 		for (final HubProjectMapping mapping : mappings) {
-			logger.trace("Mapping: " + mapping);
+			logger.debug("Mapping: " + mapping);
 			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
 				return mapping;
@@ -213,13 +218,13 @@ public class JiraNotificationFilter {
 	}
 
 	private String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
-		final List<String> versionLinks = version.getLinks(PROJECT_LINK);
-		if (versionLinks.size() != 1) {
+		final List<String> projectLinks = version.getLinks(PROJECT_LINK);
+		if (projectLinks.size() != 1) {
 			throw new UnexpectedHubResponseException("The release " + version.getVersionName() + " has "
-					+ versionLinks.size() + " " + PROJECT_LINK + " links; expected one");
+					+ projectLinks.size() + " " + PROJECT_LINK + " links; expected one");
 		}
-		final String versionLink = versionLinks.get(0);
-		return versionLink;
+		final String projectLink = projectLinks.get(0);
+		return projectLink;
 	}
 
 	public JiraProject getProject(final long jiraProjectId) throws HubNotificationServiceException {

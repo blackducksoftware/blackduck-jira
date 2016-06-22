@@ -2,8 +2,6 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -11,7 +9,6 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.impl.HubMonitor;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 
@@ -24,7 +21,6 @@ import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
  */
 public class JiraTask implements PluginJob {
 
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	public JiraTask() {
 	}

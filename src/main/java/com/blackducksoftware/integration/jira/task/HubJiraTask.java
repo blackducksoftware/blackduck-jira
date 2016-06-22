@@ -162,7 +162,7 @@ public class HubJiraTask {
 		final List<PolicyRuleSerializable> rules = config.getPolicyRules();
 		for (final PolicyRuleSerializable rule : rules) {
 			final String ruleUrl = rule.getPolicyUrl();
-			logger.trace("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
+			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
 					+ rule.isChecked());
 			if ((rule.isChecked()) && (!ruleUrl.equals("undefined"))) {
 				ruleUrls.add(ruleUrl);
@@ -240,20 +240,20 @@ public class HubJiraTask {
 			return null;
 		}
 
-		logger.trace("Last run date: " + lastRunDateString);
-		logger.trace("Hub url / username: " + hubUrl + " / " + hubUsername);
-		logger.trace("Interval: " + intervalString);
+		logger.debug("Last run date: " + lastRunDateString);
+		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
+		logger.debug("Interval: " + intervalString);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setHubProjectMappingsJson(projectMappingJson);
 		config.setPolicyRulesJson(policyRulesJson);
-		logger.trace("Mappings:");
+		logger.debug("Mappings:");
 		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-			logger.trace(mapping.toString());
+			logger.debug(mapping.toString());
 		}
-		logger.trace("Policy Rules:");
+		logger.debug("Policy Rules:");
 		for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-			logger.trace(rule.toString());
+			logger.debug(rule.toString());
 		}
 		return config;
 	}

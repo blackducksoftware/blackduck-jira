@@ -43,14 +43,17 @@ public class TicketGenerator {
 			final NotificationDateRange notificationDateRange) throws HubNotificationServiceException {
 
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
+		for (final NotificationItem notification : notifs) {
+			logger.debug(notification.toString());
+		}
 		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
 		final List<IssueInputParameters> issueParametersList = filter.extractJiraReadyNotifications(notifs);
 		int ticketCount = 0;
 		for(final IssueInputParameters issueParameters: issueParametersList){
-			logger.trace("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
-			logger.trace("User active : " + ticketGenInfo.getJiraUser().isActive());
+			logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
+			logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 
 			ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
 			final CreateValidationResult validationResult = ticketGenInfo.getIssueService()
@@ -81,11 +84,11 @@ public class TicketGenerator {
 				}
 				final MutableIssue issue = result.getIssue();
 				if (issue != null) {
-					logger.trace("Created ticket  with ID : " + issue.getId());
-					logger.trace("Summary : " + issue.getSummary());
-					logger.trace("Description : " + issue.getDescription());
-					logger.trace("Issue Type : " + issue.getIssueTypeObject().getName());
-					logger.trace("For Project : " + issue.getProjectObject().getName());
+					logger.debug("Created ticket  with ID : " + issue.getId());
+					logger.debug("Summary : " + issue.getSummary());
+					logger.debug("Description : " + issue.getDescription());
+					logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
+					logger.debug("For Project : " + issue.getProjectObject().getName());
 				}
 			}
 			ticketCount++;

@@ -90,7 +90,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_ISSUE_SERVICE, issueService);
 				put(KEY_PROJECT_MANAGER, projectManager);
 				put(KEY_USER_MANAGER, userManager);
-						put(KEY_AUTH_CONTEXT, authContext);
+				put(KEY_AUTH_CONTEXT, authContext);
 			}
 		}, // data that needs to be passed to the job
 				new Date(), // the time the job is to start
