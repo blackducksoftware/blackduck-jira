@@ -17,7 +17,6 @@ import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.model.NameVersion;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
@@ -128,7 +127,6 @@ public class JiraNotificationFilter {
 					.getComponentVersion(
 							compVerStatus.getComponentVersionLink()).getVersionName();
 
-			final NameVersion component = new NameVersion(compVerStatus.getComponentName(), componentVersionName);
 			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
 			final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
 					.getPolicyStatus(policyStatusUrl);
@@ -146,11 +144,11 @@ public class JiraNotificationFilter {
 
 					final String issueSummary = "Black Duck " + issueTypeDescription + " detected on Hub Project '"
 							+ projectName
-							+ "' / '" + projectVersionName + "', component '" + component.getName() + "' / '"
-							+ component.getVersion() + "' [Rule: '" + rule.getName() + "']";
+							+ "' / '" + projectVersionName + "', component '" + compVerStatus.getComponentName()
+							+ "' / '" + componentVersionName + "' [Rule: '" + rule.getName() + "']";
 					final String issueDescription = "The Black Duck Hub has detected a " + issueTypeDescription
-							+ " on Hub Project '" + projectName + "', component '" + component.getName()
-							+ "' / '" + component.getVersion() + "'. The rule violated is: '"
+							+ " on Hub Project '" + projectName + "', component '" + compVerStatus.getComponentName()
+							+ "' / '" + componentVersionName + "'. The rule violated is: '"
 							+ rule.getName() + "'";
 
 					// TODO make sure the parameters are correct for issue type
