@@ -23,9 +23,9 @@ import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolati
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 
 public class JiraNotificationFilter {
-	private static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Policy Violation";
-	private static final String ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE = "Policy Override";
-	private static final String ISSUE_TYPE_DESCRIPTION_VULNERABILITY = "Vulnerability";
+	public static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Policy Violation";
+	public static final String ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE = "Policy Override";
+	public static final String ISSUE_TYPE_DESCRIPTION_VULNERABILITY = "Vulnerability";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
@@ -151,9 +151,7 @@ public class JiraNotificationFilter {
 					issueInputParameters.setProjectId(mappingJiraProject.getProjectId())
 					.setIssueTypeId(jiraProject.getIssueTypeId()).setSummary(issueSummary)
 					.setReporterId(ticketGenInfo.getJiraUser().getName())
-					.setDescription(issueDescription).setStatusId("2")
-					.setPriorityId("2").setResolutionId("2")
-					.setSecurityLevelId(10000L);
+					.setDescription(issueDescription);
 
 					issues.add(issueInputParameters);
 				}

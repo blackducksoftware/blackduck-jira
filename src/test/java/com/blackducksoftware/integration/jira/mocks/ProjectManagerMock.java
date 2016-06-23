@@ -19,6 +19,9 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class ProjectManagerMock implements ProjectManager {
 
+	public static final String JIRA_PROJECT_PREFIX = "Test JIRA Project";
+	public static final long JIRA_PROJECT_ID_BASE = 153L;
+
 	private List<Project> jiraProjects;
 
 	@Override
@@ -50,6 +53,13 @@ public class ProjectManagerMock implements ProjectManager {
 		final ProjectMock jiraProject2 = new ProjectMock();
 		jiraProject2.setId(153L);
 		jiraProject2.setName("Project2");
+
+		for (int i = 0; i < 5; i++) {
+			final ProjectMock jiraProject = new ProjectMock();
+			jiraProject.setId(JIRA_PROJECT_ID_BASE + i);
+			jiraProject.setName(JIRA_PROJECT_PREFIX + i);
+			jiraProjects.add(jiraProject);
+		}
 
 		jiraProjects.add(jiraProject1);
 		jiraProjects.add(jiraProject2);
@@ -259,8 +269,12 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public Project getProjectObj(final Long arg0) throws DataAccessException {
-
+	public Project getProjectObj(final Long id) throws DataAccessException {
+		for (final Project p : jiraProjects) {
+			if (p.getId().equals(id)) {
+				return p;
+			}
+		}
 		return null;
 	}
 
