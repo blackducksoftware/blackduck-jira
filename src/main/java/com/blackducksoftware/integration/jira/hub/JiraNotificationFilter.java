@@ -7,7 +7,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
@@ -18,14 +17,12 @@ import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 
 public class JiraNotificationFilter {
-	public static final String ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION = "Policy Violation";
-	public static final String ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE = "Policy Override";
-	public static final String ISSUE_TYPE_DESCRIPTION_VULNERABILITY = "Vulnerability";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
@@ -42,30 +39,30 @@ public class JiraNotificationFilter {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public List<IssueInputParameters> extractJiraReadyNotifications(final List<NotificationItem> notifications)
+	public List<FilteredNotificationResult> extractJiraReadyNotifications(final List<NotificationItem> notifications)
 			throws HubNotificationServiceException {
-		final List<IssueInputParameters> allIssues = new ArrayList<>();
+		final List<FilteredNotificationResult> allResults = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 		+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			List<IssueInputParameters> notifIssues;
+			List<FilteredNotificationResult> notifResults;
 			try {
-				notifIssues = convertNotificationToIssues(notif);
+				notifResults = convertNotificationToIssues(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new HubNotificationServiceException("Error converting notifications to issues", e);
 			}
-			allIssues.addAll(notifIssues);
+			allResults.addAll(notifResults);
 		}
-		return allIssues;
+		return allResults;
 	}
 
-	private List<IssueInputParameters> convertNotificationToIssues(final NotificationItem notif)
+	private List<FilteredNotificationResult> convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<IssueInputParameters> issues = new ArrayList<>();
-		String issueTypeDescription;
+		final List<FilteredNotificationResult> notifResults = new ArrayList<>();
+		NotificationType notificationType;
 		String projectName;
 		String projectVersionName;
 		List<ComponentVersionStatus> compVerStatuses;
@@ -73,7 +70,7 @@ public class JiraNotificationFilter {
 		if (notif instanceof RuleViolationNotificationItem) {
 			try {
 				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-				issueTypeDescription = ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION;
+				notificationType = NotificationType.POLICY_VIOLATION;
 				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
 				projectName = ruleViolationNotif.getContent().getProjectName();
 				notifHubProjectReleaseItem = hubNotificationService
@@ -81,25 +78,46 @@ public class JiraNotificationFilter {
 				projectVersionName = notifHubProjectReleaseItem.getVersionName();
 			} catch (final HubNotificationServiceException e) {
 				logger.error(e);
-				return issues;
+				return notifResults;
 			}
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
-			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_POLICY_OVERRIDE;
-			return issues; // TODO
+			try {
+				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
+				notificationType = NotificationType.POLICY_OVERRIDE;
+
+				compVerStatuses = new ArrayList<>();
+				final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
+				componentStatus.setBomComponentVersionPolicyStatusLink(
+						ruleViolationNotif.getContent().getBomComponentVersionPolicyStatusLink());
+				componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
+				componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
+
+				compVerStatuses.add(componentStatus);
+
+				projectName = ruleViolationNotif.getContent().getProjectName();
+
+				notifHubProjectReleaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(
+						ruleViolationNotif.getContent().getProjectVersionLink());
+				projectVersionName = notifHubProjectReleaseItem.getVersionName();
+			} catch (final HubNotificationServiceException e) {
+				logger.error(e);
+				return notifResults;
+			}
 		} else if (notif instanceof VulnerabilityNotificationItem) {
-			issueTypeDescription = ISSUE_TYPE_DESCRIPTION_VULNERABILITY;
-			return issues; // TODO
+			notificationType = NotificationType.VULNERABILITY;
+			return notifResults; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
 		}
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
-		final HubProjectMapping mapping = getMatchingMapping(projectUrl);
-		if (mapping == null) {
+		final List<HubProjectMapping> mappings = getMatchingMappings(projectUrl);
+		if (mappings.isEmpty()) {
 			logger.debug("No configuration project mapping matching this notification found; skipping this notification");
-			return issues;
+			return notifResults;
 		}
-
+		// TODO handle multiple mappings
+		final HubProjectMapping mapping = mappings.get(0);
 		final JiraProject mappingJiraProject = mapping.getJiraProject();
 		final JiraProject jiraProject;
 		try {
@@ -107,11 +125,11 @@ public class JiraNotificationFilter {
 		} catch (final HubNotificationServiceException e) {
 			logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 					+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
-			return issues;
+			return notifResults;
 		}
 		if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
 			logger.error(jiraProject.getProjectError());
-			return issues;
+			return notifResults;
 		}
 
 		logger.debug("JIRA Project: " + jiraProject);
@@ -128,36 +146,29 @@ public class JiraNotificationFilter {
 
 			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
 			final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
-			logger.debug("Rules violated: " + ruleUrls);
-
 
 			for (final String ruleUrl : ruleUrls) {
 				if (isRuleMatch(ruleUrl)) {
 					final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
-					logger.debug("Rule violated: " + rule);
+					logger.debug("Rule : " + rule);
 
+					final FilteredNotificationResult result = new FilteredNotificationResult();
+					result.setJiraProjectId(jiraProject.getProjectId());
+					result.setHubProjectName(projectName);
+					result.setHubProjectVersion(projectVersionName);
+					result.setHubComponentName(compVerStatus.getComponentName());
+					result.setHubComponentVersion(componentVersionName);
+					result.setRuleName(rule.getName());
+					result.setJiraIssueTypeId(jiraProject.getIssueTypeId());
+					result.setNotificationType(notificationType);
+					result.setJiraUserName(ticketGenInfo.getJiraUser().getName());
 
-					final String issueSummary = "Black Duck " + issueTypeDescription + " detected on Hub Project '"
-							+ projectName
-							+ "' / '" + projectVersionName + "', component '" + compVerStatus.getComponentName()
-							+ "' / '" + componentVersionName + "' [Rule: '" + rule.getName() + "']";
-					final String issueDescription = "The Black Duck Hub has detected a " + issueTypeDescription
-							+ " on Hub Project '" + projectName + "', component '" + compVerStatus.getComponentName()
-							+ "' / '" + componentVersionName + "'. The rule violated is: '"
-							+ rule.getName() + "'";
+					notifResults.add(result);
 
-					final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService()
-							.newIssueInputParameters();
-					issueInputParameters.setProjectId(mappingJiraProject.getProjectId())
-					.setIssueTypeId(jiraProject.getIssueTypeId()).setSummary(issueSummary)
-					.setReporterId(ticketGenInfo.getJiraUser().getName())
-					.setDescription(issueDescription);
-
-					issues.add(issueInputParameters);
 				}
 			}
 		}
-		return issues;
+		return notifResults;
 	}
 
 	private boolean isRuleMatch(final String ruleViolated)
@@ -197,22 +208,22 @@ public class JiraNotificationFilter {
 		return fixedRuleUrl;
 	}
 
-	private HubProjectMapping getMatchingMapping(final String notifHubProjectUrl) {
+	private List<HubProjectMapping> getMatchingMappings(final String notifHubProjectUrl) {
 		if ((mappings == null) || (mappings.size() == 0)) {
 			logger.warn("No mappings provided");
 			return null;
 		}
-
+		final List<HubProjectMapping> matchingMappings = new ArrayList<HubProjectMapping>();
 		logger.debug("JiraNotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
 		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
 		for (final HubProjectMapping mapping : mappings) {
-			logger.debug("Mapping: " + mapping);
 			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
 			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
-				return mapping;
+				logger.debug("Mapping: " + mapping);
+				matchingMappings.add(mapping);
 			}
 		}
-		return null;
+		return matchingMappings;
 	}
 
 	private String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
