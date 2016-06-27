@@ -4,7 +4,6 @@
 
 .error {
 	color : #c00;
-	font-weight : bold;
 }
 
 .clickable:hover {
@@ -16,7 +15,7 @@
 }
 
 .infoIcon {
-	color: #CCCCCC;
+	color: #707070;
 }
 
 .field-group {
@@ -73,5 +72,19 @@
 
 .ticketCriteriaSection {
 	overflow : scroll; 
-	height : 200px;
+	height : 300px;
+}
+.buttonContainer {
+	padding-top : 10px; 
+	float : right;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: #707070;
+  -webkit-box-shadow: 0 0 1px #707070;
 }
