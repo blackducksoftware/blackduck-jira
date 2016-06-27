@@ -12,80 +12,82 @@ public class HubJiraLogger implements IntLogger {
 	private final Logger jiraLogger;
 	private LogLevel logLevel = LogLevel.DEBUG;
 
-	public HubJiraLogger(Logger jiraLogger) {
-		this.jiraLogger = jiraLogger;
+	public HubJiraLogger(final Logger logger) {
+		this.jiraLogger = logger;
 	}
 
 	public Logger getJiraLogger() {
 		return jiraLogger;
 	}
 
+	@Override
 	public LogLevel getLogLevel() {
 		return logLevel;
 	}
 
-	public void setLogLevel(LogLevel logLevel) {
+	@Override
+	public void setLogLevel(final LogLevel logLevel) {
 		this.logLevel = logLevel;
 	}
 
 	@Override
-	public void info(String txt) {
+	public void info(final String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.INFO)) {
 			logMessageInfo(txt);
 		}
 	}
 
 	@Override
-	public void error(Throwable t) {
+	public void error(final Throwable t) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
 			logThrowable(t);
 		}
 	}
 
 	@Override
-	public void error(String txt, Throwable t) {
+	public void error(final String txt, final Throwable t) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
 			logThrowable(txt, t);
 		}
 	}
 
 	@Override
-	public void error(String txt) {
+	public void error(final String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
 			logErrorMessage(txt);
 		}
 	}
 
 	@Override
-	public void warn(String txt) {
+	public void warn(final String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.WARN)) {
 			logMessageWarn(txt);
 		}
 	}
 
 	@Override
-	public void trace(String txt) {
+	public void trace(final String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.TRACE)) {
 			logMessageTrace(txt);
 		}
 	}
 
 	@Override
-	public void trace(String txt, Throwable t) {
+	public void trace(final String txt, final Throwable t) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.TRACE)) {
 			logThrowable(txt, t);
 		}
 	}
 
 	@Override
-	public void debug(String txt) {
+	public void debug(final String txt) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.DEBUG)) {
 			logMessageDebug(txt);
 		}
 	}
 
 	@Override
-	public void debug(String txt, Throwable t) {
+	public void debug(final String txt, final Throwable t) {
 		if (LogLevel.isLoggable(logLevel, LogLevel.DEBUG)) {
 			logThrowable(txt, t);
 		}

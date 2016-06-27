@@ -7,6 +7,10 @@
 	font-weight : bold;
 }
 
+.clickable:hover {
+	cursor: pointer;
+}
+
 .largeIcon {
 	font-size : 25px !important;
 }
@@ -56,6 +60,10 @@
 .mappingContainer {
 	overflow-y: scroll; 
 	height:300px;
+}
+
+.mappingTableCell {
+	text-align : center;
 }
 
 .ticketCriteriaTable {

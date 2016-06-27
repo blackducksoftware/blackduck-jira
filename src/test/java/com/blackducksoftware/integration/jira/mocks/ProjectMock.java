@@ -13,6 +13,7 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.version.Version;
+import com.atlassian.jira.user.ApplicationUser;
 
 public class ProjectMock implements Project {
 
@@ -146,6 +147,21 @@ public class ProjectMock implements Project {
 	@Override
 	public Collection<Version> getVersions() {
 
+		return null;
+	}
+
+	@Override
+	public String getLeadUserKey() {
+		return null;
+	}
+
+	@Override
+	public String getOriginalKey() {
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getProjectLead() {
 		return null;
 	}
 

@@ -3,6 +3,7 @@ package com.blackducksoftware.integration.jira.mocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -14,8 +15,12 @@ import com.atlassian.jira.project.DefaultAssigneeException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.user.ApplicationUser;
 
 public class ProjectManagerMock implements ProjectManager {
+
+	public static final String JIRA_PROJECT_PREFIX = "Test JIRA Project";
+	public static final long JIRA_PROJECT_ID_BASE = 153L;
 
 	private List<Project> jiraProjects;
 
@@ -48,6 +53,13 @@ public class ProjectManagerMock implements ProjectManager {
 		final ProjectMock jiraProject2 = new ProjectMock();
 		jiraProject2.setId(153L);
 		jiraProject2.setName("Project2");
+
+		for (int i = 0; i < 5; i++) {
+			final ProjectMock jiraProject = new ProjectMock();
+			jiraProject.setId(JIRA_PROJECT_ID_BASE + i);
+			jiraProject.setName(JIRA_PROJECT_PREFIX + i);
+			jiraProjects.add(jiraProject);
+		}
 
 		jiraProjects.add(jiraProject1);
 		jiraProjects.add(jiraProject2);
@@ -257,8 +269,12 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public Project getProjectObj(final Long arg0) throws DataAccessException {
-
+	public Project getProjectObj(final Long id) throws DataAccessException {
+		for (final Project p : jiraProjects) {
+			if (p.getId().equals(id)) {
+				return p;
+			}
+		}
 		return null;
 	}
 
@@ -397,6 +413,37 @@ public class ProjectManagerMock implements ProjectManager {
 	@Override
 	public void updateProjectCategory(final ProjectCategory arg0) throws DataAccessException {
 
+	}
+
+	@Override
+	public Set<String> getAllProjectKeys(final Long arg0) {
+		return null;
+	}
+
+	@Override
+	public Project getProjectByCurrentKey(final String arg0) {
+		return null;
+	}
+
+	@Override
+	public Project getProjectByCurrentKeyIgnoreCase(final String arg0) {
+		return null;
+	}
+
+	@Override
+	public long getProjectCount() throws DataAccessException {
+		return 0;
+	}
+
+	@Override
+	public List<Project> getProjectsLeadBy(final ApplicationUser arg0) {
+		return null;
+	}
+
+	@Override
+	public Project updateProject(final Project arg0, final String arg1, final String arg2, final String arg3,
+			final String arg4, final Long arg5, final Long arg6, final String arg7) {
+		return null;
 	}
 
 }

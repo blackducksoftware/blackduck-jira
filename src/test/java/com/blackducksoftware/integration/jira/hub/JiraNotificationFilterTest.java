@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.atlassian.jira.project.Project;
+import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
@@ -31,9 +31,10 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.issue.Issue;
-import com.blackducksoftware.integration.jira.issue.IssueLevel;
-import com.blackducksoftware.integration.jira.service.JiraService;
+import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
+import com.blackducksoftware.integration.jira.mocks.IssueServiceMock;
+import com.blackducksoftware.integration.jira.mocks.JiraAuthenticationContextMock;
+import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 
 public class JiraNotificationFilterTest {
 
@@ -41,10 +42,9 @@ public class JiraNotificationFilterTest {
 	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
 	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
 	private static final String NOTIF_URL_PREFIX = "http://test.notif.url";
-	private static final String JIRA_PROJECT_PREFIX = "Test JIRA Project";
-	private static final long JIRA_PROJECT_ID_BASE = 122L;
 	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
-	private static final String JIRA_ISSUE_TYPE = "Bug";
+	private static final String JIRA_ISSUE_TYPE = "Task";
+	private static final String JIRA_USER_NAME = "TestUser";
 	private static final String CURRENT_JIRA_PROJECT_NAME = "test JIRA Project0a";
 	private static final String CURRENT_JIRA_PROJECT_KEY = "TEST0a";
 	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX = "bomComponentVersionPolicyStatusLink";
@@ -66,32 +66,43 @@ public class JiraNotificationFilterTest {
 	@Test
 	public void testWithRuleListWithMatches() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
-		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
-				JIRA_ISSUE_TYPE);
+		final ProjectManager jiraProjectManager = createJiraProjectManager();
+		final ApplicationUserMock jiraUser = new ApplicationUserMock();
+		jiraUser.setName(JIRA_USER_NAME);
+		final IssueServiceMock issueService = new IssueServiceMock();
+		final JiraAuthenticationContextMock authContext = new JiraAuthenticationContextMock();
+
+		final TicketGeneratorInfo ticketGenInfo = new TicketGeneratorInfo(jiraProjectManager, issueService, jiraUser,
+				JIRA_ISSUE_TYPE, authContext);
 
 		final Set<HubProjectMapping> mappings = createMappings(true);
-
 
 		final List<NotificationItem> notifications = createNotifications();
 		final List<String> rulesToMonitor = new ArrayList<>();
 		rulesToMonitor.add("ruleUrl0");
 		rulesToMonitor.add("ruleUrl1");
 
-		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, rulesToMonitor);
-		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mappings,
+				rulesToMonitor, ticketGenInfo);
+		final List<IssueInputParameters> issues = filter.extractJiraReadyNotifications(notifications);
 
-		System.out.println("Issues:");
-		for (final Issue issue : issues) {
+		System.out.println("IssueInputParameters:");
+		for (final IssueInputParameters issue : issues) {
 			System.out.println(issue);
-			assertEquals(IssueLevel.COMPONENT, issue.getLevel());
-			assertTrue(issue.getHubProject().getName().startsWith(HUB_PROJECT_NAME_PREFIX));
-			assertTrue(issue.getHubProject().getVersion().startsWith(TEST_PROJECT_VERSION_PREFIX));
-			assertTrue(issue.getHubComponent().getName().startsWith(HUB_COMPONENT_NAME_PREFIX));
-			assertTrue(issue.getHubComponent().getVersion().startsWith(VERSION_NAME_PREFIX));
-			assertEquals(CURRENT_JIRA_PROJECT_KEY, issue.getJiraProjectKey());
-			assertTrue(issue.getRuleUrl().startsWith(RULE_URL_PREFIX));
+			assertEquals(JIRA_USER_NAME, issue.getReporterId());
+
+			assertTrue(issue.getSummary().contains(HUB_PROJECT_NAME_PREFIX));
+			assertTrue(issue.getSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+			assertTrue(issue.getSummary().contains(JiraNotificationFilter.ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION));
+			assertTrue(issue.getSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+			assertTrue(issue.getSummary().contains(VERSION_NAME_PREFIX));
+
+			assertTrue(issue.getDescription().contains(HUB_PROJECT_NAME_PREFIX));
+			assertTrue(!issue.getDescription().contains(TEST_PROJECT_VERSION_PREFIX));
+			assertTrue(issue.getDescription().contains(JiraNotificationFilter.ISSUE_TYPE_DESCRIPTION_RULE_VIOLATION));
+			assertTrue(issue.getDescription().contains(HUB_COMPONENT_NAME_PREFIX));
+			assertTrue(issue.getDescription().contains(VERSION_NAME_PREFIX));
+
 		}
 		assertEquals(6, issues.size());
 	}
@@ -99,22 +110,25 @@ public class JiraNotificationFilterTest {
 	@Test
 	public void testWithRuleListNoMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(false);
-		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
-				JIRA_ISSUE_TYPE);
+		final ProjectManager jiraProjectManager = createJiraProjectManager();
+		final ApplicationUserMock jiraUser = new ApplicationUserMock();
+		jiraUser.setName(JIRA_USER_NAME);
+		final IssueServiceMock issueService = new IssueServiceMock();
+		final JiraAuthenticationContextMock authContext = new JiraAuthenticationContextMock();
+
+		final TicketGeneratorInfo ticketGenInfo = new TicketGeneratorInfo(jiraProjectManager, issueService, jiraUser,
+				JIRA_ISSUE_TYPE, authContext);
 
 		final Set<HubProjectMapping> mappings = createMappings(true);
 
 		final List<NotificationItem> notifications = createNotifications();
-
 		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("rule0");
-		rulesToMonitor.add("rule1");
-		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, rulesToMonitor);
-		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+		rulesToMonitor.add("ruleUrl0");
+		rulesToMonitor.add("ruleUrl1");
 
-		System.out.println("Issues: " + issues);
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mappings,
+				rulesToMonitor, ticketGenInfo);
+		final List<IssueInputParameters> issues = filter.extractJiraReadyNotifications(notifications);
 
 		assertEquals(0, issues.size());
 	}
@@ -122,17 +136,22 @@ public class JiraNotificationFilterTest {
 	@Test
 	public void testNoMappingMatch() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
-		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
-				JIRA_ISSUE_TYPE);
+		final ProjectManager jiraProjectManager = createJiraProjectManager();
+		final ApplicationUserMock jiraUser = new ApplicationUserMock();
+		jiraUser.setName(JIRA_USER_NAME);
+		final IssueServiceMock issueService = new IssueServiceMock();
+		final JiraAuthenticationContextMock authContext = new JiraAuthenticationContextMock();
+
+		final TicketGeneratorInfo ticketGenInfo = new TicketGeneratorInfo(jiraProjectManager, issueService, jiraUser,
+				JIRA_ISSUE_TYPE, authContext);
 
 		final Set<HubProjectMapping> mappings = createMappings(false);
 
 		final List<NotificationItem> notifications = createNotifications();
 
-		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, null);
-		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mappings,
+				null, ticketGenInfo);
+		final List<IssueInputParameters> issues = filter.extractJiraReadyNotifications(notifications);
 
 		System.out.println("Issues: " + issues);
 
@@ -142,17 +161,22 @@ public class JiraNotificationFilterTest {
 	@Test
 	public void testWithoutMappings() throws HubNotificationServiceException, UnexpectedHubResponseException {
 		final HubNotificationService mockHubNotificationService = createMockHubNotificationService(true);
-		final ProjectManager mockJiraProjectManager = createMockJiraProjectManager();
-		final JiraService jiraService = new JiraService(mockJiraProjectManager, "http://bds00829:2990/jira",
-				JIRA_ISSUE_TYPE);
+		final ProjectManager jiraProjectManager = createJiraProjectManager();
+		final ApplicationUserMock jiraUser = new ApplicationUserMock();
+		jiraUser.setName(JIRA_USER_NAME);
+		final IssueServiceMock issueService = new IssueServiceMock();
+		final JiraAuthenticationContextMock authContext = new JiraAuthenticationContextMock();
+
+		final TicketGeneratorInfo ticketGenInfo = new TicketGeneratorInfo(jiraProjectManager, issueService, jiraUser,
+				JIRA_ISSUE_TYPE, authContext);
 
 		final Set<HubProjectMapping> mappings = null;
 
 		final List<NotificationItem> notifications = createNotifications();
 
-		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, jiraService,
-				mappings, null);
-		final List<Issue> issues = filter.extractJiraReadyNotifications(notifications);
+		final JiraNotificationFilter filter = new JiraNotificationFilter(mockHubNotificationService, mappings, null,
+				ticketGenInfo);
+		final List<IssueInputParameters> issues = filter.extractJiraReadyNotifications(notifications);
 
 		System.out.println("Issues:");
 		assertEquals(0, issues.size());
@@ -198,8 +222,8 @@ public class JiraNotificationFilterTest {
 			hubProject.setProjectUrl(PROJECT_URL_PREFIX + i + suffix);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectId(JIRA_PROJECT_ID_BASE + i);
-			jiraProject.setProjectName(JIRA_PROJECT_PREFIX + i);
+			jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE + i);
+			jiraProject.setProjectName(ProjectManagerMock.JIRA_PROJECT_PREFIX + i);
 			mapping.setJiraProject(jiraProject);
 
 			System.out.println("Mapping: " + mapping);
@@ -208,19 +232,14 @@ public class JiraNotificationFilterTest {
 		return mappings;
 	}
 
-	private ProjectManager createMockJiraProjectManager() {
-		final ProjectManager mockJiraProjectManager = Mockito.mock(ProjectManager.class);
-		final Project mockJiraProject = Mockito.mock(Project.class);
-		Mockito.when(mockJiraProject.getKey()).thenReturn(CURRENT_JIRA_PROJECT_KEY);
-		Mockito.when(mockJiraProject.getName()).thenReturn(CURRENT_JIRA_PROJECT_NAME);
-		Mockito.when(mockJiraProject.getId()).thenReturn(123L);
-		Mockito.when(mockJiraProjectManager.getProjectObj(Mockito.anyLong())).thenReturn(mockJiraProject);
-		return mockJiraProjectManager;
+	private ProjectManager createJiraProjectManager() {
+		final ProjectManagerMock projectManager = new ProjectManagerMock();
+		projectManager.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+		return projectManager;
 	}
 
 	private HubNotificationService createMockHubNotificationService(final boolean ruleMatches)
-			throws HubNotificationServiceException,
-			UnexpectedHubResponseException {
+			throws HubNotificationServiceException, UnexpectedHubResponseException {
 		String suffix;
 		if (ruleMatches) {
 			suffix = "";
@@ -230,10 +249,8 @@ public class JiraNotificationFilterTest {
 		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
 		for (int i = 0; i < 3; i++) {
 			final ReleaseItem releaseItem = getReleaseItem(i);
-			Mockito.when(
-					mockHubNotificationService
-					.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX + i))
-					.thenReturn(releaseItem);
+			Mockito.when(mockHubNotificationService
+					.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX + i)).thenReturn(releaseItem);
 			List<MetaLink> links = new ArrayList<>();
 			MetaInformation meta = new MetaInformation(null, null, links);
 			final ComponentVersion componentVersion = new ComponentVersion(meta);
@@ -245,19 +262,18 @@ public class JiraNotificationFilterTest {
 			for (int j = 0; j < 3; j++) {
 				links.add(new MetaLink(RULE_LINK_NAME, RULE_URL_PREFIX + j + suffix));
 
-				final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX + j, "description", true, true, "createdAt",
-						"createdBy", "updatedAt", "updatedBy");
+				final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX + j, "description", true, true,
+						"createdAt", "createdBy", "updatedAt", "updatedBy");
 				Mockito.when(mockHubNotificationService.getPolicyRule(RULE_URL_PREFIX + j)).thenReturn(rule);
 			}
 			meta = new MetaInformation(null, null, links);
 			final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
-			Mockito.when(mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX + i))
+			Mockito.when(
+					mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX + i))
 			.thenReturn(status);
 		}
 		return mockHubNotificationService;
 	}
-
-
 
 	private ReleaseItem getReleaseItem(final int i) {
 		final List<MetaLink> links = new ArrayList<>();
@@ -265,10 +281,8 @@ public class JiraNotificationFilterTest {
 		links.add(link);
 		final MetaInformation _meta = new MetaInformation(null, null, links);
 		final ReleaseItem releaseItem = new ReleaseItem(TEST_PROJECT_VERSION_PREFIX + i, "testPhase",
-				"testDistribution",
-				"testSource", _meta);
+				"testDistribution", "testSource", _meta);
 		return releaseItem;
 	}
-
 
 }

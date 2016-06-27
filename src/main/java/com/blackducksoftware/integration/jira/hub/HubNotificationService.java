@@ -54,7 +54,6 @@ public class HubNotificationService {
 	 */
 	public HubNotificationService(final RestConnection restConnection, final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService) {
-		super();
 		this.restConnection = restConnection;
 		this.hub = hub;
 		this.hubItemsService = hubItemsService;
@@ -175,7 +174,8 @@ public class HubNotificationService {
 		try {
 			projectVersion = hub.getProjectVersion(versionUrl);
 		} catch (IOException | BDRestException | URISyntaxException e) {
-			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl);
+			throw new HubNotificationServiceException("Error getting Project Link from ProjectVersion: " + versionUrl,
+					e);
 		}
 		return projectVersion;
 	}

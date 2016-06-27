@@ -2,13 +2,13 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.impl.HubMonitor;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 
@@ -21,7 +21,6 @@ import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
  */
 public class JiraTask implements PluginJob {
 
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	public JiraTask() {
 	}
@@ -30,9 +29,12 @@ public class JiraTask implements PluginJob {
 	public void execute(final Map<String, Object> jobDataMap) {
 
 		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
+		final UserManager jiraUserManager = (UserManager) jobDataMap.get(HubMonitor.KEY_USER_MANAGER);
+		final IssueService jiraIssueService = (IssueService) jobDataMap.get(HubMonitor.KEY_ISSUE_SERVICE);
+		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
+				.get(HubMonitor.KEY_AUTH_CONTEXT);
 
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-		final String jiraBaseUrl = (String) jobDataMap.get(HubMonitor.KEY_JIRA_BASE_URL);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
 		final String hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -45,11 +47,13 @@ public class JiraTask implements PluginJob {
 		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
+		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+
 
 		final HubJiraTask processor = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
 				hubTimeoutString,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
-				policyRulesJson, jiraProjectManager, jiraBaseUrl);
+				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, jiraUser);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);

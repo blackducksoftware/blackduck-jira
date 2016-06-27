@@ -11,7 +11,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -25,17 +29,16 @@ import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
+import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.service.JiraService;
-import com.blackducksoftware.integration.jira.service.JiraServiceException;
 import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Bug";
+	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Task";
 	private final String hubUrl;
 	private final String hubUsername;
 	private final String hubPasswordEncrypted;
@@ -47,7 +50,10 @@ public class HubJiraTask {
 	private final String projectMappingJson;
 	private final String policyRulesJson;
 	private final ProjectManager jiraProjectManager;
-	private final String jiraBaseUrl;
+	private final UserManager jiraUserManager;
+	private final IssueService jiraIssueService;
+	private final JiraAuthenticationContext authContext;
+	private final String jiraUser;
 
 	private final Date runDate;
 	private final String runDateString;
@@ -59,7 +65,9 @@ public class HubJiraTask {
 			final String lastRunDateString,
 			final String projectMappingJson,
 			final String policyRulesJson,
-			final ProjectManager jiraProjectManager, final String jiraBaseUrl) {
+			final ProjectManager jiraProjectManager, final UserManager jiraUserManager,
+			final IssueService jiraIssueService, final JiraAuthenticationContext authContext, final String jiraUser) {
+
 		this.hubUrl = hubUrl;
 		this.hubUsername = hubUsername;
 		this.hubPasswordEncrypted = hubPasswordEncrypted;
@@ -75,7 +83,10 @@ public class HubJiraTask {
 		this.projectMappingJson = projectMappingJson;
 		this.policyRulesJson = policyRulesJson;
 		this.jiraProjectManager = jiraProjectManager;
-		this.jiraBaseUrl = jiraBaseUrl;
+		this.jiraUserManager = jiraUserManager;
+		this.jiraIssueService = jiraIssueService;
+		this.authContext = authContext;
+		this.jiraUser = jiraUser;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -107,11 +118,23 @@ public class HubJiraTask {
 		}
 
 		try {
-			final JiraService jiraService = initJiraService();
 			final RestConnection restConnection = initRestConnection();
 			final HubIntRestService hub = initHubRestService(restConnection);
 			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
-			final TicketGenerator ticketGenerator = initTicketGenerator(jiraService, restConnection, hub,
+
+
+			final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
+			if (jiraSysAdmin == null) {
+				logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
+				return null;
+			}
+
+			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraProjectManager, jiraSysAdmin,
+					jiraIssueTypeName, jiraIssueService, authContext);
+
+			final TicketGenerator ticketGenerator = initTicketGenerator(ticketServices,
+					restConnection,
+					hub,
 					hubItemsService);
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
@@ -127,7 +150,7 @@ public class HubJiraTask {
 			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
 					linksOfRulesToMonitor, notificationDateRange);
 		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
-				| HubNotificationServiceException | JiraServiceException | URISyntaxException e) {
+				| HubNotificationServiceException | URISyntaxException e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
 			return null;
 		}
@@ -153,9 +176,19 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGenerator initTicketGenerator(final JiraService jiraService, final RestConnection restConnection,
+	private TicketGeneratorInfo initTicketGeneratorInfo(final ProjectManager projectManager,
+			final ApplicationUser jiraUser, final String issueTypeName, final IssueService issueService,
+			final JiraAuthenticationContext authContext) {
+		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(projectManager, issueService,
+				jiraUser, issueTypeName, authContext);
+		return ticketServices;
+	}
+
+	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
+			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService, jiraService);
+		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService,
+				ticketServices);
 		return ticketGenerator;
 	}
 
@@ -176,10 +209,6 @@ public class HubJiraTask {
 		return hub;
 	}
 
-	private JiraService initJiraService() {
-		final JiraService jiraService = new JiraService(jiraProjectManager, jiraBaseUrl, jiraIssueTypeName);
-		return jiraService;
-	}
 
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
 		final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
