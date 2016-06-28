@@ -3,9 +3,12 @@ package com.blackducksoftware.integration.jira.task;
 import java.util.Map;
 
 import com.atlassian.jira.bc.issue.IssueService;
+import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
@@ -33,6 +36,11 @@ public class JiraTask implements PluginJob {
 		final IssueService jiraIssueService = (IssueService) jobDataMap.get(HubMonitor.KEY_ISSUE_SERVICE);
 		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
 				.get(HubMonitor.KEY_AUTH_CONTEXT);
+		final IssuePropertyService propertyService = (IssuePropertyService) jobDataMap
+				.get(HubMonitor.KEY_PROPTERY_SERVICE);
+		final WorkflowManager workflowManager = (WorkflowManager) jobDataMap.get(HubMonitor.KEY_WORKFLOW_MANAGER);
+		final JsonEntityPropertyManager jsonEntityPropertyManager = (JsonEntityPropertyManager) jobDataMap
+				.get(HubMonitor.KEY_JSON_ENTITY_PROPERTY_MANAGER);
 
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
@@ -53,7 +61,8 @@ public class JiraTask implements PluginJob {
 		final HubJiraTask processor = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
 				hubTimeoutString,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
-				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, jiraUser);
+				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, propertyService,
+				jiraUser, workflowManager, jsonEntityPropertyManager);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);

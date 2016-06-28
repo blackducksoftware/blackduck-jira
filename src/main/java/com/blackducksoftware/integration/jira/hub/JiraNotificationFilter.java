@@ -3,11 +3,13 @@ package com.blackducksoftware.integration.jira.hub;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
@@ -116,55 +118,68 @@ public class JiraNotificationFilter {
 			logger.debug("No configuration project mapping matching this notification found; skipping this notification");
 			return notifResults;
 		}
-		// TODO handle multiple mappings
-		final HubProjectMapping mapping = mappings.get(0);
-		final JiraProject mappingJiraProject = mapping.getJiraProject();
-		final JiraProject jiraProject;
-		try {
-			jiraProject = getProject(mappingJiraProject.getProjectId());
-		} catch (final HubNotificationServiceException e) {
-			logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
-					+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
-			return notifResults;
-		}
-		if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
-			logger.error(jiraProject.getProjectError());
-			return notifResults;
-		}
+		for (final HubProjectMapping mapping : mappings) {
+			final JiraProject mappingJiraProject = mapping.getJiraProject();
+			final JiraProject jiraProject;
+			try {
+				jiraProject = getProject(mappingJiraProject.getProjectId());
+			} catch (final HubNotificationServiceException e) {
+				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
+						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
+				return notifResults;
+			}
+			if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
+				logger.error(jiraProject.getProjectError());
+				return notifResults;
+			}
 
-		logger.debug("JIRA Project: " + jiraProject);
+			logger.debug("JIRA Project: " + jiraProject);
 
-		for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
+			for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
 
-			final String componentVersionName = hubNotificationService
-					.getComponentVersion(
-							compVerStatus.getComponentVersionLink()).getVersionName();
+				final String componentVersionName = hubNotificationService
+						.getComponentVersion(
+								compVerStatus.getComponentVersionLink()).getVersionName();
 
-			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
-			final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
-					.getPolicyStatus(policyStatusUrl);
+				final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
+				final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
+						.getPolicyStatus(policyStatusUrl);
 
-			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
-			final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
+				logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
+				final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
 
-			for (final String ruleUrl : ruleUrls) {
-				if (isRuleMatch(ruleUrl)) {
-					final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
-					logger.debug("Rule : " + rule);
+				for (final String ruleUrl : ruleUrls) {
+					if (isRuleMatch(ruleUrl)) {
+						final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
+						logger.debug("Rule : " + rule);
 
-					final FilteredNotificationResult result = new FilteredNotificationResult();
-					result.setJiraProjectId(jiraProject.getProjectId());
-					result.setHubProjectName(projectName);
-					result.setHubProjectVersion(projectVersionName);
-					result.setHubComponentName(compVerStatus.getComponentName());
-					result.setHubComponentVersion(componentVersionName);
-					result.setRuleName(rule.getName());
-					result.setJiraIssueTypeId(jiraProject.getIssueTypeId());
-					result.setNotificationType(notificationType);
-					result.setJiraUserName(ticketGenInfo.getJiraUser().getName());
+						UUID projectId;
+						UUID versionId;
+						UUID componentId;
+						UUID componentVersionId;
+						UUID ruleId;
+						try {
+							projectId = notifHubProjectReleaseItem.getProjectId();
 
-					notifResults.add(result);
+							versionId = notifHubProjectReleaseItem.getVersionId();
 
+							componentId = compVerStatus.getComponentId();
+
+							componentVersionId = compVerStatus.getComponentVersionId();
+
+							ruleId = rule.getPolicyRuleId();
+						} catch (final MissingUUIDException e) {
+							logger.error(e);
+							break;
+						}
+						final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
+								projectVersionName, compVerStatus.getComponentName(), componentVersionName,
+								rule.getName(), projectId, versionId, componentId, componentVersionId, ruleId,
+								ticketGenInfo.getJiraUser(), jiraProject.getIssueTypeId(),
+								jiraProject.getProjectId(), jiraProject.getProjectName(), notificationType);
+
+						notifResults.add(result);
+					}
 				}
 			}
 		}
