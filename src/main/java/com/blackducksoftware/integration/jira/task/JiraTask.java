@@ -91,7 +91,7 @@ public class JiraTask implements PluginJob {
 		hubConfigBuilder.setIgnoredProxyHosts(hubProxyNoHost);
 		hubConfigBuilder.setProxyUsername(hubProxyUser);
 		hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
-		hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubProxyPassLength));
+		hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
 
 		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
 

@@ -226,6 +226,7 @@ public class HubJiraTask {
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
 
 		final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
+
 		restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
 				serverConfig.getGlobalCredentials().getDecryptedPassword());
 		restConnection.setProxyProperties(serverConfig.getProxyInfo());
