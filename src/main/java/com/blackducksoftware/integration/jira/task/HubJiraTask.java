@@ -20,9 +20,9 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
+import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
@@ -42,10 +42,7 @@ import com.google.gson.reflect.TypeToken;
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Task";
-	private final String hubUrl;
-	private final String hubUsername;
-	private final String hubPasswordEncrypted;
-	private final String hubTimeoutString;
+	private final HubServerConfig serverConfig;
 	private final String intervalString;
 	private final String jiraIssueTypeName;
 	private final String installDateString;
@@ -65,8 +62,7 @@ public class HubJiraTask {
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
 
-	public HubJiraTask(final String hubUrl, final String hubUsername, final String hubPasswordEncrypted,
-			final String hubTimeoutString, final String intervalString, final String jiraIssueTypeName,
+	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String jiraIssueTypeName,
 			final String installDateString,
 			final String lastRunDateString,
 			final String projectMappingJson,
@@ -76,10 +72,7 @@ public class HubJiraTask {
 			final IssuePropertyService propertyService, final String jiraUser,
 			final WorkflowManager workflowManager, final JsonEntityPropertyManager jsonEntityPropertyManager) {
 
-		this.hubUrl = hubUrl;
-		this.hubUsername = hubUsername;
-		this.hubPasswordEncrypted = hubPasswordEncrypted;
-		this.hubTimeoutString = hubTimeoutString;
+		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
 		if (jiraIssueTypeName != null) {
 			this.jiraIssueTypeName = jiraIssueTypeName;
@@ -231,25 +224,18 @@ public class HubJiraTask {
 
 
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
-		final String hubPassword = PasswordDecrypter.decrypt(hubPasswordEncrypted);
 
-		final RestConnection restConnection = new RestConnection(hubUrl);
-		restConnection.setCookies(hubUsername, hubPassword);
+		final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
+		restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
+				serverConfig.getGlobalCredentials().getDecryptedPassword());
+		restConnection.setProxyProperties(serverConfig.getProxyInfo());
 
-		if (hubTimeoutString != null) {
-			final int hubTimeout = Integer.parseInt(hubTimeoutString);
-			logger.debug("Setting Hub timeout to: " + hubTimeout);
-			restConnection.setTimeout(hubTimeout);
-		}
+		logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
+		restConnection.setTimeout(serverConfig.getTimeout());
 		return restConnection;
 	}
 
 	private HubJiraConfigSerializable validateInput() {
-		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
-			logger.debug("The Hub connection details have not been configured, therefore there is nothing to do.");
-			return null;
-		}
-
 		if (projectMappingJson == null) {
 			logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
 			return null;
@@ -261,7 +247,8 @@ public class HubJiraTask {
 		}
 
 		logger.debug("Last run date: " + lastRunDateString);
-		logger.debug("Hub url / username: " + hubUrl + " / " + hubUsername);
+		logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
+				+ serverConfig.getGlobalCredentials().getUsername());
 		logger.debug("Interval: " + intervalString);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();

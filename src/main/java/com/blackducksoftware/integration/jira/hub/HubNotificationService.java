@@ -5,10 +5,8 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -25,10 +23,6 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Hub Notification get methods. TODO: Move to hub-common.
@@ -42,7 +36,7 @@ public class HubNotificationService {
 	private final HubIntRestService hub;
 	private final HubItemsService<NotificationItem> hubItemsService;
 
-	private SimpleDateFormat dateFormatter;
+	private final SimpleDateFormat dateFormatter;
 
 	/**
 	 * Construct with given hub-access objects.
@@ -62,39 +56,6 @@ public class HubNotificationService {
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 	}
 
-	/**
-	 * Construct with given Hub connection details.
-	 *
-	 * @param hubUrl
-	 * @param username
-	 * @param password
-	 * @throws HubNotificationServiceException
-	 */
-	public HubNotificationService(final String hubUrl, final String username, final String password)
-			throws HubNotificationServiceException {
-		restConnection = new RestConnection(hubUrl);
-		try {
-			restConnection.setCookies(username, password);
-		} catch (URISyntaxException | BDRestException e) {
-			throw new HubNotificationServiceException("");
-		}
-
-		try {
-			hub = new HubIntRestService(restConnection);
-		} catch (final URISyntaxException e) {
-			throw new HubNotificationServiceException("");
-		}
-
-		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
-		};
-		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
-		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
-		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
-		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-
-		hubItemsService = new HubItemsService<NotificationItem>(restConnection, NotificationItem.class, typeToken,
-				typeToSubclassMap);
-	}
 
 	public String getHubVersion() throws HubNotificationServiceException {
 		try {
