@@ -111,16 +111,16 @@ public class TicketGenerator {
 		issueDescription.append(notificationResult.getHubComponentVersion());
 		issueDescription.append("'. The rule violated is: '");
 		issueDescription.append(notificationResult.getRule().getName());
-		issueDescription.append("' Rule overridable : ");
+		issueDescription.append("'. Rule overridable : ");
 		issueDescription.append(notificationResult.getRule().getOverridable());
 
 		final IssueInputParameters issueInputParameters =
 				ticketGenInfo.getIssueService()
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-				.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
+		.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
 		.setReporterId(notificationResult.getJiraUser().getName())
-				.setDescription(issueDescription.toString());
+		.setDescription(issueDescription.toString());
 
 		final Issue oldIssue = findIssue(notificationResult);
 		if (oldIssue == null) {
@@ -365,6 +365,7 @@ public class TicketGenerator {
 		logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
 		logger.debug("Status : " + issue.getStatusObject().getName());
 		logger.debug("For Project : " + issue.getProjectObject().getName());
+		logger.debug("For Project Id : " + issue.getProjectObject().getId());
 	}
 
 }

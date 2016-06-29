@@ -14,7 +14,6 @@ public class FilteredNotificationResult {
 	private final String hubComponentVersion;
 	private final PolicyRule rule;
 
-	private final UUID hubProjectId;
 	private final UUID hubProjectVersionId;
 	private final UUID hubComponentId;
 	private final UUID hubComponentVersionId;
@@ -29,7 +28,7 @@ public class FilteredNotificationResult {
 
 	public FilteredNotificationResult(final String hubProjectName, final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion, final PolicyRule rule,
-			final UUID hubProjectId, final UUID hubProjectVersionId, final UUID hubComponentId,
+			final UUID hubProjectVersionId, final UUID hubComponentId,
 			final UUID hubComponentVersionId, final UUID ruleId, final ApplicationUser jiraUser,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
 			final NotificationType notificationType) {
@@ -38,7 +37,6 @@ public class FilteredNotificationResult {
 		this.hubComponentName = hubComponentName;
 		this.hubComponentVersion = hubComponentVersion;
 		this.rule = rule;
-		this.hubProjectId = hubProjectId;
 		this.hubProjectVersionId = hubProjectVersionId;
 		this.hubComponentId = hubComponentId;
 		this.hubComponentVersionId = hubComponentVersionId;
@@ -68,10 +66,6 @@ public class FilteredNotificationResult {
 
 	public PolicyRule getRule() {
 		return rule;
-	}
-
-	public UUID getHubProjectId() {
-		return hubProjectId;
 	}
 
 	public UUID getHubProjectVersionId() {
@@ -112,14 +106,16 @@ public class FilteredNotificationResult {
 
 	public String getUniquePropertyKey() {
 		final StringBuilder keyBuilder = new StringBuilder();
-		keyBuilder.append(getHubProjectId().toString());
+		keyBuilder.append(getJiraProjectId().toString());
 		keyBuilder.append(".");
 		keyBuilder.append(getHubProjectVersionId().toString());
 		keyBuilder.append(".");
 		keyBuilder.append(getHubComponentId().toString());
 		keyBuilder.append(".");
-		keyBuilder.append(getHubComponentVersionId().toString());
-		keyBuilder.append(".");
+		if (getHubComponentVersionId() != null) {
+			keyBuilder.append(getHubComponentVersionId().toString());
+			keyBuilder.append(".");
+		}
 		keyBuilder.append(getRuleId().toString());
 		return keyBuilder.toString();
 	}

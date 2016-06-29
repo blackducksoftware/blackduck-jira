@@ -45,7 +45,7 @@ public class JiraTask implements PluginJob {
 		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
 				.get(HubMonitor.KEY_AUTH_CONTEXT);
 		final IssuePropertyService propertyService = (IssuePropertyService) jobDataMap
-				.get(HubMonitor.KEY_PROPTERY_SERVICE);
+				.get(HubMonitor.KEY_PROPERTY_SERVICE);
 		final WorkflowManager workflowManager = (WorkflowManager) jobDataMap.get(HubMonitor.KEY_WORKFLOW_MANAGER);
 		final JsonEntityPropertyManager jsonEntityPropertyManager = (JsonEntityPropertyManager) jobDataMap
 				.get(HubMonitor.KEY_JSON_ENTITY_PROPERTY_MANAGER);
