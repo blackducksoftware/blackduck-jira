@@ -174,7 +174,7 @@ public class JiraNotificationFilter {
 						}
 						final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
 								projectVersionName, compVerStatus.getComponentName(), componentVersionName,
-								rule.getName(), projectId, versionId, componentId, componentVersionId, ruleId,
+								rule, projectId, versionId, componentId, componentVersionId, ruleId,
 								ticketGenInfo.getJiraUser(), jiraProject.getIssueTypeId(),
 								jiraProject.getProjectId(), jiraProject.getProjectName(), notificationType);
 

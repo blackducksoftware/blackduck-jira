@@ -40,6 +40,7 @@ import com.opensymphony.workflow.loader.ActionDescriptor;
  */
 public class TicketGenerator {
 	public static final String DONE_STATUS = "Done";
+	public static final String REOPEN_STATUS = "Reopen";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final HubNotificationService notificationService;
@@ -84,72 +85,77 @@ public class TicketGenerator {
 
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
 
-		final String issueSummary = "Black Duck " +
-				notificationResult.getNotificationType().getDisplayName() + " detected on Hub Project '"
-				+ notificationResult.getHubProjectName() + "' / '" + notificationResult.getHubProjectVersion()
-				+ "', component '" + notificationResult.getHubComponentName() + "' / '"
-				+ notificationResult.getHubComponentVersion() + "' [Rule: '" + notificationResult.getRuleName() + "']";
+		final StringBuilder issueSummary = new StringBuilder();
+		issueSummary.append("Black Duck ");
+		issueSummary.append(notificationResult.getNotificationType().getDisplayName());
+		issueSummary.append(" detected on Hub Project '");
+		issueSummary.append(notificationResult.getHubProjectName());
+		issueSummary.append("' / '");
+		issueSummary.append(notificationResult.getHubProjectVersion());
+		issueSummary.append("', component '");
+		issueSummary.append(notificationResult.getHubComponentName());
+		issueSummary.append("' / '");
+		issueSummary.append(notificationResult.getHubComponentVersion());
+		issueSummary.append("' [Rule: '");
+		issueSummary.append(notificationResult.getRule().getName());
+		issueSummary.append("']");
 
-		final String issueDescription = "The Black Duck Hub has detected a "
-				+ notificationResult.getNotificationType().getDisplayName() + " on Hub Project '"
-				+ notificationResult.getHubProjectName() + "', component '" + notificationResult.getHubComponentName()
-				+ "' / '" + notificationResult.getHubComponentVersion() + "'. The rule violated is: '"
-				+ notificationResult.getRuleName() + "'";
-
+		final StringBuilder issueDescription = new StringBuilder();
+		issueDescription.append("The Black Duck Hub has detected a ");
+		issueDescription.append(notificationResult.getNotificationType().getDisplayName());
+		issueDescription.append(" on Hub Project '");
+		issueDescription.append(notificationResult.getHubProjectName());
+		issueDescription.append("', component '");
+		issueDescription.append(notificationResult.getHubComponentName());
+		issueDescription.append("' / '");
+		issueDescription.append(notificationResult.getHubComponentVersion());
+		issueDescription.append("'. The rule violated is: '");
+		issueDescription.append(notificationResult.getRule().getName());
+		issueDescription.append("' Rule overridable : ");
+		issueDescription.append(notificationResult.getRule().getOverridable());
 
 		final IssueInputParameters issueInputParameters =
 				ticketGenInfo.getIssueService()
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-		.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary)
+				.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
 		.setReporterId(notificationResult.getJiraUser().getName())
-		.setDescription(issueDescription);
+				.setDescription(issueDescription.toString());
 
 		final Issue oldIssue = findIssue(notificationResult);
 		if (oldIssue == null) {
 			final Issue issue = createIssue(issueInputParameters);
 			if (issue != null) {
-				logger.info("Created issue with ID : " + issue.getId());
-				logger.debug("Summary : " + issue.getSummary());
-				logger.debug("Description : " + issue.getDescription());
-				logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
-				logger.debug("For Project : " + issue.getProjectObject().getName());
+				logger.info("Created new Issue.");
+				printIssueInfo(issue);
 
 				final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
 						notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
 						notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
-						notificationResult.getRuleName(), issue.getId());
+						notificationResult.getRule().getName(), issue.getId());
 
 				addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
 						properties);
 			}
 		} else {
-			logger.info("This issue already exists.");
-			logger.debug("Issue ID : " + oldIssue.getId());
-			logger.debug("Summary : " + oldIssue.getSummary());
-			logger.debug("Description : " + oldIssue.getDescription());
-			logger.debug("Issue Type : " + oldIssue.getIssueTypeObject().getName());
-			logger.debug("Status Object : " + oldIssue.getStatusObject().getName());
-			logger.debug("Status Id : " + oldIssue.getStatusObject().getId());
-			logger.debug("Status Description : " + oldIssue.getStatusObject().getDescription());
-			logger.debug("For Project : " + oldIssue.getProjectObject().getName());
+			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
+				transitionIssue(oldIssue, REOPEN_STATUS);
+				logger.info("Re-opened the already exisiting issue.");
+				printIssueInfo(oldIssue);
+			} else {
+				logger.info("This issue already exists.");
+				printIssueInfo(oldIssue);
+			}
 		}
 	}
 
 	private void closePolicyViolationIssue(final FilteredNotificationResult notificationResult) {
 		final Issue oldIssue = findIssue(notificationResult);
 		if (oldIssue != null) {
-			final Issue updatedIssue = closeIssue(oldIssue);
+			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
 			if (updatedIssue != null) {
 				logger.info("Closed the issue based on an override.");
-				logger.debug("Issue ID : " + updatedIssue.getId());
-				logger.debug("Summary : " + updatedIssue.getSummary());
-				logger.debug("Description : " + updatedIssue.getDescription());
-				logger.debug("Issue Type : " + updatedIssue.getIssueTypeObject().getName());
-				logger.debug("Status Object : " + updatedIssue.getStatusObject().getName());
-				logger.debug("Status Id : " + updatedIssue.getStatusObject().getId());
-				logger.debug("Status Description : " + updatedIssue.getStatusObject().getDescription());
-				logger.debug("For Project : " + updatedIssue.getProjectObject().getName());
+				printIssueInfo(updatedIssue);
 			}
 		} else {
 			logger.info("Could not find an existing issue to close for this override.");
@@ -157,7 +163,7 @@ public class TicketGenerator {
 			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
 			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
 			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
-			logger.debug("Hub Rule Name : " + notificationResult.getRuleName());
+			logger.debug("Hub Rule Name : " + notificationResult.getRule().getName());
 
 		}
 	}
@@ -298,24 +304,24 @@ public class TicketGenerator {
 		return null;
 	}
 
-	private Issue closeIssue(final Issue oldIssue) {
+	private Issue transitionIssue(final Issue oldIssue, final String transitionName) {
 		final Status currentStatus = oldIssue.getStatusObject();
 		logger.debug("Current status : " + currentStatus.getName());
 		final JiraWorkflow workflow = ticketGenInfo.getWorkflowManager().getWorkflow(oldIssue);
 		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
-		ActionDescriptor doneAction = null;
+		ActionDescriptor transitionAction = null;
 		for (final ActionDescriptor descriptor : actions) {
-			if (descriptor.getName() != null && descriptor.getName().equals(DONE_STATUS)) {
-				logger.info("Found Action descriptor : " + descriptor.getUnconditionalResult().getStatus());
-				doneAction = descriptor;
+			if (descriptor.getName() != null && descriptor.getName().equals(transitionName)) {
+				logger.info("Found Action descriptor : " + descriptor.getName());
+				transitionAction = descriptor;
 				break;
 			}
 		}
-		if (doneAction != null) {
+		if (transitionAction != null) {
 			final IssueInputParameters parameters = ticketGenInfo.getIssueService().newIssueInputParameters();
 			parameters.setRetainExistingValuesWhenParameterNotProvided(true);
 			final TransitionValidationResult validationResult = ticketGenInfo.getIssueService()
-					.validateTransition(ticketGenInfo.getJiraUser(), oldIssue.getId(), doneAction.getId(), parameters);
+					.validateTransition(ticketGenInfo.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
 
 			ErrorCollection errors = null;
 
@@ -345,10 +351,20 @@ public class TicketGenerator {
 				}
 			}
 		} else {
-			logger.error("Could not find the status : " + DONE_STATUS + " to close this issue : " + oldIssue.getId());
+			logger.error("Could not find the status : " + transitionName + " to transition this issue: "
+					+ oldIssue.getKey());
 		}
 		return null;
 	}
 
+	private void printIssueInfo(final Issue issue) {
+		logger.debug("Issue Key : " + issue.getKey());
+		logger.debug("Issue ID : " + issue.getId());
+		logger.debug("Summary : " + issue.getSummary());
+		logger.debug("Description : " + issue.getDescription());
+		logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
+		logger.debug("Status : " + issue.getStatusObject().getName());
+		logger.debug("For Project : " + issue.getProjectObject().getName());
+	}
 
 }
