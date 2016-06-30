@@ -155,7 +155,7 @@ public class JiraNotificationFilter {
 
 				logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
 				final List<String> ruleUrls = bomComponentVersionPolicyStatus
-						.getLinks(PolicyRule.POLICY_RULES_URL_IDENTIFIER);
+						.getLinks(BomComponentVersionPolicyStatus.POLICY_RULE_URL);
 
 				for (final String ruleUrl : ruleUrls) {
 					if (isRuleMatch(ruleUrl)) {
