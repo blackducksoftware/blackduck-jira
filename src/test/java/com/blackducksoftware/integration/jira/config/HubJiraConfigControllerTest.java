@@ -58,14 +58,17 @@ public class HubJiraConfigControllerTest {
 		final List<PolicyRule> policyRules = new ArrayList<PolicyRule>();
 		final MetaInformation metaInfo1 = new MetaInformation(null, "policyURL1", null);
 		final PolicyRule rule1 = new PolicyRule(metaInfo1, "PolicyRule1", "1TestDescription", null, null, null, null,
+				null,
 				null, null);
 
 		final MetaInformation metaInfo2 = new MetaInformation(null, "policyURL2", null);
 		final PolicyRule rule2 = new PolicyRule(metaInfo2, "PolicyRule2", "2TestDescription", null, null, null, null,
+				null,
 				null, null);
 
 		final MetaInformation metaInfo3 = new MetaInformation(null, "policyURL3", null);
 		final PolicyRule rule3 = new PolicyRule(metaInfo3, "PolicyRule3", "3TestDescription", null, null, null, null,
+				null,
 				null, null);
 
 		policyRules.add(rule1);
