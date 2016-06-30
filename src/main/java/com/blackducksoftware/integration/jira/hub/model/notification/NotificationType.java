@@ -1,5 +1,16 @@
 package com.blackducksoftware.integration.jira.hub.model.notification;
 
 public enum NotificationType {
-	RULE_VIOLATION, POLICY_OVERRIDE, VULNERABILITY
+
+	POLICY_VIOLATION("Policy Violation"), POLICY_OVERRIDE("Policy Override"), VULNERABILITY("Vulnerability");
+
+	private final String displayName;
+
+	private NotificationType(final String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
 }
