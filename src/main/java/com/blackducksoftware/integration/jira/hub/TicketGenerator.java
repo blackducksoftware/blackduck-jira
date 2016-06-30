@@ -304,18 +304,29 @@ public class TicketGenerator {
 		return null;
 	}
 
-	private Issue transitionIssue(final Issue oldIssue, final String transitionName) {
+	private Issue transitionIssue(final Issue oldIssue, final String stepName) {
 		final Status currentStatus = oldIssue.getStatusObject();
 		logger.debug("Current status : " + currentStatus.getName());
 		final JiraWorkflow workflow = ticketGenInfo.getWorkflowManager().getWorkflow(oldIssue);
-		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
+
 		ActionDescriptor transitionAction = null;
+		// https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
+		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
+		logger.debug("Found this many actions : " + actions.size());
+		if (actions.size() == 0) {
+			logger.error("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+					+ currentStatus.getName() + ". There are no steps from this status to any other status.");
+		}
 		for (final ActionDescriptor descriptor : actions) {
-			if (descriptor.getName() != null && descriptor.getName().equals(transitionName)) {
+			if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
 				logger.info("Found Action descriptor : " + descriptor.getName());
 				transitionAction = descriptor;
 				break;
 			}
+		}
+		if (transitionAction == null) {
+			logger.error("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+					+ currentStatus.getName() + ". We could not find the step : " + stepName);
 		}
 		if (transitionAction != null) {
 			final IssueInputParameters parameters = ticketGenInfo.getIssueService().newIssueInputParameters();
@@ -351,7 +362,7 @@ public class TicketGenerator {
 				}
 			}
 		} else {
-			logger.error("Could not find the status : " + transitionName + " to transition this issue: "
+			logger.error("Could not find the action : " + stepName + " to transition this issue: "
 					+ oldIssue.getKey());
 		}
 		return null;
