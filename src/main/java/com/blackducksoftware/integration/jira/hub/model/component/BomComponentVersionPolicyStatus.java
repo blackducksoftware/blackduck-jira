@@ -5,6 +5,7 @@ import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.policy.api.PolicyStatusEnum;
 
 public class BomComponentVersionPolicyStatus extends HubItem {
+
 	private PolicyStatusEnum approvalStatus;
 
 	public BomComponentVersionPolicyStatus(final MetaInformation meta) {

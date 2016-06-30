@@ -148,20 +148,24 @@ public class JiraNotificationFilter {
 						.getComponentVersion(
 								compVerStatus.getComponentVersionLink()).getVersionName();
 
-
 				final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
-
 
 				final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
 						.getPolicyStatus(policyStatusUrl);
 
 				logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
-				final List<String> ruleUrls = bomComponentVersionPolicyStatus.getLinks("policy-rule");
+				final List<String> ruleUrls = bomComponentVersionPolicyStatus
+						.getLinks(PolicyRule.POLICY_RULES_URL_IDENTIFIER);
 
 				for (final String ruleUrl : ruleUrls) {
 					if (isRuleMatch(ruleUrl)) {
 						final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
 						logger.debug("Rule : " + rule);
+
+						if (rule.getExpression() != null && rule.getExpression().hasOnlyProjectLevelConditions()) {
+							logger.warn("Skipping this Violation since it is a Project only violation.");
+							continue;
+						}
 
 						UUID versionId;
 						UUID componentId;

@@ -314,7 +314,7 @@ public class TicketGenerator {
 		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
-			logger.error("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
 					+ currentStatus.getName() + ". There are no steps from this status to any other status.");
 		}
 		for (final ActionDescriptor descriptor : actions) {
@@ -325,7 +325,7 @@ public class TicketGenerator {
 			}
 		}
 		if (transitionAction == null) {
-			logger.error("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
 					+ currentStatus.getName() + ". We could not find the step : " + stepName);
 		}
 		if (transitionAction != null) {

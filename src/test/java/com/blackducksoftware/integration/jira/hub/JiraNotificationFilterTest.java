@@ -278,7 +278,7 @@ public class JiraNotificationFilterTest {
 			for (int j = 0; j < 3; j++) {
 				links.add(new MetaLink(RULE_LINK_NAME, RULE_URL_PREFIX + j + suffix));
 
-				final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX + j, "description", true, true,
+				final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX + j, "description", true, true, null,
 						"createdAt", "createdBy", "updatedAt", "updatedBy");
 				Mockito.when(mockHubNotificationService.getPolicyRule(RULE_URL_PREFIX + j)).thenReturn(rule);
 			}
