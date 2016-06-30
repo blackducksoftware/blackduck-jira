@@ -2,6 +2,9 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
+
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
@@ -12,6 +15,11 @@ import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
+import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.builder.ValidationResults;
+import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
+import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.impl.HubMonitor;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 
@@ -23,7 +31,7 @@ import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
  *
  */
 public class JiraTask implements PluginJob {
-
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	public JiraTask() {
 	}
@@ -37,7 +45,7 @@ public class JiraTask implements PluginJob {
 		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
 				.get(HubMonitor.KEY_AUTH_CONTEXT);
 		final IssuePropertyService propertyService = (IssuePropertyService) jobDataMap
-				.get(HubMonitor.KEY_PROPTERY_SERVICE);
+				.get(HubMonitor.KEY_PROPERTY_SERVICE);
 		final WorkflowManager workflowManager = (WorkflowManager) jobDataMap.get(HubMonitor.KEY_WORKFLOW_MANAGER);
 		final JsonEntityPropertyManager jsonEntityPropertyManager = (JsonEntityPropertyManager) jobDataMap
 				.get(HubMonitor.KEY_JSON_ENTITY_PROPERTY_MANAGER);
@@ -46,7 +54,16 @@ public class JiraTask implements PluginJob {
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
 		final String hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
+		final String hubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
 		final String hubTimeoutString = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
+
+		final String hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
+		final String hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
+		final String hubProxyNoHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
+		final String hubProxyUser = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_USER);
+		final String hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
+		final String hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+
 		final String intervalString = getStringValue(settings,
 				HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 		final String projectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
@@ -57,9 +74,33 @@ public class JiraTask implements PluginJob {
 
 		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
 
+		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
+			logger.warn("The Hub connection details have not been configured, therefore there is nothing to do.");
+			return;
+		}
 
-		final HubJiraTask processor = new HubJiraTask(hubUrl, hubUsername, hubPasswordEncrypted,
-				hubTimeoutString,
+		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
+		hubConfigBuilder.setHubUrl(hubUrl);
+		hubConfigBuilder.setUsername(hubUsername);
+		hubConfigBuilder.setPassword(hubPasswordEncrypted);
+		hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));
+		hubConfigBuilder.setTimeout(hubTimeoutString);
+
+		hubConfigBuilder.setProxyHost(hubProxyHost);
+		hubConfigBuilder.setProxyPort(hubProxyPort);
+		hubConfigBuilder.setIgnoredProxyHosts(hubProxyNoHost);
+		hubConfigBuilder.setProxyUsername(hubProxyUser);
+		hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
+		hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
+
+		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
+
+		if (configResult.hasErrors()) {
+			logger.error("There was a problem with the Server configuration.");
+			return;
+		}
+		final HubServerConfig serverConfig = configResult.getConstructedObject();
+		final HubJiraTask processor = new HubJiraTask(serverConfig,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
 				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, propertyService,
 				jiraUser, workflowManager, jsonEntityPropertyManager);

@@ -33,7 +33,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	public static final String KEY_PROJECT_MANAGER = HubMonitor.class.getName() + ":projectManager";
 	public static final String KEY_USER_MANAGER = HubMonitor.class.getName() + ":userManager";
 	public static final String KEY_AUTH_CONTEXT = HubMonitor.class.getName() + ":authContext";
-	public static final String KEY_PROPTERY_SERVICE = HubMonitor.class.getName() + ":propertyService";
+	public static final String KEY_PROPERTY_SERVICE = HubMonitor.class.getName() + ":propertyService";
 	public static final String KEY_WORKFLOW_MANAGER = HubMonitor.class.getName() + ":workflowManager";
 	public static final String KEY_JSON_ENTITY_PROPERTY_MANAGER = HubMonitor.class.getName()
 			+ ":jsonEntityPropertyManager";
@@ -107,7 +107,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_PROJECT_MANAGER, projectManager);
 				put(KEY_USER_MANAGER, userManager);
 				put(KEY_AUTH_CONTEXT, authContext);
-				put(KEY_PROPTERY_SERVICE, propertyService);
+						put(KEY_PROPERTY_SERVICE, propertyService);
 				put(KEY_WORKFLOW_MANAGER, workflowManager);
 				put(KEY_JSON_ENTITY_PROPERTY_MANAGER, jsonEntityPropertyManager);
 			}

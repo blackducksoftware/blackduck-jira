@@ -137,11 +137,21 @@ public class JiraNotificationFilter {
 
 			for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
 
+				if (notificationType == NotificationType.POLICY_VIOLATION
+						&& compVerStatus.getComponentVersionLink() == null) {
+					// FIXME see HUB-7571
+					logger.error(
+							"Cannot create tickets for component level violations at this time. This will be fixed in future releases.");
+					continue;
+				}
 				final String componentVersionName = hubNotificationService
 						.getComponentVersion(
 								compVerStatus.getComponentVersionLink()).getVersionName();
 
+
 				final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
+
+
 				final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
 						.getPolicyStatus(policyStatusUrl);
 
@@ -153,14 +163,11 @@ public class JiraNotificationFilter {
 						final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
 						logger.debug("Rule : " + rule);
 
-						UUID projectId;
 						UUID versionId;
 						UUID componentId;
 						UUID componentVersionId;
 						UUID ruleId;
 						try {
-							projectId = notifHubProjectReleaseItem.getProjectId();
-
 							versionId = notifHubProjectReleaseItem.getVersionId();
 
 							componentId = compVerStatus.getComponentId();
@@ -172,9 +179,10 @@ public class JiraNotificationFilter {
 							logger.error(e);
 							continue;
 						}
+
 						final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
 								projectVersionName, compVerStatus.getComponentName(), componentVersionName,
-								rule.getName(), projectId, versionId, componentId, componentVersionId, ruleId,
+								rule, versionId, componentId, componentVersionId, ruleId,
 								ticketGenInfo.getJiraUser(), jiraProject.getIssueTypeId(),
 								jiraProject.getProjectId(), jiraProject.getProjectName(), notificationType);
 
@@ -185,7 +193,6 @@ public class JiraNotificationFilter {
 						} else if (result.getNotificationType() == NotificationType.VULNERABILITY) {
 							notifResults.addVulnerabilityResult(result);
 						} else {
-
 						}
 					}
 				}
@@ -208,7 +215,7 @@ public class JiraNotificationFilter {
 			logger.debug("This rule is not one of the rules we are monitoring : " + fixedRuleUrl);
 			return false;
 		}
-
+		logger.debug("Rule matched!");
 		return true;
 	}
 
