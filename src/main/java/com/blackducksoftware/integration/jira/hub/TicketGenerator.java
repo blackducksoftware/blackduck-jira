@@ -26,7 +26,6 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -65,19 +64,16 @@ public class TicketGenerator {
 		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
-		final List<FilteredNotificationResult> notificationResults = filter.extractJiraReadyNotifications(notifs);
+		final FilteredNotificationResults notificationResults = filter.extractJiraReadyNotifications(notifs);
+
 		int ticketCount = 0;
-		for (final FilteredNotificationResult notificationResult : notificationResults) {
-			if (notificationResult.getNotificationType() == NotificationType.POLICY_VIOLATION) {
-				createPolicyViolationIssue(notificationResult);
-				ticketCount++;
-			} else if (notificationResult.getNotificationType() == NotificationType.POLICY_OVERRIDE) {
-				closePolicyViolationIssue(notificationResult);
-			} else if (notificationResult.getNotificationType() == NotificationType.VULNERABILITY) {
-
-			} else {
-
-			}
+		for (final FilteredNotificationResult notificationResult : notificationResults.getPolicyViolationResults()) {
+			createPolicyViolationIssue(notificationResult);
+			ticketCount++;
+		}
+		for (final FilteredNotificationResult notificationResult : notificationResults
+				.getPolicyViolationOverrideResults()) {
+			closePolicyViolationIssue(notificationResult);
 		}
 		return ticketCount;
 	}

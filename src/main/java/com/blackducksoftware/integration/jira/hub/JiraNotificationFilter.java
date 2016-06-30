@@ -41,29 +41,29 @@ public class JiraNotificationFilter {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public List<FilteredNotificationResult> extractJiraReadyNotifications(final List<NotificationItem> notifications)
+	public FilteredNotificationResults extractJiraReadyNotifications(final List<NotificationItem> notifications)
 			throws HubNotificationServiceException {
-		final List<FilteredNotificationResult> allResults = new ArrayList<>();
+		final FilteredNotificationResults allResults = new FilteredNotificationResults();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 		+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			List<FilteredNotificationResult> notifResults;
+			FilteredNotificationResults notifResults;
 			try {
 				notifResults = convertNotificationToIssues(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new HubNotificationServiceException("Error converting notifications to issues", e);
 			}
-			allResults.addAll(notifResults);
+			allResults.addAllResults(notifResults);
 		}
 		return allResults;
 	}
 
-	private List<FilteredNotificationResult> convertNotificationToIssues(final NotificationItem notif)
+	private FilteredNotificationResults convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<FilteredNotificationResult> notifResults = new ArrayList<>();
+		final FilteredNotificationResults notifResults = new FilteredNotificationResults();
 		NotificationType notificationType;
 		String projectName;
 		String projectVersionName;
@@ -126,11 +126,11 @@ public class JiraNotificationFilter {
 			} catch (final HubNotificationServiceException e) {
 				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
-				return notifResults;
+				continue;
 			}
 			if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
 				logger.error(jiraProject.getProjectError());
-				return notifResults;
+				continue;
 			}
 
 			logger.debug("JIRA Project: " + jiraProject);
@@ -170,7 +170,7 @@ public class JiraNotificationFilter {
 							ruleId = rule.getPolicyRuleId();
 						} catch (final MissingUUIDException e) {
 							logger.error(e);
-							break;
+							continue;
 						}
 						final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
 								projectVersionName, compVerStatus.getComponentName(), componentVersionName,
@@ -178,7 +178,15 @@ public class JiraNotificationFilter {
 								ticketGenInfo.getJiraUser(), jiraProject.getIssueTypeId(),
 								jiraProject.getProjectId(), jiraProject.getProjectName(), notificationType);
 
-						notifResults.add(result);
+						if (result.getNotificationType() == NotificationType.POLICY_VIOLATION) {
+							notifResults.addPolicyViolationResult(result);
+						} else if (result.getNotificationType() == NotificationType.POLICY_OVERRIDE) {
+							notifResults.addPolicyViolationOverrideResult(result);
+						} else if (result.getNotificationType() == NotificationType.VULNERABILITY) {
+							notifResults.addVulnerabilityResult(result);
+						} else {
+
+						}
 					}
 				}
 			}
