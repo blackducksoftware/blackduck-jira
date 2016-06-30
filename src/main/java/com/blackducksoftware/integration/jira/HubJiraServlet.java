@@ -1,4 +1,3 @@
-package com.blackducksoftware.integration.jira;
 /*******************************************************************************
  * Copyright (C) 2016 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -20,7 +19,7 @@ package com.blackducksoftware.integration.jira;
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-
+package com.blackducksoftware.integration.jira;
 
 import java.io.IOException;
 import java.net.URI;
