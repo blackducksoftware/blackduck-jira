@@ -39,6 +39,8 @@ public abstract class NotificationFilter {
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
 					throws UnexpectedHubResponseException, HubNotificationServiceException {
+		final FilteredNotificationResults notifResults = new FilteredNotificationResults();
+
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
 		final List<HubProjectMapping> mappings = getMatchingMappings(projectUrl);
@@ -63,10 +65,14 @@ public abstract class NotificationFilter {
 
 			logger.debug("JIRA Project: " + jiraProject);
 
-			return handleNotificationPerJiraProject(notificationType, projectName, projectVersionName, compVerStatuses,
+			final FilteredNotificationResults oneProjectsResults = handleNotificationPerJiraProject(notificationType,
+					projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem, jiraProject);
+			if (oneProjectsResults != null) {
+				notifResults.addAllResults(oneProjectsResults);
+			}
 		}
-		return null;
+		return notifResults;
 	}
 
 	public abstract FilteredNotificationResults handleNotificationPerJiraProject(

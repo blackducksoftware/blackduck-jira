@@ -41,14 +41,11 @@ public class PolicyNotificationFilter extends NotificationFilter {
 			final JiraProject jiraProject)
 					throws UnexpectedHubResponseException, HubNotificationServiceException {
 		final FilteredNotificationResults notifResults = new FilteredNotificationResults();
-
 		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
 			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
 			return null;
 		}
-
 		for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
-
 			if (notificationType == NotificationType.POLICY_VIOLATION
 					&& compVerStatus.getComponentVersionLink() == null) {
 				// FIXME see HUB-7571
@@ -73,7 +70,6 @@ public class PolicyNotificationFilter extends NotificationFilter {
 						"No configured policy violations matching this notification found; skipping this notification");
 				continue;
 			}
-
 
 			for (final String ruleUrl : monitoredUrls) {
 				final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);

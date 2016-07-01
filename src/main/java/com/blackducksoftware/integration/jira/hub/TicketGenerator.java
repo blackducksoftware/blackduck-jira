@@ -67,10 +67,10 @@ public class TicketGenerator {
 		for (final NotificationItem notification : notifs) {
 			logger.debug(notification.toString());
 		}
-		final JiraNotificationProcessor filter = new JiraNotificationProcessor(notificationService,
+		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
-		final FilteredNotificationResults notificationResults = filter.extractJiraReadyNotifications(notifs);
+		final FilteredNotificationResults notificationResults = processor.extractJiraReadyNotifications(notifs);
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(ticketGenInfo);
 
