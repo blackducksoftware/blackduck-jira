@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Hub Jira Plugin</name>
