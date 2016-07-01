@@ -22,25 +22,12 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
-import com.atlassian.jira.bc.issue.IssueService.IssueResult;
-import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
-import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
-import com.atlassian.jira.entity.property.EntityProperty;
-import com.atlassian.jira.entity.property.EntityPropertyQuery;
-import com.atlassian.jira.entity.property.EntityPropertyService;
-import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
-import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
-import com.atlassian.jira.issue.status.Status;
-import com.atlassian.jira.util.ErrorCollection;
-import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -48,9 +35,6 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.opensymphony.workflow.loader.ActionDescriptor;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
@@ -83,24 +67,27 @@ public class TicketGenerator {
 		for (final NotificationItem notification : notifs) {
 			logger.debug(notification.toString());
 		}
-		final JiraNotificationFilter filter = new JiraNotificationFilter(notificationService,
+		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
-		final FilteredNotificationResults notificationResults = filter.extractJiraReadyNotifications(notifs);
+		final FilteredNotificationResults notificationResults = processor.extractJiraReadyNotifications(notifs);
+
+		final JiraIssueHandler issueHandler = new JiraIssueHandler(ticketGenInfo);
 
 		int ticketCount = 0;
 		for (final FilteredNotificationResult notificationResult : notificationResults.getPolicyViolationResults()) {
-			createPolicyViolationIssue(notificationResult);
+			createPolicyViolationIssue(issueHandler, notificationResult);
 			ticketCount++;
 		}
 		for (final FilteredNotificationResult notificationResult : notificationResults
 				.getPolicyViolationOverrideResults()) {
-			closePolicyViolationIssue(notificationResult);
+			closePolicyViolationIssue(issueHandler, notificationResult);
 		}
 		return ticketCount;
 	}
 
-	private void createPolicyViolationIssue(final FilteredNotificationResult notificationResult){
+	private void createPolicyViolationIssue(final JiraIssueHandler issueHandler,
+			final FilteredNotificationResult notificationResult) {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
 		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 
@@ -143,40 +130,41 @@ public class TicketGenerator {
 		.setReporterId(notificationResult.getJiraUser().getName())
 		.setDescription(issueDescription.toString());
 
-		final Issue oldIssue = findIssue(notificationResult);
+		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue == null) {
-			final Issue issue = createIssue(issueInputParameters);
+			final Issue issue = issueHandler.createIssue(issueInputParameters);
 			if (issue != null) {
 				logger.info("Created new Issue.");
-				printIssueInfo(issue);
+				issueHandler.printIssueInfo(issue);
 
 				final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
 						notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
 						notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
 						notificationResult.getRule().getName(), issue.getId());
 
-				addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
+				issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
 						properties);
 			}
 		} else {
 			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
-				transitionIssue(oldIssue, REOPEN_STATUS);
+				issueHandler.transitionIssue(oldIssue, REOPEN_STATUS);
 				logger.info("Re-opened the already exisiting issue.");
-				printIssueInfo(oldIssue);
+				issueHandler.printIssueInfo(oldIssue);
 			} else {
 				logger.info("This issue already exists.");
-				printIssueInfo(oldIssue);
+				issueHandler.printIssueInfo(oldIssue);
 			}
 		}
 	}
 
-	private void closePolicyViolationIssue(final FilteredNotificationResult notificationResult) {
-		final Issue oldIssue = findIssue(notificationResult);
+	private void closePolicyViolationIssue(final JiraIssueHandler issueHandler,
+			final FilteredNotificationResult notificationResult) {
+		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue != null) {
-			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
+			final Issue updatedIssue = issueHandler.transitionIssue(oldIssue, DONE_STATUS);
 			if (updatedIssue != null) {
 				logger.info("Closed the issue based on an override.");
-				printIssueInfo(updatedIssue);
+				issueHandler.printIssueInfo(updatedIssue);
 			}
 		} else {
 			logger.info("Could not find an existing issue to close for this override.");
@@ -187,217 +175,6 @@ public class TicketGenerator {
 			logger.debug("Hub Rule Name : " + notificationResult.getRule().getName());
 
 		}
-	}
-
-	private void addIssueProperty(final Long issueId, final String key, final PolicyViolationIssueProperties value) {
-
-		final Gson gson = new GsonBuilder().create();
-
-		final String jsonValue = gson.toJson(value);
-		final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue,
-				key);
-
-		final SetPropertyValidationResult validationResult = ticketGenInfo.getPropertyService()
-				.validateSetProperty(ticketGenInfo.getJiraUser(), issueId, propertyInput);
-
-		ErrorCollection errors = null;
-		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		} else {
-			final PropertyResult result = ticketGenInfo.getPropertyService().setProperty(ticketGenInfo.getJiraUser(),
-					validationResult);
-			errors = result.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		}
-	}
-
-	private Issue findIssue(final FilteredNotificationResult notificationResult) {
-		final EntityPropertyQuery<?> query = ticketGenInfo.getJsonEntityPropertyManager().query();
-		final EntityPropertyQuery.ExecutableQuery executableQuery = query
-				.key(notificationResult.getUniquePropertyKey());
-		final List<EntityProperty> props = executableQuery.maxResults(1).find();
-		if (props.size() == 0) {
-			return null;
-		}
-		final EntityProperty property = props.get(0);
-		final Gson gson = new GsonBuilder().create();
-
-		final PolicyViolationIssueProperties propertyValue = gson.fromJson(property.getValue(),
-				PolicyViolationIssueProperties.class);
-
-		final IssueResult result = ticketGenInfo.getIssueService().getIssue(ticketGenInfo.getJiraUser(),
-				propertyValue.getJiraIssueId());
-		final ErrorCollection errors = result.getErrorCollection();
-		if (!result.isValid()) {
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		} else {
-			return result.getIssue();
-		}
-		return null;
-	}
-
-	private Issue createIssue(final IssueInputParameters issueInputParameters) {
-		final CreateValidationResult validationResult = ticketGenInfo.getIssueService()
-				.validateCreate(ticketGenInfo.getJiraUser(), issueInputParameters);
-		ErrorCollection errors = null;
-
-		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		} else {
-			final IssueResult result = ticketGenInfo.getIssueService().create(ticketGenInfo.getJiraUser(),
-					validationResult);
-			errors = result.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			} else {
-				return result.getIssue();
-			}
-		}
-		return null;
-	}
-
-	private Issue updateIssue(final Issue issueToUpdate, final IssueInputParameters issueInputParameters) {
-		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-		final UpdateValidationResult validationResult = ticketGenInfo.getIssueService()
-				.validateUpdate(ticketGenInfo.getJiraUser(), issueToUpdate.getId(), issueInputParameters);
-		ErrorCollection errors = null;
-
-		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		} else {
-			final IssueResult result = ticketGenInfo.getIssueService().update(ticketGenInfo.getJiraUser(),
-					validationResult);
-			errors = result.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			} else {
-				return result.getIssue();
-			}
-		}
-		return null;
-	}
-
-	private Issue transitionIssue(final Issue oldIssue, final String stepName) {
-		final Status currentStatus = oldIssue.getStatusObject();
-		logger.debug("Current status : " + currentStatus.getName());
-		final JiraWorkflow workflow = ticketGenInfo.getWorkflowManager().getWorkflow(oldIssue);
-
-		ActionDescriptor transitionAction = null;
-		// https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
-		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
-		logger.debug("Found this many actions : " + actions.size());
-		if (actions.size() == 0) {
-			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". There are no steps from this status to any other status.");
-		}
-		for (final ActionDescriptor descriptor : actions) {
-			if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
-				logger.info("Found Action descriptor : " + descriptor.getName());
-				transitionAction = descriptor;
-				break;
-			}
-		}
-		if (transitionAction == null) {
-			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". We could not find the step : " + stepName);
-		}
-		if (transitionAction != null) {
-			final IssueInputParameters parameters = ticketGenInfo.getIssueService().newIssueInputParameters();
-			parameters.setRetainExistingValuesWhenParameterNotProvided(true);
-			final TransitionValidationResult validationResult = ticketGenInfo.getIssueService()
-					.validateTransition(ticketGenInfo.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
-
-			ErrorCollection errors = null;
-
-			if (!validationResult.isValid()) {
-				errors = validationResult.getErrorCollection();
-				if (errors.hasAnyErrors()) {
-					for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-						logger.error(error.getKey() + " :: " + error.getValue());
-					}
-					for (final String error : errors.getErrorMessages()) {
-						logger.error(error);
-					}
-				}
-			} else {
-				final IssueResult result = ticketGenInfo.getIssueService().transition(ticketGenInfo.getJiraUser(),
-						validationResult);
-				errors = result.getErrorCollection();
-				if (errors.hasAnyErrors()) {
-					for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-						logger.error(error.getKey() + " :: " + error.getValue());
-					}
-					for (final String error : errors.getErrorMessages()) {
-						logger.error(error);
-					}
-				} else {
-					return result.getIssue();
-				}
-			}
-		} else {
-			logger.error("Could not find the action : " + stepName + " to transition this issue: "
-					+ oldIssue.getKey());
-		}
-		return null;
-	}
-
-	private void printIssueInfo(final Issue issue) {
-		logger.debug("Issue Key : " + issue.getKey());
-		logger.debug("Issue ID : " + issue.getId());
-		logger.debug("Summary : " + issue.getSummary());
-		logger.debug("Description : " + issue.getDescription());
-		logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
-		logger.debug("Status : " + issue.getStatusObject().getName());
-		logger.debug("For Project : " + issue.getProjectObject().getName());
-		logger.debug("For Project Id : " + issue.getProjectObject().getId());
 	}
 
 }

@@ -34,7 +34,7 @@
       	</fieldset>
       
       	<fieldset class="fieldSection">
-      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText("hub.integration.jira.hubProjectMappingSection.label") </legend>
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText('hub.integration.jira.hubProjectMappingSection.label') </legend>
 			<div id="mappingArea" class="mappingContainer">
 			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
 			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
@@ -54,7 +54,7 @@
 				    <td class="mappingTableCell" id="mappingStatus">
 				    </td>
 				    <td class="mappingTableCell">
-				    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 						<datalist id="jiraProjects">
 						</datalist>
 						<div id="jiraProjectError">
@@ -62,7 +62,7 @@
 				    </td>
 				    <td class="mappingTableCell" width="25px"> = </td>
 				    <td class="mappingTableCell">
-				    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);">
+				    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
 						<datalist id="hubProjects">
 						</datalist>
 				    </td>
