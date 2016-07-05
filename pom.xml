@@ -5,19 +5,29 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>common-maven-parent</artifactId>
-    <version>1.0.1</version>
-    <relativePath>../common-maven-parent</relativePath>
+    <version>1.0.3</version>
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Hub Jira Plugin</name>
   <description>Hub Jira Integration</description>
+  
+  
+  <distributionManagement>
+    <repository>
+      <id>bds-int-public</id>
+      <url>https://updates.suite.blackducksoftware.com/integrations/</url>
+    </repository>
+    <snapshotRepository>
+      <id>bds-int-public</id>
+      <url>https://updates.suite.blackducksoftware.com/integrations/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
-
     <!-- 
    For production builds, use: 
    amps.version: 5.0.13
@@ -83,23 +93,11 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>1.4.2-SNAPSHOT</version>
+      <version>1.4.2</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
           <artifactId>xstream</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.blackducksoftware.integration</groupId>
-          <artifactId>build-info-recorder-mvn30</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.blackducksoftware.integration</groupId>
-          <artifactId>build-info-recorder-mvn31</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.blackducksoftware.integration</groupId>
-          <artifactId>build-info-common</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -128,7 +126,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-atlassian-config</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
