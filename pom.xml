@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>common-maven-parent</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.2</version>
   </parent>
 
   <artifactId>hub-jira</artifactId>
@@ -16,17 +16,6 @@
   <description>Hub Jira Integration</description>
   
   
-  <distributionManagement>
-    <repository>
-      <id>bds-int-public</id>
-      <url>https://updates.suite.blackducksoftware.com/integrations/</url>
-    </repository>
-    <snapshotRepository>
-      <id>bds-int-public</id>
-      <url>https://updates.suite.blackducksoftware.com/integrations/</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <properties>
     <!-- 
    For production builds, use: 
