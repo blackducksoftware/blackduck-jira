@@ -14,8 +14,7 @@
 
   <name>Hub Jira Plugin</name>
   <description>Hub Jira Integration</description>
-  
-  
+
   <properties>
     <!-- 
    For production builds, use: 
