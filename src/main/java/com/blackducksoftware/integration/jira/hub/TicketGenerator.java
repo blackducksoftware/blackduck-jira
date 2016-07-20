@@ -28,9 +28,6 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
-import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
@@ -52,10 +49,9 @@ public class TicketGenerator {
 	private final TicketGeneratorInfo ticketGenInfo;
 
 
-	public TicketGenerator(final RestConnection restConnection, final HubIntRestService hub,
-			final HubItemsService<NotificationItem> hubItemsService,
+	public TicketGenerator(final HubNotificationService notificationService,
 			final TicketGeneratorInfo ticketGenInfo) {
-		notificationService = new HubNotificationService(restConnection, hub, hubItemsService);
+		this.notificationService = notificationService;
 		this.ticketGenInfo = ticketGenInfo;
 	}
 

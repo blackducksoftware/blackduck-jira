@@ -50,6 +50,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
@@ -221,7 +222,9 @@ public class HubJiraTask {
 	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
 			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService,
+		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
+				hubItemsService);
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,
 				ticketServices);
 		return ticketGenerator;
 	}
