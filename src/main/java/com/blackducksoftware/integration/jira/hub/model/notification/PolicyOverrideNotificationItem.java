@@ -34,6 +34,10 @@ public class PolicyOverrideNotificationItem extends NotificationItem {
 		return content;
 	}
 
+	public void setContent(final PolicyOverrideNotificationContent content) {
+		this.content = content;
+	}
+
 	@Override
 	public String toString() {
 		return "PolicyOverrideNotificationItem [content=" + content + ", contentType=" + contentType + ", type=" + type

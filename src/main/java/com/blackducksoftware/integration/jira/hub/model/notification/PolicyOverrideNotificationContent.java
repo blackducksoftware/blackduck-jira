@@ -76,6 +76,42 @@ public class PolicyOverrideNotificationContent {
 		return bomComponentVersionPolicyStatusLink;
 	}
 
+	public void setProjectName(final String projectName) {
+		this.projectName = projectName;
+	}
+
+	public void setProjectVersionName(final String projectVersionName) {
+		this.projectVersionName = projectVersionName;
+	}
+
+	public void setComponentName(final String componentName) {
+		this.componentName = componentName;
+	}
+
+	public void setComponentVersionName(final String componentVersionName) {
+		this.componentVersionName = componentVersionName;
+	}
+
+	public void setFirstName(final String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setLastName(final String lastName) {
+		this.lastName = lastName;
+	}
+
+	public void setProjectVersionLink(final String projectVersionLink) {
+		this.projectVersionLink = projectVersionLink;
+	}
+
+	public void setComponentVersionLink(final String componentVersionLink) {
+		this.componentVersionLink = componentVersionLink;
+	}
+
+	public void setBomComponentVersionPolicyStatusLink(final String bomComponentVersionPolicyStatusLink) {
+		this.bomComponentVersionPolicyStatusLink = bomComponentVersionPolicyStatusLink;
+	}
+
 	@Override
 	public String toString() {
 		return "PolicyOverrideNotificationContent [projectName=" + projectName + ", projectVersionName="
