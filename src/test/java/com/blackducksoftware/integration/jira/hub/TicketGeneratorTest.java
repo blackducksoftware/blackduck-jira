@@ -89,11 +89,13 @@ import com.opensymphony.workflow.loader.StepDescriptor;
 public class TicketGeneratorTest {
 	private static final long JAN_2_2016 = 1451710800000L;
 	private static final long JAN_1_2016 = 1451624400000L;
-	private static final String END_DATE_STRING = "2016-05-02T00:00:00.000Z";
-	private static final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
+
+	private static SimpleDateFormat dateFormatter;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 	}
 
 	@AfterClass
@@ -121,71 +123,162 @@ public class TicketGeneratorTest {
 
 	private void test() throws HubNotificationServiceException, ParseException, IOException, URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		final RestConnection restConnection = Mockito.mock(RestConnection.class);
-		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
+
+
+
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
-		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
-				hubItemsService);
+		final HubNotificationService notificationService = mockHubNotificationService(hubItemsService);
+
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
 
+		final List<NotificationItem> notificationItems = mockNotificationItems();
+		final Set<SimpleEntry<String, String>> queryParameters = mockHubQueryParameters(JAN_1_2016, JAN_2_2016);
+		mockHubNotificationsGet(hubItemsService, notificationService, queryParameters, notificationItems);
+
+		final ApplicationUser user = mockUser();
+		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
+
+		final IssueService issueService = Mockito.mock(IssueService.class);
+		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
+		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
+		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
+
+		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
+		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
+
+		final JsonEntityPropertyManager jsonEntityPropertyManager = mockJsonEntityPropertyManager(jiraTicketGeneratorInfoService);
+
+		final Project atlassianJiraProject = mockJiraProject(jiraTicketGeneratorInfoService);
+
+		// The JIRA issue already exists, but it's closed
+		mockExistingClosedIssue(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService);
+
+		final TransitionValidationResult validationResult = Mockito.mock(TransitionValidationResult.class);
+		Mockito.when(validationResult.isValid()).thenReturn(true);
+
+		final IssueResult transitionResult = Mockito.mock(IssueResult.class);
+		final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
+		Mockito.when(errors.hasAnyErrors()).thenReturn(false);
+		Mockito.when(transitionResult.getErrorCollection()).thenReturn(errors);
+		Mockito.when(
+				issueService.transition(Mockito.any(ApplicationUser.class),
+						Mockito.any(TransitionValidationResult.class))).thenReturn(
+								transitionResult);
+
+		Mockito.when(
+				issueService.validateTransition(Mockito.any(ApplicationUser.class), Mockito.anyLong(),
+						Mockito.anyInt(), Mockito.any(IssueInputParameters.class))).thenReturn(validationResult);
+
+
+		final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
+
+		final List<String> linksOfRulesToMonitor = new ArrayList<>();
+		linksOfRulesToMonitor.add("ruleUrl");
+
+		final NotificationDateRange notificationDateRange = new NotificationDateRange(new Date(JAN_1_2016), new Date(
+				JAN_2_2016));
+
+		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
+				notificationDateRange);
+
+		// Verify
+
+		Mockito.verify(issueInputParameters)
+		.setSummary(
+				"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
+		Mockito.verify(issueInputParameters)
+		.setDescription(
+				"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
+
+		// Verify re-open
+		Mockito.verify(issueService).transition(user, validationResult);
+	}
+
+	private JsonEntityPropertyManager mockJsonEntityPropertyManager(
+			final TicketGeneratorInfo jiraTicketGeneratorInfoService) {
+		final EntityPropertyQuery entityPropertyQuery = mockEntityPropertyQuery();
+		final JsonEntityPropertyManager jsonEntityPropertyManager = Mockito.mock(JsonEntityPropertyManager.class);
+		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
+		Mockito.when(jiraTicketGeneratorInfoService.getJsonEntityPropertyManager()).thenReturn(
+				jsonEntityPropertyManager);
+		return jsonEntityPropertyManager;
+	}
+
+	private EntityPropertyQuery mockEntityPropertyQuery() {
+		final ExecutableQuery executableQuery = mockExecutableQuery();
+		final EntityPropertyQuery entityPropertyQuery = Mockito.mock(EntityPropertyQuery.class);
+		Mockito.when(entityPropertyQuery.key(Mockito.anyString())).thenReturn(executableQuery);
+		return entityPropertyQuery;
+	}
+
+	private ExecutableQuery mockExecutableQuery() {
+		final ExecutableQuery executableQuery = Mockito.mock(ExecutableQuery.class);
+		Mockito.when(executableQuery.maxResults(1)).thenReturn(executableQuery);
+		final List<EntityProperty> props = new ArrayList<>();
+		final EntityProperty entityProperty = Mockito.mock(EntityProperty.class);
+		props.add(entityProperty);
+		Mockito.when(executableQuery.find()).thenReturn(props);
+		Mockito.when(entityProperty.getValue())
+		.thenReturn(
+				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":10000}");
+		return executableQuery;
+	}
+
+	private Set<HubProjectMapping> mockProjectMappings() {
 		final HubProjectMapping hubProjectMapping = new HubProjectMapping();
 		final HubProject hubProject = new HubProject();
 		hubProject.setProjectName("hubProjectName");
 		hubProject.setProjectUrl("hubProjectUrl");
 		hubProjectMapping.setHubProject(hubProject);
 
+		final JiraProject bdsJiraProject = mockBdsJiraProject();
+		hubProjectMapping.setJiraProject(bdsJiraProject);
+
+		final Set<HubProjectMapping> hubProjectMappings = new HashSet<>();
+		hubProjectMappings.add(hubProjectMapping);
+		return hubProjectMappings;
+	}
+
+	private HubNotificationService mockHubNotificationService(final HubItemsService<NotificationItem> hubItemsService) {
+		final RestConnection restConnection = Mockito.mock(RestConnection.class);
+		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
+		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
+				hubItemsService);
+		return notificationService;
+	}
+
+	private JiraProject mockBdsJiraProject() {
 		final JiraProject jiraProject = new JiraProject();
 		jiraProject.setProjectId(123L);
 		jiraProject.setProjectKey("jiraProjectKey");
 		jiraProject.setProjectName("jiraProjectName");
 		jiraProject.setIssueTypeId("jiraIssueTypeName");
-		hubProjectMapping.setJiraProject(jiraProject);
+		return jiraProject;
+	}
 
-		final Set<HubProjectMapping> hubProjectMappings = new HashSet<>();
-		hubProjectMappings.add(hubProjectMapping);
-
-		final List<String> linksOfRulesToMonitor = new ArrayList<>();
-		linksOfRulesToMonitor.add("ruleUrl");
-		final Date startDate = new Date(JAN_1_2016);
-		final Date endDate = new Date(JAN_2_2016);
-		System.out.println("startDate: " + startDate.getTime() + " / " + startDate);
-		System.out.println("endDate: " + endDate.getTime() + " / " + endDate);
-		final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
-
-		final List<String> urlSegments = new ArrayList<>();
-		urlSegments.add("api");
-		urlSegments.add("notifications");
+	private Set<SimpleEntry<String, String>> mockHubQueryParameters(final long startDate,
+ final long endDate) {
+		final String startDateString = dateFormatter.format(startDate);
+		final String endDateString = dateFormatter.format(endDate);
 		final Set<SimpleEntry<String, String>> queryParameters = new HashSet<>();
-
-		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-		final String startDateString = dateFormatter.format(JAN_1_2016);
-		final String endDateString = dateFormatter.format(JAN_2_2016);
-
 		queryParameters.add(new SimpleEntry<String, String>("startDate", startDateString));
 		queryParameters.add(new SimpleEntry<String, String>("endDate", endDateString));
 		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1000)));
+		return queryParameters;
+	}
 
-		final List<NotificationItem> notificationItems = new ArrayList<>();
-		final MetaInformation meta = new MetaInformation(null, null, null);
-		final RuleViolationNotificationItem notificationItem = new RuleViolationNotificationItem(meta);
-		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-		content.setComponentVersionsInViolation(1);
-		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
-		final ComponentVersionStatus componentVersionStatus = new ComponentVersionStatus();
-		componentVersionStatus.setComponentName("componentName");
-		componentVersionStatus
-		.setComponentVersionLink("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef");
-		componentVersionStatus.setBomComponentVersionPolicyStatusLink("bomComponentVersionPolicyStatusLink");
-		componentVersionStatuses.add(componentVersionStatus);
-		content.setComponentVersionStatuses(componentVersionStatuses);
-		content.setProjectVersionLink("hubProjectVersionUrl");
-		content.setProjectName("projectName");
-		notificationItem.setContent(content);
-
-		notificationItems.add(notificationItem);
+	private void mockHubNotificationsGet(final HubItemsService<NotificationItem> hubItemsService,
+			final HubNotificationService notificationService,
+			final Set<SimpleEntry<String, String>> queryParameters, final List<NotificationItem> notificationItems)
+					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+					HubNotificationServiceException, UnexpectedHubResponseException {
+		final List<String> urlSegments = new ArrayList<>();
+		urlSegments.add("api");
+		urlSegments.add("notifications");
 		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
+
 		List<MetaLink> links = new ArrayList<>();
 		links.add(new MetaLink("project", "hubProjectUrl"));
 		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
@@ -223,96 +316,65 @@ public class TicketGeneratorTest {
 				null,
 				null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
+	}
 
+	private List<NotificationItem> mockNotificationItems() {
+		final List<NotificationItem> notificationItems = new ArrayList<>();
+		final MetaInformation meta = new MetaInformation(null, null, null);
+		final RuleViolationNotificationItem notificationItem = new RuleViolationNotificationItem(meta);
+		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
+		content.setComponentVersionsInViolation(1);
+		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
+		final ComponentVersionStatus componentVersionStatus = new ComponentVersionStatus();
+		componentVersionStatus.setComponentName("componentName");
+		componentVersionStatus
+		.setComponentVersionLink("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef");
+		componentVersionStatus.setBomComponentVersionPolicyStatusLink("bomComponentVersionPolicyStatusLink");
+		componentVersionStatuses.add(componentVersionStatus);
+		content.setComponentVersionStatuses(componentVersionStatuses);
+		content.setProjectVersionLink("hubProjectVersionUrl");
+		content.setProjectName("projectName");
+		notificationItem.setContent(content);
+
+		notificationItems.add(notificationItem);
+		return notificationItems;
+	}
+
+	private ApplicationUser mockUser() {
 		final ApplicationUser user = Mockito.mock(ApplicationUser.class);
 		Mockito.when(user.getDisplayName()).thenReturn("userDisplayName");
 		Mockito.when(user.getName()).thenReturn("userName");
 		Mockito.when(user.isActive()).thenReturn(true);
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
+		return user;
+	}
 
-		final IssueService issueService = Mockito.mock(IssueService.class);
+	private IssueInputParameters mockJiraIssueParameters() {
 		final IssueInputParameters issueInputParameters = Mockito.mock(IssueInputParameters.class);
 		Mockito.when(issueInputParameters.setProjectId(123L)).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setIssueTypeId(Mockito.anyString())).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setSummary(Mockito.anyString())).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setReporterId("userName")).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setDescription(Mockito.anyString())).thenReturn(issueInputParameters);
+		return issueInputParameters;
+	}
 
-		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
-		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
-		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
-		// Mockito.when(authContext.setLoggedInUser(user)).
-		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
+	private Project mockJiraProject(final TicketGeneratorInfo jiraTicketGeneratorInfoService) {
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
 		Mockito.when(jiraTicketGeneratorInfoService.getJiraProjectManager()).thenReturn(jiraProjectManager);
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
-		final JsonEntityPropertyManager jsonEntityPropertyManager = Mockito.mock(JsonEntityPropertyManager.class);
-		final EntityPropertyQuery entityPropertyQuery = Mockito.mock(EntityPropertyQuery.class);
-		final ExecutableQuery executableQuery = Mockito.mock(ExecutableQuery.class);
-		Mockito.when(executableQuery.maxResults(1)).thenReturn(executableQuery);
-		final List<EntityProperty> props = new ArrayList<>();
-		final EntityProperty entityProperty = Mockito.mock(EntityProperty.class);
-		props.add(entityProperty);
-		Mockito.when(executableQuery.find()).thenReturn(props);
-		Mockito.when(entityProperty.getValue())
-		.thenReturn(
-				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":10000}");
 
 		final Project atlassianJiraProject = Mockito.mock(Project.class);
 		Mockito.when(atlassianJiraProject.getKey()).thenReturn("jiraProjectKey");
 		Mockito.when(atlassianJiraProject.getName()).thenReturn("jiraProjectName");
 		Mockito.when(atlassianJiraProject.getId()).thenReturn(123L);
-
-		// The JIRA issue already exists, but it's closed
-
-		mockExistingClosedIssue(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService);
-
-		Mockito.when(entityPropertyQuery.key(Mockito.anyString())).thenReturn(executableQuery);
-		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
-		Mockito.when(jiraTicketGeneratorInfoService.getJsonEntityPropertyManager()).thenReturn(
-				jsonEntityPropertyManager);
-
 		final Collection<IssueType> jiraProjectIssueTypes = new ArrayList<>();
 		final IssueType issueType = Mockito.mock(IssueType.class);
 		Mockito.when(issueType.getName()).thenReturn("jiraIssueTypeName");
 		jiraProjectIssueTypes.add(issueType);
 		Mockito.when(atlassianJiraProject.getIssueTypes()).thenReturn(jiraProjectIssueTypes);
 
-
-
-
-
-		final TransitionValidationResult validationResult = Mockito.mock(TransitionValidationResult.class);
-		Mockito.when(validationResult.isValid()).thenReturn(true);
-
-		final IssueResult transitionResult = Mockito.mock(IssueResult.class);
-		final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
-		Mockito.when(errors.hasAnyErrors()).thenReturn(false);
-		Mockito.when(transitionResult.getErrorCollection()).thenReturn(errors);
-		Mockito.when(
-				issueService.transition(Mockito.any(ApplicationUser.class),
-						Mockito.any(TransitionValidationResult.class))).thenReturn(
-								transitionResult);
-
-		Mockito.when(
-				issueService.validateTransition(Mockito.any(ApplicationUser.class), Mockito.anyLong(),
-						Mockito.anyInt(), Mockito.any(IssueInputParameters.class))).thenReturn(validationResult);
-
 		Mockito.when(jiraProjectManager.getProjectObj(123L)).thenReturn(atlassianJiraProject);
-		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
-				notificationDateRange);
 
-		// Verify
-
-		Mockito.verify(issueInputParameters)
-		.setSummary(
-				"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
-		Mockito.verify(issueInputParameters)
-		.setDescription(
-				"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
-
-		// Verify re-open
-		Mockito.verify(issueService).transition(user, validationResult);
+		return atlassianJiraProject;
 	}
 
 	private void mockExistingClosedIssue(final IssueService issueService, final Project atlassianJiraProject,
