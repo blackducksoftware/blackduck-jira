@@ -265,19 +265,7 @@ public class TicketGeneratorTest {
 
 		// The JIRA issue already exists, but it's closed
 
-		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
-		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
-		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
-		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
-		final Status oldIssueStatus = Mockito.mock(Status.class);
-		Mockito.when(oldIssueStatus.getName()).thenReturn("Done");
-		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
-		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
-				getOldIssueResult);
-		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
-		final IssueType oldIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
-		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
+		mockExistingClosedIssue(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService);
 
 		Mockito.when(entityPropertyQuery.key(Mockito.anyString())).thenReturn(executableQuery);
 		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
@@ -290,19 +278,7 @@ public class TicketGeneratorTest {
 		jiraProjectIssueTypes.add(issueType);
 		Mockito.when(atlassianJiraProject.getIssueTypes()).thenReturn(jiraProjectIssueTypes);
 
-		final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getWorkflowManager()).thenReturn(workflowManager);
-		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
 
-		// workflow.getLinkedStep(currentStatus)
-		final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
-		Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
-		final List<ActionDescriptor> actions = new ArrayList<>();
-		final ActionDescriptor actionDescriptor = Mockito.mock(ActionDescriptor.class);
-		actions.add(actionDescriptor);
-		Mockito.when(actionDescriptor.getName()).thenReturn("Reopen");
-		Mockito.when(stepDescriptor.getActions()).thenReturn(actions);
-		Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
 
 
 
@@ -337,6 +313,34 @@ public class TicketGeneratorTest {
 
 		// Verify re-open
 		Mockito.verify(issueService).transition(user, validationResult);
+	}
+
+	private void mockExistingClosedIssue(final IssueService issueService, final Project atlassianJiraProject,
+			final TicketGeneratorInfo jiraTicketGeneratorInfoService) {
+		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
+		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
+		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
+		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
+		final Status oldIssueStatus = Mockito.mock(Status.class);
+		Mockito.when(oldIssueStatus.getName()).thenReturn("Done");
+		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
+		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
+				getOldIssueResult);
+		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
+		final IssueType oldIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
+		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
+		final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getWorkflowManager()).thenReturn(workflowManager);
+		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
+		final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
+		Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
+		final List<ActionDescriptor> actions = new ArrayList<>();
+		final ActionDescriptor actionDescriptor = Mockito.mock(ActionDescriptor.class);
+		actions.add(actionDescriptor);
+		Mockito.when(actionDescriptor.getName()).thenReturn("Reopen");
+		Mockito.when(stepDescriptor.getActions()).thenReturn(actions);
+		Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
 	}
 
 }
