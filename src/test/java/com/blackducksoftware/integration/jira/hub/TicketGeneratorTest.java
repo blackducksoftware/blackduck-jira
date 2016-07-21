@@ -300,17 +300,11 @@ public class TicketGeneratorTest {
 
 		final TransitionValidationResult validationResult = Mockito.mock(TransitionValidationResult.class);
 		Mockito.when(validationResult.isValid()).thenReturn(true);
-		// final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
-		// Mockito.when(errors.hasAnyErrors()).thenReturn(false);
-		// Mockito.when(validationResult.getErrorCollection()).thenReturn(errors);
 
-		// ticketGenInfo.getIssueService().transition(ticketGenInfo.getJiraUser(),
-		// validationResult);
 		final IssueResult transitionResult = Mockito.mock(IssueResult.class);
 		final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
 		Mockito.when(errors.hasAnyErrors()).thenReturn(false);
 		Mockito.when(transitionResult.getErrorCollection()).thenReturn(errors);
-		// Mockito.when(transitionResult.getIssue()).thenReturn(reOpenedIssue);
 		Mockito.when(
 				issueService.transition(Mockito.any(ApplicationUser.class),
 						Mockito.any(TransitionValidationResult.class))).thenReturn(
@@ -324,7 +318,8 @@ public class TicketGeneratorTest {
 		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
 				notificationDateRange);
 
-		// Verify that this happened:
+		// Verify
+
 		Mockito.verify(issueInputParameters)
 		.setSummary(
 				"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
@@ -332,15 +327,7 @@ public class TicketGeneratorTest {
 		.setDescription(
 				"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 
-		// issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-		// .setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
-		// .setReporterId(notificationResult.getJiraUser().getName())
-		// .setDescription(issueDescription.toString());
-
-		// Verify this happened:
-		// issueHandler.transitionIssue(oldIssue, REOPEN_STATUS);
-		// parameters.setRetainExistingValuesWhenParameterNotProvided(true);
-
+		Mockito.verify(issueService).transition(user, validationResult);
 	}
 
 }
