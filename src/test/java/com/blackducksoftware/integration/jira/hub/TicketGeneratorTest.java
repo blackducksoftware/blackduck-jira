@@ -214,7 +214,8 @@ public class TicketGeneratorTest {
 		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
 		policyExpressionList.add(policyExpression);
 		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-		final PolicyRule rule = new PolicyRule(policyRuleMeta, "someRule", null, null, null, policyExpressionsObject,
+		final PolicyRule rule = new PolicyRule(policyRuleMeta, "someRule", "Some Rule", true, true,
+				policyExpressionsObject,
 				null,
 				null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
@@ -326,7 +327,10 @@ public class TicketGeneratorTest {
 		// Verify that this happened:
 		Mockito.verify(issueInputParameters)
 		.setSummary(
-						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
+				"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
+		Mockito.verify(issueInputParameters)
+		.setDescription(
+				"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 
 		// issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
 		// .setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
