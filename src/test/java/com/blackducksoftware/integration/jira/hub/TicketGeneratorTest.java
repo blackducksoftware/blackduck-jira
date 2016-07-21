@@ -40,16 +40,23 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.bc.issue.IssueService;
+import com.atlassian.jira.bc.issue.IssueService.IssueResult;
+import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.entity.property.EntityPropertyQuery;
 import com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.ErrorCollection;
+import com.atlassian.jira.workflow.JiraWorkflow;
+import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
@@ -72,6 +79,8 @@ import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersi
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.opensymphony.workflow.loader.ActionDescriptor;
+import com.opensymphony.workflow.loader.StepDescriptor;
 
 /**
  *
@@ -185,10 +194,7 @@ public class TicketGeneratorTest {
 				bomComponentVersionPolicyStatus);
 		final MetaInformation policyRuleMeta = new MetaInformation(null,
 				"http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad", null);
-		final String bbb = null;
-		final String ccc = null;
-		final Boolean ddd = null;
-		final Boolean eee = null;
+
 		final List<PolicyValue> policyValues = new ArrayList<>();
 		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
 		policyValues.add(policyValue);
@@ -196,12 +202,8 @@ public class TicketGeneratorTest {
 		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
 		policyExpressionList.add(policyExpression);
 		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-		final String ggg = null;
-		final String hhh = null;
-		final String iii = null;
-		final String jjj = null;
-		final PolicyRule rule = new PolicyRule(policyRuleMeta, bbb, ccc, ddd, eee, policyExpressionsObject, ggg, hhh,
-				iii, jjj);
+		final PolicyRule rule = new PolicyRule(policyRuleMeta, null, null, null, null, policyExpressionsObject, null,
+				null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 
 		final ApplicationUser user = Mockito.mock(ApplicationUser.class);
@@ -234,9 +236,19 @@ public class TicketGeneratorTest {
 		final EntityProperty entityProperty = Mockito.mock(EntityProperty.class);
 		props.add(entityProperty);
 		Mockito.when(executableQuery.find()).thenReturn(props);
+		Mockito.when(entityProperty.getValue())
+		.thenReturn(
+				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":10000}");
 
-		// TODO: mock gson.fromJson(...) to return
-		// PolicyViolationIssueProperties propertyValue
+		final IssueResult issueResult = Mockito.mock(IssueResult.class);
+		Mockito.when(issueResult.isValid()).thenReturn(true);
+		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
+		Mockito.when(issueResult.getIssue()).thenReturn(oldIssue);
+		final Status oldIssueStatus = Mockito.mock(Status.class);
+		Mockito.when(oldIssueStatus.getName()).thenReturn("Done");
+		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
+		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
+				issueResult);
 
 		Mockito.when(entityPropertyQuery.key(Mockito.anyString())).thenReturn(executableQuery);
 		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
@@ -251,6 +263,49 @@ public class TicketGeneratorTest {
 		jiraProjectIssueTypes.add(issueType);
 		Mockito.when(atlassianJiraProject.getIssueTypes()).thenReturn(jiraProjectIssueTypes);
 
+		final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getWorkflowManager()).thenReturn(workflowManager);
+		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
+
+		// workflow.getLinkedStep(currentStatus)
+		final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
+		Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
+		final List<ActionDescriptor> actions = new ArrayList<>();
+		final ActionDescriptor actionDescriptor = Mockito.mock(ActionDescriptor.class);
+		actions.add(actionDescriptor);
+		Mockito.when(actionDescriptor.getName()).thenReturn("Reopen");
+		Mockito.when(stepDescriptor.getActions()).thenReturn(actions);
+		Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
+		final Project project = Mockito.mock(Project.class);
+		Mockito.when(project.getName()).thenReturn("Mocked project name");
+		Mockito.when(project.getId()).thenReturn(123L);
+		Mockito.when(oldIssue.getProjectObject()).thenReturn(project);
+		final IssueType oldIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
+		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
+
+		final TransitionValidationResult validationResult = Mockito.mock(TransitionValidationResult.class);
+		Mockito.when(validationResult.isValid()).thenReturn(true);
+		// final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
+		// Mockito.when(errors.hasAnyErrors()).thenReturn(false);
+		// Mockito.when(validationResult.getErrorCollection()).thenReturn(errors);
+
+		// ticketGenInfo.getIssueService().transition(ticketGenInfo.getJiraUser(),
+		// validationResult);
+		final IssueResult transitionResult = Mockito.mock(IssueResult.class);
+		final ErrorCollection errors = Mockito.mock(ErrorCollection.class);
+		Mockito.when(errors.hasAnyErrors()).thenReturn(false);
+		Mockito.when(transitionResult.getErrorCollection()).thenReturn(errors);
+		// Mockito.when(transitionResult.getIssue()).thenReturn(reOpenedIssue);
+		Mockito.when(
+				issueService.transition(Mockito.any(ApplicationUser.class),
+						Mockito.any(TransitionValidationResult.class))).thenReturn(
+								transitionResult);
+
+		Mockito.when(
+				issueService.validateTransition(Mockito.any(ApplicationUser.class), Mockito.anyLong(),
+						Mockito.anyInt(), Mockito.any(IssueInputParameters.class))).thenReturn(validationResult);
+
 		Mockito.when(jiraProjectManager.getProjectObj(123L)).thenReturn(atlassianJiraProject);
 		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
 				notificationDateRange);
@@ -260,6 +315,11 @@ public class TicketGeneratorTest {
 		// .setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
 		// .setReporterId(notificationResult.getJiraUser().getName())
 		// .setDescription(issueDescription.toString());
+
+		// Verify this happened:
+		// issueHandler.transitionIssue(oldIssue, REOPEN_STATUS);
+		// parameters.setRetainExistingValuesWhenParameterNotProvided(true);
+
 	}
 
 }
