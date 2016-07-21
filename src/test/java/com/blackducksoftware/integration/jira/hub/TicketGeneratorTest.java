@@ -103,7 +103,18 @@ public class TicketGeneratorTest {
 	// TODO write tests
 
 	@Test
-	public void test() throws HubNotificationServiceException, ParseException, IOException, URISyntaxException,
+	public void testCreateNewJiraIssue() {
+
+	}
+
+	@Test
+	public void testCloseJiraIssue() {
+
+	}
+
+	@Test
+	public void testReOpenJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
+	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
@@ -166,6 +177,7 @@ public class TicketGeneratorTest {
 		componentVersionStatuses.add(componentVersionStatus);
 		content.setComponentVersionStatuses(componentVersionStatuses);
 		content.setProjectVersionLink("hubProjectVersionUrl");
+		content.setProjectName("projectName");
 		notificationItem.setContent(content);
 
 		notificationItems.add(notificationItem);
@@ -202,7 +214,8 @@ public class TicketGeneratorTest {
 		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
 		policyExpressionList.add(policyExpression);
 		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-		final PolicyRule rule = new PolicyRule(policyRuleMeta, null, null, null, null, policyExpressionsObject, null,
+		final PolicyRule rule = new PolicyRule(policyRuleMeta, "someRule", null, null, null, policyExpressionsObject,
+				null,
 				null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 
@@ -311,6 +324,10 @@ public class TicketGeneratorTest {
 				notificationDateRange);
 
 		// Verify that this happened:
+		Mockito.verify(issueInputParameters)
+		.setSummary(
+						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
+
 		// issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
 		// .setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
 		// .setReporterId(notificationResult.getJiraUser().getName())
