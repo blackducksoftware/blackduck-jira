@@ -116,6 +116,11 @@ public class TicketGeneratorTest {
 	public void testReOpenJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
+		test();
+	}
+
+	private void test() throws HubNotificationServiceException, ParseException, IOException, URISyntaxException,
+	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
@@ -148,7 +153,6 @@ public class TicketGeneratorTest {
 		System.out.println("endDate: " + endDate.getTime() + " / " + endDate);
 		final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate, endDate);
 
-		// hubItemsService.httpGetItemList(urlSegments, queryParameters);
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
 		urlSegments.add("notifications");
@@ -254,23 +258,32 @@ public class TicketGeneratorTest {
 		.thenReturn(
 				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":10000}");
 
-		final IssueResult issueResult = Mockito.mock(IssueResult.class);
-		Mockito.when(issueResult.isValid()).thenReturn(true);
+		final Project atlassianJiraProject = Mockito.mock(Project.class);
+		Mockito.when(atlassianJiraProject.getKey()).thenReturn("jiraProjectKey");
+		Mockito.when(atlassianJiraProject.getName()).thenReturn("jiraProjectName");
+		Mockito.when(atlassianJiraProject.getId()).thenReturn(123L);
+
+		// The JIRA issue already exists, but it's closed
+
+		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
+		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
 		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
-		Mockito.when(issueResult.getIssue()).thenReturn(oldIssue);
+		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
 		final Status oldIssueStatus = Mockito.mock(Status.class);
 		Mockito.when(oldIssueStatus.getName()).thenReturn("Done");
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
 		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
-				issueResult);
+				getOldIssueResult);
+		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
+		final IssueType oldIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
+		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
 
 		Mockito.when(entityPropertyQuery.key(Mockito.anyString())).thenReturn(executableQuery);
 		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
 		Mockito.when(jiraTicketGeneratorInfoService.getJsonEntityPropertyManager()).thenReturn(
 				jsonEntityPropertyManager);
-		final Project atlassianJiraProject = Mockito.mock(Project.class);
-		Mockito.when(atlassianJiraProject.getKey()).thenReturn("jiraProjectKey");
-		Mockito.when(atlassianJiraProject.getName()).thenReturn("jiraProjectName");
+
 		final Collection<IssueType> jiraProjectIssueTypes = new ArrayList<>();
 		final IssueType issueType = Mockito.mock(IssueType.class);
 		Mockito.when(issueType.getName()).thenReturn("jiraIssueTypeName");
@@ -290,13 +303,8 @@ public class TicketGeneratorTest {
 		Mockito.when(actionDescriptor.getName()).thenReturn("Reopen");
 		Mockito.when(stepDescriptor.getActions()).thenReturn(actions);
 		Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
-		final Project project = Mockito.mock(Project.class);
-		Mockito.when(project.getName()).thenReturn("Mocked project name");
-		Mockito.when(project.getId()).thenReturn(123L);
-		Mockito.when(oldIssue.getProjectObject()).thenReturn(project);
-		final IssueType oldIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
-		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
+
+
 
 		final TransitionValidationResult validationResult = Mockito.mock(TransitionValidationResult.class);
 		Mockito.when(validationResult.isValid()).thenReturn(true);
@@ -327,6 +335,7 @@ public class TicketGeneratorTest {
 		.setDescription(
 				"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 
+		// Verify re-open
 		Mockito.verify(issueService).transition(user, validationResult);
 	}
 
