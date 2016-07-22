@@ -33,10 +33,10 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -79,7 +79,7 @@ public class JiraNotificationProcessor {
 
 	private FilteredNotificationResults convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		NotificationType notificationType;
+		EventType eventType;
 		String projectName;
 		String projectVersionName;
 		List<ComponentVersionStatus> compVerStatuses;
@@ -88,7 +88,7 @@ public class JiraNotificationProcessor {
 		if (notif instanceof RuleViolationNotificationItem) {
 			try {
 				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-				notificationType = NotificationType.POLICY_VIOLATION;
+				eventType = EventType.POLICY_VIOLATION;
 				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
 				projectName = ruleViolationNotif.getContent().getProjectName();
 				notifHubProjectReleaseItem = hubNotificationService
@@ -100,12 +100,12 @@ public class JiraNotificationProcessor {
 			}
 			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
+			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			try {
 				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-				notificationType = NotificationType.POLICY_OVERRIDE;
+				eventType = EventType.POLICY_OVERRIDE;
 
 				compVerStatuses = new ArrayList<>();
 				final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
@@ -127,10 +127,10 @@ public class JiraNotificationProcessor {
 			}
 			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
+			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
-			notificationType = NotificationType.VULNERABILITY;
+			// eventType = EventType.VULNERABILITY;
 			return null; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);

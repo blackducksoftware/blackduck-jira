@@ -24,7 +24,7 @@ package com.blackducksoftware.integration.jira.hub;
 import java.util.UUID;
 
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
+import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class FilteredNotificationResult {
 
@@ -44,15 +44,15 @@ public class FilteredNotificationResult {
 	private final Long jiraProjectId;
 	private final String jiraProjectName;
 
-	private final NotificationType notificationType;
+	private final EventType eventType;
 
 	public FilteredNotificationResult(final String hubProjectName, final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion, final PolicyRule rule,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
- final UUID hubComponentVersionId,
+			final UUID hubComponentVersionId,
 			final UUID ruleId, final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final NotificationType notificationType) {
+ final EventType eventType) {
 		this.hubProjectName = hubProjectName;
 		this.hubProjectVersion = hubProjectVersion;
 		this.hubComponentName = hubComponentName;
@@ -66,7 +66,7 @@ public class FilteredNotificationResult {
 		this.jiraIssueTypeId = jiraIssueTypeId;
 		this.jiraProjectId = jiraProjectId;
 		this.jiraProjectName = jiraProjectName;
-		this.notificationType = notificationType;
+		this.eventType = eventType;
 	}
 
 	public String getHubProjectName() {
@@ -121,8 +121,8 @@ public class FilteredNotificationResult {
 		return jiraProjectName;
 	}
 
-	public NotificationType getNotificationType() {
-		return notificationType;
+	public EventType getEventType() {
+		return eventType;
 	}
 
 	public String getUniquePropertyKey() {

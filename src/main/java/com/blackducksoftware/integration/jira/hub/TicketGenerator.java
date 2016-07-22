@@ -32,6 +32,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
@@ -91,7 +92,7 @@ public class TicketGenerator {
 
 		final StringBuilder issueSummary = new StringBuilder();
 		issueSummary.append("Black Duck ");
-		issueSummary.append(notificationResult.getNotificationType().getDisplayName());
+		issueSummary.append(notificationResult.getEventType().getDisplayName());
 		issueSummary.append(" detected on Hub Project '");
 		issueSummary.append(notificationResult.getHubProjectName());
 		issueSummary.append("' / '");
@@ -106,7 +107,7 @@ public class TicketGenerator {
 
 		final StringBuilder issueDescription = new StringBuilder();
 		issueDescription.append("The Black Duck Hub has detected a ");
-		issueDescription.append(notificationResult.getNotificationType().getDisplayName());
+		issueDescription.append(notificationResult.getEventType().getDisplayName());
 		issueDescription.append(" on Hub Project '");
 		issueDescription.append(notificationResult.getHubProjectName());
 		issueDescription.append("', component '");
@@ -123,7 +124,7 @@ public class TicketGenerator {
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
 		.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
-				.setReporterId(notificationResult.getJiraUserName())
+		.setReporterId(notificationResult.getJiraUserName())
 		.setDescription(issueDescription.toString());
 
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);

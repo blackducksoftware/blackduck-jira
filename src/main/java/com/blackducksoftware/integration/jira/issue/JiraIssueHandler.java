@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.issue;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -20,6 +20,8 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
+import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
+import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

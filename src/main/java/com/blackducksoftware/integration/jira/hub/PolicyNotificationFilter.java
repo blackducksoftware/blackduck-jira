@@ -18,7 +18,7 @@ import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationType;
+import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class PolicyNotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -38,7 +38,7 @@ public class PolicyNotificationFilter {
 		this.hubNotificationService = hubNotificationService;
 	}
 
-	public FilteredNotificationResults handleNotification(final NotificationType notificationType,
+	public FilteredNotificationResults handleNotification(final EventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
 					throws UnexpectedHubResponseException, HubNotificationServiceException {
@@ -68,7 +68,7 @@ public class PolicyNotificationFilter {
 
 			logger.debug("JIRA Project: " + jiraProject);
 
-			final FilteredNotificationResults oneProjectsResults = handleNotificationPerJiraProject(notificationType,
+			final FilteredNotificationResults oneProjectsResults = handleNotificationPerJiraProject(eventType,
 					projectName, projectVersionName, compVerStatuses, notifHubProjectReleaseItem, jiraProject);
 			if (oneProjectsResults != null) {
 				notifResults.addAllResults(oneProjectsResults);
@@ -77,7 +77,7 @@ public class PolicyNotificationFilter {
 		return notifResults;
 	}
 
-	private FilteredNotificationResults handleNotificationPerJiraProject(final NotificationType notificationType,
+	private FilteredNotificationResults handleNotificationPerJiraProject(final EventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem,
 			final JiraProject jiraProject)
@@ -88,7 +88,7 @@ public class PolicyNotificationFilter {
 			return null;
 		}
 		for (final ComponentVersionStatus compVerStatus : compVerStatuses) {
-			if (notificationType == NotificationType.POLICY_VIOLATION
+			if (eventType == EventType.POLICY_VIOLATION
 					&& compVerStatus.getComponentVersionLink() == null) {
 				// FIXME see HUB-7571
 				logger.error(
@@ -142,13 +142,14 @@ public class PolicyNotificationFilter {
 				final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
 						projectVersionName, compVerStatus.getComponentName(), componentVersionName,
 						rule, versionId, componentId, componentVersionId, ruleId,
- getTicketGenInfo().getJiraUser().getName(),
+						getTicketGenInfo().getJiraUser().getName(),
 						jiraProject.getIssueTypeId(),
-						jiraProject.getProjectId(), jiraProject.getProjectName(), notificationType);
+						jiraProject.getProjectId(), jiraProject.getProjectName(),
+						eventType);
 
-				if (result.getNotificationType() == NotificationType.POLICY_VIOLATION) {
+				if (result.getEventType() == EventType.POLICY_VIOLATION) {
 					notifResults.addPolicyViolationResult(result);
-				} else if (result.getNotificationType() == NotificationType.POLICY_OVERRIDE) {
+				} else if (result.getEventType() == EventType.POLICY_OVERRIDE) {
 					notifResults.addPolicyViolationOverrideResult(result);
 				}
 			}
