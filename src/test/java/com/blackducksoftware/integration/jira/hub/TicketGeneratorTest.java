@@ -101,6 +101,9 @@ public class TicketGeneratorTest {
 	private static SimpleDateFormat dateFormatter;
 	private static ErrorCollection succeeded;
 
+	private static PolicyRule rule;
+	private static BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -108,6 +111,23 @@ public class TicketGeneratorTest {
 
 		succeeded = Mockito.mock(ErrorCollection.class);
 		Mockito.when(succeeded.hasAnyErrors()).thenReturn(false);
+
+		final MetaInformation policyRuleMeta = new MetaInformation(null,
+				"http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad", null);
+		final List<PolicyValue> policyValues = new ArrayList<>();
+		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
+		policyValues.add(policyValue);
+		final List<PolicyExpression> policyExpressionList = new ArrayList<>();
+		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
+		policyExpressionList.add(policyExpression);
+		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
+		rule = new PolicyRule(policyRuleMeta, "someRule", "Some Rule", true, true, policyExpressionsObject, null, null,
+				null, null);
+
+		final List<MetaLink> links = new ArrayList<>();
+		links.add(new MetaLink("policy-rule", "ruleUrl"));
+		final MetaInformation bomComponentVersionPolicyStatusMeta = new MetaInformation(null, null, links);
+		bomComponentVersionPolicyStatus = new BomComponentVersionPolicyStatus(bomComponentVersionPolicyStatusMeta);
 	}
 
 	@AfterClass
@@ -124,7 +144,7 @@ public class TicketGeneratorTest {
 
 	@Test
 	public void testDuplicateIssueAvoidance() throws HubNotificationServiceException, ParseException, IOException,
-			URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
+	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		test(false, true, true);
 	}
 
@@ -350,7 +370,7 @@ public class TicketGeneratorTest {
 		urlSegments.add("notifications");
 		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
 
-		List<MetaLink> links = new ArrayList<>();
+		final List<MetaLink> links = new ArrayList<>();
 		links.add(new MetaLink("project", "hubProjectUrl"));
 		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
 		final MetaInformation projectMeta = new MetaInformation(null, href, links);
@@ -364,25 +384,9 @@ public class TicketGeneratorTest {
 				notificationService
 				.getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
 				.thenReturn(componentVersion);
-		links = new ArrayList<>();
-		links.add(new MetaLink("policy-rule", "ruleUrl"));
-		final MetaInformation bomComponentVersionPolicyStatusMeta = new MetaInformation(null, null, links);
-		final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = new BomComponentVersionPolicyStatus(
-				bomComponentVersionPolicyStatusMeta);
+
 		Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
 				bomComponentVersionPolicyStatus);
-		final MetaInformation policyRuleMeta = new MetaInformation(null,
-				"http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad", null);
-
-		final List<PolicyValue> policyValues = new ArrayList<>();
-		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
-		policyValues.add(policyValue);
-		final List<PolicyExpression> policyExpressionList = new ArrayList<>();
-		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
-		policyExpressionList.add(policyExpression);
-		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-		final PolicyRule rule = new PolicyRule(policyRuleMeta, "someRule", "Some Rule", true, true,
-				policyExpressionsObject, null, null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 	}
 
@@ -396,7 +400,7 @@ public class TicketGeneratorTest {
 		urlSegments.add("notifications");
 		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
 
-		List<MetaLink> links = new ArrayList<>();
+		final List<MetaLink> links = new ArrayList<>();
 		links.add(new MetaLink("project", "hubProjectUrl"));
 		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
 		final MetaInformation projectMeta = new MetaInformation(null, href, links);
@@ -411,28 +415,8 @@ public class TicketGeneratorTest {
 				notificationService
 				.getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
 				.thenReturn(componentVersion);
-		links = new ArrayList<>();
-		links.add(new MetaLink("policy-rule", "ruleUrl"));
-		final MetaInformation bomComponentVersionPolicyStatusMeta = new MetaInformation(null, null, links);
-		final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = new BomComponentVersionPolicyStatus(
-				bomComponentVersionPolicyStatusMeta);
 		Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
 				bomComponentVersionPolicyStatus);
-		final MetaInformation policyRuleMeta = new MetaInformation(null,
-				"http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad", null);
-
-		final List<PolicyValue> policyValues = new ArrayList<>();
-		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
-		policyValues.add(policyValue); // TODO the rule is always the same;
-		// factor it out to method
-		final List<PolicyExpression> policyExpressionList = new ArrayList<>();
-		final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
-		policyExpressionList.add(policyExpression);
-		final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-		final PolicyRule rule = new PolicyRule(policyRuleMeta, "someRule", "Some Rule", true, true,
-				policyExpressionsObject,
-				null,
-				null, null, null);
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 	}
 
