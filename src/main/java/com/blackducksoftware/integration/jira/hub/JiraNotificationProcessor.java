@@ -60,7 +60,7 @@ public class JiraNotificationProcessor {
 		final FilteredNotificationResults allResults = new FilteredNotificationResults();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-		+ " notifications");
+				+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
@@ -85,8 +85,6 @@ public class JiraNotificationProcessor {
 		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
 
-		NotificationFilter filter;
-
 		if (notif instanceof RuleViolationNotificationItem) {
 			try {
 				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
@@ -100,8 +98,10 @@ public class JiraNotificationProcessor {
 				logger.error(e);
 				return null;
 			}
-			filter = new PolicyNotificationFilter(mappings,
+			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+			return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
+					notifHubProjectReleaseItem);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			try {
 				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
@@ -125,16 +125,16 @@ public class JiraNotificationProcessor {
 				logger.error(e);
 				return null;
 			}
-			filter = new PolicyNotificationFilter(mappings,
+			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+			return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
+					notifHubProjectReleaseItem);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
 			notificationType = NotificationType.VULNERABILITY;
 			return null; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
 		}
-		return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
-				notifHubProjectReleaseItem);
 	}
 
 }

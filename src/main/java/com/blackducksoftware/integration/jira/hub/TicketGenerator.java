@@ -123,7 +123,7 @@ public class TicketGenerator {
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
 		.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
-		.setReporterId(notificationResult.getJiraUser().getName())
+				.setReporterId(notificationResult.getJiraUserName())
 		.setDescription(issueDescription.toString());
 
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);
