@@ -208,19 +208,19 @@ public class TicketGeneratorTest {
 		// Verify
 
 		if (openIssue) {
-			Mockito.verify(issueInputParameters)
+			Mockito.verify(issueInputParameters, Mockito.times(1))
 			.setSummary(
 					"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
-			Mockito.verify(issueInputParameters)
+			Mockito.verify(issueInputParameters, Mockito.times(1))
 			.setDescription(
 					"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 			if (jiraIssueExistsAsClosed) {
-				Mockito.verify(issueService).transition(user, transitionValidationResult);
+				Mockito.verify(issueService, Mockito.times(1)).transition(user, transitionValidationResult);
 			} else {
-				Mockito.verify(propertyService).setProperty(user, setPropValidationResult);
+				Mockito.verify(propertyService, Mockito.times(1)).setProperty(user, setPropValidationResult);
 			}
 		} else {
-			Mockito.verify(issueService).transition(user, transitionValidationResult);
+			Mockito.verify(issueService, Mockito.times(1)).transition(user, transitionValidationResult);
 		}
 
 
