@@ -119,6 +119,12 @@ public class TicketGeneratorTest {
 	@Test
 	public void testCreateNewJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
+		test(false, true, false);
+	}
+
+	@Test
+	public void testDuplicateIssueAvoidance() throws HubNotificationServiceException, ParseException, IOException,
+			URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		test(false, true, true);
 	}
 
