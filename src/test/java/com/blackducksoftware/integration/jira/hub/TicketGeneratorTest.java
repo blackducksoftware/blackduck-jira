@@ -143,28 +143,37 @@ public class TicketGeneratorTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
-
+	// @Test
+	public void testCreateNewVulnerabilityJiraIssue() throws HubNotificationServiceException, ParseException,
+	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+	UnexpectedHubResponseException {
+		testVulnerabilityNotifications(false, true, false);
+	}
 
 	@Test
-	public void testCreateNewJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
+	public void testCreateNewPolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		testRuleNotifications(false, true, false);
 	}
 
 	@Test
-	public void testDuplicateIssueAvoidance() throws HubNotificationServiceException, ParseException, IOException,
+	public void testDuplicatePolicyViolationIssueAvoidance() throws HubNotificationServiceException, ParseException,
+	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		testRuleNotifications(false, true, true);
 	}
 
 	@Test
-	public void testCloseJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
+	public void testClosePolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		testRuleNotifications(true, false, false);
 	}
 
 	@Test
-	public void testReOpenJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
+	public void testReOpenPolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	IOException,
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		testRuleNotifications(true, true, false);
@@ -201,6 +210,97 @@ public class TicketGeneratorTest {
 		final VulnerabilityNotificationContent vulnContent = gson.fromJson(jsonString,
 				VulnerabilityNotificationContent.class);
 		return vulnContent;
+	}
+
+	private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
+			final boolean createDuplicateNotification) throws HubNotificationServiceException, ParseException,
+			IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+			UnexpectedHubResponseException {
+
+		// Setup
+
+		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
+		final HubNotificationService notificationService = mockHubNotificationService(hubItemsService);
+		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
+
+		List<NotificationItem> notificationItems;
+		// if (openIssue) {
+		notificationItems = mockNewVulnerabilityNotificationItems(createDuplicateNotification);
+		// } else {
+		// notificationItems = mock... TODO
+		// }
+		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
+				JAN_2_2016);
+		mockNotificationService(hubItemsService, notificationService, hubNotificationQueryParameters, notificationItems);
+
+		final ApplicationUser user = mockUser();
+		final IssueService issueService = Mockito.mock(IssueService.class);
+		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
+		final Project atlassianJiraProject = mockJira(jiraTicketGeneratorInfoService, user, issueService,
+				issueInputParameters);
+		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getPropertyService()).thenReturn(propertyService);
+
+		SetPropertyValidationResult setPropValidationResult = null;
+		MutableIssue oldIssue = null;
+
+		if (openIssue) {
+			if (jiraIssueExistsAsClosed) {
+				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, false,
+						user);
+			} else {
+				setPropValidationResult = mockIssueDoesNotExist(issueService, issueInputParameters, user,
+						atlassianJiraProject, jiraTicketGeneratorInfoService, propertyService);
+			}
+		} else {
+			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, true, user);
+		}
+
+		final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
+
+		final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
+
+		final List<String> linksOfRulesToMonitor = mockRules();
+
+		final NotificationDateRange notificationDateRange = new NotificationDateRange(new Date(JAN_1_2016), new Date(
+				JAN_2_2016));
+
+		// Test
+
+		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
+				notificationDateRange);
+
+		// Verify
+
+		int expectedFindIssueCount = 1;
+		final int expectedCreateIssueCount = 1;
+		final int expectedCloseIssueCount = 1;
+		if (createDuplicateNotification) {
+			expectedFindIssueCount = 2;
+		}
+
+		if (openIssue) {
+			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
+			.setSummary(
+					"Black Duck Vulnerability added to Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Vulnerability: 'someVuln']");
+			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
+			.setDescription(
+					"The Black Duck Hub has detected a new Vulnerability on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule new vulnerability is: 'someVuln'. Remediation Status : 'remStatus'");
+			if (jiraIssueExistsAsClosed) {
+				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
+						transitionValidationResult);
+			} else {
+				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
+						setPropValidationResult);
+				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).create(
+						Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
+			}
+		} else {
+			Mockito.verify(issueService, Mockito.times(expectedCloseIssueCount)).transition(user,
+					transitionValidationResult);
+		}
+
 	}
 
 	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
@@ -462,7 +562,8 @@ public class TicketGeneratorTest {
 		return notificationItems;
 	}
 
-	private List<NotificationItem> mockVulnerabilityNotificationItems(final boolean createDuplicate) throws IOException {
+	private List<NotificationItem> mockNewVulnerabilityNotificationItems(final boolean createDuplicate)
+			throws IOException {
 		final List<NotificationItem> notificationItems = new ArrayList<>();
 		final MetaInformation meta = new MetaInformation(null, null, null);
 		final VulnerabilityNotificationItem notificationItem = new VulnerabilityNotificationItem(meta);
