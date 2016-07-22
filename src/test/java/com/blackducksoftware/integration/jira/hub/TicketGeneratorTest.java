@@ -119,26 +119,27 @@ public class TicketGeneratorTest {
 	@Test
 	public void testCreateNewJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(false, true);
+		test(false, true, true);
 	}
 
 	@Test
 	public void testCloseJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(true, false);
+		test(true, false, false);
 	}
 
 	@Test
 	public void testReOpenJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(true, true);
+		test(true, true, false);
 	}
 
-	private void test(final boolean jiraIssueExistsAsClosed, final boolean openIssue)
-			throws HubNotificationServiceException, ParseException,
-			IOException, URISyntaxException,
-			ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
+	private void test(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
+			final boolean createDuplicateNotification)
+					throws HubNotificationServiceException, ParseException,
+					IOException, URISyntaxException,
+					ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 
 		// Setup
 
@@ -152,7 +153,8 @@ public class TicketGeneratorTest {
 		final Set<SimpleEntry<String, String>> queryParameters = mockHubQueryParameters(JAN_1_2016, JAN_2_2016);
 
 		if (openIssue) {
-			mockRuleViolationScenario(hubItemsService, notificationService, queryParameters);
+			mockRuleViolationScenario(hubItemsService, notificationService, queryParameters,
+					createDuplicateNotification);
 		} else {
 			mockPolicyOverrideNotification(hubItemsService, notificationService, queryParameters);
 		}
@@ -209,20 +211,33 @@ public class TicketGeneratorTest {
 
 		// Verify
 
+		int expectedFindIssueCount = 1;
+		final int expectedCreateIssueCount = 1;
+		final int expectedCloseIssueCount = 1;
+		if (createDuplicateNotification) {
+			expectedFindIssueCount = 2;
+		}
+
 		if (openIssue) {
-			Mockito.verify(issueInputParameters, Mockito.times(1))
+			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
 			.setSummary(
 					"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
-			Mockito.verify(issueInputParameters, Mockito.times(1))
+			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
 			.setDescription(
 					"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 			if (jiraIssueExistsAsClosed) {
-				Mockito.verify(issueService, Mockito.times(1)).transition(user, transitionValidationResult);
+				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
+						transitionValidationResult);
 			} else {
-				Mockito.verify(propertyService, Mockito.times(1)).setProperty(user, setPropValidationResult);
+				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
+						setPropValidationResult);
+				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).create(
+						Mockito.any(ApplicationUser.class),
+						Mockito.any(CreateValidationResult.class));
 			}
 		} else {
-			Mockito.verify(issueService, Mockito.times(1)).transition(user, transitionValidationResult);
+			Mockito.verify(issueService, Mockito.times(expectedCloseIssueCount)).transition(user,
+					transitionValidationResult);
 		}
 
 
@@ -319,10 +334,11 @@ public class TicketGeneratorTest {
 
 	private void mockRuleViolationScenario(final HubItemsService<NotificationItem> hubItemsService,
 			final HubNotificationService notificationService,
-			final Set<SimpleEntry<String, String>> queryParameters)
+			final Set<SimpleEntry<String, String>> queryParameters,
+			final boolean createDuplicateNotification)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 					HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<NotificationItem> notificationItems = mockRuleViolationNotificationItems();
+		final List<NotificationItem> notificationItems = mockRuleViolationNotificationItems(createDuplicateNotification);
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
 		urlSegments.add("notifications");
@@ -414,7 +430,7 @@ public class TicketGeneratorTest {
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 	}
 
-	private List<NotificationItem> mockRuleViolationNotificationItems() {
+	private List<NotificationItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
 		final List<NotificationItem> notificationItems = new ArrayList<>();
 		final MetaInformation meta = new MetaInformation(null, null, null);
 		final RuleViolationNotificationItem notificationItem = new RuleViolationNotificationItem(meta);
@@ -433,8 +449,9 @@ public class TicketGeneratorTest {
 		notificationItem.setContent(content);
 
 		notificationItems.add(notificationItem);
-		// notificationItems.add(notificationItem); // Add a duplicate
-		// notification
+		if (createDuplicate) {
+			notificationItems.add(notificationItem);
+		}
 		return notificationItems;
 	}
 
@@ -540,11 +557,28 @@ public class TicketGeneratorTest {
 			final IssueInputParameters issueInputParameters, final ApplicationUser user,
 			final Project atlassianJiraProject, final TicketGeneratorInfo jiraTicketGeneratorInfoService,
 			final IssuePropertyService propertyService) {
-		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
-		Mockito.when(getOldIssueResult.isValid()).thenReturn(false);
-		Mockito.when(getOldIssueResult.getIssue()).thenReturn(null);
-		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(getOldIssueResult);
-		Mockito.when(getOldIssueResult.getErrorCollection()).thenReturn(succeeded);
+
+		final MutableIssue newIssue = Mockito.mock(MutableIssue.class);
+		Mockito.when(newIssue.getProjectObject()).thenReturn(atlassianJiraProject);
+		final Status newIssueStatus = Mockito.mock(Status.class);
+		Mockito.when(newIssueStatus.getName()).thenReturn("Open");
+		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
+		final IssueType newIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
+		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);
+
+		final IssueResult issueNotFoundResult = Mockito.mock(IssueResult.class);
+		Mockito.when(issueNotFoundResult.isValid()).thenReturn(false);
+		Mockito.when(issueNotFoundResult.getIssue()).thenReturn(null);
+		Mockito.when(issueNotFoundResult.getErrorCollection()).thenReturn(succeeded);
+
+		final IssueResult issueExistsResult = Mockito.mock(IssueResult.class);
+		Mockito.when(issueExistsResult.isValid()).thenReturn(true);
+		Mockito.when(issueExistsResult.getIssue()).thenReturn(newIssue);
+		Mockito.when(issueExistsResult.getErrorCollection()).thenReturn(succeeded);
+
+		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(issueNotFoundResult)
+		.thenReturn(issueExistsResult);
 
 		final CreateValidationResult createValidationResult = Mockito.mock(CreateValidationResult.class);
 		Mockito.when(createValidationResult.isValid()).thenReturn(true);
@@ -554,16 +588,7 @@ public class TicketGeneratorTest {
 
 		Mockito.when(createResult.getErrorCollection()).thenReturn(succeeded);
 
-		final MutableIssue newIssue = Mockito.mock(MutableIssue.class);
-		Mockito.when(newIssue.getProjectObject()).thenReturn(atlassianJiraProject);
 
-		final Status newIssueStatus = Mockito.mock(Status.class);
-		Mockito.when(newIssueStatus.getName()).thenReturn("Done");
-		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
-
-		final IssueType newIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
-		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);
 		Mockito.when(createResult.getIssue()).thenReturn(newIssue);
 		Mockito.when(issueService.create(user, createValidationResult)).thenReturn(createResult);
 
