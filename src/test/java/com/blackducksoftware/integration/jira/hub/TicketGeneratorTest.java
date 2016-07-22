@@ -148,26 +148,26 @@ public class TicketGeneratorTest {
 	@Test
 	public void testCreateNewJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(false, true, false);
+		testRuleNotifications(false, true, false);
 	}
 
 	@Test
 	public void testDuplicateIssueAvoidance() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(false, true, true);
+		testRuleNotifications(false, true, true);
 	}
 
 	@Test
 	public void testCloseJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(true, false, false);
+		testRuleNotifications(true, false, false);
 	}
 
 	@Test
 	public void testReOpenJiraIssue() throws HubNotificationServiceException, ParseException, IOException,
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
-		test(true, true, false);
+		testRuleNotifications(true, true, false);
 	}
 
 	@Test
@@ -203,7 +203,7 @@ public class TicketGeneratorTest {
 		return vulnContent;
 	}
 
-	private void test(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
+	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification)
 					throws HubNotificationServiceException, ParseException,
 					IOException, URISyntaxException,
@@ -213,36 +213,24 @@ public class TicketGeneratorTest {
 
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
 		final HubNotificationService notificationService = mockHubNotificationService(hubItemsService);
-
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
 
-
-		final Set<SimpleEntry<String, String>> queryParameters = mockHubQueryParameters(JAN_1_2016, JAN_2_2016);
-
+		List<NotificationItem> notificationItems;
 		if (openIssue) {
-			mockRuleViolationScenario(hubItemsService, notificationService, queryParameters,
-					createDuplicateNotification);
+			notificationItems = mockRuleViolationNotificationItems(createDuplicateNotification);
 		} else {
-			mockPolicyOverrideNotification(hubItemsService, notificationService, queryParameters);
+			notificationItems = mockPolicyOverrideNotificationItems();
 		}
+		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
+				JAN_2_2016);
+		mockNotificationService(hubItemsService, notificationService, hubNotificationQueryParameters, notificationItems);
 
 		final ApplicationUser user = mockUser();
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
-
 		final IssueService issueService = Mockito.mock(IssueService.class);
 		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
-		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
-		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
-
-		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
-
-		mockJsonEntityPropertyManager(jiraTicketGeneratorInfoService);
-
-		final Project atlassianJiraProject = mockJiraProject(jiraTicketGeneratorInfoService);
-
+		final Project atlassianJiraProject = mockJira(jiraTicketGeneratorInfoService, user, issueService,
+				issueInputParameters);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
 		Mockito.when(jiraTicketGeneratorInfoService.getPropertyService()).thenReturn(propertyService);
 
@@ -266,8 +254,7 @@ public class TicketGeneratorTest {
 
 		final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
 
-		final List<String> linksOfRulesToMonitor = new ArrayList<>();
-		linksOfRulesToMonitor.add("ruleUrl");
+		final List<String> linksOfRulesToMonitor = mockRules();
 
 		final NotificationDateRange notificationDateRange = new NotificationDateRange(new Date(JAN_1_2016), new Date(
 				JAN_2_2016));
@@ -309,6 +296,25 @@ public class TicketGeneratorTest {
 		}
 
 
+	}
+
+	private List<String> mockRules() {
+		final List<String> linksOfRulesToMonitor = new ArrayList<>();
+		linksOfRulesToMonitor.add("ruleUrl");
+		return linksOfRulesToMonitor;
+	}
+
+	private Project mockJira(final TicketGeneratorInfo jiraTicketGeneratorInfoService, final ApplicationUser user,
+			final IssueService issueService, final IssueInputParameters issueInputParameters) {
+		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
+		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
+		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
+		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
+		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
+		mockJsonEntityPropertyManager(jiraTicketGeneratorInfoService);
+		final Project atlassianJiraProject = mockJiraProject(jiraTicketGeneratorInfoService);
+		return atlassianJiraProject;
 	}
 
 	private TransitionValidationResult mockTransition(final IssueService issueService, final MutableIssue oldIssue) {
@@ -400,43 +406,12 @@ public class TicketGeneratorTest {
 		return queryParameters;
 	}
 
-	private void mockRuleViolationScenario(final HubItemsService<NotificationItem> hubItemsService,
-			final HubNotificationService notificationService,
-			final Set<SimpleEntry<String, String>> queryParameters,
-			final boolean createDuplicateNotification)
+	private void mockNotificationService(final HubItemsService<NotificationItem> hubItemsService,
+			final HubNotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters,
+			final List<NotificationItem> notificationItems)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 					HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<NotificationItem> notificationItems = mockRuleViolationNotificationItems(createDuplicateNotification);
-		final List<String> urlSegments = new ArrayList<>();
-		urlSegments.add("api");
-		urlSegments.add("notifications");
-		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
 
-		final List<MetaLink> links = new ArrayList<>();
-		links.add(new MetaLink("project", "hubProjectUrl"));
-		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
-		final MetaInformation projectMeta = new MetaInformation(null, href, links);
-		final ReleaseItem releaseItem = new ReleaseItem("hubProjectVersionName", "projectPhase", "projectDistribution",
-				"projectSource", projectMeta);
-		Mockito.when(notificationService.getProjectReleaseItemFromProjectReleaseUrl("hubProjectVersionUrl"))
-		.thenReturn(releaseItem);
-		final ComponentVersion componentVersion = Mockito.mock(ComponentVersion.class);
-		Mockito.when(componentVersion.getVersionName()).thenReturn("componentVersionName");
-		Mockito.when(
-				notificationService
-				.getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
-				.thenReturn(componentVersion);
-
-		Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
-				bomComponentVersionPolicyStatus);
-		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
-	}
-
-	private void mockPolicyOverrideNotification(final HubItemsService<NotificationItem> hubItemsService,
-			final HubNotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters)
-					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
-					HubNotificationServiceException, UnexpectedHubResponseException {
-		final List<NotificationItem> notificationItems = mockPolicyOverrideNotificationItems();
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");
 		urlSegments.add("notifications");
