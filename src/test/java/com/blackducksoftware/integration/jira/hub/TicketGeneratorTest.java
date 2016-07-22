@@ -94,6 +94,7 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  *
  */
 public class TicketGeneratorTest {
+	private static final long JIRA_ISSUE_ID = 10000L;
 	private static final long JAN_2_2016 = 1451710800000L;
 	private static final long JAN_1_2016 = 1451624400000L;
 
@@ -151,7 +152,7 @@ public class TicketGeneratorTest {
 		final Set<SimpleEntry<String, String>> queryParameters = mockHubQueryParameters(JAN_1_2016, JAN_2_2016);
 
 		if (openIssue) {
-			mockRuleViolationNotification(hubItemsService, notificationService, queryParameters);
+			mockRuleViolationScenario(hubItemsService, notificationService, queryParameters);
 		} else {
 			mockPolicyOverrideNotification(hubItemsService, notificationService, queryParameters);
 		}
@@ -180,13 +181,14 @@ public class TicketGeneratorTest {
 
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
-				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, false);
+				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, false,
+						user);
 			} else {
 				setPropValidationResult = mockIssueDoesNotExist(issueService, issueInputParameters, user,
 						atlassianJiraProject, jiraTicketGeneratorInfoService, propertyService);
 			}
 		} else {
-			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, true);
+			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, true, user);
 		}
 
 		final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
@@ -267,7 +269,8 @@ public class TicketGeneratorTest {
 		Mockito.when(executableQuery.find()).thenReturn(props);
 		Mockito.when(entityProperty.getValue())
 		.thenReturn(
-				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":10000}");
+				"{\"projectName\":\"SB001\",\"projectVersion\":\"1\",\"componentName\":\"SeaMonkey\",\"componentVersion\":\"1.0.3\",\"ruleName\":\"apr28\",\"jiraIssueId\":"
+						+ JIRA_ISSUE_ID + "}");
 		return executableQuery;
 	}
 
@@ -314,7 +317,7 @@ public class TicketGeneratorTest {
 		return queryParameters;
 	}
 
-	private void mockRuleViolationNotification(final HubItemsService<NotificationItem> hubItemsService,
+	private void mockRuleViolationScenario(final HubItemsService<NotificationItem> hubItemsService,
 			final HubNotificationService notificationService,
 			final Set<SimpleEntry<String, String>> queryParameters)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
@@ -430,6 +433,8 @@ public class TicketGeneratorTest {
 		notificationItem.setContent(content);
 
 		notificationItems.add(notificationItem);
+		// notificationItems.add(notificationItem); // Add a duplicate
+		// notification
 		return notificationItems;
 	}
 
@@ -490,7 +495,7 @@ public class TicketGeneratorTest {
 	}
 
 	private MutableIssue mockIssueExists(final IssueService issueService, final Project atlassianJiraProject,
-			final TicketGeneratorInfo jiraTicketGeneratorInfoService, final boolean open) {
+			final TicketGeneratorInfo jiraTicketGeneratorInfoService, final boolean open, final ApplicationUser user) {
 		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
 		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
 		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
@@ -504,7 +509,7 @@ public class TicketGeneratorTest {
 		}
 		Mockito.when(oldIssueStatus.getName()).thenReturn(state);
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
-		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
+		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(
 				getOldIssueResult);
 		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
 		final IssueType oldIssueType = Mockito.mock(IssueType.class);
@@ -538,8 +543,7 @@ public class TicketGeneratorTest {
 		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
 		Mockito.when(getOldIssueResult.isValid()).thenReturn(false);
 		Mockito.when(getOldIssueResult.getIssue()).thenReturn(null);
-		Mockito.when(issueService.getIssue(Mockito.any(ApplicationUser.class), Mockito.anyLong())).thenReturn(
-				getOldIssueResult);
+		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(getOldIssueResult);
 		Mockito.when(getOldIssueResult.getErrorCollection()).thenReturn(succeeded);
 
 		final CreateValidationResult createValidationResult = Mockito.mock(CreateValidationResult.class);
