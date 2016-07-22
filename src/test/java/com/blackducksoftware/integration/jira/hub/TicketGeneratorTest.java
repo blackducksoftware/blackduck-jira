@@ -21,8 +21,13 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.hub;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -86,6 +91,9 @@ import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverr
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
 
@@ -159,6 +167,30 @@ public class TicketGeneratorTest {
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException {
 		test(true, true, false);
+	}
+
+	@Test
+	public void testLoadVulnerabilityContentJson() throws IOException {
+		final byte[] jsonBytes = Files.readAllBytes(Paths
+				.get("src/test/resources/json/VulnerabilityNotificationContent_new.json"));
+		final String jsonString = new String(jsonBytes, Charset.forName("UTF-8"));
+		System.out.println("JSON: " + jsonString);
+		final Gson gson = new GsonBuilder().create();
+		final VulnerabilityNotificationContent vulnContent = gson.fromJson(jsonString,
+				VulnerabilityNotificationContent.class);
+
+		assertEquals("TestNG", vulnContent.getComponentName());
+		assertEquals("2.0.0", vulnContent.getVersionName());
+		assertEquals(
+				"http://eng-hub-valid01.dc1.lan:8080/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d",
+				vulnContent.getComponentVersionLink());
+		assertEquals(1, vulnContent.getNewVulnerabilityCount());
+		assertEquals("NVD", vulnContent.getNewVulnerabilityIds().get(0).getSource());
+		assertEquals("CVE-2016-0001", vulnContent.getNewVulnerabilityIds().get(0).getId());
+		assertEquals(0, vulnContent.getUpdatedVulnerabilityCount());
+		assertEquals(0, vulnContent.getDeletedVulnerabilityCount());
+		assertEquals("TestProject", vulnContent.getAffectedProjectVersions().get(0).getProjectName());
+		assertEquals("1.0.0", vulnContent.getAffectedProjectVersions().get(0).getProjectVersionName());
 	}
 
 	private void test(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
