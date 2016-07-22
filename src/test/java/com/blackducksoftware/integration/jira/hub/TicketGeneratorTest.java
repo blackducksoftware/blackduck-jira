@@ -92,6 +92,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverr
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -171,13 +172,8 @@ public class TicketGeneratorTest {
 
 	@Test
 	public void testLoadVulnerabilityContentJson() throws IOException {
-		final byte[] jsonBytes = Files.readAllBytes(Paths
-				.get("src/test/resources/json/VulnerabilityNotificationContent_new.json"));
-		final String jsonString = new String(jsonBytes, Charset.forName("UTF-8"));
-		System.out.println("JSON: " + jsonString);
-		final Gson gson = new GsonBuilder().create();
-		final VulnerabilityNotificationContent vulnContent = gson.fromJson(jsonString,
-				VulnerabilityNotificationContent.class);
+		final String jsonString = readFile("src/test/resources/json/VulnerabilityNotificationContent_new.json");
+		final VulnerabilityNotificationContent vulnContent = createVulnerabilityNotificationContent(jsonString);
 
 		assertEquals("TestNG", vulnContent.getComponentName());
 		assertEquals("2.0.0", vulnContent.getVersionName());
@@ -191,6 +187,20 @@ public class TicketGeneratorTest {
 		assertEquals(0, vulnContent.getDeletedVulnerabilityCount());
 		assertEquals("TestProject", vulnContent.getAffectedProjectVersions().get(0).getProjectName());
 		assertEquals("1.0.0", vulnContent.getAffectedProjectVersions().get(0).getProjectVersionName());
+	}
+
+	private String readFile(final String path) throws IOException {
+		final byte[] jsonBytes = Files.readAllBytes(Paths
+				.get(path));
+		final String jsonString = new String(jsonBytes, Charset.forName("UTF-8"));
+		return jsonString;
+	}
+
+	private VulnerabilityNotificationContent createVulnerabilityNotificationContent(final String jsonString) {
+		final Gson gson = new GsonBuilder().create();
+		final VulnerabilityNotificationContent vulnContent = gson.fromJson(jsonString,
+				VulnerabilityNotificationContent.class);
+		return vulnContent;
 	}
 
 	private void test(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
@@ -468,6 +478,21 @@ public class TicketGeneratorTest {
 		content.setComponentVersionStatuses(componentVersionStatuses);
 		content.setProjectVersionLink("hubProjectVersionUrl");
 		content.setProjectName("projectName");
+		notificationItem.setContent(content);
+
+		notificationItems.add(notificationItem);
+		if (createDuplicate) {
+			notificationItems.add(notificationItem);
+		}
+		return notificationItems;
+	}
+
+	private List<NotificationItem> mockVulnerabilityNotificationItems(final boolean createDuplicate) throws IOException {
+		final List<NotificationItem> notificationItems = new ArrayList<>();
+		final MetaInformation meta = new MetaInformation(null, null, null);
+		final VulnerabilityNotificationItem notificationItem = new VulnerabilityNotificationItem(meta);
+		final String jsonString = readFile("src/test/resources/json/VulnerabilityNotificationContent_new.json");
+		final VulnerabilityNotificationContent content = createVulnerabilityNotificationContent(jsonString);
 		notificationItem.setContent(content);
 
 		notificationItems.add(notificationItem);
