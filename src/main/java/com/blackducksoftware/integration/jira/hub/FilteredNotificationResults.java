@@ -60,4 +60,11 @@ public class FilteredNotificationResults {
 		vulnerabilityResults.addAll(results.getVulnerabilityResults());
 	}
 
+	@Override
+	public String toString() {
+		return "FilteredNotificationResults [policyViolationResults=" + policyViolationResults
+				+ ", policyViolationOverrideResults=" + policyViolationOverrideResults + ", vulnerabilityResults="
+				+ vulnerabilityResults + "]";
+	}
+
 }
