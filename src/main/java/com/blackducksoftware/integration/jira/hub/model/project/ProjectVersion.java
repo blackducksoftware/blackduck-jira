@@ -38,7 +38,7 @@ public class ProjectVersion {
 		return projectVersionName;
 	}
 
-	public String projectVersionLink() {
+	public String getProjectVersionLink() {
 		return projectVersionLink;
 	}
 

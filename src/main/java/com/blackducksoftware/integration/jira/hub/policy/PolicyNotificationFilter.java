@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.hub.policy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,12 @@ import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
+import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
+import com.blackducksoftware.integration.jira.hub.FilteredNotificationResultRule;
+import com.blackducksoftware.integration.jira.hub.FilteredNotificationResults;
+import com.blackducksoftware.integration.jira.hub.HubNotificationService;
+import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
+import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.issue.EventType;
@@ -46,6 +52,7 @@ public class PolicyNotificationFilter {
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
+		// TODO use HubProjectMappings instead
 		final List<HubProjectMapping> mappings = getMatchingMappings(projectUrl);
 		if (mappings == null || mappings.isEmpty()) {
 			logger.debug("No configured project mapping matching this notification found; skipping this notification");

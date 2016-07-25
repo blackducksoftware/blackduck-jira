@@ -149,6 +149,23 @@ public class HubNotificationService {
 		return componentVersion;
 	}
 
+	public String getProjectUrlFromProjectVersionUrl(final String projectVersionUrl)
+			throws HubNotificationServiceException, UnexpectedHubResponseException {
+
+		final ReleaseItem projectVersion = getProjectReleaseItemFromProjectReleaseUrl(projectVersionUrl);
+
+		final List<String> projectLinks = projectVersion.getLinks("project");
+		if (projectLinks.size() == 0) {
+			throw new HubNotificationServiceException("Error getting project URL from project version URL: "
+					+ projectVersionUrl + ": Hub returned 0 project links");
+		}
+		if (projectLinks.size() > 1) {
+			throw new HubNotificationServiceException("Error getting project URL from project version URL: "
+					+ projectVersionUrl + ": Hub returned " + projectLinks.size() + " project links");
+		}
+		return projectLinks.get(0);
+	}
+
 	public ReleaseItem getProjectReleaseItemFromProjectReleaseUrl(final String versionUrl)
 			throws HubNotificationServiceException,
 			UnexpectedHubResponseException {

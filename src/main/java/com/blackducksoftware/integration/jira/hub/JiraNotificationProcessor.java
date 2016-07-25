@@ -35,8 +35,11 @@ import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersi
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.project.ProjectVersion;
+import com.blackducksoftware.integration.jira.hub.policy.PolicyNotificationFilter;
+import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationFilter;
 import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class JiraNotificationProcessor {
@@ -131,14 +134,28 @@ public class JiraNotificationProcessor {
 			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
-			// eventType = EventType.VULNERABILITY;
 			final VulnerabilityNotificationItem vulnerabilityNotif = (VulnerabilityNotificationItem) notif;
 			logger.debug("vulnerabilityNotif: " + vulnerabilityNotif);
 			logger.info("This vulnerability notification affects "
 					+ vulnerabilityNotif.getContent().getAffectedProjectVersions().size() + " project versions");
+			final VulnerabilityNotificationContent vulnerabilityNotificationContent = vulnerabilityNotif.getContent();
+
+			final VulnerabilityNotificationFilter filter = new VulnerabilityNotificationFilter(mappings, ticketGenInfo,
+					linksOfRulesToMonitor, hubNotificationService);
+
+			final String componentName = vulnerabilityNotif.getContent().getComponentName();
+			final String componentVersionName = vulnerabilityNotif.getContent().getVersionName();
+
 			for (final ProjectVersion projectVersion : vulnerabilityNotif.getContent().getAffectedProjectVersions()) {
 				projectName = projectVersion.getProjectName();
+				projectVersionName = projectVersion.getProjectVersionName();
+				final String projectVersionLink = projectVersion.getProjectVersionLink();
+
+				return filter.handleNotification(projectName, projectVersionName, projectVersionLink, componentName,
+						componentVersionName, vulnerabilityNotificationContent);
 			}
+
+
 			return null; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
