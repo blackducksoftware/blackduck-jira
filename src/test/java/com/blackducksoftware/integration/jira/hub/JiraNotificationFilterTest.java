@@ -70,6 +70,8 @@ public class JiraNotificationFilterTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
+	// TODO: Why is this commented out?
+
 	// @Test
 	// public void testWithRuleListWithMatches() throws
 	// HubNotificationServiceException, UnexpectedHubResponseException {
@@ -307,7 +309,7 @@ public class JiraNotificationFilterTest {
 			final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
 			Mockito.when(
 					mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX + i))
-			.thenReturn(status);
+					.thenReturn(status);
 		}
 		return mockHubNotificationService;
 	}

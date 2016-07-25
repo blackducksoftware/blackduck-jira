@@ -36,6 +36,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.project.ProjectVersion;
 import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class JiraNotificationProcessor {
@@ -131,6 +132,13 @@ public class JiraNotificationProcessor {
 					notifHubProjectReleaseItem);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
 			// eventType = EventType.VULNERABILITY;
+			final VulnerabilityNotificationItem vulnerabilityNotif = (VulnerabilityNotificationItem) notif;
+			logger.debug("vulnerabilityNotif: " + vulnerabilityNotif);
+			logger.info("This vulnerability notification affects "
+					+ vulnerabilityNotif.getContent().getAffectedProjectVersions().size() + " project versions");
+			for (final ProjectVersion projectVersion : vulnerabilityNotif.getContent().getAffectedProjectVersions()) {
+				projectName = projectVersion.getProjectName();
+			}
 			return null; // TODO
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
