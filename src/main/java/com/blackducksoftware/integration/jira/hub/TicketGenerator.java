@@ -101,9 +101,8 @@ public class TicketGenerator {
 		issueSummary.append(notificationResult.getHubComponentName());
 		issueSummary.append("' / '");
 		issueSummary.append(notificationResult.getHubComponentVersion());
-		issueSummary.append("' [Rule: '");
-		issueSummary.append(notificationResult.getRule().getName());
-		issueSummary.append("']");
+
+
 
 		final StringBuilder issueDescription = new StringBuilder();
 		issueDescription.append("The Black Duck Hub has detected a ");
@@ -114,10 +113,19 @@ public class TicketGenerator {
 		issueDescription.append(notificationResult.getHubComponentName());
 		issueDescription.append("' / '");
 		issueDescription.append(notificationResult.getHubComponentVersion());
-		issueDescription.append("'. The rule violated is: '");
-		issueDescription.append(notificationResult.getRule().getName());
-		issueDescription.append("'. Rule overridable : ");
-		issueDescription.append(notificationResult.getRule().getOverridable());
+
+
+		if (notificationResult instanceof FilteredNotificationResultRule) {
+			final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
+			issueSummary.append("' [Rule: '");
+			issueSummary.append(notificationResultRule.getRule().getName());
+			issueSummary.append("']");
+
+			issueDescription.append("'. The rule violated is: '");
+			issueDescription.append(notificationResultRule.getRule().getName());
+			issueDescription.append("'. Rule overridable : ");
+			issueDescription.append(notificationResultRule.getRule().getOverridable());
+		}
 
 		final IssueInputParameters issueInputParameters =
 				ticketGenInfo.getIssueService()
@@ -134,13 +142,16 @@ public class TicketGenerator {
 				logger.info("Created new Issue.");
 				issueHandler.printIssueInfo(issue);
 
-				final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
-						notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
-						notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
-						notificationResult.getRule().getName(), issue.getId());
+				if (notificationResult instanceof FilteredNotificationResultRule) {
+					final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
+					final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
+							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
+							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
+							notificationResultRule.getRule().getName(), issue.getId());
 
-				issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
-						properties);
+					issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
+							properties);
+				}
 			}
 		} else {
 			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
@@ -169,8 +180,10 @@ public class TicketGenerator {
 			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
 			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
 			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
-			logger.debug("Hub Rule Name : " + notificationResult.getRule().getName());
-
+			if (notificationResult instanceof FilteredNotificationResultRule) {
+				final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
+				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
+			}
 		}
 	}
 

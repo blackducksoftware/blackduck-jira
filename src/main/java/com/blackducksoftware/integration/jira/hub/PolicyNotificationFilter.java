@@ -139,7 +139,7 @@ public class PolicyNotificationFilter {
 					continue;
 				}
 
-				final FilteredNotificationResult result = new FilteredNotificationResult(projectName,
+				final FilteredNotificationResult result = new FilteredNotificationResultRule(projectName,
 						projectVersionName, compVerStatus.getComponentName(), componentVersionName,
 						rule, versionId, componentId, componentVersionId, ruleId,
 						getTicketGenInfo().getJiraUser().getName(),
