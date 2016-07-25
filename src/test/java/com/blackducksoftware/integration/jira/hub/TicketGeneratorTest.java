@@ -464,16 +464,27 @@ public class TicketGeneratorTest {
 	}
 
 	private Set<HubProjectMapping> mockProjectMappings() {
-		final HubProjectMapping hubProjectMapping = new HubProjectMapping();
-		final HubProject hubProject = new HubProject();
+		HubProjectMapping hubProjectMapping = new HubProjectMapping();
+		HubProject hubProject = new HubProject();
 		hubProject.setProjectName("hubProjectName");
 		hubProject.setProjectUrl("hubProjectUrl");
 		hubProjectMapping.setHubProject(hubProject);
 
-		final JiraProject bdsJiraProject = mockBdsJiraProject();
+		JiraProject bdsJiraProject = mockBdsJiraProject();
 		hubProjectMapping.setJiraProject(bdsJiraProject);
 
 		final Set<HubProjectMapping> hubProjectMappings = new HashSet<>();
+		hubProjectMappings.add(hubProjectMapping);
+
+		// Add a second, bogus, mapping
+		hubProjectMapping = new HubProjectMapping();
+		hubProject = new HubProject();
+		hubProject.setProjectName("bogusHubProjectName");
+		hubProject.setProjectUrl("bogusHubProjectUrl");
+		hubProjectMapping.setHubProject(hubProject);
+
+		bdsJiraProject = mockBdsJiraProject();
+		hubProjectMapping.setJiraProject(bdsJiraProject);
 		hubProjectMappings.add(hubProjectMapping);
 		return hubProjectMappings;
 	}
