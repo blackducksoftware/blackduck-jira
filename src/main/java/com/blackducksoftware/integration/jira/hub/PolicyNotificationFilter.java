@@ -140,12 +140,12 @@ public class PolicyNotificationFilter {
 				}
 
 				final FilteredNotificationResult result = new FilteredNotificationResultRule(projectName,
-						projectVersionName, compVerStatus.getComponentName(), componentVersionName,
-						rule, versionId, componentId, componentVersionId, ruleId,
+						projectVersionName, compVerStatus.getComponentName(), componentVersionName, versionId,
+						componentId, componentVersionId,
 						getTicketGenInfo().getJiraUser().getName(),
 						jiraProject.getIssueTypeId(),
 						jiraProject.getProjectId(), jiraProject.getProjectName(),
-						eventType);
+						eventType, rule, ruleId);
 
 				if (result.getEventType() == EventType.POLICY_VIOLATION) {
 					notifResults.addPolicyViolationResult(result);
