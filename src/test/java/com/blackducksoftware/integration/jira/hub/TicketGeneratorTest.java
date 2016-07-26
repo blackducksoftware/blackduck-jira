@@ -227,7 +227,9 @@ public class TicketGeneratorTest {
 
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
-		final HubNotificationService notificationService = createHubNotificationService(hub, hubItemsService);
+		final RestConnection restConnection = Mockito.mock(RestConnection.class);
+		final HubNotificationService notificationService = createHubNotificationService(restConnection, hub,
+				hubItemsService);
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
 
@@ -239,7 +241,8 @@ public class TicketGeneratorTest {
 		// }
 		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
 				JAN_2_2016);
-		mockNotificationServiceDependencies(hub, hubItemsService, notificationService, hubNotificationQueryParameters,
+		mockNotificationServiceDependencies(restConnection, hub, hubItemsService, notificationService,
+				hubNotificationQueryParameters,
 				notificationItems);
 
 		final ApplicationUser user = mockUser();
@@ -322,7 +325,9 @@ public class TicketGeneratorTest {
 
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
-		final HubNotificationService notificationService = createHubNotificationService(hub, hubItemsService);
+		final RestConnection restConnection = Mockito.mock(RestConnection.class);
+		final HubNotificationService notificationService = createHubNotificationService(restConnection, hub,
+				hubItemsService);
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
 
@@ -334,7 +339,8 @@ public class TicketGeneratorTest {
 		}
 		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
 				JAN_2_2016);
-		mockNotificationServiceDependencies(hub, hubItemsService, notificationService, hubNotificationQueryParameters,
+		mockNotificationServiceDependencies(restConnection, hub, hubItemsService, notificationService,
+				hubNotificationQueryParameters,
 				notificationItems);
 
 		final ApplicationUser user = mockUser();
@@ -500,9 +506,10 @@ public class TicketGeneratorTest {
 		return hubProjectMappings;
 	}
 
-	private HubNotificationService createHubNotificationService(final HubIntRestService hub,
+	private HubNotificationService createHubNotificationService(final RestConnection restConnection,
+			final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService) {
-		final RestConnection restConnection = Mockito.mock(RestConnection.class);
+
 		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
 				hubItemsService);
 		return notificationService;
@@ -528,7 +535,7 @@ public class TicketGeneratorTest {
 		return queryParameters;
 	}
 
-	private void mockNotificationServiceDependencies(final HubIntRestService hub,
+	private void mockNotificationServiceDependencies(final RestConnection restConnection, final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService,
 			final HubNotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters,
 			final List<NotificationItem> notificationItems)
@@ -564,12 +571,23 @@ public class TicketGeneratorTest {
 		Mockito.when(projectRelease.getLinks("project")).thenReturn(projectLinks);
 		final ComponentVersion componentVersion = Mockito.mock(ComponentVersion.class);
 		Mockito.when(componentVersion.getVersionName()).thenReturn("componentVersionName");
+
+		// Mockito.when(
+		// notificationService
+		// .getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
+		// .thenReturn(componentVersion);
 		Mockito.when(
-				notificationService
-				.getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
+				restConnection
+						.httpGetFromAbsoluteUrl(
+								ComponentVersion.class,
+								"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
 				.thenReturn(componentVersion);
+
+		// TODO: mock lower level object methods
 		Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
 				bomComponentVersionPolicyStatus);
+
+		// TODO: mock lower level object methods
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
 
 		// hubNotificationService.getProjectUrlFromProjectVersionUrl(projectVersionLink);
