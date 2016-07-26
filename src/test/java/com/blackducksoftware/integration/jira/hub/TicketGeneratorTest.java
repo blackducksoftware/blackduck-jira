@@ -145,11 +145,13 @@ public class TicketGeneratorTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
-	// @Test
+	@Test
 	public void testCreateNewVulnerabilityJiraIssue() throws HubNotificationServiceException, ParseException,
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
-		testVulnerabilityNotifications(false, true, false);
+		testVulnerabilityNotifications(false, true, false,
+				"Black Duck Vulnerability Add detected on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
+				"The Black Duck Hub has detected a Vulnerability Add on Hub Project 'TestProject', component 'TestNG' / '2.0.0'.");
 	}
 
 	@Test
@@ -219,9 +221,11 @@ public class TicketGeneratorTest {
 	}
 
 	private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
-			final boolean createDuplicateNotification) throws HubNotificationServiceException, ParseException,
-			IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
-			UnexpectedHubResponseException, MissingUUIDException {
+			final boolean createDuplicateNotification, final String expectedIssueSummary,
+			final String expectedIssueDescription)
+					throws HubNotificationServiceException, ParseException,
+					IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+					UnexpectedHubResponseException, MissingUUIDException {
 
 		// Setup
 
@@ -294,10 +298,10 @@ public class TicketGeneratorTest {
 		if (openIssue) {
 			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
 			.setSummary(
-					"Black Duck Vulnerability added to Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Vulnerability: 'someVuln']");
+					expectedIssueSummary);
 			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
 			.setDescription(
-					"The Black Duck Hub has detected a new Vulnerability on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule new vulnerability is: 'someVuln'. Remediation Status : 'remStatus'");
+					expectedIssueDescription);
 			if (jiraIssueExistsAsClosed) {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
@@ -575,6 +579,23 @@ public class TicketGeneratorTest {
 				restConnection.httpGetFromAbsoluteUrl(BomComponentVersionPolicyStatus.class,
 						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
 		Mockito.when(restConnection.httpGetFromAbsoluteUrl(PolicyRule.class, "ruleUrl")).thenReturn(rule);
+
+		// TODO: The followingare needed by, and only by, vulnerability test,
+		// which loads
+		// json from file with this URL:
+		Mockito.when(
+				hub.getProjectVersion("http://eng-hub-valid01.dc1.lan:8080/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f"))
+				.thenReturn(releaseItem);
+		Mockito.when(
+				restConnection
+				.httpGetFromAbsoluteUrl(
+						ComponentVersion.class,
+						"http://eng-hub-valid01.dc1.lan:8080/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d"))
+						.thenReturn(componentVersion);
+		final UUID componentUuid = UUID.randomUUID();
+		Mockito.when(componentVersion.getComponentId()).thenReturn(componentUuid);
+		final UUID componentVersionUuid = UUID.randomUUID();
+		Mockito.when(componentVersion.getVersionId()).thenReturn(componentVersionUuid);
 	}
 
 	private List<NotificationItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {

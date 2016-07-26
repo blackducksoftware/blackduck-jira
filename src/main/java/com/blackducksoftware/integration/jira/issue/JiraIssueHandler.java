@@ -23,6 +23,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.hub.property.VulnerabilityIssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -35,11 +36,24 @@ public class JiraIssueHandler {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public void addIssueProperty(final Long issueId, final String key, final PolicyViolationIssueProperties value) {
+	public void addIssuePropertyPolicyViolation(final Long issueId, final String key, final PolicyViolationIssueProperties value) {
 
 		final Gson gson = new GsonBuilder().create();
 
 		final String jsonValue = gson.toJson(value);
+		addIssuePropertyJson(issueId, key, jsonValue);
+	}
+
+	public void addIssuePropertyVulnerability(final Long issueId, final String key,
+			final VulnerabilityIssueProperties value) {
+
+		final Gson gson = new GsonBuilder().create();
+
+		final String jsonValue = gson.toJson(value);
+		addIssuePropertyJson(issueId, key, jsonValue);
+	}
+
+	private void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) {
 		final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue,
 				key);
 

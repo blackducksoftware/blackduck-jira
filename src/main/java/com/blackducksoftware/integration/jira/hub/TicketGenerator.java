@@ -32,6 +32,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.hub.property.VulnerabilityIssueProperties;
 import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
 /**
@@ -73,17 +74,23 @@ public class TicketGenerator {
 
 		int ticketCount = 0;
 		for (final FilteredNotificationResult notificationResult : notificationResults.getPolicyViolationResults()) {
-			createPolicyViolationIssue(issueHandler, notificationResult);
+			createIssue(issueHandler, notificationResult);
 			ticketCount++;
 		}
 		for (final FilteredNotificationResult notificationResult : notificationResults
 				.getPolicyViolationOverrideResults()) {
-			closePolicyViolationIssue(issueHandler, notificationResult);
+			closeIssue(issueHandler, notificationResult);
+		}
+
+		// TODO can this be combined with the rule issue create loop above
+		for (final FilteredNotificationResult vulnerabilityResult : notificationResults.getVulnerabilityResults()) {
+			createIssue(issueHandler, vulnerabilityResult);
+			ticketCount++;
 		}
 		return ticketCount;
 	}
 
-	private void createPolicyViolationIssue(final JiraIssueHandler issueHandler,
+	private void createIssue(final JiraIssueHandler issueHandler,
 			final FilteredNotificationResult notificationResult) {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
 		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
@@ -101,6 +108,7 @@ public class TicketGenerator {
 		issueSummary.append(notificationResult.getHubComponentName());
 		issueSummary.append("' / '");
 		issueSummary.append(notificationResult.getHubComponentVersion());
+		issueSummary.append("'");
 
 
 
@@ -113,15 +121,15 @@ public class TicketGenerator {
 		issueDescription.append(notificationResult.getHubComponentName());
 		issueDescription.append("' / '");
 		issueDescription.append(notificationResult.getHubComponentVersion());
-
+		issueDescription.append("'.");
 
 		if (notificationResult instanceof FilteredNotificationResultRule) {
 			final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
-			issueSummary.append("' [Rule: '");
+			issueSummary.append(" [Rule: '");
 			issueSummary.append(notificationResultRule.getRule().getName());
 			issueSummary.append("']");
 
-			issueDescription.append("'. The rule violated is: '");
+			issueDescription.append(" The rule violated is: '");
 			issueDescription.append(notificationResultRule.getRule().getName());
 			issueDescription.append("'. Rule overridable : ");
 			issueDescription.append(notificationResultRule.getRule().getOverridable());
@@ -149,8 +157,19 @@ public class TicketGenerator {
 							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
 							notificationResultRule.getRule().getName(), issue.getId());
 
-					issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(),
+					issueHandler.addIssuePropertyPolicyViolation(issue.getId(), notificationResult.getUniquePropertyKey(),
 							properties);
+				} else if (notificationResult instanceof FilteredNotificationResultVulnerability) {
+					final FilteredNotificationResultVulnerability notificationResultVulnerability = (FilteredNotificationResultVulnerability) notificationResult;
+
+					final VulnerabilityIssueProperties properties = new VulnerabilityIssueProperties(
+							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
+							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
+							notificationResultVulnerability.getVulnerabilitySource(),
+							notificationResultVulnerability.getVulnerabilityId());
+
+					issueHandler.addIssuePropertyVulnerability(issue.getId(),
+							notificationResult.getUniquePropertyKey(), properties);
 				}
 			}
 		} else {
@@ -165,7 +184,7 @@ public class TicketGenerator {
 		}
 	}
 
-	private void closePolicyViolationIssue(final JiraIssueHandler issueHandler,
+	private void closeIssue(final JiraIssueHandler issueHandler,
 			final FilteredNotificationResult notificationResult) {
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue != null) {
@@ -186,5 +205,6 @@ public class TicketGenerator {
 			}
 		}
 	}
+
 
 }

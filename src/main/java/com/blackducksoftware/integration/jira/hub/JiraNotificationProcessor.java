@@ -48,8 +48,8 @@ public class JiraNotificationProcessor {
 	public static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
 	private final Set<HubProjectMapping> underlyingMappings; // TODO replace
-																// with
-																// HubProjectMappings
+	// with
+	// HubProjectMappings
 	private final List<String> linksOfRulesToMonitor;
 	private final TicketGeneratorInfo ticketGenInfo;
 
@@ -155,8 +155,11 @@ public class JiraNotificationProcessor {
 				projectVersionName = projectVersion.getProjectVersionName();
 				final String projectVersionLink = projectVersion.getProjectVersionLink();
 
+				notifHubProjectReleaseItem = hubNotificationService
+						.getProjectReleaseItemFromProjectReleaseUrl(projectVersionLink);
+
 				return filter.handleNotification(projectName, projectVersionName, projectVersionLink, componentName,
-						componentVersionName, vulnerabilityNotificationContent);
+						componentVersionName, vulnerabilityNotificationContent, notifHubProjectReleaseItem);
 			}
 
 
