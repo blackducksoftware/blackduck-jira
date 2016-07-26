@@ -546,18 +546,12 @@ public class TicketGeneratorTest {
 		urlSegments.add("api");
 		urlSegments.add("notifications");
 		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
-
 		final List<MetaLink> links = new ArrayList<>();
 		links.add(new MetaLink("project", "hubProjectUrl"));
 		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
 		final MetaInformation projectMeta = new MetaInformation(null, href, links);
 		final ReleaseItem releaseItem = new ReleaseItem("hubProjectVersionName", "projectPhase", "projectDistribution",
 				"projectSource", projectMeta);
-
-		// Mockito.when(notificationService.getProjectReleaseItemFromProjectReleaseUrl("hubProjectVersionUrl"))
-		// .thenReturn(
-		// releaseItem);
-		// hub.getProjectVersion(versionUrl);
 		final ReleaseItem projectRelease = Mockito.mock(ReleaseItem.class);
 		final UUID projectUuid = UUID.randomUUID();
 		Mockito.when(projectRelease.getProjectId()).thenReturn(projectUuid);
@@ -571,32 +565,16 @@ public class TicketGeneratorTest {
 		Mockito.when(projectRelease.getLinks("project")).thenReturn(projectLinks);
 		final ComponentVersion componentVersion = Mockito.mock(ComponentVersion.class);
 		Mockito.when(componentVersion.getVersionName()).thenReturn("componentVersionName");
-
-		// Mockito.when(
-		// notificationService
-		// .getComponentVersion("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
-		// .thenReturn(componentVersion);
 		Mockito.when(
 				restConnection
 				.httpGetFromAbsoluteUrl(
 						ComponentVersion.class,
 						"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
 						.thenReturn(componentVersion);
-
-		// Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
-		// bomComponentVersionPolicyStatus);
 		Mockito.when(
 				restConnection.httpGetFromAbsoluteUrl(BomComponentVersionPolicyStatus.class,
 						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
-
-		// TODO: mock lower level object methods
-		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
-
-		// hubNotificationService.getProjectUrlFromProjectVersionUrl(projectVersionLink);
-		// hub.getProjectVersion(versionUrl);
-		// TODO notificationService isn't a mock!
-		// Mockito.when(notificationService.getProjectUrlFromProjectVersionUrl("hubProjectVersionUrl")).thenReturn(
-		// "hubProjectUrl");
+		Mockito.when(restConnection.httpGetFromAbsoluteUrl(PolicyRule.class, "ruleUrl")).thenReturn(rule);
 	}
 
 	private List<NotificationItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
