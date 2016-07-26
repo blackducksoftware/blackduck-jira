@@ -578,14 +578,16 @@ public class TicketGeneratorTest {
 		// .thenReturn(componentVersion);
 		Mockito.when(
 				restConnection
-						.httpGetFromAbsoluteUrl(
-								ComponentVersion.class,
-								"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
-				.thenReturn(componentVersion);
+				.httpGetFromAbsoluteUrl(
+						ComponentVersion.class,
+						"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
+						.thenReturn(componentVersion);
 
-		// TODO: mock lower level object methods
-		Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
-				bomComponentVersionPolicyStatus);
+		// Mockito.when(notificationService.getPolicyStatus("bomComponentVersionPolicyStatusLink")).thenReturn(
+		// bomComponentVersionPolicyStatus);
+		Mockito.when(
+				restConnection.httpGetFromAbsoluteUrl(BomComponentVersionPolicyStatus.class,
+						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
 
 		// TODO: mock lower level object methods
 		Mockito.when(notificationService.getPolicyRule("ruleUrl")).thenReturn(rule);
