@@ -258,17 +258,11 @@
               <groupId>com.blackducksoftware.integration</groupId>
               <artifactId>hub-common</artifactId>
             </pluginDependency>
+            <pluginDependency>
+              <groupId>com.blackducksoftware.integration</groupId>
+              <artifactId>hub-atlassian-config</artifactId>
+            </pluginDependency>
           </pluginDependencies>
-          <!-- Uncomment to install TestKit backdoor in JIRA. -->
-          <!--
-					<pluginArtifacts>
-						<pluginArtifact>
-							<groupId>com.atlassian.jira.tests</groupId>
-							<artifactId>jira-testkit-plugin</artifactId>
-							<version>${testkit.version}</version>
-						</pluginArtifact>
-					</pluginArtifacts>
-					-->
           <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
       </plugin>
