@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseExce
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
@@ -46,7 +47,9 @@ public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
-	private final Set<HubProjectMapping> mappings;
+	private final Set<HubProjectMapping> underlyingMappings; // TODO replace
+																// with
+																// HubProjectMappings
 	private final List<String> linksOfRulesToMonitor;
 	private final TicketGeneratorInfo ticketGenInfo;
 
@@ -54,7 +57,7 @@ public class JiraNotificationProcessor {
 			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
 			final TicketGeneratorInfo ticketGenInfo) {
 		this.hubNotificationService = hubNotificationService;
-		this.mappings = mappings;
+		this.underlyingMappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 		this.ticketGenInfo = ticketGenInfo;
 	}
@@ -102,7 +105,7 @@ public class JiraNotificationProcessor {
 				logger.error(e);
 				return null;
 			}
-			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
+			final PolicyNotificationFilter filter = new PolicyNotificationFilter(underlyingMappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
@@ -129,7 +132,7 @@ public class JiraNotificationProcessor {
 				logger.error(e);
 				return null;
 			}
-			final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings,
+			final PolicyNotificationFilter filter = new PolicyNotificationFilter(underlyingMappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
@@ -140,7 +143,8 @@ public class JiraNotificationProcessor {
 					+ vulnerabilityNotif.getContent().getAffectedProjectVersions().size() + " project versions");
 			final VulnerabilityNotificationContent vulnerabilityNotificationContent = vulnerabilityNotif.getContent();
 
-			final VulnerabilityNotificationFilter filter = new VulnerabilityNotificationFilter(mappings, ticketGenInfo,
+			final HubProjectMappings mapping = new HubProjectMappings(ticketGenInfo, underlyingMappings);
+			final VulnerabilityNotificationFilter filter = new VulnerabilityNotificationFilter(mapping, ticketGenInfo,
 					linksOfRulesToMonitor, hubNotificationService);
 
 			final String componentName = vulnerabilityNotif.getContent().getComponentName();
