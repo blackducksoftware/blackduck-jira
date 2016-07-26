@@ -44,11 +44,15 @@ public class HubProjectMappings {
 			logger.debug("JIRA Project: " + jiraProject);
 
 			final HubProject hubProject = mapping.getHubProject();
+
+			logger.debug("hubProject.getProjectUrl() (from config mapping): " + hubProject.getProjectUrl());
+			logger.debug("hubProjectUrl (from notification content)       : " + hubProjectUrl);
 			if ((!StringUtils.isBlank(hubProject.getProjectUrl()) && (hubProject.getProjectUrl().equals(hubProjectUrl)))) {
+				logger.debug("Match!");
 				return jiraProject;
 			}
 		}
-
+		logger.debug("No Match");
 		return null;
 	}
 

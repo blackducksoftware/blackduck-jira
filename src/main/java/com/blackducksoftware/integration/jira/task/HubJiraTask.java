@@ -52,6 +52,7 @@ import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
+import com.blackducksoftware.integration.jira.hub.HubNotificationServiceMock;
 import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
@@ -222,8 +223,17 @@ public class HubJiraTask {
 	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
 			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
-		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
-				hubItemsService);
+		logger.debug("Jira user: " + this.jiraUser);
+
+		final HubNotificationService notificationService;
+		if (!"mock".equals(jiraUser)) {
+			logger.debug("Creating HubNotificationService");
+			notificationService = new HubNotificationService(restConnection, hub, hubItemsService);
+		} else {
+			logger.debug("Creating HubNotificationServiceMock");
+			notificationService = new HubNotificationServiceMock(restConnection, hub, hubItemsService);
+		}
+
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,
 				ticketServices);
 		return ticketGenerator;
