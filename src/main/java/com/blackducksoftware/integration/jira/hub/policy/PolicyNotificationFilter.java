@@ -165,13 +165,16 @@ public class PolicyNotificationFilter {
 	}
 
 	private List<String> getMonitoredRules(final List<String> rulesViolated) throws HubNotificationServiceException {
+		logger.debug("getMonitoredRules(): Configured rules to monitor: " + linksOfRulesToMonitor);
 		if (rulesViolated == null || rulesViolated.isEmpty()) {
 			logger.warn("No violated Rules provided.");
 			return null;
 		}
 		final List<String> matchingRules = new ArrayList<>();
 		for (final String ruleViolated : rulesViolated) {
+			logger.debug("Violated rule (original): " + ruleViolated);
 			final String fixedRuleUrl = fixRuleUrl(ruleViolated);
+			logger.debug("Checking configured rules to monitor for fixed url: " + fixedRuleUrl);
 			if (linksOfRulesToMonitor.contains(fixedRuleUrl)) {
 				logger.debug("Monitored Rule : " + fixedRuleUrl);
 				matchingRules.add(fixedRuleUrl);

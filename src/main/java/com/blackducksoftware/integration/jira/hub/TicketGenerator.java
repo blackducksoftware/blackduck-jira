@@ -155,8 +155,8 @@ public class TicketGenerator {
 					final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
 							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
 							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
-							notificationResultRule.getRule().getName(), issue.getId());
-
+							issue.getId(), notificationResultRule.getRule().getName());
+					logger.debug("Adding properties to created issue: " + properties);
 					issueHandler.addIssuePropertyPolicyViolation(issue.getId(), notificationResult.getUniquePropertyKey(),
 							properties);
 				} else if (notificationResult instanceof FilteredNotificationResultVulnerability) {
@@ -165,9 +165,10 @@ public class TicketGenerator {
 					final VulnerabilityIssueProperties properties = new VulnerabilityIssueProperties(
 							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
 							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
+							issue.getId(),
 							notificationResultVulnerability.getVulnerabilitySource(),
 							notificationResultVulnerability.getVulnerabilityId());
-
+					logger.debug("Adding properties to created issue: " + properties);
 					issueHandler.addIssuePropertyVulnerability(issue.getId(),
 							notificationResult.getUniquePropertyKey(), properties);
 				}

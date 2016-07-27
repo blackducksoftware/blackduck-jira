@@ -155,6 +155,18 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
+	public void testDeDupeVulnerability() throws HubNotificationServiceException, ParseException, IOException,
+	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
+	MissingUUIDException {
+		testVulnerabilityNotifications(
+				false,
+				true,
+				true,
+				"Black Duck Vulnerability Add detected on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
+				"The Black Duck Hub has detected a Vulnerability Add on Hub Project 'TestProject', component 'TestNG' / '2.0.0'.");
+	}
+
+	@Test
 	public void testCreateNewPolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
 	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException,

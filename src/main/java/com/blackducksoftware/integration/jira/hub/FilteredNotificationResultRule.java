@@ -12,7 +12,7 @@ public class FilteredNotificationResultRule extends FilteredNotificationResult {
 	public FilteredNotificationResultRule(final String hubProjectName, final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
- final UUID hubComponentVersionId, final String jiraUserName,
+			final UUID hubComponentVersionId, final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
 			final EventType eventType, final PolicyRule rule, final UUID ruleId) {
 
@@ -47,4 +47,17 @@ public class FilteredNotificationResultRule extends FilteredNotificationResult {
 		keyBuilder.append(getRuleId().toString());
 		return keyBuilder.toString();
 	}
+
+	@Override
+	public String toString() {
+		return "FilteredNotificationResultRule [rule=" + rule + ", ruleId=" + ruleId + ", getHubProjectName()="
+				+ getHubProjectName() + ", getHubProjectVersion()=" + getHubProjectVersion()
+				+ ", getHubComponentName()=" + getHubComponentName() + ", getHubComponentVersion()="
+				+ getHubComponentVersion() + ", getHubProjectVersionId()=" + getHubProjectVersionId()
+				+ ", getHubComponentId()=" + getHubComponentId() + ", getHubComponentVersionId()="
+				+ getHubComponentVersionId() + ", getJiraUserName()=" + getJiraUserName() + ", getJiraIssueTypeId()="
+				+ getJiraIssueTypeId() + ", getJiraProjectId()=" + getJiraProjectId() + ", getJiraProjectName()="
+				+ getJiraProjectName() + ", getEventType()=" + getEventType() + "]";
+	}
+
 }

@@ -21,48 +21,25 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.hub.property;
 
-public class PolicyViolationIssueProperties {
-	private final String projectName;
-	private final String projectVersion;
-	private final String componentName;
-	private final String componentVersion;
+public class PolicyViolationIssueProperties extends IssueProperties {
+
 	private final String ruleName;
 
-	private final Long jiraIssueId;
-
 	public PolicyViolationIssueProperties(final String projectName, final String projectVersion,
-			final String componentName, final String componentVersion, final String ruleName,
-			final Long jiraIssueId) {
-		this.projectName = projectName;
-		this.projectVersion = projectVersion;
-		this.componentName = componentName;
-		this.componentVersion = componentVersion;
+			final String componentName, final String componentVersion, final Long jiraIssueId, final String ruleName) {
+		super(projectName, projectVersion, componentName, componentVersion, jiraIssueId);
 		this.ruleName = ruleName;
-		this.jiraIssueId = jiraIssueId;
-	}
-
-	public String getProjectName() {
-		return projectName;
-	}
-
-	public String getProjectVersion() {
-		return projectVersion;
-	}
-
-	public String getComponentName() {
-		return componentName;
-	}
-
-	public String getComponentVersion() {
-		return componentVersion;
 	}
 
 	public String getRuleName() {
 		return ruleName;
 	}
 
-	public Long getJiraIssueId() {
-		return jiraIssueId;
+	@Override
+	public String toString() {
+		return "PolicyViolationIssueProperties [ruleName=" + ruleName + ", getProjectName()=" + getProjectName()
+				+ ", getProjectVersion()=" + getProjectVersion() + ", getComponentName()=" + getComponentName()
+				+ ", getComponentVersion()=" + getComponentVersion() + ", getJiraIssueId()=" + getJiraIssueId() + "]";
 	}
 
 }
