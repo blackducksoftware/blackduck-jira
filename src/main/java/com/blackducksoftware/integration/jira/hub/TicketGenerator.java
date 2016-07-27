@@ -123,6 +123,7 @@ public class TicketGenerator {
 		issueDescription.append(notificationResult.getHubComponentVersion());
 		issueDescription.append("'.");
 
+		// TODO push down into subclasses of NotificationResult?
 		if (notificationResult instanceof FilteredNotificationResultRule) {
 			final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
 			issueSummary.append(" [Rule: '");
@@ -133,6 +134,13 @@ public class TicketGenerator {
 			issueDescription.append(notificationResultRule.getRule().getName());
 			issueDescription.append("'. Rule overridable : ");
 			issueDescription.append(notificationResultRule.getRule().getOverridable());
+		} else if (notificationResult instanceof FilteredNotificationResultVulnerability) {
+			final FilteredNotificationResultVulnerability notificationResultVulnerability = (FilteredNotificationResultVulnerability) notificationResult;
+			issueSummary.append(": " + notificationResultVulnerability.getVulnerabilitySource() + ":"
+					+ notificationResultVulnerability.getVulnerabilityId());
+			issueDescription.append(" Vulnerability added (source: "
+					+ notificationResultVulnerability.getVulnerabilitySource() + "): "
+					+ notificationResultVulnerability.getVulnerabilityId());
 		}
 
 		final IssueInputParameters issueInputParameters =
