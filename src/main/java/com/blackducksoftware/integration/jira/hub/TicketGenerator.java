@@ -97,59 +97,14 @@ public class TicketGenerator {
 
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
 
-		final StringBuilder issueSummary = new StringBuilder();
-		issueSummary.append("Black Duck ");
-		issueSummary.append(notificationResult.getEventType().getDisplayName());
-		issueSummary.append(" detected on Hub Project '");
-		issueSummary.append(notificationResult.getHubProjectName());
-		issueSummary.append("' / '");
-		issueSummary.append(notificationResult.getHubProjectVersion());
-		issueSummary.append("', component '");
-		issueSummary.append(notificationResult.getHubComponentName());
-		issueSummary.append("' / '");
-		issueSummary.append(notificationResult.getHubComponentVersion());
-		issueSummary.append("'");
-
-
-
-		final StringBuilder issueDescription = new StringBuilder();
-		issueDescription.append("The Black Duck Hub has detected a ");
-		issueDescription.append(notificationResult.getEventType().getDisplayName());
-		issueDescription.append(" on Hub Project '");
-		issueDescription.append(notificationResult.getHubProjectName());
-		issueDescription.append("', component '");
-		issueDescription.append(notificationResult.getHubComponentName());
-		issueDescription.append("' / '");
-		issueDescription.append(notificationResult.getHubComponentVersion());
-		issueDescription.append("'.");
-
-		// TODO push down into subclasses of NotificationResult?
-		if (notificationResult instanceof FilteredNotificationResultRule) {
-			final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
-			issueSummary.append(" [Rule: '");
-			issueSummary.append(notificationResultRule.getRule().getName());
-			issueSummary.append("']");
-
-			issueDescription.append(" The rule violated is: '");
-			issueDescription.append(notificationResultRule.getRule().getName());
-			issueDescription.append("'. Rule overridable : ");
-			issueDescription.append(notificationResultRule.getRule().getOverridable());
-		} else if (notificationResult instanceof FilteredNotificationResultVulnerability) {
-			final FilteredNotificationResultVulnerability notificationResultVulnerability = (FilteredNotificationResultVulnerability) notificationResult;
-			issueSummary.append(": " + notificationResultVulnerability.getVulnerabilitySource() + ":"
-					+ notificationResultVulnerability.getVulnerabilityId());
-			issueDescription.append(" Vulnerability added (source: "
-					+ notificationResultVulnerability.getVulnerabilitySource() + "): "
-					+ notificationResultVulnerability.getVulnerabilityId());
-		}
-
 		final IssueInputParameters issueInputParameters =
 				ticketGenInfo.getIssueService()
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-		.setIssueTypeId(notificationResult.getJiraIssueTypeId()).setSummary(issueSummary.toString())
+				.setIssueTypeId(notificationResult.getJiraIssueTypeId())
+				.setSummary(notificationResult.getIssueSummary())
 		.setReporterId(notificationResult.getJiraUserName())
-		.setDescription(issueDescription.toString());
+				.setDescription(notificationResult.getIssueDescription());
 
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue == null) {

@@ -60,4 +60,42 @@ public class FilteredNotificationResultRule extends FilteredNotificationResult {
 				+ getJiraProjectName() + ", getEventType()=" + getEventType() + "]";
 	}
 
+	@Override
+	public String getIssueSummary() {
+		final StringBuilder issueSummary = new StringBuilder();
+		issueSummary.append("Black Duck ");
+		issueSummary.append(getEventType().getDisplayName());
+		issueSummary.append(" detected on Hub Project '");
+		issueSummary.append(getHubProjectName());
+		issueSummary.append("' / '");
+		issueSummary.append(getHubProjectVersion());
+		issueSummary.append("', component '");
+		issueSummary.append(getHubComponentName());
+		issueSummary.append("' / '");
+		issueSummary.append(getHubComponentVersion());
+		issueSummary.append("'");
+		issueSummary.append(" [Rule: '");
+		issueSummary.append(getRule().getName());
+		issueSummary.append("']");
+		return issueSummary.toString();
+	}
+
+	@Override
+	public String getIssueDescription() {
+		final StringBuilder issueDescription = new StringBuilder();
+		issueDescription.append("The Black Duck Hub has detected a ");
+		issueDescription.append(getEventType().getDisplayName());
+		issueDescription.append(" on Hub Project '");
+		issueDescription.append(getHubProjectName());
+		issueDescription.append("', component '");
+		issueDescription.append(getHubComponentName());
+		issueDescription.append("' / '");
+		issueDescription.append(getHubComponentVersion());
+		issueDescription.append("'.");
+		issueDescription.append(" The rule violated is: '");
+		issueDescription.append(getRule().getName());
+		issueDescription.append("'. Rule overridable : ");
+		issueDescription.append(getRule().getOverridable());
+		return issueDescription.toString();
+	}
 }

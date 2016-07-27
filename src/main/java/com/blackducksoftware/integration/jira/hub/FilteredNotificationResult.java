@@ -116,4 +116,8 @@ public abstract class FilteredNotificationResult {
 
 	public abstract String getUniquePropertyKey();
 
+	public abstract String getIssueSummary();
+
+	public abstract String getIssueDescription();
+
 }
