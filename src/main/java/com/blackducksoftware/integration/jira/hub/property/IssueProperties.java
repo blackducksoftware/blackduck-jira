@@ -1,6 +1,7 @@
 package com.blackducksoftware.integration.jira.hub.property;
 
-public class IssueProperties {
+
+public abstract class IssueProperties {
 	private final String projectName;
 	private final String projectVersion;
 	private final String componentName;

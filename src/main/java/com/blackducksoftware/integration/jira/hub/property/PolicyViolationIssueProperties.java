@@ -22,8 +22,9 @@
 package com.blackducksoftware.integration.jira.hub.property;
 
 public class PolicyViolationIssueProperties extends IssueProperties {
-
 	private final String ruleName;
+
+
 
 	public PolicyViolationIssueProperties(final String projectName, final String projectVersion,
 			final String componentName, final String componentVersion, final Long jiraIssueId, final String ruleName) {

@@ -23,10 +23,13 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.util.UUID;
 
+import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.issue.EventType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public abstract class FilteredNotificationResult {
-
+	protected final Gson gson = new GsonBuilder().create();
 	private final String hubProjectName;
 	private final String hubProjectVersion;
 	private final String hubComponentName;
@@ -120,4 +123,5 @@ public abstract class FilteredNotificationResult {
 
 	public abstract String getIssueDescription();
 
+	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
 }

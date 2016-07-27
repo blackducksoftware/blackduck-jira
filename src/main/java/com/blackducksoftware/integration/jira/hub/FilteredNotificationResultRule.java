@@ -3,6 +3,7 @@ package com.blackducksoftware.integration.jira.hub;
 import java.util.UUID;
 
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
+import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
 import com.blackducksoftware.integration.jira.issue.EventType;
 
 public class FilteredNotificationResultRule extends FilteredNotificationResult {
@@ -97,5 +98,10 @@ public class FilteredNotificationResultRule extends FilteredNotificationResult {
 		issueDescription.append("'. Rule overridable : ");
 		issueDescription.append(getRule().getOverridable());
 		return issueDescription.toString();
+	}
+
+	@Override
+	public PolicyViolationIssueProperties createIssuePropertiesFromJson(final String json) {
+		return gson.fromJson(json, PolicyViolationIssueProperties.class);
 	}
 }

@@ -21,7 +21,6 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
-import com.blackducksoftware.integration.jira.hub.FilteredNotificationResultRule;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
@@ -102,18 +101,7 @@ public class JiraIssueHandler {
 			return null;
 		}
 		final EntityProperty property = props.get(0);
-		final Gson gson = new GsonBuilder().create();
-
-		// TODO: Push this subtype-dependent code down into each IssueProperty
-		// subtype class
-		final IssueProperties propertyValue;
-		if (notificationResult instanceof FilteredNotificationResultRule) {
-			logger.debug("Converting JSON to VulnerabilityIssueProperties: " + property.getValue());
-			propertyValue = gson.fromJson(property.getValue(), PolicyViolationIssueProperties.class);
-		} else { // Vulnerability
-			logger.debug("Converting JSON to VulnerabilityIssueProperties: " + property.getValue());
-			propertyValue = gson.fromJson(property.getValue(), VulnerabilityIssueProperties.class);
-		}
+		final IssueProperties propertyValue = notificationResult.createIssuePropertiesFromJson(property.getValue());
 		logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
 		final IssueResult result = ticketGenInfo.getIssueService().getIssue(ticketGenInfo.getJiraUser(),
 				propertyValue.getJiraIssueId());
