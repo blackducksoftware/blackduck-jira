@@ -31,8 +31,7 @@ import com.atlassian.jira.issue.IssueInputParameters;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
-import com.blackducksoftware.integration.jira.hub.property.VulnerabilityIssueProperties;
+import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
 /**
@@ -101,10 +100,10 @@ public class TicketGenerator {
 				ticketGenInfo.getIssueService()
 				.newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-				.setIssueTypeId(notificationResult.getJiraIssueTypeId())
-				.setSummary(notificationResult.getIssueSummary())
+		.setIssueTypeId(notificationResult.getJiraIssueTypeId())
+		.setSummary(notificationResult.getIssueSummary())
 		.setReporterId(notificationResult.getJiraUserName())
-				.setDescription(notificationResult.getIssueDescription());
+		.setDescription(notificationResult.getIssueDescription());
 
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue == null) {
@@ -113,28 +112,9 @@ public class TicketGenerator {
 				logger.info("Created new Issue.");
 				issueHandler.printIssueInfo(issue);
 
-				if (notificationResult instanceof FilteredNotificationResultRule) {
-					final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
-					final PolicyViolationIssueProperties properties = new PolicyViolationIssueProperties(
-							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
-							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
-							issue.getId(), notificationResultRule.getRule().getName());
-					logger.debug("Adding properties to created issue: " + properties);
-					issueHandler.addIssuePropertyPolicyViolation(issue.getId(), notificationResult.getUniquePropertyKey(),
-							properties);
-				} else if (notificationResult instanceof FilteredNotificationResultVulnerability) {
-					final FilteredNotificationResultVulnerability notificationResultVulnerability = (FilteredNotificationResultVulnerability) notificationResult;
-
-					final VulnerabilityIssueProperties properties = new VulnerabilityIssueProperties(
-							notificationResult.getHubProjectName(), notificationResult.getHubProjectVersion(),
-							notificationResult.getHubComponentName(), notificationResult.getHubComponentVersion(),
-							issue.getId(),
-							notificationResultVulnerability.getVulnerabilitySource(),
-							notificationResultVulnerability.getVulnerabilityId());
-					logger.debug("Adding properties to created issue: " + properties);
-					issueHandler.addIssuePropertyVulnerability(issue.getId(),
-							notificationResult.getUniquePropertyKey(), properties);
-				}
+				final IssueProperties properties = notificationResult.createIssueProperties(issue);
+				logger.debug("Adding properties to created issue: " + properties);
+				issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(), properties);
 			}
 		} else {
 			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {

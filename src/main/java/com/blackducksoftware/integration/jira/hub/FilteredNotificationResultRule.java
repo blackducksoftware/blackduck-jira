@@ -2,7 +2,9 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.util.UUID;
 
+import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
+import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
 import com.blackducksoftware.integration.jira.issue.EventType;
 
@@ -103,5 +105,13 @@ public class FilteredNotificationResultRule extends FilteredNotificationResult {
 	@Override
 	public PolicyViolationIssueProperties createIssuePropertiesFromJson(final String json) {
 		return gson.fromJson(json, PolicyViolationIssueProperties.class);
+	}
+
+	@Override
+	public IssueProperties createIssueProperties(final Issue issue) {
+		final IssueProperties properties = new PolicyViolationIssueProperties(getHubProjectName(),
+				getHubProjectVersion(), getHubComponentName(), getHubComponentVersion(), issue.getId(), getRule()
+						.getName());
+		return properties;
 	}
 }

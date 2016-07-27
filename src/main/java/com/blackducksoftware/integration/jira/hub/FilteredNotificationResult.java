@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.util.UUID;
 
+import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.issue.EventType;
 import com.google.gson.Gson;
@@ -124,4 +125,6 @@ public abstract class FilteredNotificationResult {
 	public abstract String getIssueDescription();
 
 	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
+
+	public abstract IssueProperties createIssueProperties(final Issue issue);
 }

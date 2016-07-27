@@ -23,8 +23,6 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
-import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
-import com.blackducksoftware.integration.jira.hub.property.VulnerabilityIssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -37,17 +35,7 @@ public class JiraIssueHandler {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public void addIssuePropertyPolicyViolation(final Long issueId, final String key, final PolicyViolationIssueProperties value) {
-
-		final Gson gson = new GsonBuilder().create();
-
-		final String jsonValue = gson.toJson(value);
-		addIssuePropertyJson(issueId, key, jsonValue);
-	}
-
-	// TODO : shouldn't need two different methods: rule/vuln
-	public void addIssuePropertyVulnerability(final Long issueId, final String key,
-			final VulnerabilityIssueProperties value) {
+	public void addIssueProperty(final Long issueId, final String key, final IssueProperties value) {
 
 		final Gson gson = new GsonBuilder().create();
 
