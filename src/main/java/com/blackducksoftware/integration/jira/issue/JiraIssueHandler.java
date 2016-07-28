@@ -21,6 +21,7 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
+import com.blackducksoftware.integration.jira.hub.FilteredNotificationResultRule;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.google.gson.Gson;
@@ -28,6 +29,8 @@ import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler {
+	public static final String DONE_STATUS = "Done";
+	public static final String REOPEN_STATUS = "Reopen";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final TicketGeneratorInfo ticketGenInfo;
 
@@ -245,6 +248,53 @@ public class JiraIssueHandler {
 			logger.error("Could not find the action : " + stepName + " to transition this issue: " + oldIssue.getKey());
 		}
 		return null;
+	}
+
+	public void createOrReOpenIssue(final FilteredNotificationResult notificationResult) {
+		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
+		final Issue oldIssue = findIssue(notificationResult);
+		if (oldIssue == null) {
+
+			final Issue issue = createIssue(notificationResult);
+			if (issue != null) {
+				logger.info("Created new Issue.");
+				printIssueInfo(issue);
+
+				final IssueProperties properties = notificationResult.createIssueProperties(issue);
+				logger.debug("Adding properties to created issue: " + properties);
+				addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(), properties);
+			}
+		} else {
+			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
+				transitionIssue(oldIssue, REOPEN_STATUS);
+				logger.info("Re-opened the already exisiting issue.");
+				printIssueInfo(oldIssue);
+			} else {
+				logger.info("This issue already exists.");
+				printIssueInfo(oldIssue);
+			}
+		}
+	}
+
+	public void closeIssue(final FilteredNotificationResult notificationResult) {
+		final Issue oldIssue = findIssue(notificationResult);
+		if (oldIssue != null) {
+			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
+			if (updatedIssue != null) {
+				logger.info("Closed the issue based on an override.");
+				printIssueInfo(updatedIssue);
+			}
+		} else {
+			logger.info("Could not find an existing issue to close for this override.");
+			logger.debug("Hub Project Name : " + notificationResult.getHubProjectName());
+			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
+			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
+			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
+			if (notificationResult instanceof FilteredNotificationResultRule) {
+				final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
+				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
+			}
+		}
 	}
 
 	public void printIssueInfo(final Issue issue) {

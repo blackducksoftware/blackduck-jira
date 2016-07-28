@@ -26,11 +26,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
 /**
@@ -41,9 +39,6 @@ import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
  *
  */
 public class TicketGenerator {
-	public static final String DONE_STATUS = "Done";
-	public static final String REOPEN_STATUS = "Reopen";
-
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final HubNotificationService notificationService;
 	private final TicketGeneratorInfo ticketGenInfo;
@@ -77,7 +72,7 @@ public class TicketGenerator {
 		}
 		for (final FilteredNotificationResult notificationResult : notificationResults
 				.getPolicyViolationOverrideResults()) {
-			closeIssue(issueHandler, notificationResult);
+			issueHandler.closeIssue(notificationResult);
 		}
 
 		// TODO can this be combined with the rule issue create loop above
@@ -93,52 +88,12 @@ public class TicketGenerator {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
 		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 
-		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
-		final Issue oldIssue = issueHandler.findIssue(notificationResult);
-		if (oldIssue == null) {
 
-			final Issue issue = issueHandler.createIssue(notificationResult);
-			if (issue != null) {
-				logger.info("Created new Issue.");
-				issueHandler.printIssueInfo(issue);
-
-				final IssueProperties properties = notificationResult.createIssueProperties(issue);
-				logger.debug("Adding properties to created issue: " + properties);
-				issueHandler.addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(), properties);
-			}
-		} else {
-			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
-				issueHandler.transitionIssue(oldIssue, REOPEN_STATUS);
-				logger.info("Re-opened the already exisiting issue.");
-				issueHandler.printIssueInfo(oldIssue);
-			} else {
-				logger.info("This issue already exists.");
-				issueHandler.printIssueInfo(oldIssue);
-			}
-		}
+		issueHandler.createOrReOpenIssue(notificationResult);
 	}
 
-	private void closeIssue(final JiraIssueHandler issueHandler,
-			final FilteredNotificationResult notificationResult) {
-		final Issue oldIssue = issueHandler.findIssue(notificationResult);
-		if (oldIssue != null) {
-			final Issue updatedIssue = issueHandler.transitionIssue(oldIssue, DONE_STATUS);
-			if (updatedIssue != null) {
-				logger.info("Closed the issue based on an override.");
-				issueHandler.printIssueInfo(updatedIssue);
-			}
-		} else {
-			logger.info("Could not find an existing issue to close for this override.");
-			logger.debug("Hub Project Name : " + notificationResult.getHubProjectName());
-			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
-			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
-			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
-			if (notificationResult instanceof FilteredNotificationResultRule) {
-				final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
-				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
-			}
-		}
-	}
+
+
 
 
 }
