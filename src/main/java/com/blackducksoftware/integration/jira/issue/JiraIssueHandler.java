@@ -110,7 +110,14 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public Issue createIssue(final IssueInputParameters issueInputParameters) {
+	public Issue createIssue(final FilteredNotificationResult notificationResult) {
+
+		final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService().newIssueInputParameters();
+		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
+		.setIssueTypeId(notificationResult.getJiraIssueTypeId())
+		.setSummary(notificationResult.getIssueSummary()).setReporterId(notificationResult.getJiraUserName())
+		.setDescription(notificationResult.getIssueDescription());
+
 		final CreateValidationResult validationResult = ticketGenInfo.getIssueService()
 				.validateCreate(ticketGenInfo.getJiraUser(), issueInputParameters);
 		ErrorCollection errors = null;

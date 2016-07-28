@@ -308,16 +308,14 @@ public class TicketGeneratorTest {
 		}
 
 		if (openIssue) {
-			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
-			.setSummary(
-					expectedIssueSummary);
-			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
-			.setDescription(
-					expectedIssueDescription);
 			if (jiraIssueExistsAsClosed) {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
 			} else {
+				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setSummary(
+						expectedIssueSummary);
+				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setDescription(
+						expectedIssueDescription);
 				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
 						setPropValidationResult);
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).create(
@@ -407,21 +405,21 @@ public class TicketGeneratorTest {
 		}
 
 		if (openIssue) {
-			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
-			.setSummary(
-					"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
-			Mockito.verify(issueInputParameters, Mockito.times(expectedFindIssueCount))
-			.setDescription(
-					"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 			if (jiraIssueExistsAsClosed) {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
 			} else {
-				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
-						setPropValidationResult);
+				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
+				.setSummary(
+						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
+				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
+				.setDescription(
+						"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).create(
 						Mockito.any(ApplicationUser.class),
 						Mockito.any(CreateValidationResult.class));
+				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
+						setPropValidationResult);
 			}
 		} else {
 			Mockito.verify(issueService, Mockito.times(expectedCloseIssueCount)).transition(user,

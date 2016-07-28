@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueInputParameters;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
@@ -95,19 +94,10 @@ public class TicketGenerator {
 		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
-
-		final IssueInputParameters issueInputParameters =
-				ticketGenInfo.getIssueService()
-				.newIssueInputParameters();
-		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-		.setIssueTypeId(notificationResult.getJiraIssueTypeId())
-		.setSummary(notificationResult.getIssueSummary())
-		.setReporterId(notificationResult.getJiraUserName())
-		.setDescription(notificationResult.getIssueDescription());
-
 		final Issue oldIssue = issueHandler.findIssue(notificationResult);
 		if (oldIssue == null) {
-			final Issue issue = issueHandler.createIssue(issueInputParameters);
+
+			final Issue issue = issueHandler.createIssue(notificationResult);
 			if (issue != null) {
 				logger.info("Created new Issue.");
 				issueHandler.printIssueInfo(issue);
