@@ -17,40 +17,37 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
-import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationFilter;
+import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
-public class PolicyNotificationFilter extends NotificationFilter {
+public abstract class PolicyNotificationFilter extends NotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	// TODO replace with HubProjectMappings
 	private final Set<HubProjectMapping> mappings;
 	private final TicketGeneratorInfo ticketGenInfo;
 	private final List<String> linksOfRulesToMonitor;
-	private final HubNotificationService hubNotificationService;
+
 
 
 	public PolicyNotificationFilter(final Set<HubProjectMapping> mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
 			final HubNotificationService hubNotificationService) {
+		super(hubNotificationService);
 		this.mappings = mappings;
 		this.ticketGenInfo = ticketGenInfo;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
-		this.hubNotificationService = hubNotificationService;
+
 	}
 
-	// TODO make this obsolete, replaced by handleNotification(final
-	// NotificationItem notif)
-	public HubEvents handleNotification(final HubEventType eventType,
+	protected HubEvents handleNotification(final HubEventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
 					throws UnexpectedHubResponseException, HubNotificationServiceException {
@@ -108,13 +105,13 @@ public class PolicyNotificationFilter extends NotificationFilter {
 						"Cannot create tickets for component level violations at this time. This will be fixed in future releases.");
 				continue;
 			}
-			final String componentVersionName = hubNotificationService
+			final String componentVersionName = getHubNotificationService()
 					.getComponentVersion(
 							compVerStatus.getComponentVersionLink()).getVersionName();
 
 			final String policyStatusUrl = compVerStatus.getBomComponentVersionPolicyStatusLink();
 
-			final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = hubNotificationService
+			final BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus = getHubNotificationService()
 					.getPolicyStatus(policyStatusUrl);
 
 			logger.debug("BomComponentVersionPolicyStatus: " + bomComponentVersionPolicyStatus);
@@ -127,7 +124,7 @@ public class PolicyNotificationFilter extends NotificationFilter {
 			}
 
 			for (final String ruleUrl : monitoredUrls) {
-				final PolicyRule rule = hubNotificationService.getPolicyRule(ruleUrl);
+				final PolicyRule rule = getHubNotificationService().getPolicyRule(ruleUrl);
 				logger.debug("Rule : " + rule);
 
 				if (rule.getExpression() != null && rule.getExpression().hasOnlyProjectLevelConditions()) {
@@ -277,34 +274,5 @@ public class PolicyNotificationFilter extends NotificationFilter {
 		return bdsJiraProject;
 	}
 
-	@Override
-	public HubEvents generateEvents(final NotificationItem notif) {
-		final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-		HubEventType eventType;
-		String projectName;
-		String projectVersionName;
-		List<ComponentVersionStatus> compVerStatuses;
-		final ReleaseItem notifHubProjectReleaseItem;
-		try {
 
-			eventType = HubEventType.POLICY_VIOLATION;
-			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
-			projectName = ruleViolationNotif.getContent().getProjectName();
-			notifHubProjectReleaseItem = hubNotificationService
-					.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
-			projectVersionName = notifHubProjectReleaseItem.getVersionName();
-		} catch (final HubNotificationServiceException | UnexpectedHubResponseException e) {
-			logger.error(e);
-			return null;
-		}
-		final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings, ticketGenInfo,
-				linksOfRulesToMonitor, hubNotificationService);
-		try {
-			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
-					notifHubProjectReleaseItem);
-		} catch (UnexpectedHubResponseException | HubNotificationServiceException e) {
-			logger.error(e);
-			return null;
-		}
-	}
 }

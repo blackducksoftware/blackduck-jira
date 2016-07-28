@@ -62,9 +62,11 @@ public class HubEvents {
 	}
 
 	public void addAllEvents(final HubEvents results) {
-		policyViolationEvents.addAll(results.getPolicyViolationEvents());
-		policyViolationOverrideEvents.addAll(results.getPolicyViolationOverrideEvents());
-		vulnerabilityEvents.addAll(results.getVulnerabilityEvents());
+		if (results != null) {
+			policyViolationEvents.addAll(results.getPolicyViolationEvents());
+			policyViolationOverrideEvents.addAll(results.getPolicyViolationOverrideEvents());
+			vulnerabilityEvents.addAll(results.getVulnerabilityEvents());
+		}
 	}
 
 	@Override

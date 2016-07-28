@@ -21,27 +21,22 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.hub;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.project.ProjectVersion;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyNotificationFilter;
+import com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationFilter;
+import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationFilter;
 import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationFilter;
-import com.blackducksoftware.integration.jira.issue.HubEventType;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -72,7 +67,7 @@ public class JiraNotificationProcessor {
 
 			HubEvents notifResults;
 			try {
-				notifResults = convertNotificationToIssues(notif);
+				notifResults = convertNotificationToEvents(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new HubNotificationServiceException("Error converting notifications to issues", e);
 			}
@@ -83,89 +78,34 @@ public class JiraNotificationProcessor {
 		return allResults;
 	}
 
-	private HubEvents convertNotificationToIssues(final NotificationItem notif)
-			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		HubEventType eventType;
-		String projectName;
-		String projectVersionName;
-		List<ComponentVersionStatus> compVerStatuses;
-		final ReleaseItem notifHubProjectReleaseItem;
+	private HubEvents convertNotificationToEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
+	HubNotificationServiceException {
 
 		if (notif instanceof RuleViolationNotificationItem) {
-			try {
-				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-				eventType = HubEventType.POLICY_VIOLATION;
-				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
-				projectName = ruleViolationNotif.getContent().getProjectName();
-				notifHubProjectReleaseItem = hubNotificationService
-						.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
-				projectVersionName = notifHubProjectReleaseItem.getVersionName();
-			} catch (final HubNotificationServiceException e) {
-				logger.error(e);
-				return null;
-			}
 			// TODO: We should not create a new filter every time; create one of
 			// each once,
 			// or make each a singleton
-			final PolicyNotificationFilter filter = new PolicyNotificationFilter(underlyingMappings,
+			final PolicyViolationNotificationFilter filter = new PolicyViolationNotificationFilter(underlyingMappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
-					notifHubProjectReleaseItem);
+			return filter.generateEvents(notif);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
-			try {
-				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-				eventType = HubEventType.POLICY_OVERRIDE;
-
-				compVerStatuses = new ArrayList<>();
-				final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
-				componentStatus.setBomComponentVersionPolicyStatusLink(
-						ruleViolationNotif.getContent().getBomComponentVersionPolicyStatusLink());
-				componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
-				componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
-
-				compVerStatuses.add(componentStatus);
-
-				projectName = ruleViolationNotif.getContent().getProjectName();
-
-				notifHubProjectReleaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(
-						ruleViolationNotif.getContent().getProjectVersionLink());
-				projectVersionName = notifHubProjectReleaseItem.getVersionName();
-			} catch (final HubNotificationServiceException e) {
-				logger.error(e);
-				return null;
-			}
-			final PolicyNotificationFilter filter = new PolicyNotificationFilter(underlyingMappings,
+			// TODO: We should not create a new filter every time; create one of
+			// each once,
+			// or make each a singleton
+			final PolicyOverrideNotificationFilter filter = new PolicyOverrideNotificationFilter(underlyingMappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
-					notifHubProjectReleaseItem);
+			return filter.generateEvents(notif);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
-			final VulnerabilityNotificationItem vulnerabilityNotif = (VulnerabilityNotificationItem) notif;
-			logger.debug("vulnerabilityNotif: " + vulnerabilityNotif);
-			logger.info("This vulnerability notification affects "
-					+ vulnerabilityNotif.getContent().getAffectedProjectVersions().size() + " project versions");
-			final VulnerabilityNotificationContent vulnerabilityNotificationContent = vulnerabilityNotif.getContent();
-
 			final HubProjectMappings mapping = new HubProjectMappings(ticketGenInfo, underlyingMappings);
+			//
+			// // TODO: We should not create a new filter every time; create one
+			// of
+			// // each once,
+			// // or make each a singleton
 			final VulnerabilityNotificationFilter filter = new VulnerabilityNotificationFilter(mapping, ticketGenInfo,
 					linksOfRulesToMonitor, hubNotificationService);
 
-			final String componentName = vulnerabilityNotif.getContent().getComponentName();
-			final String componentVersionName = vulnerabilityNotif.getContent().getVersionName();
-
-			for (final ProjectVersion projectVersion : vulnerabilityNotif.getContent().getAffectedProjectVersions()) {
-				projectName = projectVersion.getProjectName();
-				projectVersionName = projectVersion.getProjectVersionName();
-				final String projectVersionLink = projectVersion.getProjectVersionLink();
-
-				notifHubProjectReleaseItem = hubNotificationService
-						.getProjectReleaseItemFromProjectReleaseUrl(projectVersionLink);
-
-				return filter.handleNotification(projectName, projectVersionName, projectVersionLink, componentName,
-						componentVersionName, vulnerabilityNotificationContent, notifHubProjectReleaseItem);
-			}
-
-
-			return null; // TODO
+			return filter.generateEvents(notif);
 		} else {
 			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
 		}
