@@ -47,9 +47,8 @@ public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	private final HubNotificationService hubNotificationService;
-	private final Set<HubProjectMapping> underlyingMappings; // TODO replace
-	// with
-	// HubProjectMappings
+	// TODO replace with HubProjectMappings
+	private final Set<HubProjectMapping> underlyingMappings;
 	private final List<String> linksOfRulesToMonitor;
 	private final TicketGeneratorInfo ticketGenInfo;
 

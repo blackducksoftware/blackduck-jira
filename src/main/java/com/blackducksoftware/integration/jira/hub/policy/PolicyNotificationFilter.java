@@ -21,14 +21,18 @@ import com.blackducksoftware.integration.jira.hub.FilteredNotificationResultRule
 import com.blackducksoftware.integration.jira.hub.FilteredNotificationResults;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
+import com.blackducksoftware.integration.jira.hub.NotificationFilter;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
+import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.issue.EventType;
 
-public class PolicyNotificationFilter {
+public class PolicyNotificationFilter extends NotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
+	// TODO replace with HubProjectMappings
 	private final Set<HubProjectMapping> mappings;
 	private final TicketGeneratorInfo ticketGenInfo;
 	private final List<String> linksOfRulesToMonitor;
@@ -44,6 +48,8 @@ public class PolicyNotificationFilter {
 		this.hubNotificationService = hubNotificationService;
 	}
 
+	// TODO make this obsolete, replaced by handleNotification(final
+	// NotificationItem notif)
 	public FilteredNotificationResults handleNotification(final EventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
@@ -269,5 +275,36 @@ public class PolicyNotificationFilter {
 			}
 		}
 		return bdsJiraProject;
+	}
+
+	@Override
+	public FilteredNotificationResults handleNotification(final NotificationItem notif) {
+		final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
+		EventType eventType;
+		String projectName;
+		String projectVersionName;
+		List<ComponentVersionStatus> compVerStatuses;
+		final ReleaseItem notifHubProjectReleaseItem;
+		try {
+
+			eventType = EventType.POLICY_VIOLATION;
+			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
+			projectName = ruleViolationNotif.getContent().getProjectName();
+			notifHubProjectReleaseItem = hubNotificationService
+					.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
+			projectVersionName = notifHubProjectReleaseItem.getVersionName();
+		} catch (final HubNotificationServiceException | UnexpectedHubResponseException e) {
+			logger.error(e);
+			return null;
+		}
+		final PolicyNotificationFilter filter = new PolicyNotificationFilter(mappings, ticketGenInfo,
+				linksOfRulesToMonitor, hubNotificationService);
+		try {
+			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
+					notifHubProjectReleaseItem);
+		} catch (UnexpectedHubResponseException | HubNotificationServiceException e) {
+			logger.error(e);
+			return null;
+		}
 	}
 }
