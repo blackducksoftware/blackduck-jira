@@ -41,7 +41,7 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Vulnerabili
 import com.blackducksoftware.integration.jira.hub.model.project.ProjectVersion;
 import com.blackducksoftware.integration.jira.hub.policy.PolicyNotificationFilter;
 import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationFilter;
-import com.blackducksoftware.integration.jira.issue.EventType;
+import com.blackducksoftware.integration.jira.issue.HubEventType;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -61,31 +61,31 @@ public class JiraNotificationProcessor {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public FilteredNotificationResults extractJiraReadyNotifications(final List<NotificationItem> notifications)
+	public HubEvents extractJiraReadyNotifications(final List<NotificationItem> notifications)
 			throws HubNotificationServiceException {
-		final FilteredNotificationResults allResults = new FilteredNotificationResults();
+		final HubEvents allResults = new HubEvents();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 				+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			FilteredNotificationResults notifResults;
+			HubEvents notifResults;
 			try {
 				notifResults = convertNotificationToIssues(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new HubNotificationServiceException("Error converting notifications to issues", e);
 			}
 			if (notifResults != null) {
-				allResults.addAllResults(notifResults);
+				allResults.addAllEvents(notifResults);
 			}
 		}
 		return allResults;
 	}
 
-	private FilteredNotificationResults convertNotificationToIssues(final NotificationItem notif)
+	private HubEvents convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		EventType eventType;
+		HubEventType eventType;
 		String projectName;
 		String projectVersionName;
 		List<ComponentVersionStatus> compVerStatuses;
@@ -94,7 +94,7 @@ public class JiraNotificationProcessor {
 		if (notif instanceof RuleViolationNotificationItem) {
 			try {
 				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-				eventType = EventType.POLICY_VIOLATION;
+				eventType = HubEventType.POLICY_VIOLATION;
 				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
 				projectName = ruleViolationNotif.getContent().getProjectName();
 				notifHubProjectReleaseItem = hubNotificationService
@@ -114,7 +114,7 @@ public class JiraNotificationProcessor {
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			try {
 				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-				eventType = EventType.POLICY_OVERRIDE;
+				eventType = HubEventType.POLICY_OVERRIDE;
 
 				compVerStatuses = new ArrayList<>();
 				final ComponentVersionStatus componentStatus = new ComponentVersionStatus();

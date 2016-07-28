@@ -3,37 +3,36 @@ package com.blackducksoftware.integration.jira.hub;
 import java.util.UUID;
 
 import com.atlassian.jira.issue.Issue;
+import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
-import com.blackducksoftware.integration.jira.hub.property.VulnerabilityIssueProperties;
-import com.blackducksoftware.integration.jira.issue.EventType;
+import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.issue.HubEventType;
 
-public class FilteredNotificationResultVulnerability extends FilteredNotificationResult {
-	// TODO these may have to change
-	private final String vulnerabilitySource;
-	private final String vulnerabilityId;
+public class PolicyEvent extends HubEvent {
+	private final PolicyRule rule;
+	private final UUID ruleId;
 
-	public FilteredNotificationResultVulnerability(final String hubProjectName, final String hubProjectVersion,
+	public PolicyEvent(final String hubProjectName, final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
 			final UUID hubComponentVersionId, final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final EventType eventType, final String vulnerabilitySource, final String vulnerabilityId) {
+			final HubEventType eventType, final PolicyRule rule, final UUID ruleId) {
 
 		super(hubProjectName, hubProjectVersion, hubComponentName, hubComponentVersion, hubProjectVersionId,
 				hubComponentId, hubComponentVersionId, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName,
 				eventType);
-		this.vulnerabilitySource = vulnerabilitySource;
-		this.vulnerabilityId = vulnerabilityId;
+		this.rule = rule;
+		this.ruleId = ruleId;
 	}
 
-	public String getVulnerabilitySource() {
-		return vulnerabilitySource;
+	public PolicyRule getRule() {
+		return rule;
 	}
 
-	public String getVulnerabilityId() {
-		return vulnerabilityId;
+	public UUID getRuleId() {
+		return ruleId;
 	}
-
 
 	@Override
 	public String getUniquePropertyKey() {
@@ -48,24 +47,20 @@ public class FilteredNotificationResultVulnerability extends FilteredNotificatio
 			keyBuilder.append(getHubComponentVersionId().toString());
 			keyBuilder.append(".");
 		}
-		// TODO: when hub provides links, this may have to change
-		keyBuilder.append(vulnerabilitySource);
-		keyBuilder.append(".");
-		keyBuilder.append(vulnerabilityId);
+		keyBuilder.append(getRuleId().toString());
 		return keyBuilder.toString();
 	}
 
 	@Override
 	public String toString() {
-		return "FilteredNotificationResultVulnerability [vulnerabilitySource=" + vulnerabilitySource
-				+ ", vulnerabilityId=" + vulnerabilityId + ", getHubProjectName()=" + getHubProjectName()
-				+ ", getHubProjectVersion()=" + getHubProjectVersion() + ", getHubComponentName()="
-				+ getHubComponentName() + ", getHubComponentVersion()=" + getHubComponentVersion()
-				+ ", getHubProjectVersionId()=" + getHubProjectVersionId() + ", getHubComponentId()="
-				+ getHubComponentId() + ", getHubComponentVersionId()=" + getHubComponentVersionId()
-				+ ", getJiraUserName()=" + getJiraUserName() + ", getJiraIssueTypeId()=" + getJiraIssueTypeId()
-				+ ", getJiraProjectId()=" + getJiraProjectId() + ", getJiraProjectName()=" + getJiraProjectName()
-				+ ", getEventType()=" + getEventType() + "]";
+		return "FilteredNotificationResultRule [rule=" + rule + ", ruleId=" + ruleId + ", getHubProjectName()="
+				+ getHubProjectName() + ", getHubProjectVersion()=" + getHubProjectVersion()
+				+ ", getHubComponentName()=" + getHubComponentName() + ", getHubComponentVersion()="
+				+ getHubComponentVersion() + ", getHubProjectVersionId()=" + getHubProjectVersionId()
+				+ ", getHubComponentId()=" + getHubComponentId() + ", getHubComponentVersionId()="
+				+ getHubComponentVersionId() + ", getJiraUserName()=" + getJiraUserName() + ", getJiraIssueTypeId()="
+				+ getJiraIssueTypeId() + ", getJiraProjectId()=" + getJiraProjectId() + ", getJiraProjectName()="
+				+ getJiraProjectName() + ", getEventType()=" + getEventType() + "]";
 	}
 
 	@Override
@@ -82,7 +77,9 @@ public class FilteredNotificationResultVulnerability extends FilteredNotificatio
 		issueSummary.append("' / '");
 		issueSummary.append(getHubComponentVersion());
 		issueSummary.append("'");
-		issueSummary.append(": " + getVulnerabilitySource() + ":" + getVulnerabilityId());
+		issueSummary.append(" [Rule: '");
+		issueSummary.append(getRule().getName());
+		issueSummary.append("']");
 		return issueSummary.toString();
 	}
 
@@ -98,21 +95,23 @@ public class FilteredNotificationResultVulnerability extends FilteredNotificatio
 		issueDescription.append("' / '");
 		issueDescription.append(getHubComponentVersion());
 		issueDescription.append("'.");
-		issueDescription.append(" Vulnerability added (source: " + getVulnerabilitySource() + "): "
-				+ getVulnerabilityId());
+		issueDescription.append(" The rule violated is: '");
+		issueDescription.append(getRule().getName());
+		issueDescription.append("'. Rule overridable : ");
+		issueDescription.append(getRule().getOverridable());
 		return issueDescription.toString();
 	}
 
 	@Override
-	public VulnerabilityIssueProperties createIssuePropertiesFromJson(final String json) {
-		return gson.fromJson(json, VulnerabilityIssueProperties.class);
+	public PolicyViolationIssueProperties createIssuePropertiesFromJson(final String json) {
+		return gson.fromJson(json, PolicyViolationIssueProperties.class);
 	}
 
 	@Override
 	public IssueProperties createIssueProperties(final Issue issue) {
-		final IssueProperties properties = new VulnerabilityIssueProperties(getHubProjectName(),
-				getHubProjectVersion(), getHubComponentName(), getHubComponentVersion(), issue.getId(),
-				getVulnerabilitySource(), getVulnerabilityId());
+		final IssueProperties properties = new PolicyViolationIssueProperties(getHubProjectName(),
+				getHubProjectVersion(), getHubComponentName(), getHubComponentVersion(), issue.getId(), getRule()
+						.getName());
 		return properties;
 	}
 }

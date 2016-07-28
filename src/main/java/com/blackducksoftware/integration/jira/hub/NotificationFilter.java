@@ -4,6 +4,5 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 
 public abstract class NotificationFilter {
 
-	// TODO: Better name for this? What does handle mean??
-	public abstract FilteredNotificationResults handleNotification(NotificationItem notif);
+	public abstract HubEvents generateEvents(NotificationItem notif);
 }

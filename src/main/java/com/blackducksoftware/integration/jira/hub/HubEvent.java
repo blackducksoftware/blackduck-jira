@@ -25,11 +25,20 @@ import java.util.UUID;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
-import com.blackducksoftware.integration.jira.issue.EventType;
+import com.blackducksoftware.integration.jira.issue.HubEventType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public abstract class FilteredNotificationResult {
+/**
+ * An event is one of the following: Policy violation by a specific component on
+ * a specific project, policy override (on a ...), vulnerability added to a
+ * specific component on a specific project, vulnerability removed (from a ...),
+ * vulnerability updated (on a ...).
+ *
+ * @author sbillings
+ *
+ */
+public abstract class HubEvent {
 	protected final Gson gson = new GsonBuilder().create();
 	private final String hubProjectName;
 	private final String hubProjectVersion;
@@ -45,15 +54,15 @@ public abstract class FilteredNotificationResult {
 	private final Long jiraProjectId;
 	private final String jiraProjectName;
 
-	private final EventType eventType;
+	private final HubEventType eventType;
 
-	public FilteredNotificationResult(final String hubProjectName, final String hubProjectVersion,
+	public HubEvent(final String hubProjectName, final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
 			final UUID hubComponentVersionId,
 			final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final EventType eventType) {
+			final HubEventType eventType) {
 		this.hubProjectName = hubProjectName;
 		this.hubProjectVersion = hubProjectVersion;
 		this.hubComponentName = hubComponentName;
@@ -114,7 +123,7 @@ public abstract class FilteredNotificationResult {
 		return jiraProjectName;
 	}
 
-	public EventType getEventType() {
+	public HubEventType getEventType() {
 		return eventType;
 	}
 

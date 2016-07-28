@@ -61,22 +61,22 @@ public class TicketGenerator {
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
-		final FilteredNotificationResults notificationResults = processor.extractJiraReadyNotifications(notifs);
+		final HubEvents notificationResults = processor.extractJiraReadyNotifications(notifs);
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(ticketGenInfo);
 
 		int ticketCount = 0;
-		for (final FilteredNotificationResult notificationResult : notificationResults.getPolicyViolationResults()) {
+		for (final HubEvent notificationResult : notificationResults.getPolicyViolationEvents()) {
 			issueHandler.createOrReOpenIssue(notificationResult);
 			ticketCount++;
 		}
-		for (final FilteredNotificationResult notificationResult : notificationResults
-				.getPolicyViolationOverrideResults()) {
+		for (final HubEvent notificationResult : notificationResults
+				.getPolicyViolationOverrideEvents()) {
 			issueHandler.closeIssue(notificationResult);
 		}
 
 		// TODO can this be combined with the rule issue create loop above
-		for (final FilteredNotificationResult vulnerabilityResult : notificationResults.getVulnerabilityResults()) {
+		for (final HubEvent vulnerabilityResult : notificationResults.getVulnerabilityEvents()) {
 			issueHandler.createOrReOpenIssue(vulnerabilityResult);
 			ticketCount++;
 		}

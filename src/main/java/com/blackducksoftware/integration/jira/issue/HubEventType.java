@@ -1,6 +1,6 @@
 package com.blackducksoftware.integration.jira.issue;
 
-public enum EventType {
+public enum HubEventType {
 	POLICY_VIOLATION("Policy Violation"),
 	POLICY_OVERRIDE("Policy Override"),
 	VULNERABILITY_ADD("Vulnerability Add"),
@@ -8,7 +8,7 @@ public enum EventType {
 	VULNERABILITY_DELETE("Vulnerability Delete");
 	private final String displayName;
 
-	private EventType(final String displayName) {
+	private HubEventType(final String displayName) {
 		this.displayName = displayName;
 	}
 

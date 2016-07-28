@@ -20,8 +20,8 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.hub.FilteredNotificationResult;
-import com.blackducksoftware.integration.jira.hub.FilteredNotificationResultRule;
+import com.blackducksoftware.integration.jira.hub.HubEvent;
+import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.google.gson.Gson;
@@ -80,7 +80,7 @@ public class JiraIssueHandler {
 		}
 	}
 
-	private Issue findIssue(final FilteredNotificationResult notificationResult) {
+	private Issue findIssue(final HubEvent notificationResult) {
 		logger.debug("findIssue(): notificationResult: " + notificationResult);
 		logger.debug("findIssue(): key: " + notificationResult.getUniquePropertyKey());
 		final EntityPropertyQuery<?> query = ticketGenInfo.getJsonEntityPropertyManager().query();
@@ -113,7 +113,7 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	private Issue createIssue(final FilteredNotificationResult notificationResult) {
+	private Issue createIssue(final HubEvent notificationResult) {
 
 		final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
@@ -250,7 +250,7 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public void createOrReOpenIssue(final FilteredNotificationResult notificationResult) {
+	public void createOrReOpenIssue(final HubEvent notificationResult) {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
 		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
@@ -278,7 +278,7 @@ public class JiraIssueHandler {
 		}
 	}
 
-	public void closeIssue(final FilteredNotificationResult notificationResult) {
+	public void closeIssue(final HubEvent notificationResult) {
 		final Issue oldIssue = findIssue(notificationResult);
 		if (oldIssue != null) {
 			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
@@ -292,8 +292,8 @@ public class JiraIssueHandler {
 			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
 			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
 			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
-			if (notificationResult instanceof FilteredNotificationResultRule) {
-				final FilteredNotificationResultRule notificationResultRule = (FilteredNotificationResultRule) notificationResult;
+			if (notificationResult instanceof PolicyEvent) {
+				final PolicyEvent notificationResultRule = (PolicyEvent) notificationResult;
 				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
 			}
 		}
