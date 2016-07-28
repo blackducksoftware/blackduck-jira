@@ -38,7 +38,7 @@ public class JiraIssueHandler {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public void addIssueProperty(final Long issueId, final String key, final IssueProperties value) {
+	private void addIssueProperty(final Long issueId, final String key, final IssueProperties value) {
 
 		final Gson gson = new GsonBuilder().create();
 
@@ -80,7 +80,7 @@ public class JiraIssueHandler {
 		}
 	}
 
-	public Issue findIssue(final FilteredNotificationResult notificationResult) {
+	private Issue findIssue(final FilteredNotificationResult notificationResult) {
 		logger.debug("findIssue(): notificationResult: " + notificationResult);
 		logger.debug("findIssue(): key: " + notificationResult.getUniquePropertyKey());
 		final EntityPropertyQuery<?> query = ticketGenInfo.getJsonEntityPropertyManager().query();
@@ -113,7 +113,7 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public Issue createIssue(final FilteredNotificationResult notificationResult) {
+	private Issue createIssue(final FilteredNotificationResult notificationResult) {
 
 		final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
@@ -153,7 +153,7 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public Issue updateIssue(final Issue issueToUpdate, final IssueInputParameters issueInputParameters) {
+	private Issue updateIssue(final Issue issueToUpdate, final IssueInputParameters issueInputParameters) {
 		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
 		final UpdateValidationResult validationResult = ticketGenInfo.getIssueService()
 				.validateUpdate(ticketGenInfo.getJiraUser(), issueToUpdate.getId(), issueInputParameters);
@@ -187,7 +187,7 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public Issue transitionIssue(final Issue oldIssue, final String stepName) {
+	private Issue transitionIssue(final Issue oldIssue, final String stepName) {
 		final Status currentStatus = oldIssue.getStatusObject();
 		logger.debug("Current status : " + currentStatus.getName());
 		final JiraWorkflow workflow = ticketGenInfo.getWorkflowManager().getWorkflow(oldIssue);
@@ -251,6 +251,8 @@ public class JiraIssueHandler {
 	}
 
 	public void createOrReOpenIssue(final FilteredNotificationResult notificationResult) {
+		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
+		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
 		final Issue oldIssue = findIssue(notificationResult);
 		if (oldIssue == null) {
@@ -297,7 +299,7 @@ public class JiraIssueHandler {
 		}
 	}
 
-	public void printIssueInfo(final Issue issue) {
+	private void printIssueInfo(final Issue issue) {
 		logger.debug("Issue Key : " + issue.getKey());
 		logger.debug("Issue ID : " + issue.getId());
 		logger.debug("Summary : " + issue.getSummary());

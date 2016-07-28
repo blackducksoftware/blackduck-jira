@@ -67,7 +67,7 @@ public class TicketGenerator {
 
 		int ticketCount = 0;
 		for (final FilteredNotificationResult notificationResult : notificationResults.getPolicyViolationResults()) {
-			createIssue(issueHandler, notificationResult);
+			issueHandler.createOrReOpenIssue(notificationResult);
 			ticketCount++;
 		}
 		for (final FilteredNotificationResult notificationResult : notificationResults
@@ -77,23 +77,9 @@ public class TicketGenerator {
 
 		// TODO can this be combined with the rule issue create loop above
 		for (final FilteredNotificationResult vulnerabilityResult : notificationResults.getVulnerabilityResults()) {
-			createIssue(issueHandler, vulnerabilityResult);
+			issueHandler.createOrReOpenIssue(vulnerabilityResult);
 			ticketCount++;
 		}
 		return ticketCount;
 	}
-
-	private void createIssue(final JiraIssueHandler issueHandler,
-			final FilteredNotificationResult notificationResult) {
-		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
-		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
-
-
-		issueHandler.createOrReOpenIssue(notificationResult);
-	}
-
-
-
-
-
 }

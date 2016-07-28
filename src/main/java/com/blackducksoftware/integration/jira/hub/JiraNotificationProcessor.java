@@ -104,6 +104,9 @@ public class JiraNotificationProcessor {
 				logger.error(e);
 				return null;
 			}
+			// TODO: We should not create a new filter every time; create one of
+			// each once,
+			// or make each a singleton
 			final PolicyNotificationFilter filter = new PolicyNotificationFilter(underlyingMappings,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
