@@ -16,14 +16,17 @@ public class PolicyEvent extends HubEvent {
 	private final PolicyRule rule;
 	private final UUID ruleId;
 
-	public PolicyEvent(final String hubProjectName, final String hubProjectVersion,
+	public PolicyEvent(final HubEventAction action, final String hubProjectName,
+			final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
 			final UUID hubComponentVersionId, final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
 			final HubEventType eventType, final PolicyRule rule, final UUID ruleId) {
 
-		super(hubProjectName, hubProjectVersion, hubComponentName, hubComponentVersion, hubProjectVersionId,
+		super(action, hubProjectName, hubProjectVersion, hubComponentName,
+				hubComponentVersion,
+				hubProjectVersionId,
 				hubComponentId, hubComponentVersionId, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName,
 				eventType);
 		this.rule = rule;
@@ -59,14 +62,15 @@ public class PolicyEvent extends HubEvent {
 
 	@Override
 	public String toString() {
-		return "FilteredNotificationResultRule [rule=" + rule + ", ruleId=" + ruleId + ", getHubProjectName()="
-				+ getHubProjectName() + ", getHubProjectVersion()=" + getHubProjectVersion()
-				+ ", getHubComponentName()=" + getHubComponentName() + ", getHubComponentVersion()="
-				+ getHubComponentVersion() + ", getHubProjectVersionId()=" + getHubProjectVersionId()
-				+ ", getHubComponentId()=" + getHubComponentId() + ", getHubComponentVersionId()="
-				+ getHubComponentVersionId() + ", getJiraUserName()=" + getJiraUserName() + ", getJiraIssueTypeId()="
-				+ getJiraIssueTypeId() + ", getJiraProjectId()=" + getJiraProjectId() + ", getJiraProjectName()="
-				+ getJiraProjectName() + ", getEventType()=" + getEventType() + "]";
+		return "PolicyEvent [logger=" + logger + ", rule=" + rule + ", ruleId=" + ruleId + ", getIfExistsAction()="
+				+ getIfExistsAction() + ", getHubProjectName()=" + getHubProjectName() + ", getHubProjectVersion()="
+				+ getHubProjectVersion() + ", getHubComponentName()=" + getHubComponentName()
+				+ ", getHubComponentVersion()=" + getHubComponentVersion() + ", getHubProjectVersionId()="
+				+ getHubProjectVersionId() + ", getHubComponentId()=" + getHubComponentId()
+				+ ", getHubComponentVersionId()=" + getHubComponentVersionId() + ", getJiraUserName()="
+				+ getJiraUserName() + ", getJiraIssueTypeId()=" + getJiraIssueTypeId() + ", getJiraProjectId()="
+				+ getJiraProjectId() + ", getJiraProjectName()=" + getJiraProjectName() + ", getEventType()="
+				+ getEventType() + "]";
 	}
 
 	@Override
@@ -119,5 +123,11 @@ public class PolicyEvent extends HubEvent {
 				getHubProjectVersion(), getHubComponentName(), getHubComponentVersion(), issue.getId(), getRule()
 				.getName());
 		return properties;
+	}
+
+	@Override
+	public String getComment() {
+		// TODO Auto-generated method stub
+		return "TBD";
 	}
 }

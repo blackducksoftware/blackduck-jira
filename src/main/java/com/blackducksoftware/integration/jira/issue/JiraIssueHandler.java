@@ -250,21 +250,38 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	public void createOrReOpenIssue(final HubEvent notificationResult) {
+	public void handleEvent(final HubEvent event) {
+		switch (event.getIfExistsAction()) {
+		case OPEN:
+			openIssue(event);
+			break;
+		case CLOSE:
+			closeIssue(event);
+			break;
+		case ADD_COMMENT:
+			// TODO
+			openIssue(event);
+			logger.debug("*********** SHOULD ADD COMMENT; NEED TO IMPLEMENT THIS!");
+			break;
+		}
+	}
+
+	private void openIssue(final HubEvent event) {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
-		logger.debug("User active : " + ticketGenInfo.getJiraUser().isActive());
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
-		final Issue oldIssue = findIssue(notificationResult);
+		logger.debug("event: " + event);
+		final Issue oldIssue = findIssue(event);
+
 		if (oldIssue == null) {
 
-			final Issue issue = createIssue(notificationResult);
+			final Issue issue = createIssue(event);
 			if (issue != null) {
 				logger.info("Created new Issue.");
 				printIssueInfo(issue);
 
-				final IssueProperties properties = notificationResult.createIssueProperties(issue);
+				final IssueProperties properties = event.createIssueProperties(issue);
 				logger.debug("Adding properties to created issue: " + properties);
-				addIssueProperty(issue.getId(), notificationResult.getUniquePropertyKey(), properties);
+				addIssueProperty(issue.getId(), event.getUniquePropertyKey(), properties);
 			}
 		} else {
 			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
@@ -278,8 +295,8 @@ public class JiraIssueHandler {
 		}
 	}
 
-	public void closeIssue(final HubEvent notificationResult) {
-		final Issue oldIssue = findIssue(notificationResult);
+	private void closeIssue(final HubEvent event) {
+		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
 			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
 			if (updatedIssue != null) {
@@ -288,12 +305,12 @@ public class JiraIssueHandler {
 			}
 		} else {
 			logger.info("Could not find an existing issue to close for this override.");
-			logger.debug("Hub Project Name : " + notificationResult.getHubProjectName());
-			logger.debug("Hub Project Version : " + notificationResult.getHubProjectVersion());
-			logger.debug("Hub Component Name : " + notificationResult.getHubComponentName());
-			logger.debug("Hub Component Version : " + notificationResult.getHubComponentVersion());
-			if (notificationResult instanceof PolicyEvent) {
-				final PolicyEvent notificationResultRule = (PolicyEvent) notificationResult;
+			logger.debug("Hub Project Name : " + event.getHubProjectName());
+			logger.debug("Hub Project Version : " + event.getHubProjectVersion());
+			logger.debug("Hub Component Name : " + event.getHubComponentName());
+			logger.debug("Hub Component Version : " + event.getHubComponentVersion());
+			if (event instanceof PolicyEvent) {
+				final PolicyEvent notificationResultRule = (PolicyEvent) event;
 				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
 			}
 		}

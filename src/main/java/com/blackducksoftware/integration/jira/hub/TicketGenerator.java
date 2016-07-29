@@ -61,19 +61,21 @@ public class TicketGenerator {
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(ticketGenInfo);
 
+		// TODO Shouldn't need all these different types
+		// event should just tell JiraIssueHandler what to do
 		int ticketCount = 0;
 		for (final HubEvent notificationResult : notificationResults.getPolicyViolationEvents()) {
-			issueHandler.createOrReOpenIssue(notificationResult);
+			issueHandler.handleEvent(notificationResult);
 			ticketCount++;
 		}
 		for (final HubEvent notificationResult : notificationResults
 				.getPolicyViolationOverrideEvents()) {
-			issueHandler.closeIssue(notificationResult);
+			issueHandler.handleEvent(notificationResult);
 		}
 
 		// TODO can this be combined with the rule issue create loop above
 		for (final HubEvent vulnerabilityResult : notificationResults.getVulnerabilityEvents()) {
-			issueHandler.createOrReOpenIssue(vulnerabilityResult);
+			issueHandler.handleEvent(vulnerabilityResult);
 			ticketCount++;
 		}
 		return ticketCount;

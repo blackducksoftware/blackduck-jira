@@ -15,6 +15,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
+import com.blackducksoftware.integration.jira.hub.HubEventAction;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
@@ -134,7 +135,13 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 					continue;
 				}
 
-				final HubEvent result = new PolicyEvent(projectName,
+				HubEventAction action;
+				if (eventType == HubEventType.POLICY_VIOLATION) {
+					action = HubEventAction.OPEN;
+				} else {
+					action = HubEventAction.CLOSE;
+				}
+				final HubEvent result = new PolicyEvent(action, projectName,
 						projectVersionName, compVerStatus.getComponentName(), componentVersionName, versionId,
 						componentId, componentVersionId,
 						getTicketGenInfo().getJiraUser().getName(),

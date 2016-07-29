@@ -40,6 +40,7 @@ import com.google.gson.GsonBuilder;
  */
 public abstract class HubEvent {
 	protected final Gson gson = new GsonBuilder().create();
+	private final HubEventAction ifExistsAction;
 	private final String hubProjectName;
 	private final String hubProjectVersion;
 	private final String hubComponentName;
@@ -56,13 +57,15 @@ public abstract class HubEvent {
 
 	private final HubEventType eventType;
 
-	public HubEvent(final String hubProjectName, final String hubProjectVersion,
+	public HubEvent(final HubEventAction ifExistsAction, final String hubProjectName,
+			final String hubProjectVersion,
 			final String hubComponentName, final String hubComponentVersion,
 			final UUID hubProjectVersionId, final UUID hubComponentId,
 			final UUID hubComponentVersionId,
 			final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
 			final HubEventType eventType) {
+		this.ifExistsAction = ifExistsAction;
 		this.hubProjectName = hubProjectName;
 		this.hubProjectVersion = hubProjectVersion;
 		this.hubComponentName = hubComponentName;
@@ -77,6 +80,10 @@ public abstract class HubEvent {
 		this.jiraProjectId = jiraProjectId;
 		this.jiraProjectName = jiraProjectName;
 		this.eventType = eventType;
+	}
+
+	public HubEventAction getIfExistsAction() {
+		return ifExistsAction;
 	}
 
 	public String getHubProjectName() {
@@ -132,6 +139,8 @@ public abstract class HubEvent {
 	public abstract String getIssueSummary();
 
 	public abstract String getIssueDescription();
+
+	public abstract String getComment();
 
 	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
 
