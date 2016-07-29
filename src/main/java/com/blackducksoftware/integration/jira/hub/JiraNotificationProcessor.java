@@ -80,23 +80,24 @@ public class JiraNotificationProcessor {
 
 	private HubEvents convertNotificationToEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
 	HubNotificationServiceException {
+		final HubProjectMappings mapping = new HubProjectMappings(ticketGenInfo, underlyingMappings);
 
 		if (notif instanceof RuleViolationNotificationItem) {
 			// TODO: We should not create a new filter every time; create one of
 			// each once,
 			// or make each a singleton
-			final PolicyViolationNotificationFilter filter = new PolicyViolationNotificationFilter(underlyingMappings,
+			final PolicyViolationNotificationFilter filter = new PolicyViolationNotificationFilter(mapping,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.generateEvents(notif);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			// TODO: We should not create a new filter every time; create one of
 			// each once,
 			// or make each a singleton
-			final PolicyOverrideNotificationFilter filter = new PolicyOverrideNotificationFilter(underlyingMappings,
+			final PolicyOverrideNotificationFilter filter = new PolicyOverrideNotificationFilter(mapping,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.generateEvents(notif);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
-			final HubProjectMappings mapping = new HubProjectMappings(ticketGenInfo, underlyingMappings);
+
 			//
 			// // TODO: We should not create a new filter every time; create one
 			// of

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -71,7 +72,9 @@ public class HubProjectMappingsTest {
 
 		final HubProjectMappings mappings = new HubProjectMappings(ticketGenInfo, underlyingMappings);
 
-		final JiraProject mappedJiraProject = mappings.getJiraProject("projectUrl7");
+		final List<JiraProject> mappedJiraProjects = mappings.getJiraProject("projectUrl7");
+		assertEquals(1, mappedJiraProjects.size());
+		final JiraProject mappedJiraProject = mappedJiraProjects.get(0);
 
 		System.out.println(mappedJiraProject);
 		assertEquals(Long.valueOf(7L), mappedJiraProject.getProjectId());

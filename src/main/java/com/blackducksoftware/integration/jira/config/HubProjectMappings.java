@@ -1,5 +1,7 @@
 package com.blackducksoftware.integration.jira.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +22,16 @@ public class HubProjectMappings {
 		this.mappings = mappings;
 	}
 
-	public JiraProject getJiraProject(final String hubProjectUrl) {
+	// TODO: I believe there is a major problem with this
+	// There might legit be multiple matching jira projects, and
+	// all should be processed
+	// Return a list; callers should process each jira project in the list
+	public List<JiraProject> getJiraProject(final String hubProjectUrl) {
+		final List<JiraProject> matchingJiraProjects = new ArrayList<>();
+
 		if (mappings == null || mappings.isEmpty()) {
-			logger.debug("No configured project mapping matching this notification found; skipping this notification");
-			return null;
+			logger.debug("There are no configured project mapping");
+			return matchingJiraProjects;
 		}
 
 		for (final HubProjectMapping mapping : mappings) {
@@ -49,11 +57,11 @@ public class HubProjectMappings {
 			logger.debug("hubProjectUrl (from notification content)       : " + hubProjectUrl);
 			if ((!StringUtils.isBlank(hubProject.getProjectUrl()) && (hubProject.getProjectUrl().equals(hubProjectUrl)))) {
 				logger.debug("Match!");
-				return jiraProject;
+				matchingJiraProjects.add(jiraProject);
 			}
 		}
-		logger.debug("No Match");
-		return null;
+		logger.debug("Number of matches found: " + matchingJiraProjects.size());
+		return matchingJiraProjects;
 	}
 
 	private JiraProject getJiraProject(final long jiraProjectId)
@@ -92,5 +100,12 @@ public class HubProjectMappings {
 			}
 		}
 		return bdsJiraProject;
+	}
+
+	public int size() {
+		if (mappings == null) {
+			return 0;
+		}
+		return mappings.size();
 	}
 }

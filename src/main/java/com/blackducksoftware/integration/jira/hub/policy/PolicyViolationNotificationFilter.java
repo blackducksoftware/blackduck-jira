@@ -1,14 +1,13 @@
 package com.blackducksoftware.integration.jira.hub.policy;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
@@ -21,7 +20,8 @@ import com.blackducksoftware.integration.jira.issue.HubEventType;
 public class PolicyViolationNotificationFilter extends PolicyNotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyViolationNotificationFilter(final Set<HubProjectMapping> mappings, final TicketGeneratorInfo ticketGenInfo,
+	public PolicyViolationNotificationFilter(final HubProjectMappings mappings,
+			final TicketGeneratorInfo ticketGenInfo,
 			final List<String> linksOfRulesToMonitor, final HubNotificationService hubNotificationService) {
 		super(mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}

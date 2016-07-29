@@ -2,7 +2,6 @@ package com.blackducksoftware.integration.jira.hub.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +13,7 @@ import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseExce
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
@@ -31,13 +30,13 @@ public abstract class PolicyNotificationFilter extends NotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	// TODO replace with HubProjectMappings
-	private final Set<HubProjectMapping> mappings;
+	private final HubProjectMappings mappings;
 	private final TicketGeneratorInfo ticketGenInfo;
 	private final List<String> linksOfRulesToMonitor;
 
 
 
-	public PolicyNotificationFilter(final Set<HubProjectMapping> mappings,
+	public PolicyNotificationFilter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
 			final HubNotificationService hubNotificationService) {
 		super(hubNotificationService);
@@ -56,13 +55,16 @@ public abstract class PolicyNotificationFilter extends NotificationFilter {
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
 		// TODO use HubProjectMappings instead
-		final List<HubProjectMapping> mappings = getMatchingMappings(projectUrl);
-		if (mappings == null || mappings.isEmpty()) {
-			logger.debug("No configured project mapping matching this notification found; skipping this notification");
-			return null;
-		}
-		for (final HubProjectMapping mapping : mappings) {
-			final JiraProject mappingJiraProject = mapping.getJiraProject();
+		// final List<HubProjectMapping> mappings =
+		// getMatchingMappings(projectUrl);
+		// if (mappings == null || mappings.isEmpty()) {
+		// logger.debug("No configured project mapping matching this notification found; skipping this notification");
+		// return null;
+		// }
+		for (final JiraProject mappingJiraProject : mappings.getJiraProject(projectUrl)) {
+			// TODO: this re-fetch is necessary;
+			// I don't think I'm doing it for all notif types (esp.
+			// Vulnerabilities)
 			final JiraProject jiraProject;
 			try {
 				jiraProject = getJiraProject(mappingJiraProject.getProjectId());
@@ -213,24 +215,6 @@ public abstract class PolicyNotificationFilter extends NotificationFilter {
 		}
 		final String projectLink = projectLinks.get(0);
 		return projectLink;
-	}
-
-	private List<HubProjectMapping> getMatchingMappings(final String notifHubProjectUrl) {
-		if ((mappings == null) || (mappings.size() == 0)) {
-			logger.warn("No mappings provided");
-			return null;
-		}
-		final List<HubProjectMapping> matchingMappings = new ArrayList<HubProjectMapping>();
-		logger.debug("NotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
-				+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
-		for (final HubProjectMapping mapping : mappings) {
-			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
-			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
-				logger.debug("Mapping: " + mapping);
-				matchingMappings.add(mapping);
-			}
-		}
-		return matchingMappings;
 	}
 
 	private TicketGeneratorInfo getTicketGenInfo() {
