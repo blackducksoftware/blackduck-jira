@@ -258,10 +258,6 @@
               <groupId>com.blackducksoftware.integration</groupId>
               <artifactId>hub-common</artifactId>
             </pluginDependency>
-            <pluginDependency>
-              <groupId>com.blackducksoftware.integration</groupId>
-              <artifactId>hub-atlassian-config</artifactId>
-            </pluginDependency>
           </pluginDependencies>
           <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
