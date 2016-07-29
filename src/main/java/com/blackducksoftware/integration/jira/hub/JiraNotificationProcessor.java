@@ -22,28 +22,22 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
-	private final HubProjectMappings mapping;
 	private final ConverterLookupTable converterTable;
 
 	public JiraNotificationProcessor(final HubNotificationService hubNotificationService,
-			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
+			final HubProjectMappings mapping, final List<String> linksOfRulesToMonitor,
 			final TicketGeneratorInfo ticketGenInfo) {
-
-		// TODO caller should do this
-		mapping = new HubProjectMappings(ticketGenInfo, mappings);
 		converterTable = new ConverterLookupTable(mapping, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}
 

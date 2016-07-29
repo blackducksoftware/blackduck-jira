@@ -29,12 +29,9 @@ import com.blackducksoftware.integration.jira.issue.HubEventType;
 public abstract class PolicyNotificationConverter extends NotificationToEventConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
-	// TODO replace with HubProjectMappings
 	private final HubProjectMappings mappings;
 	private final TicketGeneratorInfo ticketGenInfo;
 	private final List<String> linksOfRulesToMonitor;
-
-
 
 	public PolicyNotificationConverter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
@@ -43,7 +40,6 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 		this.mappings = mappings;
 		this.ticketGenInfo = ticketGenInfo;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
-
 	}
 
 	protected HubEvents handleNotification(final HubEventType eventType,
@@ -54,13 +50,6 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
-		// TODO use HubProjectMappings instead
-		// final List<HubProjectMapping> mappings =
-		// getMatchingMappings(projectUrl);
-		// if (mappings == null || mappings.isEmpty()) {
-		// logger.debug("No configured project mapping matching this notification found; skipping this notification");
-		// return null;
-		// }
 		for (final JiraProject mappingJiraProject : mappings.getJiraProject(projectUrl)) {
 			// TODO: this re-fetch is necessary;
 			// I don't think I'm doing it for all notif types (esp.

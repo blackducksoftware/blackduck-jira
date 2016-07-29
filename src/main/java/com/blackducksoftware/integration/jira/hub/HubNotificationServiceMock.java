@@ -32,7 +32,7 @@ public class HubNotificationServiceMock extends HubNotificationService {
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
 			throws HubNotificationServiceException {
 		logger.debug("fetchNotifications(");
-		final String filePath = "/tmp/json/VulnerabilityNotificationContent_new.json";
+		final String filePath = "/tmp/json/VulnerabilityNotificationContent_current.json";
 		List<NotificationItem> notificationItems;
 		try {
 			notificationItems = mockNewVulnerabilityNotificationItems(filePath, true);

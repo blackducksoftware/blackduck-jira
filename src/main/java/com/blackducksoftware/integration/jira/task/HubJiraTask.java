@@ -49,6 +49,7 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
@@ -170,11 +171,11 @@ public class HubJiraTask {
 					runDate);
 
 			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(ticketServices,
+					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
-
-			ticketGenerator
-			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
+			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings,
 					linksOfRulesToMonitor, notificationDateRange);
 		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
 				| HubNotificationServiceException | URISyntaxException e) {

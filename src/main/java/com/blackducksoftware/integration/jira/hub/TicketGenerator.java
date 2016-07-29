@@ -22,12 +22,11 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
@@ -50,14 +49,11 @@ public class TicketGenerator {
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public int generateTicketsForRecentNotifications(final Set<HubProjectMapping> hubProjectMappings,
+	public int generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
 			final List<String> linksOfRulesToMonitor,
 			final NotificationDateRange notificationDateRange) throws HubNotificationServiceException {
 
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
-		for (final NotificationItem notification : notifs) {
-			logger.debug(notification.toString());
-		}
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 

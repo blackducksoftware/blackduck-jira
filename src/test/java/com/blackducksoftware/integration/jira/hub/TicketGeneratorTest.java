@@ -84,6 +84,7 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
@@ -149,7 +150,11 @@ public class TicketGeneratorTest {
 	public void testCreateNewVulnerabilityJiraIssue() throws HubNotificationServiceException, ParseException,
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
-		testVulnerabilityNotifications(false, true, false,
+		testVulnerabilityNotifications(
+				"src/test/resources/json/VulnerabilityNotificationContent_new.json",
+				false,
+				true,
+				false,
 				"Black Duck Vulnerability Add detected on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0': NVD:CVE-2016-0001",
 				"The Black Duck Hub has detected a Vulnerability Add on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. Vulnerability added (source: NVD): CVE-2016-0001");
 	}
@@ -159,6 +164,7 @@ public class TicketGeneratorTest {
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
 	MissingUUIDException {
 		testVulnerabilityNotifications(
+				"src/test/resources/json/VulnerabilityNotificationContent_new.json",
 				false,
 				true,
 				true,
@@ -232,7 +238,8 @@ public class TicketGeneratorTest {
 		return vulnContent;
 	}
 
-	private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
+	private void testVulnerabilityNotifications(final String notifContentFilePath,
+			final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification, final String expectedIssueSummary,
 			final String expectedIssueDescription)
 					throws HubNotificationServiceException, ParseException,
@@ -251,7 +258,7 @@ public class TicketGeneratorTest {
 
 		List<NotificationItem> notificationItems;
 		// if (openIssue) {
-		notificationItems = mockNewVulnerabilityNotificationItems(createDuplicateNotification);
+		notificationItems = mockNewVulnerabilityNotificationItems(notifContentFilePath, createDuplicateNotification);
 		// } else {
 		// notificationItems = mock... TODO
 		// }
@@ -295,7 +302,8 @@ public class TicketGeneratorTest {
 
 		// Test
 
-		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
+		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraTicketGeneratorInfoService,
+				hubProjectMappings), linksOfRulesToMonitor,
 				notificationDateRange);
 
 		// Verify
@@ -392,7 +400,8 @@ public class TicketGeneratorTest {
 
 		// Test
 
-		ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, linksOfRulesToMonitor,
+		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraTicketGeneratorInfoService,
+				hubProjectMappings), linksOfRulesToMonitor,
 				notificationDateRange);
 
 		// Verify
@@ -633,12 +642,13 @@ public class TicketGeneratorTest {
 		return notificationItems;
 	}
 
-	private List<NotificationItem> mockNewVulnerabilityNotificationItems(final boolean createDuplicate)
-			throws IOException {
+	private List<NotificationItem> mockNewVulnerabilityNotificationItems(final String notifContentFilePath,
+			final boolean createDuplicate)
+					throws IOException {
 		final List<NotificationItem> notificationItems = new ArrayList<>();
 		final MetaInformation meta = new MetaInformation(null, null, null);
 		final VulnerabilityNotificationItem notificationItem = new VulnerabilityNotificationItem(meta);
-		final String jsonString = readFile("src/test/resources/json/VulnerabilityNotificationContent_new.json");
+		final String jsonString = readFile(notifContentFilePath);
 		final VulnerabilityNotificationContent content = createVulnerabilityNotificationContent(jsonString);
 		notificationItem.setContent(content);
 
