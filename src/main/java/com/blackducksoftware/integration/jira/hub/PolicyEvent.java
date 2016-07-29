@@ -2,13 +2,17 @@ package com.blackducksoftware.integration.jira.hub;
 
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.blackducksoftware.integration.jira.hub.property.PolicyViolationIssueProperties;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
 public class PolicyEvent extends HubEvent {
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final PolicyRule rule;
 	private final UUID ruleId;
 
@@ -48,7 +52,9 @@ public class PolicyEvent extends HubEvent {
 			keyBuilder.append(".");
 		}
 		keyBuilder.append(getRuleId().toString());
-		return keyBuilder.toString();
+		final String key = keyBuilder.toString();
+		logger.debug("property key: " + key);
+		return key;
 	}
 
 	@Override
@@ -111,7 +117,7 @@ public class PolicyEvent extends HubEvent {
 	public IssueProperties createIssueProperties(final Issue issue) {
 		final IssueProperties properties = new PolicyViolationIssueProperties(getHubProjectName(),
 				getHubProjectVersion(), getHubComponentName(), getHubComponentVersion(), issue.getId(), getRule()
-						.getName());
+				.getName());
 		return properties;
 	}
 }

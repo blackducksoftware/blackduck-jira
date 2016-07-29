@@ -155,8 +155,8 @@ public class TicketGeneratorTest {
 				false,
 				true,
 				false,
-				"Black Duck Vulnerability Add detected on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0': NVD:CVE-2016-0001",
-				"The Black Duck Hub has detected a Vulnerability Add on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. Vulnerability added (source: NVD): CVE-2016-0001");
+				"Black Duck Hub has detected a vulnerability status change on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
+				"The Black Duck Hub has detected a vulnerability status change on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. Vulnerabilities added: (source: NVD): CVE-2016-0001, ");
 	}
 
 	@Test
@@ -168,8 +168,8 @@ public class TicketGeneratorTest {
 				false,
 				true,
 				true,
-				"Black Duck Vulnerability Add detected on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0': NVD:CVE-2016-0001",
-				"The Black Duck Hub has detected a Vulnerability Add on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. Vulnerability added (source: NVD): CVE-2016-0001");
+				"Black Duck Hub has detected a vulnerability status change on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
+				"The Black Duck Hub has detected a vulnerability status change on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. Vulnerabilities added: (source: NVD): CVE-2016-0001, ");
 	}
 
 	@Test
