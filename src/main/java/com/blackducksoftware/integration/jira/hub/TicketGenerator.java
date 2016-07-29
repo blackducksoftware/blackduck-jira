@@ -61,7 +61,7 @@ public class TicketGenerator {
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, ticketGenInfo);
 
-		final HubEvents notificationResults = processor.extractJiraReadyNotifications(notifs);
+		final HubEvents notificationResults = processor.generateEvents(notifs);
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(ticketGenInfo);
 

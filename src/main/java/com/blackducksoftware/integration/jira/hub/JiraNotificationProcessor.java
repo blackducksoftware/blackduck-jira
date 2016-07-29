@@ -31,32 +31,23 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationConverter;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter;
-import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationConverter;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
-	private final HubNotificationService hubNotificationService;
-	// TODO replace with HubProjectMappings
-	private final Set<HubProjectMapping> underlyingMappings;
-	private final List<String> linksOfRulesToMonitor;
-	private final TicketGeneratorInfo ticketGenInfo;
+	private final HubProjectMappings mapping;
+	private final ConverterLookupTable converterTable;
 
 	public JiraNotificationProcessor(final HubNotificationService hubNotificationService,
 			final Set<HubProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
 			final TicketGeneratorInfo ticketGenInfo) {
-		this.hubNotificationService = hubNotificationService;
-		this.underlyingMappings = mappings;
-		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
-		this.ticketGenInfo = ticketGenInfo;
+
+		// TODO caller should do this
+		mapping = new HubProjectMappings(ticketGenInfo, mappings);
+		converterTable = new ConverterLookupTable(mapping, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}
 
-	public HubEvents extractJiraReadyNotifications(final List<NotificationItem> notifications)
+	public HubEvents generateEvents(final List<NotificationItem> notifications)
 			throws HubNotificationServiceException {
 		final HubEvents allResults = new HubEvents();
 
@@ -67,7 +58,7 @@ public class JiraNotificationProcessor {
 
 			HubEvents notifResults;
 			try {
-				notifResults = convertNotificationToEvents(notif);
+				notifResults = generateEvents(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new HubNotificationServiceException("Error converting notifications to issues", e);
 			}
@@ -78,38 +69,11 @@ public class JiraNotificationProcessor {
 		return allResults;
 	}
 
-	private HubEvents convertNotificationToEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
+	private HubEvents generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
 	HubNotificationServiceException {
-		final HubProjectMappings mapping = new HubProjectMappings(ticketGenInfo, underlyingMappings);
-
-		if (notif instanceof RuleViolationNotificationItem) {
-			// TODO: We should not create a new filter every time; create one of
-			// each once,
-			// or make each a singleton
-			final PolicyViolationNotificationConverter filter = new PolicyViolationNotificationConverter(mapping,
-					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.generateEvents(notif);
-		} else if (notif instanceof PolicyOverrideNotificationItem) {
-			// TODO: We should not create a new filter every time; create one of
-			// each once,
-			// or make each a singleton
-			final PolicyOverrideNotificationConverter filter = new PolicyOverrideNotificationConverter(mapping,
-					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-			return filter.generateEvents(notif);
-		} else if (notif instanceof VulnerabilityNotificationItem) {
-
-			//
-			// // TODO: We should not create a new filter every time; create one
-			// of
-			// // each once,
-			// // or make each a singleton
-			final VulnerabilityNotificationConverter filter = new VulnerabilityNotificationConverter(mapping, ticketGenInfo,
-					linksOfRulesToMonitor, hubNotificationService);
-
-			return filter.generateEvents(notif);
-		} else {
-			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
-		}
+		final NotificationToEventConverter converter = converterTable.getConverter(notif);
+		final HubEvents events = converter.generateEvents(notif);
+		return events;
 	}
 
 }

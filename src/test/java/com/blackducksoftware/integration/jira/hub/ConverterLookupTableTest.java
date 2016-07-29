@@ -1,6 +1,7 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -22,10 +23,15 @@ public class ConverterLookupTableTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws HubNotificationServiceException {
 		final ConverterLookupTable table = new ConverterLookupTable(null, null, null, null);
 
-		assertEquals(null, table.getConverter(null));
+		try {
+			assertEquals(null, table.getConverter(null));
+			fail("Expected null pointer exception");
+		} catch (final NullPointerException e) {
+			// expected
+		}
 
 		NotificationToEventConverter converter = table.getConverter(new VulnerabilityNotificationItem(new MetaInformation(null,
 				null, null)));

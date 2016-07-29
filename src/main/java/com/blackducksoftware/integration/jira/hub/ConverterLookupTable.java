@@ -23,20 +23,21 @@ public class ConverterLookupTable {
 				ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 		final NotificationToEventConverter policyViolationNotificationFilter = new PolicyViolationNotificationConverter(mappings,
 				ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(null, null,
-				null, null);
+		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
+				mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 
 		lookupTable.put(RuleViolationNotificationItem.class, policyViolationNotificationFilter);
 		lookupTable.put(PolicyOverrideNotificationItem.class, policyOverrideNotificationConverter);
 		lookupTable.put(VulnerabilityNotificationItem.class, vulnerabilityNotificationConverter);
 	}
 
-	public NotificationToEventConverter getConverter(final NotificationItem notif) {
-		if (notif == null) {
-			return null;
-		}
+	public NotificationToEventConverter getConverter(final NotificationItem notif)
+			throws HubNotificationServiceException {
 		final Class c = notif.getClass();
 		final NotificationToEventConverter converter = lookupTable.get(c);
+		if (converter == null) {
+			throw new HubNotificationServiceException("Notification type unknown for notification: " + notif);
+		}
 		return converter;
 	}
 }
