@@ -18,10 +18,10 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
-public class PolicyOverrideNotificationFilter extends PolicyNotificationFilter {
+public class PolicyOverrideNotificationConverter extends PolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyOverrideNotificationFilter(final HubProjectMappings mappings, final TicketGeneratorInfo ticketGenInfo,
+	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final TicketGeneratorInfo ticketGenInfo,
 			final List<String> linksOfRulesToMonitor, final HubNotificationService hubNotificationService) {
 		super(mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}

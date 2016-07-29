@@ -27,17 +27,17 @@ public class ConverterLookupTableTest {
 
 		assertEquals(null, table.getConverter(null));
 
-		NotificationFilter converter = table.getConverter(new VulnerabilityNotificationItem(new MetaInformation(null,
+		NotificationToEventConverter converter = table.getConverter(new VulnerabilityNotificationItem(new MetaInformation(null,
 				null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationFilter",
+		assertEquals("com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
 		converter = table.getConverter(new RuleViolationNotificationItem(new MetaInformation(null, null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationFilter",
+		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
 		converter = table.getConverter(new PolicyOverrideNotificationItem(new MetaInformation(null, null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationFilter",
+		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}
 

@@ -17,10 +17,10 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
-public class PolicyViolationNotificationFilter extends PolicyNotificationFilter {
+public class PolicyViolationNotificationConverter extends PolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyViolationNotificationFilter(final HubProjectMappings mappings,
+	public PolicyViolationNotificationConverter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo,
 			final List<String> linksOfRulesToMonitor, final HubNotificationService hubNotificationService) {
 		super(mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);

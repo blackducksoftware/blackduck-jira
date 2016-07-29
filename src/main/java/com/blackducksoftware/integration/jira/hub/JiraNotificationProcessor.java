@@ -34,9 +34,9 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationFilter;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationFilter;
-import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationFilter;
+import com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationConverter;
+import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter;
+import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationConverter;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -86,14 +86,14 @@ public class JiraNotificationProcessor {
 			// TODO: We should not create a new filter every time; create one of
 			// each once,
 			// or make each a singleton
-			final PolicyViolationNotificationFilter filter = new PolicyViolationNotificationFilter(mapping,
+			final PolicyViolationNotificationConverter filter = new PolicyViolationNotificationConverter(mapping,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.generateEvents(notif);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			// TODO: We should not create a new filter every time; create one of
 			// each once,
 			// or make each a singleton
-			final PolicyOverrideNotificationFilter filter = new PolicyOverrideNotificationFilter(mapping,
+			final PolicyOverrideNotificationConverter filter = new PolicyOverrideNotificationConverter(mapping,
 					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 			return filter.generateEvents(notif);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
@@ -103,7 +103,7 @@ public class JiraNotificationProcessor {
 			// of
 			// // each once,
 			// // or make each a singleton
-			final VulnerabilityNotificationFilter filter = new VulnerabilityNotificationFilter(mapping, ticketGenInfo,
+			final VulnerabilityNotificationConverter filter = new VulnerabilityNotificationConverter(mapping, ticketGenInfo,
 					linksOfRulesToMonitor, hubNotificationService);
 
 			return filter.generateEvents(notif);

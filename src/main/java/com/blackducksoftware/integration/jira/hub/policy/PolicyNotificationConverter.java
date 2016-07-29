@@ -19,14 +19,14 @@ import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
 import com.blackducksoftware.integration.jira.hub.HubNotificationService;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
-import com.blackducksoftware.integration.jira.hub.NotificationFilter;
+import com.blackducksoftware.integration.jira.hub.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
-public abstract class PolicyNotificationFilter extends NotificationFilter {
+public abstract class PolicyNotificationConverter extends NotificationToEventConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	// TODO replace with HubProjectMappings
@@ -36,7 +36,7 @@ public abstract class PolicyNotificationFilter extends NotificationFilter {
 
 
 
-	public PolicyNotificationFilter(final HubProjectMappings mappings,
+	public PolicyNotificationConverter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
 			final HubNotificationService hubNotificationService) {
 		super(hubNotificationService);
