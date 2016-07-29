@@ -72,7 +72,7 @@ public class HubProjectMappingsTest {
 
 		final HubProjectMappings mappings = new HubProjectMappings(ticketGenInfo, underlyingMappings);
 
-		final List<JiraProject> mappedJiraProjects = mappings.getJiraProject("projectUrl7");
+		final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectUrl7");
 		assertEquals(1, mappedJiraProjects.size());
 		final JiraProject mappedJiraProject = mappedJiraProjects.get(0);
 

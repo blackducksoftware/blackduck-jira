@@ -22,11 +22,7 @@ public class HubProjectMappings {
 		this.mappings = mappings;
 	}
 
-	// TODO: I believe there is a major problem with this
-	// There might legit be multiple matching jira projects, and
-	// all should be processed
-	// Return a list; callers should process each jira project in the list
-	public List<JiraProject> getJiraProject(final String hubProjectUrl) {
+	public List<JiraProject> getJiraProjects(final String hubProjectUrl) {
 		final List<JiraProject> matchingJiraProjects = new ArrayList<>();
 
 		if (mappings == null || mappings.isEmpty()) {

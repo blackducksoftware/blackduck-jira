@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
@@ -30,15 +29,13 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	private final HubProjectMappings mappings;
-	private final TicketGeneratorInfo ticketGenInfo;
 	private final List<String> linksOfRulesToMonitor;
 
 	public PolicyNotificationConverter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
 			final HubNotificationService hubNotificationService) {
-		super(hubNotificationService);
+		super(hubNotificationService, ticketGenInfo);
 		this.mappings = mappings;
-		this.ticketGenInfo = ticketGenInfo;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
 
@@ -50,10 +47,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
-		for (final JiraProject mappingJiraProject : mappings.getJiraProject(projectUrl)) {
-			// TODO: this re-fetch is necessary;
-			// I don't think I'm doing it for all notif types (esp.
-			// Vulnerabilities)
+		for (final JiraProject mappingJiraProject : mappings.getJiraProjects(projectUrl)) {
 			final JiraProject jiraProject;
 			try {
 				jiraProject = getJiraProject(mappingJiraProject.getProjectId());
@@ -205,47 +199,4 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 		final String projectLink = projectLinks.get(0);
 		return projectLink;
 	}
-
-	private TicketGeneratorInfo getTicketGenInfo() {
-		return ticketGenInfo;
-	}
-
-	private JiraProject getJiraProject(final long jiraProjectId) throws HubNotificationServiceException {
-		if (ticketGenInfo.getJiraProjectManager() == null) {
-			throw new HubNotificationServiceException("The JIRA projectManager has not been set");
-		}
-		final com.atlassian.jira.project.Project atlassianJiraProject = ticketGenInfo.getJiraProjectManager()
-				.getProjectObj(jiraProjectId);
-		if (atlassianJiraProject == null) {
-			throw new HubNotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
-		}
-		final String jiraProjectKey = atlassianJiraProject.getKey();
-		final String jiraProjectName = atlassianJiraProject.getName();
-		final JiraProject bdsJiraProject = new JiraProject();
-		bdsJiraProject.setProjectId(jiraProjectId);
-		bdsJiraProject.setProjectKey(jiraProjectKey);
-		bdsJiraProject.setProjectName(jiraProjectName);
-
-		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
-			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-					+ " does not have any issue types, we will not be able to create tickets for this project.");
-		} else {
-			boolean projectHasIssueType = false;
-			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
-				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
-					if (issueType.getName().equals(ticketGenInfo.getJiraIssueTypeName())) {
-						bdsJiraProject.setIssueTypeId(issueType.getId());
-						projectHasIssueType = true;
-					}
-				}
-			}
-			if (!projectHasIssueType) {
-				bdsJiraProject.setProjectError("The Jira project is missing the "
-						+ ticketGenInfo.getJiraIssueTypeName() + " issue type.");
-			}
-		}
-		return bdsJiraProject;
-	}
-
-
 }
