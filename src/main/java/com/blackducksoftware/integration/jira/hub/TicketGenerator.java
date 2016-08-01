@@ -74,8 +74,8 @@ public class TicketGenerator {
 		}
 
 		// TODO can this be combined with the rule issue create loop above
-		for (final HubEvent vulnerabilityResult : notificationResults.getVulnerabilityEvents()) {
-			issueHandler.handleEvent(vulnerabilityResult);
+		for (final HubEvent event : notificationResults.getVulnerabilityEvents()) {
+			issueHandler.handleEvent(event);
 			ticketCount++;
 		}
 		return ticketCount;

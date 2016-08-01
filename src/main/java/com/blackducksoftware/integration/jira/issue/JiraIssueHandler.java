@@ -269,7 +269,7 @@ public class JiraIssueHandler {
 
 	private void addComment(final HubEvent event, final Issue issue) {
 		final CommentManager commentManager = ticketGenInfo.getCommentManager();
-		commentManager.create(issue, ticketGenInfo.getJiraUser(), "TBD comment body", true);
+		commentManager.create(issue, ticketGenInfo.getJiraUser(), event.getComment(), true);
 	}
 
 	private Issue openIssue(final HubEvent event) {
