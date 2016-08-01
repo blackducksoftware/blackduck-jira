@@ -35,7 +35,7 @@ public class HubNotificationServiceMock extends HubNotificationService {
 		final String filePath = "/tmp/json/VulnerabilityNotificationContent_current.json";
 		List<NotificationItem> notificationItems;
 		try {
-			notificationItems = mockNewVulnerabilityNotificationItems(filePath, true);
+			notificationItems = mockNewVulnerabilityNotificationItems(filePath, false);
 		} catch (final IOException e) {
 			logger.error("Error mocking notifications from file: " + filePath + ": " + e.getMessage());
 			return new ArrayList<>(0);
