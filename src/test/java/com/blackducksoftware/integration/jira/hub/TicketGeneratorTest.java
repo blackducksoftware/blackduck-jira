@@ -156,8 +156,8 @@ public class TicketGeneratorTest {
 				false,
 				true,
 				false,
-				"Black Duck vulnerability status changes on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
-				"This issue tracks vulnerability status changes on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. See comments for details.");
+				"Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'",
+				"This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.");
 	}
 
 	@Test
@@ -169,8 +169,8 @@ public class TicketGeneratorTest {
 				false,
 				true,
 				true,
-				"Black Duck vulnerability status changes on Hub Project 'TestProject' / '1.0.0', component 'TestNG' / '2.0.0'",
-				"This issue tracks vulnerability status changes on Hub Project 'TestProject', component 'TestNG' / '2.0.0'. See comments for details.");
+				"Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'",
+				"This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.");
 	}
 
 	@Test
@@ -221,8 +221,8 @@ public class TicketGeneratorTest {
 		assertEquals("CVE-2016-0001", vulnContent.getNewVulnerabilityIds().get(0).getId());
 		assertEquals(0, vulnContent.getUpdatedVulnerabilityCount());
 		assertEquals(0, vulnContent.getDeletedVulnerabilityCount());
-		assertEquals("TestProject", vulnContent.getAffectedProjectVersions().get(0).getProjectName());
-		assertEquals("1.0.0", vulnContent.getAffectedProjectVersions().get(0).getProjectVersionName());
+		assertEquals("4Drew", vulnContent.getAffectedProjectVersions().get(0).getProjectName());
+		assertEquals("2Drew", vulnContent.getAffectedProjectVersions().get(0).getProjectVersionName());
 	}
 
 	private String readFile(final String path) throws IOException {
