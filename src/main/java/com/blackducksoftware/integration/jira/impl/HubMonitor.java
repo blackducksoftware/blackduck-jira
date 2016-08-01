@@ -32,6 +32,7 @@ import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.util.UserManager;
@@ -51,6 +52,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	public static final String KEY_ISSUE_SERVICE = HubMonitor.class.getName() + ":issueService";
+	public static final String KEY_COMMENT_MANAGER = HubMonitor.class.getName() + ":commentManager";
 	public static final String KEY_PROJECT_MANAGER = HubMonitor.class.getName() + ":projectManager";
 	public static final String KEY_USER_MANAGER = HubMonitor.class.getName() + ":userManager";
 	public static final String KEY_AUTH_CONTEXT = HubMonitor.class.getName() + ":authContext";
@@ -95,6 +97,9 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		logger.debug("HubMonitor reschedule() called.");
 		logger.debug("pluginSettingsFactory: " + pluginSettingsFactory);
 
+		final CommentManager commentManager = ComponentAccessor.getCommentManager();
+		logger.debug("commentManager: " + commentManager);
+
 		final IssueService issueService = ComponentAccessor.getIssueService();
 		logger.debug("issueService: " + issueService);
 
@@ -126,15 +131,16 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 				put(KEY_ISSUE_SERVICE, issueService);
 				put(KEY_PROJECT_MANAGER, projectManager);
+						put(KEY_COMMENT_MANAGER, commentManager);
 				put(KEY_USER_MANAGER, userManager);
 				put(KEY_AUTH_CONTEXT, authContext);
-						put(KEY_PROPERTY_SERVICE, propertyService);
+				put(KEY_PROPERTY_SERVICE, propertyService);
 				put(KEY_WORKFLOW_MANAGER, workflowManager);
 				put(KEY_JSON_ENTITY_PROPERTY_MANAGER, jsonEntityPropertyManager);
 			}
 		}, // data that needs to be passed to the job
-				new Date(), // the time the job is to start
-				actualInterval); // interval between repeats, in milliseconds
+		new Date(), // the time the job is to start
+		actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
 	}
 

@@ -16,6 +16,7 @@ import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
 import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
@@ -260,13 +261,18 @@ public class JiraIssueHandler {
 			break;
 		case ADD_COMMENT:
 			// TODO
-			openIssue(event);
-			logger.debug("*********** SHOULD ADD COMMENT; NEED TO IMPLEMENT THIS!");
+			final Issue issue = openIssue(event);
+			addComment(event, issue);
 			break;
 		}
 	}
 
-	private void openIssue(final HubEvent event) {
+	private void addComment(final HubEvent event, final Issue issue) {
+		final CommentManager commentManager = ticketGenInfo.getCommentManager();
+		commentManager.create(issue, ticketGenInfo.getJiraUser(), "TBD comment body", true);
+	}
+
+	private Issue openIssue(final HubEvent event) {
 		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
 		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
 		logger.debug("event: " + event);
@@ -283,6 +289,7 @@ public class JiraIssueHandler {
 				logger.debug("Adding properties to created issue: " + properties);
 				addIssueProperty(issue.getId(), event.getUniquePropertyKey(), properties);
 			}
+			return issue;
 		} else {
 			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
 				transitionIssue(oldIssue, REOPEN_STATUS);
@@ -292,6 +299,7 @@ public class JiraIssueHandler {
 				logger.info("This issue already exists.");
 				printIssueInfo(oldIssue);
 			}
+			return oldIssue;
 		}
 	}
 

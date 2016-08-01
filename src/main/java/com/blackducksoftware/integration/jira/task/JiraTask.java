@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.util.UserManager;
@@ -63,6 +64,7 @@ public class JiraTask implements PluginJob {
 		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
 		final UserManager jiraUserManager = (UserManager) jobDataMap.get(HubMonitor.KEY_USER_MANAGER);
 		final IssueService jiraIssueService = (IssueService) jobDataMap.get(HubMonitor.KEY_ISSUE_SERVICE);
+		final CommentManager commentManager = (CommentManager) jobDataMap.get(HubMonitor.KEY_COMMENT_MANAGER);
 		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
 				.get(HubMonitor.KEY_AUTH_CONTEXT);
 		final IssuePropertyService propertyService = (IssuePropertyService) jobDataMap
@@ -124,7 +126,8 @@ public class JiraTask implements PluginJob {
 		final HubJiraTask processor = new HubJiraTask(serverConfig,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
 				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, propertyService,
-				jiraUser, workflowManager, jsonEntityPropertyManager);
+ jiraUser, workflowManager,
+				jsonEntityPropertyManager, commentManager);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);

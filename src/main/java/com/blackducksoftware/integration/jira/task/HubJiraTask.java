@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
@@ -81,6 +82,7 @@ public class HubJiraTask {
 	private final String jiraUser;
 	private final WorkflowManager workflowManager;
 	private final JsonEntityPropertyManager jsonEntityPropertyManager;
+	private final CommentManager commentManager;
 
 	private final Date runDate;
 	private final String runDateString;
@@ -94,7 +96,8 @@ public class HubJiraTask {
 			final ProjectManager jiraProjectManager, final UserManager jiraUserManager,
 			final IssueService jiraIssueService, final JiraAuthenticationContext authContext,
 			final IssuePropertyService propertyService, final String jiraUser,
-			final WorkflowManager workflowManager, final JsonEntityPropertyManager jsonEntityPropertyManager) {
+ final WorkflowManager workflowManager,
+			final JsonEntityPropertyManager jsonEntityPropertyManager, final CommentManager commentManager) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
@@ -115,6 +118,7 @@ public class HubJiraTask {
 		this.jiraUser = jiraUser;
 		this.workflowManager = workflowManager;
 		this.jsonEntityPropertyManager = jsonEntityPropertyManager;
+		this.commentManager = commentManager;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -152,7 +156,8 @@ public class HubJiraTask {
 
 			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraProjectManager, jiraUser,
 					jiraIssueTypeName, jiraIssueService, authContext, propertyService,
-					workflowManager, jsonEntityPropertyManager);
+ workflowManager,
+					jsonEntityPropertyManager, commentManager);
 
 			if (ticketServices == null) {
 				logger.info("Missing information to generate tickets.");
@@ -208,7 +213,7 @@ public class HubJiraTask {
 			final String jiraUser, final String issueTypeName, final IssueService issueService,
 			final JiraAuthenticationContext authContext, final IssuePropertyService propertyService,
 			final WorkflowManager workflowManager,
-			final JsonEntityPropertyManager jsonEntityPropertyManager) {
+			final JsonEntityPropertyManager jsonEntityPropertyManager, final CommentManager commentManager) {
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
 			logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
@@ -217,7 +222,7 @@ public class HubJiraTask {
 
 		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(projectManager, issueService,
 				jiraSysAdmin, issueTypeName, authContext, propertyService, workflowManager,
-				jsonEntityPropertyManager);
+ jsonEntityPropertyManager, commentManager);
 		return ticketServices;
 	}
 

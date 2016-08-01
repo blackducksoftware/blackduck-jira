@@ -59,6 +59,7 @@ import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValid
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
@@ -334,6 +335,8 @@ public class TicketGeneratorTest {
 					transitionValidationResult);
 		}
 
+		// TODO verify comment creation
+
 	}
 
 	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
@@ -449,6 +452,8 @@ public class TicketGeneratorTest {
 		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
 		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
+		final CommentManager commentManager = Mockito.mock(CommentManager.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getCommentManager()).thenReturn(commentManager);
 		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
 		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
 		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
