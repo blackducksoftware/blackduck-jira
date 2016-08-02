@@ -603,8 +603,7 @@ function showError(fieldId, configField, clearOldMessage) {
 }
 
 function hideError(fieldId) {
-	var oldMessage = AJS.$("#" + fieldId).text();
-	if(!oldMessage){
+	if(fieldId != errorMessageFieldId ){
 	  AJS.$("#" + fieldId).text('');
   	  addClassToFieldById(fieldId, hiddenClass);
   	}
