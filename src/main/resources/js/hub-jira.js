@@ -138,7 +138,7 @@ function populateForm() {
 		    success: function(config) {
 		      fillInMappings(config.hubProjectMappings);
 		      
-		      handleError(errorMessageFieldId, config.errorMessage);
+		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      handleError('hubProjectMappingsError', config.hubProjectMappingError, false);
 		      
 		      gotProjectMappings = true;
@@ -524,8 +524,10 @@ function addNewMappingElement(fieldId){
 		currentHubProject.removeClass('error');
 	}
 	
-		AJS.$('#mappingArea').scrollTop(AJS.$('#mappingArea')[0].scrollHeight);
-	
+	var mappingArea = AJS.$('#mappingArea')[0];
+	if(mappingArea){
+		AJS.$('#mappingArea').scrollTop(mappingArea.scrollHeight);
+	}
 	return elementToAdd;
 }
 
@@ -601,8 +603,11 @@ function showError(fieldId, configField, clearOldMessage) {
 }
 
 function hideError(fieldId) {
+	var oldMessage = AJS.$("#" + fieldId).text();
+	if(!oldMessage){
 	  AJS.$("#" + fieldId).text('');
   	  addClassToFieldById(fieldId, hiddenClass);
+  	}
 }
 
 function showStatusMessage(status, statusTitle, message) {
