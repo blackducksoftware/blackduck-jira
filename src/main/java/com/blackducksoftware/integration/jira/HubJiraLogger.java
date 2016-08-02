@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.hub.logging.IntLogger;
 import com.blackducksoftware.integration.hub.logging.LogLevel;
 
-public class HubJiraLogger implements IntLogger {
+public class HubJiraLogger extends IntLogger {
 	private final Logger jiraLogger;
 	private LogLevel logLevel = LogLevel.DEBUG;
 
