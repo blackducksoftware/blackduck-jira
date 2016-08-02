@@ -52,7 +52,8 @@ public class HubJiraServlet extends HttpServlet {
 	public void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, ServletException {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			redirectToLogin(request, response);
 			return;
 		}

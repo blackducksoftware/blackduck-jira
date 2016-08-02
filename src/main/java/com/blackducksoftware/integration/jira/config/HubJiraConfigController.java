@@ -91,7 +91,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getInterval(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -119,7 +120,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getJiraProjects(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -144,7 +146,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHubProjects(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -173,7 +176,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHubPolicies(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -203,7 +207,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMappings(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -229,7 +234,8 @@ public class HubJiraConfigController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null || !userManager.isSystemAdmin(username)) {
+		if (username == null
+				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		transactionTemplate.execute(new TransactionCallback() {
