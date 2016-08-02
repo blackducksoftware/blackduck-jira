@@ -155,6 +155,11 @@ public class HubJiraConfigController {
 
 				final List<HubProject> hubProjects = getHubProjects(restService, config);
 				config.setHubProjects(hubProjects);
+
+				if (hubProjects.size() == 0) {
+					config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
+				}
+
 				return config;
 			}
 		});

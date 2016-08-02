@@ -41,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = 3441873196129154263L;
+	private static final long serialVersionUID = 1312253124203553144L;
 
 	@XmlElement
 	private String errorMessage;
@@ -57,6 +57,9 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	@XmlElement
 	private List<HubProject> hubProjects;
+
+	@XmlElement
+	private String hubProjectsError;
 
 	@XmlElement
 	private Set<HubProjectMapping> hubProjectMappings;
@@ -76,6 +79,9 @@ public class HubJiraConfigSerializable implements Serializable {
 			hasErrors = true;
 		}
 		if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+			hasErrors = true;
+		}
+		if (StringUtils.isNotBlank(getHubProjectsError())) {
 			hasErrors = true;
 		}
 		if (StringUtils.isNotBlank(getHubProjectMappingError())) {
@@ -117,6 +123,14 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	public void setHubProjects(final List<HubProject> hubProjects) {
 		this.hubProjects = hubProjects;
+	}
+
+	public String getHubProjectsError() {
+		return hubProjectsError;
+	}
+
+	public void setHubProjectsError(final String hubProjectsError) {
+		this.hubProjectsError = hubProjectsError;
 	}
 
 	public Set<HubProjectMapping> getHubProjectMappings() {
@@ -215,6 +229,7 @@ public class HubJiraConfigSerializable implements Serializable {
 		result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
 		result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
 		result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
+		result = prime * result + ((hubProjectsError == null) ? 0 : hubProjectsError.hashCode());
 		result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
 		result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
 		result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
@@ -261,6 +276,13 @@ public class HubJiraConfigSerializable implements Serializable {
 				return false;
 			}
 		} else if (!hubProjects.equals(other.hubProjects)) {
+			return false;
+		}
+		if (hubProjectsError == null) {
+			if (other.hubProjectsError != null) {
+				return false;
+			}
+		} else if (!hubProjectsError.equals(other.hubProjectsError)) {
 			return false;
 		}
 		if (intervalBetweenChecks == null) {
@@ -314,6 +336,8 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(jiraProjects);
 		builder.append(", hubProjects=");
 		builder.append(hubProjects);
+		builder.append(", hubProjectsError=");
+		builder.append(hubProjectsError);
 		builder.append(", hubProjectMappings=");
 		builder.append(hubProjectMappings);
 		builder.append(", hubProjectMappingError=");
@@ -325,6 +349,5 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
-
 
 }

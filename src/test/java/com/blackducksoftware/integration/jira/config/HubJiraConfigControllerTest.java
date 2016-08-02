@@ -984,7 +984,8 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getIntervalBetweenChecksError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
-		assertTrue(!config.hasErrors());
+		assertTrue(config.hasErrors());
+		assertEquals(JiraConfigErrors.NO_HUB_PROJECTS_FOUND, config.getHubProjectsError());
 	}
 
 	@Test

@@ -38,6 +38,9 @@ var hubMappingStatus = "mappingStatus";
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
 
+var jiraProjectListErrorId = "jiraProjectListError";
+var hubProjectListErrorId = "hubProjectListError";
+
 var jiraProjectErrorId = "jiraProjectError";
 
 var jiraProjectDisplayName = "projectName";
@@ -94,7 +97,7 @@ function populateForm() {
 		      gotJiraProjects = true;
 		    },
 		    error: function(response){
-		    	handleDataRetrievalError(response, "jiraProjectListError", "There was a problem retrieving the Jira Projects.", "Jira Project Error");
+		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the Jira Projects.", "Jira Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -102,13 +105,14 @@ function populateForm() {
 		    dataType: "json",
 		    success: function(config) {
 		      fillInHubProjects(config.hubProjects);
-
+		      
+		      handleError(hubProjectListErrorId, config.hubProjectsError, false);
 		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      
 		      gotHubProjects = true;
 		    },
 		    error: function(response){
-		    	handleDataRetrievalError(response, "hubProjectListError", "There was a problem retrieving the Hub Projects.", "Hub Project Error");
+		    	handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
