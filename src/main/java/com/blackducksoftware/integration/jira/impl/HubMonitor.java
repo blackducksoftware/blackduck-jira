@@ -33,7 +33,6 @@ import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
@@ -51,34 +50,20 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
-	public static final String KEY_ISSUE_SERVICE = HubMonitor.class.getName() + ":issueService";
-	public static final String KEY_COMMENT_MANAGER = HubMonitor.class.getName() + ":commentManager";
-	public static final String KEY_PROJECT_MANAGER = HubMonitor.class.getName() + ":projectManager";
-	public static final String KEY_USER_MANAGER = HubMonitor.class.getName() + ":userManager";
-	public static final String KEY_AUTH_CONTEXT = HubMonitor.class.getName() + ":authContext";
-	public static final String KEY_PROPERTY_SERVICE = HubMonitor.class.getName() + ":propertyService";
-	public static final String KEY_WORKFLOW_MANAGER = HubMonitor.class.getName() + ":workflowManager";
-	public static final String KEY_JSON_ENTITY_PROPERTY_MANAGER = HubMonitor.class.getName()
-			+ ":jsonEntityPropertyManager";
-
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	private final PluginScheduler pluginScheduler; // provided by SAL
 	private final PluginSettingsFactory pluginSettingsFactory;
-	private final ProjectManager projectManager;
-
 	private String serverName = "initialServerName";
 	private Date lastRun = null; // time when the last search returned
 
 	@Inject
-	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory,
-			final ProjectManager projectManager) {
+	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
 		logger.debug("HubMonitor ctor called.");
 		this.pluginScheduler = pluginScheduler;
 		this.pluginSettingsFactory = pluginSettingsFactory;
-		this.projectManager = projectManager;
 	}
 
 	@Override
@@ -129,14 +114,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 			{
 				put(KEY_INSTANCE, HubMonitor.this);
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
-				put(KEY_ISSUE_SERVICE, issueService);
-				put(KEY_PROJECT_MANAGER, projectManager);
-						put(KEY_COMMENT_MANAGER, commentManager);
-				put(KEY_USER_MANAGER, userManager);
-				put(KEY_AUTH_CONTEXT, authContext);
-				put(KEY_PROPERTY_SERVICE, propertyService);
-				put(KEY_WORKFLOW_MANAGER, workflowManager);
-				put(KEY_JSON_ENTITY_PROPERTY_MANAGER, jsonEntityPropertyManager);
 			}
 		}, // data that needs to be passed to the job
 		new Date(), // the time the job is to start

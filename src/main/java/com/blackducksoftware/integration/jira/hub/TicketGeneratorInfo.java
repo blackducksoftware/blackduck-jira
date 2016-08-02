@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.hub;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
@@ -32,39 +33,19 @@ import com.atlassian.jira.workflow.WorkflowManager;
 
 public class TicketGeneratorInfo {
 
-	private final ProjectManager jiraProjectManager;
-	private final IssueService issueService;
 	private final ApplicationUser jiraUser;
 	private final String jiraIssueTypeName;
-	private final JiraAuthenticationContext authContext;
-	private final IssuePropertyService propertyService;
 
-	private final WorkflowManager workflowManager;
-
-	private final JsonEntityPropertyManager jsonEntityPropertyManager;
-	private final CommentManager commentManager;
-
-	public TicketGeneratorInfo(final ProjectManager jiraProjectManager, final IssueService issueService,
-			final ApplicationUser jiraUser, final String jiraIssueTypeName, final JiraAuthenticationContext authContext,
-			final IssuePropertyService propertyService,
-			final WorkflowManager workflowManager, final JsonEntityPropertyManager jsonEntityPropertyManager,
-			final CommentManager commentManager) {
-		this.jiraProjectManager = jiraProjectManager;
-		this.issueService = issueService;
+	public TicketGeneratorInfo(final ApplicationUser jiraUser, final String jiraIssueTypeName) {
 		this.jiraUser = jiraUser;
 		this.jiraIssueTypeName = jiraIssueTypeName;
-		this.authContext = authContext;
-		this.propertyService = propertyService;
-		this.workflowManager = workflowManager;
-		this.jsonEntityPropertyManager = jsonEntityPropertyManager;
-		this.commentManager = commentManager;
 	}
 
 	public ProjectManager getJiraProjectManager() {
-		return jiraProjectManager;
+		return ComponentAccessor.getProjectManager();
 	}
 	public IssueService getIssueService() {
-		return issueService;
+		return ComponentAccessor.getIssueService();
 	}
 	public ApplicationUser getJiraUser() {
 		return jiraUser;
@@ -73,22 +54,22 @@ public class TicketGeneratorInfo {
 		return jiraIssueTypeName;
 	}
 	public JiraAuthenticationContext getAuthContext() {
-		return authContext;
+		return ComponentAccessor.getJiraAuthenticationContext();
 	}
 	public IssuePropertyService getPropertyService() {
-		return propertyService;
+		return ComponentAccessor.getComponentOfType(IssuePropertyService.class);
 	}
 
 	public WorkflowManager getWorkflowManager() {
-		return workflowManager;
+		return ComponentAccessor.getWorkflowManager();
 	}
 
 	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
-		return jsonEntityPropertyManager;
+		return ComponentAccessor.getComponentOfType(JsonEntityPropertyManager.class);
 	}
 
 	public CommentManager getCommentManager() {
-		return commentManager;
+		return ComponentAccessor.getCommentManager();
 	}
 
 }

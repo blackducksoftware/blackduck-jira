@@ -32,15 +32,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
-import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
@@ -74,16 +68,7 @@ public class HubJiraTask {
 	private final String lastRunDateString;
 	private final String projectMappingJson;
 	private final String policyRulesJson;
-	private final ProjectManager jiraProjectManager;
-	private final UserManager jiraUserManager;
-	private final IssueService jiraIssueService;
-	private final JiraAuthenticationContext authContext;
-	private final IssuePropertyService propertyService;
 	private final String jiraUser;
-	private final WorkflowManager workflowManager;
-	private final JsonEntityPropertyManager jsonEntityPropertyManager;
-	private final CommentManager commentManager;
-
 	private final Date runDate;
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
@@ -92,12 +77,7 @@ public class HubJiraTask {
 			final String installDateString,
 			final String lastRunDateString,
 			final String projectMappingJson,
-			final String policyRulesJson,
-			final ProjectManager jiraProjectManager, final UserManager jiraUserManager,
-			final IssueService jiraIssueService, final JiraAuthenticationContext authContext,
-			final IssuePropertyService propertyService, final String jiraUser,
- final WorkflowManager workflowManager,
-			final JsonEntityPropertyManager jsonEntityPropertyManager, final CommentManager commentManager) {
+			final String policyRulesJson, final String jiraUser) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
@@ -110,15 +90,7 @@ public class HubJiraTask {
 		this.lastRunDateString = lastRunDateString;
 		this.projectMappingJson = projectMappingJson;
 		this.policyRulesJson = policyRulesJson;
-		this.jiraProjectManager = jiraProjectManager;
-		this.jiraUserManager = jiraUserManager;
-		this.jiraIssueService = jiraIssueService;
-		this.propertyService = propertyService;
-		this.authContext = authContext;
 		this.jiraUser = jiraUser;
-		this.workflowManager = workflowManager;
-		this.jsonEntityPropertyManager = jsonEntityPropertyManager;
-		this.commentManager = commentManager;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -154,10 +126,7 @@ public class HubJiraTask {
 			final HubIntRestService hub = initHubRestService(restConnection);
 			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
 
-			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraProjectManager, jiraUser,
-					jiraIssueTypeName, jiraIssueService, authContext, propertyService,
- workflowManager,
-					jsonEntityPropertyManager, commentManager);
+			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraUser, jiraIssueTypeName);
 
 			if (ticketServices == null) {
 				logger.info("Missing information to generate tickets.");
@@ -209,20 +178,15 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGeneratorInfo initTicketGeneratorInfo(final ProjectManager projectManager,
-			final String jiraUser, final String issueTypeName, final IssueService issueService,
-			final JiraAuthenticationContext authContext, final IssuePropertyService propertyService,
-			final WorkflowManager workflowManager,
-			final JsonEntityPropertyManager jsonEntityPropertyManager, final CommentManager commentManager) {
+	private TicketGeneratorInfo initTicketGeneratorInfo(final String jiraUser, final String issueTypeName) {
+		final UserManager jiraUserManager = ComponentAccessor.getUserManager();
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
 			logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
 			return null;
 		}
 
-		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(projectManager, issueService,
-				jiraSysAdmin, issueTypeName, authContext, propertyService, workflowManager,
- jsonEntityPropertyManager, commentManager);
+		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(jiraSysAdmin, issueTypeName);
 		return ticketServices;
 	}
 
