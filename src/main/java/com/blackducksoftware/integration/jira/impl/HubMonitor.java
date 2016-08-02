@@ -47,6 +47,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
 import com.blackducksoftware.integration.jira.task.JiraTask;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.utils.HubJiraConstants;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
@@ -100,8 +101,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 		try {
 			final GroupManager groupManager = ComponentAccessor.getGroupManager();
-			if (!groupManager.groupExists("hub-jira")) {
-				groupManager.createGroup("hub-jira");
+			if (!groupManager.groupExists(HubJiraConstants.HUB_JIRA_GROUP)) {
+				groupManager.createGroup(HubJiraConstants.HUB_JIRA_GROUP);
 			}
 		} catch (OperationNotPermittedException | InvalidGroupException e) {
 			logger.error(e);

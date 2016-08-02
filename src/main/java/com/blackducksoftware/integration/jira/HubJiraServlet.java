@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
+import com.blackducksoftware.integration.jira.utils.HubJiraConstants;
 
 public class HubJiraServlet extends HttpServlet {
 
@@ -53,7 +54,8 @@ public class HubJiraServlet extends HttpServlet {
 			throws IOException, ServletException {
 		final String username = userManager.getRemoteUsername(request);
 		if (username == null
-				|| (!userManager.isSystemAdmin(username) && !userManager.isUserInGroup(username, "hub-jira"))) {
+				|| (!userManager.isSystemAdmin(username)
+						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			redirectToLogin(request, response);
 			return;
 		}
