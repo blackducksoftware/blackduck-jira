@@ -128,8 +128,11 @@ public class HubJiraConfigController {
 				final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
 				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
 				config.setJiraProjects(jiraProjects);
+
+				if (jiraProjects.size() == 0) {
+					config.setJiraProjectsError(JiraConfigErrors.NO_JIRA_PROJECTS_FOUND);
+				}
 				return config;
 			}
 		});
@@ -159,7 +162,6 @@ public class HubJiraConfigController {
 				if (hubProjects.size() == 0) {
 					config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
 				}
-
 				return config;
 			}
 		});

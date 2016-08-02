@@ -92,6 +92,7 @@ function populateForm() {
 		    success: function(config) {
 		      fillInJiraProjects(config.jiraProjects);
 		      
+		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false);
 		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      
 		      gotJiraProjects = true;

@@ -118,6 +118,8 @@ public class HubJiraConfigSerializableTest {
 		final List<JiraProject> jiraProjects1 = new ArrayList<JiraProject>();
 		jiraProjects1.add(jira1);
 
+		final String jiraProjectsError1 = "jiraProjectsError1";
+
 		final List<HubProject> hubProjects1 = new ArrayList<HubProject>();
 		hubProjects1.add(hub1);
 
@@ -131,6 +133,8 @@ public class HubJiraConfigSerializableTest {
 
 		final List<JiraProject> jiraProjects2 = new ArrayList<JiraProject>();
 		jiraProjects2.add(jira2);
+
+		final String jiraProjectsError2 = "jiraProjectsError2";
 
 		final List<HubProject> hubProjects2 = new ArrayList<HubProject>();
 		hubProjects2.add(hub2);
@@ -148,6 +152,7 @@ public class HubJiraConfigSerializableTest {
 		item1.setErrorMessage(errorMessage1);
 		item1.setHubProjectMappingError(hubProjectMappingError1);
 		item1.setHubProjectMappings(mappings1);
+		item1.setJiraProjectsError(jiraProjectsError1);
 		item1.setHubProjects(hubProjects1);
 		item1.setHubProjectsError(hubProjectsError1);
 		item1.setIntervalBetweenChecks(intervalBetweenChecks1);
@@ -159,6 +164,7 @@ public class HubJiraConfigSerializableTest {
 		final HubJiraConfigSerializable item2 = new HubJiraConfigSerializable();
 		item2.setErrorMessage(errorMessage2);
 		item2.setHubProjectMappingError(hubProjectMappingError2);
+		item2.setJiraProjectsError(jiraProjectsError2);
 		item2.setHubProjectMappings(mappings2);
 		item2.setHubProjects(hubProjects2);
 		item2.setHubProjectsError(hubProjectsError2);
@@ -176,6 +182,7 @@ public class HubJiraConfigSerializableTest {
 		final HubJiraConfigSerializable item3 = new HubJiraConfigSerializable();
 		item3.setErrorMessage(errorMessage1);
 		item3.setHubProjectMappingError(hubProjectMappingError1);
+		item3.setJiraProjectsError(jiraProjectsError1);
 		item3.setHubProjectMappingsJson(mappingJson);
 		item3.setHubProjects(hubProjects1);
 		item3.setHubProjectsError(hubProjectsError1);
@@ -188,6 +195,7 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(errorMessage1, item1.getErrorMessage());
 		assertEquals(hubProjectMappingError1, item1.getHubProjectMappingError());
 		assertEquals(mappings1, item1.getHubProjectMappings());
+		assertEquals(jiraProjectsError1, item1.getJiraProjectsError());
 		assertEquals(hubProjects1, item1.getHubProjects());
 		assertEquals(hubProjectsError1, item1.getHubProjectsError());
 		assertEquals(intervalBetweenChecks1, item1.getIntervalBetweenChecks());
@@ -199,6 +207,7 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(errorMessage2, item2.getErrorMessage());
 		assertEquals(hubProjectMappingError2, item2.getHubProjectMappingError());
 		assertEquals(mappings2, item2.getHubProjectMappings());
+		assertEquals(jiraProjectsError2, item2.getJiraProjectsError());
 		assertEquals(hubProjects2, item2.getHubProjects());
 		assertEquals(hubProjectsError2, item2.getHubProjectsError());
 		assertEquals(intervalBetweenChecks2, item2.getIntervalBetweenChecks());
@@ -210,6 +219,7 @@ public class HubJiraConfigSerializableTest {
 		assertEquals(errorMessage1, item3.getErrorMessage());
 		assertEquals(hubProjectMappingError1, item3.getHubProjectMappingError());
 		assertEquals(mappings1, item3.getHubProjectMappings());
+		assertEquals(jiraProjectsError1, item3.getJiraProjectsError());
 		assertEquals(mappingJson, item3.getHubProjectMappingsJson());
 		assertEquals(hubProjects1, item3.getHubProjects());
 		assertEquals(hubProjectsError1, item3.getHubProjectsError());
@@ -235,6 +245,8 @@ public class HubJiraConfigSerializableTest {
 		builder.append(item1.getIntervalBetweenChecksError());
 		builder.append(", jiraProjects=");
 		builder.append(item1.getJiraProjects());
+		builder.append(", jiraProjectsError=");
+		builder.append(item1.getJiraProjectsError());
 		builder.append(", hubProjects=");
 		builder.append(item1.getHubProjects());
 		builder.append(", hubProjectsError=");

@@ -41,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = 1312253124203553144L;
+	private static final long serialVersionUID = 5184142296147078141L;
 
 	@XmlElement
 	private String errorMessage;
@@ -54,6 +54,9 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	@XmlElement
 	private List<JiraProject> jiraProjects;
+
+	@XmlElement
+	private String jiraProjectsError;
 
 	@XmlElement
 	private List<HubProject> hubProjects;
@@ -79,6 +82,9 @@ public class HubJiraConfigSerializable implements Serializable {
 			hasErrors = true;
 		}
 		if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+			hasErrors = true;
+		}
+		if (StringUtils.isNotBlank(getJiraProjectsError())) {
 			hasErrors = true;
 		}
 		if (StringUtils.isNotBlank(getHubProjectsError())) {
@@ -115,6 +121,14 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	public void setJiraProjects(final List<JiraProject> jiraProjects) {
 		this.jiraProjects = jiraProjects;
+	}
+
+	public String getJiraProjectsError() {
+		return jiraProjectsError;
+	}
+
+	public void setJiraProjectsError(final String jiraProjectsError) {
+		this.jiraProjectsError = jiraProjectsError;
 	}
 
 	public List<HubProject> getHubProjects() {
@@ -233,6 +247,7 @@ public class HubJiraConfigSerializable implements Serializable {
 		result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
 		result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
 		result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
+		result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
 		result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
 		result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
 		return result;
@@ -306,6 +321,13 @@ public class HubJiraConfigSerializable implements Serializable {
 		} else if (!jiraProjects.equals(other.jiraProjects)) {
 			return false;
 		}
+		if (jiraProjectsError == null) {
+			if (other.jiraProjectsError != null) {
+				return false;
+			}
+		} else if (!jiraProjectsError.equals(other.jiraProjectsError)) {
+			return false;
+		}
 		if (policyRules == null) {
 			if (other.policyRules != null) {
 				return false;
@@ -334,6 +356,8 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(intervalBetweenChecksError);
 		builder.append(", jiraProjects=");
 		builder.append(jiraProjects);
+		builder.append(", jiraProjectsError=");
+		builder.append(jiraProjectsError);
 		builder.append(", hubProjects=");
 		builder.append(hubProjects);
 		builder.append(", hubProjectsError=");
