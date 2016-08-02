@@ -1,9 +1,13 @@
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 .error {
 	color : #c00;
+}
+
+.inlineError {
+	display: inline-block;
 }
 
 .clickable:hover {
