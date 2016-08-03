@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.issue;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
@@ -28,30 +28,15 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.workflow.WorkflowManager;
 
-public class TicketGeneratorInfo {
-
-	private final ApplicationUser jiraUser;
-	private final String jiraIssueTypeName;
-
-	public TicketGeneratorInfo(final ApplicationUser jiraUser, final String jiraIssueTypeName) {
-		this.jiraUser = jiraUser;
-		this.jiraIssueTypeName = jiraIssueTypeName;
-	}
+public class JiraServices {
 
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
 	}
 	public IssueService getIssueService() {
 		return ComponentAccessor.getIssueService();
-	}
-	public ApplicationUser getJiraUser() {
-		return jiraUser;
-	}
-	public String getJiraIssueTypeName() {
-		return jiraIssueTypeName;
 	}
 	public JiraAuthenticationContext getAuthContext() {
 		return ComponentAccessor.getJiraAuthenticationContext();

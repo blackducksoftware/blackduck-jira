@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.notification.NotificationServiceExc
 import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -39,8 +40,10 @@ public class JiraNotificationProcessor {
 
 	public JiraNotificationProcessor(final NotificationService hubNotificationService,
 			final HubProjectMappings mapping, final List<String> linksOfRulesToMonitor,
-			final TicketGeneratorInfo ticketGenInfo) {
-		converterTable = new ConverterLookupTable(mapping, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+			final JiraServices jiraServices,
+			final JiraContext jiraContext) {
+		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, linksOfRulesToMonitor,
+				hubNotificationService);
 	}
 
 	public HubEvents generateEvents(final List<NotificationItem> notifications)

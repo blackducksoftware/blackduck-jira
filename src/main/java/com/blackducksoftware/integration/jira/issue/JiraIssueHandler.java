@@ -23,7 +23,7 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.PolicyEvent;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,10 +33,12 @@ public class JiraIssueHandler {
 	public static final String DONE_STATUS = "Done";
 	public static final String REOPEN_STATUS = "Reopen";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final TicketGeneratorInfo ticketGenInfo;
+	private final JiraContext jiraContext;
+	private final JiraServices jiraServices;
 
-	public JiraIssueHandler(final TicketGeneratorInfo ticketGenInfo) {
-		this.ticketGenInfo = ticketGenInfo;
+	public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext) {
+		this.jiraServices = jiraServices;
+		this.jiraContext = jiraContext;
 	}
 
 	private void addIssueProperty(final Long issueId, final String key, final IssueProperties value) {
@@ -52,8 +54,8 @@ public class JiraIssueHandler {
 		final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue,
 				key);
 
-		final SetPropertyValidationResult validationResult = ticketGenInfo.getPropertyService()
-				.validateSetProperty(ticketGenInfo.getJiraUser(), issueId, propertyInput);
+		final SetPropertyValidationResult validationResult = jiraServices.getPropertyService()
+				.validateSetProperty(jiraContext.getJiraUser(), issueId, propertyInput);
 
 		ErrorCollection errors = null;
 		if (!validationResult.isValid()) {
@@ -67,7 +69,7 @@ public class JiraIssueHandler {
 				}
 			}
 		} else {
-			final PropertyResult result = ticketGenInfo.getPropertyService().setProperty(ticketGenInfo.getJiraUser(),
+			final PropertyResult result = jiraServices.getPropertyService().setProperty(jiraContext.getJiraUser(),
 					validationResult);
 			errors = result.getErrorCollection();
 			if (errors.hasAnyErrors()) {
@@ -84,7 +86,7 @@ public class JiraIssueHandler {
 	private Issue findIssue(final HubEvent notificationResult) {
 		logger.debug("findIssue(): notificationResult: " + notificationResult);
 		logger.debug("findIssue(): key: " + notificationResult.getUniquePropertyKey());
-		final EntityPropertyQuery<?> query = ticketGenInfo.getJsonEntityPropertyManager().query();
+		final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
 		final EntityPropertyQuery.ExecutableQuery executableQuery = query
 				.key(notificationResult.getUniquePropertyKey());
 		final List<EntityProperty> props = executableQuery.maxResults(1).find();
@@ -95,7 +97,7 @@ public class JiraIssueHandler {
 		final EntityProperty property = props.get(0);
 		final IssueProperties propertyValue = notificationResult.createIssuePropertiesFromJson(property.getValue());
 		logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
-		final IssueResult result = ticketGenInfo.getIssueService().getIssue(ticketGenInfo.getJiraUser(),
+		final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
 				propertyValue.getJiraIssueId());
 
 		final ErrorCollection errors = result.getErrorCollection();
@@ -116,14 +118,14 @@ public class JiraIssueHandler {
 
 	private Issue createIssue(final HubEvent notificationResult) {
 
-		final IssueInputParameters issueInputParameters = ticketGenInfo.getIssueService().newIssueInputParameters();
+		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
 		.setIssueTypeId(notificationResult.getJiraIssueTypeId())
 		.setSummary(notificationResult.getIssueSummary()).setReporterId(notificationResult.getJiraUserName())
 		.setDescription(notificationResult.getIssueDescription());
 
-		final CreateValidationResult validationResult = ticketGenInfo.getIssueService()
-				.validateCreate(ticketGenInfo.getJiraUser(), issueInputParameters);
+		final CreateValidationResult validationResult = jiraServices.getIssueService()
+				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);
 		ErrorCollection errors = null;
 		logger.debug("createIssue(): issueInputParameters: " + issueInputParameters);
 		if (!validationResult.isValid()) {
@@ -137,7 +139,7 @@ public class JiraIssueHandler {
 				}
 			}
 		} else {
-			final IssueResult result = ticketGenInfo.getIssueService().create(ticketGenInfo.getJiraUser(),
+			final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
 					validationResult);
 			errors = result.getErrorCollection();
 			if (errors.hasAnyErrors()) {
@@ -156,8 +158,8 @@ public class JiraIssueHandler {
 
 	private Issue updateIssue(final Issue issueToUpdate, final IssueInputParameters issueInputParameters) {
 		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-		final UpdateValidationResult validationResult = ticketGenInfo.getIssueService()
-				.validateUpdate(ticketGenInfo.getJiraUser(), issueToUpdate.getId(), issueInputParameters);
+		final UpdateValidationResult validationResult = jiraServices.getIssueService()
+				.validateUpdate(jiraContext.getJiraUser(), issueToUpdate.getId(), issueInputParameters);
 		ErrorCollection errors = null;
 
 		if (!validationResult.isValid()) {
@@ -171,7 +173,7 @@ public class JiraIssueHandler {
 				}
 			}
 		} else {
-			final IssueResult result = ticketGenInfo.getIssueService().update(ticketGenInfo.getJiraUser(),
+			final IssueResult result = jiraServices.getIssueService().update(jiraContext.getJiraUser(),
 					validationResult);
 			errors = result.getErrorCollection();
 			if (errors.hasAnyErrors()) {
@@ -191,7 +193,7 @@ public class JiraIssueHandler {
 	private Issue transitionIssue(final Issue oldIssue, final String stepName) {
 		final Status currentStatus = oldIssue.getStatusObject();
 		logger.debug("Current status : " + currentStatus.getName());
-		final JiraWorkflow workflow = ticketGenInfo.getWorkflowManager().getWorkflow(oldIssue);
+		final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(oldIssue);
 
 		ActionDescriptor transitionAction = null;
 		// https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
@@ -213,10 +215,10 @@ public class JiraIssueHandler {
 					+ currentStatus.getName() + ". We could not find the step : " + stepName);
 		}
 		if (transitionAction != null) {
-			final IssueInputParameters parameters = ticketGenInfo.getIssueService().newIssueInputParameters();
+			final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
 			parameters.setRetainExistingValuesWhenParameterNotProvided(true);
-			final TransitionValidationResult validationResult = ticketGenInfo.getIssueService().validateTransition(
-					ticketGenInfo.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
+			final TransitionValidationResult validationResult = jiraServices.getIssueService().validateTransition(
+					jiraContext.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
 
 			ErrorCollection errors = null;
 
@@ -231,7 +233,7 @@ public class JiraIssueHandler {
 					}
 				}
 			} else {
-				final IssueResult result = ticketGenInfo.getIssueService().transition(ticketGenInfo.getJiraUser(),
+				final IssueResult result = jiraServices.getIssueService().transition(jiraContext.getJiraUser(),
 						validationResult);
 				errors = result.getErrorCollection();
 				if (errors.hasAnyErrors()) {
@@ -268,13 +270,13 @@ public class JiraIssueHandler {
 	}
 
 	private void addComment(final HubEvent event, final Issue issue) {
-		final CommentManager commentManager = ticketGenInfo.getCommentManager();
-		commentManager.create(issue, ticketGenInfo.getJiraUser(), event.getComment(), true);
+		final CommentManager commentManager = jiraServices.getCommentManager();
+		commentManager.create(issue, jiraContext.getJiraUser(), event.getComment(), true);
 	}
 
 	private Issue openIssue(final HubEvent event) {
-		logger.debug("Setting logged in User : " + ticketGenInfo.getJiraUser().getDisplayName());
-		ticketGenInfo.getAuthContext().setLoggedInUser(ticketGenInfo.getJiraUser());
+		logger.debug("Setting logged in User : " + jiraContext.getJiraUser().getDisplayName());
+		jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraUser());
 		logger.debug("event: " + event);
 		final Issue oldIssue = findIssue(event);
 

@@ -55,7 +55,8 @@ import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceMock;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {
@@ -72,6 +73,7 @@ public class HubJiraTask {
 	private final Date runDate;
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
+	private final JiraServices jiraServices = new JiraServices();
 
 	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String jiraIssueTypeName,
 			final String installDateString,
@@ -126,15 +128,15 @@ public class HubJiraTask {
 			final HubIntRestService hub = initHubRestService(restConnection);
 			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
 
-			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraUser, jiraIssueTypeName);
+			final JiraContext jiraContext = initJiraContext(jiraUser, jiraIssueTypeName);
 
-			if (ticketServices == null) {
+			if (jiraContext == null) {
 				logger.info("Missing information to generate tickets.");
 
 				return null;
 			}
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(ticketServices,
+			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext,
 					restConnection,
 					hub,
 					hubItemsService);
@@ -145,7 +147,7 @@ public class HubJiraTask {
 					runDate);
 
 			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(ticketServices,
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
 					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
@@ -192,7 +194,7 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGeneratorInfo initTicketGeneratorInfo(final String jiraUser, final String issueTypeName) {
+	private JiraContext initJiraContext(final String jiraUser, final String issueTypeName) {
 		final UserManager jiraUserManager = ComponentAccessor.getUserManager();
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
@@ -200,11 +202,11 @@ public class HubJiraTask {
 			return null;
 		}
 
-		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(jiraSysAdmin, issueTypeName);
-		return ticketServices;
+		final JiraContext jiraContext = new JiraContext(jiraSysAdmin, issueTypeName);
+		return jiraContext;
 	}
 
-	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
+	private TicketGenerator initTicketGenerator(final JiraContext jiraContext,
 			final RestConnection restConnection,
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
 		logger.debug("Jira user: " + this.jiraUser);
@@ -219,7 +221,7 @@ public class HubJiraTask {
 		}
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,
-				ticketServices);
+ jiraServices, jiraContext);
 		return ticketGenerator;
 	}
 

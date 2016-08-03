@@ -23,8 +23,9 @@ import com.blackducksoftware.integration.jira.hub.HubEventAction;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
 import com.blackducksoftware.integration.jira.hub.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.hub.PolicyEvent;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public abstract class PolicyNotificationConverter extends NotificationToEventConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -32,10 +33,10 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 	private final HubProjectMappings mappings;
 	private final List<String> linksOfRulesToMonitor;
 
-	public PolicyNotificationConverter(final HubProjectMappings mappings,
-			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
+	public PolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+			final JiraContext jiraContext, final List<String> linksOfRulesToMonitor,
 			final NotificationService hubNotificationService) {
-		super(hubNotificationService, ticketGenInfo);
+		super(hubNotificationService, jiraServices, jiraContext);
 		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
@@ -144,7 +145,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 				final HubEvent result = new PolicyEvent(action, projectName,
 						projectVersionName, compVerStatus.getComponentName(), componentVersionName, versionId,
 						componentId, componentVersionId,
-						getTicketGenInfo().getJiraUser().getName(),
+						getJiraContext().getJiraUser().getName(),
 						jiraProject.getIssueTypeId(),
 						jiraProject.getProjectId(), jiraProject.getProjectName(),
 						eventType, rule, ruleId);

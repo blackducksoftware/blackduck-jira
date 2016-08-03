@@ -5,15 +5,19 @@ import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.jira.config.JiraProject;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
 	private final NotificationService hubNotificationService;
-	private final TicketGeneratorInfo ticketGenInfo;
+	private final JiraServices jiraServices;
+	private final JiraContext jiraContext;
 
 	public NotificationToEventConverter(final NotificationService hubNotificationService,
-			final TicketGeneratorInfo ticketGenInfo) {
+			final JiraServices jiraServices,
+			final JiraContext jiraContext) {
 		this.hubNotificationService = hubNotificationService;
-		this.ticketGenInfo = ticketGenInfo;
+		this.jiraServices = jiraServices;
+		this.jiraContext = jiraContext;
 	}
 	public abstract HubEvents generateEvents(NotificationItem notif);
 
@@ -22,10 +26,7 @@ public abstract class NotificationToEventConverter {
 	}
 
 	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		if (ticketGenInfo.getJiraProjectManager() == null) {
-			throw new NotificationServiceException("The JIRA projectManager has not been set");
-		}
-		final com.atlassian.jira.project.Project atlassianJiraProject = ticketGenInfo.getJiraProjectManager()
+		final com.atlassian.jira.project.Project atlassianJiraProject = jiraServices.getJiraProjectManager()
 				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
 			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
@@ -44,7 +45,7 @@ public abstract class NotificationToEventConverter {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
 				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
-					if (issueType.getName().equals(ticketGenInfo.getJiraIssueTypeName())) {
+					if (issueType.getName().equals(jiraContext.getJiraIssueTypeName())) {
 						bdsJiraProject.setIssueTypeId(issueType.getId());
 						projectHasIssueType = true;
 					}
@@ -52,14 +53,14 @@ public abstract class NotificationToEventConverter {
 			}
 			if (!projectHasIssueType) {
 				bdsJiraProject.setProjectError("The Jira project is missing the "
-						+ ticketGenInfo.getJiraIssueTypeName() + " issue type.");
+						+ jiraContext.getJiraIssueTypeName() + " issue type.");
 			}
 		}
 		return bdsJiraProject;
 	}
 
-	protected TicketGeneratorInfo getTicketGenInfo() {
-		return ticketGenInfo;
+	protected JiraContext getJiraContext() {
+		return jiraContext;
 	}
 
 }

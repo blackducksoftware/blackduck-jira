@@ -16,7 +16,8 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public class HubProjectMappingsTest {
 
@@ -30,6 +31,7 @@ public class HubProjectMappingsTest {
 
 	@Test
 	public void test() {
+		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
 		final Collection<IssueType> issueTypes = new ArrayList<>();
 		final IssueType issueType = Mockito.mock(IssueType.class);
@@ -37,11 +39,11 @@ public class HubProjectMappingsTest {
 		Mockito.when(issueType.getId()).thenReturn("issueTypeId");
 		issueTypes.add(issueType);
 
-		final TicketGeneratorInfo ticketGenInfo = Mockito.mock(TicketGeneratorInfo.class);
+		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
-		Mockito.when(ticketGenInfo.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 		// ticketGenInfo.getJiraIssueTypeName()
-		Mockito.when(ticketGenInfo.getJiraIssueTypeName()).thenReturn("Issue");
+		Mockito.when(jiraContext.getJiraIssueTypeName()).thenReturn("Issue");
 
 		for (int i = 0; i < 10; i++) {
 			final Project mockAtlassianJiraProject = Mockito.mock(Project.class);
@@ -70,7 +72,7 @@ public class HubProjectMappingsTest {
 			underlyingMappings.add(mapping);
 		}
 
-		final HubProjectMappings mappings = new HubProjectMappings(ticketGenInfo, underlyingMappings);
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext, underlyingMappings);
 
 		final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectUrl7");
 		assertEquals(1, mappedJiraProjects.size());

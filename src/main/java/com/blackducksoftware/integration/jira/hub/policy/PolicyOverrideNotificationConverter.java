@@ -15,15 +15,17 @@ import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends PolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final TicketGeneratorInfo ticketGenInfo,
+	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+			final JiraContext jiraContext,
 			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
-		super(mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+		super(mappings, jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
 	}
 
 	@Override

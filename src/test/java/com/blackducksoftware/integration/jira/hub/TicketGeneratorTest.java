@@ -103,6 +103,7 @@ import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -262,8 +263,10 @@ public class TicketGeneratorTest {
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
 		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
 				hubItemsService);
-		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
+		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
+		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
+				jiraContext);
 
 		List<NotificationItem> notificationItems;
 		// if (openIssue) {
@@ -280,26 +283,28 @@ public class TicketGeneratorTest {
 		final ApplicationUser user = mockUser();
 		final IssueService issueService = Mockito.mock(IssueService.class);
 		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
-		final Project atlassianJiraProject = mockJira(jiraTicketGeneratorInfoService, user, issueService,
+		final Project atlassianJiraProject = mockJira(jiraServices, jiraContext, user, issueService,
 				issueInputParameters);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getPropertyService()).thenReturn(propertyService);
+		Mockito.when(jiraServices.getPropertyService()).thenReturn(propertyService);
 		final CommentManager commentManager = Mockito.mock(CommentManager.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getCommentManager()).thenReturn(commentManager);
+		Mockito.when(jiraServices.getCommentManager()).thenReturn(commentManager);
 
 		SetPropertyValidationResult setPropValidationResult = null;
 		MutableIssue oldIssue = null;
 
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
-				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, false,
+				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices,
+						jiraContext, false,
 						user);
 			} else {
 				setPropValidationResult = mockIssueDoesNotExist(issueService, issueInputParameters, user,
-						atlassianJiraProject, jiraTicketGeneratorInfoService, propertyService);
+						atlassianJiraProject, jiraContext, propertyService);
 			}
 		} else {
-			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, true, user);
+			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices,
+					jiraContext, true, user);
 		}
 
 		final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
@@ -313,7 +318,8 @@ public class TicketGeneratorTest {
 
 		// Test
 
-		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraTicketGeneratorInfoService,
+		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraServices,
+				jiraContext,
 				hubProjectMappings), linksOfRulesToMonitor,
 				notificationDateRange);
 
@@ -322,8 +328,10 @@ public class TicketGeneratorTest {
 		int expectedFindIssueCount = 1;
 		final int expectedCreateIssueCount = 1;
 		final int expectedCloseIssueCount = 1;
+		int expectedCommentCount = 1;
 		if (createDuplicateNotification) {
 			expectedFindIssueCount = 2;
+			expectedCommentCount = 2;
 		}
 
 		if (openIssue) {
@@ -345,7 +353,9 @@ public class TicketGeneratorTest {
 					transitionValidationResult);
 		}
 
-		Mockito.verify(commentManager).create(Mockito.any(Issue.class), Mockito.eq(user),
+		Mockito.verify(commentManager, Mockito.times(expectedCommentCount)).create(
+				Mockito.any(Issue.class),
+				Mockito.eq(user),
 				Mockito.eq("(Black Duck Hub JIRA plugin-generated comment)\n"
 						+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
 						+ "Vulnerabilities deleted: \n"),
@@ -367,8 +377,10 @@ public class TicketGeneratorTest {
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
 		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
 				hubItemsService);
-		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
+		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
+		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
+				jiraContext);
 
 		List<NotificationItem> notificationItems;
 		if (openIssue) {
@@ -385,24 +397,26 @@ public class TicketGeneratorTest {
 		final ApplicationUser user = mockUser();
 		final IssueService issueService = Mockito.mock(IssueService.class);
 		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
-		final Project atlassianJiraProject = mockJira(jiraTicketGeneratorInfoService, user, issueService,
+		final Project atlassianJiraProject = mockJira(jiraServices, jiraContext, user, issueService,
 				issueInputParameters);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getPropertyService()).thenReturn(propertyService);
+		Mockito.when(jiraServices.getPropertyService()).thenReturn(propertyService);
 
 		SetPropertyValidationResult setPropValidationResult = null;
 		MutableIssue oldIssue = null;
 
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
-				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, false,
+				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices,
+						jiraContext, false,
 						user);
 			} else {
 				setPropValidationResult = mockIssueDoesNotExist(issueService, issueInputParameters, user,
-						atlassianJiraProject, jiraTicketGeneratorInfoService, propertyService);
+						atlassianJiraProject, jiraContext, propertyService);
 			}
 		} else {
-			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraTicketGeneratorInfoService, true, user);
+			oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices,
+					jiraContext, true, user);
 		}
 
 		final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
@@ -417,7 +431,8 @@ public class TicketGeneratorTest {
 
 		// Test
 
-		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraTicketGeneratorInfoService,
+		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraServices,
+				jiraContext,
 				hubProjectMappings), linksOfRulesToMonitor,
 				notificationDateRange);
 
@@ -461,16 +476,17 @@ public class TicketGeneratorTest {
 		return linksOfRulesToMonitor;
 	}
 
-	private Project mockJira(final TicketGeneratorInfo jiraTicketGeneratorInfoService, final ApplicationUser user,
+	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext,
+			final ApplicationUser user,
 			final IssueService issueService, final IssueInputParameters issueInputParameters) {
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
+		Mockito.when(jiraContext.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
-		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
+		Mockito.when(jiraServices.getIssueService()).thenReturn(issueService);
 		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
-		mockJsonEntityPropertyManager(jiraTicketGeneratorInfoService);
-		final Project atlassianJiraProject = mockJiraProject(jiraTicketGeneratorInfoService);
+		Mockito.when(jiraServices.getAuthContext()).thenReturn(authContext);
+		Mockito.when(jiraContext.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
+		mockJsonEntityPropertyManager(jiraServices, jiraContext);
+		final Project atlassianJiraProject = mockJiraProject(jiraServices, jiraContext);
 		return atlassianJiraProject;
 	}
 
@@ -489,12 +505,12 @@ public class TicketGeneratorTest {
 		return validationResult;
 	}
 
-	private JsonEntityPropertyManager mockJsonEntityPropertyManager(
-			final TicketGeneratorInfo jiraTicketGeneratorInfoService) {
+	private JsonEntityPropertyManager mockJsonEntityPropertyManager(final JiraServices jiraServices,
+			final JiraContext jiraContext) {
 		final EntityPropertyQuery entityPropertyQuery = mockEntityPropertyQuery();
 		final JsonEntityPropertyManager jsonEntityPropertyManager = Mockito.mock(JsonEntityPropertyManager.class);
 		Mockito.when(jsonEntityPropertyManager.query()).thenReturn(entityPropertyQuery);
-		Mockito.when(jiraTicketGeneratorInfoService.getJsonEntityPropertyManager()).thenReturn(
+		Mockito.when(jiraServices.getJsonEntityPropertyManager()).thenReturn(
 				jsonEntityPropertyManager);
 		return jsonEntityPropertyManager;
 	}
@@ -714,9 +730,10 @@ public class TicketGeneratorTest {
 		return issueInputParameters;
 	}
 
-	private Project mockJiraProject(final TicketGeneratorInfo jiraTicketGeneratorInfoService) {
+	private Project mockJiraProject(final JiraServices jiraServices,
+			final JiraContext jiraContext) {
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 
 		final Project atlassianJiraProject = Mockito.mock(Project.class);
 		Mockito.when(atlassianJiraProject.getKey()).thenReturn("jiraProjectKey");
@@ -734,7 +751,8 @@ public class TicketGeneratorTest {
 	}
 
 	private MutableIssue mockIssueExists(final IssueService issueService, final Project atlassianJiraProject,
-			final TicketGeneratorInfo jiraTicketGeneratorInfoService, final boolean open, final ApplicationUser user) {
+			final JiraServices jiraServices, final JiraContext jiraContext,
+			final boolean open, final ApplicationUser user) {
 		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
 		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
 		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
@@ -755,7 +773,7 @@ public class TicketGeneratorTest {
 		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
 		final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getWorkflowManager()).thenReturn(workflowManager);
+		Mockito.when(jiraServices.getWorkflowManager()).thenReturn(workflowManager);
 		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
 		final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
 		Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
@@ -777,7 +795,7 @@ public class TicketGeneratorTest {
 
 	private SetPropertyValidationResult mockIssueDoesNotExist(final IssueService issueService,
 			final IssueInputParameters issueInputParameters, final ApplicationUser user,
-			final Project atlassianJiraProject, final TicketGeneratorInfo jiraTicketGeneratorInfoService,
+			final Project atlassianJiraProject, final JiraContext jiraContext,
 			final IssuePropertyService propertyService) {
 
 		final MutableIssue newIssue = Mockito.mock(MutableIssue.class);

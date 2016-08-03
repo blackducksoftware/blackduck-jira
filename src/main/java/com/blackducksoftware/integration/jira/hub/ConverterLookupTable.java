@@ -14,21 +14,23 @@ import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationConverter;
 import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter;
 import com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationConverter;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public class ConverterLookupTable {
 	private final Map<Class<? extends NotificationItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
-	public ConverterLookupTable(final HubProjectMappings mappings, final TicketGeneratorInfo ticketGenInfo,
+	public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
+			final JiraContext jiraContext,
 			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(mappings,
-				ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
-		final NotificationToEventConverter policyViolationNotificationFilter = new PolicyViolationNotificationConverter(mappings,
-				ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(mappings,
+				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
 		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-				mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+				mappings, jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
 
-		lookupTable.put(RuleViolationNotificationItem.class, policyViolationNotificationFilter);
+		lookupTable.put(RuleViolationNotificationItem.class, policyViolationNotificationConverter);
 		lookupTable.put(PolicyOverrideNotificationItem.class, policyOverrideNotificationConverter);
 		lookupTable.put(VulnerabilityNotificationItem.class, vulnerabilityNotificationConverter);
 	}

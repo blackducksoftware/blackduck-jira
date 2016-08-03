@@ -25,7 +25,7 @@ public class ConverterLookupTableTest {
 
 	@Test
 	public void test() throws NotificationServiceException {
-		final ConverterLookupTable table = new ConverterLookupTable(null, null, null, null);
+		final ConverterLookupTable table = new ConverterLookupTable(null, null, null, null, null);
 
 		try {
 			assertEquals(null, table.getConverter(null));

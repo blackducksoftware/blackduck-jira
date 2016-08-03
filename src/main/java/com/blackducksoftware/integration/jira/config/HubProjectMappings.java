@@ -10,15 +10,19 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
+import com.blackducksoftware.integration.jira.issue.JiraServices;
 
 public class HubProjectMappings {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final TicketGeneratorInfo ticketGenInfo;
+	private final JiraContext jiraContext;
 	private final Set<HubProjectMapping> mappings;
+	private final JiraServices jiraServices;
 
-	public HubProjectMappings(final TicketGeneratorInfo ticketGenInfo, final Set<HubProjectMapping> mappings) {
-		this.ticketGenInfo = ticketGenInfo;
+	public HubProjectMappings(final JiraServices jiraServices, final JiraContext jiraContext,
+			final Set<HubProjectMapping> mappings) {
+		this.jiraServices = jiraServices;
+		this.jiraContext = jiraContext;
 		this.mappings = mappings;
 	}
 
@@ -62,10 +66,7 @@ public class HubProjectMappings {
 
 	private JiraProject getJiraProject(final long jiraProjectId)
 			throws NotificationServiceException {
-		if (ticketGenInfo.getJiraProjectManager() == null) {
-			throw new NotificationServiceException("The JIRA projectManager has not been set");
-		}
-		final com.atlassian.jira.project.Project atlassianJiraProject = ticketGenInfo.getJiraProjectManager()
+		final com.atlassian.jira.project.Project atlassianJiraProject = jiraServices.getJiraProjectManager()
 				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
 			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
@@ -84,7 +85,7 @@ public class HubProjectMappings {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
 				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
-					if (issueType.getName().equals(ticketGenInfo.getJiraIssueTypeName())) {
+					if (issueType.getName().equals(jiraContext.getJiraIssueTypeName())) {
 						bdsJiraProject.setIssueTypeId(issueType.getId());
 						projectHasIssueType = true;
 					}
@@ -92,7 +93,7 @@ public class HubProjectMappings {
 			}
 			if (!projectHasIssueType) {
 				bdsJiraProject.setProjectError("The Jira project is missing the "
-						+ ticketGenInfo.getJiraIssueTypeName() + " issue type.");
+						+ jiraContext.getJiraIssueTypeName() + " issue type.");
 			}
 		}
 		return bdsJiraProject;
