@@ -58,6 +58,7 @@ import com.atlassian.jira.entity.property.EntityPropertyService.PropertyInput;
 import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
 import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.CommentManager;
@@ -283,6 +284,8 @@ public class TicketGeneratorTest {
 				issueInputParameters);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
 		Mockito.when(jiraTicketGeneratorInfoService.getPropertyService()).thenReturn(propertyService);
+		final CommentManager commentManager = Mockito.mock(CommentManager.class);
+		Mockito.when(jiraTicketGeneratorInfoService.getCommentManager()).thenReturn(commentManager);
 
 		SetPropertyValidationResult setPropValidationResult = null;
 		MutableIssue oldIssue = null;
@@ -342,7 +345,11 @@ public class TicketGeneratorTest {
 					transitionValidationResult);
 		}
 
-		// TODO verify comment creation
+		Mockito.verify(commentManager).create(Mockito.any(Issue.class), Mockito.eq(user),
+				Mockito.eq("(Black Duck Hub JIRA plugin-generated comment)\n"
+						+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
+						+ "Vulnerabilities deleted: \n"),
+						Mockito.eq(true));
 
 	}
 
@@ -459,8 +466,6 @@ public class TicketGeneratorTest {
 		Mockito.when(jiraTicketGeneratorInfoService.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
 		Mockito.when(jiraTicketGeneratorInfoService.getIssueService()).thenReturn(issueService);
-		final CommentManager commentManager = Mockito.mock(CommentManager.class);
-		Mockito.when(jiraTicketGeneratorInfoService.getCommentManager()).thenReturn(commentManager);
 		final JiraAuthenticationContext authContext = Mockito.mock(JiraAuthenticationContext.class);
 		Mockito.when(jiraTicketGeneratorInfoService.getAuthContext()).thenReturn(authContext);
 		Mockito.when(jiraTicketGeneratorInfoService.getJiraIssueTypeName()).thenReturn("jiraIssueTypeName");
