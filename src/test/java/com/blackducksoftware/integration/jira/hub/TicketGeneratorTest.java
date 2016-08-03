@@ -112,7 +112,7 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  *
  */
 public class TicketGeneratorTest {
-	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(HubNotificationServiceTest.class
+	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(TicketGeneratorTest.class
 			.getName()));
 	private static final long JIRA_ISSUE_ID = 10000L;
 	private static final long JAN_2_2016 = 1451710800000L;
