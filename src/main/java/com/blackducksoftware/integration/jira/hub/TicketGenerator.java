@@ -55,7 +55,7 @@ public class TicketGenerator {
 		this.jiraContext = jiraContext;
 	}
 
-	public int generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
+	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
 			final List<String> linksOfRulesToMonitor,
 			final NotificationDateRange notificationDateRange) throws NotificationServiceException {
 
@@ -69,10 +69,8 @@ public class TicketGenerator {
 
 		// TODO Shouldn't need all these different types
 		// event should just tell JiraIssueHandler what to do
-		int ticketCount = 0;
 		for (final HubEvent notificationResult : notificationResults.getPolicyViolationEvents()) {
 			issueHandler.handleEvent(notificationResult);
-			ticketCount++;
 		}
 		for (final HubEvent notificationResult : notificationResults
 				.getPolicyViolationOverrideEvents()) {
@@ -82,8 +80,6 @@ public class TicketGenerator {
 		// TODO can this be combined with the rule issue create loop above
 		for (final HubEvent event : notificationResults.getVulnerabilityEvents()) {
 			issueHandler.handleEvent(event);
-			ticketCount++;
 		}
-		return ticketCount;
 	}
 }
