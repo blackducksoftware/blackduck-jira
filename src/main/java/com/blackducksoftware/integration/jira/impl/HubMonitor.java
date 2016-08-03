@@ -103,9 +103,10 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 			final GroupManager groupManager = ComponentAccessor.getGroupManager();
 			if (!groupManager.groupExists(HubJiraConstants.HUB_JIRA_GROUP)) {
 				groupManager.createGroup(HubJiraConstants.HUB_JIRA_GROUP);
+				logger.debug("Created the Group : " + HubJiraConstants.HUB_JIRA_GROUP);
 			}
 		} catch (OperationNotPermittedException | InvalidGroupException e) {
-			logger.error(e);
+			logger.error("Failed to create the Group : " + HubJiraConstants.HUB_JIRA_GROUP, e);
 		}
 
 		final IssueService issueService = ComponentAccessor.getIssueService();
