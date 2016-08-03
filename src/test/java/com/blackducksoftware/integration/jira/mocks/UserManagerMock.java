@@ -33,7 +33,17 @@ public class UserManagerMock implements UserManager {
 	String remoteUsername;
 	boolean isSystemAdmin;
 
+	boolean isInGroup;
+
 	public UserManagerMock() {
+	}
+
+	public boolean isInGroup() {
+		return isInGroup;
+	}
+
+	public void setInGroup(final boolean isInGroup) {
+		this.isInGroup = isInGroup;
 	}
 
 	public void setRemoteUsername(final String remoteUsername) {
@@ -52,7 +62,7 @@ public class UserManagerMock implements UserManager {
 
 	@Override
 	public boolean isUserInGroup(final String username, final String group) {
-		return false;
+		return isInGroup();
 	}
 
 	public void setIsSystemAdmin(final boolean isSystemAdmin) {

@@ -28,12 +28,15 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.crowd.exception.OperationNotPermittedException;
+import com.atlassian.crowd.exception.embedded.InvalidGroupException;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
@@ -44,6 +47,7 @@ import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.api.NotificationMonitor;
 import com.blackducksoftware.integration.jira.task.JiraTask;
 import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.utils.HubJiraConstants;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
@@ -81,6 +85,16 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	public void reschedule(final String serverName, final long intervalIgnored) {
 		logger.debug("HubMonitor reschedule() called.");
 		logger.debug("pluginSettingsFactory: " + pluginSettingsFactory);
+
+		try {
+			final GroupManager groupManager = ComponentAccessor.getGroupManager();
+			if (!groupManager.groupExists(HubJiraConstants.HUB_JIRA_GROUP)) {
+				groupManager.createGroup(HubJiraConstants.HUB_JIRA_GROUP);
+				logger.debug("Created the Group : " + HubJiraConstants.HUB_JIRA_GROUP);
+			}
+		} catch (OperationNotPermittedException | InvalidGroupException e) {
+			logger.error("Failed to create the Group : " + HubJiraConstants.HUB_JIRA_GROUP, e);
+		}
 
 		final CommentManager commentManager = ComponentAccessor.getCommentManager();
 		logger.debug("commentManager: " + commentManager);
