@@ -84,6 +84,34 @@ public class HubJiraServletTest {
 	}
 
 	@Test
+	public void testDoGetUserNotAdminInGroup() throws Exception {
+		final String userName = "TestUser";
+		final String redirectUrl = "http://testRedirect";
+		final StringBuffer requestUrl = new StringBuffer();
+		requestUrl.append(redirectUrl);
+
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername(userName);
+		managerMock.setInGroup(true);
+
+		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+
+		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+
+		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		requestMock.setRequestURL(requestUrl);
+
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock);
+
+		servlet.doGet(requestMock, responseMock);
+
+		assertEquals("text/html;charset=utf-8", responseMock.getContentType());
+		assertEquals("hub-jira.vm", rendererMock.getRenderedString());
+	}
+
+	@Test
 	public void testDoGetUserAdmin() throws Exception {
 		final String userName = "TestUser";
 		final String redirectUrl = "http://testRedirect";
