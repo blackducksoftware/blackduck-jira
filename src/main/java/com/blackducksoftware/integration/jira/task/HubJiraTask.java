@@ -40,22 +40,22 @@ import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.hub.HubNotificationService;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.HubNotificationServiceMock;
-import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
 import com.blackducksoftware.integration.jira.hub.TicketGenerator;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {
@@ -151,8 +151,22 @@ public class HubJiraTask {
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings,
 					linksOfRulesToMonitor, notificationDateRange);
-		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
-				| HubNotificationServiceException | URISyntaxException e) {
+		} catch (final BDRestException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		} catch (final IllegalArgumentException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		} catch (final EncryptionException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		} catch (final ParseException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		} catch (final NotificationServiceException e) {
+			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			return null;
+		} catch (final URISyntaxException e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
 			return null;
 		}
@@ -195,13 +209,13 @@ public class HubJiraTask {
 			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final HubNotificationService notificationService;
+		final NotificationService notificationService;
 		if (!"mock".equals(jiraUser)) {
 			logger.debug("Creating HubNotificationService");
-			notificationService = new HubNotificationService(restConnection, hub, hubItemsService);
+			notificationService = new NotificationService(restConnection, hub, hubItemsService, logger);
 		} else {
 			logger.debug("Creating HubNotificationServiceMock");
-			notificationService = new HubNotificationServiceMock(restConnection, hub, hubItemsService);
+			notificationService = new HubNotificationServiceMock(restConnection, hub, hubItemsService, logger);
 		}
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,

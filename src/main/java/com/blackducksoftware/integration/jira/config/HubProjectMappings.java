@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
 
 public class HubProjectMappings {
@@ -35,7 +35,7 @@ public class HubProjectMappings {
 			final JiraProject jiraProject;
 			try {
 				jiraProject = getJiraProject(mappingJiraProject.getProjectId());
-			} catch (final HubNotificationServiceException e) {
+			} catch (final NotificationServiceException e) {
 				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
 				continue;
@@ -61,14 +61,14 @@ public class HubProjectMappings {
 	}
 
 	private JiraProject getJiraProject(final long jiraProjectId)
-			throws HubNotificationServiceException {
+			throws NotificationServiceException {
 		if (ticketGenInfo.getJiraProjectManager() == null) {
-			throw new HubNotificationServiceException("The JIRA projectManager has not been set");
+			throw new NotificationServiceException("The JIRA projectManager has not been set");
 		}
 		final com.atlassian.jira.project.Project atlassianJiraProject = ticketGenInfo.getJiraProjectManager()
 				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
-			throw new HubNotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
 		}
 		final String jiraProjectKey = atlassianJiraProject.getKey();
 		final String jiraProjectName = atlassianJiraProject.getName();

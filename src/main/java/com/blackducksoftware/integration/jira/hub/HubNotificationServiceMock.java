@@ -7,30 +7,35 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.logging.IntLogger;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
+import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class HubNotificationServiceMock extends HubNotificationService {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+public class HubNotificationServiceMock extends NotificationService {
+	private final IntLogger logger;
 
 	public HubNotificationServiceMock(final RestConnection restConnection, final HubIntRestService hub,
-			final HubItemsService<NotificationItem> hubItemsService) {
-		super(restConnection, hub, hubItemsService);
+			final HubItemsService<NotificationItem> hubItemsService, final IntLogger logger) {
+		// final RestConnection restConnection, final HubIntRestService hub,
+		// final HubItemsService<NotificationItem> hubItemsService, final
+		// IntLogger logger
+		super(restConnection, hub, hubItemsService, logger);
+		this.logger = logger;
 	}
 
 	@Override
 	public List<NotificationItem> fetchNotifications(final NotificationDateRange dateRange)
-			throws HubNotificationServiceException {
+			throws NotificationServiceException {
 		logger.debug("fetchNotifications(");
 		final String filePath = "/tmp/json/VulnerabilityNotificationContent_current.json";
 		List<NotificationItem> notificationItems;

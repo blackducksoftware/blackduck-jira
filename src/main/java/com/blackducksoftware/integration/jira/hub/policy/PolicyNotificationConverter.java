@@ -7,8 +7,12 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.component.api.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.hub.component.api.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
@@ -17,13 +21,9 @@ import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.HubEventAction;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
-import com.blackducksoftware.integration.jira.hub.HubNotificationService;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
-import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
 public abstract class PolicyNotificationConverter extends NotificationToEventConverter {
@@ -34,7 +34,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 	public PolicyNotificationConverter(final HubProjectMappings mappings,
 			final TicketGeneratorInfo ticketGenInfo, final List<String> linksOfRulesToMonitor,
-			final HubNotificationService hubNotificationService) {
+			final NotificationService hubNotificationService) {
 		super(hubNotificationService, ticketGenInfo);
 		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
@@ -43,7 +43,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 	protected HubEvents handleNotification(final HubEventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
-					throws UnexpectedHubResponseException, HubNotificationServiceException {
+					throws UnexpectedHubResponseException, NotificationServiceException {
 		final HubEvents notifResults = new HubEvents();
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
@@ -52,7 +52,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 			final JiraProject jiraProject;
 			try {
 				jiraProject = getJiraProject(mappingJiraProject.getProjectId());
-			} catch (final HubNotificationServiceException e) {
+			} catch (final NotificationServiceException e) {
 				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
 				continue;
@@ -77,7 +77,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem,
 			final JiraProject jiraProject)
-					throws UnexpectedHubResponseException, HubNotificationServiceException {
+					throws UnexpectedHubResponseException, NotificationServiceException {
 		final HubEvents notifResults = new HubEvents();
 		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
 			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
@@ -159,7 +159,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 		return notifResults;
 	}
 
-	private List<String> getMonitoredRules(final List<String> rulesViolated) throws HubNotificationServiceException {
+	private List<String> getMonitoredRules(final List<String> rulesViolated) throws NotificationServiceException {
 		logger.debug("getMonitoredRules(): Configured rules to monitor: " + linksOfRulesToMonitor);
 		if (rulesViolated == null || rulesViolated.isEmpty()) {
 			logger.warn("No violated Rules provided.");

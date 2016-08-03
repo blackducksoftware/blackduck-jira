@@ -31,16 +31,18 @@ import org.junit.BeforeClass;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.hub.component.api.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.hub.component.api.ComponentVersion;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 
 public class JiraNotificationFilterTest {
@@ -277,15 +279,15 @@ public class JiraNotificationFilterTest {
 		return projectManager;
 	}
 
-	private HubNotificationService createMockHubNotificationService(final boolean ruleMatches)
-			throws HubNotificationServiceException, UnexpectedHubResponseException {
+	private NotificationService createMockHubNotificationService(final boolean ruleMatches)
+			throws NotificationServiceException, UnexpectedHubResponseException {
 		String suffix;
 		if (ruleMatches) {
 			suffix = "";
 		} else {
 			suffix = "XX";
 		}
-		final HubNotificationService mockHubNotificationService = Mockito.mock(HubNotificationService.class);
+		final NotificationService mockHubNotificationService = Mockito.mock(NotificationService.class);
 		for (int i = 0; i < 3; i++) {
 			final ReleaseItem releaseItem = getReleaseItem(i);
 			Mockito.when(mockHubNotificationService

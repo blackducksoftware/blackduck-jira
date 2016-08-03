@@ -25,9 +25,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
 
 /**
@@ -39,11 +42,11 @@ import com.blackducksoftware.integration.jira.issue.JiraIssueHandler;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final HubNotificationService notificationService;
+	private final NotificationService notificationService;
 	private final TicketGeneratorInfo ticketGenInfo;
 
 
-	public TicketGenerator(final HubNotificationService notificationService,
+	public TicketGenerator(final NotificationService notificationService,
 			final TicketGeneratorInfo ticketGenInfo) {
 		this.notificationService = notificationService;
 		this.ticketGenInfo = ticketGenInfo;
@@ -51,7 +54,7 @@ public class TicketGenerator {
 
 	public int generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
 			final List<String> linksOfRulesToMonitor,
-			final NotificationDateRange notificationDateRange) throws HubNotificationServiceException {
+			final NotificationDateRange notificationDateRange) throws NotificationServiceException {
 
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,

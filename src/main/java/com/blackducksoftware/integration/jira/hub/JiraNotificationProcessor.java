@@ -26,23 +26,25 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
 
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 	private final ConverterLookupTable converterTable;
 
-	public JiraNotificationProcessor(final HubNotificationService hubNotificationService,
+	public JiraNotificationProcessor(final NotificationService hubNotificationService,
 			final HubProjectMappings mapping, final List<String> linksOfRulesToMonitor,
 			final TicketGeneratorInfo ticketGenInfo) {
 		converterTable = new ConverterLookupTable(mapping, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}
 
 	public HubEvents generateEvents(final List<NotificationItem> notifications)
-			throws HubNotificationServiceException {
+			throws NotificationServiceException {
 		final HubEvents allResults = new HubEvents();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
@@ -54,7 +56,7 @@ public class JiraNotificationProcessor {
 			try {
 				notifResults = generateEvents(notif);
 			} catch (final UnexpectedHubResponseException e) {
-				throw new HubNotificationServiceException("Error converting notifications to issues", e);
+				throw new NotificationServiceException("Error converting notifications to issues", e);
 			}
 			if (notifResults != null) {
 				allResults.addAllEvents(notifResults);
@@ -64,7 +66,7 @@ public class JiraNotificationProcessor {
 	}
 
 	private HubEvents generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
-	HubNotificationServiceException {
+	NotificationServiceException {
 		final NotificationToEventConverter converter = converterTable.getConverter(notif);
 		final HubEvents events = converter.generateEvents(notif);
 		return events;

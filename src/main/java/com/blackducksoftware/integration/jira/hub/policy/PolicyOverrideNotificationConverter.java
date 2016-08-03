@@ -5,24 +5,24 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.component.api.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.hub.HubEvents;
-import com.blackducksoftware.integration.jira.hub.HubNotificationService;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
 import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 
 public class PolicyOverrideNotificationConverter extends PolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final TicketGeneratorInfo ticketGenInfo,
-			final List<String> linksOfRulesToMonitor, final HubNotificationService hubNotificationService) {
+			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
 		super(mappings, ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 	}
 
@@ -54,7 +54,7 @@ public class PolicyOverrideNotificationConverter extends PolicyNotificationConve
 			notifHubProjectReleaseItem = getHubNotificationService().getProjectReleaseItemFromProjectReleaseUrl(
 					ruleViolationNotif.getContent().getProjectVersionLink());
 			projectVersionName = notifHubProjectReleaseItem.getVersionName();
-		} catch (final HubNotificationServiceException | UnexpectedHubResponseException e) {
+		} catch (final NotificationServiceException | UnexpectedHubResponseException e) {
 			logger.error(e);
 			return null;
 		}
@@ -62,7 +62,7 @@ public class PolicyOverrideNotificationConverter extends PolicyNotificationConve
 		try {
 			events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
-		} catch (UnexpectedHubResponseException | HubNotificationServiceException e) {
+		} catch (UnexpectedHubResponseException | NotificationServiceException e) {
 			logger.error(e);
 			return null;
 		}

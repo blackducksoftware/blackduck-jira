@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,6 +71,9 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.component.api.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.hub.component.api.ComponentVersion;
+import com.blackducksoftware.integration.hub.component.api.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
@@ -77,26 +81,27 @@ import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseExce
 import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
+import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationContent;
+import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationContent;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.hub.policy.api.PolicyExpression;
 import com.blackducksoftware.integration.hub.policy.api.PolicyExpressions;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.policy.api.PolicyValue;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProject;
 import com.blackducksoftware.integration.jira.config.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.model.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersion;
-import com.blackducksoftware.integration.jira.hub.model.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -107,6 +112,8 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  *
  */
 public class TicketGeneratorTest {
+	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(HubNotificationServiceTest.class
+			.getName()));
 	private static final long JIRA_ISSUE_ID = 10000L;
 	private static final long JAN_2_2016 = 1451710800000L;
 	private static final long JAN_1_2016 = 1451624400000L;
@@ -148,7 +155,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testCreateNewVulnerabilityJiraIssue() throws HubNotificationServiceException, ParseException,
+	public void testCreateNewVulnerabilityJiraIssue() throws NotificationServiceException, ParseException,
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
 		testVulnerabilityNotifications(
@@ -161,7 +168,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testDeDupeVulnerability() throws HubNotificationServiceException, ParseException, IOException,
+	public void testDeDupeVulnerability() throws NotificationServiceException, ParseException, IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
 	MissingUUIDException {
 		testVulnerabilityNotifications(
@@ -174,7 +181,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testCreateNewPolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	public void testCreateNewPolicyViolationJiraIssue() throws NotificationServiceException, ParseException,
 	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
@@ -182,7 +189,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testDuplicatePolicyViolationIssueAvoidance() throws HubNotificationServiceException, ParseException,
+	public void testDuplicatePolicyViolationIssueAvoidance() throws NotificationServiceException, ParseException,
 	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
@@ -190,7 +197,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testClosePolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	public void testClosePolicyViolationJiraIssue() throws NotificationServiceException, ParseException,
 	IOException,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
@@ -198,7 +205,7 @@ public class TicketGeneratorTest {
 	}
 
 	@Test
-	public void testReOpenPolicyViolationJiraIssue() throws HubNotificationServiceException, ParseException,
+	public void testReOpenPolicyViolationJiraIssue() throws NotificationServiceException, ParseException,
 	IOException,
 	URISyntaxException,
 	ResourceDoesNotExistException, BDRestException,
@@ -243,7 +250,7 @@ public class TicketGeneratorTest {
 			final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification, final String expectedIssueSummary,
 			final String expectedIssueDescription)
-					throws HubNotificationServiceException, ParseException,
+					throws NotificationServiceException, ParseException,
 					IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 					UnexpectedHubResponseException, MissingUUIDException {
 
@@ -252,7 +259,7 @@ public class TicketGeneratorTest {
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
-		final HubNotificationService notificationService = createHubNotificationService(restConnection, hub,
+		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
 				hubItemsService);
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
@@ -341,7 +348,7 @@ public class TicketGeneratorTest {
 
 	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification)
-					throws HubNotificationServiceException, ParseException,
+					throws NotificationServiceException, ParseException,
 					IOException, URISyntaxException,
 					ResourceDoesNotExistException, BDRestException,
 					UnexpectedHubResponseException, MissingUUIDException {
@@ -351,7 +358,7 @@ public class TicketGeneratorTest {
 		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
 		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
 		final RestConnection restConnection = Mockito.mock(RestConnection.class);
-		final HubNotificationService notificationService = createHubNotificationService(restConnection, hub,
+		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
 				hubItemsService);
 		final TicketGeneratorInfo jiraTicketGeneratorInfoService = Mockito.mock(TicketGeneratorInfo.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraTicketGeneratorInfoService);
@@ -534,12 +541,13 @@ public class TicketGeneratorTest {
 		return hubProjectMappings;
 	}
 
-	private HubNotificationService createHubNotificationService(final RestConnection restConnection,
+	private NotificationService createHubNotificationService(final RestConnection restConnection,
 			final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService) {
 
-		final HubNotificationService notificationService = new HubNotificationService(restConnection, hub,
-				hubItemsService);
+		final NotificationService notificationService = new NotificationService(restConnection, hub,
+				hubItemsService,
+				logger);
 		return notificationService;
 	}
 
@@ -565,10 +573,10 @@ public class TicketGeneratorTest {
 
 	private void mockNotificationServiceDependencies(final RestConnection restConnection, final HubIntRestService hub,
 			final HubItemsService<NotificationItem> hubItemsService,
-			final HubNotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters,
+			final NotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters,
 			final List<NotificationItem> notificationItems)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
-					HubNotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
+					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
 		final List<String> urlSegments = new ArrayList<>();
 		urlSegments.add("api");

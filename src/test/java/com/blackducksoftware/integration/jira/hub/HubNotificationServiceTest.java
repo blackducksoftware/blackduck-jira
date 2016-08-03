@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,19 +48,24 @@ import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.item.HubItemsService;
+import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
+import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
+import com.blackducksoftware.integration.jira.HubJiraLogger;
 
 public class HubNotificationServiceTest {
-
+	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(HubNotificationServiceTest.class
+			.getName()));
 	private static final String TEST_COMPONENT_VERSION_NAME = "testComponentVersionName";
 	private static final String TEST_COMPONENT_VERSION_LINK = "testComponentVersionLink";
 	private static final String TEST_COMPONENT_NAME = "testComponentName";
 	private static final String END_DATE_STRING = "2016-05-10T00:00:00.000Z";
 	private static final String START_DATE_STRING = "2016-05-01T00:00:00.000Z";
 
-	private static HubNotificationService hubNotificationService;
+	private static NotificationService hubNotificationService;
 	private static HubItemsService<NotificationItem> mockHubItemsService;
 	private static RestConnection mockRestConnection;
 
@@ -75,8 +81,8 @@ public class HubNotificationServiceTest {
 		links.add("http://test.project.url");
 		when(mockProjectVersion.getLinks("project")).thenReturn(links);
 		when(mockHubIntRestService.getProjectVersion("http://test.projectVersion.url")).thenReturn(mockProjectVersion);
-		hubNotificationService = new HubNotificationService(mockRestConnection, mockHubIntRestService,
-				mockHubItemsService);
+		hubNotificationService = new NotificationService(mockRestConnection, mockHubIntRestService,
+				mockHubItemsService, logger);
 	}
 
 	@AfterClass
@@ -84,7 +90,7 @@ public class HubNotificationServiceTest {
 	}
 
 	@Test
-	public void testFetchNotifications() throws HubNotificationServiceException, URISyntaxException, BDRestException,
+	public void testFetchNotifications() throws NotificationServiceException, URISyntaxException, BDRestException,
 	ParseException, IOException, ResourceDoesNotExistException {
 
 		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -114,7 +120,7 @@ public class HubNotificationServiceTest {
 	}
 
 	@Test
-	public void testGetProjectUrlFromProjectReleaseUrl() throws HubNotificationServiceException,
+	public void testGetProjectUrlFromProjectReleaseUrl() throws NotificationServiceException,
 	UnexpectedHubResponseException {
 		final String versionUrl = "http://test.projectVersion.url";
 

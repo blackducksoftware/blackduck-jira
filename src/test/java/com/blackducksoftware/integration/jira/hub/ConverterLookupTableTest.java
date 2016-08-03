@@ -8,9 +8,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
+import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
 
 public class ConverterLookupTableTest {
 
@@ -23,7 +24,7 @@ public class ConverterLookupTableTest {
 	}
 
 	@Test
-	public void test() throws HubNotificationServiceException {
+	public void test() throws NotificationServiceException {
 		final ConverterLookupTable table = new ConverterLookupTable(null, null, null, null);
 
 		try {
