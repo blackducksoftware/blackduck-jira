@@ -24,7 +24,7 @@ public class ConverterLookupTable {
 			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(mappings,
-				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+ jiraServices, jiraContext, hubNotificationService);
 		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(mappings,
 				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
 		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
