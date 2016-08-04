@@ -20,10 +20,9 @@ import com.blackducksoftware.integration.jira.config.HubProjectMappings;
 import com.blackducksoftware.integration.jira.config.JiraProject;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.HubEventAction;
-import com.blackducksoftware.integration.jira.hub.HubEvents;
+import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.hub.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.hub.PolicyEvent;
-import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 import com.blackducksoftware.integration.jira.issue.JiraServices;
 
@@ -41,11 +40,11 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
 
-	protected HubEvents handleNotification(final HubEventType eventType,
+	protected List<HubEvent> handleNotification(final HubEventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
 					throws UnexpectedHubResponseException, NotificationServiceException {
-		final HubEvents notifResults = new HubEvents();
+		final List<HubEvent> notifResults = new ArrayList<>();
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
@@ -65,21 +64,21 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 			logger.debug("JIRA Project: " + jiraProject);
 
-			final HubEvents oneProjectsResults = handleNotificationPerJiraProject(eventType,
+			final List<HubEvent> oneProjectsResults = handleNotificationPerJiraProject(eventType,
 					projectName, projectVersionName, compVerStatuses, notifHubProjectReleaseItem, jiraProject);
 			if (oneProjectsResults != null) {
-				notifResults.addAllEvents(oneProjectsResults);
+				notifResults.addAll(oneProjectsResults);
 			}
 		}
 		return notifResults;
 	}
 
-	private HubEvents handleNotificationPerJiraProject(final HubEventType eventType,
+	private List<HubEvent> handleNotificationPerJiraProject(final HubEventType eventType,
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem,
 			final JiraProject jiraProject)
 					throws UnexpectedHubResponseException, NotificationServiceException {
-		final HubEvents notifResults = new HubEvents();
+		final List<HubEvent> events = new ArrayList<>();
 		if ((linksOfRulesToMonitor == null) || (linksOfRulesToMonitor.size() == 0)) {
 			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
 			return null;
@@ -142,7 +141,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 				} else {
 					action = HubEventAction.CLOSE;
 				}
-				final HubEvent result = new PolicyEvent(action, projectName,
+				final HubEvent event = new PolicyEvent(action, projectName,
 						projectVersionName, compVerStatus.getComponentName(), componentVersionName, versionId,
 						componentId, componentVersionId,
 						getJiraContext().getJiraUser().getName(),
@@ -150,14 +149,14 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 						jiraProject.getProjectId(), jiraProject.getProjectName(),
 						eventType, rule, ruleId);
 
-				if (result.getEventType() == HubEventType.POLICY_VIOLATION) {
-					notifResults.addPolicyViolationEvent(result);
-				} else if (result.getEventType() == HubEventType.POLICY_OVERRIDE) {
-					notifResults.addPolicyViolationOverrideEvent(result);
+				if (event.getEventType() == HubEventType.POLICY_VIOLATION) {
+					events.add(event);
+				} else if (event.getEventType() == HubEventType.POLICY_OVERRIDE) {
+					events.add(event);
 				}
 			}
 		}
-		return notifResults;
+		return events;
 	}
 
 	private List<String> getMonitoredRules(final List<String> rulesViolated) throws NotificationServiceException {

@@ -13,7 +13,7 @@ import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotif
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.hub.HubEvents;
+import com.blackducksoftware.integration.jira.hub.HubEvent;
 import com.blackducksoftware.integration.jira.hub.JiraContext;
 import com.blackducksoftware.integration.jira.issue.HubEventType;
 import com.blackducksoftware.integration.jira.issue.JiraServices;
@@ -28,8 +28,8 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 	}
 
 	@Override
-	public HubEvents generateEvents(final NotificationItem notif) {
-		HubEvents events;
+	public List<HubEvent> generateEvents(final NotificationItem notif) {
+		List<HubEvent> events;
 
 		HubEventType eventType;
 		String projectName;

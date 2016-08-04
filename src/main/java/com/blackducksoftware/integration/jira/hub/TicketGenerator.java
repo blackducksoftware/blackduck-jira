@@ -63,23 +63,13 @@ public class TicketGenerator {
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, jiraServices, jiraContext);
 
-		final HubEvents events = processor.generateEvents(notifs);
+		final List<HubEvent> events = processor.generateEvents(notifs);
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext);
 
-		// TODO Shouldn't need all these different types
-		// event should just tell JiraIssueHandler what to do
-		for (final HubEvent notificationResult : events.getPolicyViolationEvents()) {
-			issueHandler.handleEvent(notificationResult);
-		}
-		for (final HubEvent notificationResult : events
-				.getPolicyViolationOverrideEvents()) {
-			issueHandler.handleEvent(notificationResult);
-		}
-
-		// TODO can this be combined with the rule issue create loop above
-		for (final HubEvent event : events.getVulnerabilityEvents()) {
+		for (final HubEvent event : events) {
 			issueHandler.handleEvent(event);
 		}
+
 	}
 }

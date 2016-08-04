@@ -97,42 +97,42 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(rulesIncludingViolatedRule, true, true);
+		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, true, true);
 
-		assertEquals(1, events.getPolicyViolationEvents().size());
+		assertEquals(1, events.size());
 
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
 
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
-		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
 	}
 
 	@Test
 	public void testWithRuleListNoMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(rulesExcludingViolatedRule, true, true);
+		final List<HubEvent> events = generateEvents(rulesExcludingViolatedRule, true, true);
 
-		assertEquals(0, events.getPolicyViolationEvents().size());
+		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(rulesIncludingViolatedRule, true, false);
-		assertEquals(0, events.getPolicyViolationEvents().size());
+		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, true, false);
+		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(rulesIncludingViolatedRule, false, false);
+		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, false, false);
 
-		assertEquals(0, events.getPolicyViolationEvents().size());
+		assertEquals(0, events.size());
 	}
 
-	private HubEvents generateEvents(final List<String> rulesToMonitor, final boolean includeProjectMappings,
+	private List<HubEvent> generateEvents(final List<String> rulesToMonitor, final boolean includeProjectMappings,
 			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
 		final NotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager jiraProjectManager = createJiraProjectManager();
@@ -149,7 +149,7 @@ public class PolicyViolationNotificationConverterTest {
 
 		final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
 				ticketGenInfo, rulesToMonitor, mockHubNotificationService);
-		final HubEvents events = converter.generateEvents(notification);
+		final List<HubEvent> events = converter.generateEvents(notification);
 		return events;
 	}
 

@@ -89,45 +89,45 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void test() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(true, true);
+		final List<HubEvent> events = generateEvents(true, true);
 
-		assertEquals(1, events.getVulnerabilityEvents().size());
+		assertEquals(1, events.size());
 
-		System.out.println(events.getVulnerabilityEvents().get(0));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary()
+		System.out.println(events.get(0));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
+		assertTrue(events.get(0).getIssueSummary()
 				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary()
+		assertTrue(events.get(0).getIssueSummary()
 				.contains(HUB_COMPONENT_NAME));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary().contains(COMPONENT_VERSION_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(COMPONENT_VERSION_NAME));
 
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary()
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
+		assertTrue(events.get(0).getIssueSummary()
 				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary()
+		assertTrue(events.get(0).getIssueSummary()
 				.contains(HUB_COMPONENT_NAME));
-		assertTrue(events.getVulnerabilityEvents().get(0).getIssueSummary().contains(COMPONENT_VERSION_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(COMPONENT_VERSION_NAME));
 
-		assertEquals(HubEventAction.ADD_COMMENT, events.getVulnerabilityEvents().get(0).getIfExistsAction());
-		System.out.println(events.getVulnerabilityEvents().get(0).getComment());
-		assertTrue(events.getVulnerabilityEvents().get(0).getComment().contains(SAMPLE_VULN));
+		assertEquals(HubEventAction.ADD_COMMENT, events.get(0).getIfExistsAction());
+		System.out.println(events.get(0).getComment());
+		assertTrue(events.get(0).getComment().contains(SAMPLE_VULN));
 	}
 
 
 	@Test
 	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(true, false);
-		assertEquals(0, events.getPolicyViolationEvents().size());
+		final List<HubEvent> events = generateEvents(true, false);
+		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
-		final HubEvents events = generateEvents(false, false);
+		final List<HubEvent> events = generateEvents(false, false);
 
-		assertEquals(0, events.getPolicyViolationEvents().size());
+		assertEquals(0, events.size());
 	}
 
-	private HubEvents generateEvents(final boolean includeProjectMappings,
+	private List<HubEvent> generateEvents(final boolean includeProjectMappings,
 			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
 		final NotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager jiraProjectManager = createJiraProjectManager();
@@ -144,7 +144,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final NotificationToEventConverter converter = new VulnerabilityNotificationConverter(mappings, jiraServices,
 				ticketGenInfo, mockHubNotificationService);
-		final HubEvents events = converter.generateEvents(notification);
+		final List<HubEvent> events = converter.generateEvents(notification);
 		return events;
 	}
 

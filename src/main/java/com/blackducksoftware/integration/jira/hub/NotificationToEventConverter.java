@@ -1,5 +1,7 @@
 package com.blackducksoftware.integration.jira.hub;
 
+import java.util.List;
+
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
@@ -19,7 +21,8 @@ public abstract class NotificationToEventConverter {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 	}
-	public abstract HubEvents generateEvents(NotificationItem notif);
+
+	public abstract List<HubEvent> generateEvents(NotificationItem notif);
 
 	protected NotificationService getHubNotificationService() {
 		return hubNotificationService;

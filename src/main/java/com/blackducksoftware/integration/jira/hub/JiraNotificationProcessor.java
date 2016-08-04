@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.hub;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -46,32 +47,32 @@ public class JiraNotificationProcessor {
 				hubNotificationService);
 	}
 
-	public HubEvents generateEvents(final List<NotificationItem> notifications)
+	public List<HubEvent> generateEvents(final List<NotificationItem> notifications)
 			throws NotificationServiceException {
-		final HubEvents allResults = new HubEvents();
+		final List<HubEvent> allResults = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 				+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			HubEvents notifResults;
+			List<HubEvent> notifResults;
 			try {
 				notifResults = generateEvents(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new NotificationServiceException("Error converting notifications to issues", e);
 			}
 			if (notifResults != null) {
-				allResults.addAllEvents(notifResults);
+				allResults.addAll(notifResults);
 			}
 		}
 		return allResults;
 	}
 
-	private HubEvents generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
+	private List<HubEvent> generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
 	NotificationServiceException {
 		final NotificationToEventConverter converter = converterTable.getConverter(notif);
-		final HubEvents events = converter.generateEvents(notif);
+		final List<HubEvent> events = converter.generateEvents(notif);
 		return events;
 	}
 
