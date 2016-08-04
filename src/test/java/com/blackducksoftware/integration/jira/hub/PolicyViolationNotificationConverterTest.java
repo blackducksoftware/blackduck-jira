@@ -59,7 +59,7 @@ import com.blackducksoftware.integration.jira.issue.JiraServices;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 
-public class PolicyViolationConverterTest {
+public class PolicyViolationNotificationConverterTest {
 
 	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
 	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
@@ -75,8 +75,20 @@ public class PolicyViolationConverterTest {
 	private static final String RULE_NAME_PREFIX = "ruleName";
 	private static final String RULE_LINK_NAME = "policy-rule";
 
+	private static List<String> rulesIncludingViolatedRule;
+	private static List<String> rulesExcludingViolatedRule;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		rulesIncludingViolatedRule = new ArrayList<>();
+		rulesIncludingViolatedRule.add("ruleUrl0");
+		rulesIncludingViolatedRule.add("ruleUrl");
+		rulesIncludingViolatedRule.add("ruleUrl99");
+
+		rulesExcludingViolatedRule = new ArrayList<>();
+		rulesExcludingViolatedRule.add("ruleUrl0");
+		rulesExcludingViolatedRule.add("ruleUrl1");
+		rulesExcludingViolatedRule.add("ruleUrl2");
 	}
 
 	@AfterClass
@@ -85,12 +97,9 @@ public class PolicyViolationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
+		final HubEvents events = generateEvents(rulesIncludingViolatedRule, true, true);
 
-		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("ruleUrl0");
-		rulesToMonitor.add("ruleUrl");
-
-		final HubEvents events = generateEvents(rulesToMonitor, true, true);
+		assertEquals(1, events.getPolicyViolationEvents().size());
 
 		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
 		assertTrue(events.getPolicyViolationEvents().get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
@@ -105,33 +114,20 @@ public class PolicyViolationConverterTest {
 
 	@Test
 	public void testWithRuleListNoMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("ruleUrl0");
-		rulesToMonitor.add("ruleUrlx");
-
-		final HubEvents events = generateEvents(rulesToMonitor, true, true);
+		final HubEvents events = generateEvents(rulesExcludingViolatedRule, true, true);
 
 		assertEquals(0, events.getPolicyViolationEvents().size());
 	}
 
 	@Test
 	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("ruleUrl0");
-		rulesToMonitor.add("ruleUrl");
-
-		final HubEvents events = generateEvents(rulesToMonitor, true, false);
-
+		final HubEvents events = generateEvents(rulesIncludingViolatedRule, true, false);
 		assertEquals(0, events.getPolicyViolationEvents().size());
 	}
 
 	@Test
 	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<String> rulesToMonitor = new ArrayList<>();
-		rulesToMonitor.add("ruleUrl0");
-		rulesToMonitor.add("ruleUrl");
-
-		final HubEvents events = generateEvents(rulesToMonitor, false, false);
+		final HubEvents events = generateEvents(rulesIncludingViolatedRule, false, false);
 
 		assertEquals(0, events.getPolicyViolationEvents().size());
 	}
