@@ -22,8 +22,8 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.HubJiraLogger;
 import com.blackducksoftware.integration.jira.hub.HubEvent;
-import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.JiraContext;
+import com.blackducksoftware.integration.jira.hub.PolicyEvent;
 import com.blackducksoftware.integration.jira.hub.property.IssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -262,7 +262,6 @@ public class JiraIssueHandler {
 			closeIssue(event);
 			break;
 		case ADD_COMMENT:
-			// TODO
 			final Issue issue = openIssue(event);
 			addComment(event, issue);
 			break;
