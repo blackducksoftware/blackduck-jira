@@ -124,10 +124,4 @@ public class PolicyEvent extends HubEvent {
 				.getName());
 		return properties;
 	}
-
-	@Override
-	public String getComment() {
-		// TODO Auto-generated method stub
-		return "TBD";
-	}
 }

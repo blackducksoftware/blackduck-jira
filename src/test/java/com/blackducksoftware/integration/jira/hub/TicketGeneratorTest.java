@@ -114,6 +114,16 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  *
  */
 public class TicketGeneratorTest {
+	private static final String VULNERABILITY_ISSUE_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n"
+			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
+			+ "Vulnerabilities deleted: \n";
+	private static final String VULNERABILITY_NOTIF_CONTENT_PATH_NEW = "src/test/resources/json/VulnerabilityNotificationContent_new.json";
+	private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
+	private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
+	private static final String POLICY_RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad";
+	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
+	private static final String VULN_RELEASEITEM_URL = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f";
+	private static final String VULN_COMPONENTVERSION_URL = "http://eng-hub-valid01.dc1.lan/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d";
 	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(TicketGeneratorTest.class
 			.getName()));
 	private static final long JIRA_ISSUE_ID = 10000L;
@@ -135,7 +145,7 @@ public class TicketGeneratorTest {
 		Mockito.when(succeeded.hasAnyErrors()).thenReturn(false);
 
 		final MetaInformation policyRuleMeta = new MetaInformation(null,
-				"http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad", null);
+ POLICY_RULE_URL, null);
 		final List<PolicyValue> policyValues = new ArrayList<>();
 		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
 		policyValues.add(policyValue);
@@ -161,12 +171,11 @@ public class TicketGeneratorTest {
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
 		testVulnerabilityNotifications(
-				"src/test/resources/json/VulnerabilityNotificationContent_new.json",
+VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				false,
-				"Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'",
-				"This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.");
+				VULNERABILITY_ISSUE_SUMMARY, VULNERABILITY_ISSUE_DESCRIPTION);
 	}
 
 	@Test
@@ -174,12 +183,11 @@ public class TicketGeneratorTest {
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
 	MissingUUIDException {
 		testVulnerabilityNotifications(
-				"src/test/resources/json/VulnerabilityNotificationContent_new.json",
+VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				true,
-				"Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'",
-				"This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.");
+				VULNERABILITY_ISSUE_SUMMARY, VULNERABILITY_ISSUE_DESCRIPTION);
 	}
 
 	@Test
@@ -217,13 +225,13 @@ public class TicketGeneratorTest {
 
 	@Test
 	public void testLoadVulnerabilityContentJson() throws IOException {
-		final String jsonString = readFile("src/test/resources/json/VulnerabilityNotificationContent_new.json");
+		final String jsonString = readFile(VULNERABILITY_NOTIF_CONTENT_PATH_NEW);
 		final VulnerabilityNotificationContent vulnContent = createVulnerabilityNotificationContent(jsonString);
 
 		assertEquals("TestNG", vulnContent.getComponentName());
 		assertEquals("2.0.0", vulnContent.getVersionName());
 		assertEquals(
-				"http://eng-hub-valid01.dc1.lan:8080/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d",
+				VULN_COMPONENTVERSION_URL,
 				vulnContent.getComponentVersionLink());
 		assertEquals(1, vulnContent.getNewVulnerabilityCount());
 		assertEquals("NVD", vulnContent.getNewVulnerabilityIds().get(0).getSource());
@@ -269,11 +277,7 @@ public class TicketGeneratorTest {
 				jiraContext);
 
 		List<NotificationItem> notificationItems;
-		// if (openIssue) {
 		notificationItems = mockNewVulnerabilityNotificationItems(notifContentFilePath, createDuplicateNotification);
-		// } else {
-		// notificationItems = mock... TODO
-		// }
 		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
 				JAN_2_2016);
 		mockNotificationServiceDependencies(restConnection, hub, hubItemsService, notificationService,
@@ -325,12 +329,10 @@ public class TicketGeneratorTest {
 
 		// Verify
 
-		int expectedFindIssueCount = 1;
 		final int expectedCreateIssueCount = 1;
 		final int expectedCloseIssueCount = 1;
 		int expectedCommentCount = 1;
 		if (createDuplicateNotification) {
-			expectedFindIssueCount = 2;
 			expectedCommentCount = 2;
 		}
 
@@ -356,10 +358,8 @@ public class TicketGeneratorTest {
 		Mockito.verify(commentManager, Mockito.times(expectedCommentCount)).create(
 				Mockito.any(Issue.class),
 				Mockito.eq(user),
-				Mockito.eq("(Black Duck Hub JIRA plugin-generated comment)\n"
-						+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
-						+ "Vulnerabilities deleted: \n"),
-						Mockito.eq(true));
+ Mockito.eq(VULNERABILITY_ISSUE_COMMENT),
+				Mockito.eq(true));
 
 	}
 
@@ -438,12 +438,8 @@ public class TicketGeneratorTest {
 
 		// Verify
 
-		int expectedFindIssueCount = 1;
 		final int expectedCreateIssueCount = 1;
 		final int expectedCloseIssueCount = 1;
-		if (createDuplicateNotification) {
-			expectedFindIssueCount = 2;
-		}
 
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
@@ -605,7 +601,7 @@ public class TicketGeneratorTest {
 		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
 		final List<MetaLink> links = new ArrayList<>();
 		links.add(new MetaLink("project", "hubProjectUrl"));
-		final String href = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
+		final String href = PROJECTVERSION_URL;
 		final MetaInformation projectMeta = new MetaInformation(null, href, links);
 		final ReleaseItem releaseItem = new ReleaseItem("hubProjectVersionName", "projectPhase", "projectDistribution",
 				"projectSource", projectMeta);
@@ -633,17 +629,16 @@ public class TicketGeneratorTest {
 						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
 		Mockito.when(restConnection.httpGetFromAbsoluteUrl(PolicyRule.class, "ruleUrl")).thenReturn(rule);
 
-		// TODO: The followingare needed by, and only by, vulnerability test,
-		// which loads
-		// json from file with this URL:
+		// The following are needed by, and only by, vulnerability test,
+		// which loads json from file with this URL:
 		Mockito.when(
-				hub.getProjectVersion("http://eng-hub-valid01.dc1.lan:8080/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f"))
+hub.getProjectVersion(VULN_RELEASEITEM_URL))
 				.thenReturn(releaseItem);
 		Mockito.when(
 				restConnection
 				.httpGetFromAbsoluteUrl(
 						ComponentVersion.class,
-						"http://eng-hub-valid01.dc1.lan:8080/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d"))
+						VULN_COMPONENTVERSION_URL))
 						.thenReturn(componentVersion);
 		final UUID componentUuid = UUID.randomUUID();
 		Mockito.when(componentVersion.getComponentId()).thenReturn(componentUuid);

@@ -134,13 +134,16 @@ public abstract class HubEvent {
 		return eventType;
 	}
 
+	// Subtypes that use comments must override this
+	public String getComment() {
+		return null; // most event types don't produce comments
+	}
+
 	public abstract String getUniquePropertyKey();
 
 	public abstract String getIssueSummary();
 
 	public abstract String getIssueDescription();
-
-	public abstract String getComment();
 
 	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
 
