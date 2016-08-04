@@ -18,4 +18,3 @@ script:
   - mvn clean package -Dmaven.test.skip=true
 after_success:
   - mvn test jacoco:report coveralls:report
-Contact GitHub API Training Shop Blog About
