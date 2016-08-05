@@ -48,15 +48,13 @@ import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNoti
 import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
-import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceMock;
-import com.blackducksoftware.integration.jira.hub.TicketGenerator;
-import com.blackducksoftware.integration.jira.hub.JiraContext;
-import com.blackducksoftware.integration.jira.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.reflect.TypeToken;
 
 public class HubJiraTask {

@@ -67,8 +67,12 @@ import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.utils.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.google.gson.reflect.TypeToken;
 
 @Path("/")

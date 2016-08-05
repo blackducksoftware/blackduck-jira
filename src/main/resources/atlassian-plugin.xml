@@ -92,20 +92,20 @@
         <context>hub-jira</context>
     </web-resource>
     
-    <servlet name="Hub Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.HubJiraServlet">
+    <servlet name="Hub Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.HubJiraServlet">
   		<url-pattern>/hub-jira-integration</url-pattern>
 	</servlet>
     
     <!-- publish our component -->
-    <component name="Hub Jira Component" key="hubJiraComponent" class="com.blackducksoftware.integration.jira.impl.HubJiraComponentImpl" public="true">
-        <interface>com.blackducksoftware.integration.jira.api.HubJiraComponent</interface>
+    <component name="Hub Jira Component" key="hubJiraComponent" class="com.blackducksoftware.integration.jira.HubJiraComponentImpl" public="true">
+        <interface>com.blackducksoftware.integration.jira.HubJiraComponent</interface>
     </component>
     
-    <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.impl.HubMonitor"
+    <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.task.HubMonitor"
              system="true" public="true">
         <description>The plugin component that schedules the Hub notification check task.</description>
         <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
-        <interface>com.blackducksoftware.integration.jira.api.NotificationMonitor</interface>
+        <interface>com.blackducksoftware.integration.jira.task.NotificationMonitor</interface>
     </component>
     
     <component-import name="Application Properties" key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />

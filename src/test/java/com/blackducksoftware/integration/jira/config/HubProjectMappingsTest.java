@@ -16,8 +16,12 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.jira.hub.JiraContext;
-import com.blackducksoftware.integration.jira.issue.JiraServices;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubProjectMappingsTest {
 

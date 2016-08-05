@@ -33,6 +33,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;

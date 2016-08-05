@@ -50,14 +50,17 @@ import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotif
 import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
-import com.blackducksoftware.integration.jira.config.HubProject;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
-import com.blackducksoftware.integration.jira.config.HubProjectMappings;
-import com.blackducksoftware.integration.jira.config.JiraProject;
-import com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter;
-import com.blackducksoftware.integration.jira.issue.JiraServices;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
+import com.blackducksoftware.integration.jira.task.conversion.NotificationToEventConverter;
+import com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverterTest {
 

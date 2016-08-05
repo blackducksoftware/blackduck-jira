@@ -33,9 +33,8 @@ import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.impl.HubMonitor;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and

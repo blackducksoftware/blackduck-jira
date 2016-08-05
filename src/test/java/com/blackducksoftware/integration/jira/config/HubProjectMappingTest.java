@@ -26,6 +26,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+
 public class HubProjectMappingTest {
 
 	@Test

@@ -46,12 +46,16 @@ import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.TransactionTemplateMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

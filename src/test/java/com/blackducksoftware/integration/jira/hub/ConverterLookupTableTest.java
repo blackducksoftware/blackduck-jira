@@ -12,6 +12,8 @@ import com.blackducksoftware.integration.hub.notification.NotificationServiceExc
 import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
 import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.jira.task.conversion.ConverterLookupTable;
+import com.blackducksoftware.integration.jira.task.conversion.NotificationToEventConverter;
 
 public class ConverterLookupTableTest {
 
@@ -36,15 +38,15 @@ public class ConverterLookupTableTest {
 
 		NotificationToEventConverter converter = table.getConverter(new VulnerabilityNotificationItem(new MetaInformation(null,
 				null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.vulnerability.VulnerabilityNotificationConverter",
+		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
 		converter = table.getConverter(new RuleViolationNotificationItem(new MetaInformation(null, null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyViolationNotificationConverter",
+		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
 		converter = table.getConverter(new PolicyOverrideNotificationItem(new MetaInformation(null, null, null)));
-		assertEquals("com.blackducksoftware.integration.jira.hub.policy.PolicyOverrideNotificationConverter",
+		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}
 

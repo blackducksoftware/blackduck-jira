@@ -31,6 +31,10 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
