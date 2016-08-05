@@ -60,7 +60,7 @@ public class TicketGenerator {
 			final NotificationDateRange notificationDateRange) throws NotificationServiceException {
 
 		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
-			logger.debug("The configuration does not specify any Hub projects to watch");
+			logger.debug("The configuration does not specify any Hub projects to monitor");
 			return;
 		}
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
