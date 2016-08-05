@@ -41,21 +41,15 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 		String projectVersionName;
 		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
+		eventType = HubEventType.POLICY_VIOLATION;
+		final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
 
 		try {
-			final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-			eventType = HubEventType.POLICY_VIOLATION;
 			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
 			projectName = ruleViolationNotif.getContent().getProjectName();
 			notifHubProjectReleaseItem = getHubNotificationService()
 					.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
 			projectVersionName = notifHubProjectReleaseItem.getVersionName();
-		} catch (final NotificationServiceException | UnexpectedHubResponseException e) {
-			logger.error(e);
-			return null;
-		}
-
-		try {
 			events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
 		} catch (UnexpectedHubResponseException | NotificationServiceException e) {

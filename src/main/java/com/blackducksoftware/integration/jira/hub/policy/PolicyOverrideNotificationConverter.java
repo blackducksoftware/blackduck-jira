@@ -40,33 +40,22 @@ public class PolicyOverrideNotificationConverter extends PolicyNotificationConve
 		HubEventType eventType;
 		String projectName;
 		String projectVersionName;
-		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
+		eventType = HubEventType.POLICY_OVERRIDE;
+		final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
+		final List<ComponentVersionStatus> compVerStatuses = new ArrayList<>();
+		final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
 
 		try {
-			final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-			eventType = HubEventType.POLICY_OVERRIDE;
-
-			compVerStatuses = new ArrayList<>();
-			final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
 			componentStatus.setBomComponentVersionPolicyStatusLink(ruleViolationNotif.getContent()
 					.getBomComponentVersionPolicyStatusLink());
 			componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
 			componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
-
 			compVerStatuses.add(componentStatus);
-
 			projectName = ruleViolationNotif.getContent().getProjectName();
-
 			notifHubProjectReleaseItem = getHubNotificationService().getProjectReleaseItemFromProjectReleaseUrl(
 					ruleViolationNotif.getContent().getProjectVersionLink());
 			projectVersionName = notifHubProjectReleaseItem.getVersionName();
-		} catch (final NotificationServiceException | UnexpectedHubResponseException e) {
-			logger.error(e);
-			return null;
-		}
-
-		try {
 			events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
 					notifHubProjectReleaseItem);
 		} catch (UnexpectedHubResponseException | NotificationServiceException e) {
