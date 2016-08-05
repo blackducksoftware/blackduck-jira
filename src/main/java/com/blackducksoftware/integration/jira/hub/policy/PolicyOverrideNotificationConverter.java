@@ -32,6 +32,11 @@ public class PolicyOverrideNotificationConverter extends PolicyNotificationConve
 	public List<HubEvent> generateEvents(final NotificationItem notif) {
 		List<HubEvent> events;
 
+		if (!isRulesToMonitor()) {
+			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
+			return null;
+		}
+
 		HubEventType eventType;
 		String projectName;
 		String projectVersionName;

@@ -59,11 +59,23 @@ public class TicketGenerator {
 			final List<String> linksOfRulesToMonitor,
 			final NotificationDateRange notificationDateRange) throws NotificationServiceException {
 
+		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
+			logger.debug("The configuration does not specify any Hub projects to watch");
+			return;
+		}
 		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
+		if ((notifs == null) || (notifs.size() == 0)) {
+			logger.debug("There are no notifications to handle");
+			return;
+		}
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
 				hubProjectMappings, linksOfRulesToMonitor, jiraServices, jiraContext);
 
 		final List<HubEvent> events = processor.generateEvents(notifs);
+		if ((events == null) || (events.size() == 0)) {
+			logger.debug("There are no events to handle");
+			return;
+		}
 
 		final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext);
 

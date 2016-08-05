@@ -32,6 +32,13 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 	private final HubProjectMappings mappings;
 	private final List<String> linksOfRulesToMonitor;
 
+	protected boolean isRulesToMonitor() {
+		if (linksOfRulesToMonitor == null) {
+			return false;
+		}
+		return (linksOfRulesToMonitor.size() > 0);
+	}
+
 	public PolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext, final List<String> linksOfRulesToMonitor,
 			final NotificationService hubNotificationService) {
