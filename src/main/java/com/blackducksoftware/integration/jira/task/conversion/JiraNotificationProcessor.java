@@ -51,24 +51,24 @@ public class JiraNotificationProcessor {
 
 	public List<HubEvent> generateEvents(final List<NotificationItem> notifications)
 			throws NotificationServiceException {
-		final List<HubEvent> allResults = new ArrayList<>();
+		final List<HubEvent> allEvents = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 				+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
-			List<HubEvent> notifResults;
+			List<HubEvent> notifEvents;
 			try {
-				notifResults = generateEvents(notif);
+				notifEvents = generateEvents(notif);
 			} catch (final UnexpectedHubResponseException e) {
 				throw new NotificationServiceException("Error converting notifications to issues", e);
 			}
-			if (notifResults != null) {
-				allResults.addAll(notifResults);
+			if (notifEvents != null) {
+				allEvents.addAll(notifEvents);
 			}
 		}
-		return allResults;
+		return allEvents;
 	}
 
 	private List<HubEvent> generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,

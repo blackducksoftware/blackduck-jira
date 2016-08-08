@@ -83,19 +83,19 @@ public class JiraIssueHandler {
 		}
 	}
 
-	private Issue findIssue(final HubEvent notificationResult) {
-		logger.debug("findIssue(): notificationResult: " + notificationResult);
-		logger.debug("findIssue(): key: " + notificationResult.getUniquePropertyKey());
+	private Issue findIssue(final HubEvent notificationEvent) {
+		logger.debug("findIssue(): notificationEvent: " + notificationEvent);
+		logger.debug("findIssue(): key: " + notificationEvent.getUniquePropertyKey());
 		final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
 		final EntityPropertyQuery.ExecutableQuery executableQuery = query
-				.key(notificationResult.getUniquePropertyKey());
+				.key(notificationEvent.getUniquePropertyKey());
 		final List<EntityProperty> props = executableQuery.maxResults(1).find();
 		if (props.size() == 0) {
 			logger.debug("No property found with that key");
 			return null;
 		}
 		final EntityProperty property = props.get(0);
-		final IssueProperties propertyValue = notificationResult.createIssuePropertiesFromJson(property.getValue());
+		final IssueProperties propertyValue = notificationEvent.createIssuePropertiesFromJson(property.getValue());
 		logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
 		final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
 				propertyValue.getJiraIssueId());
@@ -116,13 +116,13 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	private Issue createIssue(final HubEvent notificationResult) {
+	private Issue createIssue(final HubEvent notificationEvent) {
 
 		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
-		issueInputParameters.setProjectId(notificationResult.getJiraProjectId())
-		.setIssueTypeId(notificationResult.getJiraIssueTypeId())
-		.setSummary(notificationResult.getIssueSummary()).setReporterId(notificationResult.getJiraUserName())
-		.setDescription(notificationResult.getIssueDescription());
+		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
+				.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+				.setReporterId(notificationEvent.getJiraUserName())
+				.setDescription(notificationEvent.getIssueDescription());
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);

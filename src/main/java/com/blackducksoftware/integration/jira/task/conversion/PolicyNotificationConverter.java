@@ -50,7 +50,7 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 			final String projectName, final String projectVersionName,
 			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
 					throws UnexpectedHubResponseException, NotificationServiceException {
-		final List<HubEvent> notifResults = new ArrayList<>();
+		final List<HubEvent> notifEvents = new ArrayList<>();
 
 		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
 
@@ -70,13 +70,13 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 			logger.debug("JIRA Project: " + jiraProject);
 
-			final List<HubEvent> oneProjectsResults = handleNotificationPerJiraProject(eventType,
+			final List<HubEvent> projectEvents = handleNotificationPerJiraProject(eventType,
 					projectName, projectVersionName, compVerStatuses, notifHubProjectReleaseItem, jiraProject);
-			if (oneProjectsResults != null) {
-				notifResults.addAll(oneProjectsResults);
+			if (projectEvents != null) {
+				notifEvents.addAll(projectEvents);
 			}
 		}
-		return notifResults;
+		return notifEvents;
 	}
 
 	private List<HubEvent> handleNotificationPerJiraProject(final HubEventType eventType,
