@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
-import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.entity.property.EntityPropertyQuery;
 import com.atlassian.jira.entity.property.EntityPropertyService;
@@ -159,40 +158,6 @@ public class JiraIssueHandler {
 			}
 		} else {
 			final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
-					validationResult);
-			errors = result.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			} else {
-				return result.getIssue();
-			}
-		}
-		return null;
-	}
-
-	private Issue updateIssue(final Issue issueToUpdate, final IssueInputParameters issueInputParameters) {
-		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-		final UpdateValidationResult validationResult = jiraServices.getIssueService()
-				.validateUpdate(jiraContext.getJiraUser(), issueToUpdate.getId(), issueInputParameters);
-		ErrorCollection errors = null;
-
-		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
-		} else {
-			final IssueResult result = jiraServices.getIssueService().update(jiraContext.getJiraUser(),
 					validationResult);
 			errors = result.getErrorCollection();
 			if (errors.hasAnyErrors()) {
