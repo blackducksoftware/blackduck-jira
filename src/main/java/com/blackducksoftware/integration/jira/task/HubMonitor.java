@@ -57,7 +57,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	private final PluginScheduler pluginScheduler; // provided by SAL
 	private final PluginSettingsFactory pluginSettingsFactory;
 	private String serverName = "initialServerName";
-	private Date lastRun = null; // time when the last search returned
 
 	@Inject
 	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
@@ -129,11 +128,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		new Date(), // the time the job is to start
 		actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
-	}
-
-	/* package */void setLastRun(final Date lastRun) {
-		logger.debug("HubMonitor setLastRun() called.");
-		this.lastRun = lastRun;
 	}
 
 	public String getName() {

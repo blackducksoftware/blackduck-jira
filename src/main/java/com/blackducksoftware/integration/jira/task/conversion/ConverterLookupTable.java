@@ -54,7 +54,7 @@ public class ConverterLookupTable {
 
 	public NotificationToEventConverter getConverter(final NotificationItem notif)
 			throws NotificationServiceException {
-		final Class c = notif.getClass();
+		final Class<? extends NotificationItem> c = notif.getClass();
 		final NotificationToEventConverter converter = lookupTable.get(c);
 		if (converter == null) {
 			throw new NotificationServiceException("Notification type unknown for notification: " + notif);

@@ -59,6 +59,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
+import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
@@ -476,7 +477,7 @@ public class HubJiraConfigController {
 			try {
 				supportHelper.checkHubSupport(restService, null);
 
-				if (supportHelper.isPolicyApiSupport()) {
+				if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
 					final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
 
