@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class PolicyEvent extends HubEvent {

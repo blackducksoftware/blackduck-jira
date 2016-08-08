@@ -72,39 +72,38 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.component.api.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.hub.component.api.ComponentVersion;
-import com.blackducksoftware.integration.hub.component.api.ComponentVersionStatus;
+import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
+import com.blackducksoftware.integration.hub.api.component.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.component.ComponentVersionStatus;
+import com.blackducksoftware.integration.hub.api.item.HubItemsService;
+import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
+import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationContent;
+import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationContent;
+import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationItem;
+import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.hub.api.policy.PolicyExpression;
+import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
+import com.blackducksoftware.integration.hub.api.version.ReleaseItem;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
+import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
 import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
 import com.blackducksoftware.integration.hub.notification.NotificationService;
-import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
-import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
-import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.notification.api.VulnerabilityNotificationItem;
-import com.blackducksoftware.integration.hub.policy.api.PolicyExpression;
-import com.blackducksoftware.integration.hub.policy.api.PolicyExpressions;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
-import com.blackducksoftware.integration.hub.policy.api.PolicyValue;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.task.TicketGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -147,7 +146,7 @@ public class TicketGeneratorTest {
 		Mockito.when(succeeded.hasAnyErrors()).thenReturn(false);
 
 		final MetaInformation policyRuleMeta = new MetaInformation(null,
- POLICY_RULE_URL, null);
+				POLICY_RULE_URL, null);
 		final List<PolicyValue> policyValues = new ArrayList<>();
 		final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
 		policyValues.add(policyValue);
@@ -173,7 +172,7 @@ public class TicketGeneratorTest {
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
 		testVulnerabilityNotifications(
-VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
+				VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				false,
@@ -185,7 +184,7 @@ VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
 	MissingUUIDException {
 		testVulnerabilityNotifications(
-VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
+				VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				true,
@@ -360,7 +359,7 @@ VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 		Mockito.verify(commentManager, Mockito.times(expectedCommentCount)).create(
 				Mockito.any(Issue.class),
 				Mockito.eq(user),
- Mockito.eq(VULNERABILITY_ISSUE_COMMENT),
+				Mockito.eq(VULNERABILITY_ISSUE_COMMENT),
 				Mockito.eq(true));
 
 	}
@@ -634,7 +633,7 @@ VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 		// The following are needed by, and only by, vulnerability test,
 		// which loads json from file with this URL:
 		Mockito.when(
-hub.getProjectVersion(VULN_RELEASEITEM_URL))
+				hub.getProjectVersion(VULN_RELEASEITEM_URL))
 				.thenReturn(releaseItem);
 		Mockito.when(
 				restConnection

@@ -40,11 +40,11 @@ import org.mockito.Mockito;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.item.HubItemsService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
-import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -548,7 +548,7 @@ public class HubJiraConfigControllerTest {
 
 		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
 
-		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<>();
 
 		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
 
