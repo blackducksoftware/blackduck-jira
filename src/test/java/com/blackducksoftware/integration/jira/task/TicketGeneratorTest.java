@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.task;
 
 import static org.junit.Assert.assertEquals;
 

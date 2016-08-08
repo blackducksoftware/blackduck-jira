@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.task.conversion;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

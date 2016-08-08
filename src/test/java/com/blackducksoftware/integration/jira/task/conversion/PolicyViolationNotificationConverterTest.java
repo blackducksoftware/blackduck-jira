@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.task.conversion;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.component.api.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.hub.component.api.ComponentVersion;
+import com.blackducksoftware.integration.hub.component.api.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
@@ -45,8 +46,8 @@ import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.hub.notification.NotificationServiceException;
 import com.blackducksoftware.integration.hub.notification.api.NotificationItem;
 import com.blackducksoftware.integration.hub.notification.api.NotificationType;
-import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.hub.notification.api.PolicyOverrideNotificationItem;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationContent;
+import com.blackducksoftware.integration.hub.notification.api.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
 import com.blackducksoftware.integration.hub.version.api.ReleaseItem;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -57,26 +58,24 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.task.conversion.NotificationToEventConverter;
-import com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter;
+import com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class VulnerabilityNotificationConverterTest {
+public class PolicyViolationNotificationConverterTest {
 
-	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK = "bomComponentVersionPolicyStatusLink";
-	private static final String TEST_PROJECT_VERSION = "testVersionName";
-	private static final String HUB_COMPONENT_NAME = "test Hub Component";
-	private static final String HUB_PROJECT_NAME = "test Hub Project";
-	private static final String NOTIF_URL = "http://test.notif.url";
-	private static final String PROJECT_URL = "http://test.project.url";
+	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
+	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
+	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
+	private static final String NOTIF_URL_PREFIX = "http://test.notif.url";
+	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
 	private static final String JIRA_ISSUE_TYPE = "Task";
-	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX = BOM_COMPONENT_VERSION_POLICY_STATUS_LINK;
-	private static final String COMPONENT_VERSION_LINK = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
-	private static final String VERSION_NAME = "versionName";
-	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/a3b48f57-9c00-453f-8672-804e08c317f2/versions/7d4fdbed-936b-468f-af7f-826dfc072c5b";
+	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX = "bomComponentVersionPolicyStatusLink";
+	private static final String COMPONENT_VERSION_LINK_PREFIX = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
+	private static final String VERSION_NAME_PREFIX = "versionName";
+	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
 	private static final String RULE_URL_PREFIX = "ruleUrl";
-	private static final String RULE_NAME = "ruleName";
-	private static final String RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/138d0d0f-45b5-4e51-8a32-42ed8946434c";
+	private static final String RULE_NAME_PREFIX = "ruleName";
 	private static final String RULE_LINK_NAME = "policy-rule";
 
 	private static List<String> rulesIncludingViolatedRule;
@@ -105,19 +104,15 @@ public class VulnerabilityNotificationConverterTest {
 
 		assertEquals(1, events.size());
 
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(HUB_COMPONENT_NAME));
-		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
 
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(HUB_COMPONENT_NAME));
-		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
 	}
 
 	@Test
@@ -155,7 +150,7 @@ public class VulnerabilityNotificationConverterTest {
 
 		final NotificationItem notification = createNotification();
 
-		final NotificationToEventConverter converter = new PolicyOverrideNotificationConverter(mappings, jiraServices,
+		final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
 				ticketGenInfo, rulesToMonitor, mockHubNotificationService);
 		final List<HubEvent> events = converter.generateEvents(notification);
 		return events;
@@ -163,16 +158,20 @@ public class VulnerabilityNotificationConverterTest {
 
 	private NotificationItem createNotification() {
 
-		final MetaInformation meta = new MetaInformation(null, NOTIF_URL, null);
-		final PolicyOverrideNotificationItem notif = new PolicyOverrideNotificationItem(meta);
+		final MetaInformation meta = new MetaInformation(null, NOTIF_URL_PREFIX, null);
+		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
 		notif.setCreatedAt(new Date());
-		notif.setType(NotificationType.POLICY_OVERRIDE);
-		final PolicyOverrideNotificationContent content = new PolicyOverrideNotificationContent();
-		content.setProjectName(HUB_PROJECT_NAME);
-		content.setProjectVersionLink(PROJECTVERSION_URL);
-		content.setComponentName(HUB_COMPONENT_NAME);
-		content.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK);
-		content.setComponentVersionLink(COMPONENT_VERSION_LINK);
+		notif.setType(NotificationType.POLICY_VIOLATION);
+		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
+		content.setProjectName(HUB_PROJECT_NAME_PREFIX);
+		content.setProjectVersionLink(PROJECTVERSION_URL_PREFIX);
+		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
+		final ComponentVersionStatus compVerStatus = new ComponentVersionStatus();
+		compVerStatus.setComponentName(HUB_COMPONENT_NAME_PREFIX);
+		compVerStatus.setComponentVersionLink(COMPONENT_VERSION_LINK_PREFIX);
+		compVerStatus.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX);
+		componentVersionStatuses.add(compVerStatus);
+		content.setComponentVersionStatuses(componentVersionStatuses);
 		notif.setContent(content);
 		System.out.println("Notif: " + notif);
 
@@ -193,8 +192,8 @@ public class VulnerabilityNotificationConverterTest {
 
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectName(HUB_PROJECT_NAME);
-			hubProject.setProjectUrl(PROJECT_URL + suffix);
+			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX);
+			hubProject.setProjectUrl(PROJECT_URL_PREFIX + suffix);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
 			jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE);
@@ -225,21 +224,20 @@ public class VulnerabilityNotificationConverterTest {
 
 		final ReleaseItem releaseItem = getReleaseItem();
 		Mockito.when(mockHubNotificationService
-				.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL))
+				.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX))
 				.thenReturn(releaseItem);
 		List<MetaLink> links = new ArrayList<>();
 		MetaInformation meta = new MetaInformation(null, null, links);
 		final ComponentVersion componentVersion = new ComponentVersion(meta);
-		componentVersion.setVersionName(VERSION_NAME);
-		Mockito.when(mockHubNotificationService.getComponentVersion(COMPONENT_VERSION_LINK))
+		componentVersion.setVersionName(VERSION_NAME_PREFIX);
+		Mockito.when(mockHubNotificationService.getComponentVersion(COMPONENT_VERSION_LINK_PREFIX))
 		.thenReturn(componentVersion);
 
 		links = new ArrayList<>();
 
 		links.add(new MetaLink(RULE_LINK_NAME, RULE_URL_PREFIX + suffix));
 
-		meta = new MetaInformation(null, RULE_URL, null);
-		final PolicyRule rule = new PolicyRule(meta, RULE_NAME, "description", true, true, null,
+		final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX, "description", true, true, null,
 				"createdAt", "createdBy", "updatedAt", "updatedBy");
 		Mockito.when(mockHubNotificationService.getPolicyRule(RULE_URL_PREFIX)).thenReturn(rule);
 
@@ -254,10 +252,10 @@ public class VulnerabilityNotificationConverterTest {
 
 	private ReleaseItem getReleaseItem() {
 		final List<MetaLink> links = new ArrayList<>();
-		final MetaLink link = new MetaLink("project", PROJECT_URL);
+		final MetaLink link = new MetaLink("project", PROJECT_URL_PREFIX);
 		links.add(link);
-		final MetaInformation _meta = new MetaInformation(null, PROJECTVERSION_URL, links);
-		final ReleaseItem releaseItem = new ReleaseItem(TEST_PROJECT_VERSION, "testPhase",
+		final MetaInformation _meta = new MetaInformation(null, null, links);
+		final ReleaseItem releaseItem = new ReleaseItem(TEST_PROJECT_VERSION_PREFIX, "testPhase",
 				"testDistribution", "testSource", _meta);
 		return releaseItem;
 	}
