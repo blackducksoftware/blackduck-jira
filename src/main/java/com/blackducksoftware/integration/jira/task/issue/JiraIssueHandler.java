@@ -254,7 +254,7 @@ public class JiraIssueHandler {
 	}
 
 	public void handleEvent(final HubEvent event) {
-		switch (event.getIfExistsAction()) {
+		switch (event.getAction()) {
 		case OPEN:
 			openIssue(event);
 			break;

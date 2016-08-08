@@ -60,7 +60,7 @@ public class PolicyEvent extends HubEvent {
 	@Override
 	public String toString() {
 		return "PolicyEvent [logger=" + logger + ", rule=" + rule + ", ruleId=" + ruleId + ", getIfExistsAction()="
-				+ getIfExistsAction() + ", getHubProjectName()=" + getHubProjectName() + ", getHubProjectVersion()="
+				+ getAction() + ", getHubProjectName()=" + getHubProjectName() + ", getHubProjectVersion()="
 				+ getHubProjectVersion() + ", getHubComponentName()=" + getHubComponentName()
 				+ ", getHubComponentVersion()=" + getHubComponentVersion() + ", getHubProjectVersionId()="
 				+ getHubProjectVersionId() + ", getHubComponentId()=" + getHubComponentId()

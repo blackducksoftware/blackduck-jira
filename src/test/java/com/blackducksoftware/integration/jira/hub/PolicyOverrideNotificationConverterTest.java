@@ -112,7 +112,7 @@ public class PolicyOverrideNotificationConverterTest {
 				.contains(HUB_COMPONENT_NAME));
 		assertTrue(events.get(0).getIssueSummary().contains(COMPONENT_VERSION_NAME));
 
-		assertEquals(HubEventAction.ADD_COMMENT, events.get(0).getIfExistsAction());
+		assertEquals(HubEventAction.ADD_COMMENT, events.get(0).getAction());
 		System.out.println(events.get(0).getComment());
 		assertTrue(events.get(0).getComment().contains(SAMPLE_VULN));
 	}
