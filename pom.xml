@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>common-maven-parent</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
   </parent>
 
   <artifactId>hub-jira</artifactId>
@@ -36,18 +36,6 @@
   </properties>
 
   <repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com</url>
-    </repository>
-    <!-- ekerwin: this is included only to acquire the parent pom, where this information is sadly duplicated. -->
-    <repository>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <id>bds-int-public</id>
-      <url>https://updates.suite.blackducksoftware.com/integrations/</url>
-    </repository>
     <repository>
       <releases>
         <enabled>true</enabled>
@@ -203,37 +191,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.atlassian.maven.plugins</groupId>
-                    <artifactId>maven-jira-plugin</artifactId>
-                    <versionRange>[5.0.13,)</versionRange>
-                    <goals>
-                      <goal>generate-test-manifest</goal>
-                      <goal>generate-manifest</goal>
-                      <goal>copy-test-bundled-dependencies</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
@@ -245,14 +202,11 @@
           <productDataVersion>${jira.version}</productDataVersion>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
-
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
-
           <instructions>
             <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
             <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
           </instructions>
-
           <pluginDependencies>
             <pluginDependency>
               <groupId>com.blackducksoftware.integration</groupId>
