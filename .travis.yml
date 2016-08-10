@@ -14,6 +14,6 @@ notifications:
 
 install: true
 script:
-  - atlas-mvn clean package
+  - mvn clean package
 after_success:
-  - atlas-mvn test jacoco:report coveralls:report
+  - mvn test jacoco:report coveralls:report
