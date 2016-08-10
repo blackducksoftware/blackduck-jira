@@ -1,6 +1,11 @@
 ## Overview ##
 Hub plugin for Atlassian Jira.  This plugin provides the ability to create Jira issues based on Policy violations in the Hub, and close them based on violation overrides.  Tickets will only be created for the Hub projects that are mapped to Jira projects and only for the violations that are selected.
 
+## Build ##
+
+[![Build Status](https://travis-ci.org/blackducksoftware/hub-jira.svg?branch=master)](https://travis-ci.org/blackducksoftware/hub-jira)
+[![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/hub-jira/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/hub-jira?branch=master)
+
 ## Where can I get the latest release? ##
 You can download the latest source from GitHub: https://github.com/blackducksoftware/hub-jira. 
 
