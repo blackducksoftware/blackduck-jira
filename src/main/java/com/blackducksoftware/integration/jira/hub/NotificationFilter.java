@@ -1,6 +1,5 @@
 package com.blackducksoftware.integration.jira.hub;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,16 +18,16 @@ import com.blackducksoftware.integration.jira.hub.model.notification.Notificatio
 public abstract class NotificationFilter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
-	private final Set<HubProjectMapping> mappings;
+	private final Set<HubProjectMapping> matchingMappings;
 	private final TicketGeneratorInfo ticketGenInfo;
 
 	public NotificationFilter(final Set<HubProjectMapping> mappings, final TicketGeneratorInfo ticketGenInfo) {
-		this.mappings = mappings;
+		this.matchingMappings = getMatchingMappings();
 		this.ticketGenInfo = ticketGenInfo;
 	}
 
-	public Set<HubProjectMapping> getMappings() {
-		return mappings;
+	public Set<HubProjectMapping> getMatchingMappings() {
+		return matchingMappings;
 	}
 
 	public TicketGeneratorInfo getTicketGenInfo() {
@@ -41,14 +40,11 @@ public abstract class NotificationFilter {
 					throws UnexpectedHubResponseException, HubNotificationServiceException {
 		final FilteredNotificationResults notifResults = new FilteredNotificationResults();
 
-		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
-
-		final List<HubProjectMapping> mappings = getMatchingMappings(projectUrl);
-		if (mappings == null || mappings.isEmpty()) {
+		if (getMatchingMappings() == null || getMatchingMappings().isEmpty()) {
 			logger.debug("No configured project mapping matching this notification found; skipping this notification");
 			return null;
 		}
-		for (final HubProjectMapping mapping : mappings) {
+		for (final HubProjectMapping mapping : getMatchingMappings()) {
 			final JiraProject mappingJiraProject = mapping.getJiraProject();
 			final JiraProject jiraProject;
 			try {
@@ -81,33 +77,6 @@ public abstract class NotificationFilter {
 			JiraProject jiraProject)
 					throws UnexpectedHubResponseException, HubNotificationServiceException;
 
-	public List<HubProjectMapping> getMatchingMappings(final String notifHubProjectUrl) {
-		if ((mappings == null) || (mappings.size() == 0)) {
-			logger.warn("No mappings provided");
-			return null;
-		}
-		final List<HubProjectMapping> matchingMappings = new ArrayList<HubProjectMapping>();
-		logger.debug("NotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
-		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectUrl);
-		for (final HubProjectMapping mapping : mappings) {
-			final String mappingHubProjectUrl = mapping.getHubProject().getProjectUrl();
-			if (mappingHubProjectUrl.equals(notifHubProjectUrl)) {
-				logger.debug("Mapping: " + mapping);
-				matchingMappings.add(mapping);
-			}
-		}
-		return matchingMappings;
-	}
-
-	public String getProjectLink(final ReleaseItem version) throws UnexpectedHubResponseException {
-		final List<String> projectLinks = version.getLinks(PROJECT_LINK);
-		if (projectLinks.size() != 1) {
-			throw new UnexpectedHubResponseException("The release " + version.getVersionName() + " has "
-					+ projectLinks.size() + " " + PROJECT_LINK + " links; expected one");
-		}
-		final String projectLink = projectLinks.get(0);
-		return projectLink;
-	}
 
 	public JiraProject getJiraProject(final long jiraProjectId) throws HubNotificationServiceException {
 		if (ticketGenInfo.getJiraProjectManager() == null) {

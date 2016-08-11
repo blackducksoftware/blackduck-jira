@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.hub;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -79,54 +80,69 @@ public class JiraNotificationProcessor {
 
 	private FilteredNotificationResults convertNotificationToIssues(final NotificationItem notif)
 			throws HubNotificationServiceException, UnexpectedHubResponseException {
-		NotificationType notificationType;
-		String projectName;
-		String projectVersionName;
-		List<ComponentVersionStatus> compVerStatuses;
-		final ReleaseItem notifHubProjectReleaseItem;
+		NotificationType notificationType = null;
+		String projectName = null;
+		String projectVersionName = null;
+		List<ComponentVersionStatus> compVerStatuses = null;
+		ReleaseItem notifHubProjectReleaseItem = null;
 
-		NotificationFilter filter;
+		final Set<HubProjectMapping> matchingMappings;
 
+		NotificationFilter filter = null;
 		if (notif instanceof RuleViolationNotificationItem) {
 			try {
 				final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
-				notificationType = NotificationType.POLICY_VIOLATION;
-				compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
-				projectName = ruleViolationNotif.getContent().getProjectName();
-				notifHubProjectReleaseItem = hubNotificationService
-						.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
-				projectVersionName = notifHubProjectReleaseItem.getVersionName();
+
+				matchingMappings = getMatchingMappings(ruleViolationNotif.getContent().getProjectName());
+				if (matchingMappings != null && matchingMappings.isEmpty()) {
+					notificationType = NotificationType.POLICY_VIOLATION;
+					compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();
+					projectName = ruleViolationNotif.getContent().getProjectName();
+					notifHubProjectReleaseItem = hubNotificationService
+							.getProjectReleaseItemFromProjectReleaseUrl(ruleViolationNotif.getContent().getProjectVersionLink());
+					projectVersionName = notifHubProjectReleaseItem.getVersionName();
+					filter = new PolicyNotificationFilter(matchingMappings, ticketGenInfo, linksOfRulesToMonitor,
+							hubNotificationService);
+				} else {
+					logger.debug("Skipping notification : " + ruleViolationNotif.toString()
+					+ " :: Could not find a matching mapping.");
+					return null;
+				}
 			} catch (final HubNotificationServiceException e) {
 				logger.error(e);
 				return null;
 			}
-			filter = new PolicyNotificationFilter(mappings,
-					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 		} else if (notif instanceof PolicyOverrideNotificationItem) {
 			try {
 				final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-				notificationType = NotificationType.POLICY_OVERRIDE;
+				matchingMappings = getMatchingMappings(ruleViolationNotif.getContent().getProjectName());
+				if (matchingMappings != null && matchingMappings.isEmpty()) {
+					notificationType = NotificationType.POLICY_OVERRIDE;
+					compVerStatuses = new ArrayList<>();
+					final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
+					componentStatus.setBomComponentVersionPolicyStatusLink(
+							ruleViolationNotif.getContent().getBomComponentVersionPolicyStatusLink());
+					componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
+					componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
 
-				compVerStatuses = new ArrayList<>();
-				final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
-				componentStatus.setBomComponentVersionPolicyStatusLink(
-						ruleViolationNotif.getContent().getBomComponentVersionPolicyStatusLink());
-				componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
-				componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
+					compVerStatuses.add(componentStatus);
 
-				compVerStatuses.add(componentStatus);
+					projectName = ruleViolationNotif.getContent().getProjectName();
 
-				projectName = ruleViolationNotif.getContent().getProjectName();
-
-				notifHubProjectReleaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(
-						ruleViolationNotif.getContent().getProjectVersionLink());
-				projectVersionName = notifHubProjectReleaseItem.getVersionName();
+					notifHubProjectReleaseItem = hubNotificationService.getProjectReleaseItemFromProjectReleaseUrl(
+							ruleViolationNotif.getContent().getProjectVersionLink());
+					projectVersionName = notifHubProjectReleaseItem.getVersionName();
+					filter = new PolicyNotificationFilter(matchingMappings,
+							ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
+				} else {
+					logger.debug("Skipping notification : " + ruleViolationNotif.toString()
+					+ " :: Could not find a matching mapping.");
+					return null;
+				}
 			} catch (final HubNotificationServiceException e) {
 				logger.error(e);
 				return null;
 			}
-			filter = new PolicyNotificationFilter(mappings,
-					ticketGenInfo, linksOfRulesToMonitor, hubNotificationService);
 		} else if (notif instanceof VulnerabilityNotificationItem) {
 			notificationType = NotificationType.VULNERABILITY;
 			return null; // TODO
@@ -135,6 +151,24 @@ public class JiraNotificationProcessor {
 		}
 		return filter.handleNotification(notificationType, projectName, projectVersionName, compVerStatuses,
 				notifHubProjectReleaseItem);
+	}
+
+	public Set<HubProjectMapping> getMatchingMappings(final String notifHubProjectName) {
+		if ((mappings == null) || (mappings.size() == 0)) {
+			logger.warn("No mappings provided");
+			return null;
+		}
+		final Set<HubProjectMapping> matchingMappings = new HashSet<HubProjectMapping>();
+		logger.debug("NotificationFilter.getMatchingMapping() Sifting through " + mappings.size()
+		+ " mappings, looking for a match for this notification's Hub project: " + notifHubProjectName);
+		for (final HubProjectMapping mapping : mappings) {
+			final String mappingHubProjectUrl = mapping.getHubProject().getProjectName();
+			if (mappingHubProjectUrl.equals(notifHubProjectName)) {
+				logger.debug("Mapping: " + mapping);
+				matchingMappings.add(mapping);
+			}
+		}
+		return matchingMappings;
 	}
 
 }
