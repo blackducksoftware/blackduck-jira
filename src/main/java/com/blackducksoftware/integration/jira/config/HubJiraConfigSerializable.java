@@ -43,7 +43,7 @@ import com.google.gson.reflect.TypeToken;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
 
-	private static final long serialVersionUID = 5184142296147078141L;
+	private static final long serialVersionUID = -3736258315416679501L;
 
 	@XmlElement
 	private String errorMessage;
@@ -77,6 +77,9 @@ public class HubJiraConfigSerializable implements Serializable {
 
 	@XmlElement
 	private String policyRulesError;
+
+	@XmlElement
+	private Set<String> hubJiraTicketErrors;
 
 	public boolean hasErrors() {
 		boolean hasErrors = false;
@@ -237,11 +240,20 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.errorMessage = errorMessage;
 	}
 
+	public Set<String> getHubJiraTicketErrors() {
+		return hubJiraTicketErrors;
+	}
+
+	public void setHubJiraTicketErrors(final Set<String> hubJiraTicketErrors) {
+		this.hubJiraTicketErrors = hubJiraTicketErrors;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
+		result = prime * result + ((hubJiraTicketErrors == null) ? 0 : hubJiraTicketErrors.hashCode());
 		result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
 		result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
 		result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
@@ -272,6 +284,13 @@ public class HubJiraConfigSerializable implements Serializable {
 				return false;
 			}
 		} else if (!errorMessage.equals(other.errorMessage)) {
+			return false;
+		}
+		if (hubJiraTicketErrors == null) {
+			if (other.hubJiraTicketErrors != null) {
+				return false;
+			}
+		} else if (!hubJiraTicketErrors.equals(other.hubJiraTicketErrors)) {
 			return false;
 		}
 		if (hubProjectMappingError == null) {
@@ -372,6 +391,8 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(policyRules);
 		builder.append(", policyRulesError=");
 		builder.append(policyRulesError);
+		builder.append(", hubJiraTicketErrors=");
+		builder.append(hubJiraTicketErrors);
 		builder.append("]");
 		return builder.toString();
 	}

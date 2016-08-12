@@ -70,12 +70,13 @@ public class HubJiraTask {
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
 	private final JiraServices jiraServices = new JiraServices();
+	private final JiraSettingsService jiraSettingsService;
 
 	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String jiraIssueTypeName,
 			final String installDateString,
 			final String lastRunDateString,
 			final String projectMappingJson,
-			final String policyRulesJson, final String jiraUser) {
+			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
@@ -97,6 +98,8 @@ public class HubJiraTask {
 
 		logger.debug("Install date: " + installDateString);
 		logger.debug("Last run date: " + lastRunDateString);
+
+		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	/**
@@ -217,7 +220,7 @@ public class HubJiraTask {
 		}
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,
-				jiraServices, jiraContext);
+				jiraServices, jiraContext, jiraSettingsService);
 		return ticketGenerator;
 	}
 

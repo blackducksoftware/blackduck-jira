@@ -40,6 +40,7 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
@@ -53,10 +54,13 @@ public class JiraIssueHandler {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
+	private final JiraSettingsService jiraSettingsService;
 
-	public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext) {
+	public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
+			final JiraSettingsService jiraSettingsService) {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
+		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	private void addIssueProperty(final Long issueId, final String key, final IssueProperties value) {
@@ -67,6 +71,20 @@ public class JiraIssueHandler {
 		addIssuePropertyJson(issueId, key, jsonValue);
 	}
 
+	private void handleErrorCollection(final ErrorCollection errors) {
+		if (errors.hasAnyErrors()) {
+			for (final Entry<String, String> error : errors.getErrors().entrySet()) {
+				final String errorMessage = error.getKey() + " :: " + error.getValue();
+				logger.error(errorMessage);
+				jiraSettingsService.addHubError(errorMessage);
+			}
+			for (final String error : errors.getErrorMessages()) {
+				logger.error(error);
+				jiraSettingsService.addHubError(error);
+			}
+		}
+	}
+
 	private void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) {
 		logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
 		final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue,
@@ -75,29 +93,12 @@ public class JiraIssueHandler {
 		final SetPropertyValidationResult validationResult = jiraServices.getPropertyService()
 				.validateSetProperty(jiraContext.getJiraUser(), issueId, propertyInput);
 
-		ErrorCollection errors = null;
 		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
+			handleErrorCollection(validationResult.getErrorCollection());
 		} else {
 			final PropertyResult result = jiraServices.getPropertyService().setProperty(jiraContext.getJiraUser(),
 					validationResult);
-			errors = result.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
+			handleErrorCollection(result.getErrorCollection());
 		}
 	}
 
@@ -118,16 +119,8 @@ public class JiraIssueHandler {
 		final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
 				propertyValue.getJiraIssueId());
 
-		final ErrorCollection errors = result.getErrorCollection();
 		if (!result.isValid()) {
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
+			handleErrorCollection(result.getErrorCollection());
 		} else {
 			return result.getIssue();
 		}
@@ -138,35 +131,21 @@ public class JiraIssueHandler {
 
 		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
-				.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
-				.setReporterId(notificationEvent.getJiraUserName())
-				.setDescription(notificationEvent.getIssueDescription());
+		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+		.setReporterId(notificationEvent.getJiraUserName())
+		.setDescription(notificationEvent.getIssueDescription());
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);
-		ErrorCollection errors = null;
 		logger.debug("createIssue(): issueInputParameters: " + issueInputParameters);
 		if (!validationResult.isValid()) {
-			errors = validationResult.getErrorCollection();
-			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
-			}
+			handleErrorCollection(validationResult.getErrorCollection());
 		} else {
 			final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
 					validationResult);
-			errors = result.getErrorCollection();
+			final ErrorCollection errors = result.getErrorCollection();
 			if (errors.hasAnyErrors()) {
-				for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-					logger.error(error.getKey() + " :: " + error.getValue());
-				}
-				for (final String error : errors.getErrorMessages()) {
-					logger.error(error);
-				}
+				handleErrorCollection(errors);
 			} else {
 				return result.getIssue();
 			}

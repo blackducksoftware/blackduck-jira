@@ -47,13 +47,15 @@ public class TicketGenerator {
 	private final NotificationService notificationService;
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
+	private final JiraSettingsService jiraSettingsService;
 
 	public TicketGenerator(final NotificationService notificationService,
 			final JiraServices jiraServices,
-			final JiraContext jiraContext) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		this.notificationService = notificationService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
+		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
@@ -78,7 +80,7 @@ public class TicketGenerator {
 			return;
 		}
 
-		final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext);
+		final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService);
 
 		for (final HubEvent event : events) {
 			issueHandler.handleEvent(event);

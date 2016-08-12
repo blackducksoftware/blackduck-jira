@@ -150,6 +150,16 @@ function populateForm() {
 		    	 AJS.$('#projectMappingSpinner').remove();
 		    }
 		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
+		    dataType: "json",
+		    success: function(config) {
+		      //TODO
+		    },
+		    error: function(response){
+		    	//TODO
+		    }
+	  });
 }
 
 function handleDataRetrievalError(response, errorId, errorText, dialogTitle){

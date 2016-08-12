@@ -126,6 +126,13 @@
 	       <div id="saveSpinner" style="display: inline-block;"></div>
 	  	   <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  </div>
+	  
+	  <fieldset class="fieldSection">
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
+      	  <div id="ticketCreationErrors">
+      	  </div>
+      </fieldSet>
+      
     </form>
   </body>
 </html>

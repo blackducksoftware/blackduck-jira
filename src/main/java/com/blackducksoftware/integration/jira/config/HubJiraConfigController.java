@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,6 +89,34 @@ public class HubJiraConfigController {
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.transactionTemplate = transactionTemplate;
 		this.projectManager = projectManager;
+	}
+
+	@Path("/hubJiraTicketErrors")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubJiraTicketErrors(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
+				if (errorObject != null) {
+					final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
+					config.setHubJiraTicketErrors(ticketErrors.keySet());
+				}
+				return config;
+			}
+		});
+
+		return Response.ok(obj).build();
 	}
 
 	@Path("/interval")

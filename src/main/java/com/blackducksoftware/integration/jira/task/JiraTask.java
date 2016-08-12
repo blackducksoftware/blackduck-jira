@@ -100,9 +100,11 @@ public class JiraTask implements PluginJob {
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
+		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+
 		final HubJiraTask processor = new HubJiraTask(serverConfig,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
- policyRulesJson, jiraUser);
+				policyRulesJson, jiraUser, jiraSettingsService);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);

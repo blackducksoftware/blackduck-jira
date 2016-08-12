@@ -274,8 +274,9 @@ public class TicketGeneratorTest {
 				hubItemsService);
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
-				jiraContext);
+				jiraContext, settingsService);
 
 		List<NotificationItem> notificationItems;
 		notificationItems = mockNewVulnerabilityNotificationItems(notifContentFilePath, createDuplicateNotification);
@@ -380,8 +381,10 @@ public class TicketGeneratorTest {
 				hubItemsService);
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
+
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
-				jiraContext);
+				jiraContext, settingsService);
 
 		List<NotificationItem> notificationItems;
 		if (openIssue) {
