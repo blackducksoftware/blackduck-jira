@@ -190,8 +190,8 @@ public class PolicyViolationNotificationConverterTest {
 
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX);
-			hubProject.setProjectUrl(PROJECT_URL_PREFIX + suffix);
+			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX + suffix);
+			hubProject.setProjectUrl(PROJECT_URL_PREFIX);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
 			jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE);
@@ -223,7 +223,7 @@ public class PolicyViolationNotificationConverterTest {
 		final ReleaseItem releaseItem = getReleaseItem();
 		Mockito.when(mockHubNotificationService
 				.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX))
-				.thenReturn(releaseItem);
+		.thenReturn(releaseItem);
 		List<MetaLink> links = new ArrayList<>();
 		MetaInformation meta = new MetaInformation(null, null, links);
 		final ComponentVersion componentVersion = new ComponentVersion(meta);
@@ -243,7 +243,7 @@ public class PolicyViolationNotificationConverterTest {
 		final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
 		Mockito.when(
 				mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX))
-				.thenReturn(status);
+		.thenReturn(status);
 
 		return mockHubNotificationService;
 	}

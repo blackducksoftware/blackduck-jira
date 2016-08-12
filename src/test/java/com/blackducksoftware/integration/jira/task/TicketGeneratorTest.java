@@ -534,16 +534,28 @@ public class TicketGeneratorTest {
 	}
 
 	private Set<HubProjectMapping> mockProjectMappings() {
+		final Set<HubProjectMapping> hubProjectMappings = new HashSet<>();
+
 		HubProjectMapping hubProjectMapping = new HubProjectMapping();
 		HubProject hubProject = new HubProject();
-		hubProject.setProjectName("hubProjectName");
-		hubProject.setProjectUrl("hubProjectUrl");
+		hubProject.setProjectName("4Drew");
+		hubProject.setProjectUrl("4DrewProjectUrl");
 		hubProjectMapping.setHubProject(hubProject);
 
 		JiraProject bdsJiraProject = mockBdsJiraProject();
 		hubProjectMapping.setJiraProject(bdsJiraProject);
 
-		final Set<HubProjectMapping> hubProjectMappings = new HashSet<>();
+		hubProjectMappings.add(hubProjectMapping);
+
+		hubProjectMapping = new HubProjectMapping();
+		hubProject = new HubProject();
+		hubProject.setProjectName("projectName");
+		hubProject.setProjectUrl("projectUrl");
+		hubProjectMapping.setHubProject(hubProject);
+
+		bdsJiraProject = mockBdsJiraProject();
+		hubProjectMapping.setJiraProject(bdsJiraProject);
+
 		hubProjectMappings.add(hubProjectMapping);
 
 		// Add a second, bogus, mapping
@@ -624,7 +636,7 @@ public class TicketGeneratorTest {
 				.httpGetFromAbsoluteUrl(
 						ComponentVersion.class,
 						"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
-						.thenReturn(componentVersion);
+		.thenReturn(componentVersion);
 		Mockito.when(
 				restConnection.httpGetFromAbsoluteUrl(BomComponentVersionPolicyStatus.class,
 						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
@@ -634,13 +646,13 @@ public class TicketGeneratorTest {
 		// which loads json from file with this URL:
 		Mockito.when(
 				hub.getProjectVersion(VULN_RELEASEITEM_URL))
-				.thenReturn(releaseItem);
+		.thenReturn(releaseItem);
 		Mockito.when(
 				restConnection
 				.httpGetFromAbsoluteUrl(
 						ComponentVersion.class,
 						VULN_COMPONENTVERSION_URL))
-						.thenReturn(componentVersion);
+		.thenReturn(componentVersion);
 		final UUID componentUuid = UUID.randomUUID();
 		Mockito.when(componentVersion.getComponentId()).thenReturn(componentUuid);
 		final UUID componentVersionUuid = UUID.randomUUID();

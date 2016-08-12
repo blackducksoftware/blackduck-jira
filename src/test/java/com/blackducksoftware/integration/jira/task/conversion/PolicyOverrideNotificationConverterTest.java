@@ -205,8 +205,8 @@ public class PolicyOverrideNotificationConverterTest {
 
 			final HubProjectMapping mapping = new HubProjectMapping();
 			final HubProject hubProject = new HubProject();
-			hubProject.setProjectName(HUB_PROJECT_NAME);
-			hubProject.setProjectUrl(PROJECT_URL + suffix);
+			hubProject.setProjectName(HUB_PROJECT_NAME + suffix);
+			hubProject.setProjectUrl(PROJECT_URL);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
 			jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE);
@@ -239,7 +239,7 @@ public class PolicyOverrideNotificationConverterTest {
 				PROJECT_URL);
 		Mockito.when(mockHubNotificationService
 				.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL))
-				.thenReturn(releaseItem);
+		.thenReturn(releaseItem);
 		List<MetaLink> links = new ArrayList<>();
 		MetaInformation meta = new MetaInformation(null, COMPONENT_VERSION_LINK, links);
 		final ComponentVersion componentVersion = new ComponentVersion(meta);
@@ -260,7 +260,7 @@ public class PolicyOverrideNotificationConverterTest {
 		final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
 		Mockito.when(
 				mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX))
-				.thenReturn(status);
+		.thenReturn(status);
 
 		return mockHubNotificationService;
 	}

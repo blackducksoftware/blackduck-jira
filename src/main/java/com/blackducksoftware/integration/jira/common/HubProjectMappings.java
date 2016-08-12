@@ -70,6 +70,8 @@ public class HubProjectMappings {
 
 			final HubProject hubProject = mapping.getHubProject();
 
+			// Check by name because the notifications may be for Hub projects
+			// that the User doesnt have access to
 			logger.debug("hubProject.getProjectName() (from config mapping): " + hubProject.getProjectName());
 			logger.debug("hubProjectName (from notification content)       : " + hubProjectName);
 			if ((!StringUtils.isBlank(hubProject.getProjectName())
