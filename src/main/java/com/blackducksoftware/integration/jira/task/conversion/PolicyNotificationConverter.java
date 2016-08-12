@@ -35,7 +35,6 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
@@ -47,7 +46,6 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public abstract class PolicyNotificationConverter extends NotificationToEventConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
-	private final HubProjectMappings mappings;
 	private final List<String> linksOfRulesToMonitor;
 
 	protected boolean isRulesToMonitor() {
@@ -57,23 +55,21 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 		return (linksOfRulesToMonitor.size() > 0);
 	}
 
-	public PolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+	public PolicyNotificationConverter(final JiraServices jiraServices,
 			final JiraContext jiraContext, final List<String> linksOfRulesToMonitor,
 			final NotificationService hubNotificationService) {
 		super(hubNotificationService, jiraServices, jiraContext);
-		this.mappings = mappings;
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
 
 	protected List<HubEvent> handleNotification(final HubEventType eventType,
 			final String projectName, final String projectVersionName,
-			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem)
+			final List<ComponentVersionStatus> compVerStatuses, final ReleaseItem notifHubProjectReleaseItem,
+			final List<JiraProject> jiraProjects)
 					throws UnexpectedHubResponseException, NotificationServiceException {
 		final List<HubEvent> notifEvents = new ArrayList<>();
 
-		final String projectUrl = getProjectLink(notifHubProjectReleaseItem);
-
-		for (final JiraProject mappingJiraProject : mappings.getJiraProjects(projectUrl)) {
+		for (final JiraProject mappingJiraProject : jiraProjects) {
 			final JiraProject jiraProject;
 			try {
 				jiraProject = getJiraProject(mappingJiraProject.getProjectId());

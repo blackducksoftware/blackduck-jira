@@ -20,6 +20,7 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,22 +35,25 @@ import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventType;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends PolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+	private final HubProjectMappings mappings;
 
 	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext,
 			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
-		super(mappings, jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+		super(jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+		this.mappings = mappings;
 	}
 
 	@Override
 	public List<HubEvent> generateEvents(final NotificationItem notif) {
-		List<HubEvent> events;
+		List<HubEvent> events = new LinkedList<HubEvent>();
 
 		if (!isRulesToMonitor()) {
 			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
@@ -72,11 +76,20 @@ public class PolicyOverrideNotificationConverter extends PolicyNotificationConve
 			componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
 			compVerStatuses.add(componentStatus);
 			projectName = ruleViolationNotif.getContent().getProjectName();
-			notifHubProjectReleaseItem = getHubNotificationService().getProjectReleaseItemFromProjectReleaseUrl(
-					ruleViolationNotif.getContent().getProjectVersionLink());
-			projectVersionName = notifHubProjectReleaseItem.getVersionName();
-			events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
-					notifHubProjectReleaseItem);
+
+			logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectName);
+			final List<JiraProject> mappingJiraProjects = mappings.getJiraProjects(projectName);
+			logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
+					+ projectName);
+			// get the mapped projects by name before making any Hub calls to
+			// prevent forbidden errors
+			if (!mappingJiraProjects.isEmpty()) {
+				notifHubProjectReleaseItem = getHubNotificationService().getProjectReleaseItemFromProjectReleaseUrl(
+						ruleViolationNotif.getContent().getProjectVersionLink());
+				projectVersionName = notifHubProjectReleaseItem.getVersionName();
+				events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
+						notifHubProjectReleaseItem, mappingJiraProjects);
+			}
 		} catch (UnexpectedHubResponseException | NotificationServiceException e) {
 			logger.error(e);
 			return null;

@@ -43,7 +43,7 @@ public class HubProjectMappings {
 		this.mappings = mappings;
 	}
 
-	public List<JiraProject> getJiraProjects(final String hubProjectUrl) {
+	public List<JiraProject> getJiraProjects(final String hubProjectName) {
 		final List<JiraProject> matchingJiraProjects = new ArrayList<>();
 
 		if (mappings == null || mappings.isEmpty()) {
@@ -70,9 +70,10 @@ public class HubProjectMappings {
 
 			final HubProject hubProject = mapping.getHubProject();
 
-			logger.debug("hubProject.getProjectUrl() (from config mapping): " + hubProject.getProjectUrl());
-			logger.debug("hubProjectUrl (from notification content)       : " + hubProjectUrl);
-			if ((!StringUtils.isBlank(hubProject.getProjectUrl()) && (hubProject.getProjectUrl().equals(hubProjectUrl)))) {
+			logger.debug("hubProject.getProjectName() (from config mapping): " + hubProject.getProjectName());
+			logger.debug("hubProjectName (from notification content)       : " + hubProjectName);
+			if ((!StringUtils.isBlank(hubProject.getProjectName())
+					&& (hubProject.getProjectName().equals(hubProjectName)))) {
 				logger.debug("Match!");
 				matchingJiraProjects.add(jiraProject);
 			}
@@ -97,7 +98,7 @@ public class HubProjectMappings {
 
 		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
 			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-					+ " does not have any issue types, we will not be able to create tickets for this project.");
+			+ " does not have any issue types, we will not be able to create tickets for this project.");
 		} else {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
