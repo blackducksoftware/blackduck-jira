@@ -60,6 +60,13 @@ var policyRuleChecked = "checked";
 var vulnerabilityTicketCreation = "vulnerabilityTicketCreation"; 
 var vulnerabilityTicketClosure = "vulnerabilityTicketClosure"; 
 
+var ticketCreationFieldSetId = "ticketCreationFieldSet";
+var ticketCreationLoadingErrorId = "ticketCreationLoadingError";
+var ticketCreationErrorsTableId = "ticketCreationErrorsTable";
+var ticketCreationErrorTemplateRowId = "ticketCreationErrorTemplateRow";
+
+
+var ticketCreationErrorCounter = 0;
 var mappingElementCounter = 0;
 
 var gotJiraProjects = false;
@@ -153,13 +160,76 @@ function populateForm() {
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
-		    success: function(config) {
-		      //TODO
+		    success: function(creationError) {
+		    	handleTicketCreationErrors(creationError.hubJiraTicketErrors);
 		    },
 		    error: function(response){
-		    	//TODO
+		    	var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+		    	if(fieldSet.hasClass('hidden')){
+		    		fieldSet.removeClass('hidden');
+				}
+		    	handleDataRetrievalError(response, "ticketCreationLoadingError", "There was a problem retrieving the Ticket Creation Errors.", "Ticket Creation Error");
 		    }
 	  });
+}
+
+function handleErrorResize(expansionIcon){
+	var currentIcon = AJS.$(expansionIcon);
+	var iconDiv = currentIcon.parent().parent();
+	var errorMessageDiv = AJS.$(iconDiv).closest("div[name*='ticketCreationErrorMessageName']");
+	var stackTraceDiv = AJS.$(iconDiv).closest("div[name*='ticketCreationStackTraceName']");
+	
+	if(currentIcon.hasClass('fa-plus-square-o')){
+		currentIcon.removeClass('fa-plus-square-o');
+		currentIcon.addClass('fa-minus-square-o');
+		if(!errorMessageDiv.hasClass(hiddenClass)){
+			errorMessageDiv.addClass(hiddenClass);
+		}
+		if(stackTraceDiv.hasClass(hiddenClass)){
+			stackTraceDiv.removeClass(hiddenClass);
+		}
+	} else if(currentIcon.hasClass('fa-minus-square-o')){
+		currentIcon.removeClass('fa-minus-square-o');
+		currentIcon.addClass('fa-plus-square-o');
+		if(errorMessageDiv.hasClass(hiddenClass)){
+			errorMessageDiv.removeClass(hiddenClass);
+		}
+		if(!stackTraceDiv.hasClass(hiddenClass)){
+			stackTraceDiv.addClass(hiddenClass);
+		}
+	}
+}
+
+function handleTicketCreationErrors(hubJiraTicketErrors){
+	if(hubJiraTicketErrors != null && hubJiraTicketErrors.length > 0){
+		var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+		if(fieldSet.hasClass(hiddenClass)){
+			fieldSet.removeClass(hiddenClass);
+		}
+		var ticketCreationErrorTable = AJS.$('#' + ticketCreationErrorsTableId);
+		for (j = 0; j < hubJiraTicketErrors.length; j++) {
+			
+			var ticketErrorRow = AJS.$("#" + ticketCreationErrorTemplateRowId).clone();
+			ticketCreationErrorCounter = ticketCreationErrorCounter + 1;
+			ticketErrorRow.removeClass(hiddenClass);
+			ticketErrorRow.attr("id", ticketErrorRow.attr("id") + ticketCreationErrorCounter);
+			ticketErrorRow.appendTo(ticketCreationErrorTable);
+			
+			var errorColumn = ticketErrorRow.find('td');
+			
+			var errorMessageDiv = AJS.$(errorColumn).closest("div[name*='ticketCreationErrorMessageName']");
+			var errorMessage = AJS.$(hubJiraTicketErrors[j].message, {
+			});
+			errorMessageDiv.append(errorMessage);
+			
+			var stackTraceDiv = AJS.$(ticketErrorRow).closest("div[name*='ticketCreationStackTraceName']");
+			
+			var stackTrace = AJS.$(hubJiraTicketErrors[j].uiStackTrace, {
+			});
+			stackTraceDiv.append(hubJiraTicketErrors[j].message);
+			stackTraceDiv.append(stackTrace);
+		}
+	}
 }
 
 function handleDataRetrievalError(response, errorId, errorText, dialogTitle){

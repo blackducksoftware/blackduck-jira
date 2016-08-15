@@ -20,6 +20,8 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -105,14 +107,40 @@ public class HubJiraConfigController {
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-				final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+				final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
 				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
+				final Set<TicketCreationError> displayTicketErrors = new HashSet<TicketCreationError>();
 				if (errorObject != null) {
 					final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
-					config.setHubJiraTicketErrors(ticketErrors.keySet());
+					for (final String error : ticketErrors.keySet()) {
+						final String errorMessage = error.substring(0, error.indexOf('\n'));
+						final TicketCreationError ticketCreationError = new TicketCreationError(errorMessage,
+								error.replaceAll("\n", "</br>"));
+						displayTicketErrors.add(ticketCreationError);
+					}
+
+					// creationError.setHubJiraTicketErrors(displayTicketErrors);
 				}
-				return config;
+				final String stackTrace;
+				try {
+					throw new Exception("test error");
+				} catch (final Exception e) {
+					final StringWriter sw = new StringWriter();
+					e.printStackTrace(new PrintWriter(sw));
+					stackTrace = sw.toString();
+				}
+				final String errorMessage = stackTrace.substring(0, stackTrace.indexOf('\n'));
+				final String errorStackTrace = stackTrace.replaceAll("\n", "</br>");
+				final TicketCreationError ticketCreationError = new TicketCreationError(errorMessage, errorStackTrace);
+				displayTicketErrors.add(ticketCreationError);
+				final TicketCreationError ticketCreationError2 = new TicketCreationError(errorMessage + " 2",
+						errorStackTrace);
+				displayTicketErrors.add(ticketCreationError2);
+
+				creationError.setHubJiraTicketErrors(displayTicketErrors);
+				System.err.println("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
+				return creationError;
 			}
 		});
 

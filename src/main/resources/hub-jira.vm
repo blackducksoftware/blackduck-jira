@@ -64,7 +64,7 @@
 						</datalist>
 				    </td>
 				    <td class="mappingTableCell" width="100px">
-				  		<input onclick="removeMappingElement(this);" type="button" value="$i18n.getText('hub.integration.jira.removeProjectMapping.label')" class="aui-button">
+				    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
 				  	</td>
 				  </tr>
 				</table>
@@ -122,17 +122,36 @@
       		</div>
       	</fieldSet>
 		
-	   <div class="buttonContainer">
-	       <div id="saveSpinner" style="display: inline-block;"></div>
-	  	   <input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
-	  </div>
+	   <div style="display: inline-block; width: 100%;">
+	   	   <div class="buttonContainer">
+	       		<div id="saveSpinner" style="display: inline-block;"></div>
+	  	   		<input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   </div>
+	   </div>
 	  
-	  <fieldset class="fieldSection">
+	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
-      	  <div id="ticketCreationErrors">
+      	  <div id="ticketCreationLoadingError">
       	  </div>
+      	  <table id="ticketCreationErrorsTable" style="width : 100%;">
+      	  		<tr class="hidden" id="ticketCreationErrorTemplateRow">
+      	  			<td>
+      	  				<div style="float : left; display : inline-block;">
+      	  					<i name="expansionIcon" onclick="handleErrorResize(this);" class="largeIcon fa fa-plus-square-o" aria-hidden="true"></i>
+      	  				</div>
+      	  				<div class="ticketCreationError" name="ticketCreationErrorMessageName">
+      	  					
+      	  				</div>
+      	  				<div class="ticketCreationError hidden" name="ticketCreationStackTraceName">
+      	  					
+      	  				</div>
+      	  				<div style="float : right; display : inline-block;">
+      	  					<i name="trashIcon" class="largeIcon fa fa-trash-o" aria-hidden="true"></i>
+      	  				</div>
+      	  			</td>
+      	  		</tr>
+      	  </table>
       </fieldSet>
-      
     </form>
   </body>
 </html>

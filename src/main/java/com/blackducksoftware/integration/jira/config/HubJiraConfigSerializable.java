@@ -78,9 +78,6 @@ public class HubJiraConfigSerializable implements Serializable {
 	@XmlElement
 	private String policyRulesError;
 
-	@XmlElement
-	private Set<String> hubJiraTicketErrors;
-
 	public boolean hasErrors() {
 		boolean hasErrors = false;
 		if (StringUtils.isNotBlank(getErrorMessage())) {
@@ -240,20 +237,11 @@ public class HubJiraConfigSerializable implements Serializable {
 		this.errorMessage = errorMessage;
 	}
 
-	public Set<String> getHubJiraTicketErrors() {
-		return hubJiraTicketErrors;
-	}
-
-	public void setHubJiraTicketErrors(final Set<String> hubJiraTicketErrors) {
-		this.hubJiraTicketErrors = hubJiraTicketErrors;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-		result = prime * result + ((hubJiraTicketErrors == null) ? 0 : hubJiraTicketErrors.hashCode());
 		result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
 		result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
 		result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
@@ -284,13 +272,6 @@ public class HubJiraConfigSerializable implements Serializable {
 				return false;
 			}
 		} else if (!errorMessage.equals(other.errorMessage)) {
-			return false;
-		}
-		if (hubJiraTicketErrors == null) {
-			if (other.hubJiraTicketErrors != null) {
-				return false;
-			}
-		} else if (!hubJiraTicketErrors.equals(other.hubJiraTicketErrors)) {
 			return false;
 		}
 		if (hubProjectMappingError == null) {
@@ -391,8 +372,6 @@ public class HubJiraConfigSerializable implements Serializable {
 		builder.append(policyRules);
 		builder.append(", policyRulesError=");
 		builder.append(policyRulesError);
-		builder.append(", hubJiraTicketErrors=");
-		builder.append(hubJiraTicketErrors);
 		builder.append("]");
 		return builder.toString();
 	}
