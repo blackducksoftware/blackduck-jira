@@ -2,6 +2,8 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.util.HashMap;
 
+import org.joda.time.DateTime;
+
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 
@@ -22,7 +24,8 @@ public class JiraSettingsService {
 		} else {
 			errorMap = (HashMap<String, String>) errorMapObject;
 		}
-		errorMap.put(errorMessage, errorMessage);
+		errorMap.put(errorMessage.trim(), (new DateTime()).toString());
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, errorMap);
+		System.out.println("TEST Added error : " + errorMessage);
 	}
 }

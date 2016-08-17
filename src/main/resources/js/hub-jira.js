@@ -63,7 +63,7 @@ var vulnerabilityTicketClosure = "vulnerabilityTicketClosure";
 var ticketCreationFieldSetId = "ticketCreationFieldSet";
 var ticketCreationLoadingErrorId = "ticketCreationLoadingError";
 var ticketCreationErrorsTableId = "ticketCreationErrorsTable";
-var ticketCreationErrorTemplateRowId = "ticketCreationErrorTemplateRow";
+var ticketCreationErrorRowId = "ticketCreationErrorRow";
 
 
 var ticketCreationErrorCounter = 0;
@@ -161,7 +161,7 @@ function populateForm() {
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
 		    success: function(creationError) {
-		    	handleTicketCreationErrors(creationError.hubJiraTicketErrors);
+		    	updateTicketCreationErrors(creationError.hubJiraTicketErrors);
 		    },
 		    error: function(response){
 		    	var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
@@ -175,9 +175,10 @@ function populateForm() {
 
 function handleErrorResize(expansionIcon){
 	var currentIcon = AJS.$(expansionIcon);
-	var iconDiv = currentIcon.parent().parent();
-	var errorMessageDiv = AJS.$(iconDiv).closest("div[name*='ticketCreationErrorMessageName']");
-	var stackTraceDiv = AJS.$(iconDiv).closest("div[name*='ticketCreationStackTraceName']");
+	var errorRow = currentIcon.closest("tr");
+	var errorColumn = errorRow.find('td');
+	var errorMessageDiv = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+	var stackTraceDiv = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
 	
 	if(currentIcon.hasClass('fa-plus-square-o')){
 		currentIcon.removeClass('fa-plus-square-o');
@@ -200,7 +201,7 @@ function handleErrorResize(expansionIcon){
 	}
 }
 
-function handleTicketCreationErrors(hubJiraTicketErrors){
+function updateTicketCreationErrors(hubJiraTicketErrors){
 	if(hubJiraTicketErrors != null && hubJiraTicketErrors.length > 0){
 		var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
 		if(fieldSet.hasClass(hiddenClass)){
@@ -209,7 +210,7 @@ function handleTicketCreationErrors(hubJiraTicketErrors){
 		var ticketCreationErrorTable = AJS.$('#' + ticketCreationErrorsTableId);
 		for (j = 0; j < hubJiraTicketErrors.length; j++) {
 			
-			var ticketErrorRow = AJS.$("#" + ticketCreationErrorTemplateRowId).clone();
+			var ticketErrorRow = AJS.$("#" + ticketCreationErrorRowId).clone();
 			ticketCreationErrorCounter = ticketCreationErrorCounter + 1;
 			ticketErrorRow.removeClass(hiddenClass);
 			ticketErrorRow.attr("id", ticketErrorRow.attr("id") + ticketCreationErrorCounter);
@@ -217,17 +218,98 @@ function handleTicketCreationErrors(hubJiraTicketErrors){
 			
 			var errorColumn = ticketErrorRow.find('td');
 			
-			var errorMessageDiv = AJS.$(errorColumn).closest("div[name*='ticketCreationErrorMessageName']");
-			var errorMessage = AJS.$(hubJiraTicketErrors[j].message, {
-			});
-			errorMessageDiv.append(errorMessage);
+			var stackTraceDiv = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
+		
+			var stackTrace = hubJiraTicketErrors[j].stackTrace;
 			
-			var stackTraceDiv = AJS.$(ticketErrorRow).closest("div[name*='ticketCreationStackTraceName']");
+			var errorMessageDiv = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+			var errorMessage = "";
+			if(stackTrace.indexOf("\n") > -1){
+				errorMessage = stackTrace.substring(0, stackTrace.indexOf("\n"));
+				
+				stackTraceDiv.text(stackTrace);
+			} else {
+				errorMessage = stackTrace;
+				var expansionIconDiv = AJS.$(errorColumn).children("div[name*='expansionIconDiv']");
+				var expansionIcon = AJS.$(expansionIconDiv).children("i[name*='expansionIcon']");
+				if(expansionIcon.hasClass('fa-plus-square-o')){
+					expansionIcon.removeClass('fa-plus-square-o');
+					expansionIcon.addClass('fa-square-o');
+				}
+			}
 			
-			var stackTrace = AJS.$(hubJiraTicketErrors[j].uiStackTrace, {
-			});
-			stackTraceDiv.append(hubJiraTicketErrors[j].message);
-			stackTraceDiv.append(stackTrace);
+			errorMessageDiv.text(errorMessage);
+			
+			var timeStampDiv = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
+			var timeStamp = hubJiraTicketErrors[j].timeStamp;
+			
+			timeStampDiv.text(timeStamp);
+		}
+	}
+}
+
+function getJsonArrayFromErrors(errorRow){
+	var jsonArray = "[";
+
+	var errorColumn = AJS.$(errorRow).find('td');
+	
+	var creationErrorMessage = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+	
+	var creationErrorStackTrace = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
+	
+	var creationErrorTimeStamp = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
+	
+	var stackTrace = creationErrorStackTrace.text().trim();
+	if(stackTrace){
+		stackTrace = encodeURIComponent(stackTrace);
+	} else {
+		var errorMessage = creationErrorMessage.text().trim();
+		
+		stackTrace = encodeURIComponent(errorMessage);
+	}
+	var timeStamp = creationErrorTimeStamp.text().trim();
+	timeStamp = encodeURIComponent(timeStamp);
+	
+	jsonArray += '{"'
+		+'stackTrace" : "'  + stackTrace
+		+'","' 
+		+'timeStamp" : "'  + timeStamp
+		+ '"}';
+	jsonArray += "]";
+	return jsonArray;
+}
+
+function handleErrorRemoval(trashIcon){
+	var currentIcon = AJS.$(trashIcon);
+	var errorRow = currentIcon.closest("tr");
+
+	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/removeErrors';
+	
+	var hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
+	AJS.$.ajax({
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{ "hubJiraTicketErrors": ' + hubJiraTicketErrors
+	    + '}',
+	    processData: false,
+	    success: function() {
+	    	alert('Error removed');
+	    },
+	    error: function(response){
+	    	alert(response.responseText);
+	    }
+	  });
+	
+	errorRow.remove();
+	
+	var ticketCreationErrorContainer = AJS.$("#" + ticketCreationErrorsTableId);
+	var creationErrors = ticketCreationErrorContainer.find("tr[name*='"+ ticketCreationErrorRowId + "']");
+	if(creationErrors.length <= 1){
+		var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+		if(!fieldSet.hasClass(hiddenClass)){
+			fieldSet.addClass(hiddenClass);
 		}
 	}
 }

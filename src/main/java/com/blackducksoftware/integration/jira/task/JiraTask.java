@@ -74,6 +74,8 @@ public class JiraTask implements PluginJob {
 
 		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
 
+		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+
 		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
 			logger.warn("The Hub connection details have not been configured, therefore there is nothing to do.");
 			return;
@@ -100,7 +102,6 @@ public class JiraTask implements PluginJob {
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
-		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		final HubJiraTask processor = new HubJiraTask(serverConfig,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,

@@ -20,9 +20,9 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -110,36 +111,19 @@ public class HubJiraConfigController {
 				final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
 				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
-				final Set<TicketCreationError> displayTicketErrors = new HashSet<TicketCreationError>();
 				if (errorObject != null) {
+					final Set<TicketCreationError> displayTicketErrors = new HashSet<TicketCreationError>();
 					final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
-					for (final String error : ticketErrors.keySet()) {
-						final String errorMessage = error.substring(0, error.indexOf('\n'));
-						final TicketCreationError ticketCreationError = new TicketCreationError(errorMessage,
-								error.replaceAll("\n", "</br>"));
+					for (final Entry<String, String> error : ticketErrors.entrySet()) {
+						final String errorKey = error.getKey();
+						final TicketCreationError ticketCreationError = new TicketCreationError();
+						ticketCreationError.setStackTrace(errorKey);
+						ticketCreationError.setTimeStamp(error.getValue());
 						displayTicketErrors.add(ticketCreationError);
 					}
-
-					// creationError.setHubJiraTicketErrors(displayTicketErrors);
+					creationError.setHubJiraTicketErrors(displayTicketErrors);
+					System.err.println("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
 				}
-				final String stackTrace;
-				try {
-					throw new Exception("test error");
-				} catch (final Exception e) {
-					final StringWriter sw = new StringWriter();
-					e.printStackTrace(new PrintWriter(sw));
-					stackTrace = sw.toString();
-				}
-				final String errorMessage = stackTrace.substring(0, stackTrace.indexOf('\n'));
-				final String errorStackTrace = stackTrace.replaceAll("\n", "</br>");
-				final TicketCreationError ticketCreationError = new TicketCreationError(errorMessage, errorStackTrace);
-				displayTicketErrors.add(ticketCreationError);
-				final TicketCreationError ticketCreationError2 = new TicketCreationError(errorMessage + " 2",
-						errorStackTrace);
-				displayTicketErrors.add(ticketCreationError2);
-
-				creationError.setHubJiraTicketErrors(displayTicketErrors);
-				System.err.println("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
 				return creationError;
 			}
 		});
@@ -337,6 +321,53 @@ public class HubJiraConfigController {
 		if (config.hasErrors()) {
 			return Response.ok(config).status(Status.BAD_REQUEST).build();
 		}
+		return Response.noContent().build();
+	}
+
+	@Path("/removeErrors")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete,
+			@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
+				final HashMap<String, String> ticketErrors;
+				if (errorObject != null) {
+					ticketErrors = (HashMap<String, String>) errorObject;
+				} else {
+					ticketErrors = new HashMap<String, String>();
+				}
+
+				for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
+					try {
+						final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
+						final String val = ticketErrors.remove(errorMessage);
+						System.out.println("ERROR MESSAGE : ");
+						System.out.println(errorMessage);
+						System.out.println("VALUE : " + val);
+					} catch (final UnsupportedEncodingException e) {
+
+					}
+				}
+				for (final Entry<String, String> j : ticketErrors.entrySet()) {
+					System.out.println("SAVED MESSAGE : ");
+					System.out.println(j.getKey());
+					System.out.println("TIMESTAMP : " + j.getValue());
+				}
+
+				setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+				return null;
+			}
+		});
 		return Response.noContent().build();
 	}
 

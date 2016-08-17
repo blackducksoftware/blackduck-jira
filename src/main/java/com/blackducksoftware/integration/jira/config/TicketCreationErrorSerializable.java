@@ -15,6 +15,9 @@ public class TicketCreationErrorSerializable implements Serializable {
 	@XmlElement
 	private Set<TicketCreationError> hubJiraTicketErrors;
 
+	public TicketCreationErrorSerializable() {
+	}
+
 	public Set<TicketCreationError> getHubJiraTicketErrors() {
 		return hubJiraTicketErrors;
 	}

@@ -131,26 +131,29 @@
 	  
 	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
-      	  <div id="ticketCreationLoadingError">
+      	  <div id="ticketCreationErrors">
+	      	  <table id="ticketCreationErrorsTable" style="width : 100%;">
+	      	  		<tr class="hidden" id="ticketCreationErrorRow" name="ticketCreationErrorRow">
+	      	  			<td>
+	      	  				<div name="expansionIconDiv" style="float : left; display : inline-block;">
+	      	  					<i name="expansionIcon" onclick="handleErrorResize(this);" class="largeIcon fa fa-plus-square-o" aria-hidden="true"></i>
+	      	  				</div>
+	      	  				<div class="ticketCreationError" name="ticketCreationErrorMessageName">
+	      	  					
+	      	  				</div>
+	      	  				<div class="ticketCreationError hidden" name="ticketCreationStackTraceName">
+	      	  					
+	      	  				</div>
+	      	  				<div class="hidden" name="ticketCreationTimeStampName">
+	      	  					
+	      	  				</div>
+	      	  				<div style="float : right; display : inline-block;">
+	      	  					<i name="trashIcon" onclick="handleErrorRemoval(this);" class="largeIcon fa fa-trash-o" aria-hidden="true"></i>
+	      	  				</div>
+	      	  			</td>
+	      	  		</tr>
+	      	  </table>
       	  </div>
-      	  <table id="ticketCreationErrorsTable" style="width : 100%;">
-      	  		<tr class="hidden" id="ticketCreationErrorTemplateRow">
-      	  			<td>
-      	  				<div style="float : left; display : inline-block;">
-      	  					<i name="expansionIcon" onclick="handleErrorResize(this);" class="largeIcon fa fa-plus-square-o" aria-hidden="true"></i>
-      	  				</div>
-      	  				<div class="ticketCreationError" name="ticketCreationErrorMessageName">
-      	  					
-      	  				</div>
-      	  				<div class="ticketCreationError hidden" name="ticketCreationStackTraceName">
-      	  					
-      	  				</div>
-      	  				<div style="float : right; display : inline-block;">
-      	  					<i name="trashIcon" class="largeIcon fa fa-trash-o" aria-hidden="true"></i>
-      	  				</div>
-      	  			</td>
-      	  		</tr>
-      	  </table>
       </fieldSet>
     </form>
   </body>
