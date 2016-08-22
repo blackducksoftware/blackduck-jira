@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -42,9 +43,9 @@ public class JiraNotificationProcessor {
 	public JiraNotificationProcessor(final NotificationService hubNotificationService,
 			final HubProjectMappings mapping, final List<String> linksOfRulesToMonitor,
 			final JiraServices jiraServices,
-			final JiraContext jiraContext) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, linksOfRulesToMonitor,
-				hubNotificationService);
+				hubNotificationService, jiraSettingsService);
 	}
 
 	public List<HubEvent> generateEvents(final List<NotificationItem> notifications)
@@ -52,7 +53,7 @@ public class JiraNotificationProcessor {
 		final List<HubEvent> allEvents = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-				+ " notifications");
+		+ " notifications");
 		for (final NotificationItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 

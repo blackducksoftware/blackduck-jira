@@ -37,6 +37,7 @@ import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventType;
@@ -57,8 +58,8 @@ public abstract class PolicyNotificationConverter extends NotificationToEventCon
 
 	public PolicyNotificationConverter(final JiraServices jiraServices,
 			final JiraContext jiraContext, final List<String> linksOfRulesToMonitor,
-			final NotificationService hubNotificationService) {
-		super(hubNotificationService, jiraServices, jiraContext);
+			final NotificationService hubNotificationService, final JiraSettingsService jiraSettingsService) {
+		super(hubNotificationService, jiraServices, jiraContext, jiraSettingsService);
 		this.linksOfRulesToMonitor = linksOfRulesToMonitor;
 	}
 

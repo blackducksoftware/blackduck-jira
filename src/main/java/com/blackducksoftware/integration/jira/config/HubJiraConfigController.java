@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -46,6 +47,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
@@ -110,10 +113,9 @@ public class HubJiraConfigController {
 
 				final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
-				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
-				if (errorObject != null) {
+				final Map<String, String> ticketErrors = expireOldErrors(settings);
+				if (ticketErrors != null) {
 					final Set<TicketCreationError> displayTicketErrors = new HashSet<TicketCreationError>();
-					final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
 					for (final Entry<String, String> error : ticketErrors.entrySet()) {
 						final String errorKey = error.getKey();
 						final TicketCreationError ticketCreationError = new TicketCreationError();
@@ -346,7 +348,6 @@ public class HubJiraConfigController {
 				} else {
 					ticketErrors = new HashMap<String, String>();
 				}
-
 				for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
 					try {
 						final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
@@ -632,5 +633,25 @@ public class HubJiraConfigController {
 		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
 		};
 		return new HubItemsService<PolicyRule>(restConnection, typeToken);
+	}
+
+	private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
+		final Object errorObject = getValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR);
+		if (errorObject != null) {
+			final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
+
+			if (ticketErrors != null && !ticketErrors.isEmpty()) {
+				final DateTime currentTime = DateTime.now();
+				for (final Entry<String, String> ticketError : ticketErrors.entrySet()) {
+					final DateTime errorTime = DateTime.parse(ticketError.getValue());
+					if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+						ticketErrors.remove(ticketError.getKey());
+					}
+				}
+				setValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+				return ticketErrors;
+			}
+		}
+		return null;
 	}
 }

@@ -35,6 +35,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventType;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -45,8 +46,9 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 
 	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext,
-			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
-		super(jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService,
+			final JiraSettingsService jiraSettingsService) {
+		super(jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService, jiraSettingsService);
 		this.mappings = mappings;
 	}
 
@@ -87,6 +89,7 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 			}
 		} catch (UnexpectedHubResponseException | NotificationServiceException e) {
 			logger.error(e);
+			getJiraSettingsService().addHubError(e);
 			return null;
 		}
 		return events;

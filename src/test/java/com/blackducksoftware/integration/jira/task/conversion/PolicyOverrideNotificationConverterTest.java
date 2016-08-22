@@ -57,7 +57,9 @@ import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
+import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -144,8 +146,10 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final NotificationItem notification = createNotification();
 
+		final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
+
 		final NotificationToEventConverter converter = new VulnerabilityNotificationConverter(mappings, jiraServices,
-				ticketGenInfo, mockHubNotificationService);
+				ticketGenInfo, mockHubNotificationService, jiraSettingsService);
 		final List<HubEvent> events = converter.generateEvents(notification);
 		return events;
 	}

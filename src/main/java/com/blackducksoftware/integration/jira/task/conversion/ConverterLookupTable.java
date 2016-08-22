@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTable {
@@ -38,14 +39,16 @@ public class ConverterLookupTable {
 
 	public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext,
-			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService) {
+			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService,
+			final JiraSettingsService jiraSettingsService) {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(mappings,
-				jiraServices, jiraContext, hubNotificationService);
+				jiraServices, jiraContext, hubNotificationService, jiraSettingsService);
 		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(mappings,
-				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+				jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService, jiraSettingsService);
 		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-				mappings, jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService);
+				mappings, jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService,
+				jiraSettingsService);
 
 		lookupTable.put(RuleViolationNotificationItem.class, policyViolationNotificationConverter);
 		lookupTable.put(PolicyOverrideNotificationItem.class, policyOverrideNotificationConverter);

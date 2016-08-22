@@ -72,7 +72,7 @@ public class TicketGenerator {
 			return;
 		}
 		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
-				hubProjectMappings, linksOfRulesToMonitor, jiraServices, jiraContext);
+				hubProjectMappings, linksOfRulesToMonitor, jiraServices, jiraContext, jiraSettingsService);
 
 		final List<HubEvent> events = processor.generateEvents(notifs);
 		if ((events == null) || (events.size() == 0)) {

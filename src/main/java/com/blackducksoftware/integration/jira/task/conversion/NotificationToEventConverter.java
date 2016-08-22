@@ -27,6 +27,7 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -34,19 +35,25 @@ public abstract class NotificationToEventConverter {
 	private final NotificationService hubNotificationService;
 	private final JiraServices jiraServices;
 	private final JiraContext jiraContext;
+	private final JiraSettingsService jiraSettingsService;
 
 	public NotificationToEventConverter(final NotificationService hubNotificationService,
 			final JiraServices jiraServices,
-			final JiraContext jiraContext) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		this.hubNotificationService = hubNotificationService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
+		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	public abstract List<HubEvent> generateEvents(NotificationItem notif);
 
 	protected NotificationService getHubNotificationService() {
 		return hubNotificationService;
+	}
+
+	public JiraSettingsService getJiraSettingsService() {
+		return jiraSettingsService;
 	}
 
 	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
@@ -64,7 +71,7 @@ public abstract class NotificationToEventConverter {
 
 		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
 			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-					+ " does not have any issue types, we will not be able to create tickets for this project.");
+			+ " does not have any issue types, we will not be able to create tickets for this project.");
 		} else {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
