@@ -15,6 +15,9 @@ public class TicketCreationErrorSerializable implements Serializable {
 	@XmlElement
 	private Set<TicketCreationError> hubJiraTicketErrors;
 
+	@XmlElement
+	private String configError;
+
 	public TicketCreationErrorSerializable() {
 	}
 
@@ -26,10 +29,19 @@ public class TicketCreationErrorSerializable implements Serializable {
 		this.hubJiraTicketErrors = hubJiraTicketErrors;
 	}
 
+	public String getConfigError() {
+		return configError;
+	}
+
+	public void setConfigError(final String configError) {
+		this.configError = configError;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((configError == null) ? 0 : configError.hashCode());
 		result = prime * result + ((hubJiraTicketErrors == null) ? 0 : hubJiraTicketErrors.hashCode());
 		return result;
 	}
@@ -46,6 +58,13 @@ public class TicketCreationErrorSerializable implements Serializable {
 			return false;
 		}
 		final TicketCreationErrorSerializable other = (TicketCreationErrorSerializable) obj;
+		if (configError == null) {
+			if (other.configError != null) {
+				return false;
+			}
+		} else if (!configError.equals(other.configError)) {
+			return false;
+		}
 		if (hubJiraTicketErrors == null) {
 			if (other.hubJiraTicketErrors != null) {
 				return false;
@@ -61,6 +80,8 @@ public class TicketCreationErrorSerializable implements Serializable {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("TicketCreationErrorSerializable [hubJiraTicketErrors=");
 		builder.append(hubJiraTicketErrors);
+		builder.append(", configError=");
+		builder.append(configError);
 		builder.append("]");
 		return builder.toString();
 	}

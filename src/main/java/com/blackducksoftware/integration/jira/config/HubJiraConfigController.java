@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -336,7 +337,7 @@ public class HubJiraConfigController {
 				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		transactionTemplate.execute(new TransactionCallback() {
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Object doInTransaction() {
 				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -348,27 +349,30 @@ public class HubJiraConfigController {
 				} else {
 					ticketErrors = new HashMap<String, String>();
 				}
-				for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
-					try {
-						final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
-						final String val = ticketErrors.remove(errorMessage);
-						System.out.println("ERROR MESSAGE : ");
-						System.out.println(errorMessage);
-						System.out.println("VALUE : " + val);
-					} catch (final UnsupportedEncodingException e) {
+				if (errorsToDelete.getHubJiraTicketErrors() != null
+						&& !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
+					for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
+						try {
+							final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
+							final String val = ticketErrors.remove(errorMessage);
+							if (val == null) {
+								final TicketCreationErrorSerializable serializableError = new TicketCreationErrorSerializable();
+								serializableError.setConfigError(
+										"Could not find the Error selected for removal in the persisted list.");
+								return serializableError;
+							}
+						} catch (final UnsupportedEncodingException e) {
 
+						}
 					}
 				}
-				for (final Entry<String, String> j : ticketErrors.entrySet()) {
-					System.out.println("SAVED MESSAGE : ");
-					System.out.println(j.getKey());
-					System.out.println("TIMESTAMP : " + j.getValue());
-				}
-
 				setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
 				return null;
 			}
 		});
+		if (obj != null) {
+			return Response.ok(obj).status(Status.BAD_REQUEST).build();
+		}
 		return Response.noContent().build();
 	}
 
@@ -642,10 +646,12 @@ public class HubJiraConfigController {
 
 			if (ticketErrors != null && !ticketErrors.isEmpty()) {
 				final DateTime currentTime = DateTime.now();
-				for (final Entry<String, String> ticketError : ticketErrors.entrySet()) {
+				final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
+				while (s.hasNext()) {
+					final Entry<String, String> ticketError = s.next();
 					final DateTime errorTime = DateTime.parse(ticketError.getValue());
 					if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
-						ticketErrors.remove(ticketError.getKey());
+						s.remove();
 					}
 				}
 				setValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);

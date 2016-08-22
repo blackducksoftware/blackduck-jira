@@ -31,7 +31,7 @@ public class JiraSettingsService {
 		} else {
 			errorMap = (HashMap<String, String>) errorMapObject;
 		}
-		errorMap.put(errorMessage.trim(), (DateTime.now()).toString());
+		errorMap.put(errorMessage.trim(), DateTime.now().toString());
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, errorMap);
 		System.out.println("TEST Added error : " + errorMessage);
 	}

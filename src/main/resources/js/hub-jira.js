@@ -295,10 +295,16 @@ function handleErrorRemoval(trashIcon){
 	    + '}',
 	    processData: false,
 	    success: function() {
-	    	alert('Error removed');
+	    	alert('Error successfully removed');
 	    },
 	    error: function(response){
-	    	alert(response.responseText);
+	    	try {
+	    		var creationErrorObj = JSON.parse(response.responseText);
+	    		alert(creationErrorObj.configError);
+	    	} catch(err) {
+	    		// in case the response is not our error object
+	    		alert(response.responseText);
+	    	}
 	    }
 	  });
 	
@@ -453,13 +459,18 @@ function putConfig(restUrl, successMessage, failureMessage) {
 		    showStatusMessage(successStatus, 'Success!', successMessage);
 	    },
 	    error: function(response){
-	    	var config = JSON.parse(response.responseText);
-	    	handleError(errorMessageFieldId, config.errorMessage, true);
-	    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
-	    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
-	    	handleError('policyRulesError', config.policyRulesError, true);
-	    	
-		    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+	    	try {
+		    	var config = JSON.parse(response.responseText);
+		    	handleError(errorMessageFieldId, config.errorMessage, true);
+		    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
+		    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
+		    	handleError('policyRulesError', config.policyRulesError, true);
+		    	
+			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+	    	} catch(err) {
+	    		// in case the response is not our error object
+	    		alert(response.responseText);
+	    	}
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	 stopProgressSpinner();
