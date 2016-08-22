@@ -1,5 +1,7 @@
 package com.blackducksoftware.integration.jira.task;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 
 import org.joda.time.DateTime;
@@ -15,6 +17,11 @@ public class JiraSettingsService {
 		this.settings = settings;
 	};
 
+	public void addHubError(final Throwable throwable) {
+		final StringWriter sw = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(sw));
+		addHubError(sw.toString());
+	}
 
 	public void addHubError(final String errorMessage) {
 		final Object errorMapObject = settings.get(HubJiraConstants.HUB_JIRA_ERROR);

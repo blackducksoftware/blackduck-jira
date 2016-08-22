@@ -163,8 +163,10 @@ public class JiraIssueHandler {
 		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
-			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". There are no steps from this status to any other status.");
+			final String errorMessage = "Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+					+ currentStatus.getName() + ". There are no steps from this status to any other status.";
+			logger.error(errorMessage);
+			jiraSettingsService.addHubError(errorMessage);
 		}
 		for (final ActionDescriptor descriptor : actions) {
 			if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -174,8 +176,10 @@ public class JiraIssueHandler {
 			}
 		}
 		if (transitionAction == null) {
-			logger.warn("Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". We could not find the step : " + stepName);
+			final String errorMessage = "Can not transition this issue : " + oldIssue.getKey() + ", from status : "
+					+ currentStatus.getName() + ". We could not find the step : " + stepName;
+			logger.error(errorMessage);
+			jiraSettingsService.addHubError(errorMessage);
 		}
 		if (transitionAction != null) {
 			final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
@@ -183,35 +187,23 @@ public class JiraIssueHandler {
 			final TransitionValidationResult validationResult = jiraServices.getIssueService().validateTransition(
 					jiraContext.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
 
-			ErrorCollection errors = null;
-
 			if (!validationResult.isValid()) {
-				errors = validationResult.getErrorCollection();
-				if (errors.hasAnyErrors()) {
-					for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-						logger.error(error.getKey() + " :: " + error.getValue());
-					}
-					for (final String error : errors.getErrorMessages()) {
-						logger.error(error);
-					}
-				}
+				handleErrorCollection(validationResult.getErrorCollection());
 			} else {
 				final IssueResult result = jiraServices.getIssueService().transition(jiraContext.getJiraUser(),
 						validationResult);
-				errors = result.getErrorCollection();
+				final ErrorCollection errors = result.getErrorCollection();
 				if (errors.hasAnyErrors()) {
-					for (final Entry<String, String> error : errors.getErrors().entrySet()) {
-						logger.error(error.getKey() + " :: " + error.getValue());
-					}
-					for (final String error : errors.getErrorMessages()) {
-						logger.error(error);
-					}
+					handleErrorCollection(errors);
 				} else {
 					return result.getIssue();
 				}
 			}
 		} else {
-			logger.error("Could not find the action : " + stepName + " to transition this issue: " + oldIssue.getKey());
+			final String errorMessage = "Could not find the action : " + stepName + " to transition this issue: "
+					+ oldIssue.getKey();
+			logger.error(errorMessage);
+			jiraSettingsService.addHubError(errorMessage);
 		}
 		return null;
 	}

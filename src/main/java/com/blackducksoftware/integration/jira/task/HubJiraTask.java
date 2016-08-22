@@ -41,7 +41,6 @@ import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotif
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationItem;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
 import com.blackducksoftware.integration.hub.notification.NotificationService;
@@ -152,23 +151,9 @@ public class HubJiraTask {
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings,
 					linksOfRulesToMonitor, notificationDateRange);
-		} catch (final BDRestException e) {
+		} catch (final Exception e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		} catch (final IllegalArgumentException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		} catch (final EncryptionException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		} catch (final ParseException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		} catch (final NotificationServiceException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			return null;
-		} catch (final URISyntaxException e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			jiraSettingsService.addHubError(e);
 			return null;
 		}
 		return runDateString;
