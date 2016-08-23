@@ -19,14 +19,16 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
+import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
-import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -34,6 +36,9 @@ import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationPr
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
@@ -44,15 +49,15 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final NotificationService notificationService;
+	private final RestConnection restConnection;
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
 
-	public TicketGenerator(final NotificationService notificationService,
+	public TicketGenerator(final RestConnection restConnection,
 			final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		this.notificationService = notificationService;
+		this.restConnection = restConnection;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
@@ -60,30 +65,44 @@ public class TicketGenerator {
 
 	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
 			final List<String> linksOfRulesToMonitor,
-			final NotificationDateRange notificationDateRange) throws NotificationServiceException {
+			final Date startDate, final Date endDate) throws NotificationServiceException {
 
 		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
 			logger.debug("The configuration does not specify any Hub projects to monitor");
 			return;
 		}
-		final List<NotificationItem> notifs = notificationService.fetchNotifications(notificationDateRange);
-		if ((notifs == null) || (notifs.size() == 0)) {
-			logger.debug("There are no notifications to handle");
-			return;
-		}
-		final JiraNotificationProcessor processor = new JiraNotificationProcessor(notificationService,
-				hubProjectMappings, linksOfRulesToMonitor, jiraServices, jiraContext, jiraSettingsService);
+		try {
+			final Gson gson = new GsonBuilder().create();
+			final JsonParser jsonParser = new JsonParser();
+			final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+			final NotificationDataService notificationDataService = new NotificationDataService(restConnection, gson,
+					jsonParser, policyFilter);
 
-		final List<HubEvent> events = processor.generateEvents(notifs);
-		if ((events == null) || (events.size() == 0)) {
-			logger.debug("There are no events to handle");
-			return;
-		}
+			final List<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate, endDate);
+			// final List<NotificationItem> notifs =
+			// notificationService.fetchNotifications(notificationDateRange);
+			if ((notifs == null) || (notifs.size() == 0)) {
+				logger.debug("There are no notifications to handle");
+				return;
+			}
 
-		final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService);
+			final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
+					jiraContext, jiraSettingsService);
 
-		for (final HubEvent event : events) {
-			issueHandler.handleEvent(event);
+			final List<HubEvent> events = processor.generateEvents(notifs);
+			if ((events == null) || (events.size() == 0)) {
+				logger.debug("There are no events to handle");
+				return;
+			}
+
+			final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService);
+
+			for (final HubEvent event : events) {
+				issueHandler.handleEvent(event);
+			}
+		} catch (final Exception e) {
+			logger.error(e);
+			jiraSettingsService.addHubError(e);
 		}
 
 	}

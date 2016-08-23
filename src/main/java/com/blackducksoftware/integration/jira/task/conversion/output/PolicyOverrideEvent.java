@@ -22,25 +22,23 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
-public class PolicyEvent extends HubEvent {
+public class PolicyOverrideEvent extends HubEvent {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final PolicyViolationContentItem policyViolationContentItem;
+	private final PolicyOverrideContentItem policyOverrideContentItem;
 
-	public PolicyEvent(final String jiraUserName,
+	public PolicyOverrideEvent(final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final PolicyViolationContentItem policyViolationContentItem) {
-
-		super(HubEventAction.OPEN, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName);
-		this.policyViolationContentItem = policyViolationContentItem;
+			final PolicyOverrideContentItem policyOverrideContentItem) {
+		super(HubEventAction.CLOSE, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName);
+		this.policyOverrideContentItem = policyOverrideContentItem;
 	}
 
-	public PolicyViolationContentItem getPolicyViolationContentItem() {
-		return policyViolationContentItem;
+	public PolicyOverrideContentItem getPolicyOverrideContentItem() {
+		return policyOverrideContentItem;
 	}
-
 
 	@Override
 	public String getUniquePropertyKey() {

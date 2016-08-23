@@ -25,12 +25,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.api.version.ReleaseItem;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -46,14 +45,13 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 
 	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext,
-			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService,
 			final JiraSettingsService jiraSettingsService) {
-		super(jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService, jiraSettingsService);
+		super(jiraServices, jiraContext, jiraSettingsService);
 		this.mappings = mappings;
 	}
 
 	@Override
-	public List<HubEvent> generateEvents(final NotificationItem notif) {
+	public List<HubEvent> generateEvents(final NotificationContentItem notif) {
 		List<HubEvent> events = new LinkedList<HubEvent>();
 
 		if (!isRulesToMonitor()) {
@@ -67,7 +65,7 @@ public class PolicyViolationNotificationConverter extends PolicyNotificationConv
 		List<ComponentVersionStatus> compVerStatuses;
 		final ReleaseItem notifHubProjectReleaseItem;
 		eventType = HubEventType.POLICY_VIOLATION;
-		final RuleViolationNotificationItem ruleViolationNotif = (RuleViolationNotificationItem) notif;
+		final PolicyViolationContentItem ruleViolationNotif = (PolicyViolationContentItem) notif;
 
 		try {
 			compVerStatuses = ruleViolationNotif.getContent().getComponentVersionStatuses();

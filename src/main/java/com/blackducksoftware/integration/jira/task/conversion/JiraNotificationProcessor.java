@@ -24,10 +24,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -38,23 +37,23 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class JiraNotificationProcessor {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
+
 	private final ConverterLookupTable converterTable;
 
-	public JiraNotificationProcessor(final NotificationService hubNotificationService,
-			final HubProjectMappings mapping, final List<String> linksOfRulesToMonitor,
-			final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, linksOfRulesToMonitor,
-				hubNotificationService, jiraSettingsService);
+
+	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
+			final JiraContext jiraContext,
+			final JiraSettingsService jiraSettingsService) {
+		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService);
 	}
 
-	public List<HubEvent> generateEvents(final List<NotificationItem> notifications)
+	public List<HubEvent> generateEvents(final List<NotificationContentItem> notifications)
 			throws NotificationServiceException {
 		final List<HubEvent> allEvents = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
 		+ " notifications");
-		for (final NotificationItem notif : notifications) {
+		for (final NotificationContentItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 
 			List<HubEvent> notifEvents;
@@ -70,8 +69,8 @@ public class JiraNotificationProcessor {
 		return allEvents;
 	}
 
-	private List<HubEvent> generateEvents(final NotificationItem notif) throws UnexpectedHubResponseException,
-	NotificationServiceException {
+	private List<HubEvent> generateEvents(final NotificationContentItem notif)
+			throws UnexpectedHubResponseException, NotificationServiceException {
 		final NotificationToEventConverter converter = converterTable.getConverter(notif);
 		final List<HubEvent> events = converter.generateEvents(notif);
 		return events;
