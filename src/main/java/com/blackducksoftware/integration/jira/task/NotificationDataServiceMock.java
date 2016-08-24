@@ -37,7 +37,9 @@ public class NotificationDataServiceMock extends NotificationDataService {
 			projectVersion.setProjectName("TestProject");
 			projectVersion.setProjectVersionName("TestVersion");
 			projectVersion
-			.setProjectVersionLink("http://test/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
+			.setProjectVersionLink(
+					"http://test/projects/" + UUID.fromString("3670db83-7916-4398-af2c-a05798bbf2ef")
+					+ "/versions/" + UUID.fromString("17b5cf06-439f-4ffe-9b4f-d262f56b2d8f"));
 
 			final List<VulnerabilitySourceQualifiedId> newVulns = new ArrayList<>();
 			final VulnerabilitySourceQualifiedId newVuln = new VulnerabilitySourceQualifiedId("FAKE NEW",
@@ -56,7 +58,8 @@ public class NotificationDataServiceMock extends NotificationDataService {
 
 
 			final VulnerabilityContentItem vulnNotification = new VulnerabilityContentItem(projectVersion, "TestComp",
-					"TestCompVersion", UUID.randomUUID(), UUID.randomUUID(),
+					"TestCompVersion", UUID.fromString("d15b7f61-c5b9-4f31-8605-769b12198d91"),
+					UUID.fromString("0ce0a7b7-1872-4643-b389-da58a753d70d"),
 					newVulns, updatedVulns, deletedVulns);
 			notifications.add(vulnNotification);
 		}
