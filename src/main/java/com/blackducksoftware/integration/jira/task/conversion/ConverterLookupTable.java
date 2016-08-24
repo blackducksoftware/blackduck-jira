@@ -41,10 +41,11 @@ public class ConverterLookupTable {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(mappings,
 				jiraServices, jiraContext, jiraSettingsService);
-		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(mappings,
-				jiraServices, jiraContext, jiraSettingsService);
-		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
+		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
 				mappings, jiraServices, jiraContext, jiraSettingsService);
+		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
+				mappings,
+				jiraServices, jiraContext, jiraSettingsService);
 
 		lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
 		lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);

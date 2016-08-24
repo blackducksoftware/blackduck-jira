@@ -24,6 +24,7 @@ import java.util.List;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -34,13 +35,16 @@ public abstract class NotificationToEventConverter {
 	private final JiraServices jiraServices;
 	private final JiraContext jiraContext;
 	private final JiraSettingsService jiraSettingsService;
+	private final HubProjectMappings mappings;
 
 	public NotificationToEventConverter(
 			final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+			final HubProjectMappings mappings) {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
+		this.mappings = mappings;
 	}
 
 	public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
@@ -48,6 +52,10 @@ public abstract class NotificationToEventConverter {
 
 	public JiraSettingsService getJiraSettingsService() {
 		return jiraSettingsService;
+	}
+
+	public HubProjectMappings getMappings() {
+		return mappings;
 	}
 
 	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {

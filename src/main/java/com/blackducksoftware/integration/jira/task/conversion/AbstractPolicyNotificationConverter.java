@@ -24,9 +24,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -35,34 +33,53 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class PolicyViolationNotificationConverter extends AbstractPolicyNotificationConverter {
+public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 
-	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+
+	public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		super(mappings, jiraServices, jiraContext, jiraSettingsService);
+		super(jiraServices, jiraContext, jiraSettingsService, mappings);
 	}
 
 	@Override
-	protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
-		final List<HubEvent> events = new ArrayList<>();
+	public List<HubEvent> generateEvents(final NotificationContentItem notif)
+	{
+		final List<HubEvent> notifEvents = new ArrayList<>();
+		try {
+			logger.debug("policyNotif: " + notif);
+			logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
+			final List<JiraProject> mappingJiraProjects = getMappings()
+					.getJiraProjects(notif.getProjectVersion().getProjectName());
+			logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
+					+ notif.getProjectVersion().getProjectName());
 
-		final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
-		for (final PolicyRule rule : notification.getPolicyRuleList()) {
-			final HubEvent event = new PolicyEvent(HubEventAction.OPEN, getJiraContext().getJiraUser().getName(),
-					jiraProject.getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
-					notification, rule);
-			events.add(event);
+			if (!mappingJiraProjects.isEmpty()) {
+
+				for (final JiraProject jiraProject : mappingJiraProjects) {
+					logger.debug("JIRA Project: " + jiraProject);
+
+					final List<HubEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
+					if (projectEvents != null) {
+						notifEvents.addAll(projectEvents);
+					}
+				}
+			}
+		} catch (final Exception e) {
+			logger.error(e);
+			getJiraSettingsService().addHubError(e);
+			return null;
 		}
-
-
-		return events;
+		return notifEvents;
 	}
+
+	protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+			final JiraProject jiraProject)
+			throws UnexpectedHubResponseException, NotificationServiceException;
+
+
 
 }

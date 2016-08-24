@@ -26,9 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -36,9 +34,6 @@ import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationPr
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for
@@ -49,22 +44,21 @@ import com.google.gson.JsonParser;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final RestConnection restConnection;
+	private final NotificationDataService notificationDataService;
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
 
-	public TicketGenerator(final RestConnection restConnection,
+	public TicketGenerator(final NotificationDataService notificationDataService,
 			final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		this.restConnection = restConnection;
+		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
-			final List<String> linksOfRulesToMonitor,
 			final Date startDate, final Date endDate) throws NotificationServiceException {
 
 		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
@@ -72,11 +66,6 @@ public class TicketGenerator {
 			return;
 		}
 		try {
-			final Gson gson = new GsonBuilder().create();
-			final JsonParser jsonParser = new JsonParser();
-			final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
-			final NotificationDataService notificationDataService = new NotificationDataService(restConnection, gson,
-					jsonParser, policyFilter);
 
 			final List<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate, endDate);
 			// final List<NotificationItem> notifs =

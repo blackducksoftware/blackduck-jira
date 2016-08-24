@@ -38,6 +38,8 @@ import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -102,27 +104,43 @@ public class JiraIssueHandler {
 		}
 	}
 
+	private String getNotificationUniqueKey(final HubEvent notificationEvent) {
+		String notificationUniqueKey = null;
+		try {
+			notificationUniqueKey = notificationEvent.getUniquePropertyKey();
+		} catch (final MissingUUIDException e) {
+			logger.error(e);
+			jiraSettingsService.addHubError(e);
+		}
+		return notificationUniqueKey;
+	}
+
 	private Issue findIssue(final HubEvent notificationEvent) {
 		logger.debug("findIssue(): notificationEvent: " + notificationEvent);
-		logger.debug("findIssue(): key: " + notificationEvent.getUniquePropertyKey());
-		final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
-		final EntityPropertyQuery.ExecutableQuery executableQuery = query
-				.key(notificationEvent.getUniquePropertyKey());
-		final List<EntityProperty> props = executableQuery.maxResults(1).find();
-		if (props.size() == 0) {
-			logger.debug("No property found with that key");
-			return null;
-		}
-		final EntityProperty property = props.get(0);
-		final IssueProperties propertyValue = notificationEvent.createIssuePropertiesFromJson(property.getValue());
-		logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
-		final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
-				propertyValue.getJiraIssueId());
 
-		if (!result.isValid()) {
-			handleErrorCollection(result.getErrorCollection());
-		} else {
-			return result.getIssue();
+		final String notificationUniqueKey = getNotificationUniqueKey(notificationEvent);
+
+		if (notificationUniqueKey != null) {
+			logger.debug("findIssue(): key: " + notificationUniqueKey);
+			final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
+			final EntityPropertyQuery.ExecutableQuery executableQuery = query
+					.key(notificationUniqueKey);
+			final List<EntityProperty> props = executableQuery.maxResults(1).find();
+			if (props.size() == 0) {
+				logger.debug("No property found with that key");
+				return null;
+			}
+			final EntityProperty property = props.get(0);
+			final IssueProperties propertyValue = notificationEvent.createIssuePropertiesFromJson(property.getValue());
+			logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
+			final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
+					propertyValue.getJiraIssueId());
+
+			if (!result.isValid()) {
+				handleErrorCollection(result.getErrorCollection());
+			} else {
+				return result.getIssue();
+			}
 		}
 		return null;
 	}
@@ -209,6 +227,7 @@ public class JiraIssueHandler {
 	}
 
 	public void handleEvent(final HubEvent event) {
+
 		switch (event.getAction()) {
 		case OPEN:
 			openIssue(event);
@@ -218,7 +237,9 @@ public class JiraIssueHandler {
 			break;
 		case ADD_COMMENT:
 			final Issue issue = openIssue(event);
-			addComment(event, issue);
+			if (issue != null) {
+				addComment(event, issue);
+			}
 			break;
 		}
 	}
@@ -232,34 +253,39 @@ public class JiraIssueHandler {
 		logger.debug("Setting logged in User : " + jiraContext.getJiraUser().getDisplayName());
 		jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraUser());
 		logger.debug("event: " + event);
-		final Issue oldIssue = findIssue(event);
 
-		if (oldIssue == null) {
+		final String notificationUniqueKey = getNotificationUniqueKey(event);
+		if (notificationUniqueKey != null) {
+			final Issue oldIssue = findIssue(event);
 
-			final Issue issue = createIssue(event);
-			if (issue != null) {
-				logger.info("Created new Issue.");
-				printIssueInfo(issue);
+			if (oldIssue == null) {
 
-				final IssueProperties properties = event.createIssueProperties(issue);
-				logger.debug("Adding properties to created issue: " + properties);
-				addIssueProperty(issue.getId(), event.getUniquePropertyKey(), properties);
-			}
-			return issue;
-		} else {
-			if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
-				transitionIssue(oldIssue, REOPEN_STATUS);
-				logger.info("Re-opened the already exisiting issue.");
-				printIssueInfo(oldIssue);
+				final Issue issue = createIssue(event);
+				if (issue != null) {
+					logger.info("Created new Issue.");
+					printIssueInfo(issue);
+
+					final IssueProperties properties = event.createIssueProperties(issue);
+					logger.debug("Adding properties to created issue: " + properties);
+					addIssueProperty(issue.getId(), notificationUniqueKey, properties);
+				}
+				return issue;
 			} else {
-				logger.info("This issue already exists.");
-				printIssueInfo(oldIssue);
+				if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
+					transitionIssue(oldIssue, REOPEN_STATUS);
+					logger.info("Re-opened the already exisiting issue.");
+					printIssueInfo(oldIssue);
+				} else {
+					logger.info("This issue already exists.");
+					printIssueInfo(oldIssue);
+				}
+				return oldIssue;
 			}
-			return oldIssue;
 		}
+		return null;
 	}
 
-	private void closeIssue(final HubEvent event) {
+	private void closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
 			final Issue updatedIssue = transitionIssue(oldIssue, DONE_STATUS);
@@ -269,13 +295,13 @@ public class JiraIssueHandler {
 			}
 		} else {
 			logger.info("Could not find an existing issue to close for this override.");
-			logger.debug("Hub Project Name : " + event.getHubProjectName());
-			logger.debug("Hub Project Version : " + event.getHubProjectVersion());
-			logger.debug("Hub Component Name : " + event.getHubComponentName());
-			logger.debug("Hub Component Version : " + event.getHubComponentVersion());
+			logger.debug("Hub Project Name : " + event.getNotif().getProjectVersion().getProjectName());
+			logger.debug("Hub Project Version : " + event.getNotif().getProjectVersion().getProjectVersionName());
+			logger.debug("Hub Component Name : " + event.getNotif().getComponentName());
+			logger.debug("Hub Component Version : " + event.getNotif().getComponentVersion());
 			if (event instanceof PolicyEvent) {
 				final PolicyEvent notificationResultRule = (PolicyEvent) event;
-				logger.debug("Hub Rule Name : " + notificationResultRule.getRule().getName());
+				logger.debug("Hub Rule Name : " + notificationResultRule.getPolicyRule().getName());
 			}
 		}
 	}

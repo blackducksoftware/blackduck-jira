@@ -21,8 +21,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -30,8 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -40,7 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,23 +66,19 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
-import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.hub.api.component.ComponentVersion;
-import com.blackducksoftware.integration.hub.api.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.hub.api.item.HubItemsService;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyExpression;
 import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
-import com.blackducksoftware.integration.hub.api.version.ReleaseItem;
+import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
@@ -95,10 +86,7 @@ import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistExcep
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
-import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -118,15 +106,10 @@ public class TicketGeneratorTest {
 	private static final String VULNERABILITY_ISSUE_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n"
 			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
 			+ "Vulnerabilities deleted: \n";
-	private static final String VULNERABILITY_NOTIF_CONTENT_PATH_NEW = "src/test/resources/json/VulnerabilityNotificationContent_new.json";
 	private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
 	private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
 	private static final String POLICY_RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad";
-	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/073e0506-0d91-4d95-bd51-740d9ba52d96/versions/35430a68-3007-4777-90af-2e3f41738ac0";
-	private static final String VULN_RELEASEITEM_URL = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f";
 	private static final String VULN_COMPONENTVERSION_URL = "http://eng-hub-valid01.dc1.lan/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d";
-	private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(TicketGeneratorTest.class
-			.getName()));
 	private static final long JIRA_ISSUE_ID = 10000L;
 	private static final long JAN_2_2016 = 1451710800000L;
 	private static final long JAN_1_2016 = 1451624400000L;
@@ -172,7 +155,6 @@ public class TicketGeneratorTest {
 	IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 	UnexpectedHubResponseException, MissingUUIDException {
 		testVulnerabilityNotifications(
-				VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				false,
@@ -184,7 +166,6 @@ public class TicketGeneratorTest {
 	URISyntaxException, ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException,
 	MissingUUIDException {
 		testVulnerabilityNotifications(
-				VULNERABILITY_NOTIF_CONTENT_PATH_NEW,
 				false,
 				true,
 				true,
@@ -224,25 +205,6 @@ public class TicketGeneratorTest {
 		testRuleNotifications(true, true, false);
 	}
 
-	@Test
-	public void testLoadVulnerabilityContentJson() throws IOException {
-		final String jsonString = readFile(VULNERABILITY_NOTIF_CONTENT_PATH_NEW);
-		final VulnerabilityNotificationContent vulnContent = createVulnerabilityNotificationContent(jsonString);
-
-		assertEquals("TestNG", vulnContent.getComponentName());
-		assertEquals("2.0.0", vulnContent.getVersionName());
-		assertEquals(
-				VULN_COMPONENTVERSION_URL,
-				vulnContent.getComponentVersionLink());
-		assertEquals(1, vulnContent.getNewVulnerabilityCount());
-		assertEquals("NVD", vulnContent.getNewVulnerabilityIds().get(0).getSource());
-		assertEquals("CVE-2016-0001", vulnContent.getNewVulnerabilityIds().get(0).getId());
-		assertEquals(0, vulnContent.getUpdatedVulnerabilityCount());
-		assertEquals(0, vulnContent.getDeletedVulnerabilityCount());
-		assertEquals("4Drew", vulnContent.getAffectedProjectVersions().get(0).getProjectName());
-		assertEquals("2Drew", vulnContent.getAffectedProjectVersions().get(0).getProjectVersionName());
-	}
-
 	private String readFile(final String path) throws IOException {
 		final byte[] jsonBytes = Files.readAllBytes(Paths
 				.get(path));
@@ -257,7 +219,7 @@ public class TicketGeneratorTest {
 		return vulnContent;
 	}
 
-	private void testVulnerabilityNotifications(final String notifContentFilePath,
+	private void testVulnerabilityNotifications(
 			final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification, final String expectedIssueSummary,
 			final String expectedIssueDescription)
@@ -267,23 +229,18 @@ public class TicketGeneratorTest {
 
 		// Setup
 
-		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
-		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
-		final RestConnection restConnection = Mockito.mock(RestConnection.class);
-		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
-				hubItemsService);
+		final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices,
 				jiraContext, settingsService);
 
-		List<NotificationItem> notificationItems;
-		notificationItems = mockNewVulnerabilityNotificationItems(notifContentFilePath, createDuplicateNotification);
-		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
-				JAN_2_2016);
-		mockNotificationServiceDependencies(restConnection, hub, hubItemsService, notificationService,
-				hubNotificationQueryParameters,
+		final List<NotificationContentItem> notificationItems = new ArrayList<>();
+		notificationItems
+		.addAll(mockNewVulnerabilityNotificationItems(createDuplicateNotification));
+
+		mockNotificationServiceDependencies(notificationDataService,
 				notificationItems);
 
 		final ApplicationUser user = mockUser();
@@ -317,17 +274,11 @@ public class TicketGeneratorTest {
 
 		final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
 
-		final List<String> linksOfRulesToMonitor = mockRules();
-
-		final NotificationDateRange notificationDateRange = new NotificationDateRange(new Date(JAN_1_2016), new Date(
-				JAN_2_2016));
-
 		// Test
-
 		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraServices,
 				jiraContext,
-				hubProjectMappings), linksOfRulesToMonitor,
-				notificationDateRange);
+				hubProjectMappings),
+				new Date(JAN_1_2016), new Date(JAN_2_2016));
 
 		// Verify
 
@@ -374,28 +325,21 @@ public class TicketGeneratorTest {
 
 		// Setup
 
-		final HubItemsService<NotificationItem> hubItemsService = Mockito.mock(HubItemsService.class);
-		final HubIntRestService hub = Mockito.mock(HubIntRestService.class);
-		final RestConnection restConnection = Mockito.mock(RestConnection.class);
-		final NotificationService notificationService = createHubNotificationService(restConnection, hub,
-				hubItemsService);
+		final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService, jiraServices,
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices,
 				jiraContext, settingsService);
 
-		List<NotificationItem> notificationItems;
+		final List<NotificationContentItem> notificationItems = new ArrayList<>();
 		if (openIssue) {
-			notificationItems = mockRuleViolationNotificationItems(createDuplicateNotification);
+			notificationItems.addAll(mockRuleViolationNotificationItems(createDuplicateNotification));
 		} else {
-			notificationItems = mockPolicyOverrideNotificationItems();
+			notificationItems.addAll(mockPolicyOverrideNotificationItems());
 		}
-		final Set<SimpleEntry<String, String>> hubNotificationQueryParameters = mockHubQueryParameters(JAN_1_2016,
-				JAN_2_2016);
-		mockNotificationServiceDependencies(restConnection, hub, hubItemsService, notificationService,
-				hubNotificationQueryParameters,
+		mockNotificationServiceDependencies(notificationDataService,
 				notificationItems);
 
 		final ApplicationUser user = mockUser();
@@ -428,17 +372,12 @@ public class TicketGeneratorTest {
 
 		final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
 
-		final List<String> linksOfRulesToMonitor = mockRules();
-
-		final NotificationDateRange notificationDateRange = new NotificationDateRange(new Date(JAN_1_2016), new Date(
-				JAN_2_2016));
-
 		// Test
 
 		ticketGenerator.generateTicketsForRecentNotifications(new HubProjectMappings(jiraServices,
 				jiraContext,
-				hubProjectMappings), linksOfRulesToMonitor,
-				notificationDateRange);
+				hubProjectMappings),
+				new Date(JAN_1_2016), new Date(JAN_2_2016));
 
 		// Verify
 
@@ -455,7 +394,7 @@ public class TicketGeneratorTest {
 						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
 				.setDescription(
-						"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
+						"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).create(
 						Mockito.any(ApplicationUser.class),
 						Mockito.any(CreateValidationResult.class));
@@ -470,11 +409,6 @@ public class TicketGeneratorTest {
 
 	}
 
-	private List<String> mockRules() {
-		final List<String> linksOfRulesToMonitor = new ArrayList<>();
-		linksOfRulesToMonitor.add("ruleUrl");
-		return linksOfRulesToMonitor;
-	}
 
 	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext,
 			final ApplicationUser user,
@@ -574,16 +508,6 @@ public class TicketGeneratorTest {
 		return hubProjectMappings;
 	}
 
-	private NotificationService createHubNotificationService(final RestConnection restConnection,
-			final HubIntRestService hub,
-			final HubItemsService<NotificationItem> hubItemsService) {
-
-		final NotificationService notificationService = new NotificationService(restConnection, hub,
-				hubItemsService,
-				logger);
-		return notificationService;
-	}
-
 	private JiraProject mockBdsJiraProject() {
 		final JiraProject jiraProject = new JiraProject();
 		jiraProject.setProjectId(123L);
@@ -593,133 +517,87 @@ public class TicketGeneratorTest {
 		return jiraProject;
 	}
 
-	private Set<SimpleEntry<String, String>> mockHubQueryParameters(final long startDate,
-			final long endDate) {
-		final String startDateString = dateFormatter.format(startDate);
-		final String endDateString = dateFormatter.format(endDate);
-		final Set<SimpleEntry<String, String>> queryParameters = new HashSet<>();
-		queryParameters.add(new SimpleEntry<String, String>("startDate", startDateString));
-		queryParameters.add(new SimpleEntry<String, String>("endDate", endDateString));
-		queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(1000)));
-		return queryParameters;
-	}
 
-	private void mockNotificationServiceDependencies(final RestConnection restConnection, final HubIntRestService hub,
-			final HubItemsService<NotificationItem> hubItemsService,
-			final NotificationService notificationService, final Set<SimpleEntry<String, String>> queryParameters,
-			final List<NotificationItem> notificationItems)
+	private void mockNotificationServiceDependencies(final NotificationDataService notificationDataService,
+			final List<NotificationContentItem> notificationItems)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
-		final List<String> urlSegments = new ArrayList<>();
-		urlSegments.add("api");
-		urlSegments.add("notifications");
-		Mockito.when(hubItemsService.httpGetItemList(urlSegments, queryParameters)).thenReturn(notificationItems);
-		final List<MetaLink> links = new ArrayList<>();
-		links.add(new MetaLink("project", "hubProjectUrl"));
-		final String href = PROJECTVERSION_URL;
-		final MetaInformation projectMeta = new MetaInformation(null, href, links);
-		final ReleaseItem releaseItem = new ReleaseItem("hubProjectVersionName", "projectPhase", "projectDistribution",
-				"projectSource", projectMeta);
-		final ReleaseItem projectRelease = Mockito.mock(ReleaseItem.class);
-		final UUID projectUuid = UUID.randomUUID();
-		Mockito.when(projectRelease.getProjectId()).thenReturn(projectUuid);
-		final UUID versionUuid = UUID.randomUUID();
-		Mockito.when(projectRelease.getVersionId()).thenReturn(versionUuid);
-		Mockito.when(hub.getProjectVersion("hubProjectVersionUrl")).thenReturn(projectRelease);
-		// projectRelease.getVersionName
-		Mockito.when(projectRelease.getVersionName()).thenReturn("hubProjectVersionName");
-		final List<String> projectLinks = new ArrayList<>();
-		projectLinks.add("hubProjectUrl");
-		Mockito.when(projectRelease.getLinks("project")).thenReturn(projectLinks);
-		final ComponentVersion componentVersion = Mockito.mock(ComponentVersion.class);
-		Mockito.when(componentVersion.getVersionName()).thenReturn("componentVersionName");
-		Mockito.when(
-				restConnection
-				.httpGetFromAbsoluteUrl(
-						ComponentVersion.class,
-						"http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef"))
-		.thenReturn(componentVersion);
-		Mockito.when(
-				restConnection.httpGetFromAbsoluteUrl(BomComponentVersionPolicyStatus.class,
-						"bomComponentVersionPolicyStatusLink")).thenReturn(bomComponentVersionPolicyStatus);
-		Mockito.when(restConnection.httpGetFromAbsoluteUrl(PolicyRule.class, "ruleUrl")).thenReturn(rule);
-
-		// The following are needed by, and only by, vulnerability test,
-		// which loads json from file with this URL:
-		Mockito.when(
-				hub.getProjectVersion(VULN_RELEASEITEM_URL))
-		.thenReturn(releaseItem);
-		Mockito.when(
-				restConnection
-				.httpGetFromAbsoluteUrl(
-						ComponentVersion.class,
-						VULN_COMPONENTVERSION_URL))
-		.thenReturn(componentVersion);
-		final UUID componentUuid = UUID.randomUUID();
-		Mockito.when(componentVersion.getComponentId()).thenReturn(componentUuid);
-		final UUID componentVersionUuid = UUID.randomUUID();
-		Mockito.when(componentVersion.getVersionId()).thenReturn(componentVersionUuid);
+		Mockito.when(notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
+		.thenReturn(notificationItems);
 	}
 
-	private List<NotificationItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
-		final List<NotificationItem> notificationItems = new ArrayList<>();
-		final MetaInformation meta = new MetaInformation(null, null, null);
-		final RuleViolationNotificationItem notificationItem = new RuleViolationNotificationItem(meta);
-		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-		content.setComponentVersionsInViolation(1);
-		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
-		final ComponentVersionStatus componentVersionStatus = new ComponentVersionStatus();
-		componentVersionStatus.setComponentName("componentName");
-		componentVersionStatus
-		.setComponentVersionLink("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef");
-		componentVersionStatus.setBomComponentVersionPolicyStatusLink("bomComponentVersionPolicyStatusLink");
-		componentVersionStatuses.add(componentVersionStatus);
-		content.setComponentVersionStatuses(componentVersionStatuses);
-		content.setProjectVersionLink("hubProjectVersionUrl");
-		content.setProjectName("projectName");
-		notificationItem.setContent(content);
+	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
+		final List<PolicyViolationContentItem> notificationItems = new ArrayList<>();
 
-		notificationItems.add(notificationItem);
+		final List<PolicyRule> policyRules = new ArrayList<>();
+		final MetaInformation meta = new MetaInformation(null, POLICY_RULE_URL, null);
+		final PolicyRule rule = new PolicyRule(meta, "someRule", null, null, true, null, null, null, null, null);
+		policyRules.add(rule);
+
+		final ProjectVersion projectVersion = new ProjectVersion();
+		projectVersion.setProjectName("projectName");
+		projectVersion.setProjectVersionName("hubProjectVersionName");
+
+		projectVersion.setProjectVersionLink(
+				"http://localhost/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
+
+		final PolicyViolationContentItem notif = new PolicyViolationContentItem(projectVersion, "componentName",
+				"componentVersionName", UUID.randomUUID(), UUID.randomUUID(), policyRules);
+
+		notificationItems.add(notif);
 		if (createDuplicate) {
-			notificationItems.add(notificationItem);
+			notificationItems.add(notif);
 		}
 		return notificationItems;
 	}
 
-	private List<NotificationItem> mockNewVulnerabilityNotificationItems(final String notifContentFilePath,
+	private List<VulnerabilityContentItem> mockNewVulnerabilityNotificationItems(
 			final boolean createDuplicate)
 					throws IOException {
-		final List<NotificationItem> notificationItems = new ArrayList<>();
-		final MetaInformation meta = new MetaInformation(null, null, null);
-		final VulnerabilityNotificationItem notificationItem = new VulnerabilityNotificationItem(meta);
-		final String jsonString = readFile(notifContentFilePath);
-		final VulnerabilityNotificationContent content = createVulnerabilityNotificationContent(jsonString);
-		notificationItem.setContent(content);
+		final List<VulnerabilityContentItem> notificationItems = new ArrayList<>();
 
-		notificationItems.add(notificationItem);
+		final ProjectVersion projectVersion = new ProjectVersion();
+		projectVersion.setProjectName("4Drew");
+		projectVersion.setProjectVersionName("2Drew");
+		projectVersion.setProjectVersionLink(
+				"http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f");
+
+		final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
+		final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId("NVD", "CVE-2016-0001");
+		addedVulnList.add(vuln);
+
+		final VulnerabilityContentItem notif = new VulnerabilityContentItem(projectVersion, "TestNG", "2.0.0",
+				UUID.fromString("d15b7f61-c5b9-4f31-8605-769b12198d91"),
+				UUID.fromString("0ce0a7b7-1872-4643-b389-da58a753d70d"), addedVulnList,
+				new ArrayList<VulnerabilitySourceQualifiedId>(), new ArrayList<VulnerabilitySourceQualifiedId>());
+
+		notificationItems.add(notif);
 		if (createDuplicate) {
-			notificationItems.add(notificationItem);
+			notificationItems.add(notif);
 		}
 		return notificationItems;
 	}
 
-	private List<NotificationItem> mockPolicyOverrideNotificationItems() {
-		final List<NotificationItem> notificationItems = new ArrayList<>();
-		final MetaInformation meta = new MetaInformation(null, null, null);
-		final PolicyOverrideNotificationItem notificationItem = new PolicyOverrideNotificationItem(meta);
-		final PolicyOverrideNotificationContent content = new PolicyOverrideNotificationContent();
-		content.setBomComponentVersionPolicyStatusLink("bomComponentVersionPolicyStatusLink");
-		content.setProjectVersionLink("hubProjectVersionUrl");
-		content.setProjectName("projectName");
-		content.setComponentName("componentName");
-		content.setComponentVersionLink("http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef");
-		content.setComponentVersionName("componentVersionName");
-		content.setFirstName("firstName");
-		content.setLastName("lastName");
-		content.setProjectVersionName("projectVersionName");
-		notificationItem.setContent(content);
-		notificationItems.add(notificationItem);
+	private List<PolicyOverrideContentItem> mockPolicyOverrideNotificationItems() {
+		final List<PolicyOverrideContentItem> notificationItems = new ArrayList<>();
+
+		final ProjectVersion projectVersion = new ProjectVersion();
+		projectVersion.setProjectName("projectName");
+		projectVersion.setProjectVersionName("projectVersionName");
+		projectVersion.setProjectVersionLink(
+				"http://localhost/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
+
+		final List<PolicyRule> policyRules = new ArrayList<>();
+		final MetaInformation meta = new MetaInformation(null, POLICY_RULE_URL, null);
+		final PolicyRule rule = new PolicyRule(meta, "someRule", null, null, true, null, null, null, null, null);
+		policyRules.add(rule);
+
+		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(projectVersion, "componentName",
+				"componentVersionName", UUID.fromString("0934ea45-c739-4b58-bcb1-ee777022ce4f"),
+				UUID.fromString("7c45d411-92ca-45b0-80fc-76b765b954ef"), policyRules, "firstName", "lastName");
+
+		notificationItems.add(notif);
 		return notificationItems;
 	}
 

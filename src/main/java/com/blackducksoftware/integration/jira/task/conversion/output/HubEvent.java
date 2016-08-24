@@ -20,6 +20,8 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import com.atlassian.jira.issue.Issue;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 
 /**
  * An event is one of the following: Policy violation by a specific component on
@@ -30,31 +32,35 @@ import com.atlassian.jira.issue.Issue;
  * @author sbillings
  *
  */
-public abstract class HubEvent {
+public abstract class HubEvent<T extends NotificationContentItem> {
 
 	private final HubEventAction action;
-
 	private final String jiraUserName;
 	private final String jiraIssueTypeId;
 	private final Long jiraProjectId;
 	private final String jiraProjectName;
+	private final T notif;
 
 
 	public HubEvent(final HubEventAction action,
 			final String jiraUserName,
-			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName) {
+			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
+			final T notif) {
 		this.action = action;
-
 		this.jiraUserName = jiraUserName;
 		this.jiraIssueTypeId = jiraIssueTypeId;
 		this.jiraProjectId = jiraProjectId;
 		this.jiraProjectName = jiraProjectName;
+		this.notif = notif;
 	}
 
 	public HubEventAction getAction() {
 		return action;
 	}
 
+	public T getNotif() {
+		return notif;
+	}
 
 	public String getJiraUserName() {
 		return jiraUserName;
@@ -77,7 +83,7 @@ public abstract class HubEvent {
 		return null; // most event types don't produce comments
 	}
 
-	public abstract String getUniquePropertyKey();
+	public abstract String getUniquePropertyKey() throws MissingUUIDException;
 
 	public abstract String getIssueSummary();
 

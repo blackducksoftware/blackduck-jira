@@ -32,6 +32,8 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
@@ -43,6 +45,9 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -123,19 +128,20 @@ public class HubJiraTask {
 				return null;
 			}
 
+			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+
 			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext,
 					restConnection,
-					hub);
+					linksOfRulesToMonitor);
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
-			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
 					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings,
-					linksOfRulesToMonitor, startDate, runDate);
+					startDate, runDate);
 		} catch (final Exception e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
 			jiraSettingsService.addHubError(e);
@@ -176,11 +182,16 @@ public class HubJiraTask {
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraContext jiraContext,
-			final RestConnection restConnection,
-			final HubIntRestService hub) {
+			final RestConnection restConnection, final List<String> linksOfRulesToMonitor) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection,
+		final Gson gson = new GsonBuilder().create();
+		final JsonParser jsonParser = new JsonParser();
+		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+		final NotificationDataService notificationDataService = new NotificationDataService(restConnection, gson,
+				jsonParser, policyFilter);
+
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService,
 				jiraServices, jiraContext, jiraSettingsService);
 		return ticketGenerator;
 	}
