@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,20 +35,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.hub.api.component.ComponentVersion;
-import com.blackducksoftware.integration.hub.api.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.NotificationType;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationItem;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.api.version.ReleaseItem;
+import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.meta.MetaInformation;
-import com.blackducksoftware.integration.hub.meta.MetaLink;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -67,31 +58,25 @@ public class PolicyViolationNotificationConverterTest {
 	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
 	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
 	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
-	private static final String NOTIF_URL_PREFIX = "http://test.notif.url";
 	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
 	private static final String JIRA_ISSUE_TYPE = "Task";
-	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX = "bomComponentVersionPolicyStatusLink";
-	private static final String COMPONENT_VERSION_LINK_PREFIX = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 	private static final String VERSION_NAME_PREFIX = "versionName";
 	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
-	private static final String RULE_URL_PREFIX = "ruleUrl";
-	private static final String RULE_NAME_PREFIX = "ruleName";
-	private static final String RULE_LINK_NAME = "policy-rule";
 
-	private static List<String> rulesIncludingViolatedRule;
-	private static List<String> rulesExcludingViolatedRule;
+	private static List<PolicyRule> rules;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		rulesIncludingViolatedRule = new ArrayList<>();
-		rulesIncludingViolatedRule.add("ruleUrl0");
-		rulesIncludingViolatedRule.add("ruleUrl");
-		rulesIncludingViolatedRule.add("ruleUrl99");
-
-		rulesExcludingViolatedRule = new ArrayList<>();
-		rulesExcludingViolatedRule.add("ruleUrl0");
-		rulesExcludingViolatedRule.add("ruleUrl1");
-		rulesExcludingViolatedRule.add("ruleUrl2");
+		rules = new ArrayList<>();
+		final PolicyRule includedRule1 = new PolicyRule(null, "ruleUrl0", null, null, null, null, null, null, null,
+				null);
+		final PolicyRule includedRule2 = new PolicyRule(null, "ruleUrl", null, null, null, null, null, null, null,
+				null);
+		final PolicyRule includedRule3 = new PolicyRule(null, "ruleUrl99", null, null, null, null, null, null, null,
+				null);
+		rules.add(includedRule1);
+		rules.add(includedRule2);
+		rules.add(includedRule3);
 	}
 
 	@AfterClass
@@ -100,81 +85,61 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, true, true);
+		final List<HubEvent> events = generateEvents(rules, true, true);
 
-		assertEquals(1, events.size());
-
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
+		assertEquals(3, events.size());
 
 		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
 		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
 		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
 		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
-	}
-
-	@Test
-	public void testWithRuleListNoMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<HubEvent> events = generateEvents(rulesExcludingViolatedRule, true, true);
-
-		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, true, false);
+		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
-		final List<HubEvent> events = generateEvents(rulesIncludingViolatedRule, false, false);
+		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
-	private List<HubEvent> generateEvents(final List<String> rulesToMonitor, final boolean includeProjectMappings,
+	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
-		final NotificationService mockHubNotificationService = createMockHubNotificationService(true);
 		final ProjectManager jiraProjectManager = createJiraProjectManager();
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
-		final JiraContext ticketGenInfo = new JiraContext(jiraUser, JIRA_ISSUE_TYPE);
+		final JiraContext jiraContext = new JiraContext(jiraUser, JIRA_ISSUE_TYPE);
 
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, ticketGenInfo, createProjectMappings(
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext, createProjectMappings(
 				includeProjectMappings, projectMappingMatch));
 
-		final NotificationItem notification = createNotification();
+		final NotificationContentItem notification = createNotification(rules);
 
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
 
 		final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
-				ticketGenInfo, rulesToMonitor, mockHubNotificationService, jiraSettingsService);
+				jiraContext, jiraSettingsService);
 		final List<HubEvent> events = converter.generateEvents(notification);
+
 		return events;
 	}
 
-	private NotificationItem createNotification() {
+	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) {
 
-		final MetaInformation meta = new MetaInformation(null, NOTIF_URL_PREFIX, null);
-		final RuleViolationNotificationItem notif = new RuleViolationNotificationItem(meta);
-		notif.setCreatedAt(new Date());
-		notif.setType(NotificationType.POLICY_VIOLATION);
-		final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-		content.setProjectName(HUB_PROJECT_NAME_PREFIX);
-		content.setProjectVersionLink(PROJECTVERSION_URL_PREFIX);
-		final List<ComponentVersionStatus> componentVersionStatuses = new ArrayList<>();
-		final ComponentVersionStatus compVerStatus = new ComponentVersionStatus();
-		compVerStatus.setComponentName(HUB_COMPONENT_NAME_PREFIX);
-		compVerStatus.setComponentVersionLink(COMPONENT_VERSION_LINK_PREFIX);
-		compVerStatus.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX);
-		componentVersionStatuses.add(compVerStatus);
-		content.setComponentVersionStatuses(componentVersionStatuses);
-		notif.setContent(content);
+		final ProjectVersion projectVersion = new ProjectVersion();
+		projectVersion.setProjectName(HUB_PROJECT_NAME_PREFIX);
+		projectVersion.setProjectVersionLink(PROJECTVERSION_URL_PREFIX);
+		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
+
+		final PolicyViolationContentItem notif = new PolicyViolationContentItem(projectVersion,
+				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, null, policyRule);
 		System.out.println("Notif: " + notif);
 
 		return notif;
@@ -212,54 +177,6 @@ public class PolicyViolationNotificationConverterTest {
 		final ProjectManagerMock projectManager = new ProjectManagerMock();
 		projectManager.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 		return projectManager;
-	}
-
-	private NotificationService createMockHubNotificationService(final boolean ruleMatches)
-			throws NotificationServiceException, UnexpectedHubResponseException {
-		String suffix;
-		if (ruleMatches) {
-			suffix = "";
-		} else {
-			suffix = "XX";
-		}
-		final NotificationService mockHubNotificationService = Mockito.mock(NotificationService.class);
-
-		final ReleaseItem releaseItem = getReleaseItem();
-		Mockito.when(mockHubNotificationService
-				.getProjectReleaseItemFromProjectReleaseUrl(PROJECTVERSION_URL_PREFIX))
-		.thenReturn(releaseItem);
-		List<MetaLink> links = new ArrayList<>();
-		MetaInformation meta = new MetaInformation(null, null, links);
-		final ComponentVersion componentVersion = new ComponentVersion(meta);
-		componentVersion.setVersionName(VERSION_NAME_PREFIX);
-		Mockito.when(mockHubNotificationService.getComponentVersion(COMPONENT_VERSION_LINK_PREFIX))
-		.thenReturn(componentVersion);
-
-		links = new ArrayList<>();
-
-		links.add(new MetaLink(RULE_LINK_NAME, RULE_URL_PREFIX + suffix));
-
-		final PolicyRule rule = new PolicyRule(null, RULE_NAME_PREFIX, "description", true, true, null,
-				"createdAt", "createdBy", "updatedAt", "updatedBy");
-		Mockito.when(mockHubNotificationService.getPolicyRule(RULE_URL_PREFIX)).thenReturn(rule);
-
-		meta = new MetaInformation(null, null, links);
-		final BomComponentVersionPolicyStatus status = new BomComponentVersionPolicyStatus(meta);
-		Mockito.when(
-				mockHubNotificationService.getPolicyStatus(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK_PREFIX))
-		.thenReturn(status);
-
-		return mockHubNotificationService;
-	}
-
-	private ReleaseItem getReleaseItem() {
-		final List<MetaLink> links = new ArrayList<>();
-		final MetaLink link = new MetaLink("project", PROJECT_URL_PREFIX);
-		links.add(link);
-		final MetaInformation _meta = new MetaInformation(null, null, links);
-		final ReleaseItem releaseItem = new ReleaseItem(TEST_PROJECT_VERSION_PREFIX, "testPhase",
-				"testDistribution", "testSource", _meta);
-		return releaseItem;
 	}
 
 }

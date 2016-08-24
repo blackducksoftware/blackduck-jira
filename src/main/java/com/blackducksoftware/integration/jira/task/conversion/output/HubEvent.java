@@ -19,11 +19,9 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import java.util.UUID;
-
 import com.atlassian.jira.issue.Issue;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 
 /**
  * An event is one of the following: Policy violation by a specific component on
@@ -34,80 +32,34 @@ import com.google.gson.GsonBuilder;
  * @author sbillings
  *
  */
-public abstract class HubEvent {
-	protected final Gson gson = new GsonBuilder().create();
+public abstract class HubEvent<T extends NotificationContentItem> {
+
 	private final HubEventAction action;
-	private final String hubProjectName;
-	private final String hubProjectVersion;
-	private final String hubComponentName;
-	private final String hubComponentVersion;
-
-	private final UUID hubProjectVersionId;
-	private final UUID hubComponentId;
-	private final UUID hubComponentVersionId;
-
 	private final String jiraUserName;
 	private final String jiraIssueTypeId;
 	private final Long jiraProjectId;
 	private final String jiraProjectName;
+	private final T notif;
 
-	private final HubEventType eventType;
 
-	public HubEvent(final HubEventAction action, final String hubProjectName,
-			final String hubProjectVersion,
-			final String hubComponentName, final String hubComponentVersion,
-			final UUID hubProjectVersionId, final UUID hubComponentId,
-			final UUID hubComponentVersionId,
+	public HubEvent(final HubEventAction action,
 			final String jiraUserName,
 			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final HubEventType eventType) {
+			final T notif) {
 		this.action = action;
-		this.hubProjectName = hubProjectName;
-		this.hubProjectVersion = hubProjectVersion;
-		this.hubComponentName = hubComponentName;
-		this.hubComponentVersion = hubComponentVersion;
-
-		this.hubProjectVersionId = hubProjectVersionId;
-		this.hubComponentId = hubComponentId;
-		this.hubComponentVersionId = hubComponentVersionId;
-
 		this.jiraUserName = jiraUserName;
 		this.jiraIssueTypeId = jiraIssueTypeId;
 		this.jiraProjectId = jiraProjectId;
 		this.jiraProjectName = jiraProjectName;
-		this.eventType = eventType;
+		this.notif = notif;
 	}
 
 	public HubEventAction getAction() {
 		return action;
 	}
 
-	public String getHubProjectName() {
-		return hubProjectName;
-	}
-
-	public String getHubProjectVersion() {
-		return hubProjectVersion;
-	}
-
-	public String getHubComponentName() {
-		return hubComponentName;
-	}
-
-	public String getHubComponentVersion() {
-		return hubComponentVersion;
-	}
-
-	public UUID getHubProjectVersionId() {
-		return hubProjectVersionId;
-	}
-
-	public UUID getHubComponentId() {
-		return hubComponentId;
-	}
-
-	public UUID getHubComponentVersionId() {
-		return hubComponentVersionId;
+	public T getNotif() {
+		return notif;
 	}
 
 	public String getJiraUserName() {
@@ -126,16 +78,12 @@ public abstract class HubEvent {
 		return jiraProjectName;
 	}
 
-	public HubEventType getEventType() {
-		return eventType;
-	}
-
 	// Subtypes that use comments must override this
 	public String getComment() {
 		return null; // most event types don't produce comments
 	}
 
-	public abstract String getUniquePropertyKey();
+	public abstract String getUniquePropertyKey() throws MissingUUIDException;
 
 	public abstract String getIssueSummary();
 

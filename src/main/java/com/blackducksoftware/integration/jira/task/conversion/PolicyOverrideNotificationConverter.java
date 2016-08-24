@@ -20,83 +20,47 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.component.ComponentVersionStatus;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.hub.api.version.ReleaseItem;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventType;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class PolicyOverrideNotificationConverter extends PolicyNotificationConverter {
+public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final HubProjectMappings mappings;
+	public static final String PROJECT_LINK = "project";
 
 	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext,
-			final List<String> linksOfRulesToMonitor, final NotificationService hubNotificationService,
-			final JiraSettingsService jiraSettingsService) {
-		super(jiraServices, jiraContext, linksOfRulesToMonitor, hubNotificationService, jiraSettingsService);
-		this.mappings = mappings;
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
+		super(mappings, jiraServices, jiraContext, jiraSettingsService);
 	}
 
 	@Override
-	public List<HubEvent> generateEvents(final NotificationItem notif) {
-		List<HubEvent> events = new LinkedList<HubEvent>();
+	protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+		final List<HubEvent> events = new ArrayList<>();
 
-		if (!isRulesToMonitor()) {
-			logger.warn("No rules-to-monitor provided, skipping policy notifications.");
-			return null;
+		final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
+		for (final PolicyRule rule : notification.getPolicyRuleList()) {
+			final HubEvent event = new PolicyEvent(HubEventAction.CLOSE, getJiraContext().getJiraUser().getName(),
+					jiraProject.getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+					notification, rule);
+			events.add(event);
 		}
 
-		HubEventType eventType;
-		String projectName;
-		String projectVersionName;
-		final ReleaseItem notifHubProjectReleaseItem;
-		eventType = HubEventType.POLICY_OVERRIDE;
-		final PolicyOverrideNotificationItem ruleViolationNotif = (PolicyOverrideNotificationItem) notif;
-		final List<ComponentVersionStatus> compVerStatuses = new ArrayList<>();
-		final ComponentVersionStatus componentStatus = new ComponentVersionStatus();
-
-		try {
-			componentStatus.setBomComponentVersionPolicyStatusLink(ruleViolationNotif.getContent()
-					.getBomComponentVersionPolicyStatusLink());
-			componentStatus.setComponentName(ruleViolationNotif.getContent().getComponentName());
-			componentStatus.setComponentVersionLink(ruleViolationNotif.getContent().getComponentVersionLink());
-			compVerStatuses.add(componentStatus);
-			projectName = ruleViolationNotif.getContent().getProjectName();
-
-			logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectName);
-			final List<JiraProject> mappingJiraProjects = mappings.getJiraProjects(projectName);
-			logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
-					+ projectName);
-			// get the mapped projects by name before making any Hub calls to
-			// prevent forbidden errors
-			if (!mappingJiraProjects.isEmpty()) {
-				notifHubProjectReleaseItem = getHubNotificationService().getProjectReleaseItemFromProjectReleaseUrl(
-						ruleViolationNotif.getContent().getProjectVersionLink());
-				projectVersionName = notifHubProjectReleaseItem.getVersionName();
-				events = handleNotification(eventType, projectName, projectVersionName, compVerStatuses,
-						notifHubProjectReleaseItem, mappingJiraProjects);
-			}
-		} catch (UnexpectedHubResponseException | NotificationServiceException e) {
-			logger.error(e);
-			getJiraSettingsService().addHubError(e);
-			return null;
-		}
 		return events;
 	}
 

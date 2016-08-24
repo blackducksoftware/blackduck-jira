@@ -22,9 +22,9 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.List;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
+import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -32,28 +32,30 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
-	private final NotificationService hubNotificationService;
 	private final JiraServices jiraServices;
 	private final JiraContext jiraContext;
 	private final JiraSettingsService jiraSettingsService;
+	private final HubProjectMappings mappings;
 
-	public NotificationToEventConverter(final NotificationService hubNotificationService,
+	public NotificationToEventConverter(
 			final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		this.hubNotificationService = hubNotificationService;
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+			final HubProjectMappings mappings) {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
+		this.mappings = mappings;
 	}
 
-	public abstract List<HubEvent> generateEvents(NotificationItem notif);
+	public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
 
-	protected NotificationService getHubNotificationService() {
-		return hubNotificationService;
-	}
 
 	public JiraSettingsService getJiraSettingsService() {
 		return jiraSettingsService;
+	}
+
+	public HubProjectMappings getMappings() {
+		return mappings;
 	}
 
 	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {

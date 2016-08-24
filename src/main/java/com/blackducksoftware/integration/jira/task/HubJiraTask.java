@@ -24,9 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -34,16 +32,11 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.api.item.HubItemsService;
-import com.blackducksoftware.integration.hub.api.notification.NotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationItem;
+import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.notification.NotificationDateRange;
-import com.blackducksoftware.integration.hub.notification.NotificationService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -52,7 +45,9 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -124,7 +119,6 @@ public class HubJiraTask {
 		try {
 			final RestConnection restConnection = initRestConnection();
 			final HubIntRestService hub = initHubRestService(restConnection);
-			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
 
 			final JiraContext jiraContext = initJiraContext(jiraUser, jiraIssueTypeName);
 
@@ -134,23 +128,20 @@ public class HubJiraTask {
 				return null;
 			}
 
+			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+
 			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext,
 					restConnection,
-					hub,
-					hubItemsService);
+					linksOfRulesToMonitor);
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
-			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
-					runDate);
-
-			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
 					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings,
-					linksOfRulesToMonitor, notificationDateRange);
+					startDate, runDate);
 		} catch (final Exception e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
 			jiraSettingsService.addHubError(e);
@@ -191,34 +182,18 @@ public class HubJiraTask {
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraContext jiraContext,
-			final RestConnection restConnection,
-			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
+			final RestConnection restConnection, final List<String> linksOfRulesToMonitor) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final NotificationService notificationService;
-		if (!"mock".equals(jiraUser)) {
-			logger.debug("Creating HubNotificationService");
-			notificationService = new NotificationService(restConnection, hub, hubItemsService, logger);
-		} else {
-			logger.debug("Creating HubNotificationServiceMock");
-			notificationService = new HubNotificationServiceMock(restConnection, hub, hubItemsService, logger);
-		}
+		final Gson gson = new GsonBuilder().create();
+		final JsonParser jsonParser = new JsonParser();
+		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+		final NotificationDataService notificationDataService = new NotificationDataService(restConnection, gson,
+				jsonParser, policyFilter);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationService,
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService,
 				jiraServices, jiraContext, jiraSettingsService);
 		return ticketGenerator;
-	}
-
-	private HubItemsService<NotificationItem> initHubItemsService(final RestConnection restConnection) {
-		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
-		};
-		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
-		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
-		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
-		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
-				NotificationItem.class, typeToken, typeToSubclassMap);
-		return hubItemsService;
 	}
 
 	private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
