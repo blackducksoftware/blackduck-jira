@@ -59,6 +59,7 @@ import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.TransactionTemplateMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -2062,10 +2063,11 @@ public class HubJiraConfigControllerTest {
 
 		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
 
-		ticketCreationErrors.put("Test Error Message", DateTime.now().toString());
-		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message3 \n line 2 of error \n line 3 of error",
-				DateTime.now().toString());
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
@@ -2098,13 +2100,13 @@ public class HubJiraConfigControllerTest {
 
 		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
 
-		ticketCreationErrors.put("Test Error Message", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error \n should be removed",
-				DateTime.now().minusDays(31).toString());
+				DateTime.now().minusDays(31).toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error \n should be removed",
-				DateTime.now().minusDays(35).toString());
+				DateTime.now().minusDays(35).toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
-				DateTime.now().minusDays(29).toString());
+				DateTime.now().minusDays(29).toString(JiraSettingsService.ERROR_TIME_FORMAT));
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
@@ -2137,11 +2139,13 @@ public class HubJiraConfigControllerTest {
 
 		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
 
-		ticketCreationErrors.put("Test Error Message", DateTime.now().toString());
-		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error", DateTime.now().toString());
-		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
-				DateTime.now().toString());
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
@@ -2178,16 +2182,17 @@ public class HubJiraConfigControllerTest {
 
 		final TicketCreationError ticketCreationError1 = new TicketCreationError();
 		ticketCreationError1.setStackTrace("Test Error Message 2 \n line 2 of error \n should get removed");
-		ticketCreationError1.setTimeStamp(DateTime.now().toString());
+		ticketCreationError1.setTimeStamp(DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		final TicketCreationError ticketCreationError2 = new TicketCreationError();
 		ticketCreationError2.setStackTrace("Should get removed");
-		ticketCreationError2.setTimeStamp(DateTime.now().toString());
+		ticketCreationError2.setTimeStamp(DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 
-		ticketCreationErrors.put("Test Error Message", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put(ticketCreationError1.getStackTrace(), ticketCreationError1.getTimeStamp());
-		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
-				DateTime.now().toString());
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put(ticketCreationError2.getStackTrace(), ticketCreationError2.getTimeStamp());
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
@@ -2229,11 +2234,13 @@ public class HubJiraConfigControllerTest {
 
 		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
 
-		ticketCreationErrors.put("Test Error Message", DateTime.now().toString());
-		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error", DateTime.now().toString());
-		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error", DateTime.now().toString());
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
-				DateTime.now().toString());
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
