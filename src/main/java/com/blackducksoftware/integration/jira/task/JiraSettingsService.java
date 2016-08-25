@@ -15,7 +15,7 @@ public class JiraSettingsService {
 
 	public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendDayOfMonth(2)
 			.appendLiteral('/').appendMonthOfYear(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
-			.appendHourOfDay(2).toFormatter();
+			.appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
 
 	private final PluginSettings settings;
 

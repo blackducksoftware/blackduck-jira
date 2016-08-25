@@ -109,7 +109,6 @@ public class TicketGeneratorTest {
 	private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
 	private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
 	private static final String POLICY_RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad";
-	private static final String VULN_COMPONENTVERSION_URL = "http://eng-hub-valid01.dc1.lan/api/components/d15b7f61-c5b9-4f31-8605-769b12198d91/versions/0ce0a7b7-1872-4643-b389-da58a753d70d";
 	private static final long JIRA_ISSUE_ID = 10000L;
 	private static final long JAN_2_2016 = 1451710800000L;
 	private static final long JAN_1_2016 = 1451624400000L;
