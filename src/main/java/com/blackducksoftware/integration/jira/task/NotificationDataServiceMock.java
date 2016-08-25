@@ -34,8 +34,8 @@ public class NotificationDataServiceMock extends NotificationDataService {
 
 		if (notifications != null && !notifications.isEmpty()) {
 			final ProjectVersion projectVersion = new ProjectVersion();
-			projectVersion.setProjectName("TestProject");
-			projectVersion.setProjectVersionName("TestVersion");
+			projectVersion.setProjectName(notifications.get(0).getProjectVersion().getProjectName());
+			projectVersion.setProjectVersionName(notifications.get(0).getProjectVersion().getProjectVersionName());
 			projectVersion.setProjectVersionLink(
 					"http://test/projects/" + UUID.fromString("3670db83-7916-4398-af2c-a05798bbf2ef") + "/versions/"
 							+ UUID.fromString("17b5cf06-439f-4ffe-9b4f-d262f56b2d8f"));
