@@ -38,7 +38,7 @@ import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -123,8 +123,7 @@ public class JiraIssueHandler {
 		if (notificationUniqueKey != null) {
 			logger.debug("findIssue(): key: " + notificationUniqueKey);
 			final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
-			final EntityPropertyQuery.ExecutableQuery executableQuery = query
-					.key(notificationUniqueKey);
+			final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(notificationUniqueKey);
 			final List<EntityProperty> props = executableQuery.maxResults(1).find();
 			if (props.size() == 0) {
 				logger.debug("No property found with that key");
@@ -149,9 +148,9 @@ public class JiraIssueHandler {
 
 		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
-		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
-		.setReporterId(notificationEvent.getJiraUserName())
-		.setDescription(notificationEvent.getIssueDescription());
+				.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+				.setReporterId(notificationEvent.getJiraUserName())
+				.setDescription(notificationEvent.getIssueDescription());
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);

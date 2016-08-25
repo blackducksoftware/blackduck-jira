@@ -20,7 +20,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 
 /**
@@ -41,11 +41,8 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 	private final String jiraProjectName;
 	private final T notif;
 
-
-	public HubEvent(final HubEventAction action,
-			final String jiraUserName,
-			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
-			final T notif) {
+	public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraIssueTypeId,
+			final Long jiraProjectId, final String jiraProjectName, final T notif) {
 		this.action = action;
 		this.jiraUserName = jiraUserName;
 		this.jiraIssueTypeId = jiraIssueTypeId;

@@ -38,8 +38,8 @@ import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationContent;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -93,20 +93,15 @@ public class PolicyOverrideNotificationConverterTest {
 		assertEquals(3, events.size());
 
 		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(HUB_COMPONENT_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME));
 		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME));
 
 		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(TEST_PROJECT_VERSION));
-		assertTrue(events.get(0).getIssueSummary()
-				.contains(HUB_COMPONENT_NAME));
+		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION));
+		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME));
 		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME));
 	}
-
 
 	@Test
 	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
@@ -130,8 +125,8 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext, createProjectMappings(
-				includeProjectMappings, projectMappingMatch));
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
+				createProjectMappings(includeProjectMappings, projectMappingMatch));
 
 		final NotificationContentItem notification = createNotification(rules);
 

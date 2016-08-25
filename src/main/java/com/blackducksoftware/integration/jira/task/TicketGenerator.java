@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.NotificationDataService;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -49,8 +49,7 @@ public class TicketGenerator {
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
 
-	public TicketGenerator(final NotificationDataService notificationDataService,
-			final JiraServices jiraServices,
+	public TicketGenerator(final NotificationDataService notificationDataService, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
@@ -58,8 +57,8 @@ public class TicketGenerator {
 		this.jiraSettingsService = jiraSettingsService;
 	}
 
-	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings,
-			final Date startDate, final Date endDate) throws NotificationServiceException {
+	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
+			final Date endDate) throws NotificationServiceException {
 
 		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
 			logger.debug("The configuration does not specify any Hub projects to monitor");
@@ -67,7 +66,8 @@ public class TicketGenerator {
 		}
 		try {
 
-			final List<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate, endDate);
+			final List<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
+					endDate);
 			// final List<NotificationItem> notifs =
 			// notificationService.fetchNotifications(notificationDateRange);
 			if ((notifs == null) || (notifs.size() == 0)) {

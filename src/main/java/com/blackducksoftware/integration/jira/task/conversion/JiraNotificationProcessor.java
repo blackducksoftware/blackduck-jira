@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -40,10 +40,8 @@ public class JiraNotificationProcessor {
 
 	private final ConverterLookupTable converterTable;
 
-
 	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
-			final JiraContext jiraContext,
-			final JiraSettingsService jiraSettingsService) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService);
 	}
 
@@ -52,7 +50,7 @@ public class JiraNotificationProcessor {
 		final List<HubEvent> allEvents = new ArrayList<>();
 
 		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-		+ " notifications");
+				+ " notifications");
 		for (final NotificationContentItem notif : notifications) {
 			logger.debug("Notification: " + notif);
 

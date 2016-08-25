@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -39,19 +39,18 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 
-
 	public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
 		super(jiraServices, jiraContext, jiraSettingsService, mappings);
 	}
 
 	@Override
-	public List<HubEvent> generateEvents(final NotificationContentItem notif)
-	{
+	public List<HubEvent> generateEvents(final NotificationContentItem notif) {
 		final List<HubEvent> notifEvents = new ArrayList<>();
 		try {
 			logger.debug("policyNotif: " + notif);
-			logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
+			logger.debug(
+					"Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
 			final List<JiraProject> mappingJiraProjects = getMappings()
 					.getJiraProjects(notif.getProjectVersion().getProjectName());
 			logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
@@ -77,9 +76,6 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 	}
 
 	protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-			final JiraProject jiraProject)
-			throws UnexpectedHubResponseException, NotificationServiceException;
-
-
+			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException;
 
 }
