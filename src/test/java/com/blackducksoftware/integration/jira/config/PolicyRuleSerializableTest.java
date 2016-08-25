@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+
 public class PolicyRuleSerializableTest {
 
 	@Test

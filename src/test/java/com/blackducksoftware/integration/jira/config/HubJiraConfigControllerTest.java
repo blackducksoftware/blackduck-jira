@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,24 +35,31 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.item.HubItemsService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
-import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.TransactionTemplateMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -544,7 +552,7 @@ public class HubJiraConfigControllerTest {
 
 		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
 
-		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<>();
 
 		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
 
@@ -1950,6 +1958,326 @@ public class HubJiraConfigControllerTest {
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
 		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
+	}
+
+	@Test
+	public void testNullUserTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testUserNotAdminOrInGroupTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testNullTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		final Object creationErrorsObject = response.getEntity();
+		assertNotNull(creationErrorsObject);
+		final TicketCreationErrorSerializable creationErrors = (TicketCreationErrorSerializable) creationErrorsObject;
+
+		assertNull(creationErrors.getHubJiraTicketErrors());
+	}
+
+	@Test
+	public void testEmptyTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		final Object creationErrorsObject = response.getEntity();
+		assertNotNull(creationErrorsObject);
+		final TicketCreationErrorSerializable creationErrors = (TicketCreationErrorSerializable) creationErrorsObject;
+
+		assertNull(creationErrors.getHubJiraTicketErrors());
+	}
+
+	@Test
+	public void testWithTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message3 \n line 2 of error \n line 3 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		final Object creationErrorsObject = response.getEntity();
+		assertNotNull(creationErrorsObject);
+		final TicketCreationErrorSerializable creationErrors = (TicketCreationErrorSerializable) creationErrorsObject;
+
+		assertNotNull(creationErrors.getHubJiraTicketErrors());
+		assertTrue(creationErrors.getHubJiraTicketErrors().size() == 3);
+	}
+
+	@Test
+	public void testWithOldTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error \n should be removed",
+				DateTime.now().minusDays(31).toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error \n should be removed",
+				DateTime.now().minusDays(35).toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
+				DateTime.now().minusDays(29).toString(JiraSettingsService.ERROR_TIME_FORMAT));
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final Response response = controller.getHubJiraTicketErrors(requestMock);
+		assertNotNull(response);
+		final Object creationErrorsObject = response.getEntity();
+		assertNotNull(creationErrorsObject);
+		final TicketCreationErrorSerializable creationErrors = (TicketCreationErrorSerializable) creationErrorsObject;
+
+		assertNotNull(creationErrors.getHubJiraTicketErrors());
+		assertTrue(creationErrors.getHubJiraTicketErrors().size() == 2);
+	}
+
+	@Test
+	public void testRemoveZeroTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
+
+		final Response response = controller.removeErrors(errorsToDelete, requestMock);
+		assertNotNull(response);
+
+		final PluginSettings validateSettings = settingsFactory.createGlobalSettings();
+		final Object errorMap = validateSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+		assertNotNull(errorMap);
+		final HashMap<String, String> validateTicketCreationErrors = (HashMap<String, String>) errorMap;
+		assertTrue(validateTicketCreationErrors.size() == 4);
+	}
+
+	@Test
+	public void testRemoveSomeTicketCreationErrors() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		final TicketCreationError ticketCreationError1 = new TicketCreationError();
+		ticketCreationError1.setStackTrace("Test Error Message 2 \n line 2 of error \n should get removed");
+		ticketCreationError1.setTimeStamp(DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		final TicketCreationError ticketCreationError2 = new TicketCreationError();
+		ticketCreationError2.setStackTrace("Should get removed");
+		ticketCreationError2.setTimeStamp(DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put(ticketCreationError1.getStackTrace(), ticketCreationError1.getTimeStamp());
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put(ticketCreationError2.getStackTrace(), ticketCreationError2.getTimeStamp());
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
+
+		final HashSet<TicketCreationError> errorSetToDelete = new HashSet<>();
+		errorSetToDelete.add(ticketCreationError1);
+		errorSetToDelete.add(ticketCreationError2);
+
+		errorsToDelete.setHubJiraTicketErrors(errorSetToDelete);
+
+		final Response response = controller.removeErrors(errorsToDelete, requestMock);
+		assertNotNull(response);
+
+		final PluginSettings validateSettings = settingsFactory.createGlobalSettings();
+		final Object errorMap = validateSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+		assertNotNull(errorMap);
+		final HashMap<String, String> validateTicketCreationErrors = (HashMap<String, String>) errorMap;
+		assertTrue(validateTicketCreationErrors.size() == 3);
+	}
+
+	@Test
+	public void testRemoveTicketCreationErrorsMissing() throws Exception {
+		final UserManagerMock managerMock = new UserManagerMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final HashMap<String, String> ticketCreationErrors = new HashMap<>();
+
+		ticketCreationErrors.put("Test Error Message", DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 2 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 3 \n line 2 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+		ticketCreationErrors.put("Test Error Message 4 \n line 2 of error \n line 3 of error",
+				DateTime.now().toString(JiraSettingsService.ERROR_TIME_FORMAT));
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, ticketCreationErrors);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock);
+
+		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
+
+		final TicketCreationError ticketCreationError = new TicketCreationError();
+		ticketCreationError.setStackTrace("Should be missing");
+		ticketCreationError.setTimeStamp(DateTime.now().toString());
+
+		final HashSet<TicketCreationError> errorSetToDelete = new HashSet<>();
+		errorSetToDelete.add(ticketCreationError);
+
+		errorsToDelete.setHubJiraTicketErrors(errorSetToDelete);
+
+		final Response response = controller.removeErrors(errorsToDelete, requestMock);
+		assertNotNull(response);
+		final Object creationErrorsObject = response.getEntity();
+		assertNotNull(creationErrorsObject);
+		final TicketCreationErrorSerializable creationErrors = (TicketCreationErrorSerializable) creationErrorsObject;
+
+		assertNotNull(creationErrors.getConfigError());
+
+		final PluginSettings validateSettings = settingsFactory.createGlobalSettings();
+		final Object errorMap = validateSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+		assertNotNull(errorMap);
+		final HashMap<String, String> validateTicketCreationErrors = (HashMap<String, String>) errorMap;
+		assertTrue(validateTicketCreationErrors.size() == 4);
 	}
 
 }

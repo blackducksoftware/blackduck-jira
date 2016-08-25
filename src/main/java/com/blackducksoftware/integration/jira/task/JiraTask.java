@@ -9,9 +9,7 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,13 +24,6 @@ import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
-import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
@@ -40,9 +31,8 @@ import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
-import com.blackducksoftware.integration.jira.impl.HubMonitor;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -59,17 +49,6 @@ public class JiraTask implements PluginJob {
 
 	@Override
 	public void execute(final Map<String, Object> jobDataMap) {
-
-		final ProjectManager jiraProjectManager = (ProjectManager) jobDataMap.get(HubMonitor.KEY_PROJECT_MANAGER);
-		final UserManager jiraUserManager = (UserManager) jobDataMap.get(HubMonitor.KEY_USER_MANAGER);
-		final IssueService jiraIssueService = (IssueService) jobDataMap.get(HubMonitor.KEY_ISSUE_SERVICE);
-		final JiraAuthenticationContext authContext = (JiraAuthenticationContext) jobDataMap
-				.get(HubMonitor.KEY_AUTH_CONTEXT);
-		final IssuePropertyService propertyService = (IssuePropertyService) jobDataMap
-				.get(HubMonitor.KEY_PROPERTY_SERVICE);
-		final WorkflowManager workflowManager = (WorkflowManager) jobDataMap.get(HubMonitor.KEY_WORKFLOW_MANAGER);
-		final JsonEntityPropertyManager jsonEntityPropertyManager = (JsonEntityPropertyManager) jobDataMap
-				.get(HubMonitor.KEY_JSON_ENTITY_PROPERTY_MANAGER);
 
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
@@ -94,6 +73,8 @@ public class JiraTask implements PluginJob {
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
 		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+
+		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
 			logger.warn("The Hub connection details have not been configured, therefore there is nothing to do.");
@@ -121,10 +102,10 @@ public class JiraTask implements PluginJob {
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
+
 		final HubJiraTask processor = new HubJiraTask(serverConfig,
 				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
-				policyRulesJson, jiraProjectManager, jiraUserManager, jiraIssueService, authContext, propertyService,
-				jiraUser, workflowManager, jsonEntityPropertyManager);
+				policyRulesJson, jiraUser, jiraSettingsService);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);

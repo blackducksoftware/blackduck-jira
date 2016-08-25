@@ -9,9 +9,7 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,39 +24,30 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
-import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.config.HubProjectMapping;
-import com.blackducksoftware.integration.jira.config.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.hub.HubNotificationServiceException;
-import com.blackducksoftware.integration.jira.hub.NotificationDateRange;
-import com.blackducksoftware.integration.jira.hub.TicketGenerator;
-import com.blackducksoftware.integration.jira.hub.TicketGeneratorInfo;
-import com.blackducksoftware.integration.jira.hub.model.notification.NotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.PolicyOverrideNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.RuleViolationNotificationItem;
-import com.blackducksoftware.integration.jira.hub.model.notification.VulnerabilityNotificationItem;
-import com.google.gson.reflect.TypeToken;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -70,28 +59,16 @@ public class HubJiraTask {
 	private final String lastRunDateString;
 	private final String projectMappingJson;
 	private final String policyRulesJson;
-	private final ProjectManager jiraProjectManager;
-	private final UserManager jiraUserManager;
-	private final IssueService jiraIssueService;
-	private final JiraAuthenticationContext authContext;
-	private final IssuePropertyService propertyService;
 	private final String jiraUser;
-	private final WorkflowManager workflowManager;
-	private final JsonEntityPropertyManager jsonEntityPropertyManager;
-
 	private final Date runDate;
 	private final String runDateString;
 	private final SimpleDateFormat dateFormatter;
+	private final JiraServices jiraServices = new JiraServices();
+	private final JiraSettingsService jiraSettingsService;
 
 	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String jiraIssueTypeName,
-			final String installDateString,
-			final String lastRunDateString,
-			final String projectMappingJson,
-			final String policyRulesJson,
-			final ProjectManager jiraProjectManager, final UserManager jiraUserManager,
-			final IssueService jiraIssueService, final JiraAuthenticationContext authContext,
-			final IssuePropertyService propertyService, final String jiraUser,
-			final WorkflowManager workflowManager, final JsonEntityPropertyManager jsonEntityPropertyManager) {
+			final String installDateString, final String lastRunDateString, final String projectMappingJson,
+			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
@@ -104,14 +81,7 @@ public class HubJiraTask {
 		this.lastRunDateString = lastRunDateString;
 		this.projectMappingJson = projectMappingJson;
 		this.policyRulesJson = policyRulesJson;
-		this.jiraProjectManager = jiraProjectManager;
-		this.jiraUserManager = jiraUserManager;
-		this.jiraIssueService = jiraIssueService;
-		this.propertyService = propertyService;
-		this.authContext = authContext;
 		this.jiraUser = jiraUser;
-		this.workflowManager = workflowManager;
-		this.jsonEntityPropertyManager = jsonEntityPropertyManager;
 		this.runDate = new Date();
 
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -120,6 +90,8 @@ public class HubJiraTask {
 
 		logger.debug("Install date: " + installDateString);
 		logger.debug("Last run date: " + lastRunDateString);
+
+		this.jiraSettingsService = jiraSettingsService;
 	}
 
 	/**
@@ -138,45 +110,38 @@ public class HubJiraTask {
 		try {
 			startDate = deriveStartDate(installDateString, lastRunDateString);
 		} catch (final ParseException e) {
-			logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+			logger.info(
+					"This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
 			return runDateString;
 		}
 
 		try {
 			final RestConnection restConnection = initRestConnection();
 			final HubIntRestService hub = initHubRestService(restConnection);
-			final HubItemsService<NotificationItem> hubItemsService = initHubItemsService(restConnection);
 
-			final TicketGeneratorInfo ticketServices = initTicketGeneratorInfo(jiraProjectManager, jiraUser,
-					jiraIssueTypeName, jiraIssueService, authContext, propertyService,
-					workflowManager, jsonEntityPropertyManager);
+			final JiraContext jiraContext = initJiraContext(jiraUser, jiraIssueTypeName);
 
-			if (ticketServices == null) {
+			if (jiraContext == null) {
 				logger.info("Missing information to generate tickets.");
 
 				return null;
 			}
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(ticketServices,
-					restConnection,
-					hub,
-					hubItemsService);
+			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+
+			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
+					linksOfRulesToMonitor);
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
-			final NotificationDateRange notificationDateRange = new NotificationDateRange(startDate,
-					runDate);
-
-			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
+					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
-
-			ticketGenerator
-			.generateTicketsForRecentNotifications(config.getHubProjectMappings(),
-					linksOfRulesToMonitor, notificationDateRange);
-		} catch (final BDRestException | IllegalArgumentException | EncryptionException | ParseException
-				| HubNotificationServiceException | URISyntaxException e) {
+			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
+		} catch (final Exception e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+			jiraSettingsService.addHubError(e, "executeHubJiraTask");
 			return null;
 		}
 		return runDateString;
@@ -201,48 +166,39 @@ public class HubJiraTask {
 		}
 	}
 
-	private TicketGeneratorInfo initTicketGeneratorInfo(final ProjectManager projectManager,
-			final String jiraUser, final String issueTypeName, final IssueService issueService,
-			final JiraAuthenticationContext authContext, final IssuePropertyService propertyService,
-			final WorkflowManager workflowManager,
-			final JsonEntityPropertyManager jsonEntityPropertyManager) {
+	private JiraContext initJiraContext(final String jiraUser, final String issueTypeName) {
+		final UserManager jiraUserManager = ComponentAccessor.getUserManager();
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
 			logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
 			return null;
 		}
 
-		final TicketGeneratorInfo ticketServices = new TicketGeneratorInfo(projectManager, issueService,
-				jiraSysAdmin, issueTypeName, authContext, propertyService, workflowManager,
-				jsonEntityPropertyManager);
-		return ticketServices;
+		final JiraContext jiraContext = new JiraContext(jiraSysAdmin, issueTypeName);
+		return jiraContext;
 	}
 
-	private TicketGenerator initTicketGenerator(final TicketGeneratorInfo ticketServices,
-			final RestConnection restConnection,
-			final HubIntRestService hub, final HubItemsService<NotificationItem> hubItemsService) {
-		final TicketGenerator ticketGenerator = new TicketGenerator(restConnection, hub, hubItemsService,
-				ticketServices);
+	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
+			final List<String> linksOfRulesToMonitor) {
+		logger.debug("Jira user: " + this.jiraUser);
+
+		final Gson gson = new GsonBuilder().create();
+		final JsonParser jsonParser = new JsonParser();
+		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+		// TODO replace NotificationDataServiceMock with NotificationDataService
+		// once we have a way to trigger vulnerability notifications
+		final NotificationDataService notificationDataService = new NotificationDataServiceMock(restConnection, gson,
+				jsonParser, policyFilter);
+
+		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
+				jiraSettingsService);
 		return ticketGenerator;
-	}
-
-	private HubItemsService<NotificationItem> initHubItemsService(final RestConnection restConnection) {
-		final TypeToken<NotificationItem> typeToken = new TypeToken<NotificationItem>() {
-		};
-		final Map<String, Class<? extends NotificationItem>> typeToSubclassMap = new HashMap<>();
-		typeToSubclassMap.put("VULNERABILITY", VulnerabilityNotificationItem.class);
-		typeToSubclassMap.put("RULE_VIOLATION", RuleViolationNotificationItem.class);
-		typeToSubclassMap.put("POLICY_OVERRIDE", PolicyOverrideNotificationItem.class);
-		final HubItemsService<NotificationItem> hubItemsService = new HubItemsService<>(restConnection,
-				NotificationItem.class, typeToken, typeToSubclassMap);
-		return hubItemsService;
 	}
 
 	private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
 		final HubIntRestService hub = new HubIntRestService(restConnection);
 		return hub;
 	}
-
 
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
 
@@ -259,7 +215,8 @@ public class HubJiraTask {
 
 	private HubJiraConfigSerializable validateInput() {
 		if (projectMappingJson == null) {
-			logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+			logger.debug(
+					"HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
 			return null;
 		}
 
@@ -290,8 +247,9 @@ public class HubJiraTask {
 	private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
 		final Date startDate;
 		if (lastRunDateString == null) {
-			logger.info("No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
-					+ installDateString);
+			logger.info(
+					"No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
+							+ installDateString);
 
 			startDate = dateFormatter.parse(installDateString);
 

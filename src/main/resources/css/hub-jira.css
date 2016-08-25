@@ -6,8 +6,19 @@
 	color : #c00;
 }
 
+.ticketCreationError {
+	display : inline-block;
+	margin-left : 10px;
+	max-width : 90%;
+}
+
 .inlineError {
 	display: inline-block;
+}
+
+.errorTimestamp {
+	display: inline-block;
+	margin-left : 10px;
 }
 
 .clickable:hover {

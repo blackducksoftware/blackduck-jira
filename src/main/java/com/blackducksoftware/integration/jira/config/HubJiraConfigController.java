@@ -9,9 +9,7 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,13 +20,19 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +48,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
@@ -56,19 +62,25 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.item.HubItemsService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.builder.ValidationResults;
+import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
-import com.blackducksoftware.integration.hub.policy.api.PolicyRule;
-import com.blackducksoftware.integration.hub.project.api.ProjectItem;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.jira.utils.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.utils.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubProject;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.reflect.TypeToken;
 
 @Path("/")
@@ -85,6 +97,42 @@ public class HubJiraConfigController {
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.transactionTemplate = transactionTemplate;
 		this.projectManager = projectManager;
+	}
+
+	@Path("/hubJiraTicketErrors")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHubJiraTicketErrors(@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
+
+				final Map<String, String> ticketErrors = expireOldErrors(settings);
+				if (ticketErrors != null) {
+					final Set<TicketCreationError> displayTicketErrors = new HashSet<TicketCreationError>();
+					for (final Entry<String, String> error : ticketErrors.entrySet()) {
+						final String errorKey = error.getKey();
+						final TicketCreationError ticketCreationError = new TicketCreationError();
+						ticketCreationError.setStackTrace(errorKey);
+						ticketCreationError.setTimeStamp(error.getValue());
+						displayTicketErrors.add(ticketCreationError);
+					}
+					creationError.setHubJiraTicketErrors(displayTicketErrors);
+					System.err.println("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
+				}
+				return creationError;
+			}
+		});
+
+		return Response.ok(obj).build();
 	}
 
 	@Path("/interval")
@@ -276,6 +324,55 @@ public class HubJiraConfigController {
 		});
 		if (config.hasErrors()) {
 			return Response.ok(config).status(Status.BAD_REQUEST).build();
+		}
+		return Response.noContent().build();
+	}
+
+	@Path("/removeErrors")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete,
+			@Context final HttpServletRequest request) {
+		final String username = userManager.getRemoteUsername(request);
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+				final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
+				final HashMap<String, String> ticketErrors;
+				if (errorObject != null) {
+					ticketErrors = (HashMap<String, String>) errorObject;
+				} else {
+					ticketErrors = new HashMap<String, String>();
+				}
+				if (errorsToDelete.getHubJiraTicketErrors() != null
+						&& !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
+					for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
+						try {
+							final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
+							final String val = ticketErrors.remove(errorMessage);
+							if (val == null) {
+								final TicketCreationErrorSerializable serializableError = new TicketCreationErrorSerializable();
+								serializableError.setConfigError(
+										"Could not find the Error selected for removal in the persisted list.");
+								return serializableError;
+							}
+						} catch (final UnsupportedEncodingException e) {
+
+						}
+					}
+				}
+				setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+				return null;
+			}
+		});
+		if (obj != null) {
+			return Response.ok(obj).status(Status.BAD_REQUEST).build();
 		}
 		return Response.noContent().build();
 	}
@@ -474,7 +571,7 @@ public class HubJiraConfigController {
 			try {
 				supportHelper.checkHubSupport(restService, null);
 
-				if (supportHelper.isPolicyApiSupport()) {
+				if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
 					final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
 
@@ -541,5 +638,28 @@ public class HubJiraConfigController {
 		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
 		};
 		return new HubItemsService<PolicyRule>(restConnection, typeToken);
+	}
+
+	private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
+		final Object errorObject = getValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR);
+		if (errorObject != null) {
+			final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
+
+			if (ticketErrors != null && !ticketErrors.isEmpty()) {
+				final DateTime currentTime = DateTime.now();
+				final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
+				while (s.hasNext()) {
+					final Entry<String, String> ticketError = s.next();
+					final DateTime errorTime = DateTime.parse(ticketError.getValue(),
+							JiraSettingsService.ERROR_TIME_FORMAT);
+					if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+						s.remove();
+					}
+				}
+				setValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+				return ticketErrors;
+			}
+		}
+		return null;
 	}
 }
