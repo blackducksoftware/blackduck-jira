@@ -22,7 +22,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.List;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -37,10 +37,8 @@ public abstract class NotificationToEventConverter {
 	private final JiraSettingsService jiraSettingsService;
 	private final HubProjectMappings mappings;
 
-	public NotificationToEventConverter(
-			final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final HubProjectMappings mappings) {
+	public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
+			final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings) {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
@@ -48,7 +46,6 @@ public abstract class NotificationToEventConverter {
 	}
 
 	public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
-
 
 	public JiraSettingsService getJiraSettingsService() {
 		return jiraSettingsService;
@@ -73,7 +70,7 @@ public abstract class NotificationToEventConverter {
 
 		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
 			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-			+ " does not have any issue types, we will not be able to create tickets for this project.");
+					+ " does not have any issue types, we will not be able to create tickets for this project.");
 		} else {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
@@ -85,8 +82,8 @@ public abstract class NotificationToEventConverter {
 				}
 			}
 			if (!projectHasIssueType) {
-				bdsJiraProject.setProjectError("The Jira project is missing the "
-						+ jiraContext.getJiraIssueTypeName() + " issue type.");
+				bdsJiraProject.setProjectError(
+						"The Jira project is missing the " + jiraContext.getJiraIssueTypeName() + " issue type.");
 			}
 		}
 		return bdsJiraProject;

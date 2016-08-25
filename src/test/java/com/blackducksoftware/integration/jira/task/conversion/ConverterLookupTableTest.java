@@ -7,9 +7,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyOverrideContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 
 public class ConverterLookupTableTest {
@@ -38,13 +38,11 @@ public class ConverterLookupTableTest {
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table
-				.getConverter(new PolicyViolationContentItem(null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyViolationContentItem(null, null, null, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table
-				.getConverter(new PolicyOverrideContentItem(null, null, null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyOverrideContentItem(null, null, null, null, null, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}

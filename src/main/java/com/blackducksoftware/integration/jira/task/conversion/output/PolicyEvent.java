@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.google.gson.Gson;
@@ -34,11 +34,10 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	private final NotificationContentItem notificationContentItem;
 	private final PolicyRule policyRule;
 
-	public PolicyEvent(final HubEventAction action, final String jiraUserName,
-			final String jiraIssueTypeId, final Long jiraProjectId, final String jiraProjectName,
+	public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraIssueTypeId,
+			final Long jiraProjectId, final String jiraProjectName,
 			final NotificationContentItem notificationContentItem, final PolicyRule policyRule) {
-		super(action, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-				notificationContentItem);
+		super(action, jiraUserName, jiraIssueTypeId, jiraProjectId, jiraProjectName, notificationContentItem);
 		this.notificationContentItem = notificationContentItem;
 		this.policyRule = policyRule;
 	}
@@ -138,8 +137,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 				getNotificationContentItem().getProjectVersion().getProjectName(),
 				getNotificationContentItem().getProjectVersion().getProjectVersionName(),
 				getNotificationContentItem().getComponentName(), getNotificationContentItem().getComponentVersion(),
-				issue.getId(), getPolicyRule()
-				.getName());
+				issue.getId(), getPolicyRule().getName());
 		return properties;
 	}
 }

@@ -25,8 +25,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -60,7 +60,6 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 					notification, rule);
 			events.add(event);
 		}
-
 
 		return events;
 	}

@@ -37,8 +37,8 @@ import org.mockito.Mockito;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
-import com.blackducksoftware.integration.hub.dataservices.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.items.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -117,8 +117,8 @@ public class PolicyViolationNotificationConverterTest {
 
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext, createProjectMappings(
-				includeProjectMappings, projectMappingMatch));
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
+				createProjectMappings(includeProjectMappings, projectMappingMatch));
 
 		final NotificationContentItem notification = createNotification(rules);
 
