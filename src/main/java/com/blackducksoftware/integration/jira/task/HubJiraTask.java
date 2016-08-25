@@ -144,7 +144,7 @@ public class HubJiraTask {
 					startDate, runDate);
 		} catch (final Exception e) {
 			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			jiraSettingsService.addHubError(e);
+			jiraSettingsService.addHubError(e, "executeHubJiraTask");
 			return null;
 		}
 		return runDateString;

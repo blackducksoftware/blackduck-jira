@@ -138,13 +138,12 @@
 	      	  				<div name="expansionIconDiv" style="float : left; display : inline-block;">
 	      	  					<i name="expansionIcon" onclick="handleErrorResize(this);" class="largeIcon fa fa-plus-square-o" aria-hidden="true"></i>
 	      	  				</div>
+	      	  				<div class="errorTimestamp hidden" name="ticketCreationTimeStampName">
+	      	  				</div>
 	      	  				<div class="ticketCreationError" name="ticketCreationErrorMessageName">
 	      	  					
 	      	  				</div>
 	      	  				<div class="ticketCreationError hidden" name="ticketCreationStackTraceName">
-	      	  					
-	      	  				</div>
-	      	  				<div class="hidden" name="ticketCreationTimeStampName">
 	      	  					
 	      	  				</div>
 	      	  				<div style="float : right; display : inline-block;">

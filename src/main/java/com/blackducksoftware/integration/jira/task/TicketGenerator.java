@@ -91,7 +91,7 @@ public class TicketGenerator {
 			}
 		} catch (final Exception e) {
 			logger.error(e);
-			jiraSettingsService.addHubError(e);
+			jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
 		}
 
 	}

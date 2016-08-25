@@ -16,6 +16,11 @@
 	display: inline-block;
 }
 
+.errorTimestamp {
+	display: inline-block;
+	margin-left : 10px;
+}
+
 .clickable:hover {
 	cursor: pointer;
 }

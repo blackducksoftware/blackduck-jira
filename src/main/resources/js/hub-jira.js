@@ -243,6 +243,10 @@ function updateTicketCreationErrors(hubJiraTicketErrors){
 			var timeStampDiv = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
 			var timeStamp = hubJiraTicketErrors[j].timeStamp;
 			
+			if(timeStampDiv.hasClass(hiddenClass)){
+				timeStampDiv.removeClass(hiddenClass);
+			}
+			
 			timeStampDiv.text(timeStamp);
 		}
 	}

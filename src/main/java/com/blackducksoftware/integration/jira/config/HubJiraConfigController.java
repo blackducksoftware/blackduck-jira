@@ -80,6 +80,7 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.reflect.TypeToken;
 
 @Path("/")
@@ -649,7 +650,8 @@ public class HubJiraConfigController {
 				final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
 				while (s.hasNext()) {
 					final Entry<String, String> ticketError = s.next();
-					final DateTime errorTime = DateTime.parse(ticketError.getValue());
+					final DateTime errorTime = DateTime.parse(ticketError.getValue(),
+							JiraSettingsService.ERROR_TIME_FORMAT);
 					if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
 						s.remove();
 					}
