@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -167,7 +166,7 @@ public class HubJiraTask {
 	}
 
 	private JiraContext initJiraContext(final String jiraUser, final String issueTypeName) {
-		final UserManager jiraUserManager = ComponentAccessor.getUserManager();
+		final UserManager jiraUserManager = jiraServices.getUserManager();
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
 			logger.error("Could not find the Jira System admin that saved the Hub Jira config.");

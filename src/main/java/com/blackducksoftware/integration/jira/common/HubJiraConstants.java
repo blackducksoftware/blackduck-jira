@@ -22,4 +22,6 @@ package com.blackducksoftware.integration.jira.common;
 public class HubJiraConstants {
 	public final static String HUB_JIRA_GROUP = "hub-jira";
 	public final static String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
+	public final static String HUB_JIRA_WORKFLOW_RESOURCE = "BD Workflow.xml";
+	public final static String HUB_JIRA_WORKFLOW = "Hub Workflow";
 }

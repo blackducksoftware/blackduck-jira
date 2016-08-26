@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -48,15 +49,27 @@ public class JiraSettingsService {
 			errorMap = (HashMap<String, String>) errorMapObject;
 		}
 		final StringBuilder suffixBuilder = new StringBuilder();
-		suffixBuilder.append("Hub Project : ");
-		suffixBuilder.append(hubProject);
-		suffixBuilder.append(" / Version : ");
-		suffixBuilder.append(hubProjectVersion);
-		suffixBuilder.append(" / Jira Project : ");
-		suffixBuilder.append(jiraProject);
-		suffixBuilder.append(" / Jira User : ");
-		suffixBuilder.append(jiraUser);
-		suffixBuilder.append(" / Method : ");
+		if (StringUtils.isNotBlank(hubProject)) {
+			suffixBuilder.append("Hub Project : ");
+			suffixBuilder.append(hubProject);
+			suffixBuilder.append(" / ");
+		}
+		if (StringUtils.isNotBlank(hubProjectVersion)) {
+			suffixBuilder.append("Version : ");
+			suffixBuilder.append(hubProjectVersion);
+			suffixBuilder.append(" / ");
+		}
+		if (StringUtils.isNotBlank(jiraProject)) {
+			suffixBuilder.append("Jira Project : ");
+			suffixBuilder.append(jiraProject);
+			suffixBuilder.append(" / ");
+		}
+		if (StringUtils.isNotBlank(jiraUser)) {
+			suffixBuilder.append("Jira User : ");
+			suffixBuilder.append(jiraUser);
+			suffixBuilder.append(" / ");
+		}
+		suffixBuilder.append("Method : ");
 		suffixBuilder.append(methodAttempt);
 
 		final StringBuilder finalErrorBuilder = new StringBuilder();
@@ -66,7 +79,5 @@ public class JiraSettingsService {
 
 		errorMap.put(finalErrorBuilder.toString(), DateTime.now().toString(ERROR_TIME_FORMAT));
 		settings.put(HubJiraConstants.HUB_JIRA_ERROR, errorMap);
-
-		// prefix error with timestamp in parenthesis
 	}
 }

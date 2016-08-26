@@ -26,7 +26,10 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
 public class JiraServices {
 
@@ -47,6 +50,10 @@ public class JiraServices {
 		return ComponentAccessor.getWorkflowManager();
 	}
 
+	public WorkflowSchemeManager getWorkflowSchemeManager() {
+		return ComponentAccessor.getWorkflowSchemeManager();
+	}
+
 	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
 		return ComponentAccessor.getComponentOfType(JsonEntityPropertyManager.class);
 	}
@@ -55,4 +62,11 @@ public class JiraServices {
 		return ComponentAccessor.getCommentManager();
 	}
 
+	public GroupManager getGroupManager() {
+		return ComponentAccessor.getGroupManager();
+	}
+
+	public UserManager getUserManager() {
+		return ComponentAccessor.getUserManager();
+	}
 }
