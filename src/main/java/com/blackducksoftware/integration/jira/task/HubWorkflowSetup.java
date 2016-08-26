@@ -73,6 +73,7 @@ public class HubWorkflowSetup {
 						workflowDescriptor, workflowManager);
 
 				workflowManager.createWorkflow(jiraAppUser, hubWorkflow);
+				logger.debug("Created the Hub Workflow : " + HubJiraConstants.HUB_JIRA_WORKFLOW);
 			}
 			return hubWorkflow;
 		} catch (final Exception e) {
@@ -91,6 +92,9 @@ public class HubWorkflowSetup {
 
 			final Map<String, String> issueMappings = projectWorkflowScheme.getMappings();
 
+			// FIXME should check if the workflow scheme is the default, we dont
+			// want to modify the default scheme right??
+
 			boolean needsToBeUpdated = false;
 			// IMPORTANT we assume our custom issue types are already in this
 			// Projects Workflow scheme
@@ -103,6 +107,8 @@ public class HubWorkflowSetup {
 				} else {
 					if (!workflowName.equals(hubWorkflow.getName())) {
 						projectWorkflowSchemeBuidler.setMapping(issueType.getId(), hubWorkflow.getName());
+						logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+								+ issueType.getName() + ", to the Hub workflow.");
 						needsToBeUpdated = true;
 					}
 				}

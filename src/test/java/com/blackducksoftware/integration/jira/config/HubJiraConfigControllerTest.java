@@ -58,7 +58,7 @@ import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.TransactionTemplateMock;
-import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
+import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -179,7 +179,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetIntervalNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -195,7 +195,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetIntervalNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -212,7 +212,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetIntervalEmpty() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -245,7 +245,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetIntervalInvalid() {
 		final String intervalBetweenChecks = "intervalBetweenChecks";
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -282,7 +282,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetIntervalNegative() {
 		final String intervalBetweenChecks = "-30";
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -318,7 +318,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetIntervalZero() {
 		final String intervalBetweenChecks = "0";
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -354,7 +354,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetIntervalValid() {
 		final String intervalBetweenChecks = "30";
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -390,7 +390,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetIntervalValidInGroup() {
 		final String intervalBetweenChecks = "30";
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -424,7 +424,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -440,7 +440,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -457,7 +457,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesWithNoServerConfig() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -490,7 +490,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesWithPartialServerConfig() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -529,7 +529,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesNoPolicyRulesOldHub() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -587,7 +587,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesNoPolicyRules() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -644,7 +644,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesWithPolicyRules() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -699,7 +699,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubPoliciesWithPolicyRulesInGroup() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -754,7 +754,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -770,7 +770,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -787,7 +787,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsNone() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -819,7 +819,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsMultipleProjects() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -855,7 +855,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsMultipleProjectsInGroup() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -891,7 +891,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsMultipleProjectsWithOutBugType() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -928,7 +928,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsMultipleProjectsWithOutIssuesTypes() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -965,7 +965,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetJiraProjectsMultipleProjectsNullIssuesTypes() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1002,7 +1002,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -1018,7 +1018,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -1035,7 +1035,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsPartialServerConfig() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1074,7 +1074,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsNoHubProjects() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1126,7 +1126,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsHasHubProjects() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1175,7 +1175,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetHubProjectsHasHubProjectsInGroup() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1224,7 +1224,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetMappingsNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -1240,7 +1240,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetMappingsNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -1257,7 +1257,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testGetMappingsNoMappings() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1294,7 +1294,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetMappingsWithMappings() {
 		final Set<HubProjectMapping> mappings = getMappings();
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1337,7 +1337,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetMappingsWithMappingsInGroup() {
 		final Set<HubProjectMapping> mappings = getMappings();
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1379,7 +1379,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testSaveConfigNullUser() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
@@ -1397,7 +1397,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testSaveConfigNotAdmin() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -1416,7 +1416,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testSaveConfigEmptyNoServerConfig() {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1449,7 +1449,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testSaveConfigEmpty() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1513,7 +1513,7 @@ public class HubJiraConfigControllerTest {
 
 		final List<PolicyRuleSerializable> jiraPolices = getJiraPolicies();
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1587,7 +1587,7 @@ public class HubJiraConfigControllerTest {
 			policyRule.setChecked(false);
 		}
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1656,7 +1656,7 @@ public class HubJiraConfigControllerTest {
 			policyRule.setChecked(false);
 		}
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setInGroup(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1721,7 +1721,7 @@ public class HubJiraConfigControllerTest {
 
 		final List<PolicyRuleSerializable> jiraPolices = getJiraPolicies();
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1800,7 +1800,7 @@ public class HubJiraConfigControllerTest {
 
 		final List<PolicyRuleSerializable> jiraPolices = getJiraPolicies();
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1884,7 +1884,7 @@ public class HubJiraConfigControllerTest {
 			policyRule.setChecked(false);
 		}
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -1962,7 +1962,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testNullUserTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
@@ -1981,7 +1981,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testUserNotAdminOrInGroupTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 
@@ -2001,7 +2001,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testNullTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2026,7 +2026,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testEmptyTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2056,7 +2056,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testWithTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2093,7 +2093,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testWithOldTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2132,7 +2132,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testRemoveZeroTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2173,7 +2173,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testRemoveSomeTicketCreationErrors() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
@@ -2227,7 +2227,7 @@ public class HubJiraConfigControllerTest {
 
 	@Test
 	public void testRemoveTicketCreationErrorsMissing() throws Exception {
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
 		managerMock.setIsSystemAdmin(true);
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();

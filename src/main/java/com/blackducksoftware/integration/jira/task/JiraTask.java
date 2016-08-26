@@ -84,7 +84,7 @@ public class JiraTask implements PluginJob {
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		// Do Jira setup here
-		jiraSetup(jiraSettingsService, jiraUser, projectMappingJson);
+		jiraSetup(new JiraServices(), jiraSettingsService, jiraUser, projectMappingJson);
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -117,9 +117,9 @@ public class JiraTask implements PluginJob {
 		}
 	}
 
-	private void jiraSetup(final JiraSettingsService jiraSettingsService, final String jiraUser,
+	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
+			final String jiraUser,
 			final String projectMappingJson) {
-		final JiraServices jiraServices = new JiraServices();
 
 		final HubGroupSetup groupSetup = new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
 		groupSetup.addHubJiraGroupToJira();

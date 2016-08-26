@@ -30,7 +30,7 @@ import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;
 import com.blackducksoftware.integration.jira.mocks.LoginUriProviderMock;
 import com.blackducksoftware.integration.jira.mocks.TemplateRendererMock;
-import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
+import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
 
 public class HubJiraServletTest {
 
@@ -40,7 +40,7 @@ public class HubJiraServletTest {
 		final StringBuffer requestUrl = new StringBuffer();
 		requestUrl.append(redirectUrl);
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 
 		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
@@ -65,7 +65,7 @@ public class HubJiraServletTest {
 		final StringBuffer requestUrl = new StringBuffer();
 		requestUrl.append(redirectUrl);
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername(userName);
 
 		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
@@ -91,7 +91,7 @@ public class HubJiraServletTest {
 		final StringBuffer requestUrl = new StringBuffer();
 		requestUrl.append(redirectUrl);
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername(userName);
 		managerMock.setInGroup(true);
 
@@ -119,7 +119,7 @@ public class HubJiraServletTest {
 		final StringBuffer requestUrl = new StringBuffer();
 		requestUrl.append(redirectUrl);
 
-		final UserManagerMock managerMock = new UserManagerMock();
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername(userName);
 		managerMock.setIsSystemAdmin(true);
 
