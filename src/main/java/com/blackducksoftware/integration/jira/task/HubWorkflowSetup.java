@@ -90,15 +90,19 @@ public class HubWorkflowSetup {
 
 			final Map<String, String> issueMappings = projectWorkflowScheme.getMappings();
 
+			boolean needsToBeUpdated = false;
 			// IMPORTANT we assume our custom issue types are already in this
 			// Projects Workflow scheme
 			for (final IssueType issueType : issueTypes) {
 				final String workflowName = issueMappings.get(issueType.getId());
 				if (!workflowName.equals(hubWorkflow.getName())) {
 					projectWorkflowSchemeBuidler.setMapping(issueType.getId(), hubWorkflow.getName());
+					needsToBeUpdated = true;
 				}
 			}
-			workflowSchemeManager.updateWorkflowScheme(projectWorkflowScheme);
+			if (needsToBeUpdated) {
+				workflowSchemeManager.updateWorkflowScheme(projectWorkflowScheme);
+			}
 		} catch (final Exception e) {
 			logger.error("Failed to add the Hub Jira worflow to the Hub scheme.", e);
 			settingService.addHubError(e, null, null, project.getName(), null, "addWorkflowToProjectsWorkflowScheme");
