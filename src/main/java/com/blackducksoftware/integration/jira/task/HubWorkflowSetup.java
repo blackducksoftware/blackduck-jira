@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
@@ -95,9 +96,15 @@ public class HubWorkflowSetup {
 			// Projects Workflow scheme
 			for (final IssueType issueType : issueTypes) {
 				final String workflowName = issueMappings.get(issueType.getId());
-				if (!workflowName.equals(hubWorkflow.getName())) {
-					projectWorkflowSchemeBuidler.setMapping(issueType.getId(), hubWorkflow.getName());
-					needsToBeUpdated = true;
+				if (StringUtils.isBlank(workflowName)) {
+					// TODO
+					// Could not find our issue type in this projectWorkflow
+					// scheme
+				} else {
+					if (!workflowName.equals(hubWorkflow.getName())) {
+						projectWorkflowSchemeBuidler.setMapping(issueType.getId(), hubWorkflow.getName());
+						needsToBeUpdated = true;
+					}
 				}
 			}
 			if (needsToBeUpdated) {
