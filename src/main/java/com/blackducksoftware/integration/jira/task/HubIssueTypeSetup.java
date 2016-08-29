@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
@@ -42,7 +43,7 @@ public class HubIssueTypeSetup {
 		return issueTypes;
 	}
 
-	public void addIssueTypesToProject() {
+	public void addIssueTypesToProject(final Project jiraProject, final List<IssueType> hubIssueTypes) {
 		// TODO
 	}
 
