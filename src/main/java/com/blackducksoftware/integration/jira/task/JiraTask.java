@@ -128,7 +128,7 @@ public class JiraTask implements PluginJob {
 		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraSettingsService,
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
-
+		logger.debug("Found our issue types : " + issueTypes.size());
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService,
 				jiraServices.getWorkflowManager(), jiraServices.getWorkflowSchemeManager(),
 				jiraServices.getUserManager(), jiraUser);

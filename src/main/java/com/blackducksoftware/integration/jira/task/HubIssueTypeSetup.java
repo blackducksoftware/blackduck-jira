@@ -28,19 +28,19 @@ public class HubIssueTypeSetup {
 	// scheme before we try addWorkflowToProjectsWorkflowScheme
 
 	public List<IssueType> addIssueTypesToJira() {
-		final List<IssueType> issueTypes = new ArrayList<>();
+		final List<IssueType> bdIssueTypes = new ArrayList<>();
 
 		for (final IssueType issueType : issueTypes) {
 			if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)
 					|| issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
-				issueTypes.add(issueType);
+				bdIssueTypes.add(issueType);
 			}
 		}
-		if (!issueTypes.isEmpty()) {
+		if (!bdIssueTypes.isEmpty()) {
 			// TODO could not find our issue types so lets add them
 		}
 
-		return issueTypes;
+		return bdIssueTypes;
 	}
 
 	public void addIssueTypesToProject(final Project jiraProject, final List<IssueType> hubIssueTypes) {

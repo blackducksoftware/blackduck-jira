@@ -125,6 +125,16 @@
       <artifactId>jira-core</artifactId>
       <version>${jira.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jndi</groupId>
+          <artifactId>jndi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jta</groupId>
+          <artifactId>jta</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -214,12 +224,6 @@
             <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
             <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
           </instructions>
-          <pluginDependencies>
-            <pluginDependency>
-              <groupId>com.blackducksoftware.integration</groupId>
-              <artifactId>hub-common</artifactId>
-            </pluginDependency>
-          </pluginDependencies>
           <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
       </plugin>

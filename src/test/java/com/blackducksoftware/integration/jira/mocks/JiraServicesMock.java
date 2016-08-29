@@ -1,17 +1,21 @@
 package com.blackducksoftware.integration.jira.mocks;
 
+import java.util.Collection;
+
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class JiraServicesMock {
+public class JiraServicesMock extends JiraServices {
 
 	private ProjectManager projectManager;
 	private IssueService issueService;
@@ -23,6 +27,16 @@ public class JiraServicesMock {
 	private CommentManager commentManager;
 	private GroupManager groupManager;
 	private UserManager userManager;
+	private Collection<IssueType> issueTypes;
+
+	@Override
+	public Collection<IssueType> getIssueTypes() {
+		return issueTypes;
+	}
+
+	public void setIssueTypes(final Collection<IssueType> issueTypes) {
+		this.issueTypes = issueTypes;
+	}
 
 	public void setProjectManager(final ProjectManager projectManager) {
 		this.projectManager = projectManager;
@@ -64,42 +78,52 @@ public class JiraServicesMock {
 		this.userManager = userManager;
 	}
 
+	@Override
 	public ProjectManager getJiraProjectManager() {
 		return projectManager;
 	}
 
+	@Override
 	public IssueService getIssueService() {
 		return issueService;
 	}
 
+	@Override
 	public JiraAuthenticationContext getAuthContext() {
 		return jiraAuthenticationContext;
 	}
 
+	@Override
 	public IssuePropertyService getPropertyService() {
 		return issuePropertyService;
 	}
 
+	@Override
 	public WorkflowManager getWorkflowManager() {
 		return workflowManager;
 	}
 
+	@Override
 	public WorkflowSchemeManager getWorkflowSchemeManager() {
 		return workflowSchemeManager;
 	}
 
+	@Override
 	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
 		return jsonEntityPropertyManager;
 	}
 
+	@Override
 	public CommentManager getCommentManager() {
 		return commentManager;
 	}
 
+	@Override
 	public GroupManager getGroupManager() {
 		return groupManager;
 	}
 
+	@Override
 	public UserManager getUserManager() {
 		return userManager;
 	}
