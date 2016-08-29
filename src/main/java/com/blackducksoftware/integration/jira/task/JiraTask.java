@@ -125,6 +125,8 @@ public class JiraTask implements PluginJob {
 
 		// TODO create our issueTypes AND add them to each Projects workflow
 		// scheme before we try addWorkflowToProjectsWorkflowScheme
+
+		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraSettingsService,
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
@@ -133,6 +135,9 @@ public class JiraTask implements PluginJob {
 				jiraServices.getWorkflowManager(), jiraServices.getWorkflowSchemeManager(),
 				jiraServices.getUserManager(), jiraUser);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+		////////////////////////////////////////////////////////////////////////
+
+		/////////////////////// Associate with projects ///////////////////////
 		if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
 			final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 			// Converts Json to list of mappings
@@ -150,6 +155,7 @@ public class JiraTask implements PluginJob {
 				}
 			}
 		}
+		/////////////////////////////////////////////////////////////////////////
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {
