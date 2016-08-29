@@ -24,4 +24,7 @@ public class HubJiraConstants {
 	public final static String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
 	public final static String HUB_JIRA_WORKFLOW_RESOURCE = "BD Workflow.xml";
 	public final static String HUB_JIRA_WORKFLOW = "Hub Workflow";
+
+	public final static String HUB_POLICY_VIOLATION_ISSUE = "BD Policy Violation";
+	public final static String HUB_VULNERABILITY_ISSUE = "BD Security Violation";
 }

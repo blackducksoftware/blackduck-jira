@@ -32,7 +32,8 @@ import com.opensymphony.module.propertyset.PropertySet;
 
 public class IssueTypeMock implements IssueType {
 
-	String name;
+	private String name;
+	private String id;
 
 	@Override
 	public String getName() {
@@ -96,7 +97,11 @@ public class IssueTypeMock implements IssueType {
 	@Override
 	public String getId() {
 
-		return null;
+		return id;
+	}
+
+	public void setId(final String id) {
+		this.id = id;
 	}
 
 

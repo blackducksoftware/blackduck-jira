@@ -19,11 +19,14 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.util.Collection;
+
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -36,12 +39,19 @@ public class JiraServices {
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
 	}
+
 	public IssueService getIssueService() {
 		return ComponentAccessor.getIssueService();
 	}
+
+	public Collection<IssueType> getIssueTypes() {
+		return ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+	}
+
 	public JiraAuthenticationContext getAuthContext() {
 		return ComponentAccessor.getJiraAuthenticationContext();
 	}
+
 	public IssuePropertyService getPropertyService() {
 		return ComponentAccessor.getComponentOfType(IssuePropertyService.class);
 	}

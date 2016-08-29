@@ -9,6 +9,10 @@ public class AssignableWorkflowSchemeMock implements AssignableWorkflowScheme {
 
 	private final Map<String, String> mappingIssueTypeNamesToWorkFlowNames = new HashMap<>();
 
+	private String name;
+
+	private Builder builder;
+
 	public void addMappingIssueToWorkflow(final String issueTypeName, final String workflowName) {
 		mappingIssueTypeNamesToWorkFlowNames.put(issueTypeName, workflowName);
 	}
@@ -63,8 +67,11 @@ public class AssignableWorkflowSchemeMock implements AssignableWorkflowScheme {
 
 	@Override
 	public Builder builder() {
+		return builder;
+	}
 
-		return null;
+	public void setBuilder(final Builder builder) {
+		this.builder = builder;
 	}
 
 	@Override
@@ -76,7 +83,11 @@ public class AssignableWorkflowSchemeMock implements AssignableWorkflowScheme {
 	@Override
 	public String getName() {
 
-		return null;
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 }

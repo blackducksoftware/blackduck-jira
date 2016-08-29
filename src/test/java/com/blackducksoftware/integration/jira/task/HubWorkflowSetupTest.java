@@ -5,13 +5,22 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
+import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeBuilderMock;
+import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeMock;
+import com.blackducksoftware.integration.jira.mocks.IssueTypeMock;
 import com.blackducksoftware.integration.jira.mocks.JiraWorkflowMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
+import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowSchemeManagerMock;
@@ -72,7 +81,6 @@ public class HubWorkflowSetupTest {
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
-
 		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
 
 		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
@@ -93,5 +101,241 @@ public class HubWorkflowSetupTest {
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());
 	}
 
-	// TODO test addWorkflowToProjectsWorkflowScheme
+	@Test
+	public void testAddWorkflowToProjectsWorkflowSchemeNoWorkflow() {
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final String workflowName = "TestWorkflow";
+
+		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
+
+		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
+
+		final String jiraUser = "FakeUser";
+
+		final UserManagerMock userManager = new UserManagerMock();
+		final ApplicationUserMock user = new ApplicationUserMock();
+		user.setName(jiraUser);
+		userManager.setMockApplicationUser(user);
+
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, workflowManager,
+				workflowSchemeManager, userManager, jiraUser);
+
+		final JiraWorkflowMock workflow = new JiraWorkflowMock();
+		workflow.setName(workflowName);
+
+		final ProjectMock project = new ProjectMock();
+		project.setName("TestProject");
+
+		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
+
+		assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
+	}
+
+	@Test
+	public void testAddWorkflowToProjectsWorkflowSchemeNoIssueTypes() {
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
+
+		final String workflowName = "TestWorkflow";
+
+		final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
+		hubWorkflow.setName(workflowName);
+
+		final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
+		builder.setWorkflowScheme(hubWorkflow);
+
+		hubWorkflow.setBuilder(builder);
+
+		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
+		workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+
+		final String jiraUser = "FakeUser";
+
+		final UserManagerMock userManager = new UserManagerMock();
+		final ApplicationUserMock user = new ApplicationUserMock();
+		user.setName(jiraUser);
+		userManager.setMockApplicationUser(user);
+
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, workflowManager,
+				workflowSchemeManager, userManager, jiraUser);
+
+		final JiraWorkflowMock workflow = new JiraWorkflowMock();
+		workflow.setName(workflowName);
+
+		final ProjectMock project = new ProjectMock();
+		project.setName("TestProject");
+
+		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
+
+		assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
+	}
+
+	@Test
+	public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNotInScheme() {
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final String workflowName = "TestWorkflow";
+
+		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
+
+		final String issueTypeName = "CustomIssueType";
+		final String issueTypeId = "CustomIssueType";
+
+		final List<IssueType> issueTypes = new ArrayList<>();
+		final IssueTypeMock issueType = new IssueTypeMock();
+		issueType.setName(issueTypeName);
+		issueType.setId(issueTypeId);
+		issueTypes.add(issueType);
+
+		final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
+		hubWorkflow.setName(workflowName);
+
+		final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
+		builder.setWorkflowScheme(hubWorkflow);
+
+		hubWorkflow.setBuilder(builder);
+
+		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
+		workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+
+		final String jiraUser = "FakeUser";
+
+		final UserManagerMock userManager = new UserManagerMock();
+		final ApplicationUserMock user = new ApplicationUserMock();
+		user.setName(jiraUser);
+		userManager.setMockApplicationUser(user);
+
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, workflowManager,
+				workflowSchemeManager, userManager, jiraUser);
+
+		final JiraWorkflowMock workflow = new JiraWorkflowMock();
+		workflow.setName(workflowName);
+
+		final ProjectMock project = new ProjectMock();
+		project.setName("TestProject");
+
+		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
+
+		assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
+	}
+
+	@Test
+	public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNeedUpdate() {
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final String workflowName = "TestWorkflow";
+
+		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
+
+		final String issueTypeName = "CustomIssueType";
+		final String issueTypeId = "CustomIssueType";
+
+		final List<IssueType> issueTypes = new ArrayList<>();
+		final IssueTypeMock issueType = new IssueTypeMock();
+		issueType.setName(issueTypeName);
+		issueType.setId(issueTypeId);
+		issueTypes.add(issueType);
+
+		final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
+		hubWorkflow.setName(workflowName);
+
+		hubWorkflow.addMappingIssueToWorkflow(issueTypeName, "FakeWorkflow");
+
+		final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
+		builder.setWorkflowScheme(hubWorkflow);
+
+		hubWorkflow.setBuilder(builder);
+
+		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
+		workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+
+		final String jiraUser = "FakeUser";
+
+		final UserManagerMock userManager = new UserManagerMock();
+		final ApplicationUserMock user = new ApplicationUserMock();
+		user.setName(jiraUser);
+		userManager.setMockApplicationUser(user);
+
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, workflowManager,
+				workflowSchemeManager, userManager, jiraUser);
+
+		final JiraWorkflowMock workflow = new JiraWorkflowMock();
+		workflow.setName(workflowName);
+
+		final ProjectMock project = new ProjectMock();
+		project.setName("TestProject");
+
+		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
+
+		assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
+
+		final Map<String, String> mappings = hubWorkflow.getMappings();
+
+		final String workflowNameMapped = mappings.get(issueTypeName);
+		assertEquals(workflowName, workflowNameMapped);
+	}
+
+	@Test
+	public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNoUpdate() {
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final String workflowName = "TestWorkflow";
+
+		final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
+
+		final String issueTypeName = "CustomIssueType";
+		final String issueTypeId = "CustomIssueType";
+
+		final List<IssueType> issueTypes = new ArrayList<>();
+		final IssueTypeMock issueType = new IssueTypeMock();
+		issueType.setName(issueTypeName);
+		issueType.setId(issueTypeId);
+		issueTypes.add(issueType);
+
+		final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
+		hubWorkflow.setName(workflowName);
+
+		hubWorkflow.addMappingIssueToWorkflow(issueTypeName, workflowName);
+
+		final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
+		builder.setWorkflowScheme(hubWorkflow);
+
+		hubWorkflow.setBuilder(builder);
+
+		final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
+		workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+
+		final String jiraUser = "FakeUser";
+
+		final UserManagerMock userManager = new UserManagerMock();
+		final ApplicationUserMock user = new ApplicationUserMock();
+		user.setName(jiraUser);
+		userManager.setMockApplicationUser(user);
+
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, workflowManager,
+				workflowSchemeManager, userManager, jiraUser);
+
+		final JiraWorkflowMock workflow = new JiraWorkflowMock();
+		workflow.setName(workflowName);
+
+		final ProjectMock project = new ProjectMock();
+		project.setName("TestProject");
+
+		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
+
+		assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
+
+		final Map<String, String> mappings = hubWorkflow.getMappings();
+
+		final String workflowNameMapped = mappings.get(issueTypeName);
+		assertEquals(workflowName, workflowNameMapped);
+	}
+
 }

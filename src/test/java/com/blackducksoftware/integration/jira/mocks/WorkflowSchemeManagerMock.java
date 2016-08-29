@@ -30,6 +30,12 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 
 	private AssignableWorkflowScheme assignableWorkflowScheme;
 
+	private boolean attemptedWorkflowUpdate;
+
+	public boolean getAttemptedWorkflowUpdate() {
+		return attemptedWorkflowUpdate;
+	}
+
 	public void setAssignableWorkflowScheme(final AssignableWorkflowScheme assignableWorkflowScheme) {
 		this.assignableWorkflowScheme = assignableWorkflowScheme;
 	}
@@ -553,8 +559,8 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 	}
 
 	@Override
-	public AssignableWorkflowScheme updateWorkflowScheme(final AssignableWorkflowScheme arg0) {
-
+	public AssignableWorkflowScheme updateWorkflowScheme(final AssignableWorkflowScheme workflow) {
+		attemptedWorkflowUpdate = true;
 		return null;
 	}
 

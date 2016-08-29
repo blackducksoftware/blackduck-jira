@@ -88,33 +88,39 @@ public class HubWorkflowSetup {
 		try {
 			final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(project);
 
-			final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuidler = projectWorkflowScheme.builder();
+			if (projectWorkflowScheme != null) {
+				final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder = projectWorkflowScheme.builder();
+				// FIXME should check if the workflow scheme is the default, we dont
+				// want to modify the default scheme right??
 
-			final Map<String, String> issueMappings = projectWorkflowScheme.getMappings();
+				final Map<String, String> issueMappings = projectWorkflowScheme.getMappings();
 
-			// FIXME should check if the workflow scheme is the default, we dont
-			// want to modify the default scheme right??
-
-			boolean needsToBeUpdated = false;
-			// IMPORTANT we assume our custom issue types are already in this
-			// Projects Workflow scheme
-			for (final IssueType issueType : issueTypes) {
-				final String workflowName = issueMappings.get(issueType.getId());
-				if (StringUtils.isBlank(workflowName)) {
-					// TODO
-					// Could not find our issue type in this projectWorkflow
-					// scheme
-				} else {
-					if (!workflowName.equals(hubWorkflow.getName())) {
-						projectWorkflowSchemeBuidler.setMapping(issueType.getId(), hubWorkflow.getName());
-						logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
-								+ issueType.getName() + ", to the Hub workflow.");
-						needsToBeUpdated = true;
+				boolean needsToBeUpdated = false;
+				// IMPORTANT we assume our custom issue types are already in this
+				// Projects Workflow scheme
+				if (issueTypes != null && !issueTypes.isEmpty()) {
+					for (final IssueType issueType : issueTypes) {
+						final String workflowName = issueMappings.get(issueType.getId());
+						if (StringUtils.isBlank(workflowName)) {
+							// TODO
+							// Could not find our issue type in this projectWorkflow
+							// scheme
+						} else {
+							if (!workflowName.equals(hubWorkflow.getName())) {
+								projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
+								logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+										+ issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName()
+										+ "'");
+								needsToBeUpdated = true;
+							}
+						}
 					}
 				}
-			}
-			if (needsToBeUpdated) {
-				workflowSchemeManager.updateWorkflowScheme(projectWorkflowScheme);
+				if (needsToBeUpdated) {
+					workflowSchemeManager.updateWorkflowScheme(projectWorkflowSchemeBuilder.build());
+				}
+			} else {
+				// TODO what if the project has no scheme??
 			}
 		} catch (final Exception e) {
 			logger.error("Failed to add the Hub Jira worflow to the Hub scheme.", e);

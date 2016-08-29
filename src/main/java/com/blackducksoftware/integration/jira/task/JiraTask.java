@@ -19,7 +19,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +125,9 @@ public class JiraTask implements PluginJob {
 
 		// TODO create our issueTypes AND add them to each Projects workflow
 		// scheme before we try addWorkflowToProjectsWorkflowScheme
-		final List<IssueType> issueTypes = new ArrayList<>();
+		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraSettingsService,
+				jiraServices.getIssueTypes());
+		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
 
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService,
 				jiraServices.getWorkflowManager(), jiraServices.getWorkflowSchemeManager(),
