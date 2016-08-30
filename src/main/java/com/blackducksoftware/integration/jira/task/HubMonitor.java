@@ -51,6 +51,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
+	public static final String PREVIOUS_INTERVAL = HubMonitor.class.getName() + ":previousInterval";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
