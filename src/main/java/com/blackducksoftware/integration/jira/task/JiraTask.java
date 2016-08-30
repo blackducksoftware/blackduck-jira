@@ -83,7 +83,7 @@ public class JiraTask implements PluginJob {
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		// Do Jira setup here
-		jiraSetup(new JiraServices(), jiraSettingsService, jiraUser, projectMappingJson);
+		jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson);
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -117,7 +117,6 @@ public class JiraTask implements PluginJob {
 	}
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-			final String jiraUser,
 			final String projectMappingJson) {
 
 		final HubGroupSetup groupSetup = new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
@@ -132,8 +131,7 @@ public class JiraTask implements PluginJob {
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
 		logger.debug("Found our issue types : " + issueTypes.size());
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService,
-				jiraServices.getWorkflowManager(), jiraServices.getWorkflowSchemeManager(),
-				jiraServices.getUserManager(), jiraUser);
+				jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////
 

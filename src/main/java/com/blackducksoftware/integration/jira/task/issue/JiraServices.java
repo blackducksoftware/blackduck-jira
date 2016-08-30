@@ -21,6 +21,7 @@ package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.Collection;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -30,7 +31,10 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
@@ -78,5 +82,13 @@ public class JiraServices {
 
 	public UserManager getUserManager() {
 		return ComponentAccessor.getUserManager();
+	}
+
+	public UserUtil getUserUtil() {
+		return ComponentAccessor.getUserUtil();
+	}
+
+	public ApplicationUser userToApplicationUser(final User user) {
+		return ApplicationUsers.from(user);
 	}
 }

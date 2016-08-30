@@ -2,6 +2,7 @@ package com.blackducksoftware.integration.jira.mocks;
 
 import java.util.Collection;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
@@ -10,7 +11,9 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -28,6 +31,16 @@ public class JiraServicesMock extends JiraServices {
 	private GroupManager groupManager;
 	private UserManager userManager;
 	private Collection<IssueType> issueTypes;
+	private UserUtil userUtil;
+
+	@Override
+	public UserUtil getUserUtil() {
+		return userUtil;
+	}
+
+	public void setUserUtil(final UserUtil userUtil) {
+		this.userUtil = userUtil;
+	}
 
 	@Override
 	public Collection<IssueType> getIssueTypes() {
@@ -126,6 +139,13 @@ public class JiraServicesMock extends JiraServices {
 	@Override
 	public UserManager getUserManager() {
 		return userManager;
+	}
+
+	@Override
+	public ApplicationUser userToApplicationUser(final User user) {
+		final ApplicationUserMock userMock = new ApplicationUserMock();
+		userMock.setName(user.getName());
+		return userMock;
 	}
 
 }
