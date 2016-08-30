@@ -221,7 +221,7 @@ public class HubWorkflowSetupTest {
 
 		workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
 
-		assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
+		assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
 	}
 
 	@Test

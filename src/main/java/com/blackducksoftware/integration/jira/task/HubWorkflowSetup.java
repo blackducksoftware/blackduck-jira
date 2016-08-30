@@ -3,7 +3,6 @@ package com.blackducksoftware.integration.jira.task;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,18 +92,18 @@ public class HubWorkflowSetup {
 				// FIXME should check if the workflow scheme is the default, we dont
 				// want to modify the default scheme right??
 
-				final Map<String, String> issueMappings = projectWorkflowScheme.getMappings();
-
 				boolean needsToBeUpdated = false;
 				// IMPORTANT we assume our custom issue types are already in this
 				// Projects Workflow scheme
 				if (issueTypes != null && !issueTypes.isEmpty()) {
 					for (final IssueType issueType : issueTypes) {
-						final String workflowName = issueMappings.get(issueType.getId());
+						final String workflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId());
+
 						if (StringUtils.isBlank(workflowName)) {
-							// TODO
-							// Could not find our issue type in this projectWorkflow
-							// scheme
+							projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
+							logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+									+ issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
+							needsToBeUpdated = true;
 						} else {
 							if (!workflowName.equals(hubWorkflow.getName())) {
 								projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());

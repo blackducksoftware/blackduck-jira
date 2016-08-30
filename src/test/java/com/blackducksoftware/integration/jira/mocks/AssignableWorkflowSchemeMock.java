@@ -36,9 +36,8 @@ public class AssignableWorkflowSchemeMock implements AssignableWorkflowScheme {
 	}
 
 	@Override
-	public String getConfiguredWorkflow(final String arg0) {
-
-		return null;
+	public String getConfiguredWorkflow(final String issueId) {
+		return mappingIssueTypeNamesToWorkFlowNames.get(issueId);
 	}
 
 	@Override
