@@ -51,8 +51,6 @@ public class JiraTask implements PluginJob {
 	public void execute(final Map<String, Object> jobDataMap) {
 
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-		final HubMonitor hubMonitor = (HubMonitor) jobDataMap.get(HubMonitor.KEY_INSTANCE);
-		final String oldIntervalString = (String) jobDataMap.get(HubMonitor.PREVIOUS_INTERVAL);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
 		final String hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -77,8 +75,6 @@ public class JiraTask implements PluginJob {
 		final String jiraUser = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
 
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
-
-		logger.debug("HubMonitor name: " + hubMonitor.getName());
 
 		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
 			logger.warn("The Hub connection details have not been configured, therefore there is nothing to do.");
@@ -113,31 +109,6 @@ public class JiraTask implements PluginJob {
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
-		}
-
-		// TODO factor this out to a method
-		logger.debug("Comparing intervalString (" + intervalString + ") to oldIntervalString (" + oldIntervalString
-				+ ")");
-		boolean changeInterval = false;
-		if (lastRunDateString == null) {
-			logger.debug("There is no last run date; this must be the first run");
-		} else if (oldIntervalString == null) {
-			// oldIntervalString gets wiped out when config is saved
-			logger.info("Config was saved. Will reschedule this task in case interval changed");
-			changeInterval = true;
-		} else if (oldIntervalString.equals(intervalString)) {
-			logger.debug("The interval has not changed");
-		} else {
-			logger.info("Interval has changed. Need to reschedule this task");
-			changeInterval = true;
-		}
-		jobDataMap.put(HubMonitor.PREVIOUS_INTERVAL, intervalString);
-
-		if (changeInterval) {
-			// TODO: calling changeInterval results in an infinite loop
-			// because oldIntervalString is null when it gets back into this
-			// method
-			// hubMonitor.changeInterval();
 		}
 	}
 

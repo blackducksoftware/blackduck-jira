@@ -25,6 +25,7 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.atlassian.crowd.exception.OperationNotPermittedException;
 import com.atlassian.crowd.exception.embedded.InvalidGroupException;
@@ -45,13 +46,13 @@ import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
-public class HubMonitor implements NotificationMonitor, LifecycleAware {
+public class HubMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
 
 	private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
 	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
-	public static final String PREVIOUS_INTERVAL = HubMonitor.class.getName() + ":previousInterval";
+	private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -118,6 +119,18 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 		this.serverName = serverName;
 
+		try {
+			pluginScheduler.unscheduleJob(V1_JOB_NAME);
+			logger.debug("Unscheduled job " + V1_JOB_NAME);
+		} catch (final Exception e) {
+			logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
+		}
+		try {
+			pluginScheduler.unscheduleJob(JOB_NAME);
+			logger.debug("Unscheduled job " + JOB_NAME);
+		} catch (final Exception e) {
+			logger.debug("Job " + JOB_NAME + " wasn't scheduled");
+		}
 		pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
 				JiraTask.class, // class of the job
 				new HashMap<String, Object>() {
@@ -172,5 +185,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		final long intervalSeconds = (intervalMinutes * 60) - 30;
 		final long intervalMillisec = intervalSeconds * 1000;
 		return intervalMillisec;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		logger.info("destroy() called; Unscheduling " + JOB_NAME);
+		pluginScheduler.unscheduleJob(JOB_NAME);
 	}
 }
