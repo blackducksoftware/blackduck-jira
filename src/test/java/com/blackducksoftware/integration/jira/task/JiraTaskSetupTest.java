@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -28,6 +29,8 @@ import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
+import com.blackducksoftware.integration.jira.mocks.UserMock;
+import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowSchemeManagerMock;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -50,18 +53,29 @@ public class JiraTaskSetupTest {
 		final UserManagerMock userManager = getUserManagerMockManagerMock();
 		final ProjectManagerMock projectManager = getProjectManagerMock(true);
 		final Collection<IssueType> issueTypes = getIssueTypes(true);
+		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
-				userManager, projectManager, issueTypes);
+				userManager, projectManager, issueTypes, userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
-		jiraTask.jiraSetup(jiraServices, settingService, JIRA_USER, mappingJson);
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson);
 
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());
 		assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
+	}
+
+	private UserUtil getUserUtil(final boolean hasSystemAdmin) {
+		final UserUtilMock userUtil = new UserUtilMock();
+		if (hasSystemAdmin) {
+			final UserMock user = new UserMock();
+			user.setName(JIRA_USER);
+			userUtil.setUser(user);
+		}
+		return userUtil;
 	}
 
 	private WorkflowManagerMock getWorkflowManagerMock() {
@@ -138,7 +152,7 @@ public class JiraTaskSetupTest {
 
 	private JiraServices getJiraServices(final GroupManagerMock groupManager, final WorkflowManager workflowManager,
 			final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
-			final ProjectManager projectManager, final Collection<IssueType> issueTypes) {
+			final ProjectManager projectManager, final Collection<IssueType> issueTypes, final UserUtil userUtil) {
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 		jiraServices.setGroupManager(groupManager);
 		jiraServices.setWorkflowManager(workflowManager);
@@ -146,6 +160,7 @@ public class JiraTaskSetupTest {
 		jiraServices.setUserManager(userManager);
 		jiraServices.setProjectManager(projectManager);
 		jiraServices.setIssueTypes(issueTypes);
+		jiraServices.setUserUtil(userUtil);
 		return jiraServices;
 	}
 
