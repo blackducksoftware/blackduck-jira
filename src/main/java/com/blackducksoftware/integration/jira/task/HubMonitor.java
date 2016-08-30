@@ -44,7 +44,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 	private final PluginScheduler pluginScheduler; // provided by SAL
 	private final PluginSettingsFactory pluginSettingsFactory;
-	private String serverName = "initialServerName";
 
 	@Inject
 	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
@@ -56,21 +55,19 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 	@Override
 	public void onStart() {
 		logger.debug("HubMonitor onStart() called.");
-		reschedule(serverName, 0L);
+		reschedule(0L);
 	}
 
 	public void changeInterval() {
 		logger.debug("HubMonitor changeInterval() called.");
-		reschedule(serverName, 0L);
+		reschedule(0L);
 	}
 
 	@Override
-	public void reschedule(final String serverName, final long intervalIgnored) {
+	public void reschedule(final long intervalIgnored) {
 		logger.debug("HubMonitor reschedule() called.");
 
 		final long actualInterval = getIntervalMillisec();
-
-		this.serverName = serverName;
 
 		pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
 				JiraTask.class, // class of the job
@@ -80,8 +77,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 			}
 		}, // data that needs to be passed to the job
-		new Date(), // the time the job is to start
-		actualInterval); // interval between repeats, in milliseconds
+				new Date(), // the time the job is to start
+				actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
 	}
 
@@ -98,13 +95,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 		if (settings == null) {
 			logger.error("Unable to get plugin settings");
-			;
 			return DEFAULT_INTERVAL_MILLISEC;
 		}
 		final String intervalString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 		if (intervalString == null) {
 			logger.error("Unable to get interval from plugin settings");
-			;
 			return DEFAULT_INTERVAL_MILLISEC;
 		}
 		int intervalMinutes;

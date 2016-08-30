@@ -119,7 +119,11 @@ public class HubWorkflowSetup {
 					workflowSchemeManager.updateWorkflowScheme(projectWorkflowSchemeBuilder.build());
 				}
 			} else {
-				// TODO what if the project has no scheme??
+				final String errorMessage = "Could not find the workflow scheme for the Jira project : "
+						+ project.getName();
+				logger.error(errorMessage);
+				settingService.addHubError(errorMessage, null, null, project.getName(), null,
+						"addWorkflowToProjectsWorkflowScheme");
 			}
 		} catch (final Exception e) {
 			logger.error("Failed to add the Hub Jira worflow to the Hub scheme.", e);
