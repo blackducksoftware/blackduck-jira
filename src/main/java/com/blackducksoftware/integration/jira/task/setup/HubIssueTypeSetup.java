@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +31,7 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubIssueTypeSetup {
 

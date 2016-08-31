@@ -42,6 +42,10 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -133,6 +137,13 @@ public class JiraTask implements PluginJob {
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
 		logger.debug("Found our issue types : " + issueTypes.size());
+
+		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
+				jiraServices);
+		if (issueTypes != null && !issueTypes.isEmpty()) {
+			fieldConfigurationSetup.addHubFieldConfigurationToJira(issueTypes);
+		}
+
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////

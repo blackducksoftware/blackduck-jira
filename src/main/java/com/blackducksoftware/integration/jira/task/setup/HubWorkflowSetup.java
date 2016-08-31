@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +41,7 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
