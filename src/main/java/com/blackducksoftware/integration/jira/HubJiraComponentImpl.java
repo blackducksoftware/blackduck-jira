@@ -9,7 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,20 +23,16 @@ package com.blackducksoftware.integration.jira;
 
 import com.atlassian.sal.api.ApplicationProperties;
 
-public class HubJiraComponentImpl implements HubJiraComponent
-{
+public class HubJiraComponentImpl implements HubJiraComponent {
 	private final ApplicationProperties applicationProperties;
 
-	public HubJiraComponentImpl(final ApplicationProperties applicationProperties)
-	{
+	public HubJiraComponentImpl(final ApplicationProperties applicationProperties) {
 		this.applicationProperties = applicationProperties;
 	}
 
 	@Override
-	public String getName()
-	{
-		if(null != applicationProperties)
-		{
+	public String getName() {
+		if (null != applicationProperties) {
 			return "hubJira:" + applicationProperties.getDisplayName();
 		}
 

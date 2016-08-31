@@ -9,7 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -144,9 +146,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getInterval(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -174,9 +175,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getJiraProjects(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -201,9 +201,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHubProjects(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -232,9 +231,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHubPolicies(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -264,9 +262,8 @@ public class HubJiraConfigController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMappings(@Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		final Object obj = transactionTemplate.execute(new TransactionCallback() {
@@ -292,9 +289,8 @@ public class HubJiraConfigController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
 		final String username = userManager.getRemoteUsername(request);
-		if (username == null
-				|| (!userManager.isSystemAdmin(username)
-						&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
+		if (username == null || (!userManager.isSystemAdmin(username)
+				&& !userManager.isUserInGroup(username, HubJiraConstants.HUB_JIRA_GROUP))) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		transactionTemplate.execute(new TransactionCallback() {
@@ -320,8 +316,7 @@ public class HubJiraConfigController {
 						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
-				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
-						config.getPolicyRulesJson());
+				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
@@ -430,18 +425,16 @@ public class HubJiraConfigController {
 						hubProjectBlank = false;
 					}
 				}
-				if(jiraProjectBlank || hubProjectBlank){
+				if (jiraProjectBlank || hubProjectBlank) {
 					hasEmptyMapping = true;
 				}
 			}
-			if(hasEmptyMapping){
-				config.setHubProjectMappingError(
-						concatErrorMessage(config.getHubProjectMappingError(),
-								JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
+			if (hasEmptyMapping) {
+				config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(),
+						JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
 			}
 		}
 	}
-
 
 	private Object getValue(final PluginSettings settings, final String key) {
 		return settings.get(key);
@@ -475,7 +468,7 @@ public class HubJiraConfigController {
 				newProject.setProjectName(oldProject.getName());
 				newProject.setProjectId(oldProject.getId());
 
-				if(oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()){
+				if (oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()) {
 					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
 				} else {
 					boolean projectHasTaskType = false;
@@ -523,7 +516,7 @@ public class HubJiraConfigController {
 		final String hubProxyPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
 		HubIntRestService hubRestService = null;
-		try{
+		try {
 			final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
 			configBuilder.setHubUrl(hubUrl);
 			configBuilder.setUsername(hubUser);
@@ -548,7 +541,7 @@ public class HubJiraConfigController {
 
 			hubRestService = new HubIntRestService(restConnection);
 
-			if(result.hasErrors()){
+			if (result.hasErrors()) {
 				config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
 			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
@@ -557,7 +550,6 @@ public class HubJiraConfigController {
 		}
 		return hubRestService;
 	}
-
 
 	private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
 			final HubJiraConfigSerializable config) {
@@ -582,8 +574,7 @@ public class HubJiraConfigController {
 		return hubProjects;
 	}
 
-	private void setHubPolicyRules(final HubIntRestService restService,
-			final HubJiraConfigSerializable config) {
+	private void setHubPolicyRules(final HubIntRestService restService, final HubJiraConfigSerializable config) {
 
 		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
 		if (restService != null) {
@@ -600,13 +591,13 @@ public class HubJiraConfigController {
 					urlSegments.add("policy-rules");
 
 					final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
-					queryParameters.add(new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
+					queryParameters.add(
+							new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
 
 					List<PolicyRule> policyRules = null;
 					try {
 						policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
-					} catch (IOException | URISyntaxException | ResourceDoesNotExistException
-							| BDRestException e) {
+					} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
 						config.setPolicyRulesError(e.getMessage());
 					}
 

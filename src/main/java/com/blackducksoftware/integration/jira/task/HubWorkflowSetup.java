@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C) 2016 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
 import java.io.InputStream;
@@ -58,8 +79,8 @@ public class HubWorkflowSetup {
 
 				final WorkflowDescriptor workflowDescriptor = WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml);
 
-				hubWorkflow = new ConfigurableJiraWorkflow(HubJiraConstants.HUB_JIRA_WORKFLOW,
-						workflowDescriptor, jiraServices.getWorkflowManager());
+				hubWorkflow = new ConfigurableJiraWorkflow(HubJiraConstants.HUB_JIRA_WORKFLOW, workflowDescriptor,
+						jiraServices.getWorkflowManager());
 
 				jiraServices.getWorkflowManager().createWorkflow(jiraAppUser, hubWorkflow);
 				logger.debug("Created the Hub Workflow : " + HubJiraConstants.HUB_JIRA_WORKFLOW);
@@ -80,11 +101,13 @@ public class HubWorkflowSetup {
 
 			if (projectWorkflowScheme != null) {
 				final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder = projectWorkflowScheme.builder();
-				// FIXME should check if the workflow scheme is the default, we dont
+				// FIXME should check if the workflow scheme is the default, we
+				// dont
 				// want to modify the default scheme right??
 
 				boolean needsToBeUpdated = false;
-				// IMPORTANT we assume our custom issue types are already in this
+				// IMPORTANT we assume our custom issue types are already in
+				// this
 				// Projects Workflow scheme
 				if (issueTypes != null && !issueTypes.isEmpty()) {
 					for (final IssueType issueType : issueTypes) {

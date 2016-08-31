@@ -9,7 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -84,8 +86,7 @@ public class HubProjectMappings {
 		return matchingJiraProjects;
 	}
 
-	private JiraProject getJiraProject(final long jiraProjectId)
-			throws NotificationServiceException {
+	private JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
 		final com.atlassian.jira.project.Project atlassianJiraProject = jiraServices.getJiraProjectManager()
 				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
@@ -100,7 +101,7 @@ public class HubProjectMappings {
 
 		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
 			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-			+ " does not have any issue types, we will not be able to create tickets for this project.");
+					+ " does not have any issue types, we will not be able to create tickets for this project.");
 		} else {
 			boolean projectHasIssueType = false;
 			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
@@ -112,8 +113,8 @@ public class HubProjectMappings {
 				}
 			}
 			if (!projectHasIssueType) {
-				bdsJiraProject.setProjectError("The Jira project is missing the "
-						+ jiraContext.getJiraIssueTypeName() + " issue type.");
+				bdsJiraProject.setProjectError(
+						"The Jira project is missing the " + jiraContext.getJiraIssueTypeName() + " issue type.");
 			}
 		}
 		return bdsJiraProject;

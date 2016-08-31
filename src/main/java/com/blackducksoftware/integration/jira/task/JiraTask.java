@@ -9,7 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -72,7 +74,8 @@ public class JiraTask implements PluginJob {
 
 		final String intervalString = getStringValue(settings,
 				HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-		final String projectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+		final String projectMappingJson = getStringValue(settings,
+				HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
 		final String jiraIssueTypeName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_TYPE_NAME);
 		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
@@ -107,9 +110,9 @@ public class JiraTask implements PluginJob {
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
 
-		final HubJiraTask processor = new HubJiraTask(serverConfig,
-				intervalString, jiraIssueTypeName, installDateString, lastRunDateString, projectMappingJson,
-				policyRulesJson, jiraUser, jiraSettingsService);
+		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, jiraIssueTypeName,
+				installDateString, lastRunDateString, projectMappingJson, policyRulesJson, jiraUser,
+				jiraSettingsService);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -130,8 +133,7 @@ public class JiraTask implements PluginJob {
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
 		logger.debug("Found our issue types : " + issueTypes.size());
-		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService,
-				jiraServices);
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////
 
@@ -142,10 +144,12 @@ public class JiraTask implements PluginJob {
 			config.setHubProjectMappingsJson(projectMappingJson);
 			if (!config.getHubProjectMappings().isEmpty()) {
 				for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
-					if(projectMapping.getJiraProject() != null && projectMapping.getJiraProject().getProjectId() != null){
+					if (projectMapping.getJiraProject() != null
+							&& projectMapping.getJiraProject().getProjectId() != null) {
 						// Get jira Project object by Id
 						// from the JiraProject in the mapping
-						final Project jiraProject = jiraServices.getJiraProjectManager().getProjectObj(projectMapping.getJiraProject().getProjectId());
+						final Project jiraProject = jiraServices.getJiraProjectManager()
+								.getProjectObj(projectMapping.getJiraProject().getProjectId());
 						// TODO add issuetypes to this project
 						issueTypeSetup.addIssueTypesToProject(jiraProject, issueTypes);
 						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);

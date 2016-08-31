@@ -9,7 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -86,11 +88,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 		pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
 				JiraTask.class, // class of the job
 				new HashMap<String, Object>() {
-			{
-				put(KEY_INSTANCE, HubMonitor.this);
-				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
-			}
-		}, // data that needs to be passed to the job
+					{
+						put(KEY_INSTANCE, HubMonitor.this);
+						put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
+					}
+				}, // data that needs to be passed to the job
 				new Date(), // the time the job is to start
 				actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
