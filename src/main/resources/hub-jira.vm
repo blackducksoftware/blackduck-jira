@@ -41,32 +41,52 @@
 			  <div class="field-group">
 					<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
-			  <div class="field-group">
-					<div id="jiraProjectListError" class="error hidden longInput inlineError"></div>
-					<div id="hubProjectListError" class="error hidden longInput inlineError"></div>
-			  </div>
 			  <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
-			  	<table width="100%" id="hubProjectMappingContainer">
-			  	  <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
-				    <td class="mappingTableCell" id="mappingStatus">
-				    </td>
-				    <td class="mappingTableCell">
-				    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
-						<datalist id="jiraProjects">
-						</datalist>
-						<div id="jiraProjectError">
-				    	</div>
-				    </td>
-				    <td class="mappingTableCell" width="25px"> = </td>
-				    <td class="mappingTableCell">
-				    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
-						<datalist id="hubProjects">
-						</datalist>
-				    </td>
-				    <td class="mappingTableCell" width="100px">
-				    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
-				  	</td>
-				  </tr>
+			  	<table width="100%">
+			  		<thead>
+			  			<tr>
+			  				<td class="mappingTableCell"/>
+			  				<td class="mappingTableCell error hidden" id="jiraProjectListError">
+						    </td>
+						    <td class="mappingTableCell"/>
+						    <td class="mappingTableCell error hidden" id="hubProjectListError">
+						    </td>
+						    <td class="mappingTableCell"/>
+			  			</tr>
+			  			<tr>
+			  				<td class="mappingTableCell"/>
+			  				<td class="mappingTableCell">
+			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
+						    </td>
+						    <td class="mappingTableCell"/>
+						    <td class="mappingTableCell">
+						    	$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')
+						    </td>
+						    <td class="mappingTableCell"/>
+			  			</tr>
+			  		</thead>
+			  		<tbody id="hubProjectMappingContainer">
+					  	  <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
+						    <td class="mappingTableCell" id="mappingStatus">
+						    </td>
+						    <td class="mappingTableCell">
+						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+								<datalist id="jiraProjects">
+								</datalist>
+								<div id="jiraProjectError">
+						    	</div>
+						    </td>
+						    <td class="mappingTableCell" width="25px"> = </td>
+						    <td class="mappingTableCell">
+						    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
+								<datalist id="hubProjects">
+								</datalist>
+						    </td>
+						    <td class="mappingTableCell" width="100px">
+						    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
+						  	</td>
+						  </tr>
+				  </tbody>
 				</table>
 			</div>
 			<div class="buttonContainer">

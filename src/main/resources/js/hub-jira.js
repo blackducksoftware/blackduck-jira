@@ -113,7 +113,7 @@ function populateForm() {
 		    dataType: "json",
 		    success: function(config) {
 		      fillInHubProjects(config.hubProjects);
-		      
+		     
 		      handleError(hubProjectListErrorId, config.hubProjectsError, false);
 		      handleError(errorMessageFieldId, config.errorMessage, false);
 		      
