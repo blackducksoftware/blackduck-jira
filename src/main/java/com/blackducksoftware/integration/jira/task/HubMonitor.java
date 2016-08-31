@@ -60,6 +60,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware {
 
 	public void changeInterval() {
 		logger.debug("HubMonitor changeInterval() called.");
+		try {
+			pluginScheduler.unscheduleJob(JOB_NAME);
+		} catch (final Exception e) {
+			// catch errors in case the job did not exist before
+		}
 		reschedule(0L);
 	}
 

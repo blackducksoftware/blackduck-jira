@@ -80,6 +80,7 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.reflect.TypeToken;
 
@@ -90,13 +91,16 @@ public class HubJiraConfigController {
 	private final PluginSettingsFactory pluginSettingsFactory;
 	private final TransactionTemplate transactionTemplate;
 	private final ProjectManager projectManager;
+	private final HubMonitor hubMonitor;
 
 	public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
-			final TransactionTemplate transactionTemplate, final ProjectManager projectManager) {
+			final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
+			final HubMonitor hubMonitor) {
 		this.userManager = userManager;
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.transactionTemplate = transactionTemplate;
 		this.projectManager = projectManager;
+		this.hubMonitor = hubMonitor;
 	}
 
 	@Path("/hubJiraTicketErrors")
@@ -312,6 +316,8 @@ public class HubJiraConfigController {
 					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
 							dateFormatter.format(new Date()));
 				}
+				final String previousInterval = getStringValue(settings,
+						HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
 						config.getIntervalBetweenChecks());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON,
@@ -319,6 +325,7 @@ public class HubJiraConfigController {
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
 						config.getHubProjectMappingsJson());
 				setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
+				updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
 				return null;
 			}
 		});
@@ -375,6 +382,19 @@ public class HubJiraConfigController {
 			return Response.ok(obj).status(Status.BAD_REQUEST).build();
 		}
 		return Response.noContent().build();
+	}
+
+	private void updateHubTaskInterval(final String previousIntervalString, final String newIntervalString) {
+		final int previousInterval = NumberUtils.toInt(previousIntervalString);
+		int newInterval;
+		try {
+			newInterval = stringToInteger(newIntervalString);
+			if (newInterval > 0 && newInterval != previousInterval) {
+				hubMonitor.changeInterval();
+			}
+		} catch (final IllegalArgumentException e) {
+			// the new interval was not an integer
+		}
 	}
 
 	private void checkIntervalErrors(final HubJiraConfigSerializable config) {

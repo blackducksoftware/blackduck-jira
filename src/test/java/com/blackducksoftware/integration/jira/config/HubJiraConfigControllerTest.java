@@ -55,10 +55,12 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
+import com.blackducksoftware.integration.jira.mocks.PluginSchedulerMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.TransactionTemplateMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
+import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -186,7 +188,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -203,7 +205,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -221,7 +223,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -254,7 +256,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -291,7 +293,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -327,7 +329,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -363,7 +365,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -399,7 +401,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -431,7 +433,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -448,7 +450,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -467,7 +469,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -505,7 +507,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -546,7 +548,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -604,7 +606,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -661,7 +663,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -716,7 +718,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -761,7 +763,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -778,7 +780,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -796,7 +798,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -830,7 +832,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -866,7 +868,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -902,7 +904,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithoutTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -939,7 +941,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithoutIssueTypes());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -976,7 +978,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsNullIssueTypes());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -1009,7 +1011,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -1026,7 +1028,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -1050,7 +1052,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -1091,7 +1093,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -1143,7 +1145,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -1192,7 +1194,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		controller = Mockito.spy(controller);
 
@@ -1231,7 +1233,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1248,7 +1250,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1269,7 +1271,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1310,7 +1312,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1353,7 +1355,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1386,7 +1388,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1405,7 +1407,7 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1424,8 +1426,11 @@ public class HubJiraConfigControllerTest {
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1445,6 +1450,8 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjectMappings());
 		assertNull(config.getPolicyRules());
 		assertTrue(config.hasErrors());
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 	}
 
 	@Test
@@ -1458,8 +1465,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1503,6 +1513,8 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjectMappings());
 		assertNull(config.getPolicyRules());
 		assertTrue(config.hasErrors());
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 	}
 
 	@Test
@@ -1522,8 +1534,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1571,7 +1586,8 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjectMappings());
 		assertNull(config.getPolicyRules());
 		assertTrue(config.hasErrors());
-
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 	}
 
 
@@ -1596,8 +1612,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1642,6 +1661,8 @@ public class HubJiraConfigControllerTest {
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
 		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 	}
 
 	@Test
@@ -1665,8 +1686,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1711,6 +1735,8 @@ public class HubJiraConfigControllerTest {
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
 		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 	}
 
 	@Test
@@ -1730,8 +1756,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1784,6 +1813,8 @@ public class HubJiraConfigControllerTest {
 		assertTrue(!config.getPolicyRules().isEmpty());
 		assertEquals(mappings, config.getHubProjectMappings());
 		assertTrue(config.hasErrors());
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 
 		settings = settingsFactory.createGlobalSettings();
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
@@ -1809,8 +1840,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1864,6 +1898,8 @@ public class HubJiraConfigControllerTest {
 		assertTrue(!config.getPolicyRules().isEmpty());
 		assertEquals(mappings, config.getHubProjectMappings());
 		assertTrue(config.hasErrors());
+		assertTrue(!pluginScheduler.isJobUnScheduled());
+		assertTrue(!pluginScheduler.isJobScheduled());
 
 		settings = settingsFactory.createGlobalSettings();
 		assertEquals(intervalBetweenChecks, settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS));
@@ -1893,8 +1929,11 @@ public class HubJiraConfigControllerTest {
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
+		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
+
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, hubMonitor);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1958,6 +1997,8 @@ public class HubJiraConfigControllerTest {
 		assertEquals(gson.toJson(mappings), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON));
 		assertEquals(gson.toJson(jiraPolices), settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON));
 		assertEquals("User", settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER));
+		assertTrue(pluginScheduler.isJobUnScheduled());
+		assertTrue(pluginScheduler.isJobScheduled());
 	}
 
 	@Test
@@ -1972,7 +2013,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -1992,7 +2033,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2013,7 +2054,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2043,7 +2084,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2079,7 +2120,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2118,7 +2159,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2157,7 +2198,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
@@ -2205,7 +2246,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
@@ -2252,7 +2293,7 @@ public class HubJiraConfigControllerTest {
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock);
+				transactionManager, projectManagerMock, null);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
