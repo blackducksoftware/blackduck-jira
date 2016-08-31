@@ -19,32 +19,53 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.util.Collection;
+
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
+import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
 public class JiraServices {
 
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
 	}
+
 	public IssueService getIssueService() {
 		return ComponentAccessor.getIssueService();
 	}
+
+	public Collection<IssueType> getIssueTypes() {
+		return ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+	}
+
 	public JiraAuthenticationContext getAuthContext() {
 		return ComponentAccessor.getJiraAuthenticationContext();
 	}
+
 	public IssuePropertyService getPropertyService() {
 		return ComponentAccessor.getComponentOfType(IssuePropertyService.class);
 	}
 
 	public WorkflowManager getWorkflowManager() {
 		return ComponentAccessor.getWorkflowManager();
+	}
+
+	public WorkflowSchemeManager getWorkflowSchemeManager() {
+		return ComponentAccessor.getWorkflowSchemeManager();
 	}
 
 	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
@@ -55,4 +76,19 @@ public class JiraServices {
 		return ComponentAccessor.getCommentManager();
 	}
 
+	public GroupManager getGroupManager() {
+		return ComponentAccessor.getGroupManager();
+	}
+
+	public UserManager getUserManager() {
+		return ComponentAccessor.getUserManager();
+	}
+
+	public UserUtil getUserUtil() {
+		return ComponentAccessor.getUserUtil();
+	}
+
+	public ApplicationUser userToApplicationUser(final User user) {
+		return ApplicationUsers.from(user);
+	}
 }

@@ -27,23 +27,11 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.atlassian.crowd.exception.OperationNotPermittedException;
-import com.atlassian.crowd.exception.embedded.InvalidGroupException;
-import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
-import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.groups.GroupManager;
-import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
@@ -58,7 +46,6 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 
 	private final PluginScheduler pluginScheduler; // provided by SAL
 	private final PluginSettingsFactory pluginSettingsFactory;
-	private String serverName = "initialServerName";
 
 	@Inject
 	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
@@ -70,54 +57,19 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 	@Override
 	public void onStart() {
 		logger.debug("HubMonitor onStart() called.");
-		reschedule(serverName, 0L);
+		reschedule(0L);
 	}
 
 	public void changeInterval() {
 		logger.debug("HubMonitor changeInterval() called.");
-		reschedule(serverName, 0L);
+		reschedule(0L);
 	}
 
 	@Override
-	public void reschedule(final String serverName, final long intervalIgnored) {
+	public void reschedule(final long intervalIgnored) {
 		logger.debug("HubMonitor reschedule() called.");
-		logger.debug("pluginSettingsFactory: " + pluginSettingsFactory);
-
-		try {
-			final GroupManager groupManager = ComponentAccessor.getGroupManager();
-			if (!groupManager.groupExists(HubJiraConstants.HUB_JIRA_GROUP)) {
-				groupManager.createGroup(HubJiraConstants.HUB_JIRA_GROUP);
-				logger.debug("Created the Group : " + HubJiraConstants.HUB_JIRA_GROUP);
-			}
-		} catch (OperationNotPermittedException | InvalidGroupException e) {
-			logger.error("Failed to create the Group : " + HubJiraConstants.HUB_JIRA_GROUP, e);
-		}
-
-		final CommentManager commentManager = ComponentAccessor.getCommentManager();
-		logger.debug("commentManager: " + commentManager);
-
-		final IssueService issueService = ComponentAccessor.getIssueService();
-		logger.debug("issueService: " + issueService);
-
-		final UserManager userManager = ComponentAccessor.getUserManager();
-		logger.debug("userManager: " + userManager);
-
-		final JiraAuthenticationContext authContext = ComponentAccessor.getJiraAuthenticationContext();
-		logger.debug("authContext: " + authContext);
-
-		final IssuePropertyService propertyService = ComponentAccessor.getComponentOfType(IssuePropertyService.class);
-		logger.debug("propertyService: " + propertyService);
-
-		final WorkflowManager workflowManager = ComponentAccessor.getWorkflowManager();
-		logger.debug("workflowManager: " + workflowManager);
-
-		final JsonEntityPropertyManager jsonEntityPropertyManager = ComponentAccessor
-				.getComponentOfType(JsonEntityPropertyManager.class);
-		logger.debug("jsonEntityPropertyManager: " + jsonEntityPropertyManager);
 
 		final long actualInterval = getIntervalMillisec();
-
-		this.serverName = serverName;
 
 		try {
 			pluginScheduler.unscheduleJob(V1_JOB_NAME);
@@ -139,8 +91,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
 			}
 		}, // data that needs to be passed to the job
-		new Date(), // the time the job is to start
-		actualInterval); // interval between repeats, in milliseconds
+				new Date(), // the time the job is to start
+				actualInterval); // interval between repeats, in milliseconds
 		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
 	}
 
@@ -157,13 +109,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 		if (settings == null) {
 			logger.error("Unable to get plugin settings");
-			;
 			return DEFAULT_INTERVAL_MILLISEC;
 		}
 		final String intervalString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 		if (intervalString == null) {
 			logger.error("Unable to get interval from plugin settings");
-			;
 			return DEFAULT_INTERVAL_MILLISEC;
 		}
 		int intervalMinutes;

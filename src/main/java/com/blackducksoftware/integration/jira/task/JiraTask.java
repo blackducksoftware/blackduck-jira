@@ -19,11 +19,15 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
@@ -33,6 +37,9 @@ import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -49,7 +56,6 @@ public class JiraTask implements PluginJob {
 
 	@Override
 	public void execute(final Map<String, Object> jobDataMap) {
-
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -76,10 +82,8 @@ public class JiraTask implements PluginJob {
 
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-		if (hubUrl == null || hubUsername == null || hubPasswordEncrypted == null) {
-			logger.warn("The Hub connection details have not been configured, therefore there is nothing to do.");
-			return;
-		}
+		// Do Jira setup here
+		jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson);
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -110,6 +114,46 @@ public class JiraTask implements PluginJob {
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
 		}
+	}
+
+	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
+			final String projectMappingJson) {
+
+		final HubGroupSetup groupSetup = new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
+		groupSetup.addHubJiraGroupToJira();
+
+		// TODO create our issueTypes AND add them to each Projects workflow
+		// scheme before we try addWorkflowToProjectsWorkflowScheme
+
+		//////////////////////// Create Issue Types, workflow, etc ////////////
+		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraSettingsService,
+				jiraServices.getIssueTypes());
+		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
+		logger.debug("Found our issue types : " + issueTypes.size());
+		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService,
+				jiraServices);
+		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+		////////////////////////////////////////////////////////////////////////
+
+		/////////////////////// Associate with projects ///////////////////////
+		if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
+			final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+			// Converts Json to list of mappings
+			config.setHubProjectMappingsJson(projectMappingJson);
+			if (!config.getHubProjectMappings().isEmpty()) {
+				for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
+					if(projectMapping.getJiraProject() != null && projectMapping.getJiraProject().getProjectId() != null){
+						// Get jira Project object by Id
+						// from the JiraProject in the mapping
+						final Project jiraProject = jiraServices.getJiraProjectManager().getProjectObj(projectMapping.getJiraProject().getProjectId());
+						// TODO add issuetypes to this project
+						issueTypeSetup.addIssueTypesToProject(jiraProject, issueTypes);
+						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+					}
+				}
+			}
+		}
+		/////////////////////////////////////////////////////////////////////////
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {
