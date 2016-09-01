@@ -31,6 +31,7 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -112,5 +113,9 @@ public class JiraServices {
 
 	public CustomFieldManager getCustomFieldManager() {
 		return ComponentAccessor.getCustomFieldManager();
+	}
+
+	public FieldLayoutManager getFieldLayoutManager() {
+		return ComponentAccessor.getFieldLayoutManager();
 	}
 }
