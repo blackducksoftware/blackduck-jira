@@ -40,6 +40,7 @@ public class HubFieldConfigurationSetup {
 					break;
 				}
 			}
+			boolean fieldConfigurationNeedsUpdate = false;
 			if (hubFieldLayout == null) {
 				final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager()
 						.getEditableDefaultFieldLayout();
@@ -49,26 +50,24 @@ public class HubFieldConfigurationSetup {
 						editableFieldLayout.getFieldLayoutItems());
 
 				hubFieldLayout.setName("Hub Field Configuration");
-
-				// Stores our copy
-				jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
+				fieldConfigurationNeedsUpdate = true;
 			}
 			final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
 			for (final FieldLayoutItem field : fields) {
 				String fieldName = field.getOrderableField().getName();
 				fieldName = fieldName.replace(" ", "");
 				fieldName = fieldName.toLowerCase();
-				logger.debug(fieldName);
 				if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
-					// NOT WORKING
 					hubFieldLayout.makeOptional(field);
+					fieldConfigurationNeedsUpdate = true;
 				}
 			}
-
-			// TODO update our field layout with the changes from required
-			// fields to optional. Unfortunately FieldLayoutManager does not
-			// appear to expose any methods to do this update. It only appears
-			// to expose storeEditableFieldLayout
+			if (fieldConfigurationNeedsUpdate) {
+				// Persists our field configuration,
+				// creates it if it doesnt exist,
+				// updates it if it does exist
+				jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
+			}
 		} catch (final Exception e) {
 			logger.error(e);
 			settingService.addHubError(e, "addHubFieldConfigurationToJira");
