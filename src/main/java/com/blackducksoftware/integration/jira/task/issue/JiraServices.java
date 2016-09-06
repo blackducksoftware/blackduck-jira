@@ -28,7 +28,12 @@ import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -92,5 +97,25 @@ public class JiraServices {
 
 	public ApplicationUser userToApplicationUser(final User user) {
 		return ApplicationUsers.from(user);
+	}
+
+	public FieldScreenManager getFieldScreenManager() {
+		return ComponentAccessor.getFieldScreenManager();
+	}
+
+	public FieldScreenSchemeManager getFieldScreenSchemeManager(){
+		return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
+	}
+
+	public FieldManager getFieldManager() {
+		return ComponentAccessor.getFieldManager();
+	}
+
+	public CustomFieldManager getCustomFieldManager() {
+		return ComponentAccessor.getCustomFieldManager();
+	}
+
+	public FieldLayoutManager getFieldLayoutManager() {
+		return ComponentAccessor.getFieldLayoutManager();
 	}
 }

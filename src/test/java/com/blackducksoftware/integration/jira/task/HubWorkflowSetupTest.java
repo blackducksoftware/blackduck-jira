@@ -25,6 +25,7 @@ import com.blackducksoftware.integration.jira.mocks.UserMock;
 import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.WorkflowSchemeManagerMock;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 
 public class HubWorkflowSetupTest {
 

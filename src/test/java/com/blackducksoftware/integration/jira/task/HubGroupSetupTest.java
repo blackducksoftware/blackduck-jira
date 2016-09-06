@@ -7,6 +7,7 @@ import org.junit.Test;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
+import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 
 public class HubGroupSetupTest {
 
