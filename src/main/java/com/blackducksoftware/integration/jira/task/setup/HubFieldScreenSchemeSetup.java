@@ -222,22 +222,40 @@ public class HubFieldScreenSchemeSetup {
 			hubScreenScheme = new FieldScreenSchemeImpl(jiraServices.getFieldScreenSchemeManager());
 			hubScreenScheme.setName(screenSchemeName);
 			hubScreenScheme.store();
+		}
 
-			final List<ScreenableIssueOperation> issueOpertations = new ArrayList<>();
-			issueOpertations.add(IssueOperations.CREATE_ISSUE_OPERATION);
-			issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
-			issueOpertations.add(IssueOperations.VIEW_ISSUE_OPERATION);
+		final List<ScreenableIssueOperation> issueOpertations = new ArrayList<>();
+		issueOpertations.add(IssueOperations.CREATE_ISSUE_OPERATION);
+		issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
+		issueOpertations.add(IssueOperations.VIEW_ISSUE_OPERATION);
 
-			for (final ScreenableIssueOperation issueOperation : issueOpertations) {
-				final FieldScreenSchemeItem hubScreenSchemeItem = new FieldScreenSchemeItemImpl(
-						jiraServices.getFieldScreenSchemeManager(), jiraServices.getFieldScreenManager());
+		boolean hubScreenSchemeNeedsUpdate = false;
+		for (final ScreenableIssueOperation issueOperation : issueOpertations) {
+			FieldScreenSchemeItem hubScreenSchemeItem = hubScreenScheme.getFieldScreenSchemeItem(issueOperation);
+			boolean screenSchemeItemNeedsUpdate = false;
+			if (hubScreenSchemeItem == null) {
+				hubScreenSchemeItem = new FieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(),
+						jiraServices.getFieldScreenManager());
 				hubScreenSchemeItem.setIssueOperation(issueOperation);
 				hubScreenSchemeItem.setFieldScreen(screen);
 				hubScreenScheme.addFieldScreenSchemeItem(hubScreenSchemeItem);
+				hubScreenSchemeNeedsUpdate = true;
+				screenSchemeItemNeedsUpdate = true;
+			} else {
+				if (hubScreenSchemeItem.getFieldScreen() == null
+						|| !hubScreenSchemeItem.getFieldScreen().equals(screen)) {
+					hubScreenSchemeItem.setFieldScreen(screen);
+					screenSchemeItemNeedsUpdate = true;
+				}
+			}
+			if (screenSchemeItemNeedsUpdate) {
 				jiraServices.getFieldScreenSchemeManager().updateFieldScreenSchemeItem(hubScreenSchemeItem);
 			}
+		}
+		if (hubScreenSchemeNeedsUpdate) {
 			jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(hubScreenScheme);
 		}
+
 	}
 
 	private void createPolicyViolationScreenScheme(final IssueType issueType) {
