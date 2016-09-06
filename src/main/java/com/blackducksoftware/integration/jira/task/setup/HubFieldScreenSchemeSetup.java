@@ -52,6 +52,14 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldScreenSchemeSetup {
+	public static final String HUB_POLICY_SCREEN_SCHEME_NAME = "Hub Policy Screen Scheme";
+	public static final String HUB_SECURITY_SCREEN_SCHEME_NAME = "Hub Security Screen Scheme";
+
+	public static final String HUB_POLICY_SCREEN_NAME = "Hub Policy Screen";
+	public static final String HUB_SECURITY_SCREEN_NAME = "Hub Security Screen";
+
+	public static final String HUB_SCREEN_TAB = "Hub Screen Tab";
+
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	private final JiraSettingsService settingService;
@@ -144,37 +152,58 @@ public class HubFieldScreenSchemeSetup {
 			}
 		}
 		if (hubScreen == null) {
-			final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
-					.getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
-
 			hubScreen = new FieldScreenImpl(jiraServices.getFieldScreenManager());
 			hubScreen.setName(screenName);
 			hubScreen.store();
+		}
+		final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
+				.getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
 
-			final FieldScreenTab myTab = hubScreen.addTab("Hub Screen Tab");
-			for (final OrderableField field : customFields) {
-				myTab.addFieldScreenLayoutItem(field.getId());
-			}
-			for (final FieldScreenTab tab : defaultScreen.getTabs()) {
-				final List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
-				for (final FieldScreenLayoutItem layoutItem : layoutItems) {
+		final FieldScreenTab myTab = createHubScreenTab(hubScreen, customFields);
+
+		for (final FieldScreenTab tab : defaultScreen.getTabs()) {
+			final List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
+			for (final FieldScreenLayoutItem layoutItem : layoutItems) {
+				final FieldScreenLayoutItem existingField = myTab
+						.getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
+				if (existingField == null) {
 					myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
 				}
 			}
 		}
-		return hubScreen;
 
+		return hubScreen;
+	}
+
+	private FieldScreenTab createHubScreenTab(final FieldScreen hubScreen, final List<OrderableField> customFields) {
+		FieldScreenTab myTab = null;
+		for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
+			if (screenTab.getName().equals(HUB_SCREEN_TAB)) {
+				myTab = screenTab;
+				break;
+			}
+		}
+		if (myTab == null) {
+			myTab = hubScreen.addTab(HUB_SCREEN_TAB);
+		}
+		for (final OrderableField field : customFields) {
+			final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
+			if(existingField == null){
+				myTab.addFieldScreenLayoutItem(field.getId());
+			}
+		}
+		return myTab;
 	}
 
 	private FieldScreen createPolicyViolationScreen(final IssueType issueType) {
 		final List<OrderableField> customFields = createPolicyViolationFields(issueType);
-		final FieldScreen screen = createScreen(issueType, "Hub Policy Screen", customFields);
+		final FieldScreen screen = createScreen(issueType, HUB_POLICY_SCREEN_NAME, customFields);
 		return screen;
 	}
 
 	private FieldScreen createSecurityScreen(final IssueType issueType) {
 		final List<OrderableField> customFields = createSecurityFields(issueType);
-		final FieldScreen screen = createScreen(issueType, "Hub Security Screen", customFields);
+		final FieldScreen screen = createScreen(issueType, HUB_SECURITY_SCREEN_NAME, customFields);
 		return screen;
 	}
 
@@ -213,12 +242,12 @@ public class HubFieldScreenSchemeSetup {
 
 	private void createPolicyViolationScreenScheme(final IssueType issueType) {
 		final FieldScreen screen = createPolicyViolationScreen(issueType);
-		createScreenScheme(issueType, "Hub Policy Screen Scheme", screen);
+		createScreenScheme(issueType, HUB_POLICY_SCREEN_SCHEME_NAME, screen);
 	}
 
 	private void createSecurityScreenScheme(final IssueType issueType) {
 		final FieldScreen screen = createSecurityScreen(issueType);
-		createScreenScheme(issueType, "Hub Security Screen Scheme", screen);
+		createScreenScheme(issueType, HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
 	}
 
 }
