@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.field;
 
 import java.util.Collection;
 import java.util.List;
