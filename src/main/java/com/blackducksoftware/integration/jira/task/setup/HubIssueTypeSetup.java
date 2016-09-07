@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -82,7 +83,43 @@ public class HubIssueTypeSetup {
 	}
 
 	public void addIssueTypesToProject(final Project jiraProject, final List<IssueType> hubIssueTypes) {
-		// TODO
+		// Get Project's Issue Type Scheme
+		final FieldConfigScheme issueTypeScheme = getProjectIssueTypeScheme(jiraProject);
+
+		final Collection<IssueType> origIssueTypeObjects = getProjectIssueTypes(jiraProject);
+		final Collection<String> issueTypeIds = new ArrayList<>();
+		for (final IssueType origIssueTypeObject : origIssueTypeObjects) {
+			issueTypeIds.add(origIssueTypeObject.getId());
+		}
+
+		// Add BDS Issue Types to it
+		for (final IssueType bdIssueType : hubIssueTypes) {
+			if (!origIssueTypeObjects.contains(bdIssueType)) {
+				logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme "
+						+ issueTypeScheme.getName());
+				issueTypeIds.add(bdIssueType.getId());
+				updateIssueTypeScheme(issueTypeScheme, issueTypeIds);
+			} else {
+				logger.debug("Issue type " + bdIssueType.getName() + " is already on issue type scheme "
+						+ issueTypeScheme.getName());
+			}
+		}
+		logger.debug("Project now has " + issueTypeIds.size() + " issue types");
+		for (final String newIssueTypeId : issueTypeIds) {
+			logger.debug("\tIssueTypeId: " + newIssueTypeId);
+		}
+	}
+
+	private void updateIssueTypeScheme(final FieldConfigScheme issueTypeScheme, final Collection<String> issueTypeIds) {
+		jiraServices.getIssueTypeSchemeManager().update(issueTypeScheme, issueTypeIds);
+	}
+
+	private Collection<IssueType> getProjectIssueTypes(final Project jiraProject) {
+		return jiraServices.getIssueTypeSchemeManager().getIssueTypesForProject(jiraProject);
+	}
+
+	private FieldConfigScheme getProjectIssueTypeScheme(final Project project) {
+		return jiraServices.getIssueTypeSchemeManager().getConfigScheme(project);
 	}
 
 	private Long getBlackduckAvatarId() {

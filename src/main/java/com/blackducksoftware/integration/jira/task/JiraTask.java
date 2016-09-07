@@ -143,7 +143,7 @@ public class JiraTask implements PluginJob {
 		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraServices, jiraSettingsService,
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
-		logger.debug("Found Black Duck issue types : " + issueTypes.size());
+		logger.debug("Created or found Black Duck issue types : " + issueTypes.size());
 
 		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
 				jiraServices);

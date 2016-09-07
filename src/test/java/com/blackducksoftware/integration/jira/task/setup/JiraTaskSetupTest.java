@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.config.ConstantsManager;
+import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
+import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.util.UserManager;
@@ -27,7 +29,9 @@ import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
+import com.blackducksoftware.integration.jira.mocks.FieldConfigSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
+import com.blackducksoftware.integration.jira.mocks.IssueTypeSchemeManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -62,10 +66,17 @@ public class JiraTaskSetupTest {
 		final ProjectManagerMock projectManager = getProjectManagerMock(true);
 		final AvatarManagerMock avatarManager = getAvatarManagerMock();
 		final ConstantsManagerMock constantsManager = getConstantsManagerMock();
+		final IssueTypeSchemeManagerMock issueTypeSchemeManager = getIssueTypeSchemeManagerMock();
+		final FieldConfigScheme fieldConfigScheme = new FieldConfigSchemeMock();
+		issueTypeSchemeManager.setConfigScheme(fieldConfigScheme);
+
 		final Collection<IssueType> issueTypes = getIssueTypes(true);
+		issueTypeSchemeManager.setIssueTypes(issueTypes);
+
 		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
-				userManager, projectManager, avatarManager, constantsManager, issueTypes, userUtil);
+				userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager, issueTypes,
+				userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
@@ -91,10 +102,17 @@ public class JiraTaskSetupTest {
 		final ProjectManagerMock projectManager = getProjectManagerMock(true);
 		final AvatarManagerMock avatarManager = getAvatarManagerMock();
 		final ConstantsManagerMock constantsManager = getConstantsManagerMock();
+		final IssueTypeSchemeManagerMock issueTypeSchemeManager = getIssueTypeSchemeManagerMock();
+		final FieldConfigScheme fieldConfigScheme = new FieldConfigSchemeMock();
+		issueTypeSchemeManager.setConfigScheme(fieldConfigScheme);
+
 		final Collection<IssueType> issueTypes = getIssueTypes(false);
+		issueTypeSchemeManager.setIssueTypes(issueTypes);
+
 		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
-				userManager, projectManager, avatarManager, constantsManager, issueTypes, userUtil);
+				userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager, issueTypes,
+				userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
@@ -109,6 +127,9 @@ public class JiraTaskSetupTest {
 		assertEquals(2, constantsManager.getIssueTypesCreatedCount());
 	}
 
+	private IssueTypeSchemeManagerMock getIssueTypeSchemeManagerMock() {
+		return new IssueTypeSchemeManagerMock();
+	}
 	private ConstantsManagerMock getConstantsManagerMock() {
 		return new ConstantsManagerMock();
 	}
@@ -201,7 +222,7 @@ public class JiraTaskSetupTest {
 	private JiraServices getJiraServices(final GroupManagerMock groupManager, final WorkflowManager workflowManager,
 			final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
 			final ProjectManager projectManager, final AvatarManager avatarManager,
-			final ConstantsManager constantsManager,
+			final ConstantsManager constantsManager, final IssueTypeSchemeManager issueTypeSchemeManager,
 			final Collection<IssueType> issueTypes, final UserUtil userUtil) {
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 		jiraServices.setGroupManager(groupManager);
@@ -211,6 +232,7 @@ public class JiraTaskSetupTest {
 		jiraServices.setProjectManager(projectManager);
 		jiraServices.setAvatarManager(avatarManager);
 		jiraServices.setConstantsManager(constantsManager);
+		jiraServices.setIssueTypeSchemeManager(issueTypeSchemeManager);
 		jiraServices.setIssueTypes(issueTypes);
 		jiraServices.setUserUtil(userUtil);
 		return jiraServices;

@@ -11,6 +11,7 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
@@ -30,6 +31,7 @@ public class JiraServicesMock extends JiraServices {
 	private ConstantsManager constantsManager;
 	private ProjectManager projectManager;
 	private AvatarManager avatarManager;
+	private IssueTypeSchemeManager issueTypeSchemeManager;
 	private IssueService issueService;
 	private JiraAuthenticationContext jiraAuthenticationContext;
 	private IssuePropertyService issuePropertyService;
@@ -109,9 +111,18 @@ public class JiraServicesMock extends JiraServices {
 		this.avatarManager = avatarManager;
 	}
 
+	public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
+		this.issueTypeSchemeManager = issueTypeSchemeManager;
+	}
+
 	@Override
 	public ConstantsManager getConstantsManager() {
 		return constantsManager;
+	}
+
+	@Override
+	public IssueTypeSchemeManager getIssueTypeSchemeManager() {
+		return issueTypeSchemeManager;
 	}
 
 	public void setConstantsManager(final ConstantsManager constantsManager) {
