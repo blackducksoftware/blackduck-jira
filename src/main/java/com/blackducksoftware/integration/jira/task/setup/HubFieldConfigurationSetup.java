@@ -52,9 +52,10 @@ public class HubFieldConfigurationSetup {
 		requiredDefaultFields.add("issuetype");
 	}
 
-	public void addHubFieldConfigurationToJira() {
+	public EditableFieldLayout addHubFieldConfigurationToJira() {
+		EditableFieldLayout hubFieldLayout = null;
 		try {
-			EditableFieldLayout hubFieldLayout =null;
+
 			final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
 					.getEditableFieldLayouts();
 			if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
@@ -98,6 +99,7 @@ public class HubFieldConfigurationSetup {
 			logger.error(e);
 			settingService.addHubError(e, "addHubFieldConfigurationToJira");
 		}
+		return hubFieldLayout;
 	}
 
 	public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {

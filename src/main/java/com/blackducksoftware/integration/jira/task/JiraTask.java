@@ -27,6 +27,8 @@ import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
+import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.workflow.JiraWorkflow;
@@ -143,17 +145,26 @@ public class JiraTask implements PluginJob {
 		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraServices, jiraSettingsService,
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
-		logger.debug("Created or found Black Duck issue types : " + issueTypes.size());
+		if (issueTypes == null || issueTypes.isEmpty()) {
+			logger.error("No Black Duck Issue Types found or created");
+			return;
+		}
+		logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
 		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
 				jiraServices);
-		if (issueTypes != null && !issueTypes.isEmpty()) {
-			fieldConfigurationSetup.addHubFieldConfigurationToJira(issueTypes);
+
+		final List<FieldScreenScheme> screenSchemes = fieldConfigurationSetup
+				.addHubFieldConfigurationToJira(issueTypes);
+		if (screenSchemes == null || screenSchemes.isEmpty()) {
+			logger.error("No Black Duck Screen Schemes found or created");
 		}
+		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemes.size());
 
 		final HubFieldConfigurationSetup hubFieldConfigurationSetup = new HubFieldConfigurationSetup(
 				jiraSettingsService, jiraServices);
-		hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
+		final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
+		// TODO: Create the BDS Field Configuration Scheme
 
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
@@ -174,6 +185,7 @@ public class JiraTask implements PluginJob {
 								.getProjectObj(projectMapping.getJiraProject().getProjectId());
 						// TODO add issuetypes to this project
 						issueTypeSetup.addIssueTypesToProject(jiraProject, issueTypes);
+						issueTypeSetup.associateIssueTypesWithScreenSchemes(jiraProject, issueTypes, screenSchemes);
 						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
 					}
 				}

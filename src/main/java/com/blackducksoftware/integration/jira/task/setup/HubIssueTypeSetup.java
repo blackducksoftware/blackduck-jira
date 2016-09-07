@@ -29,6 +29,8 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.exception.CreateException;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
+import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
+import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -108,6 +110,39 @@ public class HubIssueTypeSetup {
 		for (final String newIssueTypeId : issueTypeIds) {
 			logger.debug("\tIssueTypeId: " + newIssueTypeId);
 		}
+	}
+
+	public void associateIssueTypesWithScreenSchemes(final Project project, final List<IssueType> issueTypes,
+			final List<FieldScreenScheme> screenSchemes) {
+
+		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
+		if (projectFieldConfigurationScheme == null) {
+			// TODO: Associate the BDS Field Configuration Scheme with the
+			// Project
+		} else {
+			// TODO: Modify projectFieldConfigurationScheme
+		}
+
+	}
+
+	private FieldConfigurationScheme getProjectFieldConfigScheme(final Project project) {
+		FieldConfigurationScheme projectFieldConfigScheme = null;
+		try {
+			logger.debug("Getting field configuration scheme for project " + project.getName() + " [ID: "
+					+ project.getId() + "]");
+			projectFieldConfigScheme = jiraServices.getFieldLayoutManager().getFieldConfigurationSchemeForProject(
+					project.getId());
+			logger.debug("\tprojectFieldConfigScheme: " + projectFieldConfigScheme);
+		} catch (final Exception e) {
+			logger.error(e.getMessage());
+		}
+		if (projectFieldConfigScheme == null) {
+			logger.debug("Project " + project.getName() + " field config scheme: Default Field Configuration Scheme");
+		} else {
+			logger.debug("Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
+		}
+
+		return projectFieldConfigScheme;
 	}
 
 	private void updateIssueTypeScheme(final FieldConfigScheme issueTypeScheme, final Collection<String> issueTypeIds) {

@@ -75,14 +75,17 @@ public class HubFieldScreenSchemeSetup {
 		this.jiraServices = jiraServices;
 	}
 
-	public void addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
+	public List<FieldScreenScheme> addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
+		final List<FieldScreenScheme> fieldScreenSchemes = new ArrayList<>();
 		try {
 			if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
 				for (final IssueType issueType : hubIssueTypes) {
 					if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
-						createPolicyViolationScreenScheme(issueType);
+						final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType);
+						fieldScreenSchemes.add(fss);
 					} else if (issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
-						createSecurityScreenScheme(issueType);
+						final FieldScreenScheme fss = createSecurityScreenScheme(issueType);
+						fieldScreenSchemes.add(fss);
 					}
 				}
 			}
@@ -90,6 +93,7 @@ public class HubFieldScreenSchemeSetup {
 			logger.error(e);
 			settingService.addHubError(e, "addHubFieldConfigurationToJira");
 		}
+		return fieldScreenSchemes;
 	}
 
 	private OrderableField createCustomField(final IssueType issueType, final String fieldName) {
@@ -245,7 +249,7 @@ public class HubFieldScreenSchemeSetup {
 		return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
 	}
 
-	private void createScreenScheme(final IssueType issueType, final String screenSchemeName,
+	private FieldScreenScheme createScreenScheme(final IssueType issueType, final String screenSchemeName,
 			final FieldScreen screen) {
 		final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
 				.getFieldScreenSchemes();
@@ -295,17 +299,20 @@ public class HubFieldScreenSchemeSetup {
 		if (hubScreenSchemeNeedsUpdate) {
 			jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(hubScreenScheme);
 		}
-
+		return hubScreenScheme;
 	}
 
-	private void createPolicyViolationScreenScheme(final IssueType issueType) {
+	private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType) {
 		final FieldScreen screen = createPolicyViolationScreen(issueType);
-		createScreenScheme(issueType, HUB_POLICY_SCREEN_SCHEME_NAME, screen);
+		final FieldScreenScheme fieldScreenScheme = createScreenScheme(issueType, HUB_POLICY_SCREEN_SCHEME_NAME, screen);
+		return fieldScreenScheme;
 	}
 
-	private void createSecurityScreenScheme(final IssueType issueType) {
+	private FieldScreenScheme createSecurityScreenScheme(final IssueType issueType) {
 		final FieldScreen screen = createSecurityScreen(issueType);
-		createScreenScheme(issueType, HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
+		final FieldScreenScheme fieldScreenScheme = createScreenScheme(issueType, HUB_SECURITY_SCREEN_SCHEME_NAME,
+				screen);
+		return fieldScreenScheme;
 	}
 
 }
