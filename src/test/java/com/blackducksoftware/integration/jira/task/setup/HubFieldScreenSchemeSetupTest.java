@@ -97,8 +97,8 @@ public class HubFieldScreenSchemeSetupTest {
 		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
 	}
 
-	// test default screen tabs get added to our screen
-	// test user changed the screen of the screen scheme item on our screen
+	// TODO test default screen tabs get added to our screen
+	// TODO test user changed the screen of the screen scheme item on our screen
 	// scheme
 
 	private List<IssueType> getHubIssueTypes(){
