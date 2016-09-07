@@ -18,7 +18,7 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.project.Project;
 
 public class FieldLayoutManagerMock implements FieldLayoutManager {
-
+	private FieldLayoutScheme fieldLayoutScheme;
 	private EditableDefaultFieldLayout editableDefaultFieldLayout;
 
 	private final List<EditableFieldLayout> editableFieldLayouts = new ArrayList<>();
@@ -56,7 +56,11 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public FieldLayoutScheme createFieldLayoutScheme(final String arg0, final String arg1) {
 
-		return null;
+		return fieldLayoutScheme;
+	}
+
+	public void setFieldLayoutScheme(final FieldLayoutScheme fieldLayoutScheme) {
+		this.fieldLayoutScheme = fieldLayoutScheme;
 	}
 
 	@Override

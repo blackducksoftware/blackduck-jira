@@ -28,6 +28,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
@@ -164,7 +165,8 @@ public class JiraTask implements PluginJob {
 		final HubFieldConfigurationSetup hubFieldConfigurationSetup = new HubFieldConfigurationSetup(
 				jiraSettingsService, jiraServices);
 		final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
-		// TODO: Create the BDS Field Configuration Scheme
+		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(
+				issueTypes, fieldConfiguration);
 
 		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();

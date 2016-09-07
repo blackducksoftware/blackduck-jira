@@ -29,12 +29,19 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.issue.fields.layout.field.EditableDefaultFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayoutImpl;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldConfigurationSetup {
+	public static final String HUB_FIELD_CONFIGURATION_SCHEME_NAME = "Hub Field Configuration Scheme";
+
 	public static final String HUB_FIELD_CONFIGURATION = "Hub Field Configuration";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -50,6 +57,39 @@ public class HubFieldConfigurationSetup {
 		this.jiraServices = jiraServices;
 		requiredDefaultFields.add("summary");
 		requiredDefaultFields.add("issuetype");
+	}
+
+	public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
+			final FieldLayout fieldConfiguration) {
+
+		// Check to see if it already exists
+		final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
+		if (fieldLayoutSchemes != null) {
+			for (final FieldLayoutScheme fieldLayoutScheme : fieldLayoutSchemes) {
+				if (HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(fieldLayoutScheme.getName())) {
+					logger.debug("Field Configuration Scheme " + HUB_FIELD_CONFIGURATION_SCHEME_NAME
+							+ " already exists");
+					return fieldLayoutScheme;
+				}
+			}
+		}
+
+		// TODO un-hardcode name
+		final FieldLayoutScheme fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
+				.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
+
+		for (final IssueType issueType : issueTypes) {
+			final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+					jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
+			issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
+			issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
+			issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
+			fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
+		}
+
+		fieldConfigurationScheme.store();
+
+		return fieldConfigurationScheme;
 	}
 
 	public EditableFieldLayout addHubFieldConfigurationToJira() {
