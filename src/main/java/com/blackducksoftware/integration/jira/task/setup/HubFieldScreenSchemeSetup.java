@@ -37,10 +37,12 @@ import com.atlassian.jira.issue.fields.OrderableField;
 import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenImpl;
 import com.atlassian.jira.issue.fields.screen.FieldScreenLayoutItem;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeImpl;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeItem;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeItemImpl;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.operation.IssueOperations;
@@ -75,7 +77,6 @@ public class HubFieldScreenSchemeSetup {
 
 	public void addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
 		try {
-			// ComponentAccessor.getFieldLayoutManager().get
 			if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
 				for (final IssueType issueType : hubIssueTypes) {
 					if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
@@ -124,7 +125,6 @@ public class HubFieldScreenSchemeSetup {
 		customFields.add(createCustomField(issueType, "Project Version"));
 		customFields.add(createCustomField(issueType, "Component"));
 		customFields.add(createCustomField(issueType, "Component Version"));
-
 		return customFields;
 	}
 
@@ -141,58 +141,87 @@ public class HubFieldScreenSchemeSetup {
 		return customFields;
 	}
 
+	public FieldScreen createNewScreenImpl(final FieldScreenManager fieldScreenManager) {
+		return new FieldScreenImpl(fieldScreenManager);
+	}
+
 	private FieldScreen createScreen(final IssueType issueType, final String screenName,
 			final List<OrderableField> customFields) {
 		final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
 		FieldScreen hubScreen = null;
-		for(final FieldScreen fieldScreen : fieldScreens){
-			if (fieldScreen.getName().equals(screenName)) {
-				hubScreen = fieldScreen;
-				break;
+		if (fieldScreens != null && !fieldScreens.isEmpty()) {
+			for(final FieldScreen fieldScreen : fieldScreens){
+				if (fieldScreen.getName().equals(screenName)) {
+					hubScreen = fieldScreen;
+					break;
+				}
 			}
 		}
 		if (hubScreen == null) {
-			hubScreen = new FieldScreenImpl(jiraServices.getFieldScreenManager());
+			hubScreen = createNewScreenImpl(jiraServices.getFieldScreenManager());
 			hubScreen.setName(screenName);
 			hubScreen.store();
 		}
 		final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
 				.getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
 
-		final FieldScreenTab myTab = createHubScreenTab(hubScreen, customFields);
+		List<FieldScreenTab> defaultTabs = null;
+		if (defaultScreen != null) {
+			defaultTabs = defaultScreen.getTabs();
+		}
 
-		for (final FieldScreenTab tab : defaultScreen.getTabs()) {
-			final List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
-			for (final FieldScreenLayoutItem layoutItem : layoutItems) {
-				final FieldScreenLayoutItem existingField = myTab
-						.getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
-				if (existingField == null) {
-					myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
-				}
-			}
+		final boolean needToUpdateScreen = addHubTabToScreen(hubScreen, customFields, defaultTabs);
+
+		if (needToUpdateScreen) {
+			jiraServices.getFieldScreenManager().updateFieldScreen(hubScreen);
 		}
 
 		return hubScreen;
 	}
 
-	private FieldScreenTab createHubScreenTab(final FieldScreen hubScreen, final List<OrderableField> customFields) {
+	private boolean addHubTabToScreen(final FieldScreen hubScreen, final List<OrderableField> customFields,
+			final List<FieldScreenTab> defaultTabs) {
 		FieldScreenTab myTab = null;
-		for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
-			if (screenTab.getName().equals(HUB_SCREEN_TAB)) {
-				myTab = screenTab;
-				break;
+		if (hubScreen != null && !hubScreen.getTabs().isEmpty()) {
+			for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
+				if (screenTab.getName().equals(HUB_SCREEN_TAB)) {
+					myTab = screenTab;
+					break;
+				}
 			}
 		}
+		boolean needToUpdateTabAndScreen = false;
 		if (myTab == null) {
 			myTab = hubScreen.addTab(HUB_SCREEN_TAB);
+			needToUpdateTabAndScreen = true;
 		}
-		for (final OrderableField field : customFields) {
-			final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
-			if(existingField == null){
-				myTab.addFieldScreenLayoutItem(field.getId());
+		if (customFields != null && !customFields.isEmpty()) {
+			for (final OrderableField field : customFields) {
+				final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
+				if(existingField == null){
+					myTab.addFieldScreenLayoutItem(field.getId());
+					needToUpdateTabAndScreen = true;
+				}
 			}
 		}
-		return myTab;
+		if (defaultTabs != null && !defaultTabs.isEmpty()) {
+			for (final FieldScreenTab tab : defaultTabs) {
+				final List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
+				for (final FieldScreenLayoutItem layoutItem : layoutItems) {
+					final FieldScreenLayoutItem existingField = myTab
+							.getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
+					if (existingField == null) {
+						myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
+						needToUpdateTabAndScreen = true;
+					}
+				}
+			}
+		}
+		if (needToUpdateTabAndScreen) {
+			jiraServices.getFieldScreenManager().updateFieldScreenTab(myTab);
+		}
+
+		return needToUpdateTabAndScreen;
 	}
 
 	private FieldScreen createPolicyViolationScreen(final IssueType issueType) {
@@ -207,19 +236,30 @@ public class HubFieldScreenSchemeSetup {
 		return screen;
 	}
 
+	public FieldScreenScheme createNewScreenSchemeImpl(final FieldScreenSchemeManager fieldScreenSchemeManager) {
+		return new FieldScreenSchemeImpl(fieldScreenSchemeManager);
+	}
+
+	public FieldScreenSchemeItem createNewFieldScreenSchemeItemImpl(
+			final FieldScreenSchemeManager fieldScreenSchemeManager, final FieldScreenManager fieldScreenManager) {
+		return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
+	}
+
 	private void createScreenScheme(final IssueType issueType, final String screenSchemeName,
 			final FieldScreen screen) {
 		final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
 				.getFieldScreenSchemes();
 		FieldScreenScheme hubScreenScheme = null;
-		for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {
-			if (fieldScreenScheme.getName().equals(screenSchemeName)) {
-				hubScreenScheme = fieldScreenScheme;
-				break;
+		if (fieldScreenSchemes != null && !fieldScreenSchemes.isEmpty()) {
+			for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {
+				if (fieldScreenScheme.getName().equals(screenSchemeName)) {
+					hubScreenScheme = fieldScreenScheme;
+					break;
+				}
 			}
 		}
 		if (hubScreenScheme == null) {
-			hubScreenScheme = new FieldScreenSchemeImpl(jiraServices.getFieldScreenSchemeManager());
+			hubScreenScheme = createNewScreenSchemeImpl(jiraServices.getFieldScreenSchemeManager());
 			hubScreenScheme.setName(screenSchemeName);
 			hubScreenScheme.store();
 		}
@@ -234,7 +274,7 @@ public class HubFieldScreenSchemeSetup {
 			FieldScreenSchemeItem hubScreenSchemeItem = hubScreenScheme.getFieldScreenSchemeItem(issueOperation);
 			boolean screenSchemeItemNeedsUpdate = false;
 			if (hubScreenSchemeItem == null) {
-				hubScreenSchemeItem = new FieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(),
+				hubScreenSchemeItem = createNewFieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(),
 						jiraServices.getFieldScreenManager());
 				hubScreenSchemeItem.setIssueOperation(issueOperation);
 				hubScreenSchemeItem.setFieldScreen(screen);

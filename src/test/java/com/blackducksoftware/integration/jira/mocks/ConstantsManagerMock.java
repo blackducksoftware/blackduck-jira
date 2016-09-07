@@ -18,6 +18,7 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.ErrorCollection.Reason;
 import com.atlassian.jira.util.lang.Pair;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
 public class ConstantsManagerMock implements ConstantsManager {
 	private int issueTypeIndex = 0;

@@ -8,7 +8,12 @@ import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -36,6 +41,11 @@ public class JiraServicesMock extends JiraServices {
 	private UserManager userManager;
 	private Collection<IssueType> issueTypes;
 	private UserUtil userUtil;
+	private FieldScreenManager fieldScreenManager;
+	private FieldScreenSchemeManager fieldScreenSchemeManager;
+	private FieldManager fieldManager;
+	private CustomFieldManager customFieldManager;
+	private FieldLayoutManager fieldLayoutManager;
 
 	@Override
 	public UserUtil getUserUtil() {
@@ -168,6 +178,51 @@ public class JiraServicesMock extends JiraServices {
 		final ApplicationUserMock userMock = new ApplicationUserMock();
 		userMock.setName(user.getName());
 		return userMock;
+	}
+
+	@Override
+	public FieldScreenManager getFieldScreenManager() {
+		return fieldScreenManager;
+	}
+
+	public void setFieldScreenManager(final FieldScreenManager fieldScreenManager) {
+		this.fieldScreenManager = fieldScreenManager;
+	}
+
+	@Override
+	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
+		return fieldScreenSchemeManager;
+	}
+
+	public void setFieldScreenSchemeManager(final FieldScreenSchemeManager fieldScreenSchemeManager) {
+		this.fieldScreenSchemeManager = fieldScreenSchemeManager;
+	}
+
+	@Override
+	public FieldManager getFieldManager() {
+		return fieldManager;
+	}
+
+	public void setFieldManager(final FieldManager fieldManager) {
+		this.fieldManager = fieldManager;
+	}
+
+	@Override
+	public CustomFieldManager getCustomFieldManager() {
+		return customFieldManager;
+	}
+
+	public void setCustomFieldManager(final CustomFieldManager customFieldManager) {
+		this.customFieldManager = customFieldManager;
+	}
+
+	@Override
+	public FieldLayoutManager getFieldLayoutManager() {
+		return fieldLayoutManager;
+	}
+
+	public void setFieldLayoutManager(final FieldLayoutManager fieldLayoutManager) {
+		this.fieldLayoutManager = fieldLayoutManager;
 	}
 
 }

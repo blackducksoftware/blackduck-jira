@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.field;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,16 +22,28 @@ import webwork.action.Action;
 
 public class OrderableFieldMock implements OrderableField {
 
+	private String name;
+
+	private String id;
+
 	@Override
 	public String getId() {
 
-		return null;
+		return id;
+	}
+
+	public void setId(final String id) {
+		this.id = id;
 	}
 
 	@Override
 	public String getName() {
 
-		return null;
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 	@Override
