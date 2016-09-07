@@ -74,7 +74,6 @@ public class HubFieldConfigurationSetup {
 			}
 		}
 
-		// TODO un-hardcode name
 		final FieldLayoutScheme fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
 				.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
 
