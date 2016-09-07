@@ -35,6 +35,8 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldConfigurationSetup {
+	public static final String HUB_FIELD_CONFIGURATION = "Hub Field Configuration";
+
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
 	private final JiraSettingsService settingService;
@@ -55,10 +57,12 @@ public class HubFieldConfigurationSetup {
 			EditableFieldLayout hubFieldLayout =null;
 			final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
 					.getEditableFieldLayouts();
-			for(final EditableFieldLayout layout : fieldLayouts){
-				if(layout.getName().equals("Hub Field Configuration")) {
-					hubFieldLayout = layout;
-					break;
+			if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
+				for(final EditableFieldLayout layout : fieldLayouts){
+					if (layout.getName().equals(HUB_FIELD_CONFIGURATION)) {
+						hubFieldLayout = layout;
+						break;
+					}
 				}
 			}
 			boolean fieldConfigurationNeedsUpdate = false;
@@ -67,20 +71,21 @@ public class HubFieldConfigurationSetup {
 						.getEditableDefaultFieldLayout();
 
 				// Creates a copy of the default field layout
-				hubFieldLayout = new EditableFieldLayoutImpl(null,
-						editableFieldLayout.getFieldLayoutItems());
+				hubFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
 
-				hubFieldLayout.setName("Hub Field Configuration");
+				hubFieldLayout.setName(HUB_FIELD_CONFIGURATION);
 				fieldConfigurationNeedsUpdate = true;
 			}
 			final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
-			for (final FieldLayoutItem field : fields) {
-				String fieldName = field.getOrderableField().getName();
-				fieldName = fieldName.replace(" ", "");
-				fieldName = fieldName.toLowerCase();
-				if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
-					hubFieldLayout.makeOptional(field);
-					fieldConfigurationNeedsUpdate = true;
+			if (fields != null && !fields.isEmpty()) {
+				for (final FieldLayoutItem field : fields) {
+					String fieldName = field.getOrderableField().getName();
+					fieldName = fieldName.replace(" ", "");
+					fieldName = fieldName.toLowerCase();
+					if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
+						hubFieldLayout.makeOptional(field);
+						fieldConfigurationNeedsUpdate = true;
+					}
 				}
 			}
 			if (fieldConfigurationNeedsUpdate) {
@@ -93,5 +98,9 @@ public class HubFieldConfigurationSetup {
 			logger.error(e);
 			settingService.addHubError(e, "addHubFieldConfigurationToJira");
 		}
+	}
+
+	public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {
+		return new EditableFieldLayoutImpl(null, fields);
 	}
 }

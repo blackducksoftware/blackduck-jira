@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.issue;
 
 import java.util.Collection;
 import java.util.Map;

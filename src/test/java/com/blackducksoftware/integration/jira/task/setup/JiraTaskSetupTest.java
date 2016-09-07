@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,18 +21,20 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
-import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeBuilderMock;
-import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
-import com.blackducksoftware.integration.jira.mocks.IssueTypeMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserMock;
 import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
-import com.blackducksoftware.integration.jira.mocks.WorkflowManagerMock;
-import com.blackducksoftware.integration.jira.mocks.WorkflowSchemeManagerMock;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
+import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowSchemeBuilderMock;
+import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowSchemeMock;
+import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock;
+import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManagerMock;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.JiraTask;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraTaskSetupTest {
