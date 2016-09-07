@@ -41,6 +41,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
@@ -91,7 +92,12 @@ public class JiraTask implements PluginJob {
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		// Do Jira setup here
-		jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson);
+		try {
+			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson);
+		} catch (final JiraException e) {
+			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
+			return;
+		}
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -110,7 +116,7 @@ public class JiraTask implements PluginJob {
 		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
 
 		if (configResult.hasErrors()) {
-			logger.error("There was a problem with the Server configuration.");
+			logger.error("There was a problem with either the Hub Admin or Hub Jira plugin configuration.");
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
@@ -125,7 +131,7 @@ public class JiraTask implements PluginJob {
 	}
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-			final String projectMappingJson) {
+			final String projectMappingJson) throws JiraException {
 
 		final HubGroupSetup groupSetup = new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
 		groupSetup.addHubJiraGroupToJira();
@@ -134,10 +140,10 @@ public class JiraTask implements PluginJob {
 		// scheme before we try addWorkflowToProjectsWorkflowScheme
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
-		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraSettingsService,
+		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraServices, jiraSettingsService,
 				jiraServices.getIssueTypes());
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
-		logger.debug("Found our issue types : " + issueTypes.size());
+		logger.debug("Found Black Duck issue types : " + issueTypes.size());
 
 		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
 				jiraServices);

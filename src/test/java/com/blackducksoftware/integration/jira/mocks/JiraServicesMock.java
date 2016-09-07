@@ -3,8 +3,10 @@ package com.blackducksoftware.integration.jira.mocks;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -20,7 +22,9 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
 
+	private ConstantsManager constantsManager;
 	private ProjectManager projectManager;
+	private AvatarManager avatarManager;
 	private IssueService issueService;
 	private JiraAuthenticationContext jiraAuthenticationContext;
 	private IssuePropertyService issuePropertyService;
@@ -91,9 +95,27 @@ public class JiraServicesMock extends JiraServices {
 		this.userManager = userManager;
 	}
 
+	public void setAvatarManager(final AvatarManager avatarManager) {
+		this.avatarManager = avatarManager;
+	}
+
+	@Override
+	public ConstantsManager getConstantsManager() {
+		return constantsManager;
+	}
+
+	public void setConstantsManager(final ConstantsManager constantsManager) {
+		this.constantsManager = constantsManager;
+	}
+
 	@Override
 	public ProjectManager getJiraProjectManager() {
 		return projectManager;
+	}
+
+	@Override
+	public AvatarManager getAvatarManager() {
+		return avatarManager;
 	}
 
 	@Override

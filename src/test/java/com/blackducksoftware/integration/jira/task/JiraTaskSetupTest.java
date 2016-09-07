@@ -1,5 +1,6 @@
 package com.blackducksoftware.integration.jira.task;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.atlassian.jira.avatar.AvatarManager;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.util.UserManager;
@@ -20,9 +23,12 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeBuilderMock;
 import com.blackducksoftware.integration.jira.mocks.AssignableWorkflowSchemeMock;
+import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
+import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
 import com.blackducksoftware.integration.jira.mocks.IssueTypeMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
@@ -44,7 +50,7 @@ public class JiraTaskSetupTest {
 	private static final String HUB_WORKFLOW_NAME = "Hub Workflow";
 
 	@Test
-	public void testServerSetupIssueTypesAlreadyCreated() {
+	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException {
 		final JiraTask jiraTask = new JiraTask();
 
 		final GroupManagerMock groupManager = getGroupManagerMock(false);
@@ -52,11 +58,14 @@ public class JiraTaskSetupTest {
 		final WorkflowSchemeManagerMock workflowSchemeManager = getWorkflowSchemeManagerMock(false);
 		final UserManagerMock userManager = getUserManagerMockManagerMock();
 		final ProjectManagerMock projectManager = getProjectManagerMock(true);
+		final AvatarManagerMock avatarManager = getAvatarManagerMock();
+		final ConstantsManagerMock constantsManager = getConstantsManagerMock();
 		final Collection<IssueType> issueTypes = getIssueTypes(true);
 		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
-				userManager, projectManager, issueTypes, userUtil);
+				userManager, projectManager, avatarManager, constantsManager, issueTypes, userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
@@ -66,6 +75,43 @@ public class JiraTaskSetupTest {
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());
 		assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
+		assertEquals(0, constantsManager.getIssueTypesCreatedCount());
+	}
+
+	@Test
+	public void testServerSetupIssueTypesNotAlreadyCreated() throws JiraException {
+		final JiraTask jiraTask = new JiraTask();
+
+		final GroupManagerMock groupManager = getGroupManagerMock(false);
+		final WorkflowManagerMock workflowManager = getWorkflowManagerMock();
+		final WorkflowSchemeManagerMock workflowSchemeManager = getWorkflowSchemeManagerMock(false);
+		final UserManagerMock userManager = getUserManagerMockManagerMock();
+		final ProjectManagerMock projectManager = getProjectManagerMock(true);
+		final AvatarManagerMock avatarManager = getAvatarManagerMock();
+		final ConstantsManagerMock constantsManager = getConstantsManagerMock();
+		final Collection<IssueType> issueTypes = getIssueTypes(false);
+		final UserUtil userUtil = getUserUtil(true);
+		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
+				userManager, projectManager, avatarManager, constantsManager, issueTypes, userUtil);
+		final PluginSettingsMock settingsMock = new PluginSettingsMock();
+
+		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
+
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson);
+
+		assertTrue(groupManager.getGroupCreateAttempted());
+		assertTrue(workflowManager.getAttemptedCreateWorkflow());
+		assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
+		assertEquals(2, constantsManager.getIssueTypesCreatedCount());
+	}
+
+	private ConstantsManagerMock getConstantsManagerMock() {
+		return new ConstantsManagerMock();
+	}
+	private AvatarManagerMock getAvatarManagerMock() {
+		return new AvatarManagerMock();
 	}
 
 	private UserUtil getUserUtil(final boolean hasSystemAdmin) {
@@ -152,13 +198,17 @@ public class JiraTaskSetupTest {
 
 	private JiraServices getJiraServices(final GroupManagerMock groupManager, final WorkflowManager workflowManager,
 			final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
-			final ProjectManager projectManager, final Collection<IssueType> issueTypes, final UserUtil userUtil) {
+			final ProjectManager projectManager, final AvatarManager avatarManager,
+			final ConstantsManager constantsManager,
+			final Collection<IssueType> issueTypes, final UserUtil userUtil) {
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 		jiraServices.setGroupManager(groupManager);
 		jiraServices.setWorkflowManager(workflowManager);
 		jiraServices.setWorkflowSchemeManager(workflowSchemeManager);
 		jiraServices.setUserManager(userManager);
 		jiraServices.setProjectManager(projectManager);
+		jiraServices.setAvatarManager(avatarManager);
+		jiraServices.setConstantsManager(constantsManager);
 		jiraServices.setIssueTypes(issueTypes);
 		jiraServices.setUserUtil(userUtil);
 		return jiraServices;

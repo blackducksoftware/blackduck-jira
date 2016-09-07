@@ -23,10 +23,14 @@ package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
+
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
@@ -44,11 +48,20 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class JiraServices {
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
+	public ConstantsManager getConstantsManager() {
+		return ComponentAccessor.getConstantsManager();
+	}
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
+	}
+
+	public AvatarManager getAvatarManager() {
+		return ComponentAccessor.getAvatarManager();
 	}
 
 	public IssueService getIssueService() {
@@ -56,7 +69,7 @@ public class JiraServices {
 	}
 
 	public Collection<IssueType> getIssueTypes() {
-		return ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+		return getConstantsManager().getAllIssueTypeObjects();
 	}
 
 	public JiraAuthenticationContext getAuthContext() {
@@ -118,4 +131,6 @@ public class JiraServices {
 	public FieldLayoutManager getFieldLayoutManager() {
 		return ComponentAccessor.getFieldLayoutManager();
 	}
+
+
 }
