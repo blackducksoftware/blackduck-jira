@@ -1,5 +1,6 @@
 package com.blackducksoftware.integration.jira.mocks.field;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -9,6 +10,18 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 
 public class FieldScreenManagerMock implements FieldScreenManager {
+
+	private final List<FieldScreenTab> updatedTabs = new ArrayList<>();
+
+	private final List<FieldScreen> updatedScreens = new ArrayList<>();
+
+	public List<FieldScreenTab> getUpdatedTabs() {
+		return updatedTabs;
+	}
+
+	public List<FieldScreen> getUpdatedScreens() {
+		return updatedScreens;
+	}
 
 	@Override
 	public FieldScreenLayoutItem buildNewFieldScreenLayoutItem(final String arg0) {
@@ -113,8 +126,8 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 	}
 
 	@Override
-	public void updateFieldScreen(final FieldScreen arg0) {
-
+	public void updateFieldScreen(final FieldScreen screen) {
+		updatedScreens.add(screen);
 
 	}
 
@@ -125,8 +138,8 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 	}
 
 	@Override
-	public void updateFieldScreenTab(final FieldScreenTab arg0) {
-
+	public void updateFieldScreenTab(final FieldScreenTab tab) {
+		updatedTabs.add(tab);
 
 	}
 

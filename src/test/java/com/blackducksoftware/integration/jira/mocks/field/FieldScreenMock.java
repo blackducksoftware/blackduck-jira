@@ -24,6 +24,7 @@ public class FieldScreenMock implements FieldScreen {
 	public FieldScreenTab addTab(final String tabName) {
 		final FieldScreenTabMock tab = new FieldScreenTabMock();
 		tab.setName(tabName);
+		tab.setFieldScreen(this);
 		tabs.add(tab);
 		return tab;
 	}

@@ -14,6 +14,8 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
 	private String name;
 
+	private FieldScreen screen;
+
 	private final List<FieldScreenLayoutItem> layoutItems = new ArrayList<>();
 
 	@Override
@@ -35,7 +37,7 @@ public class FieldScreenTabMock implements FieldScreenTab {
 	@Override
 	public FieldScreen getFieldScreen() {
 
-		return null;
+		return screen;
 	}
 
 	@Override
@@ -141,8 +143,8 @@ public class FieldScreenTabMock implements FieldScreenTab {
 	}
 
 	@Override
-	public void setFieldScreen(final FieldScreen arg0) {
-
+	public void setFieldScreen(final FieldScreen screen) {
+		this.screen = screen;
 
 	}
 

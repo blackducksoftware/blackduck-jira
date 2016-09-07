@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
@@ -91,6 +92,17 @@ public class HubFieldScreenSchemeSetupTest {
 
 		assertTrue(customFieldManager.getCustomFieldObjects().size() == 5);
 		assertTrue(fieldScreen.getAttemptedScreenStore());
+		assertTrue(fieldScreenManager.getUpdatedTabs().size() == 2);
+
+		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
+			final String screenName = tab.getFieldScreen().getName();
+			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+				assertTrue(fieldScreenManager.getUpdatedTabs().get(0).getFieldScreenLayoutItems().size() == 5);
+			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+				assertTrue(fieldScreenManager.getUpdatedTabs().get(0).getFieldScreenLayoutItems().size() == 4);
+			}
+		}
+		assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
 		assertTrue(fieldScreenScheme.getAttemptedScreenSchemeStore());
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
