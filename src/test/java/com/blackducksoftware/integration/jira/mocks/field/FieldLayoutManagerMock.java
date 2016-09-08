@@ -23,7 +23,13 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
 	private final List<EditableFieldLayout> editableFieldLayouts = new ArrayList<>();
 
+	private FieldConfigurationScheme projectFieldConfigScheme;
+
 	private boolean attemptedToPersistFieldLayout;
+
+	public void setProjectFieldConfigScheme(final FieldConfigurationScheme projectFieldConfigScheme) {
+		this.projectFieldConfigScheme = projectFieldConfigScheme;
+	}
 
 	public boolean getAttemptedToPersistFieldLayout() {
 		return attemptedToPersistFieldLayout;
@@ -140,7 +146,7 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public FieldConfigurationScheme getFieldConfigurationSchemeForProject(final Long arg0) {
 
-		return null;
+		return projectFieldConfigScheme;
 	}
 
 	@Override
@@ -206,7 +212,7 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public FieldLayoutScheme getMutableFieldLayoutScheme(final Long arg0) {
 
-		return null;
+		return fieldLayoutScheme;
 	}
 
 	@Override

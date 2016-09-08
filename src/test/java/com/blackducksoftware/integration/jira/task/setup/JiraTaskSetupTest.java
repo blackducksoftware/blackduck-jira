@@ -17,7 +17,6 @@ import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
-import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
@@ -43,6 +42,7 @@ import com.blackducksoftware.integration.jira.mocks.UserMock;
 import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
 import com.blackducksoftware.integration.jira.mocks.field.EditableFieldLayoutMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldConfigSchemeMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldConfigurationSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutItemMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutSchemeMock;
@@ -85,8 +85,14 @@ public class JiraTaskSetupTest {
 		final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManager = new IssueTypeScreenSchemeManagerMock();
 		final IssueTypeScreenSchemeMock issueTypeScreenScheme = new IssueTypeScreenSchemeMock();
 		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
-		final FieldLayoutScheme fieldLayoutScheme = new FieldLayoutSchemeMock();
+		final FieldLayoutSchemeMock fieldLayoutScheme = new FieldLayoutSchemeMock();
+		fieldLayoutScheme.setName("Field Layout Scheme");
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
+
+		final FieldConfigurationSchemeMock projectFieldConfigScheme = new FieldConfigurationSchemeMock();
+		projectFieldConfigScheme.setName("Project Field Config Scheme");
+		projectFieldConfigScheme.setId(356l);
+		fieldLayoutManager.setProjectFieldConfigScheme(projectFieldConfigScheme);
 
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 		fieldLayout.setName("Hub Field Configuration");
@@ -144,8 +150,14 @@ public class JiraTaskSetupTest {
 		final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManager = new IssueTypeScreenSchemeManagerMock();
 		final IssueTypeScreenSchemeMock issueTypeScreenScheme = new IssueTypeScreenSchemeMock();
 		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
-		final FieldLayoutScheme fieldLayoutScheme = new FieldLayoutSchemeMock();
+		final FieldLayoutSchemeMock fieldLayoutScheme = new FieldLayoutSchemeMock();
+		fieldLayoutScheme.setName("Field Layout Scheme");
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
+
+		final FieldConfigurationSchemeMock projectFieldConfigScheme = new FieldConfigurationSchemeMock();
+		projectFieldConfigScheme.setName("Project Field Config Scheme");
+		projectFieldConfigScheme.setId(356l);
+		fieldLayoutManager.setProjectFieldConfigScheme(projectFieldConfigScheme);
 
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 		fieldLayout.setName("Hub Field Configuration");
