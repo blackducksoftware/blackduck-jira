@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
@@ -370,11 +371,13 @@ public class HubFieldScreenSchemeSetupTest {
 		final IssueTypeMock policyIssueType = new IssueTypeMock();
 		policyIssueType.setName(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 		policyIssueType.setId(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+		policyIssueType.setValue(Mockito.mock(GenericValue.class));
 		issueTypes.add(policyIssueType);
 
 		final IssueTypeMock securityIssueType = new IssueTypeMock();
 		securityIssueType.setName(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
 		securityIssueType.setId(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
+		securityIssueType.setValue(Mockito.mock(GenericValue.class));
 		issueTypes.add(securityIssueType);
 
 		return issueTypes;

@@ -184,7 +184,7 @@ public class HubIssueTypeSetup {
 	public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
 			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes, final FieldLayout fieldConfiguration) {
 
-		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
+		FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
 		if (projectFieldConfigurationScheme == null) {
 			logger.debug("Project " + project.getName() + ": Field Configuration Scheme: <null>");
 		} else {
@@ -198,6 +198,7 @@ public class HubIssueTypeSetup {
 			logger.debug("Replacing the project's Field Configuration Scheme with "
 					+ bdsFieldConfigurationScheme.getName());
 			jiraServices.getFieldLayoutManager().addSchemeAssociation(project, bdsFieldConfigurationScheme.getId());
+			projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
 		}
 		modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
 	}
@@ -215,7 +216,9 @@ public class HubIssueTypeSetup {
 				if (fieldLayoutSchemeEntities != null) {
 					for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
 						final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
+
 						if (existingIssueType == issueType
+								&& fieldLayoutSchemeEntity.getFieldLayoutId() != null
 								&& fieldLayoutSchemeEntity.getFieldLayoutId().equals(fieldConfiguration.getId())) {
 							issueTypeAlreadyMappedToOurFieldConfig = true;
 							break;
