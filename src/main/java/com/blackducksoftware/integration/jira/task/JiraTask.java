@@ -155,12 +155,12 @@ public class JiraTask implements PluginJob {
 		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
 				jiraServices);
 
-		final List<FieldScreenScheme> screenSchemes = fieldConfigurationSetup
+		final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
 				.addHubFieldConfigurationToJira(issueTypes);
-		if (screenSchemes == null || screenSchemes.isEmpty()) {
+		if (screenSchemesByIssueType == null || screenSchemesByIssueType.isEmpty()) {
 			logger.error("No Black Duck Screen Schemes found or created");
 		}
-		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemes.size());
+		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
 		final HubFieldConfigurationSetup hubFieldConfigurationSetup = new HubFieldConfigurationSetup(
 				jiraSettingsService, jiraServices);
@@ -187,7 +187,7 @@ public class JiraTask implements PluginJob {
 								.getProjectObj(projectMapping.getJiraProject().getProjectId());
 						// TODO add issuetypes to this project
 						issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, issueTypes, screenSchemes);
+						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, screenSchemesByIssueType);
 						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
 					}
 				}

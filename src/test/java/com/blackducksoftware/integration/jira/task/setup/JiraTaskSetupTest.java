@@ -18,6 +18,7 @@ import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.util.UserManager;
@@ -48,6 +49,8 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.OrderableFieldMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeSchemeManagerMock;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeScreenSchemeManagerMock;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowSchemeBuilderMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock;
@@ -79,6 +82,9 @@ public class JiraTaskSetupTest {
 		final FieldConfigScheme fieldConfigScheme = new FieldConfigSchemeMock();
 		issueTypeSchemeManager.setConfigScheme(fieldConfigScheme);
 		final FieldLayoutManagerMock fieldLayoutManager = getFieldLayoutManagerMock();
+		final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManager = new IssueTypeScreenSchemeManagerMock();
+		final IssueTypeScreenSchemeMock issueTypeScreenScheme = new IssueTypeScreenSchemeMock();
+		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
 		final FieldLayoutScheme fieldLayoutScheme = new FieldLayoutSchemeMock();
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
 
@@ -102,7 +108,7 @@ public class JiraTaskSetupTest {
 		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
 				userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
-				fieldLayoutManager, issueTypes,
+				fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes,
 				userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 
@@ -135,6 +141,9 @@ public class JiraTaskSetupTest {
 		final FieldConfigScheme fieldConfigScheme = new FieldConfigSchemeMock();
 		issueTypeSchemeManager.setConfigScheme(fieldConfigScheme);
 		final FieldLayoutManagerMock fieldLayoutManager = getFieldLayoutManagerMock();
+		final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManager = new IssueTypeScreenSchemeManagerMock();
+		final IssueTypeScreenSchemeMock issueTypeScreenScheme = new IssueTypeScreenSchemeMock();
+		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
 		final FieldLayoutScheme fieldLayoutScheme = new FieldLayoutSchemeMock();
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
 
@@ -158,7 +167,7 @@ public class JiraTaskSetupTest {
 		final UserUtil userUtil = getUserUtil(true);
 		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
 				userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
-				fieldLayoutManager, issueTypes,
+				fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes,
 				userUtil);
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 
@@ -276,6 +285,7 @@ public class JiraTaskSetupTest {
 			final ProjectManager projectManager, final AvatarManager avatarManager,
 			final ConstantsManager constantsManager, final IssueTypeSchemeManager issueTypeSchemeManager,
 			final FieldLayoutManager fieldLayoutManager,
+			final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager,
 			final Collection<IssueType> issueTypes, final UserUtil userUtil) {
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 		jiraServices.setGroupManager(groupManager);
@@ -289,6 +299,7 @@ public class JiraTaskSetupTest {
 		jiraServices.setFieldLayoutManager(fieldLayoutManager);
 		jiraServices.setIssueTypes(issueTypes);
 		jiraServices.setUserUtil(userUtil);
+		jiraServices.setIssueTypeScreenSchemeManager(issueTypeScreenSchemeManager);
 		return jiraServices;
 	}
 

@@ -23,7 +23,9 @@ package com.blackducksoftware.integration.jira.task.setup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
@@ -75,17 +77,17 @@ public class HubFieldScreenSchemeSetup {
 		this.jiraServices = jiraServices;
 	}
 
-	public List<FieldScreenScheme> addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
-		final List<FieldScreenScheme> fieldScreenSchemes = new ArrayList<>();
+	public Map<IssueType, FieldScreenScheme> addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
+		final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
 		try {
 			if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
 				for (final IssueType issueType : hubIssueTypes) {
 					if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
 						final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType);
-						fieldScreenSchemes.add(fss);
+						fieldScreenSchemes.put(issueType, fss);
 					} else if (issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
 						final FieldScreenScheme fss = createSecurityScreenScheme(issueType);
-						fieldScreenSchemes.add(fss);
+						fieldScreenSchemes.put(issueType, fss);
 					}
 				}
 			}

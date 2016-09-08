@@ -15,6 +15,7 @@ import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -48,6 +49,7 @@ public class JiraServicesMock extends JiraServices {
 	private FieldManager fieldManager;
 	private CustomFieldManager customFieldManager;
 	private FieldLayoutManager fieldLayoutManager;
+	private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
 
 	@Override
 	public UserUtil getUserUtil() {
@@ -234,6 +236,15 @@ public class JiraServicesMock extends JiraServices {
 
 	public void setFieldLayoutManager(final FieldLayoutManager fieldLayoutManager) {
 		this.fieldLayoutManager = fieldLayoutManager;
+	}
+
+	@Override
+	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+		return issueTypeScreenSchemeManager;
+	}
+
+	public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
+		this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
 	}
 
 }

@@ -24,13 +24,21 @@ package com.blackducksoftware.integration.jira.task.setup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenScheme;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntity;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntityImpl;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -112,7 +120,66 @@ public class HubIssueTypeSetup {
 		}
 	}
 
-	public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project, final List<IssueType> issueTypes,
+	public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project,
+			final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType) {
+
+		final IssueTypeScreenScheme issueTypeScreenScheme = jiraServices.getIssueTypeScreenSchemeManager()
+				.getIssueTypeScreenScheme(project);
+		logger.debug("addIssueTypesToProjectIssueTypeScreenSchemes(): Project " + project.getName()
+				+ ": Issue Type Screen Scheme: " + issueTypeScreenScheme.getName());
+
+		final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager = jiraServices
+				.getIssueTypeScreenSchemeManager();
+		final FieldScreenSchemeManager fieldScreenSchemeManager = jiraServices
+				.getFieldScreenSchemeManager();
+		final ConstantsManager constantsManager = jiraServices.getConstantsManager();
+
+		final List<IssueType> origIssueTypes = getExistingIssueTypes(issueTypeScreenScheme);
+
+		for (final IssueType issueType : screenSchemesByIssueType.keySet()) {
+			if (origIssueTypes.contains(issueType)) {
+				logger.debug("Issue Type " + issueType.getName() + " is already on Issue Type Screen Scheme "
+						+ issueTypeScreenScheme.getName());
+				continue;
+			}
+			final FieldScreenScheme screenScheme = screenSchemesByIssueType.get(issueType);
+			logger.debug("Associating issue type " + issueType.getName() + " with screen scheme "
+					+ screenScheme.getName() + " on issue type screen scheme " + issueTypeScreenScheme.getName());
+			final IssueTypeScreenSchemeEntity issueTypeScreenSchemeEntity = new IssueTypeScreenSchemeEntityImpl(
+					issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
+			issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
+			issueTypeScreenSchemeEntity.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme
+					.getId()));
+			issueTypeScreenScheme.addEntity(issueTypeScreenSchemeEntity);
+
+		}
+		logger.debug("Performing store() on " + issueTypeScreenScheme.getName());
+		issueTypeScreenScheme.store();
+
+	}
+
+	private List<IssueType> getExistingIssueTypes(final IssueTypeScreenScheme issueTypeScreenScheme) {
+		final List<IssueType> origIssueTypes = new ArrayList<>();
+		final Collection<IssueTypeScreenSchemeEntity> origIssueTypeScreenSchemeEntities = issueTypeScreenScheme
+				.getEntities();
+		if (origIssueTypeScreenSchemeEntities == null) {
+			return origIssueTypes;
+		}
+		for (final IssueTypeScreenSchemeEntity origIssueTypeScreenSchemeEntity : origIssueTypeScreenSchemeEntities) {
+			final IssueType origIssueType = origIssueTypeScreenSchemeEntity.getIssueTypeObject();
+			if (origIssueType == null) {
+				logger.debug("Issue Type <null> found on Issue Type Screen Scheme " + issueTypeScreenScheme.getName());
+			} else {
+				logger.debug("Issue Type " + origIssueType.getName() + " found on Issue Type Screen Scheme "
+						+ issueTypeScreenScheme.getName());
+				origIssueTypes.add(origIssueType);
+			}
+		}
+		return origIssueTypes;
+	}
+
+	public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
+			final List<IssueType> issueTypes,
 			final List<FieldScreenScheme> screenSchemes) {
 
 		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);

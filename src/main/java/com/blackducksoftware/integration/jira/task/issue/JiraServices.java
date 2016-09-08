@@ -37,6 +37,7 @@ import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -133,5 +134,7 @@ public class JiraServices {
 		return ComponentAccessor.getFieldLayoutManager();
 	}
 
-
+	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+		return ComponentAccessor.getIssueTypeScreenSchemeManager();
+	}
 }
