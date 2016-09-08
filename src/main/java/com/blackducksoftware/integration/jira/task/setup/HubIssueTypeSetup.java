@@ -199,40 +199,45 @@ public class HubIssueTypeSetup {
 					+ bdsFieldConfigurationScheme.getName());
 			// TODO
 		} else {
-			// Modify projectFieldConfigurationScheme
-			logger.debug("Modifying the project's Field Configuration Scheme");
-			final FieldLayoutScheme fieldLayoutScheme = getFieldLayoutScheme(projectFieldConfigurationScheme);
-			for (final IssueType issueType : issueTypes) {
-
-				boolean issueTypeAlreadyThere = false;
-				final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = fieldLayoutScheme.getEntities();
-				if (fieldLayoutSchemeEntities != null) {
-					for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
-						final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
-						if (existingIssueType == issueType) {
-							issueTypeAlreadyThere = true;
-						}
-					}
-				}
-				if (issueTypeAlreadyThere) {
-					logger.debug("Issue Type " + issueType.getName()
-							+ " is already associated with Field Configuration Scheme "
-							+ projectFieldConfigurationScheme.getName());
-					continue;
-				}
-
-				final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices
-						.getFieldLayoutManager()
-						.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(), fieldConfiguration.getId());
-
-				logger.debug("Adding to fieldLayoutScheme: " + fieldLayoutScheme.getName() + ": issueType "
-						+ issueType.getName() + " ==> field configuration " + fieldConfiguration.getName());
-				fieldLayoutScheme.addEntity(fieldLayoutSchemeEntity);
-			}
-			logger.debug("Storing Field Configuration Scheme " + fieldLayoutScheme.getName());
-			fieldLayoutScheme.store();
+			modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
 		}
 
+	}
+
+	private void modifyProjectFieldConfigurationScheme(final List<IssueType> issueTypes,
+			final FieldLayout fieldConfiguration, final FieldConfigurationScheme projectFieldConfigurationScheme) {
+		// Modify projectFieldConfigurationScheme
+		logger.debug("Modifying the project's Field Configuration Scheme");
+		final FieldLayoutScheme fieldLayoutScheme = getFieldLayoutScheme(projectFieldConfigurationScheme);
+		for (final IssueType issueType : issueTypes) {
+
+			boolean issueTypeAlreadyThere = false;
+			final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = fieldLayoutScheme.getEntities();
+			if (fieldLayoutSchemeEntities != null) {
+				for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
+					final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
+					if (existingIssueType == issueType) {
+						issueTypeAlreadyThere = true;
+					}
+				}
+			}
+			if (issueTypeAlreadyThere) {
+				logger.debug("Issue Type " + issueType.getName()
+						+ " is already associated with Field Configuration Scheme "
+						+ projectFieldConfigurationScheme.getName());
+				continue;
+			}
+
+			final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices
+					.getFieldLayoutManager()
+					.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(), fieldConfiguration.getId());
+
+			logger.debug("Adding to fieldLayoutScheme: " + fieldLayoutScheme.getName() + ": issueType "
+					+ issueType.getName() + " ==> field configuration " + fieldConfiguration.getName());
+			fieldLayoutScheme.addEntity(fieldLayoutSchemeEntity);
+		}
+		logger.debug("Storing Field Configuration Scheme " + fieldLayoutScheme.getName());
+		fieldLayoutScheme.store();
 	}
 
 	private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
