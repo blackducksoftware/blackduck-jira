@@ -15,6 +15,8 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
 	private final List<FieldScreen> updatedScreens = new ArrayList<>();
 
+	private FieldScreen defaultScreen;
+
 	public List<FieldScreenTab> getUpdatedTabs() {
 		return updatedTabs;
 	}
@@ -47,9 +49,15 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
 	}
 
-	@Override
-	public FieldScreen getFieldScreen(final Long arg0) {
+	public void setDefaultFieldScreen(final FieldScreen defaultScreen) {
+		this.defaultScreen = defaultScreen;
+	}
 
+	@Override
+	public FieldScreen getFieldScreen(final Long fieldId) {
+		if (fieldId == FieldScreen.DEFAULT_SCREEN_ID) {
+			return defaultScreen;
+		}
 		return null;
 	}
 
@@ -80,7 +88,7 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 	@Override
 	public Collection<FieldScreen> getFieldScreens() {
 
-		return null;
+		return updatedScreens;
 	}
 
 	@Override

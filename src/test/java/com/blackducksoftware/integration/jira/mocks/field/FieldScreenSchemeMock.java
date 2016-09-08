@@ -1,6 +1,8 @@
 package com.blackducksoftware.integration.jira.mocks.field;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -15,14 +17,15 @@ public class FieldScreenSchemeMock implements FieldScreenScheme {
 
 	private boolean attemptedScreenSchemeStore;
 
+	private final List<FieldScreenSchemeItem> schemeItems = new ArrayList<>();
+
 	public boolean getAttemptedScreenSchemeStore() {
 		return attemptedScreenSchemeStore;
 	}
 
 	@Override
-	public void addFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
-
-
+	public void addFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
+		schemeItems.add(schemeItem);
 	}
 
 	@Override
@@ -38,15 +41,19 @@ public class FieldScreenSchemeMock implements FieldScreenScheme {
 	}
 
 	@Override
-	public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation arg0) {
-
+	public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation issueOperation) {
+		for(final FieldScreenSchemeItem schemeItem : schemeItems){
+			if (schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey())) {
+				return schemeItem;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems() {
 
-		return null;
+		return schemeItems;
 	}
 
 	@Override
