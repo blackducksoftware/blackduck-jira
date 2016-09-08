@@ -195,9 +195,9 @@ public class HubIssueTypeSetup {
 			// Associate the BDS Field Configuration Scheme
 			// (bdsFieldConfigurationScheme) with the
 			// Project
-			logger.debug("*** NOT YET *** Replacing the project's Field Configuration Scheme with "
+			logger.debug("Replacing the project's Field Configuration Scheme with "
 					+ bdsFieldConfigurationScheme.getName());
-			// TODO
+			jiraServices.getFieldLayoutManager().addSchemeAssociation(project, bdsFieldConfigurationScheme.getId());
 		} else {
 			modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
 		}
