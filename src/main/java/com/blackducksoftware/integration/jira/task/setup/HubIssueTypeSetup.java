@@ -33,6 +33,9 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenScheme;
@@ -179,17 +182,70 @@ public class HubIssueTypeSetup {
 	}
 
 	public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
-			final List<IssueType> issueTypes,
-			final List<FieldScreenScheme> screenSchemes) {
+			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes, final FieldLayout fieldConfiguration) {
 
 		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
 		if (projectFieldConfigurationScheme == null) {
-			// TODO: Associate the BDS Field Configuration Scheme with the
-			// Project
+			logger.debug("Project " + project.getName() + ": Field Configuration Scheme: <null>");
 		} else {
-			// TODO: Modify projectFieldConfigurationScheme
+			logger.debug("Project " + project.getName() + ": Field Configuration Scheme: "
+					+ projectFieldConfigurationScheme.getName());
+		}
+		if (projectFieldConfigurationScheme == null) {
+			// Associate the BDS Field Configuration Scheme
+			// (bdsFieldConfigurationScheme) with the
+			// Project
+			logger.debug("Replacing the project's Field Configuration Scheme with "
+					+ bdsFieldConfigurationScheme.getName());
+			jiraServices.getFieldLayoutManager().addSchemeAssociation(project, bdsFieldConfigurationScheme.getId());
+		} else {
+			modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
 		}
 
+	}
+
+	private void modifyProjectFieldConfigurationScheme(final List<IssueType> issueTypes,
+			final FieldLayout fieldConfiguration, final FieldConfigurationScheme projectFieldConfigurationScheme) {
+		// Modify projectFieldConfigurationScheme
+		logger.debug("Modifying the project's Field Configuration Scheme");
+		final FieldLayoutScheme fieldLayoutScheme = getFieldLayoutScheme(projectFieldConfigurationScheme);
+		for (final IssueType issueType : issueTypes) {
+
+			boolean issueTypeAlreadyThere = false;
+			final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = fieldLayoutScheme.getEntities();
+			if (fieldLayoutSchemeEntities != null) {
+				for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
+					final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
+					if (existingIssueType == issueType) {
+						issueTypeAlreadyThere = true;
+					}
+				}
+			}
+			if (issueTypeAlreadyThere) {
+				logger.debug("Issue Type " + issueType.getName()
+						+ " is already associated with Field Configuration Scheme "
+						+ projectFieldConfigurationScheme.getName());
+				continue;
+			}
+
+			final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices
+					.getFieldLayoutManager()
+					.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(), fieldConfiguration.getId());
+
+			logger.debug("Adding to fieldLayoutScheme: " + fieldLayoutScheme.getName() + ": issueType "
+					+ issueType.getName() + " ==> field configuration " + fieldConfiguration.getName());
+			fieldLayoutScheme.addEntity(fieldLayoutSchemeEntity);
+		}
+		logger.debug("Storing Field Configuration Scheme " + fieldLayoutScheme.getName());
+		fieldLayoutScheme.store();
+	}
+
+	private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
+		final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager().getMutableFieldLayoutScheme(
+				fieldConfigurationScheme.getId());
+		logger.info("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName()
+				+ " ==> FieldLayoutScheme: " + fls.getName());
+		return fls;
 	}
 
 	private FieldConfigurationScheme getProjectFieldConfigScheme(final Project project) {
