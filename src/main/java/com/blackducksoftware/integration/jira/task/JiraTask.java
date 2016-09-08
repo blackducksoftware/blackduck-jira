@@ -186,8 +186,8 @@ public class JiraTask implements PluginJob {
 						final Project jiraProject = jiraServices.getJiraProjectManager()
 								.getProjectObj(projectMapping.getJiraProject().getProjectId());
 						// TODO add issuetypes to this project
-						issueTypeSetup.addIssueTypesToProject(jiraProject, issueTypes);
-						issueTypeSetup.associateIssueTypesWithScreenSchemes(jiraProject, issueTypes, screenSchemes);
+						issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
+						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, issueTypes, screenSchemes);
 						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
 					}
 				}

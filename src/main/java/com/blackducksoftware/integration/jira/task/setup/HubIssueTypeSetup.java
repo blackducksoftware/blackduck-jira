@@ -84,7 +84,7 @@ public class HubIssueTypeSetup {
 		return bdIssueTypes;
 	}
 
-	public void addIssueTypesToProject(final Project jiraProject, final List<IssueType> hubIssueTypes) {
+	public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> hubIssueTypes) {
 		// Get Project's Issue Type Scheme
 		final FieldConfigScheme issueTypeScheme = getProjectIssueTypeScheme(jiraProject);
 
@@ -112,7 +112,7 @@ public class HubIssueTypeSetup {
 		}
 	}
 
-	public void associateIssueTypesWithScreenSchemes(final Project project, final List<IssueType> issueTypes,
+	public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project, final List<IssueType> issueTypes,
 			final List<FieldScreenScheme> screenSchemes) {
 
 		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
