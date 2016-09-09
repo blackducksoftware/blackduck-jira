@@ -163,30 +163,7 @@ public class HubFieldScreenSchemeSetupTest {
 		HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
-
-		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-		.thenAnswer(new Answer<FieldScreen>() {
-			@Override
-			public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-				return new FieldScreenMock();
-			}
-		});
-
-		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-		.thenAnswer(new Answer<FieldScreenScheme>() {
-			@Override
-			public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-				return new FieldScreenSchemeMock();
-			}
-		});
-
-		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-					@Override
-					public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenSchemeItemMock();
-					}
-				});
+		mockCreationMethods(fieldConfigSetup);
 
 		fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 
@@ -245,29 +222,7 @@ public class HubFieldScreenSchemeSetupTest {
 		HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
-		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-		.thenAnswer(new Answer<FieldScreen>() {
-			@Override
-			public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-				return new FieldScreenMock();
-			}
-		});
-
-		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-		.thenAnswer(new Answer<FieldScreenScheme>() {
-			@Override
-			public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-				return new FieldScreenSchemeMock();
-			}
-		});
-
-		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-					@Override
-					public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenSchemeItemMock();
-					}
-				});
+		mockCreationMethods(fieldConfigSetup);
 
 		fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 		assertTrue(customFieldManager.getCustomFieldObjects().size() == 5);
@@ -342,6 +297,32 @@ public class HubFieldScreenSchemeSetupTest {
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 7);
 		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+	}
+
+	private void mockCreationMethods(final HubFieldScreenSchemeSetup fieldConfigSetup) {
+		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
+				.thenAnswer(new Answer<FieldScreen>() {
+					@Override
+					public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+						return new FieldScreenMock();
+					}
+				});
+
+		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
+				.thenAnswer(new Answer<FieldScreenScheme>() {
+					@Override
+					public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+						return new FieldScreenSchemeMock();
+					}
+				});
+
+		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
+				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
+					@Override
+					public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
+						return new FieldScreenSchemeItemMock();
+					}
+				});
 	}
 
 	private FieldScreen getDefaultFieldScreen(){
