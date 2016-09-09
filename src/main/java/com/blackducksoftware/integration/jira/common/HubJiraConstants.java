@@ -29,4 +29,10 @@ public class HubJiraConstants {
 
 	public final static String HUB_POLICY_VIOLATION_ISSUE = "BD Policy Violation";
 	public final static String HUB_VULNERABILITY_ISSUE = "BD Security Vulnerability";
+
+	public final static String HUB_CUSTOM_FIELD_PROJECT = "Hub Project";
+	public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "Hub Project Version";
+	public final static String HUB_CUSTOM_FIELD_COMPONENT = "Hub Component";
+	public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "Hub Component Version";
+	public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "Hub Policy Rule";
 }

@@ -71,11 +71,17 @@ public class HubFieldScreenSchemeSetup {
 
 	private final JiraServices jiraServices;
 
+	private final Map<String, CustomField> customFields = new HashMap<>();
+
 
 	public HubFieldScreenSchemeSetup(final JiraSettingsService settingService,
 			final JiraServices jiraServices) {
 		this.settingService = settingService;
 		this.jiraServices = jiraServices;
+	}
+
+	public Map<String, CustomField> getCustomFields() {
+		return customFields;
 	}
 
 	public Map<IssueType, FieldScreenScheme> addHubFieldConfigurationToJira(final List<IssueType> hubIssueTypes) {
@@ -142,7 +148,7 @@ public class HubFieldScreenSchemeSetup {
 					customField = createCustomField(updatedGenericValueList, fieldName);
 				}
 			}
-
+			customFields.put(fieldName, customField);
 			final OrderableField myField = jiraServices.getFieldManager().getOrderableField(customField.getId());
 			return myField;
 		} catch (final Exception e) {
@@ -155,10 +161,14 @@ public class HubFieldScreenSchemeSetup {
 	private List<OrderableField> createCommonFields(
 			final List<GenericValue> commonIssueTypeGenericValueList) {
 		final List<OrderableField> customFields = new ArrayList<>();
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList, "Project"));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList, "Project Version"));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList, "Component"));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList, "Component Version"));
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+				HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT));
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+				HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+				HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT));
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+				HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
 		return customFields;
 	}
 
@@ -167,7 +177,8 @@ public class HubFieldScreenSchemeSetup {
 		final List<OrderableField> customFields = new ArrayList<>();
 		final List<GenericValue> policyViolationGenericValueList = new ArrayList<>();
 		policyViolationGenericValueList.add(issueType.getGenericValue());
-		customFields.add(getOrderedFieldFromCustomField(policyViolationGenericValueList, "Policy Rule"));
+		customFields.add(getOrderedFieldFromCustomField(policyViolationGenericValueList,
+				HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE));
 		customFields.addAll(createCommonFields(commonIssueTypeGenericValueList));
 		return customFields;
 	}
