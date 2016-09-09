@@ -182,8 +182,8 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 	}
 
 	@Override
-	public void removeCustomField(final CustomField arg0) throws RemoveException {
-
+	public void removeCustomField(final CustomField field) throws RemoveException {
+		customFields.remove(field);
 
 	}
 

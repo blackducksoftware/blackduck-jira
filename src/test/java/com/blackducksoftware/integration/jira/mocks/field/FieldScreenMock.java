@@ -20,6 +20,11 @@ public class FieldScreenMock implements FieldScreen {
 		return attemptedScreenStore;
 	}
 
+	public FieldScreenTab addTab(final FieldScreenTab tab) {
+		tabs.add(tab);
+		return tab;
+	}
+
 	@Override
 	public FieldScreenTab addTab(final String tabName) {
 		final FieldScreenTabMock tab = new FieldScreenTabMock();

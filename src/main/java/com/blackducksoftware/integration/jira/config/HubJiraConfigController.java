@@ -53,7 +53,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
-import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -467,22 +466,6 @@ public class HubJiraConfigController {
 				final JiraProject newProject = new JiraProject();
 				newProject.setProjectName(oldProject.getName());
 				newProject.setProjectId(oldProject.getId());
-
-				if (oldProject.getIssueTypes() == null || oldProject.getIssueTypes().isEmpty()) {
-					newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_NO_ISSUE_TYPES_FOUND_ERROR);
-				} else {
-					boolean projectHasTaskType = false;
-					if (oldProject.getIssueTypes() != null && !oldProject.getIssueTypes().isEmpty()) {
-						for (final IssueType issueType : oldProject.getIssueTypes()) {
-							if (issueType.getName().equals("Task")) {
-								projectHasTaskType = true;
-							}
-						}
-					}
-					if (!projectHasTaskType) {
-						newProject.setProjectError(JiraConfigErrors.JIRA_PROJECT_MISSING_ISSUE_TYPES_ERROR);
-					}
-				}
 
 				newJiraProjects.add(newProject);
 			}
