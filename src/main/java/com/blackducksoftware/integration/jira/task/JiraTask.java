@@ -135,12 +135,11 @@ public class JiraTask implements PluginJob {
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson) throws JiraException {
 
-		final HubGroupSetup groupSetup = new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
+		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
-		final HubIssueTypeSetup issueTypeSetup = new HubIssueTypeSetup(jiraServices, jiraSettingsService,
-				jiraServices.getIssueTypes());
+		final HubIssueTypeSetup issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices);
 		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
 		if (issueTypes == null || issueTypes.isEmpty()) {
 			logger.error("No Black Duck Issue Types found or created");
@@ -148,7 +147,7 @@ public class JiraTask implements PluginJob {
 		}
 		logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-		final HubFieldScreenSchemeSetup fieldConfigurationSetup = new HubFieldScreenSchemeSetup(jiraSettingsService,
+		final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(jiraSettingsService,
 				jiraServices);
 
 		final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
@@ -158,13 +157,13 @@ public class JiraTask implements PluginJob {
 		}
 		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-		final HubFieldConfigurationSetup hubFieldConfigurationSetup = new HubFieldConfigurationSetup(
+		final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(
 				jiraSettingsService, jiraServices);
 		final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
 		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(
 				issueTypes, fieldConfiguration);
 
-		final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(jiraSettingsService, jiraServices);
+		final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////
 
@@ -193,6 +192,31 @@ public class JiraTask implements PluginJob {
 			}
 		}
 		/////////////////////////////////////////////////////////////////////////
+	}
+
+	public HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
+			final JiraServices jiraServices) {
+		return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes());
+	}
+
+	public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
+			final JiraServices jiraServices) {
+		return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+	}
+
+	public HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
+			final JiraServices jiraServices) {
+		return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
+	}
+
+	public HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
+			final JiraServices jiraServices) {
+		return new HubWorkflowSetup(jiraSettingsService, jiraServices);
+	}
+
+	public HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,
+			final JiraServices jiraServices) {
+		return new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {

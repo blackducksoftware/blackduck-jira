@@ -220,7 +220,7 @@ public class HubFieldScreenSchemeSetup {
 	private boolean addHubTabToScreen(final FieldScreen hubScreen, final List<OrderableField> customFields,
 			final List<FieldScreenTab> defaultTabs) {
 		FieldScreenTab myTab = null;
-		if (hubScreen != null && !hubScreen.getTabs().isEmpty()) {
+		if (hubScreen != null && hubScreen.getTabs() != null && !hubScreen.getTabs().isEmpty()) {
 			for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
 				if (screenTab.getName().equals(HUB_SCREEN_TAB)) {
 					myTab = screenTab;

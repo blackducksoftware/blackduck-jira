@@ -1,5 +1,6 @@
 package com.blackducksoftware.integration.jira.mocks.issue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -11,12 +12,16 @@ import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
+import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
 
 public class IssueTypeSchemeManagerMock implements IssueTypeSchemeManager {
 	private FieldConfigScheme fieldConfigScheme;
 	private Collection<IssueType> issueTypes;
 
-	public IssueTypeSchemeManagerMock() {
+	private final ConstantsManagerMock constantsManagerMock;
+
+	public IssueTypeSchemeManagerMock(final ConstantsManagerMock constantsManagerMock) {
+		this.constantsManagerMock = constantsManagerMock;
 	}
 
 	@Override
@@ -93,6 +98,10 @@ public class IssueTypeSchemeManagerMock implements IssueTypeSchemeManager {
 
 	@Override
 	public Collection<IssueType> getIssueTypesForProject(final Project arg0) {
+		final List<IssueType> issues = new ArrayList<>();
+		issues.addAll(issueTypes);
+		issues.addAll(constantsManagerMock.getAllIssueTypeObjects());
+
 		return issueTypes;
 	}
 

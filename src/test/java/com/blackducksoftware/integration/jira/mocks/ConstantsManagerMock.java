@@ -1,8 +1,10 @@
 package com.blackducksoftware.integration.jira.mocks;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.mockito.Mockito;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.fugue.Option;
@@ -22,6 +24,8 @@ import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
 public class ConstantsManagerMock implements ConstantsManager {
 	private int issueTypeIndex = 0;
+
+	private final List<IssueType> issueTypes = new ArrayList<>();
 
 	public ConstantsManagerMock() {
 	}
@@ -54,7 +58,7 @@ public class ConstantsManagerMock implements ConstantsManager {
 
 	@Override
 	public Collection<IssueType> getAllIssueTypeObjects() {
-		return null;
+		return issueTypes;
 	}
 
 	@Override
@@ -213,24 +217,32 @@ public class ConstantsManagerMock implements ConstantsManager {
 	}
 
 	@Override
-	public IssueType insertIssueType(final String arg0, final Long arg1, final String arg2, final String arg3, final String arg4)
-			throws CreateException {
-		return generateMockIssueType();
+	public IssueType insertIssueType(final String name, final Long arg1, final String arg2, final String description,
+			final String arg4)
+					throws CreateException {
+		final IssueType issueType = generateMockIssueType(name, description);
+		issueTypes.add(issueType);
+
+		return issueType;
 	}
 
-	private IssueType generateMockIssueType() {
+	private IssueType generateMockIssueType(final String name, final String description) {
 		final IssueTypeMock newIssueType = new IssueTypeMock();
-		newIssueType.setName("Mock Issue Type" + issueTypeIndex);
-		newIssueType.setDescription("Mock Issue Type" + issueTypeIndex);
+		newIssueType.setName(name);
+		newIssueType.setDescription(description);
 		newIssueType.setId("mockIssueType" + issueTypeIndex);
+		newIssueType.setValue(Mockito.mock(GenericValue.class));
 		issueTypeIndex++;
 		return newIssueType;
 	}
 
 	@Override
-	public IssueType insertIssueType(final String arg0, final Long arg1, final String arg2, final String arg3, final Long arg4)
+	public IssueType insertIssueType(final String name, final Long arg1, final String arg2, final String description,
+			final Long arg4)
 			throws CreateException {
-		return generateMockIssueType();
+		final IssueType issueType = generateMockIssueType(name, description);
+		issueTypes.add(issueType);
+		return issueType;
 	}
 
 	@Override
