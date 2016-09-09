@@ -63,6 +63,7 @@ public class HubFieldConfigurationSetup {
 	public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
 			final FieldLayout fieldConfiguration) {
 
+		boolean changesToStore = false;
 		FieldLayoutScheme fieldConfigurationScheme = null;
 
 		// Check to see if it already exists
@@ -81,6 +82,7 @@ public class HubFieldConfigurationSetup {
 		if (fieldConfigurationScheme == null) {
 			fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
 					.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
+			changesToStore = true;
 		}
 
 		for (final IssueType issueType : issueTypes) {
@@ -115,11 +117,13 @@ public class HubFieldConfigurationSetup {
 				issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
 				issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
 				fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
+				changesToStore = true;
 			}
 		}
 
-		// TODO don't store if nothing changed
-		fieldConfigurationScheme.store();
+		if (changesToStore) {
+			fieldConfigurationScheme.store();
+		}
 
 		return fieldConfigurationScheme;
 	}
