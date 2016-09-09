@@ -12,6 +12,7 @@ import com.atlassian.jira.project.Project;
 public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	private String name;
+	private Collection<FieldLayoutSchemeEntity> entities;
 
 	@Override
 	public void addEntity(final FieldLayoutSchemeEntity arg0) {
@@ -28,9 +29,13 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 		return null;
 	}
 
+	public void setEntities(final Collection<FieldLayoutSchemeEntity> entities) {
+		this.entities = entities;
+	}
+
 	@Override
 	public Collection<FieldLayoutSchemeEntity> getEntities() {
-		return null;
+		return entities;
 	}
 
 	@Override

@@ -9,12 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Test;
+
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
@@ -65,7 +69,7 @@ public class JiraTaskSetupTest {
 	private static final String JIRA_USER = "Jira User";
 	private static final String HUB_WORKFLOW_NAME = "Hub Workflow";
 
-	// @Test TODO
+	@Test
 	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException {
 		final JiraTask jiraTask = new JiraTask();
 
@@ -85,6 +89,16 @@ public class JiraTaskSetupTest {
 		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
 		final FieldLayoutSchemeMock fieldLayoutScheme = new FieldLayoutSchemeMock();
 		fieldLayoutScheme.setName("Field Layout Scheme");
+
+		final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = new ArrayList<>();
+		final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+				fieldLayoutManager, null, constantsManager);
+		issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldLayoutScheme);
+		issueTypeToFieldConfiguration.setFieldLayoutId(1L);
+		issueTypeToFieldConfiguration.setIssueTypeId("someIssueTypeId");
+		fieldLayoutSchemeEntities.add(issueTypeToFieldConfiguration);
+		fieldLayoutScheme.setEntities(fieldLayoutSchemeEntities);
+
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
 
 		final FieldConfigurationSchemeMock projectFieldConfigScheme = new FieldConfigurationSchemeMock();
@@ -130,7 +144,7 @@ public class JiraTaskSetupTest {
 		// creates BDS Field Configuration Scheme
 	}
 
-	// @Test TODO
+	@Test
 	public void testServerSetupIssueTypesNotAlreadyCreated() throws JiraException {
 		final JiraTask jiraTask = new JiraTask();
 
@@ -150,6 +164,16 @@ public class JiraTaskSetupTest {
 		issueTypeScreenSchemeManager.setIssueTypeScreenScheme(issueTypeScreenScheme);
 		final FieldLayoutSchemeMock fieldLayoutScheme = new FieldLayoutSchemeMock();
 		fieldLayoutScheme.setName("Field Layout Scheme");
+
+		final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = new ArrayList<>();
+		final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+				fieldLayoutManager, null, constantsManager);
+		issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldLayoutScheme);
+		issueTypeToFieldConfiguration.setFieldLayoutId(1L);
+		issueTypeToFieldConfiguration.setIssueTypeId("someIssueTypeId");
+		fieldLayoutSchemeEntities.add(issueTypeToFieldConfiguration);
+		fieldLayoutScheme.setEntities(fieldLayoutSchemeEntities);
+
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
 
 		final FieldConfigurationSchemeMock projectFieldConfigScheme = new FieldConfigurationSchemeMock();
