@@ -43,6 +43,7 @@ public class JiraProject implements Serializable {
 	@XmlElement
 	private String projectKey;
 
+	// TODO: Should remove issueTypeId; converters will figure it out
 	@XmlElement
 	private String issueTypeId;
 
@@ -79,10 +80,6 @@ public class JiraProject implements Serializable {
 
 	public void setProjectError(final String projectError) {
 		this.projectError = projectError;
-	}
-
-	public String getIssueTypeId() {
-		return issueTypeId;
 	}
 
 	public void setIssueTypeId(final String issueTypeId) {
@@ -160,8 +157,6 @@ public class JiraProject implements Serializable {
 		builder.append(projectId);
 		builder.append(", projectKey=");
 		builder.append(projectKey);
-		builder.append(", issueTypeId=");
-		builder.append(issueTypeId);
 		builder.append(", projectError=");
 		builder.append(projectError);
 		builder.append("]");

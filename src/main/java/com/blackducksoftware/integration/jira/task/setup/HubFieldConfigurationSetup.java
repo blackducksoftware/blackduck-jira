@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -62,30 +63,62 @@ public class HubFieldConfigurationSetup {
 	public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
 			final FieldLayout fieldConfiguration) {
 
+		FieldLayoutScheme fieldConfigurationScheme = null;
+
 		// Check to see if it already exists
 		final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
 		if (fieldLayoutSchemes != null) {
-			for (final FieldLayoutScheme fieldLayoutScheme : fieldLayoutSchemes) {
-				if (HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(fieldLayoutScheme.getName())) {
+			for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
+				if (HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
 					logger.debug("Field Configuration Scheme " + HUB_FIELD_CONFIGURATION_SCHEME_NAME
 							+ " already exists");
-					return fieldLayoutScheme;
+					fieldConfigurationScheme = existingFieldConfigurationScheme;
+					break;
 				}
 			}
 		}
 
-		final FieldLayoutScheme fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
-				.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
-
-		for (final IssueType issueType : issueTypes) {
-			final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
-					jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
-			issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
-			issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
-			issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
-			fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
+		if (fieldConfigurationScheme == null) {
+			fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
+					.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
 		}
 
+		for (final IssueType issueType : issueTypes) {
+
+			boolean issueTypeAlreadyAssociated = false;
+			final Collection<FieldLayoutSchemeEntity> entities = fieldConfigurationScheme.getEntities();
+			for (final FieldLayoutSchemeEntity entity : entities) {
+				if (entity.getIssueTypeObject() == null) {
+					continue;
+				}
+				if (entity.getIssueTypeObject().getName().equals(issueType.getName())) {
+					logger.debug("IssueType " + issueType.getName()
+							+ " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
+					logger.debug("\tTarget field configuration ID is: " + fieldConfiguration.getId());
+					if ((entity.getFieldLayoutId() != null)
+							&& (entity.getFieldLayoutId().equals(fieldConfiguration.getId()))) {
+						issueTypeAlreadyAssociated = true;
+						break;
+					} else {
+						logger.info("\tRemoving incorrect association for IssueType " + issueType.getName());
+						fieldConfigurationScheme.removeEntity(issueType.getId());
+					}
+				}
+			}
+
+			if (!issueTypeAlreadyAssociated) {
+				logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration "
+						+ fieldConfiguration.getName());
+				final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+						jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
+				issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
+				issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
+				issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
+				fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
+			}
+		}
+
+		// TODO don't store if nothing changed
 		fieldConfigurationScheme.store();
 
 		return fieldConfigurationScheme;

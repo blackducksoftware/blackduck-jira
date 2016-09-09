@@ -47,7 +47,6 @@ public class HubProjectMappingsTest {
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 		// ticketGenInfo.getJiraIssueTypeName()
-		Mockito.when(jiraContext.getJiraIssueTypeName()).thenReturn("Issue");
 
 		for (int i = 0; i < 10; i++) {
 			final Project mockAtlassianJiraProject = Mockito.mock(Project.class);

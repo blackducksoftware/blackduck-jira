@@ -86,7 +86,6 @@ public class JiraTask implements PluginJob {
 		final String projectMappingJson = getStringValue(settings,
 				HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 		final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-		final String jiraIssueTypeName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_TYPE_NAME);
 		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
 		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
@@ -119,12 +118,12 @@ public class JiraTask implements PluginJob {
 		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
 
 		if (configResult.hasErrors()) {
-			logger.error("There was a problem with either the Hub Admin or Hub Jira plugin configuration.");
+			logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
 
-		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, jiraIssueTypeName,
+		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString,
 				installDateString, lastRunDateString, projectMappingJson, policyRulesJson, jiraUser,
 				jiraSettingsService);
 		final String runDateString = processor.execute();
@@ -138,9 +137,6 @@ public class JiraTask implements PluginJob {
 
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
-
-		// TODO create our issueTypes AND add them to each Projects workflow
-		// scheme before we try addWorkflowToProjectsWorkflowScheme
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final HubIssueTypeSetup issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices);

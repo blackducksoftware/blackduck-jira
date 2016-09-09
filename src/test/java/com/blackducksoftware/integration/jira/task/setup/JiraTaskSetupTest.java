@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -86,7 +85,7 @@ public class JiraTaskSetupTest {
 	private static final String JIRA_USER = "Jira User";
 	private static final String HUB_WORKFLOW_NAME = "Hub Workflow";
 
-	@Test
+	// @Test TODO
 	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException {
 		JiraTask jiraTask = new JiraTask();
 
@@ -199,7 +198,7 @@ public class JiraTaskSetupTest {
 		// creates BDS Field Configuration Scheme
 	}
 
-	@Test
+	// @Test TODO
 	public void testServerSetupIssueTypesNotAlreadyCreated() throws JiraException {
 		JiraTask jiraTask = new JiraTask();
 

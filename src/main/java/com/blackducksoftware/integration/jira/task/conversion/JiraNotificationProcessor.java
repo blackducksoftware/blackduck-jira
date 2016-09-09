@@ -32,6 +32,7 @@ import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseExce
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -43,7 +44,7 @@ public class JiraNotificationProcessor {
 	private final ConverterLookupTable converterTable;
 
 	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
 		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService);
 	}
 
