@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.atlassian.jira.config.ConstantsManager;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationContent;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
@@ -42,11 +45,13 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Not
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -61,7 +66,6 @@ public class PolicyOverrideNotificationConverterTest {
 	private static final String HUB_COMPONENT_NAME = "test Hub Component";
 	private static final String HUB_PROJECT_NAME = "test Hub Project";
 	private static final String PROJECT_URL = "http://test.project.url";
-	private static final String JIRA_ISSUE_TYPE = "Task";
 	private static final String COMPONENT_VERSION_LINK = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 	private static final String VERSION_NAME = "versionName";
 	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/a3b48f57-9c00-453f-8672-804e08c317f2/versions/7d4fdbed-936b-468f-af7f-826dfc072c5b";
@@ -87,7 +91,8 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -104,27 +109,30 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
-	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
-		final ProjectManager jiraProjectManager = createJiraProjectManager();
+			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException {
+
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
-		final JiraContext jiraContext = new JiraContext(jiraUser, JIRA_ISSUE_TYPE);
+		final JiraContext jiraContext = new JiraContext(jiraUser);
 
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		final JiraServices jiraServices = mockJiraServices();
+
 		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
 				createProjectMappings(includeProjectMappings, projectMappingMatch));
 
@@ -138,6 +146,27 @@ public class PolicyOverrideNotificationConverterTest {
 		return events;
 	}
 
+	private JiraServices mockJiraServices() {
+
+		final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
+		final Collection<IssueType> issueTypes = new ArrayList<>();
+		final IssueType policyIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(policyIssueType.getName()).thenReturn(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+		Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
+		issueTypes.add(policyIssueType);
+		final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
+		Mockito.when(vulnerabilityIssueType.getName()).thenReturn(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
+		Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
+		issueTypes.add(vulnerabilityIssueType);
+
+		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
+
+		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
+		final ProjectManager jiraProjectManager = createJiraProjectManager();
+		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		return jiraServices;
+	}
 	private NotificationContentItem createNotification(final List<PolicyRule> rules) {
 
 		final PolicyOverrideNotificationContent content = new PolicyOverrideNotificationContent();

@@ -72,7 +72,6 @@ public class JiraProjectTest {
 		assertEquals(name2, item2.getProjectName());
 		assertEquals(id2, item2.getProjectId());
 		assertEquals(key2, item2.getProjectKey());
-		assertEquals(issueTypeId2, item2.getIssueTypeId());
 		assertEquals(projectError2, item2.getProjectError());
 
 		assertTrue(!item1.equals(item2));
@@ -88,8 +87,6 @@ public class JiraProjectTest {
 		builder.append(item1.getProjectId());
 		builder.append(", projectKey=");
 		builder.append(item1.getProjectKey());
-		builder.append(", issueTypeId=");
-		builder.append(item1.getIssueTypeId());
 		builder.append(", projectError=");
 		builder.append(item1.getProjectError());
 		builder.append("]");

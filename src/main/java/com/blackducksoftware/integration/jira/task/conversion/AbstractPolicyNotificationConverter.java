@@ -33,6 +33,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -42,8 +43,9 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 	public static final String PROJECT_LINK = "project";
 
 	public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		super(jiraServices, jiraContext, jiraSettingsService, mappings);
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final String issueTypeName)
+			throws ConfigurationException {
+		super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName);
 	}
 
 	@Override
@@ -81,5 +83,4 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
 	protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
 			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException;
-
 }

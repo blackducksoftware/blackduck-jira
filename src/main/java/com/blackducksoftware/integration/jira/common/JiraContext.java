@@ -26,18 +26,12 @@ import com.atlassian.jira.user.ApplicationUser;
 public class JiraContext {
 
 	private final ApplicationUser jiraUser;
-	private final String jiraIssueTypeName;
 
-	public JiraContext(final ApplicationUser jiraUser, final String jiraIssueTypeName) {
+	public JiraContext(final ApplicationUser jiraUser) {
 		this.jiraUser = jiraUser;
-		this.jiraIssueTypeName = jiraIssueTypeName;
 	}
 
 	public ApplicationUser getJiraUser() {
 		return jiraUser;
-	}
-
-	public String getJiraIssueTypeName() {
-		return jiraIssueTypeName;
 	}
 }

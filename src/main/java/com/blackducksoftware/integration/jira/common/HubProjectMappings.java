@@ -28,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -99,24 +98,6 @@ public class HubProjectMappings {
 		bdsJiraProject.setProjectKey(jiraProjectKey);
 		bdsJiraProject.setProjectName(jiraProjectName);
 
-		if (atlassianJiraProject.getIssueTypes() == null || atlassianJiraProject.getIssueTypes().isEmpty()) {
-			bdsJiraProject.setProjectError("The Jira project : " + bdsJiraProject.getProjectName()
-					+ " does not have any issue types, we will not be able to create tickets for this project.");
-		} else {
-			boolean projectHasIssueType = false;
-			if (atlassianJiraProject.getIssueTypes() != null && !atlassianJiraProject.getIssueTypes().isEmpty()) {
-				for (final IssueType issueType : atlassianJiraProject.getIssueTypes()) {
-					if (issueType.getName().equals(jiraContext.getJiraIssueTypeName())) {
-						bdsJiraProject.setIssueTypeId(issueType.getId());
-						projectHasIssueType = true;
-					}
-				}
-			}
-			if (!projectHasIssueType) {
-				bdsJiraProject.setProjectError(
-						"The Jira project is missing the " + jiraContext.getJiraIssueTypeName() + " issue type.");
-			}
-		}
 		return bdsJiraProject;
 	}
 

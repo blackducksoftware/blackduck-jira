@@ -52,10 +52,8 @@ import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private static final String JIRA_ISSUE_TYPE_NAME_DEFAULT = "Task";
 	private final HubServerConfig serverConfig;
 	private final String intervalString;
-	private final String jiraIssueTypeName;
 	private final String installDateString;
 	private final String lastRunDateString;
 	private final String projectMappingJson;
@@ -67,17 +65,12 @@ public class HubJiraTask {
 	private final JiraServices jiraServices = new JiraServices();
 	private final JiraSettingsService jiraSettingsService;
 
-	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String jiraIssueTypeName,
+	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString,
 			final String installDateString, final String lastRunDateString, final String projectMappingJson,
 			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
-		if (jiraIssueTypeName != null) {
-			this.jiraIssueTypeName = jiraIssueTypeName;
-		} else {
-			this.jiraIssueTypeName = JIRA_ISSUE_TYPE_NAME_DEFAULT;
-		}
 		this.installDateString = installDateString;
 		this.lastRunDateString = lastRunDateString;
 		this.projectMappingJson = projectMappingJson;
@@ -120,7 +113,7 @@ public class HubJiraTask {
 			final RestConnection restConnection = initRestConnection();
 			final HubIntRestService hub = initHubRestService(restConnection);
 
-			final JiraContext jiraContext = initJiraContext(jiraUser, jiraIssueTypeName);
+			final JiraContext jiraContext = initJiraContext(jiraUser);
 
 			if (jiraContext == null) {
 				logger.info("Missing information to generate tickets.");
@@ -167,7 +160,7 @@ public class HubJiraTask {
 		}
 	}
 
-	private JiraContext initJiraContext(final String jiraUser, final String issueTypeName) {
+	private JiraContext initJiraContext(final String jiraUser) {
 		final UserManager jiraUserManager = jiraServices.getUserManager();
 		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
 		if (jiraSysAdmin == null) {
@@ -175,7 +168,7 @@ public class HubJiraTask {
 			return null;
 		}
 
-		final JiraContext jiraContext = new JiraContext(jiraSysAdmin, issueTypeName);
+		final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
 		return jiraContext;
 	}
 
