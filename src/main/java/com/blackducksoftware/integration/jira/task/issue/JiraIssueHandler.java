@@ -161,11 +161,16 @@ public class JiraIssueHandler {
 
 	private Issue createIssue(final HubEvent notificationEvent) {
 
+		// TODO: We're assigning it to the user that last modified the config,
+		// which doesn't seem right. Maybe add a post-action to the workflow
+		// Create
+		// transition to make a smarter assignment?
 		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
 		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
 		.setReporterId(notificationEvent.getJiraUserName())
-		.setDescription(notificationEvent.getIssueDescription());
+		.setDescription(notificationEvent.getIssueDescription())
+		.setAssigneeId(notificationEvent.getJiraUserId());
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);

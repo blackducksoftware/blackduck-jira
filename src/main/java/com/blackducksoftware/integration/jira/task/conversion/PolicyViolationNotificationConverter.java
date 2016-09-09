@@ -60,6 +60,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 		final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
 		for (final PolicyRule rule : notification.getPolicyRuleList()) {
 			final HubEvent event = new PolicyEvent(HubEventAction.OPEN, getJiraContext().getJiraUser().getName(),
+					getJiraContext().getJiraUser().getKey(),
 					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
 					notification, rule);
 			events.add(event);

@@ -38,15 +38,18 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
 	private final HubEventAction action;
 	private final String jiraUserName;
+	private final String jiraUserId;
 	private final String jiraIssueTypeId;
 	private final Long jiraProjectId;
 	private final String jiraProjectName;
 	private final T notif;
 
-	public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraIssueTypeId,
+	public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+			final String jiraIssueTypeId,
 			final Long jiraProjectId, final String jiraProjectName, final T notif) {
 		this.action = action;
 		this.jiraUserName = jiraUserName;
+		this.jiraUserId = jiraUserId;
 		this.jiraIssueTypeId = jiraIssueTypeId;
 		this.jiraProjectId = jiraProjectId;
 		this.jiraProjectName = jiraProjectName;
@@ -63,6 +66,10 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
 	public String getJiraUserName() {
 		return jiraUserName;
+	}
+
+	public String getJiraUserId() {
+		return jiraUserId;
 	}
 
 	public String getJiraIssueTypeId() {
