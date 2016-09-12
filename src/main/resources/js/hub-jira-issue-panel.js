@@ -45,10 +45,15 @@ function hideHubCustomFields() {
 
 function checkPropertyAndHideHubField(property){
 	var customFieldPropertyLabel =  AJS.$(property).find("strong.name");
+	var customFieldPropertyValueField =  AJS.$(property).find("div.value");
 	
 	var customFieldName = AJS.$(customFieldPropertyLabel).prop("title");
 	var arrayIndex = hubCustomFields.indexOf(customFieldName);
 	if(arrayIndex >= 0){
 		AJS.$(property).css("display", "none");
 	}
+	
+	AJS.$(customFieldPropertyValueField).change(function(){
+	    alert("The text has been changed.");
+	});
 }

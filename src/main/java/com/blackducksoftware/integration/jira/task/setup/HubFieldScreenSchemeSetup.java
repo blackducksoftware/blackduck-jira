@@ -316,6 +316,9 @@ public class HubFieldScreenSchemeSetup {
 			hubScreenScheme.store();
 		}
 
+		final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
+				.getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
+
 		final List<ScreenableIssueOperation> issueOpertations = new ArrayList<>();
 		issueOpertations.add(IssueOperations.CREATE_ISSUE_OPERATION);
 		issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
@@ -329,14 +332,22 @@ public class HubFieldScreenSchemeSetup {
 				hubScreenSchemeItem = createNewFieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(),
 						jiraServices.getFieldScreenManager());
 				hubScreenSchemeItem.setIssueOperation(issueOperation);
-				hubScreenSchemeItem.setFieldScreen(screen);
+				if (issueOperation != IssueOperations.EDIT_ISSUE_OPERATION) {
+					hubScreenSchemeItem.setFieldScreen(screen);
+				} else {
+					hubScreenSchemeItem.setFieldScreen(defaultScreen);
+				}
 				hubScreenScheme.addFieldScreenSchemeItem(hubScreenSchemeItem);
 				hubScreenSchemeNeedsUpdate = true;
 				screenSchemeItemNeedsUpdate = true;
 			} else {
 				if (hubScreenSchemeItem.getFieldScreen() == null
 						|| !hubScreenSchemeItem.getFieldScreen().equals(screen)) {
-					hubScreenSchemeItem.setFieldScreen(screen);
+					if (issueOperation != IssueOperations.EDIT_ISSUE_OPERATION) {
+						hubScreenSchemeItem.setFieldScreen(screen);
+					} else {
+						hubScreenSchemeItem.setFieldScreen(defaultScreen);
+					}
 					screenSchemeItemNeedsUpdate = true;
 				}
 			}
