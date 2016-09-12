@@ -43,6 +43,7 @@ import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -94,8 +95,9 @@ public class JiraTask implements PluginJob {
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
 		// Do Jira setup here
+		final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
 		try {
-			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson);
+			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup);
 		} catch (final JiraException e) {
 			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
 			return;
@@ -125,7 +127,7 @@ public class JiraTask implements PluginJob {
 
 		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString,
 				installDateString, lastRunDateString, projectMappingJson, policyRulesJson, jiraUser,
-				jiraSettingsService);
+				jiraSettingsService, ticketInfoFromSetup);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -133,7 +135,7 @@ public class JiraTask implements PluginJob {
 	}
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-			final String projectMappingJson) throws JiraException {
+			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup) throws JiraException {
 
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
@@ -155,6 +157,8 @@ public class JiraTask implements PluginJob {
 		if (screenSchemesByIssueType == null || screenSchemesByIssueType.isEmpty()) {
 			logger.error("No Black Duck Screen Schemes found or created");
 		}
+		ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
+
 		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
 		final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(

@@ -41,6 +41,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -169,7 +170,7 @@ public class JiraTaskSetupTest {
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
-		jiraTask.jiraSetup(jiraServices, settingService, mappingJson);
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup());
 
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());
@@ -292,7 +293,7 @@ public class JiraTaskSetupTest {
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
-		jiraTask.jiraSetup(jiraServices, settingService, mappingJson);
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup());
 
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());

@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
@@ -64,10 +65,12 @@ public class HubJiraTask {
 	private final SimpleDateFormat dateFormatter;
 	private final JiraServices jiraServices = new JiraServices();
 	private final JiraSettingsService jiraSettingsService;
+	private final TicketInfoFromSetup ticketInfoFromSetup;
 
 	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString,
 			final String installDateString, final String lastRunDateString, final String projectMappingJson,
-			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService) {
+			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService,
+			final TicketInfoFromSetup ticketInfoFromSetup) {
 
 		this.serverConfig = serverConfig;
 		this.intervalString = intervalString;
@@ -86,6 +89,7 @@ public class HubJiraTask {
 		logger.debug("Last run date: " + lastRunDateString);
 
 		this.jiraSettingsService = jiraSettingsService;
+		this.ticketInfoFromSetup = ticketInfoFromSetup;
 	}
 
 	/**
@@ -124,7 +128,7 @@ public class HubJiraTask {
 			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
 			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
-					linksOfRulesToMonitor);
+					linksOfRulesToMonitor, ticketInfoFromSetup);
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
@@ -173,7 +177,7 @@ public class HubJiraTask {
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-			final List<String> linksOfRulesToMonitor) {
+			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
 		logger.debug("Jira user: " + this.jiraUser);
 
 		final Gson gson = new GsonBuilder().create();
@@ -185,7 +189,7 @@ public class HubJiraTask {
 				jsonParser, policyFilter);
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
-				jiraSettingsService);
+				jiraSettingsService, ticketInfoFromSetup);
 		return ticketGenerator;
 	}
 
