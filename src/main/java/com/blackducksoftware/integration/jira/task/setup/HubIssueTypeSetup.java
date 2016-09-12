@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.setup;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,8 +30,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
@@ -44,25 +47,43 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEnt
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubIssueTypeSetup {
 
+	private static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/Ducky-200.png";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final JiraServices jiraServices;
 	private final JiraSettingsService settingService;
 
 	private final Collection<IssueType> issueTypes;
+	private final ApplicationUser jiraUser;
 
 	public HubIssueTypeSetup(final JiraServices jiraServices, final JiraSettingsService settingService,
-			final Collection<IssueType> issueTypes) {
+			final Collection<IssueType> issueTypes, final String jiraUserName) throws ConfigurationException {
 		this.jiraServices = jiraServices;
 		this.settingService = settingService;
 		this.issueTypes = issueTypes;
+
+		if (jiraUserName != null) {
+			logger.debug("Looking up user from config info: " + jiraUserName);
+			jiraUser = jiraServices.getUserManager().getUserByName(jiraUserName);
+		} else {
+			logger.debug("Getting user from AuthContext");
+			jiraUser = jiraServices.getAuthContext().getUser();
+		}
+		if (jiraUser == null) {
+			logger.error("User is null");
+			throw new ConfigurationException("User is null");
+		}
+		logger.debug("User name: " + jiraUser.getName() + "; ID: " + jiraUser.getKey());
+
 	}
 
 	// create our issueTypes AND add them to each Projects workflow
@@ -79,14 +100,15 @@ public class HubIssueTypeSetup {
 				existingBdIssueTypeNames.add(issueType.getName());
 			}
 		}
+		Long avatarId = null;
 		if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
-			final Long avatarId = getBlackduckAvatarId();
+			avatarId = getBlackduckAvatarId(avatarId);
 			final IssueType issueType = createIssueType(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
 					HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, avatarId);
 			bdIssueTypes.add(issueType);
 		}
 		if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
-			final Long avatarId = getBlackduckAvatarId();
+			avatarId = getBlackduckAvatarId(avatarId);
 			final IssueType issueType = createIssueType(HubJiraConstants.HUB_VULNERABILITY_ISSUE,
 					HubJiraConstants.HUB_VULNERABILITY_ISSUE, avatarId);
 			bdIssueTypes.add(issueType);
@@ -288,10 +310,7 @@ public class HubIssueTypeSetup {
 		return projectFieldConfigScheme;
 	}
 
-	private Long getBlackduckAvatarId() {
-		// TODO: Get Black Duck Avatar, not anon
-		return jiraServices.getAvatarManager().getAnonymousAvatarId();
-	}
+
 
 	private IssueType createIssueType(final String name, final String description, final Long avatarId)
 			throws JiraException {
@@ -308,4 +327,41 @@ public class HubIssueTypeSetup {
 		return newIssueType;
 	}
 
+	private Long getBlackduckAvatarId(final Long blackDuckAvatarId) {
+		logger.debug("Getting Black Duck avatar");
+		if (blackDuckAvatarId != null) {
+			logger.debug("\tWe already have it: " + blackDuckAvatarId);
+			return blackDuckAvatarId;
+		}
+		Avatar blackDuckAvatar;
+		try {
+			blackDuckAvatar = createBlackDuckAvatar();
+		} catch (DataAccessException | IOException e) {
+			logger.warn("Error creating Black Duck avatar: " + e.getMessage());
+			return jiraServices.getAvatarManager().getAnonymousAvatarId();
+		}
+		logger.debug("Successfully created Black Duck Avatar with ID: " + blackDuckAvatar.getId());
+		return blackDuckAvatar.getId();
+	}
+
+	private Avatar createBlackDuckAvatar() throws DataAccessException, IOException {
+		logger.debug("Loading Black Duck avatar from " + BLACKDUCK_AVATAR_IMAGE_PATH);
+
+		logger.debug("Creating avatar template");
+		final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate("Ducky-200.png", "image/png",
+				jiraUser.getKey());
+		if (avatarTemplate == null) {
+			logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
+			return null;
+		}
+		logger.debug("Calling Avatar Manager to create Avatar");
+		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(
+avatarTemplate,
+				getClass().getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH), null);
+		if (duckyAvatar == null) {
+			throw new DataAccessException("AvatarImpl.createCustomAvatar() returned null");
+		}
+		logger.debug("Created Avatar " + duckyAvatar.getFileName() + " with ID " + duckyAvatar.getId());
+		return duckyAvatar;
+	}
 }

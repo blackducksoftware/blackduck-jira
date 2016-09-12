@@ -54,7 +54,7 @@ public class ApplicationUserMock implements ApplicationUser {
 	@Override
 	public String getKey() {
 
-		return null;
+		return name;
 	}
 
 	@Override
