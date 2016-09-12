@@ -63,19 +63,7 @@ public abstract class NotificationToEventConverter {
 	}
 
 	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		final com.atlassian.jira.project.Project atlassianJiraProject = jiraServices.getJiraProjectManager()
-				.getProjectObj(jiraProjectId);
-		if (atlassianJiraProject == null) {
-			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
-		}
-		final String jiraProjectKey = atlassianJiraProject.getKey();
-		final String jiraProjectName = atlassianJiraProject.getName();
-		final JiraProject bdsJiraProject = new JiraProject();
-		bdsJiraProject.setProjectId(jiraProjectId);
-		bdsJiraProject.setProjectKey(jiraProjectKey);
-		bdsJiraProject.setProjectName(jiraProjectName);
-
-		return bdsJiraProject;
+		return jiraServices.getJiraProject(jiraProjectId);
 	}
 
 	protected JiraContext getJiraContext() {

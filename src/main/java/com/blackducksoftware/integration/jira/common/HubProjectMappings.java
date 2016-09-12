@@ -56,7 +56,7 @@ public class HubProjectMappings {
 			final JiraProject mappingJiraProject = mapping.getJiraProject();
 			final JiraProject jiraProject;
 			try {
-				jiraProject = getJiraProject(mappingJiraProject.getProjectId());
+				jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
 			} catch (final NotificationServiceException e) {
 				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
 						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
@@ -83,22 +83,6 @@ public class HubProjectMappings {
 		}
 		logger.debug("Number of matches found: " + matchingJiraProjects.size());
 		return matchingJiraProjects;
-	}
-
-	private JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		final com.atlassian.jira.project.Project atlassianJiraProject = jiraServices.getJiraProjectManager()
-				.getProjectObj(jiraProjectId);
-		if (atlassianJiraProject == null) {
-			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
-		}
-		final String jiraProjectKey = atlassianJiraProject.getKey();
-		final String jiraProjectName = atlassianJiraProject.getName();
-		final JiraProject bdsJiraProject = new JiraProject();
-		bdsJiraProject.setProjectId(jiraProjectId);
-		bdsJiraProject.setProjectKey(jiraProjectKey);
-		bdsJiraProject.setProjectName(jiraProjectName);
-
-		return bdsJiraProject;
 	}
 
 	public int size() {

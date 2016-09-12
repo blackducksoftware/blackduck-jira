@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,18 +32,13 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import com.atlassian.jira.config.ConstantsManager;
-import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -123,7 +117,7 @@ public class PolicyViolationNotificationConverterTest {
 
 		final JiraContext jiraContext = new JiraContext(jiraUser);
 
-		final JiraServices jiraServices = mockJiraServices();
+		final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
 
 		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
 				createProjectMappings(includeProjectMappings, projectMappingMatch));
@@ -139,27 +133,7 @@ public class PolicyViolationNotificationConverterTest {
 		return events;
 	}
 
-	private JiraServices mockJiraServices() {
 
-		final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
-		final Collection<IssueType> issueTypes = new ArrayList<>();
-		final IssueType policyIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(policyIssueType.getName()).thenReturn(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-		Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
-		issueTypes.add(policyIssueType);
-		final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(vulnerabilityIssueType.getName()).thenReturn(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
-		Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
-		issueTypes.add(vulnerabilityIssueType);
-
-		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
-
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
-		final ProjectManager jiraProjectManager = createJiraProjectManager();
-		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
-		return jiraServices;
-	}
 
 	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) {
 
@@ -203,10 +177,6 @@ public class PolicyViolationNotificationConverterTest {
 		return mappings;
 	}
 
-	private ProjectManager createJiraProjectManager() {
-		final ProjectManagerMock projectManager = new ProjectManagerMock();
-		projectManager.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
-		return projectManager;
-	}
+
 
 }

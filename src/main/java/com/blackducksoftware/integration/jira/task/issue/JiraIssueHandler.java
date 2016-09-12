@@ -165,12 +165,15 @@ public class JiraIssueHandler {
 		// which doesn't seem right. Maybe add a post-action to the workflow
 		// Create
 		// transition to make a smarter assignment?
-		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
+		IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
 		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
 		.setReporterId(notificationEvent.getJiraUserName())
-		.setDescription(notificationEvent.getIssueDescription())
-		.setAssigneeId(notificationEvent.getJiraUserId());
+		.setDescription(notificationEvent.getIssueDescription());
+
+		if (notificationEvent.getIssueAssigneeId() != null) {
+			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
+		}
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);

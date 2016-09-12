@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -34,7 +35,7 @@ public class HubProjectMappingsTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws NotificationServiceException {
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
 		final Collection<IssueType> issueTypes = new ArrayList<>();
@@ -46,6 +47,7 @@ public class HubProjectMappingsTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+
 		// ticketGenInfo.getJiraIssueTypeName()
 
 		for (int i = 0; i < 10; i++) {
@@ -56,6 +58,14 @@ public class HubProjectMappingsTest {
 			Mockito.when(mockAtlassianJiraProject.getIssueTypes()).thenReturn(issueTypes);
 
 			Mockito.when(jiraProjectManager.getProjectObj((long) i)).thenReturn(mockAtlassianJiraProject);
+
+			final JiraProject jiraProject = new JiraProject();
+			jiraProject.setAssigneeUserId("assigneeUserId" + i);
+			jiraProject.setProjectError("");
+			jiraProject.setProjectId((long) i);
+			jiraProject.setProjectKey("projectKey" + i);
+			jiraProject.setProjectName("projectName" + i);
+			Mockito.when(jiraServices.getJiraProject(i)).thenReturn(jiraProject);
 		}
 
 		final Set<HubProjectMapping> underlyingMappings = new HashSet<>();
@@ -66,8 +76,8 @@ public class HubProjectMappingsTest {
 			hubProject.setProjectUrl("projectUrl" + i);
 			mapping.setHubProject(hubProject);
 			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setIssueTypeId("issueTypeId");
-			jiraProject.setProjectError("projectError");
+			// jiraProject.setAssigneeUserId("assigneeUserId" + i);
+			jiraProject.setProjectError("");
 			jiraProject.setProjectId((long) i);
 			jiraProject.setProjectKey("projectKey" + i);
 			jiraProject.setProjectName("projectName" + i);
@@ -83,6 +93,7 @@ public class HubProjectMappingsTest {
 
 		System.out.println(mappedJiraProject);
 		assertEquals(Long.valueOf(7L), mappedJiraProject.getProjectId());
+		assertEquals("assigneeUserId7", mappedJiraProject.getAssigneeUserId());
 	}
 
 }
