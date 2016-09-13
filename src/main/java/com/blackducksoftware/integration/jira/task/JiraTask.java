@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
@@ -95,6 +97,7 @@ public class JiraTask implements PluginJob {
 
 		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
+		final DateTime beforeSetup = new DateTime();
 		// Do Jira setup here
 		final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
 		try {
@@ -103,6 +106,15 @@ public class JiraTask implements PluginJob {
 			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
 			return;
 		}
+		final DateTime afterSetup = new DateTime();
+
+		final Period diff = new Period(beforeSetup, afterSetup);
+		logger.info(
+				"Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
+						+ "ms.");
+
+
+
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
