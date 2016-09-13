@@ -321,9 +321,23 @@ public class HubFieldScreenSchemeSetup {
 
 		final List<ScreenableIssueOperation> issueOpertations = new ArrayList<>();
 		issueOpertations.add(IssueOperations.CREATE_ISSUE_OPERATION);
-		issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
 		issueOpertations.add(IssueOperations.VIEW_ISSUE_OPERATION);
 
+		final List<ScreenableIssueOperation> issueOpertationsForDefaultScreen = new ArrayList<>();
+		issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
+
+		final boolean hubScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, hubScreenScheme,
+				screen)
+				|| settingScreenForIssueOperation(issueOpertationsForDefaultScreen, hubScreenScheme, defaultScreen);
+
+		if (hubScreenSchemeNeedsUpdate) {
+			jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(hubScreenScheme);
+		}
+		return hubScreenScheme;
+	}
+
+	private boolean settingScreenForIssueOperation(final List<ScreenableIssueOperation> issueOpertations,
+			final FieldScreenScheme hubScreenScheme, final FieldScreen screen) {
 		boolean hubScreenSchemeNeedsUpdate = false;
 		for (final ScreenableIssueOperation issueOperation : issueOpertations) {
 			FieldScreenSchemeItem hubScreenSchemeItem = hubScreenScheme.getFieldScreenSchemeItem(issueOperation);
@@ -332,22 +346,14 @@ public class HubFieldScreenSchemeSetup {
 				hubScreenSchemeItem = createNewFieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(),
 						jiraServices.getFieldScreenManager());
 				hubScreenSchemeItem.setIssueOperation(issueOperation);
-				if (issueOperation != IssueOperations.EDIT_ISSUE_OPERATION) {
-					hubScreenSchemeItem.setFieldScreen(screen);
-				} else {
-					hubScreenSchemeItem.setFieldScreen(defaultScreen);
-				}
+				hubScreenSchemeItem.setFieldScreen(screen);
 				hubScreenScheme.addFieldScreenSchemeItem(hubScreenSchemeItem);
 				hubScreenSchemeNeedsUpdate = true;
 				screenSchemeItemNeedsUpdate = true;
 			} else {
 				if (hubScreenSchemeItem.getFieldScreen() == null
 						|| !hubScreenSchemeItem.getFieldScreen().equals(screen)) {
-					if (issueOperation != IssueOperations.EDIT_ISSUE_OPERATION) {
-						hubScreenSchemeItem.setFieldScreen(screen);
-					} else {
-						hubScreenSchemeItem.setFieldScreen(defaultScreen);
-					}
+					hubScreenSchemeItem.setFieldScreen(screen);
 					screenSchemeItemNeedsUpdate = true;
 				}
 			}
@@ -355,10 +361,7 @@ public class HubFieldScreenSchemeSetup {
 				jiraServices.getFieldScreenSchemeManager().updateFieldScreenSchemeItem(hubScreenSchemeItem);
 			}
 		}
-		if (hubScreenSchemeNeedsUpdate) {
-			jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(hubScreenScheme);
-		}
-		return hubScreenScheme;
+		return hubScreenSchemeNeedsUpdate;
 	}
 
 	private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType,

@@ -1,5 +1,9 @@
 $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-web-panel-resources")
 
+<script language="JavaScript" type="text/javascript">   
+        hideHubCustomFields();
+</script>
+
 #if ($hubProject)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>

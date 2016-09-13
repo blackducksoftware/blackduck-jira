@@ -19,16 +19,16 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
+var detailsModuleId = "details-module";
 var customFieldsModuleId = "customfieldmodule";
 
 var hubCustomFields = ["Hub Project", "Hub Project Version", "Hub Component", "Hub Component Version", "Hub Policy Rule"];
 
-AJS.$(function() {
-	hideHubCustomFields();
-	});
 
-function hideHubCustomFields() {
-	var customFieldsModule = AJS.$('#' + customFieldsModuleId);
+function hideHubCustomFields(){
+	var detailsModule = AJS.$('#' + detailsModuleId);
+	if(detailsModule.length > 0){
+	var customFieldsModule = AJS.$(detailsModule).find('#' + customFieldsModuleId);
 	if(customFieldsModule.length > 0){
 		var customFieldPropertyList =  AJS.$(customFieldsModule).find(".property-list");
 		if(customFieldPropertyList.length > 0){
@@ -38,7 +38,14 @@ function hideHubCustomFields() {
 					checkPropertyAndHideHubField(properties[i]);
 				}
 			}
+		} else{
+			setTimeout(hideHubCustomFields, 100);
 		}
+	} else{
+		setTimeout(hideHubCustomFields, 100);
+	}
+	} else{
+		setTimeout(hideHubCustomFields, 100);
 	}
 }
 
