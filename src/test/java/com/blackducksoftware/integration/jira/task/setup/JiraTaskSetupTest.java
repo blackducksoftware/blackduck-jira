@@ -170,7 +170,7 @@ public class JiraTaskSetupTest {
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
-		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup());
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup(), JIRA_USER);
 
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());
@@ -293,7 +293,7 @@ public class JiraTaskSetupTest {
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
-		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup());
+		jiraTask.jiraSetup(jiraServices, settingService, mappingJson, new TicketInfoFromSetup(), JIRA_USER);
 
 		assertTrue(groupManager.getGroupCreateAttempted());
 		assertTrue(workflowManager.getAttemptedCreateWorkflow());

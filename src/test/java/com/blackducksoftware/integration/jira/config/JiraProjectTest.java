@@ -35,7 +35,7 @@ public class JiraProjectTest {
 		final String name1 = "name1";
 		final Long id1 = 0L;
 		final String key1 = "key1";
-		final String issueTypeId1 = "type1";
+		final String assignedUserId1 = "assignedUserId1";
 		final String projectError1 = "error1";
 
 		final String name2 = "name2";
@@ -48,24 +48,25 @@ public class JiraProjectTest {
 		item1.setProjectName(name1);
 		item1.setProjectId(id1);
 		item1.setProjectKey(key1);
-		item1.setIssueTypeId(issueTypeId1);
+		item1.setAssigneeUserId("assigneeUserId1");
 		item1.setProjectError(projectError1);
 		final JiraProject item2 = new JiraProject();
 		item2.setProjectName(name2);
 		item2.setProjectId(id2);
 		item2.setProjectKey(key2);
-		item2.setIssueTypeId(issueTypeId2);
+		item2.setAssigneeUserId("assigneeUserId2");
 		item2.setProjectError(projectError2);
 		final JiraProject item3 = new JiraProject();
 		item3.setProjectName(name1);
 		item3.setProjectId(id1);
 		item3.setProjectKey(key1);
-		item3.setIssueTypeId(issueTypeId1);
+		item3.setAssigneeUserId("assigneeUserId1");
 		item3.setProjectError(projectError1);
 
 		assertEquals(name1, item1.getProjectName());
 		assertEquals(id1, item1.getProjectId());
 		assertEquals(key1, item1.getProjectKey());
+		assertEquals("assigneeUserId1", item1.getAssigneeUserId());
 
 		assertEquals(projectError1, item1.getProjectError());
 
@@ -87,6 +88,8 @@ public class JiraProjectTest {
 		builder.append(item1.getProjectId());
 		builder.append(", projectKey=");
 		builder.append(item1.getProjectKey());
+		builder.append(", assigneeUserId=");
+		builder.append(item1.getAssigneeUserId());
 		builder.append(", projectError=");
 		builder.append(item1.getProjectError());
 		builder.append("]");

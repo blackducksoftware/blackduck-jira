@@ -88,6 +88,7 @@ public class ProjectManagerMock implements ProjectManager {
 		return jiraProjects;
 	}
 
+
 	public static List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 

@@ -374,7 +374,8 @@ public class TicketGeneratorTest {
 	}
 
 	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext, final ApplicationUser user,
-			final IssueService issueService, final IssueInputParameters issueInputParameters) {
+			final IssueService issueService, final IssueInputParameters issueInputParameters)
+					throws NotificationServiceException {
 		Mockito.when(jiraContext.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
 		Mockito.when(jiraServices.getIssueService()).thenReturn(issueService);
@@ -483,7 +484,7 @@ public class TicketGeneratorTest {
 		jiraProject.setProjectId(123L);
 		jiraProject.setProjectKey("jiraProjectKey");
 		jiraProject.setProjectName("jiraProjectName");
-		jiraProject.setIssueTypeId("jiraIssueTypeName");
+		jiraProject.setAssigneeUserId("assigneeUserId");
 		return jiraProject;
 	}
 
@@ -584,10 +585,12 @@ public class TicketGeneratorTest {
 		Mockito.when(issueInputParameters.setSummary(Mockito.anyString())).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setReporterId("userName")).thenReturn(issueInputParameters);
 		Mockito.when(issueInputParameters.setDescription(Mockito.anyString())).thenReturn(issueInputParameters);
+		Mockito.when(issueInputParameters.setAssigneeId(Mockito.anyString())).thenReturn(issueInputParameters);
 		return issueInputParameters;
 	}
 
-	private Project mockJiraProject(final JiraServices jiraServices, final JiraContext jiraContext) {
+	private Project mockJiraProject(final JiraServices jiraServices, final JiraContext jiraContext)
+			throws NotificationServiceException {
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 
@@ -603,6 +606,8 @@ public class TicketGeneratorTest {
 
 		Mockito.when(jiraProjectManager.getProjectObj(123L)).thenReturn(atlassianJiraProject);
 
+		// jiraServices.getJiraProject(mappingJiraProject.getProjectId());
+		Mockito.when(jiraServices.getJiraProject(123L)).thenReturn(mockBdsJiraProject());
 		return atlassianJiraProject;
 	}
 
