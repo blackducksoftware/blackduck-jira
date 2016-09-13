@@ -621,9 +621,9 @@ public class TicketGeneratorTest {
 		final Status oldIssueStatus = Mockito.mock(Status.class);
 		String state;
 		if (open) {
-			state = "Open";
+			state = HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN;
 		} else {
-			state = "Done";
+			state = HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED;
 		}
 		Mockito.when(oldIssueStatus.getName()).thenReturn(state);
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
@@ -642,9 +642,9 @@ public class TicketGeneratorTest {
 		actions.add(actionDescriptor);
 		String transition;
 		if (open) {
-			transition = "Done";
+			transition = HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE;
 		} else {
-			transition = "Reopen";
+			transition = HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED;
 		}
 		Mockito.when(actionDescriptor.getName()).thenReturn(transition);
 		Mockito.when(stepDescriptor.getActions()).thenReturn(actions);
@@ -661,7 +661,7 @@ public class TicketGeneratorTest {
 		final MutableIssue newIssue = Mockito.mock(MutableIssue.class);
 		Mockito.when(newIssue.getProjectObject()).thenReturn(atlassianJiraProject);
 		final Status newIssueStatus = Mockito.mock(Status.class);
-		Mockito.when(newIssueStatus.getName()).thenReturn("Open");
+		Mockito.when(newIssueStatus.getName()).thenReturn(HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN);
 		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
 		final IssueType newIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");

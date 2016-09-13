@@ -55,8 +55,6 @@ import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler {
-	public static final String DONE_STATUS = "Done";
-	public static final String REOPEN_STATUS = "Reopen";
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
@@ -339,8 +337,9 @@ public class JiraIssueHandler {
 				}
 				return issue;
 			} else {
-				if (oldIssue.getStatusObject().getName().equals(DONE_STATUS)) {
-					transitionIssue(notificationEvent, oldIssue, REOPEN_STATUS);
+				if (oldIssue.getStatusObject().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+					transitionIssue(notificationEvent, oldIssue,
+							HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED);
 					logger.info("Re-opened the already exisiting issue.");
 					printIssueInfo(oldIssue);
 				} else {
@@ -356,7 +355,8 @@ public class JiraIssueHandler {
 	private void closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
-			final Issue updatedIssue = transitionIssue(event, oldIssue, DONE_STATUS);
+			final Issue updatedIssue = transitionIssue(event, oldIssue,
+					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE);
 			if (updatedIssue != null) {
 				logger.info("Closed the issue based on an override.");
 				printIssueInfo(updatedIssue);
