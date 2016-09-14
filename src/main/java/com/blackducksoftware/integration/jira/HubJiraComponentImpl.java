@@ -32,7 +32,7 @@ public class HubJiraComponentImpl implements HubJiraComponent {
 
 	@Override
 	public String getName() {
-		if (null != applicationProperties) {
+		if (applicationProperties != null) {
 			return "hubJira:" + applicationProperties.getDisplayName();
 		}
 
