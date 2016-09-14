@@ -100,7 +100,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 
 	public String getName() {
 		logger.debug("HubMonitor.getName() called");
-		if (null != pluginScheduler) {
+		if (pluginScheduler != null) {
 			return "hubMonitor with pluginScheduler:" + pluginScheduler.toString();
 		}
 
