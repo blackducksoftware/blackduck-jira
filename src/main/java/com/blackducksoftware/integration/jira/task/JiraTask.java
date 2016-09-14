@@ -113,9 +113,6 @@ public class JiraTask implements PluginJob {
 				"Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
 						+ "ms.");
 
-
-
-
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
 		hubConfigBuilder.setUsername(hubUsername);

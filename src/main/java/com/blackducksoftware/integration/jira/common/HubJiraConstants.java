@@ -35,4 +35,9 @@ public class HubJiraConstants {
 	public final static String HUB_CUSTOM_FIELD_COMPONENT = "Hub Component";
 	public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "Hub Component Version";
 	public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "Hub Policy Rule";
+
+	public final static String HUB_WORKFLOW_STATUS_OPEN = "Open";
+	public final static String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";
+	public final static String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
+	public final static String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
 }
