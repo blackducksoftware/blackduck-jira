@@ -3,6 +3,7 @@ package com.blackducksoftware.integration.jira.mocks;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -17,8 +18,13 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.Consumer;
 
 public class AvatarManagerMock implements AvatarManager {
+	private final List<Avatar> avatarTemplatesUsedToCreateAvatars = new ArrayList<>();
 
 	public AvatarManagerMock() {
+	}
+
+	public List<Avatar> getAvatarTemplatesUsedToCreateAvatars() {
+		return avatarTemplatesUsedToCreateAvatars;
 	}
 
 	@Override
@@ -27,8 +33,10 @@ public class AvatarManagerMock implements AvatarManager {
 	}
 
 	@Override
-	public Avatar create(final Avatar arg0, final InputStream arg1, final Selection arg2) throws DataAccessException, IOException {
-		return null;
+	public Avatar create(final Avatar avatarTemplate, final InputStream arg1, final Selection arg2)
+			throws DataAccessException, IOException {
+		avatarTemplatesUsedToCreateAvatars.add(avatarTemplate);
+		return avatarTemplate;
 	}
 
 	@Override

@@ -327,6 +327,9 @@ public class TicketGeneratorTest {
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
 		Mockito.when(jiraServices.getPropertyService()).thenReturn(propertyService);
 
+		final CommentManager commentManager = Mockito.mock(CommentManager.class);
+		Mockito.when(jiraServices.getCommentManager()).thenReturn(commentManager);
+
 		SetPropertyValidationResult setPropValidationResult = null;
 		MutableIssue oldIssue = null;
 
@@ -360,6 +363,9 @@ public class TicketGeneratorTest {
 			if (jiraIssueExistsAsClosed) {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
+				Mockito.verify(commentManager, Mockito.times(1)).create(Mockito.any(Issue.class), Mockito.eq(user),
+								Mockito.eq("Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule"),
+								Mockito.eq(true));
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setSummary(
 						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");

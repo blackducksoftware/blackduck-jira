@@ -318,20 +318,18 @@ public class JiraIssueHandler {
 		case ADD_COMMENT:
 			final Issue issue = openIssue(notificationEvent);
 			if (issue != null) {
-				addComment(notificationEvent, issue);
+				addComment(notificationEvent.getComment(), issue);
 			}
 			break;
 		}
 	}
 
-	private void addPolicyViolationComment(final String comment, final Issue issue) {
+	private void addComment(final String comment, final Issue issue) {
+		if (comment == null) {
+			return;
+		}
 		final CommentManager commentManager = jiraServices.getCommentManager();
 		commentManager.create(issue, jiraContext.getJiraUser(), comment, true);
-	}
-
-	private void addComment(final HubEvent notificationEvent, final Issue issue) {
-		final CommentManager commentManager = jiraServices.getCommentManager();
-		commentManager.create(issue, jiraContext.getJiraUser(), notificationEvent.getComment(), true);
 	}
 
 	private Issue openIssue(final HubEvent notificationEvent) {
@@ -362,8 +360,8 @@ public class JiraIssueHandler {
 							jiraContext.getJiraUser());
 					if (transitionedIssue != null) {
 						logger.info("Re-opened the already exisiting issue.");
+						addComment(notificationEvent.getReopenComment(), oldIssue);
 						printIssueInfo(oldIssue);
-						addPolicyViolationComment(HubJiraConstants.REOPEN_POLICY_VIOLATION_COMMENT, oldIssue);
 					}
 				} else {
 					logger.info("This issue already exists.");
@@ -378,10 +376,11 @@ public class JiraIssueHandler {
 	private Issue closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
+			addComment(event.getResolveComment(), oldIssue);
 			final Issue updatedIssue = transitionIssue(event, oldIssue,
 					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, jiraContext.getJiraUser());
 			if (updatedIssue != null) {
-				addPolicyViolationComment(HubJiraConstants.RESOLVE_POLICY_VIOLATION_COMMENT, updatedIssue);
+				addComment(event.getResolveComment(), updatedIssue);
 				logger.info("Closed the issue based on an override.");
 				printIssueInfo(updatedIssue);
 			}

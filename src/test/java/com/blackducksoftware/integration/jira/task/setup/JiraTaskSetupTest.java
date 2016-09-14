@@ -16,6 +16,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
@@ -134,6 +135,9 @@ public class JiraTaskSetupTest {
 
 		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
 		// creates BDS Field Configuration Scheme
+
+		final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
+		assertEquals(0, avatarTemplates.size());
 	}
 
 	@Test
@@ -173,7 +177,7 @@ public class JiraTaskSetupTest {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
 						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -182,6 +186,12 @@ public class JiraTaskSetupTest {
 
 		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
 		// creates BDS Field Configuration Scheme (only if it doesn't exist)
+
+		final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
+		// TODO: To get this to work, need to mock
+		// jiraServices.createIssueTypeAvatarTemplate() to return an Avatar with
+		// a non-null ID
+		// assertEquals(1, avatarTemplates.size());
 	}
 
 	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) {

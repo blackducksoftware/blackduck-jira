@@ -92,9 +92,16 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 		return jiraProjectName;
 	}
 
-	// Subtypes that use comments must override this
+	// Override these to generate comments
+	public String getReopenComment() {
+		return null;
+	}
 	public String getComment() {
 		return null; // most event types don't produce comments
+	}
+
+	public String getResolveComment() {
+		return null;
 	}
 
 	public abstract String getUniquePropertyKey() throws MissingUUIDException;
