@@ -32,6 +32,7 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
@@ -50,13 +51,16 @@ public class TicketGenerator {
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
+	private final TicketInfoFromSetup ticketInfoFromSetup;
 
 	public TicketGenerator(final NotificationDataService notificationDataService, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+			final TicketInfoFromSetup ticketInfoFromSetup) {
 		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
+		this.ticketInfoFromSetup = ticketInfoFromSetup;
 	}
 
 	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
@@ -86,7 +90,8 @@ public class TicketGenerator {
 				return;
 			}
 
-			final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService);
+			final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
+					ticketInfoFromSetup);
 
 			for (final HubEvent event : events) {
 				issueHandler.handleEvent(event);

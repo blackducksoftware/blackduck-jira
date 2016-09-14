@@ -41,10 +41,10 @@ public class JiraProject implements Serializable {
 	private Long projectId;
 
 	@XmlElement
-	private String projectKey;
+	private String assigneeUserId;
 
 	@XmlElement
-	private String issueTypeId;
+	private String projectKey;
 
 	@XmlElement
 	private String projectError;
@@ -59,6 +59,14 @@ public class JiraProject implements Serializable {
 
 	public Long getProjectId() {
 		return projectId;
+	}
+
+	public String getAssigneeUserId() {
+		return assigneeUserId;
+	}
+
+	public void setAssigneeUserId(final String assigneeUserId) {
+		this.assigneeUserId = assigneeUserId;
 	}
 
 	public void setProjectId(final Long projectId) {
@@ -81,19 +89,10 @@ public class JiraProject implements Serializable {
 		this.projectError = projectError;
 	}
 
-	public String getIssueTypeId() {
-		return issueTypeId;
-	}
-
-	public void setIssueTypeId(final String issueTypeId) {
-		this.issueTypeId = issueTypeId;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((issueTypeId == null) ? 0 : issueTypeId.hashCode());
 		result = prime * result + ((projectError == null) ? 0 : projectError.hashCode());
 		result = prime * result + ((projectId == null) ? 0 : projectId.hashCode());
 		result = prime * result + ((projectKey == null) ? 0 : projectKey.hashCode());
@@ -113,13 +112,6 @@ public class JiraProject implements Serializable {
 			return false;
 		}
 		final JiraProject other = (JiraProject) obj;
-		if (issueTypeId == null) {
-			if (other.issueTypeId != null) {
-				return false;
-			}
-		} else if (!issueTypeId.equals(other.issueTypeId)) {
-			return false;
-		}
 		if (projectError == null) {
 			if (other.projectError != null) {
 				return false;
@@ -160,8 +152,8 @@ public class JiraProject implements Serializable {
 		builder.append(projectId);
 		builder.append(", projectKey=");
 		builder.append(projectKey);
-		builder.append(", issueTypeId=");
-		builder.append(issueTypeId);
+		builder.append(", assigneeUserId=");
+		builder.append(assigneeUserId);
 		builder.append(", projectError=");
 		builder.append(projectError);
 		builder.append("]");

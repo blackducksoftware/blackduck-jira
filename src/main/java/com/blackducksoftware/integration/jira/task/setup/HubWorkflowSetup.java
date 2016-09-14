@@ -19,8 +19,9 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -41,7 +42,9 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 public class HubWorkflowSetup {
@@ -62,26 +65,14 @@ public class HubWorkflowSetup {
 			JiraWorkflow hubWorkflow = jiraServices.getWorkflowManager()
 					.getWorkflow(HubJiraConstants.HUB_JIRA_WORKFLOW);
 			if (hubWorkflow == null) {
-				// https://developer.atlassian.com/confdev/development-resources/confluence-developer-faq/what-is-the-best-way-to-load-a-class-or-resource-from-a-plugin
-				final InputStream inputStream = ClassLoaderUtils
-						.getResourceAsStream(HubJiraConstants.HUB_JIRA_WORKFLOW_RESOURCE, this.getClass());
-				if (inputStream == null) {
-					logger.error("Could not find the Hub Jira workflow resource.");
-					settingService.addHubError("Could not find the Hub Jira workflow resource.", "addHubWorkflow");
-					return null;
-				}
+				final WorkflowDescriptor workflowDescriptor = getWorkflowDescriptorFromResource();
+				hubWorkflow = new ConfigurableJiraWorkflow(HubJiraConstants.HUB_JIRA_WORKFLOW, workflowDescriptor,
+						jiraServices.getWorkflowManager());
 				final ApplicationUser jiraAppUser = getJiraSystemAdmin();
 				if (jiraAppUser == null) {
 					logger.error("Could not find any Jira System Admins to create the workflow.");
 					return null;
 				}
-				final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-
-				final WorkflowDescriptor workflowDescriptor = WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml);
-
-				hubWorkflow = new ConfigurableJiraWorkflow(HubJiraConstants.HUB_JIRA_WORKFLOW, workflowDescriptor,
-						jiraServices.getWorkflowManager());
-
 				jiraServices.getWorkflowManager().createWorkflow(jiraAppUser, hubWorkflow);
 				logger.debug("Created the Hub Workflow : " + HubJiraConstants.HUB_JIRA_WORKFLOW);
 			}
@@ -91,6 +82,20 @@ public class HubWorkflowSetup {
 			settingService.addHubError(e, "addHubWorkflow");
 		}
 		return null;
+	}
+
+	private WorkflowDescriptor getWorkflowDescriptorFromResource() throws IOException, FactoryException {
+		// https://developer.atlassian.com/confdev/development-resources/confluence-developer-faq/what-is-the-best-way-to-load-a-class-or-resource-from-a-plugin
+		final InputStream inputStream = ClassLoaderUtils
+				.getResourceAsStream(HubJiraConstants.HUB_JIRA_WORKFLOW_RESOURCE, this.getClass());
+		if (inputStream == null) {
+			logger.error("Could not find the Hub Jira workflow resource.");
+			settingService.addHubError("Could not find the Hub Jira workflow resource.", "addHubWorkflow");
+			return null;
+		}
+		final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+
+		return WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml);
 	}
 
 	public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow hubWorkflow, final Project project,

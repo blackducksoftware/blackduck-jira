@@ -1,4 +1,4 @@
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.workflow;
 
 import java.util.HashMap;
 import java.util.Map;

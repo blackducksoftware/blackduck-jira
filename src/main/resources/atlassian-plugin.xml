@@ -125,4 +125,18 @@
 	  <label key="hub.integration.jira.label" /> 
 	  <link linkId="hub-admin-link">/plugins/servlet/hub-jira-integration</link> 
 	</web-item>
+	
+	<web-resource key="hub-jira-web-panel-resources" name="Hub Jira Web Panel Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="hub-jira-issue-panel.css" location="/css/hub-jira-issue-panel.css"/>
+        <resource type="download" name="hub-jira-issue-panel.js" location="/js/hub-jira-issue-panel.js"/>
+        <context>jira.view.issue</context>
+        <context>panel-module-loader</context>
+    </web-resource>
+	
+	<web-panel name="Hub Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="10" >
+        <label key="hub.issue.panel.title" />
+        <context-provider class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanel"/>
+		<resource name="view" type="velocity" location="hub-issue-panel.vm"/>
+	</web-panel>
 </atlassian-plugin>

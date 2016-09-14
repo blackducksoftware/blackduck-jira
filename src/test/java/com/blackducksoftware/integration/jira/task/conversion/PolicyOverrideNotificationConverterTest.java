@@ -32,7 +32,6 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.notification.PolicyOverrideNotificationContent;
@@ -47,6 +46,7 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -56,12 +56,13 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverterTest {
 
+
+
 	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK = "bomComponentVersionPolicyStatusLink";
 	private static final String TEST_PROJECT_VERSION = "testVersionName";
 	private static final String HUB_COMPONENT_NAME = "test Hub Component";
 	private static final String HUB_PROJECT_NAME = "test Hub Project";
 	private static final String PROJECT_URL = "http://test.project.url";
-	private static final String JIRA_ISSUE_TYPE = "Task";
 	private static final String COMPONENT_VERSION_LINK = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 	private static final String VERSION_NAME = "versionName";
 	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/a3b48f57-9c00-453f-8672-804e08c317f2/versions/7d4fdbed-936b-468f-af7f-826dfc072c5b";
@@ -87,7 +88,8 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -104,27 +106,30 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
-	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
-		final ProjectManager jiraProjectManager = createJiraProjectManager();
+			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException {
+
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
-		final JiraContext jiraContext = new JiraContext(jiraUser, JIRA_ISSUE_TYPE);
+		final JiraContext jiraContext = new JiraContext(jiraUser);
 
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
+
 		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
 				createProjectMappings(includeProjectMappings, projectMappingMatch));
 

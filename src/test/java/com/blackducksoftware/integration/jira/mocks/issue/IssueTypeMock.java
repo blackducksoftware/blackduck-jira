@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.issue;
 
 import java.util.Locale;
 
@@ -34,6 +34,7 @@ public class IssueTypeMock implements IssueType {
 
 	private String name;
 	private String id;
+	private GenericValue value;
 
 	@Override
 	public String getName() {
@@ -79,7 +80,11 @@ public class IssueTypeMock implements IssueType {
 	@Override
 	public GenericValue getGenericValue() {
 
-		return null;
+		return value;
+	}
+
+	public void setValue(final GenericValue value) {
+		this.value = value;
 	}
 
 	@Override

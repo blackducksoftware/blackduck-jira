@@ -1,5 +1,6 @@
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.junit.Test;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubGroupSetupTest {
 
@@ -21,6 +23,7 @@ public class HubGroupSetupTest {
 		final HubGroupSetup groupSetup = new HubGroupSetup(settingService, groupManager);
 		groupSetup.addHubJiraGroupToJira();
 		assertTrue(!groupManager.getGroupCreateAttempted());
+		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
 	}
 
 	@Test
@@ -33,6 +36,7 @@ public class HubGroupSetupTest {
 		final HubGroupSetup groupSetup = new HubGroupSetup(settingService, groupManager);
 		groupSetup.addHubJiraGroupToJira();
 		assertTrue(groupManager.getGroupCreateAttempted());
+		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
 	}
 
 }

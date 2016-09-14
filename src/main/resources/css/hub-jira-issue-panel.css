@@ -1,0 +1,24 @@
+.name, .value {
+	text-align: left;
+	display: inline-block;
+}
+
+.name {
+	float: left;
+	color: #707070;
+	font-weight: normal;
+    padding: 2px 5px 2px 0;
+    padding-right: 5px;
+    width: 150px;
+}
+
+.value {
+	word-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-top: 2px;
+    position: relative;
+    vertical-align: top;
+}

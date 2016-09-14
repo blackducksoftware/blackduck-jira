@@ -42,8 +42,10 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
@@ -59,12 +61,14 @@ public class JiraIssueHandler {
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
+	private final TicketInfoFromSetup ticketInfoFromSetup;
 
 	public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
-			final JiraSettingsService jiraSettingsService) {
+			final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;
+		this.ticketInfoFromSetup = ticketInfoFromSetup;
 	}
 
 	private void addIssueProperty(final HubEvent notificationEvent, final Long issueId, final String key,
@@ -79,6 +83,7 @@ public class JiraIssueHandler {
 	private void handleErrorCollection(final String methodAttempt, final HubEvent notificationEvent,
 			final ErrorCollection errors) {
 		if (errors.hasAnyErrors()) {
+			logger.error("Error on: " + methodAttempt + " for notificationEvent: " + notificationEvent);
 			for (final Entry<String, String> error : errors.getErrors().entrySet()) {
 				final String errorMessage = error.getKey() + " / " + error.getValue();
 				logger.error(errorMessage);
@@ -160,15 +165,56 @@ public class JiraIssueHandler {
 
 	private Issue createIssue(final HubEvent notificationEvent) {
 
-		final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
+		// TODO: We're assigning it to the user that last modified the config,
+		// which doesn't seem right. Maybe add a post-action to the workflow
+		// Create
+		// transition to make a smarter assignment?
+		IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
-				.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
-				.setReporterId(notificationEvent.getJiraUserName())
-				.setDescription(notificationEvent.getIssueDescription());
+		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+		.setReporterId(notificationEvent.getJiraUserName())
+		.setDescription(notificationEvent.getIssueDescription());
+
+		if (notificationEvent.getIssueAssigneeId() != null) {
+			logger.debug("notificaitonEvent: issueAssigneeId: " + notificationEvent.getIssueAssigneeId());
+			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
+		} else {
+			logger.debug("notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
+		}
+
+		if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
+				&& !ticketInfoFromSetup.getCustomFields().isEmpty()) {
+			final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
+					.get(HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
+			issueInputParameters.addCustomFieldValue(projectFieldId,
+					notificationEvent.getNotif().getProjectVersion().getProjectName());
+
+			final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
+					.get(HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
+			issueInputParameters.addCustomFieldValue(projectVersionFieldId,
+					notificationEvent.getNotif().getProjectVersion().getProjectVersionName());
+
+			final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
+					.get(HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
+			issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotif().getComponentName());
+
+			final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
+					.get(HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
+			issueInputParameters.addCustomFieldValue(componentVersionFieldId,
+					notificationEvent.getNotif().getComponentVersion());
+
+			if (notificationEvent.getClass().equals(PolicyEvent.class)) {
+				final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
+				final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
+						.get(HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
+				issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
+			}
+		}
 
 		final CreateValidationResult validationResult = jiraServices.getIssueService()
 				.validateCreate(jiraContext.getJiraUser(), issueInputParameters);
-		logger.debug("createIssue(): issueInputParameters: " + issueInputParameters);
+		logger.debug("createIssue(): Project: " + notificationEvent.getJiraProjectName() + ": "
+				+ notificationEvent.getIssueSummary());
 		if (!validationResult.isValid()) {
 			handleErrorCollection("createIssue", notificationEvent, validationResult.getErrorCollection());
 		} else {

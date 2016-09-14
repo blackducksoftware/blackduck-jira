@@ -3,10 +3,19 @@ package com.blackducksoftware.integration.jira.mocks;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -20,7 +29,10 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
 
+	private ConstantsManager constantsManager;
 	private ProjectManager projectManager;
+	private AvatarManager avatarManager;
+	private IssueTypeSchemeManager issueTypeSchemeManager;
 	private IssueService issueService;
 	private JiraAuthenticationContext jiraAuthenticationContext;
 	private IssuePropertyService issuePropertyService;
@@ -32,6 +44,12 @@ public class JiraServicesMock extends JiraServices {
 	private UserManager userManager;
 	private Collection<IssueType> issueTypes;
 	private UserUtil userUtil;
+	private FieldScreenManager fieldScreenManager;
+	private FieldScreenSchemeManager fieldScreenSchemeManager;
+	private FieldManager fieldManager;
+	private CustomFieldManager customFieldManager;
+	private FieldLayoutManager fieldLayoutManager;
+	private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
 
 	@Override
 	public UserUtil getUserUtil() {
@@ -91,9 +109,36 @@ public class JiraServicesMock extends JiraServices {
 		this.userManager = userManager;
 	}
 
+	public void setAvatarManager(final AvatarManager avatarManager) {
+		this.avatarManager = avatarManager;
+	}
+
+	public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
+		this.issueTypeSchemeManager = issueTypeSchemeManager;
+	}
+
+	@Override
+	public ConstantsManager getConstantsManager() {
+		return constantsManager;
+	}
+
+	@Override
+	public IssueTypeSchemeManager getIssueTypeSchemeManager() {
+		return issueTypeSchemeManager;
+	}
+
+	public void setConstantsManager(final ConstantsManager constantsManager) {
+		this.constantsManager = constantsManager;
+	}
+
 	@Override
 	public ProjectManager getJiraProjectManager() {
 		return projectManager;
+	}
+
+	@Override
+	public AvatarManager getAvatarManager() {
+		return avatarManager;
 	}
 
 	@Override
@@ -146,6 +191,60 @@ public class JiraServicesMock extends JiraServices {
 		final ApplicationUserMock userMock = new ApplicationUserMock();
 		userMock.setName(user.getName());
 		return userMock;
+	}
+
+	@Override
+	public FieldScreenManager getFieldScreenManager() {
+		return fieldScreenManager;
+	}
+
+	public void setFieldScreenManager(final FieldScreenManager fieldScreenManager) {
+		this.fieldScreenManager = fieldScreenManager;
+	}
+
+	@Override
+	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
+		return fieldScreenSchemeManager;
+	}
+
+	public void setFieldScreenSchemeManager(final FieldScreenSchemeManager fieldScreenSchemeManager) {
+		this.fieldScreenSchemeManager = fieldScreenSchemeManager;
+	}
+
+	@Override
+	public FieldManager getFieldManager() {
+		return fieldManager;
+	}
+
+	public void setFieldManager(final FieldManager fieldManager) {
+		this.fieldManager = fieldManager;
+	}
+
+	@Override
+	public CustomFieldManager getCustomFieldManager() {
+		return customFieldManager;
+	}
+
+	public void setCustomFieldManager(final CustomFieldManager customFieldManager) {
+		this.customFieldManager = customFieldManager;
+	}
+
+	@Override
+	public FieldLayoutManager getFieldLayoutManager() {
+		return fieldLayoutManager;
+	}
+
+	public void setFieldLayoutManager(final FieldLayoutManager fieldLayoutManager) {
+		this.fieldLayoutManager = fieldLayoutManager;
+	}
+
+	@Override
+	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+		return issueTypeScreenSchemeManager;
+	}
+
+	public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
+		this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
 	}
 
 }

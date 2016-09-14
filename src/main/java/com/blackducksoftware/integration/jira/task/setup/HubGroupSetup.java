@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.setup;
 
 import org.apache.log4j.Logger;
 
@@ -28,6 +28,7 @@ import com.atlassian.crowd.exception.embedded.InvalidGroupException;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubGroupSetup {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));

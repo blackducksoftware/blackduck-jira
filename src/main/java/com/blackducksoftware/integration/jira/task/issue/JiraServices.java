@@ -24,12 +24,25 @@ package com.blackducksoftware.integration.jira.task.issue;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.AvatarImpl;
+import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.AssigneeTypes;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -39,11 +52,24 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.jira.common.JiraProject;
 
 public class JiraServices {
 
+	public ConstantsManager getConstantsManager() {
+		return ComponentAccessor.getConstantsManager();
+	}
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
+	}
+
+	public AvatarManager getAvatarManager() {
+		return ComponentAccessor.getAvatarManager();
+	}
+
+	public IssueTypeSchemeManager getIssueTypeSchemeManager() {
+		return ComponentAccessor.getIssueTypeSchemeManager();
 	}
 
 	public IssueService getIssueService() {
@@ -51,7 +77,7 @@ public class JiraServices {
 	}
 
 	public Collection<IssueType> getIssueTypes() {
-		return ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+		return getConstantsManager().getAllIssueTypeObjects();
 	}
 
 	public JiraAuthenticationContext getAuthContext() {
@@ -92,5 +118,64 @@ public class JiraServices {
 
 	public ApplicationUser userToApplicationUser(final User user) {
 		return ApplicationUsers.from(user);
+	}
+
+	public FieldScreenManager getFieldScreenManager() {
+		return ComponentAccessor.getFieldScreenManager();
+	}
+
+	public FieldScreenSchemeManager getFieldScreenSchemeManager(){
+		return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
+	}
+
+	public FieldManager getFieldManager() {
+		return ComponentAccessor.getFieldManager();
+	}
+
+	public CustomFieldManager getCustomFieldManager() {
+		return ComponentAccessor.getCustomFieldManager();
+	}
+
+	public FieldLayoutManager getFieldLayoutManager() {
+		return ComponentAccessor.getFieldLayoutManager();
+	}
+
+	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+		return ComponentAccessor.getIssueTypeScreenSchemeManager();
+	}
+
+	public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
+		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(
+				jiraProjectId);
+		if (atlassianJiraProject == null) {
+			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+		}
+		final String jiraProjectKey = atlassianJiraProject.getKey();
+		final String jiraProjectName = atlassianJiraProject.getName();
+		final JiraProject bdsJiraProject = new JiraProject();
+		bdsJiraProject.setProjectId(jiraProjectId);
+		bdsJiraProject.setProjectKey(jiraProjectKey);
+		bdsJiraProject.setProjectName(jiraProjectName);
+		bdsJiraProject.setAssigneeUserId(getAssigneeUserId(atlassianJiraProject));
+
+		return bdsJiraProject;
+	}
+
+	private String getAssigneeUserId(final Project jiraProject) {
+		final Long assigneeType = jiraProject.getAssigneeType();
+		if (assigneeType == null) {
+			return jiraProject.getProjectLead().getKey();
+		} else if (assigneeType.equals(AssigneeTypes.UNASSIGNED)) {
+			return null;
+		}
+		// There other AssigneeTypes, but we use Project Lead for all of
+		// them
+		return jiraProject.getProjectLead().getKey();
+	}
+
+	public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
+		final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
+				Avatar.Type.ISSUETYPE);
+		return avatarTemplate;
 	}
 }

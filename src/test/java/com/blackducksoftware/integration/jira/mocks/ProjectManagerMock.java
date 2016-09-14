@@ -37,6 +37,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
 public class ProjectManagerMock implements ProjectManager {
 
@@ -86,6 +87,7 @@ public class ProjectManagerMock implements ProjectManager {
 		jiraProjects.add(jiraProject2);
 		return jiraProjects;
 	}
+
 
 	public static List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();

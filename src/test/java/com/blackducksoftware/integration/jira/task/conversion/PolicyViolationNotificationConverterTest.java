@@ -32,9 +32,7 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
@@ -46,6 +44,7 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -59,7 +58,6 @@ public class PolicyViolationNotificationConverterTest {
 	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
 	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
 	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
-	private static final String JIRA_ISSUE_TYPE = "Task";
 	private static final String VERSION_NAME_PREFIX = "versionName";
 	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
 
@@ -84,7 +82,8 @@ public class PolicyViolationNotificationConverterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -96,27 +95,30 @@ public class PolicyViolationNotificationConverterTest {
 	}
 
 	@Test
-	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
-	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException {
+	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException,
+	ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException {
-		final ProjectManager jiraProjectManager = createJiraProjectManager();
+			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException {
+
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
-		final JiraContext jiraContext = new JiraContext(jiraUser, JIRA_ISSUE_TYPE);
+		final JiraContext jiraContext = new JiraContext(jiraUser);
 
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+		final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
+
 		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
 				createProjectMappings(includeProjectMappings, projectMappingMatch));
 
@@ -130,6 +132,8 @@ public class PolicyViolationNotificationConverterTest {
 
 		return events;
 	}
+
+
 
 	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) {
 
@@ -173,10 +177,6 @@ public class PolicyViolationNotificationConverterTest {
 		return mappings;
 	}
 
-	private ProjectManager createJiraProjectManager() {
-		final ProjectManagerMock projectManager = new ProjectManagerMock();
-		projectManager.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
-		return projectManager;
-	}
+
 
 }

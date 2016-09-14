@@ -31,10 +31,12 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Not
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -46,8 +48,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 	public static final String PROJECT_LINK = "project";
 
 	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) {
-		super(mappings, jiraServices, jiraContext, jiraSettingsService);
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 	}
 
 	@Override
@@ -58,7 +60,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 		final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
 		for (final PolicyRule rule : notification.getPolicyRuleList()) {
 			final HubEvent event = new PolicyEvent(HubEventAction.OPEN, getJiraContext().getJiraUser().getName(),
-					jiraProject.getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
+					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
 					notification, rule);
 			events.add(event);
 		}
