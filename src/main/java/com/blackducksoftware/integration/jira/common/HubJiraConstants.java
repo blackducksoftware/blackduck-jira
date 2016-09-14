@@ -40,4 +40,8 @@ public class HubJiraConstants {
 	public final static String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";
 	public final static String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
 	public final static String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
+
+	public final static String REOPEN_POLICY_VIOLATION_COMMENT = "Re-opening ticket based on Policy Violation triggered again";
+	public final static String RESOLVE_POLICY_VIOLATION_COMMENT = "Resolving ticket based on Policy Violation override";
+
 }

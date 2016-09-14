@@ -55,7 +55,9 @@ import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
 import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -228,9 +230,10 @@ public class TicketGeneratorTest {
 
 		final ApplicationUser user = mockUser();
 		final IssueService issueService = Mockito.mock(IssueService.class);
+		final IssueManager issueManager = Mockito.mock(IssueManager.class);
 		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
 		final Project atlassianJiraProject = mockJira(jiraServices, jiraContext, user, issueService,
-				issueInputParameters);
+				issueInputParameters, issueManager);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
 		Mockito.when(jiraServices.getPropertyService()).thenReturn(propertyService);
 		final CommentManager commentManager = Mockito.mock(CommentManager.class);
@@ -317,9 +320,10 @@ public class TicketGeneratorTest {
 
 		final ApplicationUser user = mockUser();
 		final IssueService issueService = Mockito.mock(IssueService.class);
+		final IssueManager issueManager = Mockito.mock(IssueManager.class);
 		final IssueInputParameters issueInputParameters = mockJiraIssueParameters();
 		final Project atlassianJiraProject = mockJira(jiraServices, jiraContext, user, issueService,
-				issueInputParameters);
+				issueInputParameters, issueManager);
 		final IssuePropertyService propertyService = Mockito.mock(IssuePropertyService.class);
 		Mockito.when(jiraServices.getPropertyService()).thenReturn(propertyService);
 
@@ -374,7 +378,8 @@ public class TicketGeneratorTest {
 	}
 
 	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext, final ApplicationUser user,
-			final IssueService issueService, final IssueInputParameters issueInputParameters)
+			final IssueService issueService, final IssueInputParameters issueInputParameters,
+			final IssueManager issueManager)
 					throws NotificationServiceException {
 		Mockito.when(jiraContext.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
@@ -396,6 +401,9 @@ public class TicketGeneratorTest {
 
 		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
 		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
+		//		Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class), Mockito.any(MutableIssue.class),
+		//				Mockito.any(UpdateIssueRequest.class))).thenReturn(value);
+		Mockito.when(jiraServices.getIssueManager()).thenReturn(issueManager);
 		return atlassianJiraProject;
 	}
 
@@ -616,7 +624,7 @@ public class TicketGeneratorTest {
 			final ApplicationUser user) {
 		final IssueResult getOldIssueResult = Mockito.mock(IssueResult.class);
 		Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
-		final MutableIssue oldIssue = Mockito.mock(MutableIssue.class);
+		final IssueImpl oldIssue = Mockito.mock(IssueImpl.class);
 		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
 		final Status oldIssueStatus = Mockito.mock(Status.class);
 		String state;

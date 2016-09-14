@@ -34,10 +34,14 @@ import com.atlassian.jira.entity.property.EntityPropertyQuery;
 import com.atlassian.jira.entity.property.EntityPropertyService;
 import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
 import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
+import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
@@ -228,18 +232,20 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	private Issue transitionIssue(final HubEvent notificationEvent, final Issue oldIssue, final String stepName) {
-		final Status currentStatus = oldIssue.getStatusObject();
+	private Issue transitionIssue(final HubEvent notificationEvent, final Issue issueToTransition,
+			final String stepName, final ApplicationUser user) {
+		final Status currentStatus = issueToTransition.getStatusObject();
 		logger.debug("Current status : " + currentStatus.getName());
-		final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(oldIssue);
+		final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(issueToTransition);
 
 		ActionDescriptor transitionAction = null;
 		// https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
 		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
-			final String errorMessage = "Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". There are no steps from this status to any other status.";
+			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
+			+ ", from status : "
+			+ currentStatus.getName() + ". There are no steps from this status to any other status.";
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -254,8 +260,9 @@ public class JiraIssueHandler {
 			}
 		}
 		if (transitionAction == null) {
-			final String errorMessage = "Can not transition this issue : " + oldIssue.getKey() + ", from status : "
-					+ currentStatus.getName() + ". We could not find the step : " + stepName;
+			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
+			+ ", from status : "
+			+ currentStatus.getName() + ". We could not find the step : " + stepName;
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -266,7 +273,7 @@ public class JiraIssueHandler {
 			final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
 			parameters.setRetainExistingValuesWhenParameterNotProvided(true);
 			final TransitionValidationResult validationResult = jiraServices.getIssueService().validateTransition(
-					jiraContext.getJiraUser(), oldIssue.getId(), transitionAction.getId(), parameters);
+					jiraContext.getJiraUser(), issueToTransition.getId(), transitionAction.getId(), parameters);
 
 			if (!validationResult.isValid()) {
 				handleErrorCollection("transitionIssue", notificationEvent, validationResult.getErrorCollection());
@@ -277,12 +284,20 @@ public class JiraIssueHandler {
 				if (errors.hasAnyErrors()) {
 					handleErrorCollection("transitionIssue", notificationEvent, errors);
 				} else {
-					return result.getIssue();
+					final IssueImpl issueToUpdate = (IssueImpl) issueToTransition;
+					issueToUpdate.setStatusObject(result.getIssue().getStatusObject());
+
+					final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder()
+							.eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
+
+					final Issue updatedIssue = jiraServices.getIssueManager().updateIssue(user, issueToUpdate,
+							issueUpdate);
+					return updatedIssue;
 				}
 			}
 		} else {
 			final String errorMessage = "Could not find the action : " + stepName + " to transition this issue: "
-					+ oldIssue.getKey();
+					+ issueToTransition.getKey();
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -293,7 +308,6 @@ public class JiraIssueHandler {
 	}
 
 	public void handleEvent(final HubEvent notificationEvent) {
-
 		switch (notificationEvent.getAction()) {
 		case OPEN:
 			openIssue(notificationEvent);
@@ -308,6 +322,11 @@ public class JiraIssueHandler {
 			}
 			break;
 		}
+	}
+
+	private void addPolicyViolationComment(final String comment, final Issue issue) {
+		final CommentManager commentManager = jiraServices.getCommentManager();
+		commentManager.create(issue, jiraContext.getJiraUser(), comment, true);
 	}
 
 	private void addComment(final HubEvent notificationEvent, final Issue issue) {
@@ -338,10 +357,14 @@ public class JiraIssueHandler {
 				return issue;
 			} else {
 				if (oldIssue.getStatusObject().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
-					transitionIssue(notificationEvent, oldIssue,
-							HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED);
-					logger.info("Re-opened the already exisiting issue.");
-					printIssueInfo(oldIssue);
+					final Issue transitionedIssue = transitionIssue(notificationEvent, oldIssue,
+							HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
+							jiraContext.getJiraUser());
+					if (transitionedIssue != null) {
+						logger.info("Re-opened the already exisiting issue.");
+						printIssueInfo(oldIssue);
+						addPolicyViolationComment(HubJiraConstants.REOPEN_POLICY_VIOLATION_COMMENT, oldIssue);
+					}
 				} else {
 					logger.info("This issue already exists.");
 					printIssueInfo(oldIssue);
@@ -352,12 +375,13 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	private void closeIssue(final HubEvent<NotificationContentItem> event) {
+	private Issue closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
 			final Issue updatedIssue = transitionIssue(event, oldIssue,
-					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE);
+					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, jiraContext.getJiraUser());
 			if (updatedIssue != null) {
+				addPolicyViolationComment(HubJiraConstants.RESOLVE_POLICY_VIOLATION_COMMENT, updatedIssue);
 				logger.info("Closed the issue based on an override.");
 				printIssueInfo(updatedIssue);
 			}
@@ -372,6 +396,7 @@ public class JiraIssueHandler {
 				logger.debug("Hub Rule Name : " + notificationResultRule.getPolicyRule().getName());
 			}
 		}
+		return oldIssue;
 	}
 
 	private void printIssueInfo(final Issue issue) {

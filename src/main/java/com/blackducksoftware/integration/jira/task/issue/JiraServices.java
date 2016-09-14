@@ -33,6 +33,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
@@ -74,6 +75,10 @@ public class JiraServices {
 
 	public IssueService getIssueService() {
 		return ComponentAccessor.getIssueService();
+	}
+
+	public IssueManager getIssueManager() {
+		return ComponentAccessor.getIssueManager();
 	}
 
 	public Collection<IssueType> getIssueTypes() {
