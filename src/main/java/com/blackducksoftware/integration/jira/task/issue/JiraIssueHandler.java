@@ -304,15 +304,18 @@ public class JiraIssueHandler {
 		case ADD_COMMENT:
 			final Issue issue = openIssue(notificationEvent);
 			if (issue != null) {
-				addComment(notificationEvent, issue);
+				addComment(notificationEvent.getComment(), issue);
 			}
 			break;
 		}
 	}
 
-	private void addComment(final HubEvent notificationEvent, final Issue issue) {
+	private void addComment(final String comment, final Issue issue) {
+		if (comment == null) {
+			return;
+		}
 		final CommentManager commentManager = jiraServices.getCommentManager();
-		commentManager.create(issue, jiraContext.getJiraUser(), notificationEvent.getComment(), true);
+		commentManager.create(issue, jiraContext.getJiraUser(), comment, true);
 	}
 
 	private Issue openIssue(final HubEvent notificationEvent) {
@@ -341,6 +344,7 @@ public class JiraIssueHandler {
 					transitionIssue(notificationEvent, oldIssue,
 							HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED);
 					logger.info("Re-opened the already exisiting issue.");
+					addComment(notificationEvent.getReopenComment(), oldIssue);
 					printIssueInfo(oldIssue);
 				} else {
 					logger.info("This issue already exists.");
@@ -355,6 +359,7 @@ public class JiraIssueHandler {
 	private void closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
+			addComment(event.getResolveComment(), oldIssue);
 			final Issue updatedIssue = transitionIssue(event, oldIssue,
 					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE);
 			if (updatedIssue != null) {

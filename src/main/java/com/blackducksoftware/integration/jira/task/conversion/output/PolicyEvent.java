@@ -145,4 +145,14 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 				issue.getId(), getPolicyRule().getName());
 		return properties;
 	}
+
+	@Override
+	public String getReopenComment() {
+		return "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+	}
+
+	@Override
+	public String getResolveComment() {
+		return "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+	}
 }
