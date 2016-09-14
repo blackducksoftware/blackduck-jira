@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE workflow PUBLIC "-//OpenSymphony Group//DTD OSWorkflow 2.8//EN" "http://www.opensymphony.com/osworkflow/workflow_2_8.dtd">
 <workflow>
-  <meta name="jira.description"></meta>
   <meta name="jira.update.author.key">admin</meta>
-  <meta name="jira.updated.date">1473792462089</meta>
+  <meta name="jira.description"></meta>
+  <meta name="jira.updated.date">1473865861138</meta>
   <initial-actions>
     <action id="1" name="Create">
       <validators>
         <validator name="" type="class">
-          <arg name="permission">Create Issue</arg>
           <arg name="class.name">com.atlassian.jira.workflow.validator.PermissionValidator</arg>
+          <arg name="permission">Create Issue</arg>
         </validator>
       </validators>
       <results>
@@ -22,8 +22,8 @@
               <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
             </function>
             <function type="class">
-              <arg name="eventTypeId">1</arg>
               <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+              <arg name="eventTypeId">1</arg>
             </function>
           </post-functions>
         </unconditional-result>
@@ -34,7 +34,7 @@
     <step id="1" name="Open">
       <meta name="jira.status.id">1</meta>
       <actions>
-        <action id="11" name="userClosed">
+        <action id="11" name="Close">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -53,14 +53,14 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
           </results>
         </action>
-        <action id="41" name="remove/Override">
+        <action id="41" name="Resolve">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -79,14 +79,14 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
           </results>
         </action>
-        <action id="51" name="inProgress">
+        <action id="51" name="In Progress">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -105,8 +105,8 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
@@ -117,7 +117,7 @@
     <step id="4" name="Resolved">
       <meta name="jira.status.id">5</meta>
       <actions>
-        <action id="31" name="userClosed">
+        <action id="31" name="Close">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -136,14 +136,14 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
           </results>
         </action>
-        <action id="81" name="reAdded/overrideRemoved">
+        <action id="81" name="Re-Open">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -162,8 +162,8 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
@@ -177,7 +177,7 @@
     <step id="6" name="In Progress">
       <meta name="jira.status.id">3</meta>
       <actions>
-        <action id="21" name="userClosed">
+        <action id="21" name="Close">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -196,14 +196,14 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
           </results>
         </action>
-        <action id="61" name="stopProgress">
+        <action id="61" name="Stop Progress">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -222,14 +222,14 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
           </results>
         </action>
-        <action id="71" name="remove/Override">
+        <action id="71" name="Resolve">
           <meta name="jira.description"></meta>
           <meta name="jira.fieldscreen.id"></meta>
           <results>
@@ -248,8 +248,8 @@
                   <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>
                 </function>
                 <function type="class">
-                  <arg name="eventTypeId">13</arg>
                   <arg name="class.name">com.atlassian.jira.workflow.function.event.FireIssueEventFunction</arg>
+                  <arg name="eventTypeId">13</arg>
                 </function>
               </post-functions>
             </unconditional-result>
