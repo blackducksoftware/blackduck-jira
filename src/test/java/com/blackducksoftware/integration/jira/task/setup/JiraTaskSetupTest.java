@@ -134,6 +134,10 @@ public class JiraTaskSetupTest {
 
 		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
 		// creates BDS Field Configuration Scheme
+
+		// final List<Avatar> avatarTemplates =
+		// jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
+		// assertEquals(1, avatarTemplates.size());
 	}
 
 	@Test
@@ -173,7 +177,7 @@ public class JiraTaskSetupTest {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
 						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -182,6 +186,8 @@ public class JiraTaskSetupTest {
 
 		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
 		// creates BDS Field Configuration Scheme (only if it doesn't exist)
+
+
 	}
 
 	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) {
