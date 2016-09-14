@@ -35,6 +35,7 @@ public class AvatarManagerMock implements AvatarManager {
 	@Override
 	public Avatar create(final Avatar avatarTemplate, final InputStream arg1, final Selection arg2)
 			throws DataAccessException, IOException {
+		avatarTemplatesUsedToCreateAvatars.add(avatarTemplate);
 		return avatarTemplate;
 	}
 
