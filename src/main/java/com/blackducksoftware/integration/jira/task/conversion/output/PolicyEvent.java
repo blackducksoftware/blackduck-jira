@@ -27,6 +27,7 @@ import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -148,11 +149,11 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
 	@Override
 	public String getReopenComment() {
-		return "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+		return HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
 	}
 
 	@Override
 	public String getResolveComment() {
-		return "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+		return HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
 	}
 }

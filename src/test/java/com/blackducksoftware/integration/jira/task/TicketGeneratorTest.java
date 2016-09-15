@@ -59,6 +59,7 @@ import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.status.Status;
@@ -336,6 +337,8 @@ public class TicketGeneratorTest {
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
 				oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices, jiraContext, false, user);
+				Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class),
+						Mockito.any(MutableIssue.class), Mockito.any(UpdateIssueRequest.class))).thenReturn(oldIssue);
 			} else {
 				setPropValidationResult = mockIssueDoesNotExist(issueService, issueInputParameters, user,
 						atlassianJiraProject, jiraContext, propertyService);
@@ -364,8 +367,8 @@ public class TicketGeneratorTest {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
 				Mockito.verify(commentManager, Mockito.times(1)).create(Mockito.any(Issue.class), Mockito.eq(user),
-								Mockito.eq("Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule"),
-								Mockito.eq(true));
+						Mockito.eq(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN),
+						Mockito.eq(true));
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setSummary(
 						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");

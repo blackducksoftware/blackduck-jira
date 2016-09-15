@@ -41,4 +41,6 @@ public class HubJiraConstants {
 	public final static String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
 	public final static String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
 
+	public final static String HUB_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+	public final static String HUB_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
 }
