@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
@@ -57,7 +58,8 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubIssueTypeSetup {
 
-	private static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/Ducky-200.png";
+	private static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
+	private static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final JiraServices jiraServices;
 	private final JiraSettingsService settingService;
@@ -346,18 +348,8 @@ public class HubIssueTypeSetup {
 
 	private Avatar createBlackDuckAvatar() throws DataAccessException, IOException {
 		logger.debug("Loading Black Duck avatar from " + BLACKDUCK_AVATAR_IMAGE_PATH);
-
-		logger.debug("Creating avatar template");
-		final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate("Ducky-200.png", "image/png",
-				jiraUser.getKey());
-		if (avatarTemplate == null) {
-			logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
-			return null;
-		}
-		logger.debug("Calling Avatar Manager to create Avatar");
-		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(
-avatarTemplate,
-				getClass().getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH), null);
+		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(BLACKDUCK_AVATAR_IMAGE_FILENAME, "image/png",
+				jiraUser, ClassLoaderUtils.getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH, this.getClass()), null);
 		if (duckyAvatar == null) {
 			throw new DataAccessException("AvatarImpl.createCustomAvatar() returned null");
 		}
