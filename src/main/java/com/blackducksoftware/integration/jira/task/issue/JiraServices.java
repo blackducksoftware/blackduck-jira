@@ -24,8 +24,6 @@ package com.blackducksoftware.integration.jira.task.issue;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.avatar.Avatar;
-import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
@@ -178,9 +176,4 @@ public class JiraServices {
 		return jiraProject.getProjectLead().getKey();
 	}
 
-	public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
-		final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
-				Avatar.Type.ISSUETYPE);
-		return avatarTemplate;
-	}
 }
