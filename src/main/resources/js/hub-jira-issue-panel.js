@@ -37,6 +37,8 @@ function hideHubCustomFields(){
 				for(i=0; i < properties.length; i++){
 					checkPropertyAndHideHubField(properties[i]);
 				}
+			} else{
+				setTimeout(hideHubCustomFields, 100);
 			}
 		} else{
 			setTimeout(hideHubCustomFields, 100);
@@ -57,7 +59,10 @@ function checkPropertyAndHideHubField(property){
 	var customFieldName = AJS.$(customFieldPropertyLabel).prop("title");
 	var arrayIndex = hubCustomFields.indexOf(customFieldName);
 	if(arrayIndex >= 0){
-		AJS.$(property).css("display", "none");
+		var displayStyle = AJS.$(property).css("display");
+		if(displayStyle && displayStyle != "none"){
+			AJS.$(property).css("display", "none");
+		}
 	}
 	
 	AJS.$(customFieldPropertyValueField).change(function(){
