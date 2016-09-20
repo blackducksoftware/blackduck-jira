@@ -173,15 +173,16 @@ public class JiraIssueHandler {
 		// transition to make a smarter assignment?
 		IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
-		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
-		.setReporterId(notificationEvent.getJiraUserName())
-		.setDescription(notificationEvent.getIssueDescription());
+				.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+				.setReporterId(notificationEvent.getJiraUserName())
+				.setDescription(notificationEvent.getIssueDescription());
 
 		if (notificationEvent.getIssueAssigneeId() != null) {
 			logger.debug("notificaitonEvent: issueAssigneeId: " + notificationEvent.getIssueAssigneeId());
 			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
 		} else {
-			logger.debug("notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
+			logger.debug(
+					"notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
 		}
 
 		if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
@@ -244,8 +245,8 @@ public class JiraIssueHandler {
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : "
-			+ currentStatus.getName() + ". There are no steps from this status to any other status.";
+					+ ", from status : " + currentStatus.getName()
+					+ ". There are no steps from this status to any other status.";
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -261,8 +262,7 @@ public class JiraIssueHandler {
 		}
 		if (transitionAction == null) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : "
-			+ currentStatus.getName() + ". We could not find the step : " + stepName;
+					+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),

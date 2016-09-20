@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C) 2016 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks.field;
 
 import java.util.ArrayList;
@@ -38,12 +59,10 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void addSchemeAssociation(final GenericValue arg0, final Long arg1) {
 
-
 	}
 
 	@Override
 	public void addSchemeAssociation(final Project arg0, final Long arg1) {
-
 
 	}
 
@@ -72,11 +91,11 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void createFieldLayoutSchemeEntity(final FieldLayoutSchemeEntity arg0) {
 
-
 	}
 
 	@Override
-	public FieldLayoutSchemeEntity createFieldLayoutSchemeEntity(final FieldLayoutScheme arg0, final String arg1, final Long arg2) {
+	public FieldLayoutSchemeEntity createFieldLayoutSchemeEntity(final FieldLayoutScheme arg0, final String arg1,
+			final Long arg2) {
 
 		return null;
 	}
@@ -84,12 +103,10 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void deleteFieldLayout(final FieldLayout arg0) {
 
-
 	}
 
 	@Override
 	public void deleteFieldLayoutScheme(final FieldLayoutScheme arg0) {
-
 
 	}
 
@@ -284,42 +301,35 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void refresh() {
 
-
 	}
 
 	@Override
 	public void removeFieldLayoutScheme(final FieldLayoutScheme arg0) {
-
 
 	}
 
 	@Override
 	public void removeFieldLayoutSchemeEntity(final FieldLayoutSchemeEntity arg0) {
 
-
 	}
 
 	@Override
 	public void removeSchemeAssociation(final GenericValue arg0, final Long arg1) {
-
 
 	}
 
 	@Override
 	public void removeSchemeAssociation(final Project arg0, final Long arg1) {
 
-
 	}
 
 	@Override
 	public void restoreDefaultFieldLayout() {
 
-
 	}
 
 	@Override
 	public void restoreSchemeFieldLayout(final GenericValue arg0) {
-
 
 	}
 
@@ -332,7 +342,6 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void storeEditableDefaultFieldLayout(final EditableDefaultFieldLayout arg0) {
 
-
 	}
 
 	@Override
@@ -343,12 +352,10 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	@Override
 	public void updateFieldLayoutScheme(final FieldLayoutScheme arg0) {
 
-
 	}
 
 	@Override
 	public void updateFieldLayoutSchemeEntity(final FieldLayoutSchemeEntity arg0) {
-
 
 	}
 

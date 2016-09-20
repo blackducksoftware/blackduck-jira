@@ -27,7 +27,6 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 
 public class LoginUriProviderMock implements LoginUriProvider {
 
-
 	public LoginUriProviderMock() {
 	}
 

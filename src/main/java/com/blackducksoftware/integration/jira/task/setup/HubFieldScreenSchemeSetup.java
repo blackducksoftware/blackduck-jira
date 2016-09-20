@@ -73,9 +73,7 @@ public class HubFieldScreenSchemeSetup {
 
 	private final Map<String, CustomField> customFields = new HashMap<>();
 
-
-	public HubFieldScreenSchemeSetup(final JiraSettingsService settingService,
-			final JiraServices jiraServices) {
+	public HubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
 		this.settingService = settingService;
 		this.jiraServices = jiraServices;
 	}
@@ -158,8 +156,7 @@ public class HubFieldScreenSchemeSetup {
 		return null;
 	}
 
-	private List<OrderableField> createCommonFields(
-			final List<GenericValue> commonIssueTypeGenericValueList) {
+	private List<OrderableField> createCommonFields(final List<GenericValue> commonIssueTypeGenericValueList) {
 		final List<OrderableField> customFields = new ArrayList<>();
 		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT));
@@ -194,12 +191,11 @@ public class HubFieldScreenSchemeSetup {
 		return new FieldScreenImpl(fieldScreenManager);
 	}
 
-	private FieldScreen createScreen(final String screenName,
-			final List<OrderableField> customFields) {
+	private FieldScreen createScreen(final String screenName, final List<OrderableField> customFields) {
 		final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
 		FieldScreen hubScreen = null;
 		if (fieldScreens != null && !fieldScreens.isEmpty()) {
-			for(final FieldScreen fieldScreen : fieldScreens){
+			for (final FieldScreen fieldScreen : fieldScreens) {
 				if (fieldScreen.getName().equals(screenName)) {
 					hubScreen = fieldScreen;
 					break;
@@ -247,7 +243,7 @@ public class HubFieldScreenSchemeSetup {
 		if (customFields != null && !customFields.isEmpty()) {
 			for (final OrderableField field : customFields) {
 				final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
-				if(existingField == null){
+				if (existingField == null) {
 					myTab.addFieldScreenLayoutItem(field.getId());
 					needToUpdateTabAndScreen = true;
 				}
@@ -297,8 +293,7 @@ public class HubFieldScreenSchemeSetup {
 		return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
 	}
 
-	private FieldScreenScheme createScreenScheme(final String screenSchemeName,
-			final FieldScreen screen) {
+	private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
 		final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
 				.getFieldScreenSchemes();
 		FieldScreenScheme hubScreenScheme = null;
@@ -374,8 +369,7 @@ public class HubFieldScreenSchemeSetup {
 	private FieldScreenScheme createSecurityScreenScheme(final IssueType issueType,
 			final List<GenericValue> commonIssueTypeGenericValueList) {
 		final FieldScreen screen = createSecurityScreen(issueType, commonIssueTypeGenericValueList);
-		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_SECURITY_SCREEN_SCHEME_NAME,
-				screen);
+		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
 		return fieldScreenScheme;
 	}
 

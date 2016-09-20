@@ -121,13 +121,14 @@ public class HubIssueTypeSetup {
 		return bdIssueTypes;
 	}
 
-	public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject,
-			final List<IssueType> hubIssueTypes) {
+	public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> hubIssueTypes) {
 		// Get Project's Issue Type Scheme
 		try {
-			final FieldConfigScheme issueTypeScheme = jiraServices.getIssueTypeSchemeManager().getConfigScheme(jiraProject);
+			final FieldConfigScheme issueTypeScheme = jiraServices.getIssueTypeSchemeManager()
+					.getConfigScheme(jiraProject);
 
-			final Collection<IssueType> origIssueTypeObjects = jiraServices.getIssueTypeSchemeManager().getIssueTypesForProject(jiraProject);
+			final Collection<IssueType> origIssueTypeObjects = jiraServices.getIssueTypeSchemeManager()
+					.getIssueTypesForProject(jiraProject);
 			final Collection<String> issueTypeIds = new ArrayList<>();
 			for (final IssueType origIssueTypeObject : origIssueTypeObjects) {
 				issueTypeIds.add(origIssueTypeObject.getId());
@@ -151,7 +152,8 @@ public class HubIssueTypeSetup {
 				logger.debug("Updating Issue Type Scheme " + issueTypeScheme.getName());
 				jiraServices.getIssueTypeSchemeManager().update(issueTypeScheme, issueTypeIds);
 			} else {
-				logger.debug("Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
+				logger.debug(
+						"Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
 			}
 		} catch (final Exception e) {
 			logger.error(e);
@@ -170,12 +172,11 @@ public class HubIssueTypeSetup {
 		final IssueTypeScreenScheme issueTypeScreenScheme = jiraServices.getIssueTypeScreenSchemeManager()
 				.getIssueTypeScreenScheme(project);
 		logger.debug("addIssueTypesToProjectIssueTypeScreenSchemes(): Project " + project.getName()
-		+ ": Issue Type Screen Scheme: " + issueTypeScreenScheme.getName());
+				+ ": Issue Type Screen Scheme: " + issueTypeScreenScheme.getName());
 
 		final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager = jiraServices
 				.getIssueTypeScreenSchemeManager();
-		final FieldScreenSchemeManager fieldScreenSchemeManager = jiraServices
-				.getFieldScreenSchemeManager();
+		final FieldScreenSchemeManager fieldScreenSchemeManager = jiraServices.getFieldScreenSchemeManager();
 		final ConstantsManager constantsManager = jiraServices.getConstantsManager();
 
 		final List<IssueType> origIssueTypes = getExistingIssueTypes(issueTypeScreenScheme);
@@ -192,8 +193,8 @@ public class HubIssueTypeSetup {
 			final IssueTypeScreenSchemeEntity issueTypeScreenSchemeEntity = new IssueTypeScreenSchemeEntityImpl(
 					issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
 			issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
-			issueTypeScreenSchemeEntity.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme
-					.getId()));
+			issueTypeScreenSchemeEntity
+					.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme.getId()));
 			issueTypeScreenScheme.addEntity(issueTypeScreenSchemeEntity);
 			changesMade = true;
 		}
@@ -202,7 +203,7 @@ public class HubIssueTypeSetup {
 			issueTypeScreenScheme.store();
 		} else {
 			logger.debug("Issue Type Screen Scheme " + issueTypeScreenScheme.getName()
-			+ " already had Black Duck IssueType associations");
+					+ " already had Black Duck IssueType associations");
 		}
 	}
 
@@ -227,7 +228,8 @@ public class HubIssueTypeSetup {
 	}
 
 	public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
-			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes, final FieldLayout fieldConfiguration) {
+			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes,
+			final FieldLayout fieldConfiguration) {
 
 		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
 		if (projectFieldConfigurationScheme == null) {
@@ -262,8 +264,7 @@ public class HubIssueTypeSetup {
 					for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
 						final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
 
-						if (existingIssueType == issueType
-								&& fieldLayoutSchemeEntity.getFieldLayoutId() != null
+						if (existingIssueType == issueType && fieldLayoutSchemeEntity.getFieldLayoutId() != null
 								&& fieldLayoutSchemeEntity.getFieldLayoutId().equals(fieldConfiguration.getId())) {
 							issueTypeAlreadyMappedToOurFieldConfig = true;
 							break;
@@ -272,14 +273,14 @@ public class HubIssueTypeSetup {
 				}
 				if (issueTypeAlreadyMappedToOurFieldConfig) {
 					logger.debug("Issue Type " + issueType.getName()
-					+ " is already associated with Field Configuration Scheme "
-					+ projectFieldConfigurationScheme.getName());
+							+ " is already associated with Field Configuration Scheme "
+							+ projectFieldConfigurationScheme.getName());
 					continue;
 				}
 
-				final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices
-						.getFieldLayoutManager()
-						.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(), fieldConfiguration.getId());
+				final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices.getFieldLayoutManager()
+						.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(),
+								fieldConfiguration.getId());
 
 				logger.debug("Adding to fieldLayoutScheme: " + fieldLayoutScheme.getName() + ": issueType "
 						+ issueType.getName() + " ==> field configuration " + fieldConfiguration.getName());
@@ -292,15 +293,15 @@ public class HubIssueTypeSetup {
 			fieldLayoutScheme.store();
 		} else {
 			logger.debug("Field Configuration Scheme " + fieldLayoutScheme.getName()
-			+ " already had Black Duck IssueType associates");
+					+ " already had Black Duck IssueType associates");
 		}
 	}
 
 	private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
-		final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager().getMutableFieldLayoutScheme(
-				fieldConfigurationScheme.getId());
+		final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager()
+				.getMutableFieldLayoutScheme(fieldConfigurationScheme.getId());
 		logger.info("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName()
-		+ " ==> FieldLayoutScheme: " + fls.getName());
+				+ " ==> FieldLayoutScheme: " + fls.getName());
 		return fls;
 	}
 
@@ -309,8 +310,8 @@ public class HubIssueTypeSetup {
 		try {
 			logger.debug("Getting field configuration scheme for project " + project.getName() + " [ID: "
 					+ project.getId() + "]");
-			projectFieldConfigScheme = jiraServices.getFieldLayoutManager().getFieldConfigurationSchemeForProject(
-					project.getId());
+			projectFieldConfigScheme = jiraServices.getFieldLayoutManager()
+					.getFieldConfigurationSchemeForProject(project.getId());
 			logger.debug("\tprojectFieldConfigScheme: " + projectFieldConfigScheme);
 		} catch (final Exception e) {
 			logger.error(e.getMessage());
@@ -318,21 +319,19 @@ public class HubIssueTypeSetup {
 		if (projectFieldConfigScheme == null) {
 			logger.debug("Project " + project.getName() + " field config scheme: Default Field Configuration Scheme");
 		} else {
-			logger.debug("Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
+			logger.debug(
+					"Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
 		}
 
 		return projectFieldConfigScheme;
 	}
-
-
 
 	private IssueType createIssueType(final String name, final String description, final Long avatarId)
 			throws JiraException {
 		logger.debug("Creating new issue type: " + name);
 		IssueType newIssueType = null;
 		try {
-			newIssueType = jiraServices.getConstantsManager().insertIssueType(name, 0L, null, description,
-					avatarId);
+			newIssueType = jiraServices.getConstantsManager().insertIssueType(name, 0L, null, description, avatarId);
 		} catch (final CreateException e) {
 			throw new JiraException("Error creating Issue Type " + name + ": " + e.getMessage(), e);
 		}

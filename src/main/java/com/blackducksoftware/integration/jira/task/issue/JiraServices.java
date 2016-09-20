@@ -63,6 +63,7 @@ public class JiraServices {
 	public ConstantsManager getConstantsManager() {
 		return ComponentAccessor.getConstantsManager();
 	}
+
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
 	}
@@ -131,7 +132,7 @@ public class JiraServices {
 		return ComponentAccessor.getFieldScreenManager();
 	}
 
-	public FieldScreenSchemeManager getFieldScreenSchemeManager(){
+	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
 		return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
 	}
 
@@ -152,8 +153,8 @@ public class JiraServices {
 	}
 
 	public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(
-				jiraProjectId);
+		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
+				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
 			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
 		}

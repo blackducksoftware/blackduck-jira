@@ -48,7 +48,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 	public static final String PROJECT_LINK = "project";
 
 	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+			throws ConfigurationException {
 		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 	}
 
@@ -60,9 +61,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 		final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
 		for (final PolicyRule rule : notification.getPolicyRuleList()) {
 			final HubEvent event = new PolicyEvent(HubEventAction.OPEN, getJiraContext().getJiraUser().getName(),
-					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
-					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
-					notification, rule);
+					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(), getIssueTypeId(),
+					jiraProject.getProjectId(), jiraProject.getProjectName(), notification, rule);
 			events.add(event);
 		}
 

@@ -58,7 +58,7 @@ public class ProjectManagerMock implements ProjectManager {
 	public static List<Project> getTestProjectObjectsNullIssueTypes() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
-		for(final Project project : jiraProjects){
+		for (final Project project : jiraProjects) {
 			final ProjectMock pMock = (ProjectMock) project;
 			pMock.setIssueTypes(null);
 		}
@@ -87,7 +87,6 @@ public class ProjectManagerMock implements ProjectManager {
 		jiraProjects.add(jiraProject2);
 		return jiraProjects;
 	}
-
 
 	public static List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
 		final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
@@ -123,8 +122,6 @@ public class ProjectManagerMock implements ProjectManager {
 		}
 		return jiraProjects;
 	}
-
-
 
 	@Override
 	public List<Project> convertToProjectObjects(final Collection<Long> arg0) {

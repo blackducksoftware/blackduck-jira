@@ -71,8 +71,8 @@ public class HubFieldConfigurationSetup {
 		if (fieldLayoutSchemes != null) {
 			for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
 				if (HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
-					logger.debug("Field Configuration Scheme " + HUB_FIELD_CONFIGURATION_SCHEME_NAME
-							+ " already exists");
+					logger.debug(
+							"Field Configuration Scheme " + HUB_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
 					fieldConfigurationScheme = existingFieldConfigurationScheme;
 					break;
 				}
@@ -135,7 +135,7 @@ public class HubFieldConfigurationSetup {
 			final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
 					.getEditableFieldLayouts();
 			if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
-				for(final EditableFieldLayout layout : fieldLayouts){
+				for (final EditableFieldLayout layout : fieldLayouts) {
 					if (layout.getName().equals(HUB_FIELD_CONFIGURATION)) {
 						hubFieldLayout = layout;
 						break;

@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C) 2016 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks;
 
 import java.io.File;
@@ -45,14 +66,14 @@ public class AvatarManagerMock implements AvatarManager {
 	}
 
 	@Override
-	public Avatar create(final String arg0, final String arg1, final Project arg2, final InputStream arg3, final Selection arg4)
-			throws DataAccessException, IOException {
+	public Avatar create(final String arg0, final String arg1, final Project arg2, final InputStream arg3,
+			final Selection arg4) throws DataAccessException, IOException {
 		return null;
 	}
 
 	@Override
-	public Avatar create(final String arg0, final String arg1, final ApplicationUser arg2, final InputStream arg3, final Selection arg4)
-			throws DataAccessException, IOException {
+	public Avatar create(final String arg0, final String arg1, final ApplicationUser arg2, final InputStream arg3,
+			final Selection arg4) throws DataAccessException, IOException {
 		return null;
 	}
 
@@ -137,7 +158,8 @@ public class AvatarManagerMock implements AvatarManager {
 	}
 
 	@Override
-	public void readAvatarData(final Avatar arg0, final ImageSize arg1, final Consumer<InputStream> arg2) throws IOException {
+	public void readAvatarData(final Avatar arg0, final ImageSize arg1, final Consumer<InputStream> arg2)
+			throws IOException {
 	}
 
 	@Override

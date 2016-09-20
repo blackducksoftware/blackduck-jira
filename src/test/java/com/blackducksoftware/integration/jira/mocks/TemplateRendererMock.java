@@ -42,7 +42,8 @@ public class TemplateRendererMock implements TemplateRenderer {
 	}
 
 	@Override
-	public void render(final String arg0, final Map<String, Object> arg1, final Writer arg2) throws RenderingException, IOException {
+	public void render(final String arg0, final Map<String, Object> arg1, final Writer arg2)
+			throws RenderingException, IOException {
 
 	}
 

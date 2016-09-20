@@ -35,7 +35,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 	private String reporterId;
 	private String description;
 
-
 	@Override
 	public String getDescription() {
 
@@ -161,7 +160,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 		return null;
 	}
 
-
 	@Override
 	public String getDueDate() {
 
@@ -198,7 +196,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 		return null;
 	}
 
-
 	@Override
 	public Long getOriginalEstimate() {
 
@@ -217,7 +214,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 		return null;
 	}
 
-
 	@Override
 	public Collection<String> getProvidedFields() {
 
@@ -235,7 +231,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 
 		return null;
 	}
-
 
 	@Override
 	public String getResolutionDate() {
@@ -300,7 +295,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 	@Override
 	public void setApplyDefaultValuesWhenParameterNotProvided(final boolean arg0) {
 
-
 	}
 
 	@Override
@@ -333,7 +327,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 		return null;
 	}
 
-
 	@Override
 	public IssueInputParameters setDueDate(final String arg0) {
 
@@ -348,7 +341,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 
 	@Override
 	public void setFieldValuesHolder(final Map<String, Object> arg0) {
-
 
 	}
 
@@ -394,10 +386,8 @@ public class IssueInputParametersMock implements IssueInputParameters {
 		return null;
 	}
 
-
 	@Override
 	public void setProvidedFields(final Collection<String> arg0) {
-
 
 	}
 
@@ -412,7 +402,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 
 		return null;
 	}
-
 
 	@Override
 	public IssueInputParameters setResolutionDate(final String arg0) {
@@ -429,12 +418,10 @@ public class IssueInputParametersMock implements IssueInputParameters {
 	@Override
 	public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0) {
 
-
 	}
 
 	@Override
 	public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0, final boolean arg1) {
-
 
 	}
 
@@ -447,7 +434,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 	@Override
 	public void setSkipScreenCheck(final boolean arg0) {
 
-
 	}
 
 	@Override
@@ -455,7 +441,6 @@ public class IssueInputParametersMock implements IssueInputParameters {
 
 		return null;
 	}
-
 
 	@Override
 	public IssueInputParameters setTimeSpent(final Long arg0) {

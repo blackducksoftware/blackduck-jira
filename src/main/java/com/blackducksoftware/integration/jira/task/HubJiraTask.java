@@ -67,9 +67,9 @@ public class HubJiraTask {
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString,
-			final String installDateString, final String lastRunDateString, final String projectMappingJson,
-			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService,
+	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
+			final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
+			final String jiraUser, final JiraSettingsService jiraSettingsService,
 			final TicketInfoFromSetup ticketInfoFromSetup) {
 
 		this.serverConfig = serverConfig;

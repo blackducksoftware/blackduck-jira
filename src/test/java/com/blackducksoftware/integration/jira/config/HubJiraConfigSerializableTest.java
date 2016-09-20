@@ -151,7 +151,6 @@ public class HubJiraConfigSerializableTest {
 		final List<PolicyRuleSerializable> policyRules2 = new ArrayList<PolicyRuleSerializable>();
 		policyRules2.add(policy2);
 
-
 		final HubJiraConfigSerializable item1 = new HubJiraConfigSerializable();
 		item1.setErrorMessage(errorMessage1);
 		item1.setHubProjectMappingError(hubProjectMappingError1);

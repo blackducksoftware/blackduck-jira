@@ -61,7 +61,6 @@ public class HttpServletRequestMock implements HttpServletRequest {
 	@Override
 	public void setCharacterEncoding(final String env) throws UnsupportedEncodingException {
 
-
 	}
 
 	@Override
@@ -151,12 +150,10 @@ public class HttpServletRequestMock implements HttpServletRequest {
 	@Override
 	public void setAttribute(final String name, final Object o) {
 
-
 	}
 
 	@Override
 	public void removeAttribute(final String name) {
-
 
 	}
 

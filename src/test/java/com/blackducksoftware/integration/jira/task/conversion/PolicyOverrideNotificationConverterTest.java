@@ -56,8 +56,6 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverterTest {
 
-
-
 	private static final String BOM_COMPONENT_VERSION_POLICY_STATUS_LINK = "bomComponentVersionPolicyStatusLink";
 	private static final String TEST_PROJECT_VERSION = "testVersionName";
 	private static final String HUB_COMPONENT_NAME = "test Hub Component";
@@ -88,8 +86,8 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testWithRuleListWithMatches()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -106,23 +104,23 @@ public class PolicyOverrideNotificationConverterTest {
 	}
 
 	@Test
-	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testNoProjectMappingMatch()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
-	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testWithoutMappings()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException {
+			final boolean projectMappingMatch)
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 

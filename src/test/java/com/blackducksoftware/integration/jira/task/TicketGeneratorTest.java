@@ -212,8 +212,8 @@ public class TicketGeneratorTest {
 	private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification, final String expectedIssueSummary,
 			final String expectedIssueDescription)
-					throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-					ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+			throws NotificationServiceException, ParseException, IOException, URISyntaxException,
+			ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
 
 		// Setup
 
@@ -278,13 +278,13 @@ public class TicketGeneratorTest {
 						transitionValidationResult);
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
-				.setSummary(expectedIssueSummary);
+						.setSummary(expectedIssueSummary);
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
-				.setDescription(expectedIssueDescription);
+						.setDescription(expectedIssueDescription);
 				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
 						setPropValidationResult);
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount))
-				.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
+						.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
 			}
 		} else {
 			Mockito.verify(issueService, Mockito.times(expectedCloseIssueCount)).transition(user,
@@ -298,8 +298,8 @@ public class TicketGeneratorTest {
 
 	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification)
-					throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-					ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+			throws NotificationServiceException, ParseException, IOException, URISyntaxException,
+			ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
 
 		// Setup
 
@@ -367,15 +367,14 @@ public class TicketGeneratorTest {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
 				Mockito.verify(commentManager, Mockito.times(1)).create(Mockito.any(Issue.class), Mockito.eq(user),
-						Mockito.eq(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN),
-						Mockito.eq(true));
+						Mockito.eq(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN), Mockito.eq(true));
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setSummary(
 						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setDescription(
 						"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount))
-				.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
+						.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
 				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
 						setPropValidationResult);
 			}
@@ -388,8 +387,7 @@ public class TicketGeneratorTest {
 
 	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext, final ApplicationUser user,
 			final IssueService issueService, final IssueInputParameters issueInputParameters,
-			final IssueManager issueManager)
-					throws NotificationServiceException {
+			final IssueManager issueManager) throws NotificationServiceException {
 		Mockito.when(jiraContext.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
 		Mockito.when(jiraServices.getIssueService()).thenReturn(issueService);
@@ -410,8 +408,9 @@ public class TicketGeneratorTest {
 
 		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
 		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
-		//		Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class), Mockito.any(MutableIssue.class),
-		//				Mockito.any(UpdateIssueRequest.class))).thenReturn(value);
+		// Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class),
+		// Mockito.any(MutableIssue.class),
+		// Mockito.any(UpdateIssueRequest.class))).thenReturn(value);
 		Mockito.when(jiraServices.getIssueManager()).thenReturn(issueManager);
 		return atlassianJiraProject;
 	}
@@ -507,11 +506,11 @@ public class TicketGeneratorTest {
 
 	private void mockNotificationServiceDependencies(final NotificationDataService notificationDataService,
 			final List<NotificationContentItem> notificationItems)
-					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
-					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
+			throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+			NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
 		Mockito.when(notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
-		.thenReturn(notificationItems);
+				.thenReturn(notificationItems);
 	}
 
 	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
@@ -695,7 +694,7 @@ public class TicketGeneratorTest {
 		Mockito.when(issueExistsResult.getErrorCollection()).thenReturn(succeeded);
 
 		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(issueNotFoundResult)
-		.thenReturn(issueExistsResult);
+				.thenReturn(issueExistsResult);
 
 		final CreateValidationResult createValidationResult = Mockito.mock(CreateValidationResult.class);
 		Mockito.when(createValidationResult.isValid()).thenReturn(true);
