@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -464,7 +465,7 @@ public class JiraTaskSetupTest {
 			final FieldScreenManagerMock fieldScreenManager,
 			final FieldScreenSchemeManagerMock fieldScreenSchemeManager) {
 
-		final JiraServicesMock jiraServices = new JiraServicesMock();
+		JiraServicesMock jiraServices = new JiraServicesMock();
 		jiraServices.setGroupManager(groupManager);
 		jiraServices.setWorkflowManager(workflowManager);
 		jiraServices.setWorkflowSchemeManager(workflowSchemeManager);
@@ -481,6 +482,18 @@ public class JiraTaskSetupTest {
 		jiraServices.setFieldManager(fieldManager);
 		jiraServices.setFieldScreenManager(fieldScreenManager);
 		jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
+
+		jiraServices = Mockito.spy(jiraServices);
+
+		Mockito.when(jiraServices.getResourceAsStream(Mockito.anyString())).then(new Answer<InputStream>() {
+			@Override
+			public InputStream answer(final InvocationOnMock invocation) throws Throwable {
+				final Object[] arguments = invocation.getArguments();
+
+				return getClass().getResourceAsStream((String) arguments[0]);
+			}
+		});
+
 		return jiraServices;
 	}
 

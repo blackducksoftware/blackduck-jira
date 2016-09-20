@@ -21,9 +21,12 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
@@ -51,6 +54,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 
@@ -174,6 +178,16 @@ public class JiraServices {
 		// There other AssigneeTypes, but we use Project Lead for all of
 		// them
 		return jiraProject.getProjectLead().getKey();
+	}
+
+	public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
+		final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
+				Avatar.Type.ISSUETYPE);
+		return avatarTemplate;
+	}
+
+	public InputStream getResourceAsStream(final String resource) {
+		return ClassLoaderUtils.getResourceAsStream(resource, getClass());
 	}
 
 }
