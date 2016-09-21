@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -44,15 +45,17 @@ public class ConverterLookupTableTest {
 		}
 
 		NotificationToEventConverter converter = table
-				.getConverter(new VulnerabilityContentItem(null, null, null, null, null, null, null, null));
+.getConverter(new VulnerabilityContentItem(new Date(), null,
+				null, null, null, null, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyViolationContentItem(null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyOverrideContentItem(null, null, null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null, null, null,
+				null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}

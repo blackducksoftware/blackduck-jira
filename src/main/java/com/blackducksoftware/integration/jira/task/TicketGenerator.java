@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
@@ -72,8 +73,8 @@ public class TicketGenerator {
 		}
 		try {
 
-			final List<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
-					endDate);
+			final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
+					endDate, 100);
 			// final List<NotificationItem> notifs =
 			// notificationService.fetchNotifications(notificationDateRange);
 			if ((notifs == null) || (notifs.size() == 0)) {

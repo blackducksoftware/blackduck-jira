@@ -36,16 +36,19 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final NotificationContentItem notificationContentItem;
 	private final PolicyRule policyRule;
+	private final String resolveComment;
 
 	public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
 			final String issueAssigneeId,
 			final String jiraIssueTypeId,
 			final Long jiraProjectId, final String jiraProjectName,
-			final NotificationContentItem notificationContentItem, final PolicyRule policyRule) {
+ final NotificationContentItem notificationContentItem,
+			final PolicyRule policyRule, final String resolveComment) {
 		super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
 				notificationContentItem);
 		this.notificationContentItem = notificationContentItem;
 		this.policyRule = policyRule;
+		this.resolveComment = resolveComment;
 	}
 
 	public NotificationContentItem getNotificationContentItem() {
@@ -154,6 +157,6 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
 	@Override
 	public String getResolveComment() {
-		return HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
+		return resolveComment;
 	}
 }

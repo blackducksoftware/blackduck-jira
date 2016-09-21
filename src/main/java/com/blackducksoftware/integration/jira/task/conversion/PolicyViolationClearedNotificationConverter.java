@@ -23,58 +23,52 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class JiraNotificationProcessor {
+public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	public static final String PROJECT_LINK = "project";
 
-	private final ConverterLookupTable converterTable;
-
-	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
+	public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
-		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService);
+		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 	}
 
-	public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
-			throws NotificationServiceException {
-		final List<HubEvent> allEvents = new ArrayList<>();
+	@Override
+	protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+		final List<HubEvent> events = new ArrayList<>();
 
-		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-				+ " notifications");
-		for (final NotificationContentItem notif : notifications) {
-			logger.debug("Notification: " + notif);
-
-			List<HubEvent> notifEvents;
-			try {
-				notifEvents = generateEvents(notif);
-			} catch (final UnexpectedHubResponseException e) {
-				throw new NotificationServiceException("Error converting notifications to issues", e);
-			}
-			if (notifEvents != null) {
-				allEvents.addAll(notifEvents);
-			}
+		final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
+		logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
+		for (final PolicyRule rule : notification.getPolicyRuleList()) {
+			final HubEvent event = new PolicyEvent(HubEventAction.CLOSE, getJiraContext().getJiraUser().getName(),
+					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
+					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+ notification, rule,
+					HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+			logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
+			events.add(event);
 		}
-		return allEvents;
-	}
 
-	private List<HubEvent> generateEvents(final NotificationContentItem notif)
-			throws UnexpectedHubResponseException, NotificationServiceException {
-		final NotificationToEventConverter converter = converterTable.getConverter(notif);
-		final List<HubEvent> events = converter.generateEvents(notif);
 		return events;
 	}
 

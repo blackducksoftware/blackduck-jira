@@ -62,7 +62,8 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 			final HubEvent event = new PolicyEvent(HubEventAction.CLOSE, getJiraContext().getJiraUser().getName(),
 					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
 					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
-					notification, rule);
+ notification, rule,
+					HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
 			events.add(event);
 		}
 

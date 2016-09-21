@@ -50,6 +50,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
@@ -77,6 +78,7 @@ import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -87,7 +89,7 @@ import com.google.gson.reflect.TypeToken;
 
 @Path("/")
 public class HubJiraConfigController {
-
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final UserManager userManager;
 	private final PluginSettingsFactory pluginSettingsFactory;
 	private final TransactionTemplate transactionTemplate;
@@ -586,8 +588,13 @@ public class HubJiraConfigController {
 
 					if (policyRules != null && !policyRules.isEmpty()) {
 						for (final PolicyRule rule : policyRules) {
+							logger.debug("Rule: " + rule);
 							final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-							newRule.setDescription(rule.getDescription().trim());
+							String description = rule.getDescription();
+							if (description == null) {
+								description = "";
+							}
+							newRule.setDescription(description.trim());
 							newRule.setName(rule.getName().trim());
 							newRule.setPolicyUrl(rule.getMeta().getHref());
 							newPolicyRules.add(newRule);

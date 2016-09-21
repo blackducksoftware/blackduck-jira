@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
@@ -45,10 +46,13 @@ public class ConverterLookupTable {
 				mappings, jiraServices, jiraContext, jiraSettingsService);
 		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
 				mappings, jiraServices, jiraContext, jiraSettingsService);
+		final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
+				mappings, jiraServices, jiraContext, jiraSettingsService);
 		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
 				mappings, jiraServices, jiraContext, jiraSettingsService);
 
 		lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
+		lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
 		lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
 		lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
 	}

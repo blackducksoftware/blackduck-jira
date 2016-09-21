@@ -183,9 +183,8 @@ public class HubJiraTask {
 		final Gson gson = new GsonBuilder().create();
 		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
-		// TODO replace NotificationDataServiceMock with NotificationDataService
-		// once we have a way to trigger vulnerability notifications
-		final NotificationDataService notificationDataService = new NotificationDataServiceMock(restConnection, gson,
+		final NotificationDataService notificationDataService = new NotificationDataService(logger, restConnection,
+				gson,
 				jsonParser, policyFilter);
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,

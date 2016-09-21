@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -158,7 +159,8 @@ public class PolicyOverrideNotificationConverterTest {
 		content.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK);
 		content.setComponentVersionLink(COMPONENT_VERSION_LINK);
 
-		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(projectVersion, HUB_COMPONENT_NAME,
+		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
+				HUB_COMPONENT_NAME,
 				VERSION_NAME, null, null, rules, null, null);
 		System.out.println("Notif: " + notif);
 

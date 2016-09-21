@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -142,7 +143,7 @@ public class PolicyViolationNotificationConverterTest {
 		projectVersion.setProjectVersionLink(PROJECTVERSION_URL_PREFIX);
 		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
 
-		final PolicyViolationContentItem notif = new PolicyViolationContentItem(projectVersion,
+		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
 				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, null, policyRule);
 		System.out.println("Notif: " + notif);
 

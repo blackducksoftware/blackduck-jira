@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.junit.AfterClass;
@@ -224,7 +226,7 @@ public class TicketGeneratorTest {
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
 				settingsService, null);
 
-		final List<NotificationContentItem> notificationItems = new ArrayList<>();
+		final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
 		notificationItems.addAll(mockNewVulnerabilityNotificationItems(createDuplicateNotification));
 
 		mockNotificationServiceDependencies(notificationDataService, notificationItems);
@@ -267,10 +269,7 @@ public class TicketGeneratorTest {
 
 		final int expectedCreateIssueCount = 1;
 		final int expectedCloseIssueCount = 1;
-		int expectedCommentCount = 1;
-		if (createDuplicateNotification) {
-			expectedCommentCount = 2;
-		}
+		final int expectedCommentCount = 1;
 
 		if (openIssue) {
 			if (jiraIssueExistsAsClosed) {
@@ -311,7 +310,7 @@ public class TicketGeneratorTest {
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
 				settingsService, null);
 
-		final List<NotificationContentItem> notificationItems = new ArrayList<>();
+		final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
 		if (openIssue) {
 			notificationItems.addAll(mockRuleViolationNotificationItems(createDuplicateNotification));
 		} else {
@@ -506,11 +505,13 @@ public class TicketGeneratorTest {
 	}
 
 	private void mockNotificationServiceDependencies(final NotificationDataService notificationDataService,
-			final List<NotificationContentItem> notificationItems)
+			final SortedSet<NotificationContentItem> notificationItems)
 					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
 					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
-		Mockito.when(notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
+		Mockito.when(
+				notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class),
+						Mockito.anyInt()))
 		.thenReturn(notificationItems);
 	}
 
@@ -529,7 +530,8 @@ public class TicketGeneratorTest {
 		projectVersion.setProjectVersionLink(
 				"http://localhost/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
 
-		final PolicyViolationContentItem notif = new PolicyViolationContentItem(projectVersion, "componentName",
+		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
+				"componentName",
 				"componentVersionName", UUID.randomUUID(), UUID.randomUUID(), policyRules);
 
 		notificationItems.add(notif);
@@ -553,7 +555,8 @@ public class TicketGeneratorTest {
 		final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId("NVD", "CVE-2016-0001");
 		addedVulnList.add(vuln);
 
-		final VulnerabilityContentItem notif = new VulnerabilityContentItem(projectVersion, "TestNG", "2.0.0",
+		final VulnerabilityContentItem notif = new VulnerabilityContentItem(new Date(), projectVersion, "TestNG",
+				"2.0.0",
 				UUID.fromString("d15b7f61-c5b9-4f31-8605-769b12198d91"),
 				UUID.fromString("0ce0a7b7-1872-4643-b389-da58a753d70d"), addedVulnList,
 				new ArrayList<VulnerabilitySourceQualifiedId>(), new ArrayList<VulnerabilitySourceQualifiedId>());
@@ -579,7 +582,8 @@ public class TicketGeneratorTest {
 		final PolicyRule rule = new PolicyRule(meta, "someRule", null, null, true, null, null, null, null, null);
 		policyRules.add(rule);
 
-		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(projectVersion, "componentName",
+		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
+				"componentName",
 				"componentVersionName", UUID.fromString("0934ea45-c739-4b58-bcb1-ee777022ce4f"),
 				UUID.fromString("7c45d411-92ca-45b0-80fc-76b765b954ef"), policyRules, "firstName", "lastName");
 
