@@ -134,7 +134,7 @@
         <context>panel-module-loader</context>
     </web-resource>
 	
-	<web-panel name="Hub Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="10" >
+	<web-panel name="Hub Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="150" >
         <label key="hub.issue.panel.title" />
         <context-provider class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanel"/>
 		<resource name="view" type="velocity" location="hub-issue-panel.vm"/>
