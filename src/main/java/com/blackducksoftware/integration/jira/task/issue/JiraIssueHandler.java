@@ -323,7 +323,14 @@ public class JiraIssueHandler {
 				addComment(notificationEvent.getComment(), issue);
 			}
 			break;
+		case ADD_COMMENT_IF_EXISTS:
+			final Issue existingIssue = findIssue(notificationEvent);
+			if (existingIssue != null) {
+				addComment(notificationEvent.getComment(), existingIssue);
+			}
+			break;
 		}
+
 	}
 
 	private void addComment(final String comment, final Issue issue) {
