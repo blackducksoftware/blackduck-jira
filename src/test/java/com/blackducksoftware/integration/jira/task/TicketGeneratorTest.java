@@ -62,6 +62,7 @@ import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -109,8 +110,8 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  */
 public class TicketGeneratorTest {
 	private static final String VULNERABILITY_ISSUE_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n"
-			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
-			+ "Vulnerabilities deleted: \n";
+			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: None\n"
+			+ "Vulnerabilities deleted: None\n";
 	private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
 	private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
 	private static final String POLICY_RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad";
@@ -212,8 +213,8 @@ public class TicketGeneratorTest {
 	private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification, final String expectedIssueSummary,
 			final String expectedIssueDescription)
-			throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-			ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+					throws NotificationServiceException, ParseException, IOException, URISyntaxException,
+					ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
 
 		// Setup
 
@@ -278,13 +279,13 @@ public class TicketGeneratorTest {
 						transitionValidationResult);
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
-						.setSummary(expectedIssueSummary);
+				.setSummary(expectedIssueSummary);
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount))
-						.setDescription(expectedIssueDescription);
+				.setDescription(expectedIssueDescription);
 				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
 						setPropValidationResult);
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount))
-						.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
+				.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
 			}
 		} else {
 			Mockito.verify(issueService, Mockito.times(expectedCloseIssueCount)).transition(user,
@@ -298,8 +299,8 @@ public class TicketGeneratorTest {
 
 	private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
 			final boolean createDuplicateNotification)
-			throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-			ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+					throws NotificationServiceException, ParseException, IOException, URISyntaxException,
+					ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
 
 		// Setup
 
@@ -374,7 +375,7 @@ public class TicketGeneratorTest {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setDescription(
 						"The Black Duck Hub has detected a Policy Violation on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName'. The rule violated is: 'someRule'. Rule overridable : true");
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount))
-						.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
+				.create(Mockito.any(ApplicationUser.class), Mockito.any(CreateValidationResult.class));
 				Mockito.verify(propertyService, Mockito.times(expectedCreateIssueCount)).setProperty(user,
 						setPropValidationResult);
 			}
@@ -506,11 +507,11 @@ public class TicketGeneratorTest {
 
 	private void mockNotificationServiceDependencies(final NotificationDataService notificationDataService,
 			final List<NotificationContentItem> notificationItems)
-			throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
-			NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
+					throws IOException, URISyntaxException, ResourceDoesNotExistException, BDRestException,
+					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
 		Mockito.when(notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
-				.thenReturn(notificationItems);
+		.thenReturn(notificationItems);
 	}
 
 	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
@@ -635,14 +636,20 @@ public class TicketGeneratorTest {
 		final IssueImpl oldIssue = Mockito.mock(IssueImpl.class);
 		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
 		final Status oldIssueStatus = Mockito.mock(Status.class);
+		final Resolution oldIssueResolution = Mockito.mock(Resolution.class);
 		String state;
+		String resolution;
 		if (open) {
 			state = HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN;
+			resolution = "Unresolved";
 		} else {
 			state = HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED;
+			resolution = "Resolved";
 		}
 		Mockito.when(oldIssueStatus.getName()).thenReturn(state);
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
+		Mockito.when(oldIssueResolution.getName()).thenReturn(resolution);
+		Mockito.when(oldIssue.getResolutionObject()).thenReturn(oldIssueResolution);
 		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(getOldIssueResult);
 		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
 		final IssueType oldIssueType = Mockito.mock(IssueType.class);
@@ -679,6 +686,10 @@ public class TicketGeneratorTest {
 		final Status newIssueStatus = Mockito.mock(Status.class);
 		Mockito.when(newIssueStatus.getName()).thenReturn(HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN);
 		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
+		final Resolution newIssueResolution = Mockito.mock(Resolution.class);
+		Mockito.when(newIssueResolution.getName()).thenReturn("Unresolved");
+		Mockito.when(newIssue.getResolutionObject()).thenReturn(newIssueResolution);
+
 		final IssueType newIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);
@@ -694,7 +705,7 @@ public class TicketGeneratorTest {
 		Mockito.when(issueExistsResult.getErrorCollection()).thenReturn(succeeded);
 
 		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(issueNotFoundResult)
-				.thenReturn(issueExistsResult);
+		.thenReturn(issueExistsResult);
 
 		final CreateValidationResult createValidationResult = Mockito.mock(CreateValidationResult.class);
 		Mockito.when(createValidationResult.isValid()).thenReturn(true);

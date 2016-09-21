@@ -586,6 +586,7 @@ public class HubJiraConfigController {
 							newRule.setDescription(rule.getDescription().trim());
 							newRule.setName(rule.getName().trim());
 							newRule.setPolicyUrl(rule.getMeta().getHref());
+							newRule.setEnabled(rule.getEnabled());
 							newPolicyRules.add(newRule);
 						}
 					}
@@ -593,7 +594,7 @@ public class HubJiraConfigController {
 						for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
 							for (final PolicyRuleSerializable newRule : newPolicyRules) {
 								if (oldRule.getName().equals(newRule.getName())) {
-									newRule.setChecked(oldRule.isChecked());
+									newRule.setChecked(oldRule.getChecked());
 									break;
 								}
 							}

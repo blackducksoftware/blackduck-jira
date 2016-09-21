@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PolicyRuleSerializable implements Serializable {
 
-	private static final long serialVersionUID = 1310657755035315309L;
+	private static final long serialVersionUID = -7381056830354720387L;
 
 	@XmlElement
 	private String name;
@@ -45,6 +45,9 @@ public class PolicyRuleSerializable implements Serializable {
 
 	@XmlElement
 	private boolean checked;
+
+	@XmlElement
+	private boolean enabled;
 
 	public String getName() {
 		return name;
@@ -70,12 +73,20 @@ public class PolicyRuleSerializable implements Serializable {
 		this.policyUrl = policyUrl;
 	}
 
-	public boolean isChecked() {
+	public boolean getChecked() {
 		return checked;
 	}
 
 	public void setChecked(final boolean checked) {
 		this.checked = checked;
+	}
+
+	public boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(final boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	@Override
@@ -84,6 +95,7 @@ public class PolicyRuleSerializable implements Serializable {
 		int result = 1;
 		result = prime * result + (checked ? 1231 : 1237);
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((policyUrl == null) ? 0 : policyUrl.hashCode());
 		return result;
@@ -109,6 +121,9 @@ public class PolicyRuleSerializable implements Serializable {
 				return false;
 			}
 		} else if (!description.equals(other.description)) {
+			return false;
+		}
+		if (enabled != other.enabled) {
 			return false;
 		}
 		if (name == null) {
@@ -139,8 +154,11 @@ public class PolicyRuleSerializable implements Serializable {
 		builder.append(policyUrl);
 		builder.append(", checked=");
 		builder.append(checked);
+		builder.append(", enabled=");
+		builder.append(enabled);
 		builder.append("]");
 		return builder.toString();
 	}
+
 
 }
