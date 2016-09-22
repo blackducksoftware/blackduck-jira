@@ -510,9 +510,8 @@ public class TicketGeneratorTest {
 					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
 		Mockito.when(
-				notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class),
-						Mockito.anyInt()))
-		.thenReturn(notificationItems);
+notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
+				.thenReturn(notificationItems);
 	}
 
 	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {

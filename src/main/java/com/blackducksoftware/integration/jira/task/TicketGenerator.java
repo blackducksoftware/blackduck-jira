@@ -74,7 +74,7 @@ public class TicketGenerator {
 		try {
 
 			final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
-					endDate, 100);
+					endDate);
 			// final List<NotificationItem> notifs =
 			// notificationService.fetchNotifications(notificationDateRange);
 			if ((notifs == null) || (notifs.size() == 0)) {
