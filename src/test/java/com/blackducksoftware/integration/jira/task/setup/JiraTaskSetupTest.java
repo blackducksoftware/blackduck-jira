@@ -149,7 +149,7 @@ public class JiraTaskSetupTest {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
 						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -161,6 +161,8 @@ public class JiraTaskSetupTest {
 
 		final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
 		assertEquals(0, avatarTemplates.size());
+
+		assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
 	}
 
 	@Test
@@ -201,7 +203,7 @@ public class JiraTaskSetupTest {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
 						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -216,6 +218,8 @@ public class JiraTaskSetupTest {
 		// jiraServices.createIssueTypeAvatarTemplate() to return an Avatar with
 		// a non-null ID
 		// assertEquals(1, avatarTemplates.size());
+
+		assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
 	}
 
 	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) {
@@ -340,20 +344,20 @@ public class JiraTaskSetupTest {
 
 	private void mockCreationMethods(final JiraTask jiraTask, final HubFieldScreenSchemeSetup fieldConfigSetup) {
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-				.thenAnswer(new Answer<FieldScreen>() {
-					@Override
-					public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreen>() {
+			@Override
+			public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-				.thenAnswer(new Answer<FieldScreenScheme>() {
-					@Override
-					public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenSchemeMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreenScheme>() {
+			@Override
+			public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenSchemeMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
 				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {

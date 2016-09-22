@@ -34,6 +34,7 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	private String name;
 	private Collection<FieldLayoutSchemeEntity> entities;
+	private int storeCount = 0;
 
 	@Override
 	public void addEntity(final FieldLayoutSchemeEntity arg0) {
@@ -126,7 +127,11 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	@Override
 	public void store() {
+		this.storeCount++;
+	}
 
+	public int getStoreCount() {
+		return storeCount;
 	}
 
 }
