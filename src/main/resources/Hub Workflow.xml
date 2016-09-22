@@ -3,7 +3,7 @@
 <workflow>
   <meta name="jira.update.author.key">admin</meta>
   <meta name="jira.description"></meta>
-  <meta name="jira.updated.date">1474479279071</meta>
+  <meta name="jira.updated.date">1474550791386</meta>
   <initial-actions>
     <action id="1" name="Create">
       <validators>
@@ -17,6 +17,10 @@
           <post-functions>
             <function type="class">
               <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueCreateFunction</arg>
+            </function>
+            <function type="class">
+              <arg name="class.name">com.atlassian.jira.workflow.function.issue.AssignToLeadFunction</arg>
+              <arg name="full.module.key">com.atlassian.jira.plugin.system.workflowassigntolead-function</arg>
             </function>
             <function type="class">
               <arg name="class.name">com.atlassian.jira.workflow.function.issue.IssueReindexFunction</arg>

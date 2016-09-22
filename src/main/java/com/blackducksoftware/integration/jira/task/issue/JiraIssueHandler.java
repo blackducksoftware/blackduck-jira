@@ -169,8 +169,7 @@ public class JiraIssueHandler {
 
 		// TODO: We're assigning it to the user that last modified the config,
 		// which doesn't seem right. Maybe add a post-action to the workflow
-		// Create
-		// transition to make a smarter assignment?
+		// Create transition to make a smarter assignment?
 		IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
 		issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
 		.setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
