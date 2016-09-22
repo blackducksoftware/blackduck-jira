@@ -43,8 +43,8 @@ public abstract class NotificationToEventConverter {
 	private final String issueTypeId;
 
 	public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
-			final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings, final String issueTypeName)
-					throws ConfigurationException {
+			final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+			final String issueTypeName) throws ConfigurationException {
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
 		this.jiraSettingsService = jiraSettingsService;

@@ -109,7 +109,6 @@ public class HttpServletResponseMock implements HttpServletResponse {
 	@Override
 	public void setLocale(final Locale loc) {
 
-
 	}
 
 	@Override
@@ -184,7 +183,6 @@ public class HttpServletResponseMock implements HttpServletResponse {
 
 	@Override
 	public void setHeader(final String name, final String value) {
-
 
 	}
 

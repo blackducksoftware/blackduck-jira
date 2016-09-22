@@ -181,7 +181,8 @@ public class JiraIssueHandler {
 			logger.debug("notificaitonEvent: issueAssigneeId: " + notificationEvent.getIssueAssigneeId());
 			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
 		} else {
-			logger.debug("notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
+			logger.debug(
+					"notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
 		}
 
 		if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
@@ -244,8 +245,8 @@ public class JiraIssueHandler {
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : "
-			+ currentStatus.getName() + ". There are no steps from this status to any other status.";
+					+ ", from status : " + currentStatus.getName()
+					+ ". There are no steps from this status to any other status.";
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -261,8 +262,7 @@ public class JiraIssueHandler {
 		}
 		if (transitionAction == null) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : "
-			+ currentStatus.getName() + ". We could not find the step : " + stepName;
+					+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -286,7 +286,14 @@ public class JiraIssueHandler {
 				} else {
 					final IssueImpl issueToUpdate = (IssueImpl) issueToTransition;
 					issueToUpdate.setStatusObject(result.getIssue().getStatusObject());
+					issueToUpdate.setResolutionObject(result.getIssue().getResolutionObject());
+					logger.debug("NEW ISSUE STATUS: " + issueToUpdate.getStatusObject().getName());
 
+					if (issueToUpdate.getResolutionObject() == null) {
+						logger.debug("NEW ISSUE RESOLUTION OBJECT IS NULL");
+					} else {
+						logger.debug("NEW ISSUE RESOLUTION: " + issueToUpdate.getResolutionObject().getName());
+					}
 					final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder()
 							.eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
 
@@ -321,7 +328,14 @@ public class JiraIssueHandler {
 				addComment(notificationEvent.getComment(), issue);
 			}
 			break;
+		case ADD_COMMENT_IF_EXISTS:
+			final Issue existingIssue = findIssue(notificationEvent);
+			if (existingIssue != null) {
+				addComment(notificationEvent.getComment(), existingIssue);
+			}
+			break;
 		}
+
 	}
 
 	private void addComment(final String comment, final Issue issue) {
@@ -376,7 +390,6 @@ public class JiraIssueHandler {
 	private Issue closeIssue(final HubEvent<NotificationContentItem> event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
-			addComment(event.getResolveComment(), oldIssue);
 			final Issue updatedIssue = transitionIssue(event, oldIssue,
 					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, jiraContext.getJiraUser());
 			if (updatedIssue != null) {

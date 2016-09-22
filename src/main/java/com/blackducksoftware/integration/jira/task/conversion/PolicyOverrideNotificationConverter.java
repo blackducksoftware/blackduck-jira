@@ -48,7 +48,8 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 	public static final String PROJECT_LINK = "project";
 
 	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+					throws ConfigurationException {
 		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 	}
 
@@ -62,8 +63,9 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 			final HubEvent event = new PolicyEvent(HubEventAction.CLOSE, getJiraContext().getJiraUser().getName(),
 					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
 					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
- notification, rule,
+					notification, rule,
 					HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+
 			events.add(event);
 		}
 

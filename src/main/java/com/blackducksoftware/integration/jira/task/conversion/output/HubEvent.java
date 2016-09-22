@@ -47,9 +47,8 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 	private final T notif;
 
 	public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
-			final String issueAssigneeId,
-			final String jiraIssueTypeId,
-			final Long jiraProjectId, final String jiraProjectName, final T notif) {
+			final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
+			final String jiraProjectName, final T notif) {
 		this.action = action;
 		this.jiraUserName = jiraUserName;
 		this.jiraUserId = jiraUserId;
@@ -96,6 +95,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 	public String getReopenComment() {
 		return null;
 	}
+
 	public String getComment() {
 		return null; // most event types don't produce comments
 	}

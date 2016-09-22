@@ -26,7 +26,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
@@ -71,10 +71,8 @@ import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -85,7 +83,9 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -95,6 +95,10 @@ public class HubJiraConfigController {
 	private final TransactionTemplate transactionTemplate;
 	private final ProjectManager projectManager;
 	private final HubMonitor hubMonitor;
+
+	private final Gson gson = new GsonBuilder().create();
+
+	private final JsonParser jsonParser = new JsonParser();
 
 	public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
 			final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
@@ -569,20 +573,12 @@ public class HubJiraConfigController {
 
 				if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-					final HubItemsService<PolicyRule> policyService = getPolicyService(restService.getRestConnection());
-
-					final List<String> urlSegments = new ArrayList<>();
-					urlSegments.add("api");
-					urlSegments.add("policy-rules");
-
-					final Set<AbstractMap.SimpleEntry<String, String>> queryParameters = new HashSet<>();
-					queryParameters.add(
-							new AbstractMap.SimpleEntry<String, String>("limit", String.valueOf(Integer.MAX_VALUE)));
+					final PolicyRestService policyService = getPolicyService(restService.getRestConnection());
 
 					List<PolicyRule> policyRules = null;
 					try {
-						policyRules = policyService.httpGetItemList(urlSegments, queryParameters);
-					} catch (IOException | URISyntaxException | ResourceDoesNotExistException | BDRestException e) {
+						policyRules = policyService.getAllPolicyRules();
+					} catch (IOException | URISyntaxException | BDRestException e) {
 						config.setPolicyRulesError(e.getMessage());
 					}
 
@@ -597,6 +593,7 @@ public class HubJiraConfigController {
 							newRule.setDescription(description.trim());
 							newRule.setName(rule.getName().trim());
 							newRule.setPolicyUrl(rule.getMeta().getHref());
+							newRule.setEnabled(rule.getEnabled());
 							newPolicyRules.add(newRule);
 						}
 					}
@@ -604,7 +601,7 @@ public class HubJiraConfigController {
 						for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
 							for (final PolicyRuleSerializable newRule : newPolicyRules) {
 								if (oldRule.getName().equals(newRule.getName())) {
-									newRule.setChecked(oldRule.isChecked());
+									newRule.setChecked(oldRule.getChecked());
 									break;
 								}
 							}
@@ -635,10 +632,8 @@ public class HubJiraConfigController {
 		return errorMsg;
 	}
 
-	public HubItemsService<PolicyRule> getPolicyService(final RestConnection restConnection) {
-		final TypeToken<PolicyRule> typeToken = new TypeToken<PolicyRule>() {
-		};
-		return new HubItemsService<PolicyRule>(restConnection, typeToken);
+	public PolicyRestService getPolicyService(final RestConnection restConnection) {
+		return new PolicyRestService(restConnection, gson, jsonParser);
 	}
 
 	private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {

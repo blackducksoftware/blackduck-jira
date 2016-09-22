@@ -22,5 +22,5 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 public enum HubEventAction {
-	CLOSE, OPEN, ADD_COMMENT
+	CLOSE, OPEN, ADD_COMMENT, ADD_COMMENT_IF_EXISTS
 }

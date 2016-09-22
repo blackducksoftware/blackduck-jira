@@ -30,7 +30,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
@@ -57,7 +56,6 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubIssueTypeSetup {
-
 	private static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
 	private static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -94,26 +92,30 @@ public class HubIssueTypeSetup {
 	public List<IssueType> addIssueTypesToJira() throws JiraException {
 		final List<IssueType> bdIssueTypes = new ArrayList<>();
 		final List<String> existingBdIssueTypeNames = new ArrayList<>();
-
-		for (final IssueType issueType : issueTypes) {
-			if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)
-					|| issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
-				bdIssueTypes.add(issueType);
-				existingBdIssueTypeNames.add(issueType.getName());
+		try {
+			for (final IssueType issueType : issueTypes) {
+				if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)
+						|| issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
+					bdIssueTypes.add(issueType);
+					existingBdIssueTypeNames.add(issueType.getName());
+				}
 			}
-		}
-		Long avatarId = null;
-		if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
-			avatarId = getBlackduckAvatarId(avatarId);
-			final IssueType issueType = createIssueType(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
-					HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, avatarId);
-			bdIssueTypes.add(issueType);
-		}
-		if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
-			avatarId = getBlackduckAvatarId(avatarId);
-			final IssueType issueType = createIssueType(HubJiraConstants.HUB_VULNERABILITY_ISSUE,
-					HubJiraConstants.HUB_VULNERABILITY_ISSUE, avatarId);
-			bdIssueTypes.add(issueType);
+			Long avatarId = null;
+			if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
+				avatarId = getBlackduckAvatarId(avatarId);
+				final IssueType issueType = createIssueType(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
+						HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, avatarId);
+				bdIssueTypes.add(issueType);
+			}
+			if (!existingBdIssueTypeNames.contains(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
+				avatarId = getBlackduckAvatarId(avatarId);
+				final IssueType issueType = createIssueType(HubJiraConstants.HUB_VULNERABILITY_ISSUE,
+						HubJiraConstants.HUB_VULNERABILITY_ISSUE, avatarId);
+				bdIssueTypes.add(issueType);
+			}
+		} catch (final Exception e) {
+			logger.error(e);
+			settingService.addHubError(e, "addIssueTypesToJira()");
 		}
 
 		return bdIssueTypes;
@@ -121,33 +123,45 @@ public class HubIssueTypeSetup {
 
 	public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> hubIssueTypes) {
 		// Get Project's Issue Type Scheme
-		final FieldConfigScheme issueTypeScheme = jiraServices.getIssueTypeSchemeManager().getConfigScheme(jiraProject);
+		try {
+			final FieldConfigScheme issueTypeScheme = jiraServices.getIssueTypeSchemeManager()
+					.getConfigScheme(jiraProject);
 
-		final Collection<IssueType> origIssueTypeObjects = jiraServices.getIssueTypeSchemeManager().getIssueTypesForProject(jiraProject);
-		final Collection<String> issueTypeIds = new ArrayList<>();
-		for (final IssueType origIssueTypeObject : origIssueTypeObjects) {
-			issueTypeIds.add(origIssueTypeObject.getId());
-		}
-
-		// Add BDS Issue Types to it
-		boolean changesMadeToIssueTypeScheme = false;
-		for (final IssueType bdIssueType : hubIssueTypes) {
-			if (!origIssueTypeObjects.contains(bdIssueType)) {
-				logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme "
-						+ issueTypeScheme.getName());
-				issueTypeIds.add(bdIssueType.getId());
-				changesMadeToIssueTypeScheme = true;
-
-			} else {
-				logger.debug("Issue type " + bdIssueType.getName() + " is already on issue type scheme "
-						+ issueTypeScheme.getName());
+			final Collection<IssueType> origIssueTypeObjects = jiraServices.getIssueTypeSchemeManager()
+					.getIssueTypesForProject(jiraProject);
+			final Collection<String> issueTypeIds = new ArrayList<>();
+			for (final IssueType origIssueTypeObject : origIssueTypeObjects) {
+				issueTypeIds.add(origIssueTypeObject.getId());
 			}
-		}
-		if (changesMadeToIssueTypeScheme) {
-			logger.debug("Updating Issue Type Scheme " + issueTypeScheme.getName());
-			jiraServices.getIssueTypeSchemeManager().update(issueTypeScheme, issueTypeIds);
-		} else {
-			logger.debug("Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
+
+			// Add BDS Issue Types to it
+			boolean changesMadeToIssueTypeScheme = false;
+			for (final IssueType bdIssueType : hubIssueTypes) {
+				if (!origIssueTypeObjects.contains(bdIssueType)) {
+					logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme "
+							+ issueTypeScheme.getName());
+					issueTypeIds.add(bdIssueType.getId());
+					changesMadeToIssueTypeScheme = true;
+
+				} else {
+					logger.debug("Issue type " + bdIssueType.getName() + " is already on issue type scheme "
+							+ issueTypeScheme.getName());
+				}
+			}
+			if (changesMadeToIssueTypeScheme) {
+				logger.debug("Updating Issue Type Scheme " + issueTypeScheme.getName());
+				jiraServices.getIssueTypeSchemeManager().update(issueTypeScheme, issueTypeIds);
+			} else {
+				logger.debug(
+						"Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
+			}
+		} catch (final Exception e) {
+			logger.error(e);
+			String jiraProjectName = null;
+			if (jiraProject != null) {
+				jiraProjectName = jiraProject.getName();
+			}
+			settingService.addHubError(e, null, null, jiraProjectName, null, "addIssueTypesToProjectIssueTypeScheme()");
 		}
 	}
 
@@ -162,8 +176,7 @@ public class HubIssueTypeSetup {
 
 		final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager = jiraServices
 				.getIssueTypeScreenSchemeManager();
-		final FieldScreenSchemeManager fieldScreenSchemeManager = jiraServices
-				.getFieldScreenSchemeManager();
+		final FieldScreenSchemeManager fieldScreenSchemeManager = jiraServices.getFieldScreenSchemeManager();
 		final ConstantsManager constantsManager = jiraServices.getConstantsManager();
 
 		final List<IssueType> origIssueTypes = getExistingIssueTypes(issueTypeScreenScheme);
@@ -180,8 +193,8 @@ public class HubIssueTypeSetup {
 			final IssueTypeScreenSchemeEntity issueTypeScreenSchemeEntity = new IssueTypeScreenSchemeEntityImpl(
 					issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
 			issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
-			issueTypeScreenSchemeEntity.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme
-					.getId()));
+			issueTypeScreenSchemeEntity
+					.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme.getId()));
 			issueTypeScreenScheme.addEntity(issueTypeScreenSchemeEntity);
 			changesMade = true;
 		}
@@ -215,7 +228,8 @@ public class HubIssueTypeSetup {
 	}
 
 	public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
-			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes, final FieldLayout fieldConfiguration) {
+			final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes,
+			final FieldLayout fieldConfiguration) {
 
 		final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
 		if (projectFieldConfigurationScheme == null) {
@@ -250,8 +264,7 @@ public class HubIssueTypeSetup {
 					for (final FieldLayoutSchemeEntity fieldLayoutSchemeEntity : fieldLayoutSchemeEntities) {
 						final IssueType existingIssueType = fieldLayoutSchemeEntity.getIssueTypeObject();
 
-						if (existingIssueType == issueType
-								&& fieldLayoutSchemeEntity.getFieldLayoutId() != null
+						if (existingIssueType == issueType && fieldLayoutSchemeEntity.getFieldLayoutId() != null
 								&& fieldLayoutSchemeEntity.getFieldLayoutId().equals(fieldConfiguration.getId())) {
 							issueTypeAlreadyMappedToOurFieldConfig = true;
 							break;
@@ -265,9 +278,9 @@ public class HubIssueTypeSetup {
 					continue;
 				}
 
-				final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices
-						.getFieldLayoutManager()
-						.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(), fieldConfiguration.getId());
+				final FieldLayoutSchemeEntity fieldLayoutSchemeEntity = jiraServices.getFieldLayoutManager()
+						.createFieldLayoutSchemeEntity(fieldLayoutScheme, issueType.getId(),
+								fieldConfiguration.getId());
 
 				logger.debug("Adding to fieldLayoutScheme: " + fieldLayoutScheme.getName() + ": issueType "
 						+ issueType.getName() + " ==> field configuration " + fieldConfiguration.getName());
@@ -285,8 +298,8 @@ public class HubIssueTypeSetup {
 	}
 
 	private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
-		final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager().getMutableFieldLayoutScheme(
-				fieldConfigurationScheme.getId());
+		final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager()
+				.getMutableFieldLayoutScheme(fieldConfigurationScheme.getId());
 		logger.info("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName()
 				+ " ==> FieldLayoutScheme: " + fls.getName());
 		return fls;
@@ -297,8 +310,8 @@ public class HubIssueTypeSetup {
 		try {
 			logger.debug("Getting field configuration scheme for project " + project.getName() + " [ID: "
 					+ project.getId() + "]");
-			projectFieldConfigScheme = jiraServices.getFieldLayoutManager().getFieldConfigurationSchemeForProject(
-					project.getId());
+			projectFieldConfigScheme = jiraServices.getFieldLayoutManager()
+					.getFieldConfigurationSchemeForProject(project.getId());
 			logger.debug("\tprojectFieldConfigScheme: " + projectFieldConfigScheme);
 		} catch (final Exception e) {
 			logger.error(e.getMessage());
@@ -306,21 +319,19 @@ public class HubIssueTypeSetup {
 		if (projectFieldConfigScheme == null) {
 			logger.debug("Project " + project.getName() + " field config scheme: Default Field Configuration Scheme");
 		} else {
-			logger.debug("Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
+			logger.debug(
+					"Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
 		}
 
 		return projectFieldConfigScheme;
 	}
-
-
 
 	private IssueType createIssueType(final String name, final String description, final Long avatarId)
 			throws JiraException {
 		logger.debug("Creating new issue type: " + name);
 		IssueType newIssueType = null;
 		try {
-			newIssueType = jiraServices.getConstantsManager().insertIssueType(name, 0L, null, description,
-					avatarId);
+			newIssueType = jiraServices.getConstantsManager().insertIssueType(name, 0L, null, description, avatarId);
 		} catch (final CreateException e) {
 			throw new JiraException("Error creating Issue Type " + name + ": " + e.getMessage(), e);
 		}
@@ -339,7 +350,7 @@ public class HubIssueTypeSetup {
 		try {
 			blackDuckAvatar = createBlackDuckAvatar();
 		} catch (DataAccessException | IOException e) {
-			logger.warn("Error creating Black Duck avatar: " + e.getMessage());
+			logger.error("Error creating Black Duck avatar. ", e);
 			return jiraServices.getAvatarManager().getAnonymousAvatarId();
 		}
 		logger.debug("Successfully created Black Duck Avatar with ID: " + blackDuckAvatar.getId());
@@ -348,10 +359,19 @@ public class HubIssueTypeSetup {
 
 	private Avatar createBlackDuckAvatar() throws DataAccessException, IOException {
 		logger.debug("Loading Black Duck avatar from " + BLACKDUCK_AVATAR_IMAGE_PATH);
-		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(BLACKDUCK_AVATAR_IMAGE_FILENAME, "image/png",
-				jiraUser, ClassLoaderUtils.getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH, this.getClass()), null);
+
+		logger.debug("Creating avatar template");
+		final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate(BLACKDUCK_AVATAR_IMAGE_FILENAME,
+				"image/png", jiraUser.getKey());
+		if (avatarTemplate == null) {
+			logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
+			return null;
+		}
+		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(avatarTemplate,
+				getClass().getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH), null);
+
 		if (duckyAvatar == null) {
-			throw new DataAccessException("AvatarImpl.createCustomAvatar() returned null");
+			throw new DataAccessException("AvatarManager().create() returned null");
 		}
 		logger.debug("Created Avatar " + duckyAvatar.getFileName() + " with ID " + duckyAvatar.getId());
 		return duckyAvatar;

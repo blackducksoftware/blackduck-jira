@@ -83,8 +83,8 @@ public class PolicyViolationNotificationConverterTest {
 	}
 
 	@Test
-	public void testWithRuleListWithMatches() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testWithRuleListWithMatches()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -96,23 +96,23 @@ public class PolicyViolationNotificationConverterTest {
 	}
 
 	@Test
-	public void testNoProjectMappingMatch() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testNoProjectMappingMatch()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
-	public void testWithoutMappings() throws NotificationServiceException, UnexpectedHubResponseException,
-	ConfigurationException {
+	public void testWithoutMappings()
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
 	}
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch) throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException {
+			final boolean projectMappingMatch)
+			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -133,8 +133,6 @@ public class PolicyViolationNotificationConverterTest {
 
 		return events;
 	}
-
-
 
 	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) {
 
@@ -177,7 +175,5 @@ public class PolicyViolationNotificationConverterTest {
 		}
 		return mappings;
 	}
-
-
 
 }

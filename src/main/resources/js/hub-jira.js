@@ -581,6 +581,10 @@ function addPolicyViolationRules(policyRules){
 			});
 			newPolicyLabel.addClass("textStyle");
 			newPolicyLabel.css("padding" , "0px 5px 0px 5px")
+			if(!policyRules[p].enabled){
+				newPolicyLabel.addClass("disabledPolicyRule");
+			}
+			
 			
 			newPolicy.append(newPolicyRuleCheckbox, newPolicyLabel)
 			

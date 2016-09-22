@@ -40,7 +40,8 @@ public class ConverterLookupTable {
 	private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
 	public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+			throws ConfigurationException {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
 				mappings, jiraServices, jiraContext, jiraSettingsService);

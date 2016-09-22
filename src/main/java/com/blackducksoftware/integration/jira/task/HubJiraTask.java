@@ -67,9 +67,9 @@ public class HubJiraTask {
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString,
-			final String installDateString, final String lastRunDateString, final String projectMappingJson,
-			final String policyRulesJson, final String jiraUser, final JiraSettingsService jiraSettingsService,
+	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
+			final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
+			final String jiraUser, final JiraSettingsService jiraSettingsService,
 			final TicketInfoFromSetup ticketInfoFromSetup) {
 
 		this.serverConfig = serverConfig;
@@ -151,8 +151,8 @@ public class HubJiraTask {
 		for (final PolicyRuleSerializable rule : rules) {
 			final String ruleUrl = rule.getPolicyUrl();
 			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
-					+ rule.isChecked());
-			if ((rule.isChecked()) && (!ruleUrl.equals("undefined"))) {
+					+ rule.getChecked());
+			if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
 				ruleUrls.add(ruleUrl);
 			}
 		}
@@ -183,8 +183,10 @@ public class HubJiraTask {
 		final Gson gson = new GsonBuilder().create();
 		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+
 		final NotificationDataService notificationDataService = new NotificationDataService(logger, restConnection,
 				gson,
+
 				jsonParser, policyFilter);
 
 		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,

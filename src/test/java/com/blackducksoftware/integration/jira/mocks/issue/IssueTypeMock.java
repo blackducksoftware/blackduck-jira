@@ -109,7 +109,6 @@ public class IssueTypeMock implements IssueType {
 		this.id = id;
 	}
 
-
 	@Override
 	public String getNameTranslation() {
 
@@ -143,25 +142,20 @@ public class IssueTypeMock implements IssueType {
 	@Override
 	public void setDescription(final String arg0) {
 
-
 	}
 
 	@Override
 	public void setIconUrl(final String arg0) {
 
-
 	}
-
 
 	@Override
 	public void setSequence(final Long arg0) {
-
 
 	}
 
 	@Override
 	public void setTranslation(final String arg0, final String arg1, final String arg2, final Locale arg3) {
-
 
 	}
 

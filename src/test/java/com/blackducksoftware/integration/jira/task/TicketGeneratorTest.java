@@ -64,6 +64,7 @@ import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -111,8 +112,8 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  */
 public class TicketGeneratorTest {
 	private static final String VULNERABILITY_ISSUE_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n"
-			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: \n"
-			+ "Vulnerabilities deleted: \n";
+			+ "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: None\n"
+			+ "Vulnerabilities deleted: None\n";
 	private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
 	private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
 	private static final String POLICY_RULE_URL = "http://eng-hub-valid03.dc1.lan/api/policy-rules/0068397a-3e23-46bc-b1b7-82fb800e34ad";
@@ -366,8 +367,7 @@ public class TicketGeneratorTest {
 				Mockito.verify(issueService, Mockito.times(expectedCreateIssueCount)).transition(user,
 						transitionValidationResult);
 				Mockito.verify(commentManager, Mockito.times(1)).create(Mockito.any(Issue.class), Mockito.eq(user),
-						Mockito.eq(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN),
-						Mockito.eq(true));
+						Mockito.eq(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN), Mockito.eq(true));
 			} else {
 				Mockito.verify(issueInputParameters, Mockito.times(expectedCreateIssueCount)).setSummary(
 						"Black Duck Policy Violation detected on Hub Project 'projectName' / 'hubProjectVersionName', component 'componentName' / 'componentVersionName' [Rule: 'someRule']");
@@ -387,8 +387,7 @@ public class TicketGeneratorTest {
 
 	private Project mockJira(final JiraServices jiraServices, final JiraContext jiraContext, final ApplicationUser user,
 			final IssueService issueService, final IssueInputParameters issueInputParameters,
-			final IssueManager issueManager)
-					throws NotificationServiceException {
+			final IssueManager issueManager) throws NotificationServiceException {
 		Mockito.when(jiraContext.getJiraUser()).thenReturn(user);
 		Mockito.when(issueService.newIssueInputParameters()).thenReturn(issueInputParameters);
 		Mockito.when(jiraServices.getIssueService()).thenReturn(issueService);
@@ -409,8 +408,9 @@ public class TicketGeneratorTest {
 
 		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
 		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
-		//		Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class), Mockito.any(MutableIssue.class),
-		//				Mockito.any(UpdateIssueRequest.class))).thenReturn(value);
+		// Mockito.when(issueManager.updateIssue(Mockito.any(ApplicationUser.class),
+		// Mockito.any(MutableIssue.class),
+		// Mockito.any(UpdateIssueRequest.class))).thenReturn(value);
 		Mockito.when(jiraServices.getIssueManager()).thenReturn(issueManager);
 		return atlassianJiraProject;
 	}
@@ -640,14 +640,20 @@ public class TicketGeneratorTest {
 		final IssueImpl oldIssue = Mockito.mock(IssueImpl.class);
 		Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
 		final Status oldIssueStatus = Mockito.mock(Status.class);
+		final Resolution oldIssueResolution = Mockito.mock(Resolution.class);
 		String state;
+		String resolution;
 		if (open) {
 			state = HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN;
+			resolution = "Unresolved";
 		} else {
 			state = HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED;
+			resolution = "Resolved";
 		}
 		Mockito.when(oldIssueStatus.getName()).thenReturn(state);
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
+		Mockito.when(oldIssueResolution.getName()).thenReturn(resolution);
+		Mockito.when(oldIssue.getResolutionObject()).thenReturn(oldIssueResolution);
 		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(getOldIssueResult);
 		Mockito.when(oldIssue.getProjectObject()).thenReturn(atlassianJiraProject);
 		final IssueType oldIssueType = Mockito.mock(IssueType.class);
@@ -684,6 +690,10 @@ public class TicketGeneratorTest {
 		final Status newIssueStatus = Mockito.mock(Status.class);
 		Mockito.when(newIssueStatus.getName()).thenReturn(HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN);
 		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
+		final Resolution newIssueResolution = Mockito.mock(Resolution.class);
+		Mockito.when(newIssueResolution.getName()).thenReturn("Unresolved");
+		Mockito.when(newIssue.getResolutionObject()).thenReturn(newIssueResolution);
+
 		final IssueType newIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);

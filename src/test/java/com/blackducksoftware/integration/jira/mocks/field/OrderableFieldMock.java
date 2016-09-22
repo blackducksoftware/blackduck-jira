@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C) 2016 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks.field;
 
 import java.util.Collection;
@@ -79,23 +100,25 @@ public class OrderableFieldMock implements OrderableField {
 	@Override
 	public void createValue(final Issue arg0, final Object arg1) {
 
-
 	}
 
 	@Override
-	public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2, final Map arg3) {
+	public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
+			final Map arg3) {
 
 		return null;
 	}
 
 	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3) {
+	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+			final Issue arg3) {
 
 		return null;
 	}
 
 	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3, final Map arg4) {
+	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+			final Issue arg3, final Map arg4) {
 
 		return null;
 	}
@@ -107,13 +130,15 @@ public class OrderableFieldMock implements OrderableField {
 	}
 
 	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3) {
+	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+			final Issue arg3) {
 
 		return null;
 	}
 
 	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3, final Map arg4) {
+	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+			final Issue arg3, final Map arg4) {
 
 		return null;
 	}
@@ -137,7 +162,8 @@ public class OrderableFieldMock implements OrderableField {
 	}
 
 	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3, final Map arg4) {
+	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
+			final Map arg4) {
 
 		return null;
 	}
@@ -169,24 +195,20 @@ public class OrderableFieldMock implements OrderableField {
 	@Override
 	public void populateDefaults(final Map<String, Object> arg0, final Issue arg1) {
 
-
 	}
 
 	@Override
 	public void populateForMove(final Map<String, Object> arg0, final Issue arg1, final Issue arg2) {
-
 
 	}
 
 	@Override
 	public void populateFromIssue(final Map<String, Object> arg0, final Issue arg1) {
 
-
 	}
 
 	@Override
 	public void populateFromParams(final Map<String, Object> arg0, final Map<String, String[]> arg1) {
-
 
 	}
 
@@ -194,31 +216,27 @@ public class OrderableFieldMock implements OrderableField {
 	public void populateParamsFromString(final Map<String, Object> arg0, final String arg1, final Issue arg2)
 			throws FieldValidationException {
 
-
 	}
 
 	@Override
 	public void removeValueFromIssueObject(final MutableIssue arg0) {
-
 
 	}
 
 	@Override
 	public void updateIssue(final FieldLayoutItem arg0, final MutableIssue arg1, final Map arg2) {
 
+	}
+
+	@Override
+	public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
+			final IssueChangeHolder arg3) {
 
 	}
 
 	@Override
-	public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2, final IssueChangeHolder arg3) {
-
-
-	}
-
-	@Override
-	public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2, final Issue arg3,
-			final FieldScreenRenderLayoutItem arg4) {
-
+	public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
+			final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
 
 	}
 

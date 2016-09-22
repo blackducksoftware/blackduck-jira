@@ -48,7 +48,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 	public static final String PROJECT_LINK = "project";
 
 	public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+			throws ConfigurationException {
 		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
 	}
 

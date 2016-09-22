@@ -42,10 +42,10 @@ import org.mockito.Mockito;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
-import com.blackducksoftware.integration.hub.item.HubItemsService;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
@@ -88,19 +88,16 @@ public class HubJiraConfigControllerTest {
 	private List<PolicyRule> getHubPolicies() {
 		final List<PolicyRule> policyRules = new ArrayList<PolicyRule>();
 		final MetaInformation metaInfo1 = new MetaInformation(null, "policyURL1", null);
-		final PolicyRule rule1 = new PolicyRule(metaInfo1, "PolicyRule1", "1TestDescription", null, null, null, null,
-				null,
-				null, null);
+		final PolicyRule rule1 = new PolicyRule(metaInfo1, "PolicyRule1", "1TestDescription", true, null, null, null,
+				null, null, null);
 
 		final MetaInformation metaInfo2 = new MetaInformation(null, "policyURL2", null);
-		final PolicyRule rule2 = new PolicyRule(metaInfo2, "PolicyRule2", "2TestDescription", null, null, null, null,
-				null,
-				null, null);
+		final PolicyRule rule2 = new PolicyRule(metaInfo2, "PolicyRule2", "2TestDescription", true, null, null, null,
+				null, null, null);
 
 		final MetaInformation metaInfo3 = new MetaInformation(null, "policyURL3", null);
-		final PolicyRule rule3 = new PolicyRule(metaInfo3, "PolicyRule3", "3TestDescription", null, null, null, null,
-				null,
-				null, null);
+		final PolicyRule rule3 = new PolicyRule(metaInfo3, "PolicyRule3", "3TestDescription", false, null, null, null,
+				null, null, null);
 
 		policyRules.add(rule1);
 		policyRules.add(rule2);
@@ -521,8 +518,8 @@ public class HubJiraConfigControllerTest {
 		assertNull(config.getHubProjects());
 		assertNull(config.getHubProjectMappings());
 
-		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION
-				+ JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION,
+				config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
 		assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
@@ -552,11 +549,11 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
 		final List<PolicyRule> emptyPolicyRules = new ArrayList<>();
 
-		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -610,11 +607,11 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
 		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
 
-		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -667,9 +664,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -722,9 +719,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -891,7 +888,6 @@ public class HubJiraConfigControllerTest {
 		assertTrue(!config.hasErrors());
 	}
 
-
 	@Test
 	public void testGetHubProjectsNullUser() {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
@@ -956,8 +952,8 @@ public class HubJiraConfigControllerTest {
 		assertTrue(config.getHubProjects().isEmpty());
 		assertNull(config.getHubProjectMappings());
 
-		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION
-				+ JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION, config.getErrorMessage());
+		assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION,
+				config.getErrorMessage());
 		assertNull(config.getIntervalBetweenChecksError());
 		assertNull(config.getPolicyRulesError());
 		assertNull(config.getHubProjectMappingError());
@@ -1268,7 +1264,6 @@ public class HubJiraConfigControllerTest {
 		assertTrue(!config.hasErrors());
 	}
 
-
 	@Test
 	public void testSaveConfigNullUser() {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
@@ -1372,9 +1367,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1445,9 +1440,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1479,7 +1474,6 @@ public class HubJiraConfigControllerTest {
 		assertTrue(!pluginScheduler.isJobUnScheduled());
 		assertTrue(!pluginScheduler.isJobScheduled());
 	}
-
 
 	@Test
 	public void testSaveConfigNoUpdate() throws Exception {
@@ -1526,9 +1520,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1600,9 +1594,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1670,9 +1664,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1754,9 +1748,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
@@ -1862,9 +1856,9 @@ public class HubJiraConfigControllerTest {
 
 		controller = Mockito.spy(controller);
 
-		final HubItemsService<PolicyRule> policyServiceMock = Mockito.mock(HubItemsService.class);
+		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).httpGetItemList(Mockito.anyList(), Mockito.anySet());
+		Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
 		Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 

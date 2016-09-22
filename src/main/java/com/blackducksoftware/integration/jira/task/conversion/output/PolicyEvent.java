@@ -39,11 +39,13 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	private final String resolveComment;
 
 	public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+
 			final String issueAssigneeId,
 			final String jiraIssueTypeId,
 			final Long jiraProjectId, final String jiraProjectName,
- final NotificationContentItem notificationContentItem,
+			final NotificationContentItem notificationContentItem,
 			final PolicyRule policyRule, final String resolveComment) {
+
 		super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
 				notificationContentItem);
 		this.notificationContentItem = notificationContentItem;

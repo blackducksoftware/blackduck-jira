@@ -109,9 +109,8 @@ public class JiraTask implements PluginJob {
 		final DateTime afterSetup = new DateTime();
 
 		final Period diff = new Period(beforeSetup, afterSetup);
-		logger.info(
-				"Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-						+ "ms.");
+		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
+				+ "ms.");
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -130,15 +129,15 @@ public class JiraTask implements PluginJob {
 		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
 
 		if (configResult.hasErrors()) {
-			logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
+			logger.error(
+					"At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
 			return;
 		}
 		final HubServerConfig serverConfig = configResult.getConstructedObject();
 
-		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString,
-				installDateString,
-				lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName,
-				jiraSettingsService, ticketInfoFromSetup);
+		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
+				lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
+				ticketInfoFromSetup);
 		final String runDateString = processor.execute();
 		if (runDateString != null) {
 			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -147,7 +146,7 @@ public class JiraTask implements PluginJob {
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-					throws JiraException {
+			throws JiraException {
 
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
@@ -179,11 +178,11 @@ public class JiraTask implements PluginJob {
 
 		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-		final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(
-				jiraSettingsService, jiraServices);
+		final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService,
+				jiraServices);
 		final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
-		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(
-				issueTypes, fieldConfiguration);
+		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
+				.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
 		final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
@@ -204,9 +203,9 @@ public class JiraTask implements PluginJob {
 								.getProjectObj(projectMapping.getJiraProject().getProjectId());
 						// add issuetypes to this project
 						issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, screenSchemesByIssueType);
-						issueTypeSetup
-						.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
+						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
+								screenSchemesByIssueType);
+						issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
 								jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
 						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
 					}

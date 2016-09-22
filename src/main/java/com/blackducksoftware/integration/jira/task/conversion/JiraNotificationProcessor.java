@@ -45,7 +45,8 @@ public class JiraNotificationProcessor {
 	private final ConverterLookupTable converterTable;
 
 	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+			throws ConfigurationException {
 		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService);
 	}
 

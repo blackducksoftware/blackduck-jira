@@ -12,6 +12,10 @@
 	max-width : 90%;
 }
 
+.disabledPolicyRule {
+	text-decoration: line-through;
+}
+
 .inlineError {
 	display: inline-block;
 }

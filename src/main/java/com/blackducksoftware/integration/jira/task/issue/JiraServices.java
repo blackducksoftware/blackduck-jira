@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -53,6 +54,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 
@@ -61,6 +63,7 @@ public class JiraServices {
 	public ConstantsManager getConstantsManager() {
 		return ComponentAccessor.getConstantsManager();
 	}
+
 	public ProjectManager getJiraProjectManager() {
 		return ComponentAccessor.getProjectManager();
 	}
@@ -129,7 +132,7 @@ public class JiraServices {
 		return ComponentAccessor.getFieldScreenManager();
 	}
 
-	public FieldScreenSchemeManager getFieldScreenSchemeManager(){
+	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
 		return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
 	}
 
@@ -150,8 +153,8 @@ public class JiraServices {
 	}
 
 	public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(
-				jiraProjectId);
+		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
+				.getProjectObj(jiraProjectId);
 		if (atlassianJiraProject == null) {
 			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
 		}
@@ -183,4 +186,9 @@ public class JiraServices {
 				Avatar.Type.ISSUETYPE);
 		return avatarTemplate;
 	}
+
+	public InputStream getResourceAsStream(final String resource) {
+		return ClassLoaderUtils.getResourceAsStream(resource, getClass());
+	}
+
 }
