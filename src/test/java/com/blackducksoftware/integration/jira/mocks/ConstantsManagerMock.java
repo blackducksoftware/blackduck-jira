@@ -250,7 +250,7 @@ public class ConstantsManagerMock implements ConstantsManager {
 		final IssueTypeMock newIssueType = new IssueTypeMock();
 		newIssueType.setName(name);
 		newIssueType.setDescription(description);
-		newIssueType.setId("mockIssueType" + issueTypeIndex);
+		newIssueType.setId("mockIssueTypeId" + issueTypeIndex);
 		newIssueType.setValue(Mockito.mock(GenericValue.class));
 		issueTypeIndex++;
 		return newIssueType;

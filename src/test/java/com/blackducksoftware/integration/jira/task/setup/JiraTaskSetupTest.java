@@ -218,6 +218,16 @@ public class JiraTaskSetupTest {
 		assertEquals(jiraEnv.getAvatarTemplate(), avatarTemplatesUsed.get(0));
 
 		assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
+		final Collection<FieldLayoutSchemeEntity> entitiesAdded = jiraEnv.getFieldLayoutSchemeMock().getEntitiesAdded();
+		assertEquals(4, entitiesAdded.size());
+		for (final FieldLayoutSchemeEntity entityAdded : entitiesAdded) {
+			System.out.println(entityAdded.getIssueTypeId());
+			System.out.println(entityAdded.getFieldLayoutScheme().getName());
+
+			assertTrue(entityAdded.getIssueTypeId().startsWith("mockIssueTypeId"));
+			assertEquals("Field Layout Scheme", entityAdded.getFieldLayoutScheme().getName());
+		}
+
 	}
 
 	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) {
@@ -241,15 +251,24 @@ public class JiraTaskSetupTest {
 		fieldLayoutScheme.setName("Field Layout Scheme");
 
 		final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = new ArrayList<>();
-		final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+		FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
 				fieldLayoutManager, null, constantsManager);
 		issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldLayoutScheme);
 		issueTypeToFieldConfiguration.setFieldLayoutId(1L);
-		issueTypeToFieldConfiguration.setIssueTypeId("someIssueTypeId");
+		issueTypeToFieldConfiguration.setIssueTypeId("mockIssueTypeId2");
 		fieldLayoutSchemeEntities.add(issueTypeToFieldConfiguration);
+
+		issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(fieldLayoutManager, null, constantsManager);
+		issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldLayoutScheme);
+		issueTypeToFieldConfiguration.setFieldLayoutId(2L);
+		issueTypeToFieldConfiguration.setIssueTypeId("mockIssueTypeId3");
+		fieldLayoutSchemeEntities.add(issueTypeToFieldConfiguration);
+
 		fieldLayoutScheme.setEntities(fieldLayoutSchemeEntities);
 
 		fieldLayoutManager.setFieldLayoutScheme(fieldLayoutScheme);
+
+		fieldLayoutManager.setCreatedFieldLayoutSchemeEntities(fieldLayoutSchemeEntities);
 
 		final FieldConfigurationSchemeMock projectFieldConfigScheme = new FieldConfigurationSchemeMock();
 		projectFieldConfigScheme.setName("Project Field Config Scheme");
@@ -306,9 +325,6 @@ public class JiraTaskSetupTest {
 		Mockito.when(avatarTemplate.getContentType()).thenReturn("image/png");
 		Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME);
 		Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
-
-		// AvatarImpl.createCustomAvatar(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,
-		// "image/png", "avatarOwner", Avatar.Type.ISSUETYPE);
 
 		Mockito.when(
 				jiraServices.createIssueTypeAvatarTemplate(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,

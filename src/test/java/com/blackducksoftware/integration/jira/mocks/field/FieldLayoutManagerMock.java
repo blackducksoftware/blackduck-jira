@@ -47,6 +47,8 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	private FieldConfigurationScheme projectFieldConfigScheme;
 
 	private boolean attemptedToPersistFieldLayout;
+	private List<FieldLayoutSchemeEntity> createdFieldLayoutSchemeEntities = new ArrayList<>();
+	private int createdFieldLayoutSchemeEntitiesIndex = 0;
 
 	public void setProjectFieldConfigScheme(final FieldConfigurationScheme projectFieldConfigScheme) {
 		this.projectFieldConfigScheme = projectFieldConfigScheme;
@@ -54,6 +56,12 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
 	public boolean getAttemptedToPersistFieldLayout() {
 		return attemptedToPersistFieldLayout;
+	}
+
+	public void setCreatedFieldLayoutSchemeEntities(
+			final Collection<FieldLayoutSchemeEntity> createdFieldLayoutSchemeEntities) {
+		this.createdFieldLayoutSchemeEntities = new ArrayList<>();
+		this.createdFieldLayoutSchemeEntities.addAll(createdFieldLayoutSchemeEntities);
 	}
 
 	@Override
@@ -90,14 +98,14 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
 	@Override
 	public void createFieldLayoutSchemeEntity(final FieldLayoutSchemeEntity arg0) {
-
+		System.out.println("createFieldLayoutSchemeEntity()");
 	}
 
 	@Override
 	public FieldLayoutSchemeEntity createFieldLayoutSchemeEntity(final FieldLayoutScheme arg0, final String arg1,
 			final Long arg2) {
-
-		return null;
+		System.out.println("createFieldLayoutSchemeEntity(); returning null");
+		return createdFieldLayoutSchemeEntities.get(createdFieldLayoutSchemeEntitiesIndex++);
 	}
 
 	@Override

@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks.field;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.ofbiz.core.entity.GenericValue;
@@ -34,11 +35,16 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	private String name;
 	private Collection<FieldLayoutSchemeEntity> entities;
+	private final Collection<FieldLayoutSchemeEntity> entitiesAdded = new ArrayList<>();
 	private int storeCount = 0;
 
 	@Override
-	public void addEntity(final FieldLayoutSchemeEntity arg0) {
+	public void addEntity(final FieldLayoutSchemeEntity entity) {
+		entitiesAdded.add(entity);
+	}
 
+	public Collection<FieldLayoutSchemeEntity> getEntitiesAdded() {
+		return entitiesAdded;
 	}
 
 	@Override
@@ -102,7 +108,6 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	@Override
 	public void remove() {
-
 	}
 
 	@Override
@@ -117,7 +122,6 @@ public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
 	@Override
 	public void setGenericValue(final GenericValue arg0) {
-
 	}
 
 	@Override
