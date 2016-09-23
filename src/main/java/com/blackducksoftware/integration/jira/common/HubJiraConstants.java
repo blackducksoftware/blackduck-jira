@@ -44,4 +44,7 @@ public class HubJiraConstants {
 	public final static String HUB_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
 	public final static String HUB_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
 	public final static String HUB_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Hub Policy Violation Cleared event on this project / component / rule";
+
+	public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
+	public static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
 }

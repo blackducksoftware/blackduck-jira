@@ -213,11 +213,9 @@ public class JiraTaskSetupTest {
 		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
 		// creates BDS Field Configuration Scheme (only if it doesn't exist)
 
-		final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
-		// TODO: To get this to work, need to mock
-		// jiraServices.createIssueTypeAvatarTemplate() to return an Avatar with
-		// a non-null ID
-		// assertEquals(1, avatarTemplates.size());
+		final List<Avatar> avatarTemplatesUsed = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
+		assertEquals(1, avatarTemplatesUsed.size());
+		assertEquals(jiraEnv.getAvatarTemplate(), avatarTemplatesUsed.get(0));
 
 		assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
 	}
@@ -302,6 +300,20 @@ public class JiraTaskSetupTest {
 
 		final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
+		final Avatar avatarTemplate = Mockito.mock(Avatar.class);
+		Mockito.when(avatarTemplate.getId()).thenReturn(123L);
+		Mockito.when(avatarTemplate.getAvatarType()).thenReturn(Avatar.Type.ISSUETYPE);
+		Mockito.when(avatarTemplate.getContentType()).thenReturn("image/png");
+		Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME);
+		Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
+
+		// AvatarImpl.createCustomAvatar(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,
+		// "image/png", "avatarOwner", Avatar.Type.ISSUETYPE);
+
+		Mockito.when(
+				jiraServices.createIssueTypeAvatarTemplate(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,
+						"image/png", "Jira User")).thenReturn(avatarTemplate);
+
 		final JiraEnvironment jiraMocks = new JiraEnvironment().setAvatarManagerMock(avatarManager)
 				.setConstantsManagerMock(constantsManager).setCustomFieldManagerMock(customFieldManager)
 				.setEditableFieldLayoutMock(fieldLayout).setFieldConfigSchemeMock(fieldConfigScheme)
@@ -316,7 +328,8 @@ public class JiraTaskSetupTest {
 				.setJiraSettingsService(settingService).setJiraTask(jiraTask).setMappingJson(mappingJson)
 				.setOrderableFieldMock(orderableField).setPluginSettingsMock(settingsMock)
 				.setProjectManagerMock(projectManager).setUserManagerMock(userManager).setUserUtil(userUtil)
-				.setWorkflowManagerMock(workflowManager).setWorkflowSchemeManagerMock(workflowSchemeManager);
+				.setWorkflowManagerMock(workflowManager).setWorkflowSchemeManagerMock(workflowSchemeManager)
+				.setAvatarTemplate(avatarTemplate);
 
 		return jiraMocks;
 	}
@@ -563,6 +576,7 @@ public class JiraTaskSetupTest {
 		private HubFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
 		private JiraTask jiraTask;
 		private String mappingJson;
+		private Avatar avatarTemplate;
 
 		private GroupManagerMock getGroupManagerMock() {
 			return groupManagerMock;
@@ -821,6 +835,15 @@ public class JiraTaskSetupTest {
 		private JiraEnvironment setMappingJson(final String mappingJson) {
 			this.mappingJson = mappingJson;
 			return this;
+		}
+
+		private JiraEnvironment setAvatarTemplate(final Avatar avatarTemplate) {
+			this.avatarTemplate = avatarTemplate;
+			return this;
+		}
+
+		private Avatar getAvatarTemplate() {
+			return avatarTemplate;
 		}
 
 	}

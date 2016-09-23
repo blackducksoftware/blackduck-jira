@@ -56,8 +56,7 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubIssueTypeSetup {
-	private static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
-	private static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
+
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final JiraServices jiraServices;
 	private final JiraSettingsService settingService;
@@ -194,7 +193,7 @@ public class HubIssueTypeSetup {
 					issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
 			issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
 			issueTypeScreenSchemeEntity
-					.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme.getId()));
+			.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme.getId()));
 			issueTypeScreenScheme.addEntity(issueTypeScreenSchemeEntity);
 			changesMade = true;
 		}
@@ -358,17 +357,18 @@ public class HubIssueTypeSetup {
 	}
 
 	private Avatar createBlackDuckAvatar() throws DataAccessException, IOException {
-		logger.debug("Loading Black Duck avatar from " + BLACKDUCK_AVATAR_IMAGE_PATH);
+		logger.debug("Loading Black Duck avatar from " + HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_PATH);
 
 		logger.debug("Creating avatar template");
-		final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate(BLACKDUCK_AVATAR_IMAGE_FILENAME,
+		final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate(
+				HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,
 				"image/png", jiraUser.getKey());
 		if (avatarTemplate == null) {
 			logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
 			return null;
 		}
 		final Avatar duckyAvatar = jiraServices.getAvatarManager().create(avatarTemplate,
-				getClass().getResourceAsStream(BLACKDUCK_AVATAR_IMAGE_PATH), null);
+				getClass().getResourceAsStream(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_PATH), null);
 
 		if (duckyAvatar == null) {
 			throw new DataAccessException("AvatarManager().create() returned null");
