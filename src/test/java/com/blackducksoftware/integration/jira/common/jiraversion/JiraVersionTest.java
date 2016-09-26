@@ -56,8 +56,10 @@ public class JiraVersionTest {
 		assertEquals(0, jiraVersion.getPatch());
 		assertEquals("6.4", String.valueOf(jiraVersion.toString()));
 
-		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
-		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES));
 	}
 
 	@Test
@@ -69,8 +71,8 @@ public class JiraVersionTest {
 		assertEquals(0, jiraVersion.getPatch());
 		assertEquals("6.4", String.valueOf(jiraVersion.toString()));
 
-		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
-		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
 	}
 
 	@Test
@@ -82,8 +84,8 @@ public class JiraVersionTest {
 		assertEquals(0, jiraVersion.getPatch());
 		assertEquals("6.5", String.valueOf(jiraVersion.toString()));
 
-		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
-		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
 	}
 
 	@Test
@@ -94,8 +96,10 @@ public class JiraVersionTest {
 		assertEquals("0", String.valueOf(jiraVersion.getPatch()));
 		assertEquals("7.0", String.valueOf(jiraVersion.toString()));
 
-		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
-		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES));
 	}
 
 	@Test
@@ -106,8 +110,8 @@ public class JiraVersionTest {
 		assertEquals("11", String.valueOf(jiraVersion.getPatch()));
 		assertEquals("7.0.11", String.valueOf(jiraVersion.toString()));
 
-		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
-		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+		assertFalse(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertTrue(jiraVersion.hasCapability(JiraVersion.JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
 	}
 
 	@Test
