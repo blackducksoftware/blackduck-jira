@@ -40,7 +40,7 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Pol
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {

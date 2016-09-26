@@ -19,26 +19,25 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.jira.exception;
+package com.blackducksoftware.integration.jira.common.exception;
 
-public class ConfigurationException extends Exception {
+public class JiraException extends Exception {
 
-	public ConfigurationException() {
-	}
+	private static final long serialVersionUID = -5115029798246254838L;
 
-	public ConfigurationException(final String message) {
+	public JiraException(final String message) {
 		super(message);
 	}
 
-	public ConfigurationException(final Throwable cause) {
+	public JiraException(final Throwable cause) {
 		super(cause);
 	}
 
-	public ConfigurationException(final String message, final Throwable cause) {
+	public JiraException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public ConfigurationException(final String message, final Throwable cause, final boolean enableSuppression,
+	public JiraException(final String message, final Throwable cause, final boolean enableSuppression,
 			final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

@@ -21,7 +21,9 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks.issue;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -31,13 +33,17 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEnt
 import com.atlassian.jira.issue.issuetype.IssueType;
 
 public class IssueTypeScreenSchemeMock implements IssueTypeScreenScheme {
-
+	private final List<IssueTypeScreenSchemeEntity> addedEntities = new ArrayList<>();
 	public IssueTypeScreenSchemeMock() {
 	}
 
 	@Override
 	public void addEntity(final IssueTypeScreenSchemeEntity arg0) {
+		addedEntities.add(arg0);
+	}
 
+	public List<IssueTypeScreenSchemeEntity> getAddedEntities() {
+		return addedEntities;
 	}
 
 	@Override

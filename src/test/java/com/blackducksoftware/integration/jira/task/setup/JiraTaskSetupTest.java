@@ -52,6 +52,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeItem;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
+import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntity;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
@@ -64,8 +65,8 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.exception.JiraException;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
@@ -156,9 +157,6 @@ public class JiraTaskSetupTest {
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size() == 6);
 		assertNull(jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR));
 
-		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
-		// creates BDS Field Configuration Scheme
-
 		final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
 		assertEquals(0, avatarTemplates.size());
 
@@ -210,12 +208,16 @@ public class JiraTaskSetupTest {
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size() == 6);
 		assertNull(jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR));
 
-		// TODO: verify: Adds Issue Types to Project's Issue Type Scheme,
-		// creates BDS Field Configuration Scheme (only if it doesn't exist)
-
 		final List<Avatar> avatarTemplatesUsed = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
 		assertEquals(1, avatarTemplatesUsed.size());
 		assertEquals(jiraEnv.getAvatarTemplate(), avatarTemplatesUsed.get(0));
+
+		final List<IssueTypeScreenSchemeEntity> addedIssueTypeScreenSchemeEntities = jiraEnv
+				.getIssueTypeScreenSchemeMock().getAddedEntities();
+		assertEquals(2, addedIssueTypeScreenSchemeEntities.size());
+		for (final IssueTypeScreenSchemeEntity addedIssueTypeScreenSchemeEntity : addedIssueTypeScreenSchemeEntities) {
+			assertTrue(addedIssueTypeScreenSchemeEntity.getIssueTypeId().startsWith("mockIssueTypeId"));
+		}
 
 		assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
 		final Collection<FieldLayoutSchemeEntity> entitiesAdded = jiraEnv.getFieldLayoutSchemeMock().getEntitiesAdded();
