@@ -226,6 +226,7 @@ public class JiraTask implements PluginJob {
 
 	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices) {
+		// TODO return the correct setup class if it is Jira 6 vs Jira 7
 		return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
 	}
 
