@@ -74,6 +74,19 @@ public class JiraVersionTest {
 	}
 
 	@Test
+	public void testJira6_5() throws ConfigurationException {
+		// Should proceed as if it were 6.4.0 (closest we support)
+		final JiraVersion jiraVersion = new JiraVersion(logger, "6.5", 6, 5, 0);
+		assertEquals(6, jiraVersion.getMajor());
+		assertEquals(5, jiraVersion.getMinor());
+		assertEquals(0, jiraVersion.getPatch());
+		assertEquals("6.5", String.valueOf(jiraVersion.toString()));
+
+		assertTrue(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_USERS));
+		assertFalse(jiraVersion.hasCapability(JiraCapability.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+	}
+
+	@Test
 	public void testJira7_0() throws ConfigurationException {
 		final JiraVersion jiraVersion = new JiraVersion(logger, "7.0", 7, 0, 0);
 		assertEquals("7", String.valueOf(jiraVersion.getMajor()));
@@ -100,7 +113,7 @@ public class JiraVersionTest {
 	@Test
 	public void testUnsupportedOldVersion() {
 		try {
-			final JiraVersion jiraVersion = new JiraVersion(logger, "6.3", 6, 3, 0);
+			new JiraVersion(logger, "6.3", 6, 3, 0);
 			fail("Expected exception");
 		} catch (final ConfigurationException e) {
 		}
@@ -109,7 +122,7 @@ public class JiraVersionTest {
 
 	@Test
 	public void testUnsupportedNewVersion() throws ConfigurationException {
-		final JiraVersion jiraVersion = new JiraVersion(logger, "99.99.99", 99, 99, 99);
+		new JiraVersion(logger, "99.99.99", 99, 99, 99);
 		// Should log a warning and proceed as if it were most recent supported
 		// version
 	}

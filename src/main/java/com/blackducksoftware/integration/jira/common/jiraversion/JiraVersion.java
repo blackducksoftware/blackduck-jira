@@ -28,18 +28,7 @@ public class JiraVersion {
 	public JiraVersion(final IntLogger logger, final String versionString, final int major, final int minor,
 			final int patch) throws ConfigurationException {
 		addVersion(JIRA_6_4_VERSION_STRING, new CapabilitySet(true, false));
-		addVersion("7.0.0", new CapabilitySet(false, true));
-		addVersion("7.0.1", new CapabilitySet(false, true));
-		addVersion("7.0.2", new CapabilitySet(false, true));
-		addVersion("7.0.3", new CapabilitySet(false, true));
-		addVersion("7.0.4", new CapabilitySet(false, true));
-		addVersion("7.0.5", new CapabilitySet(false, true));
-		addVersion("7.0.6", new CapabilitySet(false, true));
-		addVersion("7.0.7", new CapabilitySet(false, true));
-		addVersion("7.0.8", new CapabilitySet(false, true));
-		addVersion("7.0.9", new CapabilitySet(false, true));
-		addVersion("7.0.10", new CapabilitySet(false, true));
-		addVersion("7.0.11", new CapabilitySet(false, true));
+		addVersion("7.0", new CapabilitySet(false, true));
 
 		if (versionString != null) {
 			jiraVersionString = versionString;
@@ -64,7 +53,7 @@ public class JiraVersion {
 						+ ") is not supported. Attempting to proceed as if it were JIRA version "
 						+ mostRecentJiraVersionString);
 				currentCapabilities = capabilityMatrix.get(this.mostRecentJiraVersionString);
-			} else if ((jiraVersionMajor >= 6) && (jiraVersionMinor >= 6)) {
+			} else if ((jiraVersionMajor >= 6) && (jiraVersionMinor >= 4)) {
 				logger.warn("This this version of JIRA (" + this.jiraVersionString
 						+ ") is not supported. Attempting to proceed as if it were JIRA version "
 						+ JIRA_6_4_VERSION_STRING);
@@ -75,7 +64,8 @@ public class JiraVersion {
 				throw new ConfigurationException(msg);
 			}
 		} else {
-			currentCapabilities = capabilityMatrix.get(this.jiraVersionString);
+			final String majorDotMinor = String.format("%d.%d", jiraVersionMajor, jiraVersionMinor);
+			currentCapabilities = capabilityMatrix.get(majorDotMinor);
 		}
 	}
 
