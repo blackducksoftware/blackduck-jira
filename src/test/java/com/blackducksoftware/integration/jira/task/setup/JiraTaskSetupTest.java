@@ -133,9 +133,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -147,9 +147,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -187,9 +187,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -201,9 +201,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -310,7 +310,7 @@ public class JiraTaskSetupTest {
 				fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
 				fieldManager, fieldScreenManager, fieldScreenSchemeManager);
 
-		HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		HubFieldScreenSchemeSetupJira6 fieldScreenSchemeSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
 
 		jiraTask = Mockito.spy(jiraTask);
@@ -371,7 +371,7 @@ public class JiraTaskSetupTest {
 		return fieldScreen;
 	}
 
-	private void mockCreationMethods(final JiraTask jiraTask, final HubFieldScreenSchemeSetup fieldConfigSetup) {
+	private void mockCreationMethods(final JiraTask jiraTask, final HubFieldScreenSchemeSetupJira6 fieldConfigSetup) {
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
 		.thenAnswer(new Answer<FieldScreen>() {
 			@Override
@@ -589,7 +589,7 @@ public class JiraTaskSetupTest {
 		private Collection<IssueType> issueTypes;
 		private UserUtil userUtil;
 		private JiraServices jiraServices;
-		private HubFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
+		private HubFieldScreenSchemeSetupJira6 HubFieldScreenSchemeSetup;
 		private JiraTask jiraTask;
 		private String mappingJson;
 		private Avatar avatarTemplate;
@@ -825,12 +825,12 @@ public class JiraTaskSetupTest {
 			return this;
 		}
 
-		private HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup() {
+		private HubFieldScreenSchemeSetupJira6 getHubFieldScreenSchemeSetup() {
 			return HubFieldScreenSchemeSetup;
 		}
 
 		private JiraEnvironment setHubFieldScreenSchemeSetup(
-				final HubFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
+				final HubFieldScreenSchemeSetupJira6 hubFieldScreenSchemeSetup) {
 			HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
 			return this;
 		}

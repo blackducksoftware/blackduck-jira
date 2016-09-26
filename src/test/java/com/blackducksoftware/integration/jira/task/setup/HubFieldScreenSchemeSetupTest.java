@@ -63,7 +63,7 @@ public class HubFieldScreenSchemeSetupTest {
 
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 
-		final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		final HubFieldScreenSchemeSetupJira6 fieldConfigSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldConfigSetup.addHubFieldConfigurationToJira(null);
 
 		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
@@ -76,7 +76,7 @@ public class HubFieldScreenSchemeSetupTest {
 
 		final JiraServicesMock jiraServices = new JiraServicesMock();
 
-		final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		final HubFieldScreenSchemeSetupJira6 fieldConfigSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldConfigSetup.addHubFieldConfigurationToJira(new ArrayList<IssueType>());
 
 		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
@@ -100,7 +100,7 @@ public class HubFieldScreenSchemeSetupTest {
 
 		final List<IssueType> issueTypes = getHubIssueTypes();
 
-		HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		HubFieldScreenSchemeSetupJira6 fieldConfigSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
@@ -138,9 +138,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 5);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 4);
 			}
 		}
@@ -151,9 +151,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -181,7 +181,7 @@ public class HubFieldScreenSchemeSetupTest {
 
 		final List<IssueType> issueTypes = getHubIssueTypes();
 
-		HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		HubFieldScreenSchemeSetupJira6 fieldConfigSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
 		mockCreationMethods(fieldConfigSetup);
@@ -197,9 +197,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -210,9 +210,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -240,7 +240,7 @@ public class HubFieldScreenSchemeSetupTest {
 
 		final List<IssueType> issueTypes = getHubIssueTypes();
 
-		HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
+		HubFieldScreenSchemeSetupJira6 fieldConfigSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
 		mockCreationMethods(fieldConfigSetup);
@@ -255,9 +255,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -269,9 +269,9 @@ public class HubFieldScreenSchemeSetupTest {
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -296,9 +296,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -309,9 +309,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetup.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetup.HUB_SECURITY_SCREEN_NAME));
+								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -319,7 +319,7 @@ public class HubFieldScreenSchemeSetupTest {
 		assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
 	}
 
-	private void mockCreationMethods(final HubFieldScreenSchemeSetup fieldConfigSetup) {
+	private void mockCreationMethods(final HubFieldScreenSchemeSetupJira6 fieldConfigSetup) {
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
 				.thenAnswer(new Answer<FieldScreen>() {
 					@Override
