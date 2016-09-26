@@ -50,8 +50,9 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
 import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
@@ -110,7 +111,7 @@ public class JiraTask implements PluginJob {
 
 		final Period diff = new Period(beforeSetup, afterSetup);
 		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-				+ "ms.");
+		+ "ms.");
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -146,10 +147,12 @@ public class JiraTask implements PluginJob {
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-			throws JiraException {
+					throws JiraException {
 
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
+
+		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		HubIssueTypeSetup issueTypeSetup;
@@ -166,7 +169,8 @@ public class JiraTask implements PluginJob {
 		}
 		logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-		final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(jiraSettingsService,
+		final AbstractHubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
+				jiraSettingsService,
 				jiraServices);
 
 		final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
@@ -220,9 +224,10 @@ public class JiraTask implements PluginJob {
 		return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
 	}
 
-	public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
+	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices) {
-		return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+		// TODO return the correct setup class if it is Jira 6 vs Jira 7
+		return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
 	}
 
 	public HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,

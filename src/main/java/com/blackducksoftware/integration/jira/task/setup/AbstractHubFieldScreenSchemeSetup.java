@@ -29,7 +29,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericEntityException;
-import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.issue.context.GlobalIssueContext;
 import com.atlassian.jira.issue.context.JiraContextNode;
@@ -56,7 +55,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class HubFieldScreenSchemeSetup {
+public abstract class AbstractHubFieldScreenSchemeSetup {
 	public static final String HUB_POLICY_SCREEN_SCHEME_NAME = "Hub Policy Screen Scheme";
 	public static final String HUB_SECURITY_SCREEN_SCHEME_NAME = "Hub Security Screen Scheme";
 
@@ -73,9 +72,17 @@ public class HubFieldScreenSchemeSetup {
 
 	private final Map<String, CustomField> customFields = new HashMap<>();
 
-	public HubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
+	public AbstractHubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
 		this.settingService = settingService;
 		this.jiraServices = jiraServices;
+	}
+
+	public JiraSettingsService getSettingService() {
+		return settingService;
+	}
+
+	public JiraServices getJiraServices() {
+		return jiraServices;
 	}
 
 	public Map<String, CustomField> getCustomFields() {
@@ -86,18 +93,15 @@ public class HubFieldScreenSchemeSetup {
 		final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
 		try {
 			if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
-				final List<GenericValue> commonIssueTypeGenericValueList = new ArrayList<>();
-				for (final IssueType issue : hubIssueTypes) {
-					commonIssueTypeGenericValueList.add(issue.getGenericValue());
-				}
+				final List<Object> commonIssueTypeList = getIssueTypeObjectList(hubIssueTypes);
 				for (final IssueType issue : hubIssueTypes) {
 					if (issue.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
 						final FieldScreenScheme fss = createPolicyViolationScreenScheme(issue,
-								commonIssueTypeGenericValueList);
+								commonIssueTypeList);
 						fieldScreenSchemes.put(issue, fss);
 					} else if (issue.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
 						final FieldScreenScheme fss = createSecurityScreenScheme(issue,
-								commonIssueTypeGenericValueList);
+								commonIssueTypeList);
 						fieldScreenSchemes.put(issue, fss);
 					}
 				}
@@ -109,7 +113,17 @@ public class HubFieldScreenSchemeSetup {
 		return fieldScreenSchemes;
 	}
 
-	private CustomField createCustomField(final List<GenericValue> issueTypeGenericValueList, final String fieldName)
+	protected abstract List<Object> getIssueTypeObjectList(final List<IssueType> hubIssueTypes);
+
+	protected abstract Object getIssueTypeObject(final IssueType hubIssueType);
+
+	protected List<Object> getAsscociatedIssueTypeObjects(final CustomField customField) {
+		final List<Object> genericValues = new ArrayList<>();
+		genericValues.addAll(customField.getAssociatedIssueTypes());
+		return genericValues;
+	}
+
+	private CustomField createCustomField(final List<Object> issueTypeList, final String fieldName)
 			throws GenericEntityException {
 		final CustomFieldType fieldType = jiraServices.getCustomFieldManager()
 				.getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
@@ -120,30 +134,29 @@ public class HubFieldScreenSchemeSetup {
 		contexts.add(GlobalIssueContext.getInstance());
 
 		return jiraServices.getCustomFieldManager().createCustomField(fieldName, "", fieldType, fieldSearcher, contexts,
-				issueTypeGenericValueList);
+				issueTypeList);
 	}
 
-	private OrderableField getOrderedFieldFromCustomField(final List<GenericValue> issueTypeGenericValueList,
+	private OrderableField getOrderedFieldFromCustomField(final List<Object> commonIssueTypeList,
 			final String fieldName) {
 		try {
 			CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(fieldName);
 			if (customField == null) {
-				customField = createCustomField(issueTypeGenericValueList, fieldName);
+				customField = createCustomField(commonIssueTypeList, fieldName);
 			}
 			if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
-				final List<GenericValue> updatedGenericValueList = new ArrayList<>();
-				updatedGenericValueList.addAll(customField.getAssociatedIssueTypes());
+				final List<Object> associatatedIssueTypeList = getAsscociatedIssueTypeObjects(customField);
 				boolean needToUpdateCustomField = false;
-				for (final GenericValue issueTypeValue : issueTypeGenericValueList) {
-					if (!customField.getAssociatedIssueTypes().contains(issueTypeValue)) {
+				for (final Object issueTypeValue : commonIssueTypeList) {
+					if (!associatatedIssueTypeList.contains(issueTypeValue)) {
 						needToUpdateCustomField = true;
-						updatedGenericValueList.add(issueTypeValue);
+						associatatedIssueTypeList.add(issueTypeValue);
 					}
 				}
 				if (needToUpdateCustomField) {
 					// not sure how else to best update the custom field
 					jiraServices.getCustomFieldManager().removeCustomField(customField);
-					customField = createCustomField(updatedGenericValueList, fieldName);
+					customField = createCustomField(associatatedIssueTypeList, fieldName);
 				}
 			}
 			customFields.put(fieldName, customField);
@@ -156,34 +169,34 @@ public class HubFieldScreenSchemeSetup {
 		return null;
 	}
 
-	private List<OrderableField> createCommonFields(final List<GenericValue> commonIssueTypeGenericValueList) {
+	private List<OrderableField> createCommonFields(final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = new ArrayList<>();
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT));
-		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeGenericValueList,
+		customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
 		return customFields;
 	}
 
 	private List<OrderableField> createPolicyViolationFields(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
+			final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = new ArrayList<>();
-		final List<GenericValue> policyViolationGenericValueList = new ArrayList<>();
-		policyViolationGenericValueList.add(issueType.getGenericValue());
-		customFields.add(getOrderedFieldFromCustomField(policyViolationGenericValueList,
+		final List<Object> policyViolationIssueTypeObjectList = new ArrayList<>();
+		policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
+		customFields.add(getOrderedFieldFromCustomField(policyViolationIssueTypeObjectList,
 				HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE));
-		customFields.addAll(createCommonFields(commonIssueTypeGenericValueList));
+		customFields.addAll(createCommonFields(commonIssueTypeList));
 		return customFields;
 	}
 
 	private List<OrderableField> createSecurityFields(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
+			final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = new ArrayList<>();
-		customFields.addAll(createCommonFields(commonIssueTypeGenericValueList));
+		customFields.addAll(createCommonFields(commonIssueTypeList));
 		return customFields;
 	}
 
@@ -270,16 +283,16 @@ public class HubFieldScreenSchemeSetup {
 	}
 
 	private FieldScreen createPolicyViolationScreen(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
+			final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = createPolicyViolationFields(issueType,
-				commonIssueTypeGenericValueList);
+				commonIssueTypeList);
 		final FieldScreen screen = createScreen(HUB_POLICY_SCREEN_NAME, customFields);
 		return screen;
 	}
 
 	private FieldScreen createSecurityScreen(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
-		final List<OrderableField> customFields = createSecurityFields(issueType, commonIssueTypeGenericValueList);
+			final List<Object> commonIssueTypeList) {
+		final List<OrderableField> customFields = createSecurityFields(issueType, commonIssueTypeList);
 		final FieldScreen screen = createScreen(HUB_SECURITY_SCREEN_NAME, customFields);
 		return screen;
 	}
@@ -360,15 +373,15 @@ public class HubFieldScreenSchemeSetup {
 	}
 
 	private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
-		final FieldScreen screen = createPolicyViolationScreen(issueType, commonIssueTypeGenericValueList);
+			final List<Object> commonIssueTypeList) {
+		final FieldScreen screen = createPolicyViolationScreen(issueType, commonIssueTypeList);
 		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_POLICY_SCREEN_SCHEME_NAME, screen);
 		return fieldScreenScheme;
 	}
 
 	private FieldScreenScheme createSecurityScreenScheme(final IssueType issueType,
-			final List<GenericValue> commonIssueTypeGenericValueList) {
-		final FieldScreen screen = createSecurityScreen(issueType, commonIssueTypeGenericValueList);
+			final List<Object> commonIssueTypeList) {
+		final FieldScreen screen = createSecurityScreen(issueType, commonIssueTypeList);
 		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
 		return fieldScreenScheme;
 	}
