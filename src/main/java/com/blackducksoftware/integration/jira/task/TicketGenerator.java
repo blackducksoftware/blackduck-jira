@@ -78,7 +78,7 @@ public class TicketGenerator {
 			// final List<NotificationItem> notifs =
 			// notificationService.fetchNotifications(notificationDateRange);
 			if ((notifs == null) || (notifs.size() == 0)) {
-				logger.debug("There are no notifications to handle");
+				logger.info("There are no notifications to handle");
 				return;
 			}
 
@@ -87,7 +87,7 @@ public class TicketGenerator {
 
 			final List<HubEvent> events = processor.generateEvents(notifs);
 			if ((events == null) || (events.size() == 0)) {
-				logger.debug("There are no events to handle");
+				logger.info("There are no events to handle");
 				return;
 			}
 
