@@ -162,7 +162,7 @@ public class JiraTask implements PluginJob {
 		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
-		final JiraVersion jiraVersion = new JiraVersion();
+		final JiraVersion jiraVersion = getJiraVersion();
 		HubIssueTypeSetup issueTypeSetup;
 		try {
 			issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraUserName);
@@ -226,6 +226,10 @@ public class JiraTask implements PluginJob {
 			}
 		}
 		/////////////////////////////////////////////////////////////////////////
+	}
+
+	public JiraVersion getJiraVersion() {
+		return new JiraVersion();
 	}
 
 	public HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,

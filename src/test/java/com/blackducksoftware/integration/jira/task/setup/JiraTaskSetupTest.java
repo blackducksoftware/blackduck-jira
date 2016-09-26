@@ -73,6 +73,7 @@ import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
 import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
+import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
@@ -375,6 +376,13 @@ public class JiraTaskSetupTest {
 	}
 
 	private void mockCreationMethods(final JiraTask jiraTask, final AbstractHubFieldScreenSchemeSetup fieldConfigSetup) {
+		final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
+		buildInfoUtil.setVersion("6.4.0");
+		final int[] versionNumbers = { 6, 4, 0 };
+		buildInfoUtil.setVersionNumbers(versionNumbers);
+		final JiraVersion jiraVersion = new JiraVersion(buildInfoUtil);
+		Mockito.when(jiraTask.getJiraVersion()).thenReturn(jiraVersion);
+
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
 		.thenAnswer(new Answer<FieldScreen>() {
 			@Override
@@ -399,8 +407,9 @@ public class JiraTaskSetupTest {
 					}
 				});
 
-		Mockito.when(jiraTask.getHubFieldScreenSchemeSetup(Mockito.any(JiraSettingsService.class),
-				Mockito.any(JiraServices.class), Mockito.any(JiraVersion.class))).thenReturn(fieldConfigSetup);
+		Mockito.doReturn(fieldConfigSetup).when(jiraTask).getHubFieldScreenSchemeSetup(
+				Mockito.any(JiraSettingsService.class), Mockito.any(JiraServices.class),
+				Mockito.any(JiraVersion.class));
 	}
 
 	private FieldLayoutManagerMock getFieldLayoutManagerMock() {
