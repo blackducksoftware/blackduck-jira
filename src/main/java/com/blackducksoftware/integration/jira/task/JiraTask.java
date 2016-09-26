@@ -241,7 +241,7 @@ public class JiraTask implements PluginJob {
 			final JiraServices jiraServices, final JiraVersion jiraVersion) {
 		if(jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES)){
 			return new HubFieldScreenSchemeSetupJira6(jiraSettingsService, jiraServices);
-		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES)) {
+		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES)) {
 			return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
 		}
 		return null;
