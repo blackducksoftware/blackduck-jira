@@ -51,11 +51,12 @@ import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenSchemeSetup;
+import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
 import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -72,6 +73,8 @@ public class JiraTask implements PluginJob {
 
 	@Override
 	public void execute(final Map<String, Object> jobDataMap) {
+		logger.info("Running the Hub Jira task.");
+
 		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
 		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
 		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -188,7 +191,7 @@ public class JiraTask implements PluginJob {
 		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
 				.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-		final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
+		final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////
 
@@ -235,9 +238,9 @@ public class JiraTask implements PluginJob {
 		return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
 	}
 
-	public HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
+	public AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices) {
-		return new HubWorkflowSetup(jiraSettingsService, jiraServices);
+		return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
 	}
 
 	public HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,

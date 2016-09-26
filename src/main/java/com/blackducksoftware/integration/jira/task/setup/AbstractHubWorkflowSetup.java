@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.jira.task.setup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -32,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
@@ -47,7 +45,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
-public class HubWorkflowSetup {
+public abstract class AbstractHubWorkflowSetup {
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -55,9 +53,17 @@ public class HubWorkflowSetup {
 
 	private final JiraServices jiraServices;
 
-	public HubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
+	public AbstractHubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
 		this.settingService = settingService;
 		this.jiraServices = jiraServices;
+	}
+
+	public JiraSettingsService getSettingService() {
+		return settingService;
+	}
+
+	public JiraServices getJiraServices() {
+		return jiraServices;
 	}
 
 	public JiraWorkflow addHubWorkflowToJira() {
@@ -150,13 +156,6 @@ public class HubWorkflowSetup {
 		}
 	}
 
-	private ApplicationUser getJiraSystemAdmin() {
-		final Collection<User> jiraSysAdmins = jiraServices.getUserUtil().getJiraSystemAdministrators();
-		if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
-			return null;
-		}
-		final User jiraSysAdmin = jiraSysAdmins.iterator().next();
-		return jiraServices.userToApplicationUser(jiraSysAdmin);
-	}
+	protected abstract ApplicationUser getJiraSystemAdmin();
 
 }
