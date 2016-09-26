@@ -32,7 +32,7 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Vul
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 

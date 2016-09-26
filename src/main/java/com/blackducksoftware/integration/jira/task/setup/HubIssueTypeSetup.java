@@ -50,8 +50,8 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
