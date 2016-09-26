@@ -48,14 +48,18 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.jiraversion.JiraCapabilityEnum;
+import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
 import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
 
 /**
@@ -158,6 +162,7 @@ public class JiraTask implements PluginJob {
 		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
+		final JiraVersion jiraVersion = new JiraVersion();
 		HubIssueTypeSetup issueTypeSetup;
 		try {
 			issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraUserName);
@@ -174,7 +179,7 @@ public class JiraTask implements PluginJob {
 
 		final AbstractHubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
 				jiraSettingsService,
-				jiraServices);
+				jiraServices, jiraVersion);
 
 		final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
 				.addHubFieldConfigurationToJira(issueTypes);
@@ -191,7 +196,8 @@ public class JiraTask implements PluginJob {
 		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
 				.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-		final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
+		final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
+				jiraVersion);
 		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 		////////////////////////////////////////////////////////////////////////
 
@@ -228,9 +234,13 @@ public class JiraTask implements PluginJob {
 	}
 
 	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices) {
-		// TODO return the correct setup class if it is Jira 6 vs Jira 7
-		return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
+			final JiraServices jiraServices, final JiraVersion jiraVersion) {
+		if(jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES)){
+			return new HubFieldScreenSchemeSetupJira6(jiraSettingsService, jiraServices);
+		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES)) {
+			return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
+		}
+		return null;
 	}
 
 	public HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
@@ -239,8 +249,13 @@ public class JiraTask implements PluginJob {
 	}
 
 	public AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices) {
-		return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
+			final JiraServices jiraServices, final JiraVersion jiraVersion) {
+		if (jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS)) {
+			return new HubWorkflowSetupJira6(jiraSettingsService, jiraServices);
+		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS)) {
+			return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
+		}
+		return null;
 	}
 
 	public HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,

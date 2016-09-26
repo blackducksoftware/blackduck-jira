@@ -11,11 +11,6 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 /**
  * Provides insight into the capabilities of the current JIRA version.
  *
- * To add a new JIRA version, add a new addVersion() call to buildTable().
- *
- * To add a new capability, add it to the following (which are all in this
- * class): 1. JiraCapability, 2. CapabilitySet, 3. hasCapability().
- *
  * @author sbillings
  *
  */
