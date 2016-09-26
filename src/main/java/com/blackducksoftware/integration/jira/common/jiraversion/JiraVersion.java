@@ -1,12 +1,12 @@
 package com.blackducksoftware.integration.jira.common.jiraversion;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.atlassian.jira.util.BuildUtilsInfo;
+import org.apache.log4j.Logger;
+
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.hub.logging.IntLogger;
-import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 /**
  * Provides insight into the capabilities of the current JIRA version.
@@ -20,149 +20,45 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
  *
  */
 public class JiraVersion {
-	private static final String JIRA_6_4_VERSION_STRING = "6.4";
-	private final int jiraVersionMajor;
-	private final int jiraVersionMinor;
-	private final int jiraVersionPatch;
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	private final String jiraVersionString;
+	private final List<JiraCapabilityEnum> capabilities = new ArrayList<>();
 
-	private final Map<String, CapabilitySet> capabilityMatrix = new HashMap<>();
-	private final CapabilitySet currentCapabilities;
-	private String mostRecentJiraVersionString;
+	private final String mostRecentJiraVersionSupportedString = "7.0.0";
 
-	JiraVersion(final IntLogger logger) throws ConfigurationException {
-		this(logger, null, 0, 0, 0);
+	private final String oldestJiraVersionSupportedString = "6.4.0";
+
+	public JiraVersion() {
+		this(new BuildUtilsInfoImpl());
 	}
 
-	public enum JiraCapability {
-		GET_SYSTEM_ADMINS_AS_USERS,
-		GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS,
-		CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES,
-		CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES;
-	}
+	public JiraVersion(final BuildUtilsInfoImpl serverInfoUtils) {
+		final int[] versionNumbers = serverInfoUtils.getVersionNumbers();
 
-	public boolean hasCapability(final JiraCapability capability) {
-		switch (capability) {
-		case GET_SYSTEM_ADMINS_AS_USERS:
-			return currentCapabilities.isHasGetSystemAdminsAsUsers();
-		case GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS:
-			return currentCapabilities.isHasGetSystemAdminsAsApplicationUsers();
-		case CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES:
-			return currentCapabilities.isCustomFieldsRequireGenericValues();
-		case CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES:
-			return currentCapabilities.isCustomFieldsRequireIssueTypes();
-		}
-		throw new UnsupportedOperationException("Invalid capability: " + capability);
-	}
-
-	private void buildTable() {
-		addVersion("6.4", new CapabilitySet(true, false, true, false));
-		addVersion("7.0", new CapabilitySet(false, true, false, true));
-	}
-
-	private void addVersion(final String jiraVersionString, final CapabilitySet capabilitySet) {
-		capabilityMatrix.put(jiraVersionString, capabilitySet);
-		mostRecentJiraVersionString = jiraVersionString;
-	}
-
-	JiraVersion(final IntLogger logger, final String versionString, final int major, final int minor,
-			final int patch) throws ConfigurationException {
-		buildTable();
-
-		if (versionString != null) {
-			jiraVersionString = versionString;
-			jiraVersionMajor = major;
-			jiraVersionMinor = minor;
-			jiraVersionPatch = patch;
-		} else {
-			final BuildUtilsInfo jiraVersionInfo = new BuildUtilsInfoImpl();
-			final int[] jiraVersionNumberComponents = jiraVersionInfo.getVersionNumbers();
-			for (final int jiraVersionNumberComponent : jiraVersionNumberComponents) {
-				System.out.println("JIRA Version number component: " + jiraVersionNumberComponent);
-			}
-			jiraVersionString = jiraVersionInfo.getVersion();
-			jiraVersionMajor = getVersionComponent(jiraVersionNumberComponents, 0);
-			jiraVersionMinor = getVersionComponent(jiraVersionNumberComponents, 1);
-			jiraVersionPatch = getVersionComponent(jiraVersionNumberComponents, 2);
-		}
-
-		if (!capabilityMatrix.containsKey(this.jiraVersionString)) {
-			if (jiraVersionMajor >= 7) {
-				logger.warn("This this version of JIRA (" + this.jiraVersionString
-						+ ") is not supported. Attempting to proceed as if it were JIRA version "
-						+ mostRecentJiraVersionString);
-				currentCapabilities = capabilityMatrix.get(this.mostRecentJiraVersionString);
-			} else if ((jiraVersionMajor >= 6) && (jiraVersionMinor >= 4)) {
-				logger.warn("This this version of JIRA (" + this.jiraVersionString
-						+ ") is not supported. Attempting to proceed as if it were JIRA version "
-						+ JIRA_6_4_VERSION_STRING);
-				currentCapabilities = capabilityMatrix.get(JIRA_6_4_VERSION_STRING);
-			} else {
-				final String msg = "This this version of JIRA (" + this.jiraVersionString + ") is not supported.";
-				logger.error(msg);
-				throw new ConfigurationException(msg);
-			}
-		} else {
-			final String majorDotMinor = String.format("%d.%d", jiraVersionMajor, jiraVersionMinor);
-			currentCapabilities = capabilityMatrix.get(majorDotMinor);
+		if ((versionNumbers[0] >= 7) && (versionNumbers[1] >= 1)) {
+			logger.warn("This version of JIRA (" + serverInfoUtils.getVersion()
+			+ ") is not supported. Attempting to proceed as if it were JIRA version "
+			+ mostRecentJiraVersionSupportedString);
+			capabilities.add(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES);
+			capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
+		} else if (versionNumbers[0] >= 7) {
+			logger.debug("This version of JIRA (" + serverInfoUtils.getVersion() + ") is supported.");
+			capabilities.add(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES);
+			capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
+		} else if ((versionNumbers[0] <= 6) && (versionNumbers[1] < 4)) {
+			logger.warn("This version of JIRA (" + serverInfoUtils.getVersion()
+			+ ") is not supported. Attempting to proceed as if it were JIRA version "
+			+ oldestJiraVersionSupportedString);
+			capabilities.add(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES);
+			capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS);
+		} else if ((versionNumbers[0] >= 6) && (versionNumbers[1] >= 4)) {
+			logger.debug("This version of JIRA (" + serverInfoUtils.getVersion() + ") is supported.");
+			capabilities.add(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES);
+			capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS);
 		}
 	}
 
-	private int getVersionComponent(final int[] versionComponents, final int componentIndex) {
-		if (versionComponents.length < componentIndex) {
-			return 0;
-		}
-		return versionComponents[componentIndex];
-	}
-
-	int getMajor() {
-		return jiraVersionMajor;
-	}
-
-	int getMinor() {
-		return jiraVersionMinor;
-	}
-
-	int getPatch() {
-		return jiraVersionPatch;
-	}
-
-	@Override
-	public String toString() {
-		return jiraVersionString;
-	}
-
-	private class CapabilitySet {
-		private final boolean hasGetSystemAdminsAsUsers;
-		private final boolean hasGetSystemAdminsAsApplicationUsers;
-		private final boolean customFieldsRequireGenericValues;
-		private final boolean customFieldsRequireIssueTypes;
-
-		private CapabilitySet(final boolean hasGetSystemAdminsAsUsers,
-				final boolean hasGetSystemAdminsAsApplicationUsers, final boolean customFieldsRequireGenericValues,
-				final boolean customFieldsRequireIssueTypes) {
-			super();
-			this.hasGetSystemAdminsAsUsers = hasGetSystemAdminsAsUsers;
-			this.hasGetSystemAdminsAsApplicationUsers = hasGetSystemAdminsAsApplicationUsers;
-			this.customFieldsRequireGenericValues = customFieldsRequireGenericValues;
-			this.customFieldsRequireIssueTypes = customFieldsRequireIssueTypes;
-		}
-
-		private boolean isHasGetSystemAdminsAsUsers() {
-			return hasGetSystemAdminsAsUsers;
-		}
-
-		private boolean isHasGetSystemAdminsAsApplicationUsers() {
-			return hasGetSystemAdminsAsApplicationUsers;
-		}
-
-		public boolean isCustomFieldsRequireGenericValues() {
-			return customFieldsRequireGenericValues;
-		}
-
-		public boolean isCustomFieldsRequireIssueTypes() {
-			return customFieldsRequireIssueTypes;
-		}
+	public boolean hasCapability(final JiraCapabilityEnum capability) {
+		return capabilities.contains(capability);
 	}
 }
