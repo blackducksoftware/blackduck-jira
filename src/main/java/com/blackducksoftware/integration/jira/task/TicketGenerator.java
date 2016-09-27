@@ -95,7 +95,12 @@ public class TicketGenerator {
 					ticketInfoFromSetup);
 
 			for (final HubEvent event : events) {
-				issueHandler.handleEvent(event);
+				try {
+					issueHandler.handleEvent(event);
+				} catch (final Exception e) {
+					logger.error(e);
+					jiraSettingsService.addHubError(e, "issueHandler.handleEvent(event)");
+				}
 			}
 		} catch (final Exception e) {
 			logger.error(e);
