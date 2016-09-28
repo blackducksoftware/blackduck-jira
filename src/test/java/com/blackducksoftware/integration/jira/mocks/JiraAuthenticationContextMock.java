@@ -23,7 +23,6 @@ package com.blackducksoftware.integration.jira.mocks;
 
 import java.util.Locale;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
@@ -55,12 +54,6 @@ public class JiraAuthenticationContextMock implements JiraAuthenticationContext 
 	}
 
 	@Override
-	public User getLoggedInUser() {
-
-		return null;
-	}
-
-	@Override
 	public OutlookDate getOutlookDate() {
 
 		return null;
@@ -85,13 +78,14 @@ public class JiraAuthenticationContextMock implements JiraAuthenticationContext 
 	}
 
 	@Override
-	public void setLoggedInUser(final User arg0) {
+	public void setLoggedInUser(final ApplicationUser arg0) {
 
 	}
 
 	@Override
-	public void setLoggedInUser(final ApplicationUser arg0) {
-
+	public ApplicationUser getLoggedInUser() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

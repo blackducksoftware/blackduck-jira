@@ -24,6 +24,8 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import java.util.Collection;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonNode;
+
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.changehistory.metadata.HistoryMetadata;
 
@@ -451,6 +453,30 @@ public class IssueInputParametersMock implements IssueInputParameters {
 	@Override
 	public boolean skipScreenCheck() {
 
+		return false;
+	}
+
+	@Override
+	public IssueInputParameters addProperty(final String arg0, final JsonNode arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, JsonNode> properties() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSkipLicenceCheck(final boolean arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean skipLicenceCheck() {
+		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -97,12 +97,6 @@ public class JiraWorkflowMock implements JiraWorkflow {
 	}
 
 	@Override
-	public GenericValue getLinkedStatus(final StepDescriptor arg0) {
-
-		return null;
-	}
-
-	@Override
 	public String getLinkedStatusId(final StepDescriptor arg0) {
 
 		return null;
@@ -266,6 +260,12 @@ public class JiraWorkflowMock implements JiraWorkflow {
 	@Override
 	public void reset() {
 
+	}
+
+	@Override
+	public Status getLinkedStatus(final StepDescriptor arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -30,7 +30,8 @@ import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.crowd.embedded.api.User;
+import webwork.action.Action;
+
 import com.atlassian.jira.admin.RenderableProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.ModifiedValue;
@@ -56,19 +57,17 @@ import com.atlassian.jira.issue.fields.rest.json.JsonData;
 import com.atlassian.jira.issue.fields.rest.json.JsonType;
 import com.atlassian.jira.issue.fields.screen.FieldScreenRenderLayoutItem;
 import com.atlassian.jira.issue.fields.util.MessagedResult;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.search.ClauseNames;
 import com.atlassian.jira.issue.search.LuceneFieldSorter;
 import com.atlassian.jira.issue.search.SearchContext;
 import com.atlassian.jira.issue.search.SearchHandler;
 import com.atlassian.jira.issue.util.IssueChangeHolder;
 import com.atlassian.jira.project.Project;
-import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.bean.BulkEditBean;
 import com.opensymphony.module.propertyset.PropertySet;
-
-import webwork.action.Action;
 
 public class CustomFieldMock implements CustomField {
 
@@ -79,6 +78,22 @@ public class CustomFieldMock implements CustomField {
 	private CustomFieldType fieldType;
 
 	private CustomFieldSearcher searcher;
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	public void setFieldType(final CustomFieldType fieldType) {
+		this.fieldType = fieldType;
+	}
+
+	public void setCustomFieldSearcher(final CustomFieldSearcher searcher) {
+		this.searcher = searcher;
+	}
 
 	@Override
 	public String getColumnCssClass() {
@@ -379,31 +394,7 @@ public class CustomFieldMock implements CustomField {
 	}
 
 	@Override
-	public List<GenericValue> getAssociatedIssueTypes() {
-
-		return null;
-	}
-
-	@Override
-	public List<GenericValue> getAssociatedProjectCategories() {
-
-		return null;
-	}
-
-	@Override
-	public List<ProjectCategory> getAssociatedProjectCategoryObjects() {
-
-		return null;
-	}
-
-	@Override
 	public List<Project> getAssociatedProjectObjects() {
-
-		return null;
-	}
-
-	@Override
-	public List<GenericValue> getAssociatedProjects() {
 
 		return null;
 	}
@@ -581,18 +572,6 @@ public class CustomFieldMock implements CustomField {
 	}
 
 	@Override
-	public boolean isInScope(final GenericValue arg0, final List<String> arg1) {
-
-		return false;
-	}
-
-	@Override
-	public boolean isInScope(final User arg0, final SearchContext arg1) {
-
-		return false;
-	}
-
-	@Override
 	public boolean isInScopeForSearch(final Project arg0, final List<String> arg1) {
 
 		return false;
@@ -611,30 +590,20 @@ public class CustomFieldMock implements CustomField {
 	}
 
 	@Override
-	public void setCustomFieldSearcher(final CustomFieldSearcher searcher) {
-		this.searcher = searcher;
-	}
-
-	@Override
-	public void setDescription(final String description) {
-		this.description = description;
-
-	}
-
-	@Override
-	public void setName(final String name) {
-		this.name = name;
-
-	}
-
-	@Override
-	public void store() {
-
-	}
-
-	@Override
 	public void validateFromActionParams(final Map arg0, final ErrorCollection arg1, final FieldConfig arg2) {
 
+	}
+
+	@Override
+	public List<IssueType> getAssociatedIssueTypeObjects() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<IssueType> getAssociatedIssueTypes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -24,10 +24,8 @@ package com.blackducksoftware.integration.jira.mocks.field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections.MultiMap;
-import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.issue.context.IssueContext;
 import com.atlassian.jira.issue.context.JiraContextNode;
@@ -36,7 +34,6 @@ import com.atlassian.jira.issue.fields.config.FieldConfig;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
-import com.atlassian.jira.project.ProjectCategory;
 
 public class FieldConfigSchemeMock implements FieldConfigScheme {
 
@@ -53,20 +50,6 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 		return null;
 	}
 
-	@Override
-	public Set<GenericValue> getAssociatedIssueTypes() {
-		return null;
-	}
-
-	@Override
-	public List<GenericValue> getAssociatedProjectCategories() {
-		return null;
-	}
-
-	@Override
-	public List<ProjectCategory> getAssociatedProjectCategoryObjects() {
-		return null;
-	}
 
 	@Override
 	public List<Long> getAssociatedProjectIds() {
@@ -75,11 +58,6 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 
 	@Override
 	public List<Project> getAssociatedProjectObjects() {
-		return null;
-	}
-
-	@Override
-	public List<GenericValue> getAssociatedProjects() {
 		return null;
 	}
 
@@ -151,6 +129,12 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 	@Override
 	public boolean isInContext(final IssueContext arg0) {
 		return false;
+	}
+
+	@Override
+	public Collection<IssueType> getAssociatedIssueTypes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

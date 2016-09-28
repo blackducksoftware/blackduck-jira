@@ -27,12 +27,12 @@ import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.bc.project.component.ProjectComponent;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
+import com.atlassian.jira.project.type.ProjectTypeKey;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.user.ApplicationUser;
 
@@ -88,18 +88,6 @@ public class ProjectMock implements Project {
 	}
 
 	@Override
-	public Collection<GenericValue> getComponents() {
-
-		return null;
-	}
-
-	@Override
-	public Long getCounter() {
-
-		return null;
-	}
-
-	@Override
 	public String getDescription() {
 
 		return null;
@@ -124,25 +112,7 @@ public class ProjectMock implements Project {
 	}
 
 	@Override
-	public User getLead() {
-
-		return null;
-	}
-
-	@Override
-	public User getLeadUser() {
-
-		return null;
-	}
-
-	@Override
 	public String getLeadUserName() {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectCategory() {
 
 		return null;
 	}
@@ -183,6 +153,30 @@ public class ProjectMock implements Project {
 
 	@Override
 	public ApplicationUser getProjectLead() {
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getLead() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProjectCategory getProjectCategory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProjectTypeKey getProjectTypeKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ProjectComponent> getComponents() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

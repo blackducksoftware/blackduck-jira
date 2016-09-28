@@ -24,6 +24,8 @@ package com.blackducksoftware.integration.jira.mocks.field;
 import java.util.Collection;
 import java.util.Map;
 
+import webwork.action.Action;
+
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.ModifiedValue;
 import com.atlassian.jira.issue.MutableIssue;
@@ -38,8 +40,6 @@ import com.atlassian.jira.issue.util.IssueChangeHolder;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.bean.BulkEditBean;
-
-import webwork.action.Action;
 
 public class OrderableFieldMock implements OrderableField {
 
@@ -168,11 +168,6 @@ public class OrderableFieldMock implements OrderableField {
 		return null;
 	}
 
-	@Override
-	public boolean hasParam(final Map<String, String[]> arg0) {
-
-		return false;
-	}
 
 	@Override
 	public boolean hasValue(final Issue arg0) {
@@ -192,31 +187,6 @@ public class OrderableFieldMock implements OrderableField {
 		return null;
 	}
 
-	@Override
-	public void populateDefaults(final Map<String, Object> arg0, final Issue arg1) {
-
-	}
-
-	@Override
-	public void populateForMove(final Map<String, Object> arg0, final Issue arg1, final Issue arg2) {
-
-	}
-
-	@Override
-	public void populateFromIssue(final Map<String, Object> arg0, final Issue arg1) {
-
-	}
-
-	@Override
-	public void populateFromParams(final Map<String, Object> arg0, final Map<String, String[]> arg1) {
-
-	}
-
-	@Override
-	public void populateParamsFromString(final Map<String, Object> arg0, final String arg1, final Issue arg2)
-			throws FieldValidationException {
-
-	}
 
 	@Override
 	public void removeValueFromIssueObject(final MutableIssue arg0) {
@@ -237,6 +207,43 @@ public class OrderableFieldMock implements OrderableField {
 	@Override
 	public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
 			final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
+
+	}
+
+	@Override
+	public boolean hasParam(final Map arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void populateDefaults(final Map arg0, final Issue arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void populateForMove(final Map arg0, final Issue arg1, final Issue arg2) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void populateFromIssue(final Map arg0, final Issue arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void populateFromParams(final Map arg0, final Map arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void populateParamsFromString(final Map arg0, final String arg1, final Issue arg2)
+			throws FieldValidationException {
+		// TODO Auto-generated method stub
 
 	}
 

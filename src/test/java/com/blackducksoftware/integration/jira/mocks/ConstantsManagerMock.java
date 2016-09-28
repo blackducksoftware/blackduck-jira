@@ -62,12 +62,6 @@ public class ConstantsManagerMock implements ConstantsManager {
 	}
 
 	@Override
-	public GenericValue createIssueType(final String arg0, final Long arg1, final String arg2, final String arg3,
-			final String arg4) throws CreateException {
-		return null;
-	}
-
-	@Override
 	public List<String> expandIssueTypeIds(final Collection<String> arg0) {
 		return null;
 	}
@@ -80,16 +74,6 @@ public class ConstantsManagerMock implements ConstantsManager {
 	@Override
 	public Collection<IssueType> getAllIssueTypeObjects() {
 		return issueTypes;
-	}
-
-	@Override
-	public List<GenericValue> getAllIssueTypes() {
-		return null;
-	}
-
-	@Override
-	public GenericValue getConstantByName(final String arg0, final String arg1) {
-		return null;
 	}
 
 	@Override
@@ -107,20 +91,12 @@ public class ConstantsManagerMock implements ConstantsManager {
 		return null;
 	}
 
-	@Override
-	public GenericValue getDefaultPriority() {
-		return null;
-	}
 
 	@Override
 	public Priority getDefaultPriorityObject() {
 		return null;
 	}
 
-	@Override
-	public List<GenericValue> getEditableSubTaskIssueTypes() {
-		return null;
-	}
 
 	@Override
 	public IssueConstant getIssueConstant(final GenericValue arg0) {
@@ -132,23 +108,9 @@ public class ConstantsManagerMock implements ConstantsManager {
 		return null;
 	}
 
-	@Override
-	public GenericValue getIssueType(final String arg0) {
-		return null;
-	}
 
 	@Override
 	public IssueType getIssueTypeObject(final String arg0) {
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getIssueTypes() {
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getPriorities() {
 		return null;
 	}
 
@@ -173,27 +135,12 @@ public class ConstantsManagerMock implements ConstantsManager {
 	}
 
 	@Override
-	public GenericValue getResolution(final String arg0) {
-		return null;
-	}
-
-	@Override
 	public Resolution getResolutionObject(final String arg0) {
 		return null;
 	}
 
 	@Override
 	public Collection<Resolution> getResolutionObjects() {
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getResolutions() {
-		return null;
-	}
-
-	@Override
-	public GenericValue getStatus(final String arg0) {
 		return null;
 	}
 
@@ -223,17 +170,7 @@ public class ConstantsManagerMock implements ConstantsManager {
 	}
 
 	@Override
-	public Collection<GenericValue> getStatuses() {
-		return null;
-	}
-
-	@Override
 	public Collection<IssueType> getSubTaskIssueTypeObjects() {
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getSubTaskIssueTypes() {
 		return null;
 	}
 
@@ -338,6 +275,84 @@ public class ConstantsManagerMock implements ConstantsManager {
 
 	public int getIssueTypesCreatedCount() {
 		return issueTypeIndex;
+	}
+
+	@Override
+	public List<IssueConstant> getConstantsByIds(final CONSTANT_TYPE arg0, final Collection<String> arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Priority getDefaultPriority() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IssueType getIssueType(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Resolution getResolution(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Status getStatus(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void recalculateIssueTypeSequencesAndStore(final List<IssueType> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void recalculatePrioritySequencesAndStore(final List<Priority> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void recalculateResolutionSequencesAndStore(final List<Resolution> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void recalculateStatusSequencesAndStore(final List<Status> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public List<IssueType> getEditableSubTaskIssueTypes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Priority> getPriorities() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Resolution> getResolutions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Status> getStatuses() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

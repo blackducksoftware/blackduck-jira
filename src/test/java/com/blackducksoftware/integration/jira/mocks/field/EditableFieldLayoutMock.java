@@ -26,12 +26,12 @@ import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.OrderableField;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.user.ApplicationUser;
 
 public class EditableFieldLayoutMock implements EditableFieldLayout {
 
@@ -89,18 +89,6 @@ public class EditableFieldLayoutMock implements EditableFieldLayout {
 	}
 
 	@Override
-	public List<Field> getHiddenFields(final User arg0, final GenericValue arg1, final List<String> arg2) {
-
-		return null;
-	}
-
-	@Override
-	public List<Field> getHiddenFields(final User arg0, final Project arg1, final List<String> arg2) {
-
-		return null;
-	}
-
-	@Override
 	public Long getId() {
 
 		return null;
@@ -138,12 +126,6 @@ public class EditableFieldLayoutMock implements EditableFieldLayout {
 
 	@Override
 	public List<FieldLayoutItem> getVisibleLayoutItems(final Project arg0, final List<String> arg1) {
-
-		return null;
-	}
-
-	@Override
-	public List<FieldLayoutItem> getVisibleLayoutItems(final User arg0, final Project arg1, final List<String> arg2) {
 
 		return null;
 	}
@@ -204,6 +186,13 @@ public class EditableFieldLayoutMock implements EditableFieldLayout {
 	@Override
 	public void show(final FieldLayoutItem arg0) {
 
+	}
+
+	@Override
+	public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
+			final List<String> arg2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

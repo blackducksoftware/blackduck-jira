@@ -35,14 +35,14 @@ public class HubFieldScreenSchemeSetupJira7 extends AbstractHubFieldScreenScheme
 	}
 
 	@Override
-	protected List<Object> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
-		final List<Object> issueTypes = new ArrayList<>();
+	protected List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
+		final List<IssueType> issueTypes = new ArrayList<>();
 		issueTypes.addAll(hubIssueTypes);
 		return issueTypes;
 	}
 
 	@Override
-	protected Object getIssueTypeObject(final IssueType hubIssueType) {
+	protected IssueType getIssueTypeObject(final IssueType hubIssueType) {
 		return hubIssueType;
 	}
 

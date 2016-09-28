@@ -30,7 +30,6 @@ import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.crowd.embedded.api.Group;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.exception.RemoveException;
 import com.atlassian.jira.issue.Issue;
@@ -177,12 +176,6 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 	}
 
 	@Override
-	public List<GenericValue> getProjects(final GenericValue arg0) throws GenericEntityException {
-
-		return null;
-	}
-
-	@Override
 	public List<Project> getProjects(final Scheme arg0) {
 
 		return null;
@@ -249,42 +242,6 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 	}
 
 	@Override
-	public Collection<User> getUsers(final Long arg0, final Project arg1) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsers(final Long arg0, final Issue arg1) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsers(final Long arg0, final GenericValue arg1) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsers(final Long arg0, final PermissionContext arg1) {
-
-		return null;
-	}
-
-	@Override
-	public boolean hasSchemeAuthority(final Long arg0, final GenericValue arg1) {
-
-		return false;
-	}
-
-	@Override
-	public boolean hasSchemeAuthority(final Long arg0, final GenericValue arg1, final User arg2, final boolean arg3) {
-
-		return false;
-	}
-
-	@Override
 	public boolean removeEntities(final GenericValue arg0, final Long arg1) throws RemoveException {
 
 		return false;
@@ -335,20 +292,8 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 	}
 
 	@Override
-	public AssignableWorkflowScheme cleanUpSchemeDraft(final Project arg0, final User arg1) {
-
-		return null;
-	}
-
-	@Override
 	public void clearWorkflowCache() {
 
-	}
-
-	@Override
-	public AssignableWorkflowScheme copyDraft(final DraftWorkflowScheme arg0, final User arg1, final String arg2) {
-
-		return null;
 	}
 
 	@Override
@@ -589,6 +534,67 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 	public <T> T waitForUpdatesToFinishAndExecute(final AssignableWorkflowScheme arg0, final Callable<T> arg1)
 			throws Exception {
 
+		return null;
+	}
+
+	@Override
+	public void deleteEntities(final Iterable<Long> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public List<GenericValue> getEntitiesByIds(final List<Long> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void swapParameterForEntitiesOfType(final String arg0, final String arg1, final String arg2) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public AssignableWorkflowScheme cleanUpSchemeDraft(final Project arg0, final ApplicationUser arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AssignableWorkflowScheme copyDraft(final DraftWorkflowScheme arg0, final ApplicationUser arg1,
+			final String arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GenericValue getWorkflowScheme(final Project arg0) throws GenericEntityException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsers(final Long arg0, final Project arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsers(final Long arg0, final Issue arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsers(final Long arg0, final GenericValue arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsers(final Long arg0, final PermissionContext arg1) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
