@@ -510,7 +510,7 @@ public class TicketGeneratorTest {
 					NotificationServiceException, UnexpectedHubResponseException, MissingUUIDException {
 
 		Mockito.when(
-notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
+				notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
 				.thenReturn(notificationItems);
 	}
 
@@ -696,6 +696,8 @@ notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any
 		final IssueType newIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);
+		Mockito.when(newIssue.getKey()).thenReturn("TEST-1");
+		Mockito.when(newIssue.getAssigneeId()).thenReturn("assignedUserId");
 
 		final IssueResult issueNotFoundResult = Mockito.mock(IssueResult.class);
 		Mockito.when(issueNotFoundResult.isValid()).thenReturn(false);
