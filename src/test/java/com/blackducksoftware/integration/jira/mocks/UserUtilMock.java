@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import com.atlassian.application.api.ApplicationKey;
 import com.atlassian.crowd.embedded.api.Group;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.crowd.exception.InvalidCredentialException;
 import com.atlassian.crowd.exception.OperationNotPermittedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
@@ -40,30 +40,15 @@ import com.atlassian.jira.exception.RemoveException;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.UserDetails;
 import com.atlassian.jira.user.util.UserUtil;
 
 public class UserUtilMock implements UserUtil {
 
-	private User user;
+	private ApplicationUser user;
 
-	public void setUser(final User user) {
+	public void setUser(final ApplicationUser user) {
 		this.user = user;
-	}
-
-	@Override
-	public void addToJiraUsePermission(final User arg0) throws PermissionException {
-
-	}
-
-	@Override
-	public void addUserToGroup(final Group arg0, final User arg1) throws PermissionException, AddException {
-
-	}
-
-	@Override
-	public void addUserToGroups(final Collection<Group> arg0, final User arg1)
-			throws PermissionException, AddException {
-
 	}
 
 	@Override
@@ -73,54 +58,8 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public boolean canActivateUsers(final Collection<String> arg0) {
-
-		return false;
-	}
-
-	@Override
-	public void changePassword(final User arg0, final String arg1) throws UserNotFoundException,
-			InvalidCredentialException, OperationNotPermittedException, PermissionException {
-
-	}
-
-	@Override
 	public void clearActiveUserCount() {
 
-	}
-
-	@Override
-	public User createUserNoNotification(final String arg0, final String arg1, final String arg2, final String arg3)
-			throws PermissionException, CreateException {
-
-		return null;
-	}
-
-	@Override
-	public User createUserNoNotification(final String arg0, final String arg1, final String arg2, final String arg3,
-			final Long arg4) throws PermissionException, CreateException {
-
-		return null;
-	}
-
-	@Override
-	public User createUserWithNotification(final String arg0, final String arg1, final String arg2, final String arg3,
-			final int arg4) throws PermissionException, CreateException {
-
-		return null;
-	}
-
-	@Override
-	public User createUserWithNotification(final String arg0, final String arg1, final String arg2, final String arg3,
-			final Long arg4, final int arg5) throws PermissionException, CreateException {
-
-		return null;
-	}
-
-	@Override
-	public PasswordResetToken generatePasswordResetToken(final User arg0) {
-
-		return null;
 	}
 
 	@Override
@@ -130,55 +69,13 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public Collection<User> getAdministrators() {
-
-		return null;
-	}
-
-	@Override
 	public Collection<ApplicationUser> getAllApplicationUsers() {
 
 		return null;
 	}
 
 	@Override
-	public Set<User> getAllUsers() {
-
-		return null;
-	}
-
-	@Override
-	public SortedSet<User> getAllUsersInGroupNames(final Collection<String> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Set<User> getAllUsersInGroupNamesUnsorted(final Collection<String> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public SortedSet<User> getAllUsersInGroups(final Collection<Group> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<ProjectComponent> getComponentsUserLeads(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public Collection<ProjectComponent> getComponentsUserLeads(final ApplicationUser arg0) {
-
-		return null;
-	}
-
-	@Override
-	public String getDisplayableNameSafely(final User arg0) {
 
 		return null;
 	}
@@ -214,36 +111,19 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public Collection<User> getJiraAdministrators() {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getJiraSystemAdministrators() {
+	public Collection<ApplicationUser> getJiraSystemAdministrators() {
 		if (user != null) {
-			final List<User> systemAdmins = new ArrayList<>();
+			final List<ApplicationUser> systemAdmins = new ArrayList<>();
 			systemAdmins.add(user);
 			return systemAdmins;
 		}
 		return null;
 	}
 
-	@Override
-	public long getNumberOfAssignedIssuesIgnoreSecurity(final User arg0, final User arg1) throws SearchException {
-
-		return 0;
-	}
 
 	@Override
 	public long getNumberOfAssignedIssuesIgnoreSecurity(final ApplicationUser arg0, final ApplicationUser arg1)
 			throws SearchException {
-
-		return 0;
-	}
-
-	@Override
-	public long getNumberOfReportedIssuesIgnoreSecurity(final User arg0, final User arg1) throws SearchException {
 
 		return 0;
 	}
@@ -256,19 +136,7 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public Collection<Project> getProjectsLeadBy(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public Collection<Project> getProjectsLeadBy(final ApplicationUser arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getSystemAdministrators() {
 
 		return null;
 	}
@@ -277,12 +145,6 @@ public class UserUtilMock implements UserUtil {
 	public int getTotalUserCount() {
 
 		return 0;
-	}
-
-	@Override
-	public User getUser(final String arg0) {
-
-		return null;
 	}
 
 	@Override
@@ -298,65 +160,13 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public User getUserObject(final String arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsers() {
-
-		return null;
-	}
-
-	@Override
-	public SortedSet<User> getUsersInGroupNames(final Collection<String> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public SortedSet<User> getUsersInGroups(final Collection<Group> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public boolean hasExceededUserLimit() {
-
-		return false;
-	}
-
-	@Override
-	public boolean isNonSysAdminAttemptingToDeleteSysAdmin(final User arg0, final User arg1) {
-
-		return false;
-	}
-
-	@Override
 	public boolean isNonSysAdminAttemptingToDeleteSysAdmin(final ApplicationUser arg0, final ApplicationUser arg1) {
 
 		return false;
 	}
 
 	@Override
-	public void removeUser(final User arg0, final User arg1) {
-
-	}
-
-	@Override
 	public void removeUser(final ApplicationUser arg0, final ApplicationUser arg1) {
-
-	}
-
-	@Override
-	public void removeUserFromGroup(final Group arg0, final User arg1) throws PermissionException, RemoveException {
-
-	}
-
-	@Override
-	public void removeUserFromGroups(final Collection<Group> arg0, final User arg1)
-			throws PermissionException, RemoveException {
 
 	}
 
@@ -367,8 +177,155 @@ public class UserUtilMock implements UserUtil {
 	}
 
 	@Override
-	public PasswordResetTokenValidation validatePasswordResetToken(final User arg0, final String arg1) {
+	public void addToJiraUsePermission(final ApplicationUser arg0) throws PermissionException {
+		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void addUserToGroup(final Group arg0, final ApplicationUser arg1) throws PermissionException, AddException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addUserToGroups(final Collection<Group> arg0, final ApplicationUser arg1) throws PermissionException,
+			AddException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void changePassword(final ApplicationUser arg0, final String arg1) throws UserNotFoundException,
+	InvalidCredentialException, OperationNotPermittedException, PermissionException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public ApplicationUser createUser(final UserDetails arg0, final boolean arg1, final int arg2,
+			final Set<ApplicationKey> arg3) throws PermissionException, CreateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser createUserNoNotification(final String arg0, final String arg1, final String arg2,
+			final String arg3) throws PermissionException, CreateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser createUserNoNotification(final String arg0, final String arg1, final String arg2,
+			final String arg3, final Long arg4) throws PermissionException, CreateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser createUserWithNotification(final String arg0, final String arg1, final String arg2,
+			final String arg3, final int arg4) throws PermissionException, CreateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser createUserWithNotification(final String arg0, final String arg1, final String arg2,
+			final String arg3, final Long arg4, final int arg5) throws PermissionException, CreateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PasswordResetToken generatePasswordResetToken(final ApplicationUser arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getUser(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getUserObject(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeUserFromGroup(final Group arg0, final ApplicationUser arg1) throws PermissionException,
+			RemoveException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeUserFromGroups(final Collection<Group> arg0, final ApplicationUser arg1)
+			throws PermissionException, RemoveException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public PasswordResetTokenValidation validatePasswordResetToken(final ApplicationUser arg0, final String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getAdministrators() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SortedSet<ApplicationUser> getAllUsersInGroupNames(final Collection<String> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<ApplicationUser> getAllUsersInGroupNamesUnsorted(final Collection<String> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SortedSet<ApplicationUser> getAllUsersInGroups(final Collection<Group> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getJiraAdministrators() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getSystemAdministrators() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SortedSet<ApplicationUser> getUsersInGroupNames(final Collection<String> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SortedSet<ApplicationUser> getUsersInGroups(final Collection<Group> arg0) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

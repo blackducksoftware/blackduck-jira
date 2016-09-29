@@ -33,6 +33,7 @@ import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.icon.IconType;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.comments.CommentManager;
@@ -183,7 +184,7 @@ public class JiraServices {
 
 	public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
 		final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
-				Avatar.Type.ISSUETYPE);
+				IconType.ISSUE_TYPE_ICON_TYPE);
 		return avatarTemplate;
 	}
 

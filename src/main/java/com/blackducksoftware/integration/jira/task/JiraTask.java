@@ -48,18 +48,15 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.jiraversion.JiraCapabilityEnum;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
 import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
 
 /**
@@ -110,7 +107,7 @@ public class JiraTask implements PluginJob {
 		final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
 		try {
 			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
-		} catch (final JiraException e) {
+		} catch (final JiraException | ConfigurationException e) {
 			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
 			return;
 		}
@@ -118,7 +115,7 @@ public class JiraTask implements PluginJob {
 
 		final Period diff = new Period(beforeSetup, afterSetup);
 		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-		+ "ms.");
+				+ "ms.");
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -154,12 +151,10 @@ public class JiraTask implements PluginJob {
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-					throws JiraException {
+					throws JiraException, ConfigurationException {
 
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
-
-		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final JiraVersion jiraVersion = getJiraVersion();
@@ -228,41 +223,32 @@ public class JiraTask implements PluginJob {
 		/////////////////////////////////////////////////////////////////////////
 	}
 
-	public JiraVersion getJiraVersion() {
+	public JiraVersion getJiraVersion() throws ConfigurationException {
 		return new JiraVersion();
 	}
 
-	public HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
+	private HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
 		return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
 	}
 
-	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService,
+	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
+			final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices, final JiraVersion jiraVersion) {
-		if(jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_GENERIC_VALUES)){
-			return new HubFieldScreenSchemeSetupJira6(jiraSettingsService, jiraServices);
-		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.CUSTOM_FIELDS_REQUIRE_ISSUE_TYPES)) {
-			return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
-		}
-		return null;
+		return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
 	}
 
-	public HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
+	private HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices) {
 		return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
 	}
 
-	public AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
+	private AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices, final JiraVersion jiraVersion) {
-		if (jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS)) {
-			return new HubWorkflowSetupJira6(jiraSettingsService, jiraServices);
-		} else if (jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS)) {
-			return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
-		}
-		return null;
+		return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
 	}
 
-	public HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,
+	private HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,
 			final JiraServices jiraServices) {
 		return new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
 	}

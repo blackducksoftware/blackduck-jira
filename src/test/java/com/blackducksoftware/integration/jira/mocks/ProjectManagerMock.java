@@ -26,9 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.ofbiz.core.entity.GenericValue;
-
-import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.bc.project.ProjectCreationData;
 import com.atlassian.jira.bc.project.component.ProjectComponent;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.exception.RemoveException;
@@ -36,6 +34,7 @@ import com.atlassian.jira.project.DefaultAssigneeException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.project.type.ProjectTypeKey;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
@@ -130,26 +129,6 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public List<GenericValue> convertToProjects(final Collection<Long> arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Project createProject(final String arg0, final String arg1, final String arg2, final String arg3,
-			final String arg4, final Long arg5) {
-
-		return null;
-	}
-
-	@Override
-	public Project createProject(final String arg0, final String arg1, final String arg2, final String arg3,
-			final String arg4, final Long arg5, final Long arg6) {
-
-		return null;
-	}
-
-	@Override
 	public ProjectCategory createProjectCategory(final String arg0, final String arg1) {
 
 		return null;
@@ -162,46 +141,9 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public GenericValue getComponent(final Long arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getComponent(final GenericValue arg0, final String arg1) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getComponents(final GenericValue arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
 	public long getCurrentCounterForProject(final Long arg0) {
 
 		return 0;
-	}
-
-	@Override
-	public User getDefaultAssignee(final GenericValue arg0, final GenericValue arg1) {
-
-		return null;
-	}
-
-	@Override
-	public User getDefaultAssignee(final Project arg0, final ProjectComponent arg1) {
-
-		return null;
-	}
-
-	@Override
-	public User getDefaultAssignee(final Project arg0, final Collection<ProjectComponent> arg1)
-			throws DefaultAssigneeException {
-
-		return null;
 	}
 
 	@Override
@@ -211,61 +153,7 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public GenericValue getProject(final GenericValue arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProject(final Long arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectByKey(final String arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectByName(final String arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getProjectCategories() throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectCategory(final Long arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectCategoryByName(final String arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectCategoryByNameIgnoreCase(final String arg0) {
-
-		return null;
-	}
-
-	@Override
 	public ProjectCategory getProjectCategoryForProject(final Project arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public GenericValue getProjectCategoryFromProject(final GenericValue arg0) throws DataAccessException {
 
 		return null;
 	}
@@ -329,51 +217,9 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public Collection<GenericValue> getProjects() throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getProjectsByLead(final User arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getProjectsFromProjectCategory(final GenericValue arg0) throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
 	public Collection<Project> getProjectsFromProjectCategory(final ProjectCategory arg0) throws DataAccessException {
 
 		return null;
-	}
-
-	@Override
-	public List<Project> getProjectsLeadBy(final User arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<GenericValue> getProjectsWithNoCategory() throws DataAccessException {
-
-		return null;
-	}
-
-	@Override
-	public boolean isDefaultAssignee(final GenericValue arg0) {
-
-		return false;
-	}
-
-	@Override
-	public boolean isDefaultAssignee(final GenericValue arg0, final GenericValue arg1) {
-
-		return false;
 	}
 
 	@Override
@@ -402,11 +248,6 @@ public class ProjectManagerMock implements ProjectManager {
 	}
 
 	@Override
-	public void setProjectCategory(final GenericValue arg0, final GenericValue arg1) throws DataAccessException {
-
-	}
-
-	@Override
 	public void setProjectCategory(final Project arg0, final ProjectCategory arg1) throws DataAccessException {
 
 	}
@@ -423,11 +264,6 @@ public class ProjectManagerMock implements ProjectManager {
 			final String arg4, final Long arg5, final Long arg6) {
 
 		return null;
-	}
-
-	@Override
-	public void updateProjectCategory(final GenericValue arg0) throws DataAccessException {
-
 	}
 
 	@Override
@@ -463,6 +299,49 @@ public class ProjectManagerMock implements ProjectManager {
 	@Override
 	public Project updateProject(final Project arg0, final String arg1, final String arg2, final String arg3,
 			final String arg4, final Long arg5, final Long arg6, final String arg7) {
+		return null;
+	}
+
+	@Override
+	public Project createProject(final ApplicationUser arg0, final ProjectCreationData arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getDefaultAssignee(final Project arg0, final ProjectComponent arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApplicationUser getDefaultAssignee(final Project arg0, final Collection<ProjectComponent> arg1)
+			throws DefaultAssigneeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProjectCategory getProjectCategory(final Long arg0) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Project> getProjects() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isProjectCategoryUnique(final String arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Project updateProjectType(final ApplicationUser arg0, final Project arg1, final ProjectTypeKey arg2) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

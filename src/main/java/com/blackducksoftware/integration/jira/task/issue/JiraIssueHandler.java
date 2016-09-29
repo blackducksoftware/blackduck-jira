@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.bc.issue.IssueService.AssignValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
@@ -38,6 +39,7 @@ import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
@@ -173,13 +175,30 @@ public class JiraIssueHandler {
 		.setReporterId(notificationEvent.getJiraUserName())
 		.setDescription(notificationEvent.getIssueDescription());
 
+		// TODO: Default assignee = UNassigned; setAssigneeId() NOT CALLED,
+		// getAssigneeId() returns null:
+		//
+		// retain=false, apply=false: assigned to other
+		// retain=false, apply=true: assigned to other
+		// retain=true, apply=false: assigned to other
+		// retain=true, apply=true: assigned to other
+		//
+
+		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
+		issueInputParameters.setApplyDefaultValuesWhenParameterNotProvided(true);
+
 		if (notificationEvent.getIssueAssigneeId() != null) {
 			logger.debug("notificaitonEvent: issueAssigneeId: " + notificationEvent.getIssueAssigneeId());
 			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
 		} else {
 			logger.debug(
-					"notificaitonEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
+					"notificationEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
 		}
+		logger.debug("issueInputParameters.getAssigneeId(): " + issueInputParameters.getAssigneeId());
+		logger.debug("issueInputParameters.applyDefaultValuesWhenParameterNotProvided(): "
+				+ issueInputParameters.applyDefaultValuesWhenParameterNotProvided());
+		logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
+				+ issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
 		if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
 				&& !ticketInfoFromSetup.getCustomFields().isEmpty()) {
@@ -223,10 +242,58 @@ public class JiraIssueHandler {
 			if (errors.hasAnyErrors()) {
 				handleErrorCollection("createIssue", notificationEvent, errors);
 			} else {
+				fixIssueAssignment(notificationEvent, result);
 				return result.getIssue();
 			}
 		}
 		return null;
+	}
+
+	private void fixIssueAssignment(final HubEvent notificationEvent, final IssueResult result) {
+		final MutableIssue issue = result.getIssue();
+		logger.debug("Created issue " + issue.getKey() + "; Assignee: " + issue.getAssignee().getName());
+		if ((notificationEvent.getIssueAssigneeId() == null) && (issue.getAssigneeId() != null)) {
+			logger.debug("*** Issue needs to be UNassigned");
+			assignIssue(issue, notificationEvent);
+		} else if ((notificationEvent.getIssueAssigneeId() != null)
+				&& (issue.getAssigneeId() != notificationEvent.getIssueAssigneeId())) {
+			logger.debug("*** Issue assignment needs to be CHANGED");
+		} else {
+			logger.debug("*** Issue assignment is correct");
+		}
+	}
+
+	private void assignIssue(final MutableIssue issue, final HubEvent notificationEvent) {
+		final ApplicationUser user = jiraContext.getJiraUser();
+		final AssignValidationResult assignValidationResult = jiraServices.getIssueService().validateAssign(user,
+				issue.getId(), notificationEvent.getIssueAssigneeId());
+		final ErrorCollection errors = assignValidationResult.getErrorCollection();
+		if (assignValidationResult.isValid() && !errors.hasAnyErrors()) {
+			logger.debug("Assigning issue to user ID: " + notificationEvent.getIssueAssigneeId());
+			jiraServices.getIssueService().assign(user, assignValidationResult);
+			updateIssue(issue, assignValidationResult, user, notificationEvent.getIssueAssigneeId());
+		} else {
+			final StringBuilder sb = new StringBuilder("Unable to assign issue ");
+			sb.append(issue.getKey());
+			sb.append(": ");
+			for (final String errorMsg : errors.getErrorMessages()) {
+				sb.append(errorMsg);
+				sb.append("; ");
+			}
+			logger.error(sb.toString());
+		}
+	}
+
+	// TODO: can transition() use some of this?
+	private Issue updateIssue(final MutableIssue issueToUpdate, final AssignValidationResult assignValidationResult,
+			final ApplicationUser userMakingChange, final String assigneeId) {
+		issueToUpdate.setAssigneeId(assigneeId);
+		final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder()
+				.eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
+		logger.debug("Updating issue with assigned user ID: " + assigneeId);
+		final Issue updatedIssue = jiraServices.getIssueManager().updateIssue(userMakingChange, issueToUpdate,
+				issueUpdate);
+		return updatedIssue;
 	}
 
 	private Issue transitionIssue(final HubEvent notificationEvent, final Issue issueToTransition,

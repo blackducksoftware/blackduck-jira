@@ -163,12 +163,6 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 	}
 
 	@Override
-	public FieldConfigurationScheme getFieldConfigurationScheme(final GenericValue arg0) {
-
-		return null;
-	}
-
-	@Override
 	public FieldConfigurationScheme getFieldConfigurationSchemeForProject(final Long arg0) {
 
 		return projectFieldConfigScheme;
@@ -212,12 +206,6 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
 	@Override
 	public FieldLayout getFieldLayout(final Long arg0, final String arg1) {
-
-		return null;
-	}
-
-	@Override
-	public FieldLayout getFieldLayout(final GenericValue arg0, final String arg1) {
 
 		return null;
 	}
@@ -333,11 +321,6 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
 	@Override
 	public void restoreDefaultFieldLayout() {
-
-	}
-
-	@Override
-	public void restoreSchemeFieldLayout(final GenericValue arg0) {
 
 	}
 

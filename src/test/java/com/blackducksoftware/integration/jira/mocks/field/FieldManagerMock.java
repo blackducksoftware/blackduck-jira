@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.jira.mocks.field;
 import java.util.List;
 import java.util.Set;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.ConfigurableField;
 import com.atlassian.jira.issue.fields.CustomField;
@@ -38,10 +37,9 @@ import com.atlassian.jira.issue.fields.OrderableField;
 import com.atlassian.jira.issue.fields.ProjectField;
 import com.atlassian.jira.issue.fields.RequirableField;
 import com.atlassian.jira.issue.fields.SearchableField;
-import com.atlassian.jira.issue.fields.layout.column.ColumnLayoutManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
-import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.jql.context.QueryContext;
+import com.atlassian.jira.user.ApplicationUser;
 
 public class FieldManagerMock implements FieldManager {
 
@@ -53,37 +51,6 @@ public class FieldManagerMock implements FieldManager {
 
 	@Override
 	public Set<SearchableField> getAllSearchableFields() {
-
-		return null;
-	}
-
-	@Override
-	public Set<CustomField> getAvailableCustomFields(final User arg0, final Issue arg1) throws FieldException {
-
-		return null;
-	}
-
-	@Override
-	public Set<NavigableField> getAvailableNavigableFields(final User arg0) throws FieldException {
-
-		return null;
-	}
-
-	@Override
-	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final User arg0) throws FieldException {
-
-		return null;
-	}
-
-	@Override
-	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final User arg0, final QueryContext arg1)
-			throws FieldException {
-
-		return null;
-	}
-
-	@Override
-	public ColumnLayoutManager getColumnLayoutManager() {
 
 		return null;
 	}
@@ -102,12 +69,6 @@ public class FieldManagerMock implements FieldManager {
 
 	@Override
 	public Field getField(final String arg0) {
-
-		return null;
-	}
-
-	@Override
-	public FieldLayoutManager getFieldLayoutManager() {
 
 		return null;
 	}
@@ -180,12 +141,6 @@ public class FieldManagerMock implements FieldManager {
 	}
 
 	@Override
-	public Set<FieldLayout> getVisibleFieldLayouts(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public boolean isCustomField(final String arg0) {
 
 		return false;
@@ -193,18 +148,6 @@ public class FieldManagerMock implements FieldManager {
 
 	@Override
 	public boolean isCustomField(final Field arg0) {
-
-		return false;
-	}
-
-	@Override
-	public boolean isFieldHidden(final User arg0, final Field arg1) {
-
-		return false;
-	}
-
-	@Override
-	public boolean isFieldHidden(final User arg0, final String arg1) {
 
 		return false;
 	}
@@ -308,6 +251,62 @@ public class FieldManagerMock implements FieldManager {
 	@Override
 	public void refresh() {
 
+	}
+
+	@Override
+	public Set<CustomField> getAvailableCustomFields(final ApplicationUser arg0, final Issue arg1)
+			throws FieldException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<NavigableField> getAvailableNavigableFields(final ApplicationUser arg0) throws FieldException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0) throws FieldException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0, final QueryContext arg1)
+			throws FieldException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<FieldLayout> getVisibleFieldLayouts(final ApplicationUser arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isCustomFieldId(final String arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isExistingCustomField(final String arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isFieldHidden(final ApplicationUser arg0, final Field arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isFieldHidden(final ApplicationUser arg0, final String arg1) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
