@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Hub Jira Plugin</name>
@@ -26,10 +26,10 @@
    jira.version: 7.1.4
    -->
 
-    <amps.version>5.0.13</amps.version>
+    <amps.version>6.2.6</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
 
-    <jira.version>6.4</jira.version>
+    <jira.version>7.1.0</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
     <testkit.version>5.2.26</testkit.version>
@@ -75,6 +75,14 @@
           <groupId>com.thoughtworks.xstream</groupId>
           <artifactId>xstream</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpcore</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -119,6 +127,7 @@
           <groupId>com.atlassian.templaterenderer</groupId>
           <artifactId>atlassian-template-renderer-api</artifactId>
         </exclusion>
+
       </exclusions>
     </dependency>
 
@@ -219,6 +228,15 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
         <artifactId>maven-jira-plugin</artifactId>

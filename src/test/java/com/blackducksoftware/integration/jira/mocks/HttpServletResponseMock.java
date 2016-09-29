@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.mocks;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -209,6 +210,30 @@ public class HttpServletResponseMock implements HttpServletResponse {
 	@Override
 	public void setStatus(final int sc, final String sm) {
 
+	}
+
+	@Override
+	public int getStatus() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getHeader(final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getHeaders(final String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getHeaderNames() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

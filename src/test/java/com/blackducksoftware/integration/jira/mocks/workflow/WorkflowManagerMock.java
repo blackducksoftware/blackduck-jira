@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
@@ -58,16 +57,6 @@ public class WorkflowManagerMock implements WorkflowManager {
 
 	public void addWorkflow(final JiraWorkflow jiraWorkflow) {
 		workflowMap.put(jiraWorkflow.getName(), jiraWorkflow);
-	}
-
-	@Override
-	public void copyAndDeleteDraftWorkflows(final User arg0, final Set<JiraWorkflow> arg1) {
-
-	}
-
-	@Override
-	public void copyAndDeleteDraftsForInactiveWorkflowsIn(final User arg0, final Iterable<JiraWorkflow> arg1) {
-
 	}
 
 	@Override
@@ -105,11 +94,6 @@ public class WorkflowManagerMock implements WorkflowManager {
 
 	@Override
 	public void createWorkflow(final String arg0, final JiraWorkflow arg1) throws WorkflowException {
-
-	}
-
-	@Override
-	public void createWorkflow(final User arg0, final JiraWorkflow arg1) throws WorkflowException {
 
 	}
 
@@ -166,12 +150,6 @@ public class WorkflowManagerMock implements WorkflowManager {
 
 	@Override
 	public Map<ActionDescriptor, Collection<FunctionDescriptor>> getPostFunctionsForWorkflow(final JiraWorkflow arg0) {
-
-		return null;
-	}
-
-	@Override
-	public User getRemoteUser(final Map arg0) {
 
 		return null;
 	}
@@ -279,12 +257,6 @@ public class WorkflowManagerMock implements WorkflowManager {
 	}
 
 	@Override
-	public Workflow makeWorkflow(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public Workflow makeWorkflow(final ApplicationUser arg0) {
 
 		return null;
@@ -367,6 +339,31 @@ public class WorkflowManagerMock implements WorkflowManager {
 	public boolean workflowExists(final String arg0) throws WorkflowException {
 
 		return false;
+	}
+
+	@Override
+	public void copyAndDeleteDraftWorkflows(final ApplicationUser arg0, final Set<JiraWorkflow> arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void copyAndDeleteDraftsForInactiveWorkflowsIn(final ApplicationUser arg0, final Iterable<JiraWorkflow> arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public ActionDescriptor getActionDescriptor(final Issue arg0, final int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void replaceConditionInTransition(final ActionDescriptor arg0, final Map<String, String> arg1,
+			final Map<String, String> arg2) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -23,11 +23,11 @@ package com.blackducksoftware.integration.jira.mocks;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.crowd.embedded.api.Group;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.crowd.exception.GroupNotFoundException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.OperationNotPermittedException;
@@ -35,6 +35,8 @@ import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.exception.embedded.InvalidGroupException;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.Page;
+import com.atlassian.jira.util.PageRequest;
 
 public class GroupManagerMock implements GroupManager {
 
@@ -51,12 +53,6 @@ public class GroupManagerMock implements GroupManager {
 	}
 
 	@Override
-	public void addUserToGroup(final User arg0, final Group arg1) throws GroupNotFoundException, UserNotFoundException,
-			OperationNotPermittedException, OperationFailedException {
-
-	}
-
-	@Override
 	public Group createGroup(final String arg0) throws OperationNotPermittedException, InvalidGroupException {
 		groupCreateAttempted = true;
 		return null;
@@ -64,12 +60,6 @@ public class GroupManagerMock implements GroupManager {
 
 	@Override
 	public Collection<Group> getAllGroups() {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getDirectUsersInGroup(final Group arg0) {
 
 		return null;
 	}
@@ -93,12 +83,6 @@ public class GroupManagerMock implements GroupManager {
 	}
 
 	@Override
-	public Collection<String> getGroupNamesForUser(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public Collection<String> getGroupNamesForUser(final ApplicationUser arg0) {
 
 		return null;
@@ -117,12 +101,6 @@ public class GroupManagerMock implements GroupManager {
 	}
 
 	@Override
-	public Collection<Group> getGroupsForUser(final User arg0) {
-
-		return null;
-	}
-
-	@Override
 	public Collection<String> getUserNamesInGroup(final Group arg0) {
 
 		return null;
@@ -130,18 +108,6 @@ public class GroupManagerMock implements GroupManager {
 
 	@Override
 	public Collection<String> getUserNamesInGroup(final String arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsersInGroup(final String arg0) {
-
-		return null;
-	}
-
-	@Override
-	public Collection<User> getUsersInGroup(final Group arg0) {
 
 		return null;
 	}
@@ -161,15 +127,100 @@ public class GroupManagerMock implements GroupManager {
 	}
 
 	@Override
-	public boolean isUserInGroup(final User arg0, final Group arg1) {
+	public void addUserToGroup(final ApplicationUser arg0, final Group arg1) throws GroupNotFoundException,
+			UserNotFoundException, OperationNotPermittedException, OperationFailedException {
+		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Collection<String> filterUsersInAllGroupsDirect(final Collection<String> arg0, final Collection<String> arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<ApplicationUser> getConnectUsers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Group> getGroupsForUser(final ApplicationUser arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getNamesOfDirectMembersOfGroups(final Collection<String> arg0, final int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getUserNamesInGroups(final Collection<Group> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsersInGroup(final String arg0, final Boolean arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Page<ApplicationUser> getUsersInGroup(final String arg0, final Boolean arg1, final PageRequest arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getUsersInGroupCount(final Group arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getUsersInGroupCount(final String arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean groupExists(final Group arg0) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean isUserInGroup(final User arg0, final String arg1) {
-
+	public boolean isUserInGroup(final ApplicationUser arg0, final Group arg1) {
+		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public boolean isUserInGroup(final ApplicationUser arg0, final String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getDirectUsersInGroup(final Group arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsersInGroup(final String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ApplicationUser> getUsersInGroup(final Group arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

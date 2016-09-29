@@ -27,13 +27,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.Avatar.Size;
 import com.atlassian.jira.avatar.Avatar.Type;
+import com.atlassian.jira.avatar.AvatarFormatPolicy;
 import com.atlassian.jira.avatar.AvatarImageDataProvider;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.avatar.Selection;
 import com.atlassian.jira.exception.DataAccessException;
+import com.atlassian.jira.icon.IconOwningObjectId;
+import com.atlassian.jira.icon.IconType;
+import com.atlassian.jira.io.MediaConsumer;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.Consumer;
@@ -133,22 +137,12 @@ public class AvatarManagerMock implements AvatarManager {
 	}
 
 	@Override
-	public boolean hasPermissionToEdit(final User arg0, final Type arg1, final String arg2) {
-		return false;
-	}
-
-	@Override
 	public boolean hasPermissionToView(final ApplicationUser arg0, final ApplicationUser arg1) {
 		return false;
 	}
 
 	@Override
 	public boolean hasPermissionToView(final ApplicationUser arg0, final Project arg1) {
-		return false;
-	}
-
-	@Override
-	public boolean hasPermissionToView(final User arg0, final Type arg1, final String arg2) {
 		return false;
 	}
 
@@ -164,6 +158,93 @@ public class AvatarManagerMock implements AvatarManager {
 
 	@Override
 	public void update(final Avatar arg0) throws DataAccessException {
+	}
+
+	@Override
+	public Avatar create(final IconType arg0, final IconOwningObjectId arg1, final AvatarImageDataProvider arg2)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Avatar create(final String arg0, final String arg1, final IconType arg2, final IconOwningObjectId arg3,
+			final InputStream arg4, final Selection arg5) throws DataAccessException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Avatar> getAllSystemAvatars(final IconType arg0) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Avatar> getCustomAvatarsForOwner(final IconType arg0, final String arg1) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Avatar getDefaultAvatar(final IconType arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Long getDefaultAvatarId(final IconType arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasPermissionToEdit(final ApplicationUser arg0, final Type arg1, final String arg2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasPermissionToView(final ApplicationUser arg0, final Type arg1, final String arg2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isValidIconType(final IconType arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void readAvatarData(final Avatar arg0, final Size arg1, final Consumer<InputStream> arg2) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void readAvatarData(final Avatar arg0, final Size arg1, final AvatarFormatPolicy arg2,
+			final MediaConsumer arg3) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean userCanCreateFor(final ApplicationUser arg0, final IconType arg1, final IconOwningObjectId arg2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean userCanDelete(final ApplicationUser arg0, final Avatar arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean userCanView(final ApplicationUser arg0, final Avatar arg1) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

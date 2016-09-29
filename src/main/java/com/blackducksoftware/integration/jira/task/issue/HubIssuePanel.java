@@ -27,12 +27,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.plugin.webfragment.contextproviders.AbstractJiraContextProvider;
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
+import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
@@ -47,8 +47,8 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
 	}
 
 	@Override
-	public Map<String, String> getContextMap(final User user, final JiraHelper jiraHelper) {
-		final Map<String, String> contextMap = new HashMap();
+	public Map<String, String> getContextMap(final ApplicationUser user, final JiraHelper jiraHelper) {
+		final Map<String, String> contextMap = new HashMap<>();
 		final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
 		if (currentIssue != null) {
 			final String hubProject = getCustomFieldValue(currentIssue, customFieldManager,
@@ -91,5 +91,6 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
 		}
 		return null;
 	}
+
 
 }

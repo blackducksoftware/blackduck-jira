@@ -78,4 +78,9 @@ public class ApplicationUserMock implements ApplicationUser {
 		return false;
 	}
 
+	@Override
+	public Long getId() {
+		return 123L;
+	}
+
 }

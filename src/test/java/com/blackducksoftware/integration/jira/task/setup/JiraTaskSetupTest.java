@@ -65,6 +65,7 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
@@ -77,7 +78,6 @@ import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
-import com.blackducksoftware.integration.jira.mocks.UserMock;
 import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.EditableFieldLayoutMock;
@@ -115,7 +115,7 @@ public class JiraTaskSetupTest {
 	private static final String HUB_WORKFLOW_NAME = "Hub Workflow";
 
 	@Test
-	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException {
+	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException, ConfigurationException {
 
 		final JiraEnvironment jiraEnv = generateJiraMocks(true);
 
@@ -136,9 +136,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -150,9 +150,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -166,7 +166,7 @@ public class JiraTaskSetupTest {
 	}
 
 	@Test
-	public void testServerSetupIssueTypesNotAlreadyCreated() throws JiraException {
+	public void testServerSetupIssueTypesNotAlreadyCreated() throws JiraException, ConfigurationException {
 
 		final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
@@ -187,9 +187,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -201,9 +201,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -234,7 +234,7 @@ public class JiraTaskSetupTest {
 
 	}
 
-	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) {
+	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) throws ConfigurationException {
 		JiraTask jiraTask = new JiraTask();
 
 		final GroupManagerMock groupManager = getGroupManagerMock(false);
@@ -314,7 +314,8 @@ public class JiraTaskSetupTest {
 				fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
 				fieldManager, fieldScreenManager, fieldScreenSchemeManager);
 
-		HubFieldScreenSchemeSetupJira6 fieldScreenSchemeSetup = new HubFieldScreenSchemeSetupJira6(settingService, jiraServices);
+		HubFieldScreenSchemeSetupJira7 fieldScreenSchemeSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+				jiraServices);
 		fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
 
 		jiraTask = Mockito.spy(jiraTask);
@@ -375,10 +376,11 @@ public class JiraTaskSetupTest {
 		return fieldScreen;
 	}
 
-	private void mockCreationMethods(final JiraTask jiraTask, final AbstractHubFieldScreenSchemeSetup fieldConfigSetup) {
+	private void mockCreationMethods(final JiraTask jiraTask, final AbstractHubFieldScreenSchemeSetup fieldConfigSetup)
+			throws ConfigurationException {
 		final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
-		buildInfoUtil.setVersion("6.4.0");
-		final int[] versionNumbers = { 6, 4, 0 };
+		buildInfoUtil.setVersion("7.1.5");
+		final int[] versionNumbers = { 7, 1, 5 };
 		buildInfoUtil.setVersionNumbers(versionNumbers);
 		final JiraVersion jiraVersion = new JiraVersion(buildInfoUtil);
 		Mockito.when(jiraTask.getJiraVersion()).thenReturn(jiraVersion);
@@ -431,7 +433,7 @@ public class JiraTaskSetupTest {
 	private UserUtil getUserUtil(final boolean hasSystemAdmin) {
 		final UserUtilMock userUtil = new UserUtilMock();
 		if (hasSystemAdmin) {
-			final UserMock user = new UserMock();
+			final ApplicationUserMock user = new ApplicationUserMock();
 			user.setName(JIRA_USER);
 			userUtil.setUser(user);
 		}
@@ -601,7 +603,7 @@ public class JiraTaskSetupTest {
 		private Collection<IssueType> issueTypes;
 		private UserUtil userUtil;
 		private JiraServices jiraServices;
-		private HubFieldScreenSchemeSetupJira6 HubFieldScreenSchemeSetup;
+		private HubFieldScreenSchemeSetupJira7 HubFieldScreenSchemeSetup;
 		private JiraTask jiraTask;
 		private String mappingJson;
 		private Avatar avatarTemplate;
@@ -837,12 +839,12 @@ public class JiraTaskSetupTest {
 			return this;
 		}
 
-		private HubFieldScreenSchemeSetupJira6 getHubFieldScreenSchemeSetup() {
+		private HubFieldScreenSchemeSetupJira7 getHubFieldScreenSchemeSetup() {
 			return HubFieldScreenSchemeSetup;
 		}
 
 		private JiraEnvironment setHubFieldScreenSchemeSetup(
-				final HubFieldScreenSchemeSetupJira6 hubFieldScreenSchemeSetup) {
+				final HubFieldScreenSchemeSetupJira7 hubFieldScreenSchemeSetup) {
 			HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
 			return this;
 		}

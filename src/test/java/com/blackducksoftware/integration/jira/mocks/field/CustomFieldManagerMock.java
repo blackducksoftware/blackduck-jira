@@ -36,7 +36,6 @@ import com.atlassian.jira.issue.customfields.CustomFieldType;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchContext;
 import com.atlassian.jira.project.Project;
-import com.atlassian.jira.project.ProjectCategory;
 
 public class CustomFieldManagerMock implements CustomFieldManager {
 
@@ -217,23 +216,9 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
 	}
 
-	@Override
-	public void removeProjectAssociations(final GenericValue arg0) {
-
-	}
 
 	@Override
 	public void removeProjectAssociations(final Project arg0) {
-
-	}
-
-	@Override
-	public void removeProjectCategoryAssociations(final ProjectCategory arg0) {
-
-	}
-
-	@Override
-	public void updateCustomField(final CustomField arg0) {
 
 	}
 
