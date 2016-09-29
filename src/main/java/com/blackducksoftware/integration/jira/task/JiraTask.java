@@ -159,8 +159,6 @@ public class JiraTask implements PluginJob {
 		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
 		groupSetup.addHubJiraGroupToJira();
 
-		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
-
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final JiraVersion jiraVersion = getJiraVersion();
 		HubIssueTypeSetup issueTypeSetup;
