@@ -307,7 +307,7 @@ public class HubJiraTask {
 		final String pluginVersion = jiraServices.getPluginVersion();
 
 		final PhoneHomeClient phClient = new PhoneHomeClient();
-		phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JENKINS,
+		phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
 				thirdPartyVersion, pluginVersion);
 	}
 }
