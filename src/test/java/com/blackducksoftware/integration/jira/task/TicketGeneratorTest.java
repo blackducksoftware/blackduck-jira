@@ -651,6 +651,7 @@ public class TicketGeneratorTest {
 		}
 		Mockito.when(oldIssueStatus.getName()).thenReturn(state);
 		Mockito.when(oldIssue.getStatusObject()).thenReturn(oldIssueStatus);
+		Mockito.when(oldIssue.getStatus()).thenReturn(oldIssueStatus);
 		Mockito.when(oldIssueResolution.getName()).thenReturn(resolution);
 		Mockito.when(oldIssue.getResolutionObject()).thenReturn(oldIssueResolution);
 		Mockito.when(issueService.getIssue(user, JIRA_ISSUE_ID)).thenReturn(getOldIssueResult);
@@ -658,6 +659,7 @@ public class TicketGeneratorTest {
 		final IssueType oldIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(oldIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(oldIssue.getIssueTypeObject()).thenReturn(oldIssueType);
+		Mockito.when(oldIssue.getIssueType()).thenReturn(oldIssueType);
 		final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
 		Mockito.when(jiraServices.getWorkflowManager()).thenReturn(workflowManager);
 		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
@@ -689,6 +691,7 @@ public class TicketGeneratorTest {
 		final Status newIssueStatus = Mockito.mock(Status.class);
 		Mockito.when(newIssueStatus.getName()).thenReturn(HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN);
 		Mockito.when(newIssue.getStatusObject()).thenReturn(newIssueStatus);
+		Mockito.when(newIssue.getStatus()).thenReturn(newIssueStatus);
 		final Resolution newIssueResolution = Mockito.mock(Resolution.class);
 		Mockito.when(newIssueResolution.getName()).thenReturn("Unresolved");
 		Mockito.when(newIssue.getResolutionObject()).thenReturn(newIssueResolution);
@@ -696,9 +699,11 @@ public class TicketGeneratorTest {
 		final IssueType newIssueType = Mockito.mock(IssueType.class);
 		Mockito.when(newIssueType.getName()).thenReturn("Mocked issue type");
 		Mockito.when(newIssue.getIssueTypeObject()).thenReturn(newIssueType);
+		Mockito.when(newIssue.getIssueType()).thenReturn(newIssueType);
 		Mockito.when(newIssue.getKey()).thenReturn("TEST-1");
 		Mockito.when(newIssue.getAssigneeId()).thenReturn("assignedUserId");
 		Mockito.when(newIssue.getAssignee()).thenReturn(user);
+
 
 		final IssueResult issueNotFoundResult = Mockito.mock(IssueResult.class);
 		Mockito.when(issueNotFoundResult.isValid()).thenReturn(false);
