@@ -46,7 +46,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -297,9 +296,15 @@ public class JiraIssueHandler {
 	}
 
 	private Issue transitionIssue(final HubEvent notificationEvent, final Issue issueToTransition,
-			final String stepName, final ApplicationUser user) {
-		final Status currentStatus = issueToTransition.getStatusObject();
+			final String stepName, final String newExpectedStatus, final ApplicationUser user) {
+		final Status currentStatus = issueToTransition.getStatus();
 		logger.debug("Current status : " + currentStatus.getName());
+
+		if (currentStatus.equals(newExpectedStatus)) {
+			logger.debug("Will not tranisition issue, since it is already in the expected state.");
+			return issueToTransition;
+		}
+
 		final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(issueToTransition);
 
 		ActionDescriptor transitionAction = null;
@@ -308,8 +313,8 @@ public class JiraIssueHandler {
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-					+ ", from status : " + currentStatus.getName()
-					+ ". There are no steps from this status to any other status.";
+			+ ", from status : " + currentStatus.getName()
+			+ ". There are no steps from this status to any other status.";
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -325,7 +330,7 @@ public class JiraIssueHandler {
 		}
 		if (transitionAction == null) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-					+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
+			+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -348,9 +353,9 @@ public class JiraIssueHandler {
 					handleErrorCollection("transitionIssue", notificationEvent, errors);
 				} else {
 					final IssueImpl issueToUpdate = (IssueImpl) issueToTransition;
-					issueToUpdate.setStatusObject(result.getIssue().getStatusObject());
-					issueToUpdate.setResolutionObject(result.getIssue().getResolutionObject());
-					logger.debug("NEW ISSUE STATUS: " + issueToUpdate.getStatusObject().getName());
+					issueToUpdate.setStatusObject(result.getIssue().getStatus());
+					issueToUpdate.setResolutionObject(result.getIssue().getResolution());
+					logger.debug("NEW ISSUE STATUS: " + issueToUpdate.getStatus().getName());
 
 					if (issueToUpdate.getResolutionObject() == null) {
 						logger.debug("NEW ISSUE RESOLUTION OBJECT IS NULL");
@@ -431,9 +436,10 @@ public class JiraIssueHandler {
 				}
 				return issue;
 			} else {
-				if (oldIssue.getStatusObject().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+				if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
 					final Issue transitionedIssue = transitionIssue(notificationEvent, oldIssue,
 							HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
+							HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
 							jiraContext.getJiraUser());
 					if (transitionedIssue != null) {
 						logger.info("Re-opened the already exisiting issue.");
@@ -450,11 +456,12 @@ public class JiraIssueHandler {
 		return null;
 	}
 
-	private Issue closeIssue(final HubEvent<NotificationContentItem> event) {
+	private Issue closeIssue(final HubEvent event) {
 		final Issue oldIssue = findIssue(event);
 		if (oldIssue != null) {
 			final Issue updatedIssue = transitionIssue(event, oldIssue,
-					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, jiraContext.getJiraUser());
+					HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE,
+					HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraUser());
 			if (updatedIssue != null) {
 				addComment(event.getResolveComment(), updatedIssue);
 				logger.info("Closed the issue based on an override.");
@@ -479,8 +486,8 @@ public class JiraIssueHandler {
 		logger.debug("Issue ID : " + issue.getId());
 		logger.debug("Summary : " + issue.getSummary());
 		logger.debug("Description : " + issue.getDescription());
-		logger.debug("Issue Type : " + issue.getIssueTypeObject().getName());
-		logger.debug("Status : " + issue.getStatusObject().getName());
+		logger.debug("Issue Type : " + issue.getIssueType().getName());
+		logger.debug("Status : " + issue.getStatus().getName());
 		logger.debug("For Project : " + issue.getProjectObject().getName());
 		logger.debug("For Project Id : " + issue.getProjectObject().getId());
 	}
