@@ -89,8 +89,7 @@ function populateForm() {
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/admin/",
 	    dataType: "json",
 	    success: function(admin) {
-	      updateValue("hubJiraGroups", admin.hubJiraGroups);
-	      updateValue("jiraGroups", admin.jiraGroups);
+	      fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
 	      
 	      handleError('hubJiraGroupsError', admin.hubJiraGroupsError, false);
 	    },
@@ -460,6 +459,9 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 });
 
 function putAdminConfig(restUrl, successMessage, failureMessage) {
+
+var hubJiraGroups = encodeURI(AJS.$("#hubJiraGroups").val()); 
+
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -652,6 +654,45 @@ function addPolicyViolationRules(policyRules){
 			
 		}
 	}
+}
+
+function fillInJiraGroups(hubJiraGroups, jiraGroups){
+	var splitHubJiraGroups = null;
+	if(hubJiraGroups != null){
+	  splitHubJiraGroups = hubJiraGroups.split(",");
+	}
+	var jiraGroupList = AJS.$("#hubJiraGroups");
+	if(jiraGroups != null && jiraGroups.length > 0){
+		for (j = 0; j < jiraGroups.length; j++) {
+			var optionSelected = false;
+			if(splitHubJiraGroups != null){
+				for (g = 0; g < splitHubJiraGroups.length; g++) {
+					if(splitHubJiraGroups[g] === jiraGroups[j]){
+						optionSelected = true;
+					}
+				}
+			}
+		
+			var newOption = AJS.$('<option>', {
+			    value: jiraGroups[j],
+			    text: jiraGroups[j],
+			    selected: optionSelected
+			});
+			
+			jiraGroupList.append(newOption);
+		}
+	} else if(splitHubJiraGroups != null){
+		for (j = 0; j < splitHubJiraGroups.length; j++) {
+			var newOption = AJS.$('<option>', {
+			    value: splitHubJiraGroups[j],
+			    text: splitHubJiraGroups[j],
+			    selected: true
+			});
+			
+			jiraGroupList.append(newOption);
+		}
+	}
+	jiraGroupList.auiSelect2();
 }
 
 function fillInJiraProjects(jiraProjects){
@@ -956,4 +997,5 @@ function isNullOrWhitespace(input) {
 
 (function ($) {
 	populateForm();
+	
 })(AJS.$ || jQuery);
