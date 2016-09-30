@@ -54,6 +54,7 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSchedulerMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -68,7 +69,7 @@ import com.google.gson.GsonBuilder;
 public class HubJiraConfigControllerTest {
 
 	private List<ProjectItem> getHubProjects() {
-		final List<ProjectItem> hubProjects = new ArrayList<ProjectItem>();
+		final List<ProjectItem> hubProjects = new ArrayList<>();
 
 		final MetaInformation metaInfo1 = new MetaInformation(null, "projectURL1", null);
 		final ProjectItem project1 = new ProjectItem("HubProject1", null, metaInfo1);
@@ -86,7 +87,7 @@ public class HubJiraConfigControllerTest {
 	}
 
 	private List<PolicyRule> getHubPolicies() {
-		final List<PolicyRule> policyRules = new ArrayList<PolicyRule>();
+		final List<PolicyRule> policyRules = new ArrayList<>();
 		final MetaInformation metaInfo1 = new MetaInformation(null, "policyURL1", null);
 		final PolicyRule rule1 = new PolicyRule(metaInfo1, "PolicyRule1", "1TestDescription", true, null, null, null,
 				null, null, null);
@@ -106,7 +107,7 @@ public class HubJiraConfigControllerTest {
 	}
 
 	private List<PolicyRuleSerializable> getJiraPolicies() {
-		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<PolicyRuleSerializable>();
+		final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
 
 		final PolicyRuleSerializable rule1 = new PolicyRuleSerializable();
 		rule1.setName("PolicyRule1");
@@ -167,7 +168,7 @@ public class HubJiraConfigControllerTest {
 		mapping4.setHubProject(hubProject2);
 		mapping4.setJiraProject(jiraProject2);
 
-		final Set<HubProjectMapping> mappings = new HashSet<HubProjectMapping>();
+		final Set<HubProjectMapping> mappings = new HashSet<>();
 		mappings.add(mapping1);
 		mappings.add(mapping2);
 		mappings.add(mapping3);
@@ -183,9 +184,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -200,9 +202,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -218,9 +221,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -251,9 +255,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -288,9 +293,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -324,9 +330,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -360,9 +367,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
@@ -391,17 +399,19 @@ public class HubJiraConfigControllerTest {
 
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, intervalBetweenChecks);
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
 
 		final Response response = controller.getInterval(requestMock);
 		assertNotNull(response);
@@ -428,9 +438,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -445,9 +456,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -464,9 +476,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -502,9 +515,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubPolicies(requestMock);
 		assertNotNull(response);
@@ -543,9 +557,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
@@ -601,15 +616,16 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
 		final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
-		final List<PolicyRule> emptyPolicyRules = new ArrayList<PolicyRule>();
+		final List<PolicyRule> emptyPolicyRules = new ArrayList<>();
 
 		Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).getAllPolicyRules();
 
@@ -658,9 +674,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
@@ -700,7 +717,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetHubPoliciesWithPolicyRulesInGroup() throws Exception {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
@@ -709,13 +726,15 @@ public class HubJiraConfigControllerTest {
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
 		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
 
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
@@ -758,9 +777,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -775,9 +795,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -793,9 +814,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -825,11 +847,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -856,16 +879,19 @@ public class HubJiraConfigControllerTest {
 	public void testGetJiraProjectsMultipleProjectsInGroup() {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
+		settingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
+
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getJiraProjects(requestMock);
 		assertNotNull(response);
@@ -895,9 +921,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -912,9 +939,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -936,9 +964,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubProjects(requestMock);
 		assertNotNull(response);
@@ -977,15 +1006,16 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
 		final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
 
-		final List<ProjectItem> emptyHubProjects = new ArrayList<ProjectItem>();
+		final List<ProjectItem> emptyHubProjects = new ArrayList<>();
 		Mockito.doReturn(emptyHubProjects).when(restServiceMock).getProjectMatches(Mockito.anyString());
 		// Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
 
@@ -1029,9 +1059,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
@@ -1065,7 +1096,7 @@ public class HubJiraConfigControllerTest {
 	public void testGetHubProjectsHasHubProjectsInGroup() throws Exception {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
@@ -1074,13 +1105,15 @@ public class HubJiraConfigControllerTest {
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
 		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
 
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		controller = Mockito.spy(controller);
 
@@ -1117,9 +1150,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1134,9 +1168,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1153,11 +1188,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1194,11 +1230,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1227,21 +1264,23 @@ public class HubJiraConfigControllerTest {
 
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 
 		final Gson gson = new GsonBuilder().create();
 		final PluginSettings settings = settingsFactory.createGlobalSettings();
 		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, gson.toJson(mappings));
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
 
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getMappings(requestMock);
 		assertNotNull(response);
@@ -1271,9 +1310,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1290,9 +1330,10 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1310,12 +1351,13 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1348,13 +1390,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1417,13 +1460,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1494,13 +1538,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1563,18 +1608,19 @@ public class HubJiraConfigControllerTest {
 
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername("User");
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1591,6 +1637,7 @@ public class HubJiraConfigControllerTest {
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
 		settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
 		settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1,Group2");
 
 		controller = Mockito.spy(controller);
 
@@ -1638,13 +1685,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1722,13 +1770,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1811,13 +1860,14 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final PluginSchedulerMock pluginScheduler = new PluginSchedulerMock();
 		final HubMonitor hubMonitor = new HubMonitor(pluginScheduler, settingsFactory);
 
 		HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, hubMonitor);
+				transactionManager, projectManagerMock, hubMonitor, groupManagerMock);
 
 		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 		config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1893,11 +1943,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -1913,11 +1964,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -1934,11 +1986,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -1964,11 +2017,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2000,11 +2054,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2039,11 +2094,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final Response response = controller.getHubJiraTicketErrors(requestMock);
 		assertNotNull(response);
@@ -2078,11 +2134,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
@@ -2126,11 +2183,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
@@ -2173,11 +2231,12 @@ public class HubJiraConfigControllerTest {
 		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
 
 		projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
 
 		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
-				transactionManager, projectManagerMock, null);
+				transactionManager, projectManagerMock, null, groupManagerMock);
 
 		final TicketCreationErrorSerializable errorsToDelete = new TicketCreationErrorSerializable();
 
@@ -2204,5 +2263,270 @@ public class HubJiraConfigControllerTest {
 		final HashMap<String, String> validateTicketCreationErrors = (HashMap<String, String>) errorMap;
 		assertTrue(validateTicketCreationErrors.size() == 4);
 	}
+
+	@Test
+	public void testGetHubAdminConfigNullUser() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubAdminConfigNotAdmin() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubAdminConfigAdmin() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubAdminConfigSerializable adminConfig = (HubAdminConfigSerializable) configObject;
+		assertNull(adminConfig.getHubJiraGroups());
+		assertTrue(adminConfig.getJiraGroups().isEmpty());
+	}
+
+	@Test
+	public void testGetHubAdminConfigAdminValid() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		final String hubJiraGroups = "Xmen, Mutants";
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, hubJiraGroups);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+		groupManagerMock.addGroupByName("Group1");
+		groupManagerMock.addGroupByName("Group2");
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubAdminConfigSerializable adminConfig = (HubAdminConfigSerializable) configObject;
+		assertEquals(hubJiraGroups, adminConfig.getHubJiraGroups());
+		assertTrue(!adminConfig.getJiraGroups().isEmpty());
+	}
+
+	@Test
+	public void testGetHubAdminConfigInGroup() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(false);
+		managerMock.addGroup("Xmen");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		final String hubJiraGroups = "Xmen, Mutants";
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, hubJiraGroups);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubAdminConfigSerializable adminConfig = (HubAdminConfigSerializable) configObject;
+		assertEquals(hubJiraGroups, adminConfig.getHubJiraGroups());
+		assertNull(adminConfig.getJiraGroups());
+	}
+
+	@Test
+	public void testGetHubAdminConfigNotInGroup() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(false);
+		managerMock.addGroup("Marvel");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		final String hubJiraGroups = "Xmen, Mutants";
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, hubJiraGroups);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubAdminConfigNotGroupsDefined() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(false);
+		managerMock.addGroup("Xmen");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testGetHubAdminConfigInGroupValid() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.addGroup("Xmen");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+		final String hubJiraGroups = "Xmen, Mutants";
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS,hubJiraGroups);
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+		groupManagerMock.addGroupByName("Group1");
+		groupManagerMock.addGroupByName("Group2");
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final Response response = controller.getHubJiraAdminConfiguration(requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubAdminConfigSerializable adminConfig = (HubAdminConfigSerializable) configObject;
+		assertEquals(hubJiraGroups, adminConfig.getHubJiraGroups());
+		assertNull(adminConfig.getJiraGroups());
+	}
+
+	// TODO
+
+	@Test
+	public void testUpdateHubAdminConfigNullUser() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+		final HubAdminConfigSerializable adminConfig = new HubAdminConfigSerializable();
+		final Response response = controller.updateHubAdminConfiguration(adminConfig, requestMock);
+		assertNotNull(response);
+		assertEquals(Integer.valueOf(Status.UNAUTHORIZED.getStatusCode()), Integer.valueOf(response.getStatus()));
+	}
+
+	@Test
+	public void testUpdateHubAdminConfigNotAdmin() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final HubAdminConfigSerializable adminConfig = new HubAdminConfigSerializable();
+		final Response response = controller.updateHubAdminConfiguration(adminConfig, requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNotNull(configObject);
+		final HubAdminConfigSerializable responseAdminConfig = (HubAdminConfigSerializable) configObject;
+		assertNull(responseAdminConfig.getHubJiraGroups());
+		assertNull(responseAdminConfig.getJiraGroups());
+		assertEquals(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS,
+				responseAdminConfig.getHubJiraGroupsError());
+	}
+
+	@Test
+	public void testUpdateHubAdminConfigAdmin() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+		final GroupManagerMock groupManagerMock = new GroupManagerMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupManagerMock);
+
+		final HubAdminConfigSerializable adminConfig = new HubAdminConfigSerializable();
+		final String hubJiraGroups = "Xmen, Mutants";
+		adminConfig.setHubJiraGroups(hubJiraGroups);
+
+		final Response response = controller.updateHubAdminConfiguration(adminConfig, requestMock);
+		assertNotNull(response);
+		final Object configObject = response.getEntity();
+		assertNull(configObject);
+
+		final String hubJiraGroupsAfter = (String) settingsFactory.createGlobalSettings()
+				.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+		assertNotNull(hubJiraGroupsAfter);
+		assertEquals(hubJiraGroups, hubJiraGroupsAfter);
+	}
+
 
 }

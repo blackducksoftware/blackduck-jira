@@ -57,7 +57,6 @@ import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetu
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
-import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira6;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
@@ -155,11 +154,6 @@ public class JiraTask implements PluginJob {
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
 					throws JiraException {
-
-		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
-		groupSetup.addHubJiraGroupToJira();
-
-		// TODO get version of jira BuildUtilsInfoImpl().getVersion()
 
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final JiraVersion jiraVersion = getJiraVersion();
@@ -260,11 +254,6 @@ public class JiraTask implements PluginJob {
 			return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
 		}
 		return null;
-	}
-
-	public HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices) {
-		return new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
 	}
 
 	private Object getValue(final PluginSettings settings, final String key) {

@@ -79,8 +79,26 @@ var hubProjectMap = new Map();
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
+	
+	function updateAdminConfig() {
+		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+	}
 
 function populateForm() {
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/admin/",
+	    dataType: "json",
+	    success: function(admin) {
+	      updateValue("hubJiraGroups", admin.hubJiraGroups);
+	      updateValue("jiraGroups", admin.jiraGroups);
+	      
+	      handleError('hubJiraGroupsError', admin.hubJiraGroupsError, false);
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "hubJiraGroupsError", "There was a problem retrieving the Admin configuration.", "Admin Error");
+	    }
+	  });
+
 	  AJS.$.ajax({
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/interval/",
 	    dataType: "json",
@@ -441,6 +459,37 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	}
 });
 
+function putAdminConfig(restUrl, successMessage, failureMessage) {
+	  AJS.$.ajax({
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{ "hubJiraGroups": "' + encodeURI(AJS.$("#hubJiraGroups").val())
+	    + '"}',
+	    processData: false,
+	    success: function() {
+	    	hideError('hubJiraGroupsError');
+	    	
+		    showStatusMessage(successStatus, 'Success!', successMessage);
+	    },
+	    error: function(response){
+	    	try {
+		    	var admin = JSON.parse(response.responseText);
+		    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true);
+		    	
+			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+	    	} catch(err) {
+	    		// in case the response is not our error object
+	    		alert(response.responseText);
+	    	}
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 stopProgressSpinner('adminSaveSpinner');
+	    }
+	  });
+}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
@@ -477,7 +526,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	}
 	    },
 	    complete: function(jqXHR, textStatus){
-	    	 stopProgressSpinner();
+	    	 stopProgressSpinner('saveSpinner');
 	    }
 	  });
 }
@@ -874,8 +923,8 @@ function removeMappingErrorStatus(mappingElement){
 	}
 }
 
-function startProgressSpinner(){
-	 var spinner = AJS.$('#saveSpinner');
+function startProgressSpinner(spinnerId){
+	 var spinner = AJS.$('#' + spinnerId);
 	 
 	 if(spinner.find("i").length == 0){
 		var newSpinnerIcon = AJS.$('<i>', {
@@ -890,8 +939,8 @@ function startProgressSpinner(){
 	 }
 }
 
-function stopProgressSpinner(){
-	var spinner = AJS.$('#saveSpinner');
+function stopProgressSpinner(spinnerId){
+	var spinner = AJS.$('#'+spinnerId);
 	if(spinner.children().length > 0){
 		AJS.$(spinner).empty();
 	}

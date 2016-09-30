@@ -17,7 +17,31 @@
       
       <div id="error-message-field" class="error hidden">
       </div>
-      
+      	
+      	<fieldset class="fieldSection">
+      	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("hub.integration.jira.admin.label")</legend>
+      	 <div id="adminArea">
+		      <div class="field-group">
+		        <label class="label" for="hubJiraGroups">$i18n.getText("hub.integration.jira.hubJiraGroups.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hubJiraGroupsDescription.label')"></span>
+		        <input multiple type="text" id="hubJiraGroups" name="hubJiraGroups" class="longInput textStyle">
+		        <datalist id="jiraGroups"></datalist>
+		      </div>
+		      <div class="field-group">
+		      	<label> </label>
+		      	<div id="hubJiraGroupsError" class="error hidden"></div>
+		      </div>
+		      
+		      <div style="display: inline-block; width: 100%;">
+		   	   		<div class="buttonContainer">
+			       		<div id="adminSaveSpinner" style="display: inline-block;"></div>
+			  	   		<input onclick="updateAdminConfig(); startProgressSpinner('adminSaveSpinner);" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+			  	   </div>
+			  </div>
+	      </div>
+      	</fieldset>
+      	
       	<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
@@ -145,7 +169,7 @@
 	   <div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   		<input onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  	   </div>
 	   </div>
 	  
