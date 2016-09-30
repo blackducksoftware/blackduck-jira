@@ -39,8 +39,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.builder.ValidationResults;
-import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -131,14 +129,20 @@ public class JiraTask implements PluginJob {
 		hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
 		hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
 
-		final ValidationResults<GlobalFieldKey, HubServerConfig> configResult = hubConfigBuilder.build();
+		HubServerConfig serverConfig = null;
+		try {
+			serverConfig = hubConfigBuilder.build();
+		} catch (final IllegalStateException e) {
+			logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
+					+ e.getMessage());
+			return;
+		}
 
-		if (configResult.hasErrors()) {
+		if (hubConfigBuilder.buildResults().hasErrors()) {
 			logger.error(
 					"At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
 			return;
 		}
-		final HubServerConfig serverConfig = configResult.getConstructedObject();
 
 		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
 				lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
