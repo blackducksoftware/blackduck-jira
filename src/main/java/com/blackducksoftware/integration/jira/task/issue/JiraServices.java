@@ -191,4 +191,9 @@ public class JiraServices {
 		return ClassLoaderUtils.getResourceAsStream(resource, getClass());
 	}
 
+	public String getPluginVersion() {
+		return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
+				.getPluginInformation().getVersion();
+	}
+
 }

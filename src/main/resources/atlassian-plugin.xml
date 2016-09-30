@@ -1,4 +1,5 @@
 <atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+<!-- If the plugin key changes then you must update JiraServices.getPluginVersion() -->
     <plugin-info>
         <description>${project.description}</description>
         <version>${project.version}</version>

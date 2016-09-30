@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,10 +30,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -47,6 +52,11 @@ import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
+import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
+import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
+import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
+import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -134,6 +144,28 @@ public class HubJiraTask {
 
 			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
 					config.getHubProjectMappings());
+
+			final HubSupportHelper hubSupport = new HubSupportHelper();
+
+			// Phone-Home
+			try {
+				final String hubVersion = hubSupport.getHubVersion(hub);
+				String regId = null;
+				String hubHostName = null;
+				try {
+					regId = hub.getRegistrationId();
+				} catch (final Exception e) {
+					logger.debug("Could not get the Hub registration Id.");
+				}
+				try {
+					hubHostName = serverConfig.getHubUrl().getHost();
+				} catch (final Exception e) {
+					logger.debug("Could not get the Hub Host name.");
+				}
+				bdPhoneHome(hubVersion, regId, hubHostName);
+			} catch (final Exception e) {
+				logger.debug("Unable to phone-home", e);
+			}
 
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
@@ -256,5 +288,26 @@ public class HubJiraTask {
 			startDate = dateFormatter.parse(lastRunDateString);
 		}
 		return startDate;
+	}
+
+	/**
+	 * @param blackDuckVersion
+	 *            Version of the blackduck product, in this instance, the hub
+	 * @param regId
+	 *            Registration ID of the hub instance that this plugin uses
+	 * @param hubHostName
+	 *            Host name of the hub instance that this plugin uses
+	 *
+	 *            This method "phones-home" to the internal BlackDuck
+	 *            Integrations server.
+	 */
+	public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName)
+			throws IOException, PhoneHomeException, PropertiesLoaderException, ResourceException, JSONException {
+		final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
+		final String pluginVersion = jiraServices.getPluginVersion();
+
+		final PhoneHomeClient phClient = new PhoneHomeClient();
+		phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
+				thirdPartyVersion, pluginVersion);
 	}
 }
