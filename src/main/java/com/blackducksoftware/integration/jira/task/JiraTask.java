@@ -53,7 +53,6 @@ import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenS
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
-import com.blackducksoftware.integration.jira.task.setup.HubGroupSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
 
@@ -105,7 +104,7 @@ public class JiraTask implements PluginJob {
 		final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
 		try {
 			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
-		} catch (final JiraException | ConfigurationException e) {
+		} catch (final Exception e) {
 			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
 			return;
 		}
@@ -113,7 +112,7 @@ public class JiraTask implements PluginJob {
 
 		final Period diff = new Period(beforeSetup, afterSetup);
 		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-				+ "ms.");
+		+ "ms.");
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -155,11 +154,7 @@ public class JiraTask implements PluginJob {
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-					throws JiraException, ConfigurationException {
-
-		final HubGroupSetup groupSetup = getHubGroupSetup(jiraSettingsService, jiraServices);
-		groupSetup.addHubJiraGroupToJira();
-
+			throws ConfigurationException, JiraException {
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final JiraVersion jiraVersion = getJiraVersion();
 		HubIssueTypeSetup issueTypeSetup;
@@ -252,10 +247,6 @@ public class JiraTask implements PluginJob {
 		return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
 	}
 
-	private HubGroupSetup getHubGroupSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices) {
-		return new HubGroupSetup(jiraSettingsService, jiraServices.getGroupManager());
-	}
 
 	private Object getValue(final PluginSettings settings, final String key) {
 		return settings.get(key);

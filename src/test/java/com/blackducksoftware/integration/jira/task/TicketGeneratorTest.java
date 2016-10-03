@@ -709,7 +709,6 @@ public class TicketGeneratorTest {
 		Mockito.when(newIssue.getAssigneeId()).thenReturn("assignedUserId");
 		Mockito.when(newIssue.getAssignee()).thenReturn(user);
 
-
 		final IssueResult issueNotFoundResult = Mockito.mock(IssueResult.class);
 		Mockito.when(issueNotFoundResult.isValid()).thenReturn(false);
 		Mockito.when(issueNotFoundResult.getIssue()).thenReturn(null);

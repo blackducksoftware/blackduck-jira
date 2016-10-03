@@ -35,4 +35,5 @@ public class JiraConfigErrors {
 	public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 	public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 
+	public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only Jira system admins can update the list of Jira groups that can access the Hub Jira configuration.";
 }

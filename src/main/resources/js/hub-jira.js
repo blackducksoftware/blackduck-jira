@@ -79,8 +79,25 @@ var hubProjectMap = new Map();
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
+	
+	function updateAdminConfig() {
+		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+	}
 
 function populateForm() {
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/admin/",
+	    dataType: "json",
+	    success: function(admin) {
+	      fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
+	      
+	      handleError('hubJiraGroupsError', admin.hubJiraGroupsError, false);
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "hubJiraGroupsError", "There was a problem retrieving the Admin configuration.", "Admin Error");
+	    }
+	  });
+
 	  AJS.$.ajax({
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/interval/",
 	    dataType: "json",
@@ -441,6 +458,40 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	}
 });
 
+function putAdminConfig(restUrl, successMessage, failureMessage) {
+
+var hubJiraGroups = encodeURI(AJS.$("#hubJiraGroups").val()); 
+
+	  AJS.$.ajax({
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{ "hubJiraGroups": "' + encodeURI(AJS.$("#hubJiraGroups").val())
+	    + '"}',
+	    processData: false,
+	    success: function() {
+	    	hideError('hubJiraGroupsError');
+	    	
+		    showStatusMessage(successStatus, 'Success!', successMessage);
+	    },
+	    error: function(response){
+	    	try {
+		    	var admin = JSON.parse(response.responseText);
+		    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true);
+		    	
+			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+	    	} catch(err) {
+	    		// in case the response is not our error object
+	    		alert(response.responseText);
+	    	}
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 stopProgressSpinner('adminSaveSpinner');
+	    }
+	  });
+}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
@@ -477,7 +528,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	}
 	    },
 	    complete: function(jqXHR, textStatus){
-	    	 stopProgressSpinner();
+	    	 stopProgressSpinner('saveSpinner');
 	    }
 	  });
 }
@@ -603,6 +654,45 @@ function addPolicyViolationRules(policyRules){
 			
 		}
 	}
+}
+
+function fillInJiraGroups(hubJiraGroups, jiraGroups){
+	var splitHubJiraGroups = null;
+	if(hubJiraGroups != null){
+	  splitHubJiraGroups = hubJiraGroups.split(",");
+	}
+	var jiraGroupList = AJS.$("#hubJiraGroups");
+	if(jiraGroups != null && jiraGroups.length > 0){
+		for (j = 0; j < jiraGroups.length; j++) {
+			var optionSelected = false;
+			if(splitHubJiraGroups != null){
+				for (g = 0; g < splitHubJiraGroups.length; g++) {
+					if(splitHubJiraGroups[g] === jiraGroups[j]){
+						optionSelected = true;
+					}
+				}
+			}
+		
+			var newOption = AJS.$('<option>', {
+			    value: jiraGroups[j],
+			    text: jiraGroups[j],
+			    selected: optionSelected
+			});
+			
+			jiraGroupList.append(newOption);
+		}
+	} else if(splitHubJiraGroups != null){
+		for (j = 0; j < splitHubJiraGroups.length; j++) {
+			var newOption = AJS.$('<option>', {
+			    value: splitHubJiraGroups[j],
+			    text: splitHubJiraGroups[j],
+			    selected: true
+			});
+			
+			jiraGroupList.append(newOption);
+		}
+	}
+	jiraGroupList.auiSelect2();
 }
 
 function fillInJiraProjects(jiraProjects){
@@ -874,8 +964,8 @@ function removeMappingErrorStatus(mappingElement){
 	}
 }
 
-function startProgressSpinner(){
-	 var spinner = AJS.$('#saveSpinner');
+function startProgressSpinner(spinnerId){
+	 var spinner = AJS.$('#' + spinnerId);
 	 
 	 if(spinner.find("i").length == 0){
 		var newSpinnerIcon = AJS.$('<i>', {
@@ -890,8 +980,8 @@ function startProgressSpinner(){
 	 }
 }
 
-function stopProgressSpinner(){
-	var spinner = AJS.$('#saveSpinner');
+function stopProgressSpinner(spinnerId){
+	var spinner = AJS.$('#'+spinnerId);
 	if(spinner.children().length > 0){
 		AJS.$(spinner).empty();
 	}
@@ -907,4 +997,5 @@ function isNullOrWhitespace(input) {
 
 (function ($) {
 	populateForm();
+	
 })(AJS.$ || jQuery);

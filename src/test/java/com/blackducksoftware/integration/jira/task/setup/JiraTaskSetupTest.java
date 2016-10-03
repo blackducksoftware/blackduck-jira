@@ -122,7 +122,6 @@ public class JiraTaskSetupTest {
 		jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
 				jiraEnv.getMappingJson(), new TicketInfoFromSetup(), JIRA_USER);
 
-		assertTrue(jiraEnv.getGroupManagerMock().getGroupCreateAttempted());
 		assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
 		assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
 		assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
@@ -173,7 +172,6 @@ public class JiraTaskSetupTest {
 		jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
 				jiraEnv.getMappingJson(), new TicketInfoFromSetup(), JIRA_USER);
 
-		assertTrue(jiraEnv.getGroupManagerMock().getGroupCreateAttempted());
 		assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
 		assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
 		assertEquals(2, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
@@ -493,7 +491,7 @@ public class JiraTaskSetupTest {
 	}
 
 	private Collection<IssueType> getIssueTypes(final boolean bdIssueTypesAlreadyAdded) {
-		final Collection<IssueType> issueTypes = new ArrayList<IssueType>();
+		final Collection<IssueType> issueTypes = new ArrayList<>();
 		final IssueTypeMock issueType = new IssueTypeMock();
 		issueType.setName("Task");
 		issueType.setId("Task");

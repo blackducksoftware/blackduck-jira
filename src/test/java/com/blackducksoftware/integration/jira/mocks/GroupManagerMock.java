@@ -21,13 +21,16 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.crowd.embedded.api.Group;
+import com.atlassian.crowd.embedded.impl.ImmutableGroup;
 import com.atlassian.crowd.exception.GroupNotFoundException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.OperationNotPermittedException;
@@ -41,27 +44,21 @@ import com.atlassian.jira.util.PageRequest;
 public class GroupManagerMock implements GroupManager {
 
 	private final HashMap<String, String> groupMap = new HashMap<>();
-
-	private boolean groupCreateAttempted;
+	final List<Group> groups = new ArrayList<>();
 
 	public void addGroupByName(final String groupName) {
 		groupMap.put(groupName, groupName);
-	}
-
-	public boolean getGroupCreateAttempted() {
-		return groupCreateAttempted;
+		groups.add(new ImmutableGroup(groupName));
 	}
 
 	@Override
 	public Group createGroup(final String arg0) throws OperationNotPermittedException, InvalidGroupException {
-		groupCreateAttempted = true;
 		return null;
 	}
 
 	@Override
 	public Collection<Group> getAllGroups() {
-
-		return null;
+		return groups;
 	}
 
 	@Override
@@ -128,7 +125,7 @@ public class GroupManagerMock implements GroupManager {
 
 	@Override
 	public void addUserToGroup(final ApplicationUser arg0, final Group arg1) throws GroupNotFoundException,
-			UserNotFoundException, OperationNotPermittedException, OperationFailedException {
+	UserNotFoundException, OperationNotPermittedException, OperationFailedException {
 		// TODO Auto-generated method stub
 
 	}

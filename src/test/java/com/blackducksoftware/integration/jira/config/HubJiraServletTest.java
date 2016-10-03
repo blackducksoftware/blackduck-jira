@@ -25,10 +25,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.config.HubJiraServlet;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;
 import com.blackducksoftware.integration.jira.mocks.LoginUriProviderMock;
+import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.TemplateRendererMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
 
@@ -48,10 +49,13 @@ public class HubJiraServletTest {
 
 		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
+		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock);
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+				pluginSettingsFactory);
 
 		servlet.doGet(requestMock, responseMock);
 
@@ -74,10 +78,44 @@ public class HubJiraServletTest {
 
 		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
+		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock);
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+				pluginSettingsFactory);
+
+		servlet.doGet(requestMock, responseMock);
+
+		assertEquals(redirectUrl, responseMock.getRedirectedLocation());
+	}
+
+	@Test
+	public void testDoGetUserNotAdminNotInGroup() throws Exception {
+		final String userName = "TestUser";
+		final String redirectUrl = "http://testRedirect";
+		final StringBuffer requestUrl = new StringBuffer();
+		requestUrl.append(redirectUrl);
+
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername(userName);
+		managerMock.addGroup("Group3");
+
+		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+
+		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+
+		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+
+		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+		pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		requestMock.setRequestURL(requestUrl);
+
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+				pluginSettingsFactory);
 
 		servlet.doGet(requestMock, responseMock);
 
@@ -93,7 +131,7 @@ public class HubJiraServletTest {
 
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
 		managerMock.setRemoteUsername(userName);
-		managerMock.setInGroup(true);
+		managerMock.addGroup("Group1");
 
 		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
@@ -101,10 +139,14 @@ public class HubJiraServletTest {
 
 		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
+		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+		pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock);
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+				pluginSettingsFactory);
 
 		servlet.doGet(requestMock, responseMock);
 
@@ -129,10 +171,13 @@ public class HubJiraServletTest {
 
 		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
+		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+
 		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
 		requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock);
+		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+				pluginSettingsFactory);
 
 		servlet.doGet(requestMock, responseMock);
 
