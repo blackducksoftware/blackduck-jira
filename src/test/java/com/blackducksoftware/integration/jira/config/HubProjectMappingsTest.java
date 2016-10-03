@@ -41,7 +41,6 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
-import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -65,7 +64,6 @@ public class HubProjectMappingsTest {
 		Mockito.when(issueType.getId()).thenReturn("issueTypeId");
 		issueTypes.add(issueType);
 
-		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
 		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 
@@ -106,7 +104,7 @@ public class HubProjectMappingsTest {
 			underlyingMappings.add(mapping);
 		}
 
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext, underlyingMappings);
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, underlyingMappings);
 
 		final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectName7");
 		assertEquals(1, mappedJiraProjects.size());

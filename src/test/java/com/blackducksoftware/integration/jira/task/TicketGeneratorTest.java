@@ -267,7 +267,7 @@ public class TicketGeneratorTest {
 
 		// Test
 		ticketGenerator.generateTicketsForRecentNotifications(
-				new HubProjectMappings(jiraServices, jiraContext, hubProjectMappings), new Date(JAN_1_2016),
+				new HubProjectMappings(jiraServices, hubProjectMappings), new Date(JAN_1_2016),
 				new Date(JAN_2_2016));
 
 		// Verify
@@ -359,7 +359,7 @@ public class TicketGeneratorTest {
 		// Test
 
 		ticketGenerator.generateTicketsForRecentNotifications(
-				new HubProjectMappings(jiraServices, jiraContext, hubProjectMappings), new Date(JAN_1_2016),
+				new HubProjectMappings(jiraServices, hubProjectMappings), new Date(JAN_1_2016),
 				new Date(JAN_2_2016));
 
 		// Verify
@@ -516,7 +516,7 @@ public class TicketGeneratorTest {
 
 		Mockito.when(
 				notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
-				.thenReturn(notificationItems);
+		.thenReturn(notificationItems);
 	}
 
 	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
