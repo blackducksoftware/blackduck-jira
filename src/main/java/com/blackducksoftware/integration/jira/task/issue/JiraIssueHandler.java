@@ -57,7 +57,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.opensymphony.workflow.loader.StepDescriptor;
+import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -307,9 +307,9 @@ public class JiraIssueHandler {
 
 		final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(issueToTransition);
 
-		StepDescriptor transitionAction = null;
+		ActionDescriptor transitionAction = null;
 		// https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
-		final List<StepDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
+		final List<ActionDescriptor> actions = workflow.getLinkedStep(currentStatus).getActions();
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
@@ -321,7 +321,7 @@ public class JiraIssueHandler {
 					notificationEvent.getNotif().getProjectVersion().getProjectVersionName(),
 					notificationEvent.getJiraProjectName(), notificationEvent.getJiraUserName(), "transitionIssue");
 		}
-		for (final StepDescriptor descriptor : actions) {
+		for (final ActionDescriptor descriptor : actions) {
 			if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
 				logger.info("Found Step descriptor : " + descriptor.getName());
 				transitionAction = descriptor;

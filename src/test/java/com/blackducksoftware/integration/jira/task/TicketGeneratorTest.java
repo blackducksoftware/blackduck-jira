@@ -104,6 +104,7 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
 
 /**
@@ -669,8 +670,8 @@ public class TicketGeneratorTest {
 		final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
 		final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
 		Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
-		final List<StepDescriptor> actions = new ArrayList<>();
-		final StepDescriptor actionDescriptor = Mockito.mock(StepDescriptor.class);
+		final List<ActionDescriptor> actions = new ArrayList<>();
+		final ActionDescriptor actionDescriptor = Mockito.mock(ActionDescriptor.class);
 		actions.add(actionDescriptor);
 		String transition;
 		if (open) {
