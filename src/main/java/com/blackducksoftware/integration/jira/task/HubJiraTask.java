@@ -30,12 +30,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.atlassian.jira.util.json.JSONException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
@@ -58,9 +58,6 @@ import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
 import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -143,7 +140,7 @@ public class HubJiraTask {
 
 			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
 					config.getHubProjectMappings());
 
 			final HubSupportHelper hubSupport = new HubSupportHelper();
@@ -213,8 +210,6 @@ public class HubJiraTask {
 			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final Gson gson = new GsonBuilder().create();
-		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
 		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);

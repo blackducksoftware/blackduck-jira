@@ -33,14 +33,12 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubProjectMappings {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final JiraContext jiraContext;
 	private final Set<HubProjectMapping> mappings;
 	private final JiraServices jiraServices;
 
-	public HubProjectMappings(final JiraServices jiraServices, final JiraContext jiraContext,
+	public HubProjectMappings(final JiraServices jiraServices,
 			final Set<HubProjectMapping> mappings) {
 		this.jiraServices = jiraServices;
-		this.jiraContext = jiraContext;
 		this.mappings = mappings;
 	}
 

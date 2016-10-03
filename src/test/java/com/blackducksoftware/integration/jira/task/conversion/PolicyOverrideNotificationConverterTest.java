@@ -121,7 +121,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch)
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+					throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -129,7 +129,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
 
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, jiraContext,
+		final HubProjectMappings mappings = new HubProjectMappings(jiraServices,
 				createProjectMappings(includeProjectMappings, projectMappingMatch));
 
 		final NotificationContentItem notification = createNotification(rules);

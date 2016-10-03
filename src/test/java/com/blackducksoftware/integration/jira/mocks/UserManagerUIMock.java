@@ -22,28 +22,29 @@
 package com.blackducksoftware.integration.jira.mocks;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.user.UserResolutionException;
 
+
 public class UserManagerUIMock implements UserManager {
 
 	String remoteUsername;
 	boolean isSystemAdmin;
 
-	boolean isInGroup;
+	List<String> userGroups = new ArrayList<>();
+
 
 	public UserManagerUIMock() {
 	}
 
-	public boolean isInGroup() {
-		return isInGroup;
-	}
 
-	public void setInGroup(final boolean isInGroup) {
-		this.isInGroup = isInGroup;
+	public void addGroup(final String group) {
+		userGroups.add(group);
 	}
 
 	public void setRemoteUsername(final String remoteUsername) {
@@ -62,7 +63,7 @@ public class UserManagerUIMock implements UserManager {
 
 	@Override
 	public boolean isUserInGroup(final String username, final String group) {
-		return isInGroup();
+		return userGroups.contains(group);
 	}
 
 	public void setIsSystemAdmin(final boolean isSystemAdmin) {
