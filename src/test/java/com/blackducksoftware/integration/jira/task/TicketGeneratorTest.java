@@ -81,6 +81,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
@@ -126,9 +127,11 @@ public class TicketGeneratorTest {
 
 	private static PolicyRule rule;
 	private static BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
+	private static DataServicesFactory dataServicesFactory;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		dataServicesFactory = Mockito.mock(DataServicesFactory.class);
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 
@@ -224,7 +227,8 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
+		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+				jiraServices, jiraContext,
 				settingsService, null);
 
 		final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
@@ -308,7 +312,8 @@ public class TicketGeneratorTest {
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
+		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+				jiraServices, jiraContext,
 				settingsService, null);
 
 		final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();

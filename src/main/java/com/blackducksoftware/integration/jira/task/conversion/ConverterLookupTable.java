@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
@@ -40,11 +41,12 @@ public class ConverterLookupTable {
 	private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
 	public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
-			throws ConfigurationException {
+			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+			final DataServicesFactory dataServicesFactory)
+					throws ConfigurationException {
 
 		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-				mappings, jiraServices, jiraContext, jiraSettingsService);
+				mappings, jiraServices, jiraContext, jiraSettingsService, dataServicesFactory);
 		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
 				mappings, jiraServices, jiraContext, jiraSettingsService);
 		final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(

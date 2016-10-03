@@ -27,6 +27,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
@@ -48,15 +49,23 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+	private final DataServicesFactory dataServicesFactory;
 	private final NotificationDataService notificationDataService;
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	public TicketGenerator(final NotificationDataService notificationDataService, final JiraServices jiraServices,
+	// TODO Would be nice if DataServicesFactory had a ctor
+	// that took a notification filter, that it would always
+	// use when creating notifiation data service. Then
+	// wouldn't need to pass notification data service in
+	// here.
+	public TicketGenerator(final DataServicesFactory dataServicesFactory,
+			final NotificationDataService notificationDataService, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
 			final TicketInfoFromSetup ticketInfoFromSetup) {
+		this.dataServicesFactory = dataServicesFactory;
 		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
@@ -83,7 +92,7 @@ public class TicketGenerator {
 			}
 
 			final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
-					jiraContext, jiraSettingsService);
+					jiraContext, jiraSettingsService, dataServicesFactory);
 
 			final List<HubEvent> events = processor.generateEvents(notifs);
 			if ((events == null) || (events.size() == 0)) {

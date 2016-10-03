@@ -38,6 +38,7 @@ import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.atlassian.jira.util.json.JSONException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -216,12 +217,13 @@ public class HubJiraTask {
 		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
-		final NotificationDataService notificationDataService = new NotificationDataService(logger, restConnection,
-				gson,
+		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
 
-				jsonParser, policyFilter);
+		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
+				logger, policyFilter);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
+		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+				jiraServices, jiraContext,
 				jiraSettingsService, ticketInfoFromSetup);
 		return ticketGenerator;
 	}
