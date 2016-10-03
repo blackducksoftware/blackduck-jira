@@ -26,8 +26,6 @@ public class JiraVersion {
 		this(new BuildUtilsInfoImpl());
 	}
 
-	// TODO revisit this
-
 	public JiraVersion(final BuildUtilsInfoImpl serverInfoUtils) throws ConfigurationException {
 		final int[] versionNumbers = serverInfoUtils.getVersionNumbers();
 
