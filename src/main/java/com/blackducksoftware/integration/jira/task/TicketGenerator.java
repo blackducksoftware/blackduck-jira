@@ -56,11 +56,6 @@ public class TicketGenerator {
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	// TODO Would be nice if DataServicesFactory had a ctor
-	// that took a notification filter, that it would always
-	// use when creating notifiation data service. Then
-	// wouldn't need to pass notification data service in
-	// here.
 	public TicketGenerator(final DataServicesFactory dataServicesFactory,
 			final NotificationDataService notificationDataService, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,

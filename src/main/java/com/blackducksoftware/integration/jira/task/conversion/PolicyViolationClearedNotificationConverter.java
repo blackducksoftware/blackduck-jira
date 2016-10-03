@@ -60,7 +60,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 		final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
 		logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
 		for (final PolicyRule rule : notification.getPolicyRuleList()) {
-			final HubEvent event = new PolicyEvent(HubEventAction.CLOSE, getJiraContext().getJiraUser().getName(),
+			final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
 					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
 					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
  notification, rule,

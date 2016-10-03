@@ -138,14 +138,8 @@ public class HubJiraTask {
 			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
 					linksOfRulesToMonitor, ticketInfoFromSetup);
 
-			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
-					config.getHubProjectMappings());
-
-			final HubSupportHelper hubSupport = new HubSupportHelper();
-
 			// Phone-Home
+			final HubSupportHelper hubSupport = new HubSupportHelper();
 			try {
 				final String hubVersion = hubSupport.getHubVersion(hub);
 				String regId = null;
@@ -164,6 +158,13 @@ public class HubJiraTask {
 			} catch (final Exception e) {
 				logger.debug("Unable to phone-home", e);
 			}
+
+			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
+					config.getHubProjectMappings());
+
+
 
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);

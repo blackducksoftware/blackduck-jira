@@ -174,15 +174,6 @@ public class JiraIssueHandler {
 		.setReporterId(notificationEvent.getJiraUserName())
 		.setDescription(notificationEvent.getIssueDescription());
 
-		// TODO: Default assignee = UNassigned; setAssigneeId() NOT CALLED,
-		// getAssigneeId() returns null:
-		//
-		// retain=false, apply=false: assigned to other
-		// retain=false, apply=true: assigned to other
-		// retain=true, apply=false: assigned to other
-		// retain=true, apply=true: assigned to other
-		//
-
 		issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
 		issueInputParameters.setApplyDefaultValuesWhenParameterNotProvided(true);
 
@@ -283,7 +274,6 @@ public class JiraIssueHandler {
 		}
 	}
 
-	// TODO: can transition() use some of this?
 	private Issue updateIssue(final MutableIssue issueToUpdate, final AssignValidationResult assignValidationResult,
 			final ApplicationUser userMakingChange, final String assigneeId) {
 		issueToUpdate.setAssigneeId(assigneeId);
@@ -387,7 +377,7 @@ public class JiraIssueHandler {
 		case OPEN:
 			openIssue(notificationEvent);
 			break;
-		case CLOSE:
+		case RESOLVE:
 			closeIssue(notificationEvent);
 			break;
 		case ADD_COMMENT:
