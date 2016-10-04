@@ -48,7 +48,6 @@ import com.atlassian.jira.project.AssigneeTypes;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.user.util.UserManager;
@@ -111,10 +110,6 @@ public class JiraServices {
 
 	public CommentManager getCommentManager() {
 		return ComponentAccessor.getCommentManager();
-	}
-
-	public GroupManager getGroupManager() {
-		return ComponentAccessor.getGroupManager();
 	}
 
 	public UserManager getUserManager() {

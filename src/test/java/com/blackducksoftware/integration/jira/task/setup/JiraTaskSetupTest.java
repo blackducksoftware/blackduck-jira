@@ -72,7 +72,7 @@ import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
-import com.blackducksoftware.integration.jira.mocks.GroupManagerMock;
+import com.blackducksoftware.integration.jira.mocks.GroupPickerSearchServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
@@ -235,7 +235,7 @@ public class JiraTaskSetupTest {
 	private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) throws ConfigurationException {
 		JiraTask jiraTask = new JiraTask();
 
-		final GroupManagerMock groupManager = getGroupManagerMock(false);
+		final GroupPickerSearchServiceMock groupPickerSearchService = getGroupPickerSearchServiceMock(false);
 		final WorkflowManagerMock workflowManager = getWorkflowManagerMock();
 		final WorkflowSchemeManagerMock workflowSchemeManager = getWorkflowSchemeManagerMock(false);
 		final UserManagerMock userManager = getUserManagerMockManagerMock();
@@ -307,7 +307,8 @@ public class JiraTaskSetupTest {
 
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
-		final JiraServices jiraServices = getJiraServices(groupManager, workflowManager, workflowSchemeManager,
+		final JiraServices jiraServices = getJiraServices(workflowManager,
+				workflowSchemeManager,
 				userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
 				fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
 				fieldManager, fieldScreenManager, fieldScreenSchemeManager);
@@ -324,7 +325,6 @@ public class JiraTaskSetupTest {
 
 		final Avatar avatarTemplate = Mockito.mock(Avatar.class);
 		Mockito.when(avatarTemplate.getId()).thenReturn(123L);
-		Mockito.when(avatarTemplate.getAvatarType()).thenReturn(Avatar.Type.ISSUETYPE);
 		Mockito.when(avatarTemplate.getContentType()).thenReturn("image/png");
 		Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME);
 		Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
@@ -339,7 +339,8 @@ public class JiraTaskSetupTest {
 				.setFieldConfigurationSchemeMock(projectFieldConfigScheme).setFieldLayoutManagerMock(fieldLayoutManager)
 				.setFieldLayoutSchemeMock(fieldLayoutScheme).setFieldManagerMock(fieldManager)
 				.setFieldScreenManagerMock(fieldScreenManager).setFieldScreenSchemeManagerMock(fieldScreenSchemeManager)
-				.setGroupManagerMock(groupManager).setHubFieldScreenSchemeSetup(fieldScreenSchemeSetup)
+				.setGroupPickerSearchServiceMock(groupPickerSearchService)
+				.setHubFieldScreenSchemeSetup(fieldScreenSchemeSetup)
 				.setIssueTypes(issueTypes).setIssueTypes(issueTypes)
 				.setIssueTypeSchemeManagerMock(issueTypeSchemeManager)
 				.setIssueTypeScreenSchemeManagerMock(issueTypeScreenSchemeManager)
@@ -482,12 +483,12 @@ public class JiraTaskSetupTest {
 		return projectManagerMock;
 	}
 
-	private GroupManagerMock getGroupManagerMock(final boolean groupAlreadyExists) {
-		final GroupManagerMock groupManager = new GroupManagerMock();
+	private GroupPickerSearchServiceMock getGroupPickerSearchServiceMock(final boolean groupAlreadyExists) {
+		final GroupPickerSearchServiceMock groupPickerSearchService = new GroupPickerSearchServiceMock();
 		if (groupAlreadyExists) {
-			groupManager.addGroupByName(HubJiraConstants.HUB_JIRA_GROUP);
+			groupPickerSearchService.addGroupByName(HubJiraConstants.HUB_JIRA_GROUP);
 		}
-		return groupManager;
+		return groupPickerSearchService;
 	}
 
 	private Collection<IssueType> getIssueTypes(final boolean bdIssueTypesAlreadyAdded) {
@@ -512,7 +513,7 @@ public class JiraTaskSetupTest {
 		return issueTypes;
 	}
 
-	private JiraServices getJiraServices(final GroupManagerMock groupManager, final WorkflowManager workflowManager,
+	private JiraServices getJiraServices(final WorkflowManager workflowManager,
 			final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
 			final ProjectManager projectManager, final AvatarManager avatarManager,
 			final ConstantsManager constantsManager, final IssueTypeSchemeManager issueTypeSchemeManager,
@@ -523,7 +524,6 @@ public class JiraTaskSetupTest {
 			final FieldScreenSchemeManagerMock fieldScreenSchemeManager) {
 
 		JiraServicesMock jiraServices = new JiraServicesMock();
-		jiraServices.setGroupManager(groupManager);
 		jiraServices.setWorkflowManager(workflowManager);
 		jiraServices.setWorkflowSchemeManager(workflowSchemeManager);
 		jiraServices.setUserManager(userManager);
@@ -575,7 +575,7 @@ public class JiraTaskSetupTest {
 	}
 
 	private class JiraEnvironment {
-		private GroupManagerMock groupManagerMock;
+		private GroupPickerSearchServiceMock groupPickerSearchServiceMock;
 		private WorkflowManagerMock workflowManagerMock;
 		private WorkflowSchemeManagerMock workflowSchemeManagerMock;
 		private UserManagerMock userManagerMock;
@@ -606,12 +606,13 @@ public class JiraTaskSetupTest {
 		private String mappingJson;
 		private Avatar avatarTemplate;
 
-		private GroupManagerMock getGroupManagerMock() {
-			return groupManagerMock;
+		private GroupPickerSearchServiceMock getGroupPickerSearchServiceMock() {
+			return groupPickerSearchServiceMock;
 		}
 
-		private JiraEnvironment setGroupManagerMock(final GroupManagerMock groupManagerMock) {
-			this.groupManagerMock = groupManagerMock;
+		private JiraEnvironment setGroupPickerSearchServiceMock(
+				final GroupPickerSearchServiceMock groupPickerSearchServiceMock) {
+			this.groupPickerSearchServiceMock = groupPickerSearchServiceMock;
 			return this;
 		}
 

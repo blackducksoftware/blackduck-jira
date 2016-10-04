@@ -198,11 +198,6 @@ public class JiraServicesMock extends JiraServices {
 	}
 
 	@Override
-	public GroupManager getGroupManager() {
-		return groupManager;
-	}
-
-	@Override
 	public UserManager getUserManager() {
 		return userManager;
 	}
