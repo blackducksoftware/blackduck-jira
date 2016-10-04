@@ -55,6 +55,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import com.atlassian.crowd.embedded.api.Group;
+import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -97,6 +98,7 @@ public class HubJiraConfigController {
 	private final ProjectManager projectManager;
 	private final HubMonitor hubMonitor;
 	private final GroupManager groupManager;
+	private final GroupPickerSearchService groupPickerSearchService;
 
 	private final Gson gson = new GsonBuilder().create();
 
@@ -104,13 +106,15 @@ public class HubJiraConfigController {
 
 	public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
 			final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-			final HubMonitor hubMonitor, final GroupManager groupManager) {
+			final HubMonitor hubMonitor, final GroupManager groupManager,
+			final GroupPickerSearchService groupPickerSearchService) {
 		this.userManager = userManager;
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.transactionTemplate = transactionTemplate;
 		this.projectManager = projectManager;
 		this.hubMonitor = hubMonitor;
 		this.groupManager = groupManager;
+		this.groupPickerSearchService = groupPickerSearchService;
 	}
 
 	private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
@@ -175,7 +179,7 @@ public class HubJiraConfigController {
 				if (userIsSysAdmin) {
 					final List<String> jiraGroups = new ArrayList<>();
 
-					final Collection<Group> jiraGroupCollection = groupManager.getAllGroups();
+					final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
 					if (jiraGroupCollection != null && !jiraGroupCollection.isEmpty()) {
 						for (final Group group : jiraGroupCollection) {
 							jiraGroups.add(group.getName());
