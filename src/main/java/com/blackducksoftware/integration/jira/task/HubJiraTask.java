@@ -38,6 +38,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -140,14 +141,8 @@ public class HubJiraTask {
 			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
 					linksOfRulesToMonitor, ticketInfoFromSetup);
 
-			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
-					config.getHubProjectMappings());
-
-			final HubSupportHelper hubSupport = new HubSupportHelper();
-
 			// Phone-Home
+			final HubSupportHelper hubSupport = new HubSupportHelper();
 			try {
 				final String hubVersion = hubSupport.getHubVersion(hub);
 				String regId = null;
@@ -166,6 +161,11 @@ public class HubJiraTask {
 			} catch (final Exception e) {
 				logger.debug("Unable to phone-home", e);
 			}
+
+			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+
+			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
+					config.getHubProjectMappings());
 
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
@@ -216,12 +216,13 @@ public class HubJiraTask {
 		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
-		final NotificationDataService notificationDataService = new NotificationDataService(logger, restConnection,
-				gson,
+		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
 
-				jsonParser, policyFilter);
+		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
+				logger, policyFilter);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(notificationDataService, jiraServices, jiraContext,
+		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+				jiraServices, jiraContext,
 				jiraSettingsService, ticketInfoFromSetup);
 		return ticketGenerator;
 	}

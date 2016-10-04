@@ -66,15 +66,13 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.PolicyRestService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.builder.ValidationResults;
 import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
@@ -626,8 +624,11 @@ public class HubJiraConfigController {
 			configBuilder.setProxyPassword(encHubProxyPassword);
 			configBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPasswordLength));
 
-			final ValidationResults<GlobalFieldKey, HubServerConfig> result = configBuilder.build();
-			final HubServerConfig serverConfig = result.getConstructedObject();
+			final HubServerConfig serverConfig = configBuilder.build();
+			if (configBuilder.buildResults().hasErrors()) {
+				config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
+				return null;
+			}
 
 			final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
 			restConnection.setTimeout(serverConfig.getTimeout());
@@ -636,10 +637,6 @@ public class HubJiraConfigController {
 					serverConfig.getGlobalCredentials().getDecryptedPassword());
 
 			hubRestService = new HubIntRestService(restConnection);
-
-			if (result.hasErrors()) {
-				config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
-			}
 		} catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
 			config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
 			return null;
