@@ -26,7 +26,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -2513,8 +2515,6 @@ public class HubJiraConfigControllerTest {
 		assertNull(adminConfig.getJiraGroups());
 	}
 
-	// TODO
-
 	@Test
 	public void testUpdateHubAdminConfigNullUser() {
 		final UserManagerUIMock managerMock = new UserManagerUIMock();
@@ -2588,6 +2588,42 @@ public class HubJiraConfigControllerTest {
 				.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
 		assertNotNull(hubJiraGroupsAfter);
 		assertEquals(hubJiraGroups, hubJiraGroupsAfter);
+	}
+
+	@Test
+	public void testResetSalKeys() {
+		final UserManagerUIMock managerMock = new UserManagerUIMock();
+		managerMock.setRemoteUsername("User");
+		managerMock.setIsSystemAdmin(true);
+		final PluginSettingsFactoryMock settingsFactory = new PluginSettingsFactoryMock();
+		final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
+		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+		final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+
+		final GroupPickerSearchServiceMock groupPickerSearchServiceMock = new GroupPickerSearchServiceMock();
+
+		final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+				transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
+
+		final PluginSettings settings = settingsFactory.createGlobalSettings();
+
+		final Date runDate = new Date();
+
+		final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+		final String lastRun = dateFormatter.format(runDate);
+		final String error = "BAD";
+
+		settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, lastRun);
+		settings.put(HubJiraConstants.HUB_JIRA_ERROR, error);
+
+		final Response response = controller.resetHubJiraKeys(null, requestMock);
+		assertNotNull(response);
+
+		assertNotNull(settings.get(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE));
+		assertTrue(!lastRun.equals(settings.get(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE)));
+		assertNull(settings.get(HubJiraConstants.HUB_JIRA_ERROR));
 	}
 
 

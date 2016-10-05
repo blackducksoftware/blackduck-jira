@@ -26,8 +26,8 @@ import java.io.StringWriter;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.logging.IntLogger;
-import com.blackducksoftware.integration.hub.logging.LogLevel;
+import com.blackducksoftware.integration.log.IntLogger;
+import com.blackducksoftware.integration.log.LogLevel;
 
 public class HubJiraLogger extends IntLogger {
 	private final Logger jiraLogger;
