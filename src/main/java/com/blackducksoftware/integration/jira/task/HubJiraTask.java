@@ -164,12 +164,6 @@ public class HubJiraTask {
 			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
 					config.getHubProjectMappings());
 
-			jiraSettingsService.addHubError("Error 1", "Test Error");
-			jiraSettingsService.addHubError("Error 2", "Test Error");
-			jiraSettingsService.addHubError("Error 3", "Test Error");
-			jiraSettingsService.addHubError("Error 4", "Test Error");
-			jiraSettingsService.addHubError("Error 5", "Test Error");
-
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
 		} catch (final Exception e) {
