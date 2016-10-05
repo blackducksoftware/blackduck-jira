@@ -64,17 +64,31 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	@Override
 	public String getUniquePropertyKey() throws MissingUUIDException {
 		final StringBuilder keyBuilder = new StringBuilder();
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
 		keyBuilder.append(getJiraProjectId().toString());
-		keyBuilder.append(".");
-		keyBuilder.append(getNotificationContentItem().getProjectVersion().getVersionId().toString());
-		keyBuilder.append(".");
-		keyBuilder.append(getNotificationContentItem().getComponentId().toString());
-		keyBuilder.append(".");
-		if (getNotificationContentItem().getComponentVersionId() != null) {
-			keyBuilder.append(getNotificationContentItem().getComponentVersionId().toString());
-			keyBuilder.append(".");
-		}
-		keyBuilder.append(getPolicyRule().getPolicyRuleId().toString());
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(String.valueOf(getNotificationContentItem().getProjectVersion().getProjectVersionLinkRel()
+				.hashCode()));
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(String.valueOf(getNotificationContentItem().getComponentVersionLinkRel().hashCode()));
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(getPolicyRule().getPolicyRuleLinkRelHashed());
+
 		final String key = keyBuilder.toString();
 		logger.debug("property key: " + key);
 		return key;
