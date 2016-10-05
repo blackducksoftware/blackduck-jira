@@ -87,7 +87,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(getPolicyRule().getPolicyRuleLinkRelHashed());
+		keyBuilder.append(String.valueOf(getPolicyRule().getPolicyRuleLinkRel().hashCode()));
 
 		final String key = keyBuilder.toString();
 		logger.debug("property key: " + key);
