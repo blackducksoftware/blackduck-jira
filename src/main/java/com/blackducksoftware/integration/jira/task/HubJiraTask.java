@@ -36,13 +36,13 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
+import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
-import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -58,9 +58,6 @@ import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
 import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -167,6 +164,12 @@ public class HubJiraTask {
 			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, jiraContext,
 					config.getHubProjectMappings());
 
+			jiraSettingsService.addHubError("Error 1", "Test Error");
+			jiraSettingsService.addHubError("Error 2", "Test Error");
+			jiraSettingsService.addHubError("Error 3", "Test Error");
+			jiraSettingsService.addHubError("Error 4", "Test Error");
+			jiraSettingsService.addHubError("Error 5", "Test Error");
+
 			// Generate Jira Issues based on recent notifications
 			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
 		} catch (final Exception e) {
@@ -212,8 +215,6 @@ public class HubJiraTask {
 			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final Gson gson = new GsonBuilder().create();
-		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
 		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);

@@ -64,6 +64,7 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
+import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
@@ -72,7 +73,6 @@ import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
-import com.blackducksoftware.integration.hub.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
@@ -478,6 +478,41 @@ public class HubJiraConfigController {
 					return responseObject;
 				} else{
 					setValue(settings,  HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, adminConfig.getHubJiraGroups());
+				}
+				return null;
+			}
+		});
+
+		if (obj != null) {
+			return Response.ok(obj).status(Status.BAD_REQUEST).build();
+		}
+		return Response.noContent().build();
+	}
+
+	@Path("/reset")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
+		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+		final Response response = checkUserPermissions(request, settings);
+		if (response != null) {
+			return response;
+		}
+
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				try {
+					final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+					final Date runDate = new Date();
+
+					final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+					dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
+					setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
+				} catch (final Exception e) {
+					return e.getMessage();
 				}
 				return null;
 			}
