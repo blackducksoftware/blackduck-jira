@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ public class PolicyOverrideNotificationConverterTest {
 	private static final String HUB_COMPONENT_NAME = "test Hub Component";
 	private static final String HUB_PROJECT_NAME = "test Hub Project";
 	private static final String PROJECT_URL = "http://test.project.url";
-	private static final String COMPONENT_VERSION_LINK = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
+	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 	private static final String VERSION_NAME = "versionName";
 	private static final String PROJECTVERSION_URL = "http://eng-hub-valid03.dc1.lan/api/projects/a3b48f57-9c00-453f-8672-804e08c317f2/versions/7d4fdbed-936b-468f-af7f-826dfc072c5b";
 
@@ -88,7 +89,8 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -106,14 +108,16 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void testNoProjectMappingMatch()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testWithoutMappings()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
@@ -121,7 +125,8 @@ public class PolicyOverrideNotificationConverterTest {
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch)
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+					throws NotificationServiceException, UnexpectedHubResponseException,
+					ConfigurationException, URISyntaxException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -142,24 +147,24 @@ public class PolicyOverrideNotificationConverterTest {
 		return events;
 	}
 
-	private NotificationContentItem createNotification(final List<PolicyRule> rules) {
+	private NotificationContentItem createNotification(final List<PolicyRule> rules) throws URISyntaxException {
 
 		final PolicyOverrideNotificationContent content = new PolicyOverrideNotificationContent();
 
 		final ProjectVersion projectVersion = new ProjectVersion();
 		projectVersion.setProjectName(HUB_PROJECT_NAME);
 		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION);
-		projectVersion.setProjectVersionLink(PROJECTVERSION_URL);
+		projectVersion.setUrl(PROJECTVERSION_URL);
 
 		content.setProjectName(HUB_PROJECT_NAME);
 		content.setProjectVersionLink(PROJECTVERSION_URL);
 		content.setComponentName(HUB_COMPONENT_NAME);
 		content.setBomComponentVersionPolicyStatusLink(BOM_COMPONENT_VERSION_POLICY_STATUS_LINK);
-		content.setComponentVersionLink(COMPONENT_VERSION_LINK);
+		content.setComponentVersionLink(COMPONENT_VERSION_URL);
 
 		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
 				HUB_COMPONENT_NAME,
-				VERSION_NAME, null, null, rules, null, null);
+ VERSION_NAME, COMPONENT_VERSION_URL, rules, null, null);
 		System.out.println("Notif: " + notif);
 
 		return notif;

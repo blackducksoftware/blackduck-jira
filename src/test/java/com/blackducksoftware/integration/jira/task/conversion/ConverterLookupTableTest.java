@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -45,6 +46,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
+	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -55,7 +57,7 @@ public class ConverterLookupTableTest {
 	}
 
 	@Test
-	public void test() throws NotificationServiceException, ConfigurationException {
+	public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
 		final DataServicesFactory dataServicesFactory = Mockito.mock(DataServicesFactory.class);
 		final JiraServices jiraServices = mockJiraServices();
 		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, dataServicesFactory);
@@ -69,16 +71,17 @@ public class ConverterLookupTableTest {
 
 		NotificationToEventConverter converter = table
 				.getConverter(new VulnerabilityContentItem(new Date(), null,
-						null, null, null, null, null, null, null));
+						null, null, COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null,
+				COMPONENT_VERSION_URL, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null, null, null,
-				null, null));
+		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null,
+				COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}

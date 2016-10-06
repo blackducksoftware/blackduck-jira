@@ -21,6 +21,8 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import java.net.URISyntaxException;
+
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
@@ -39,7 +41,6 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	private final String resolveComment;
 
 	public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
-
 			final String issueAssigneeId,
 			final String jiraIssueTypeId,
 			final Long jiraProjectId, final String jiraProjectName,
@@ -62,7 +63,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	}
 
 	@Override
-	public String getUniquePropertyKey() throws MissingUUIDException {
+	public String getUniquePropertyKey() throws MissingUUIDException, URISyntaxException {
 		final StringBuilder keyBuilder = new StringBuilder();
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
@@ -76,18 +77,18 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(String.valueOf(getNotificationContentItem().getProjectVersion().getProjectVersionLinkRel()
+		keyBuilder.append(String.valueOf(getNotificationContentItem().getProjectVersion().getRelativeUrl()
 				.hashCode()));
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(String.valueOf(getNotificationContentItem().getComponentVersionLinkRel().hashCode()));
+		keyBuilder.append(String.valueOf(getNotificationContentItem().getComponentVersionRelativeUrl().hashCode()));
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(String.valueOf(getPolicyRule().getPolicyRuleLinkRel().hashCode()));
+		keyBuilder.append(String.valueOf(getPolicyRule().getMeta().getRelativeHref().hashCode()));
 
 		final String key = keyBuilder.toString();
 		logger.debug("property key: " + key);

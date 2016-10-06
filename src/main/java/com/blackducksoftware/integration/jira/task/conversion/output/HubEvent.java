@@ -21,6 +21,8 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import java.net.URISyntaxException;
+
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
@@ -104,7 +106,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 		return null;
 	}
 
-	public abstract String getUniquePropertyKey() throws MissingUUIDException;
+	public abstract String getUniquePropertyKey() throws MissingUUIDException, URISyntaxException;
 
 	public abstract String getIssueSummary();
 

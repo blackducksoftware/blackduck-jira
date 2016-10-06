@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -128,7 +129,7 @@ public class JiraIssueHandler {
 		String notificationUniqueKey = null;
 		try {
 			notificationUniqueKey = notificationEvent.getUniquePropertyKey();
-		} catch (final MissingUUIDException e) {
+		} catch (final MissingUUIDException | URISyntaxException e) {
 			logger.error(e);
 			jiraSettingsService.addHubError(e, notificationEvent.getNotif().getProjectVersion().getProjectName(),
 					notificationEvent.getNotif().getProjectVersion().getProjectVersionName(),
@@ -180,7 +181,7 @@ public class JiraIssueHandler {
 			issueInputParameters = issueInputParameters.setAssigneeId(notificationEvent.getIssueAssigneeId());
 		} else {
 			logger.debug(
-"notificationEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
+					"notificationEvent: issueAssigneeId is not set, which will result in an unassigned Issue (assuming JIRA is configured to allow unassigned issues)");
 		}
 
 		if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null

@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverterTest {
-
+	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
 	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
 	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
@@ -84,7 +85,8 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
 		assertEquals(3, events.size());
@@ -97,14 +99,16 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testNoProjectMappingMatch()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
 	}
 
 	@Test
 	public void testWithoutMappings()
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+			throws NotificationServiceException, UnexpectedHubResponseException,
+			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
 		assertEquals(0, events.size());
@@ -112,7 +116,8 @@ public class PolicyViolationNotificationConverterTest {
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch)
-			throws NotificationServiceException, UnexpectedHubResponseException, ConfigurationException {
+					throws NotificationServiceException, UnexpectedHubResponseException,
+					ConfigurationException, URISyntaxException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -134,15 +139,15 @@ public class PolicyViolationNotificationConverterTest {
 		return events;
 	}
 
-	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) {
+	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) throws URISyntaxException {
 
 		final ProjectVersion projectVersion = new ProjectVersion();
 		projectVersion.setProjectName(HUB_PROJECT_NAME_PREFIX);
-		projectVersion.setProjectVersionLink(PROJECTVERSION_URL_PREFIX);
+		projectVersion.setUrl(PROJECTVERSION_URL_PREFIX);
 		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
 
 		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
-				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, null, policyRule);
+				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, COMPONENT_VERSION_URL, policyRule);
 		System.out.println("Notif: " + notif);
 
 		return notif;
