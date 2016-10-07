@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.google.gson.Gson;
@@ -63,7 +62,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	}
 
 	@Override
-	public String getUniquePropertyKey() throws MissingUUIDException, URISyntaxException {
+	public String getUniquePropertyKey() throws URISyntaxException {
 		final StringBuilder keyBuilder = new StringBuilder();
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);

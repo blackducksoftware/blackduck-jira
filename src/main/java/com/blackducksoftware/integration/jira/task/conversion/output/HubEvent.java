@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 /**
@@ -109,7 +108,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 		return null;
 	}
 
-	public abstract String getUniquePropertyKey() throws MissingUUIDException, URISyntaxException;
+	public abstract String getUniquePropertyKey() throws URISyntaxException;
 
 	public abstract String getIssueSummary();
 
