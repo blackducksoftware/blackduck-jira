@@ -27,7 +27,6 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
@@ -37,6 +36,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraNotificationProcessor {
@@ -46,10 +46,10 @@ public class JiraNotificationProcessor {
 
 	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final DataServicesFactory dataServicesFactory)
+			final VulnerableBomComponentRestService vulnerableBomComponentRestService)
 					throws ConfigurationException {
 		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService,
-				dataServicesFactory);
+				vulnerableBomComponentRestService);
 	}
 
 	public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)

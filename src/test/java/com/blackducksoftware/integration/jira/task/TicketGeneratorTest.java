@@ -81,7 +81,6 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
@@ -101,6 +100,7 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -127,11 +127,11 @@ public class TicketGeneratorTest {
 
 	private static PolicyRule rule;
 	private static BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
-	private static DataServicesFactory dataServicesFactory;
+	private static VulnerableBomComponentRestService vulnerableBomComponentRestService;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		dataServicesFactory = Mockito.mock(DataServicesFactory.class);
+		vulnerableBomComponentRestService = Mockito.mock(VulnerableBomComponentRestService.class);
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 
@@ -227,7 +227,9 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+
+		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+				notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
 
@@ -312,7 +314,8 @@ public class TicketGeneratorTest {
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+				notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
 

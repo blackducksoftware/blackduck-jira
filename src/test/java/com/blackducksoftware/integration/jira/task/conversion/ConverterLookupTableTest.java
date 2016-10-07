@@ -36,13 +36,13 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
@@ -58,9 +58,11 @@ public class ConverterLookupTableTest {
 
 	@Test
 	public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
-		final DataServicesFactory dataServicesFactory = Mockito.mock(DataServicesFactory.class);
+		final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
+				.mock(VulnerableBomComponentRestService.class);
 		final JiraServices jiraServices = mockJiraServices();
-		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, dataServicesFactory);
+		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null,
+				vulnerableBomComponentRestService);
 
 		try {
 			assertEquals(null, table.getConverter(null));

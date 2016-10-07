@@ -52,6 +52,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
 import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
@@ -220,8 +221,11 @@ public class HubJiraTask {
 
 		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
 				logger, policyFilter);
+		final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
+				restConnection, gson, jsonParser);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+				notificationDataService,
 				jiraServices, jiraContext,
 				jiraSettingsService, ticketInfoFromSetup);
 		return ticketGenerator;

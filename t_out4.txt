@@ -1,0 +1,691 @@
+1200 [INFO] Scanning for projects...
+3171 [INFO]                                                                         
+3171 [INFO] ------------------------------------------------------------------------
+3171 [INFO] Building Hub Jira Plugin 2.0.1-SNAPSHOT
+3171 [INFO] ------------------------------------------------------------------------
+Downloading: https://updates.suite.blackducksoftware.com/integrations/com/blackducksoftware/integration/phone-home-api/1.1.7-SNAPSHOT/maven-metadata.xml
+Downloading: https://updates.suite.blackducksoftware.com/integrations/org/apache/velocity/velocity/maven-metadata.xml
+6512 [INFO] 
+6512 [INFO] --- maven-dependency-plugin:2.10:tree (default-cli) @ hub-jira ---
+7352 [WARNING] Using Maven 2 dependency tree to get verbose output, which may be inconsistent with actual Maven 3 resolution
+11278 [INFO] com.blackducksoftware.integration:hub-jira:atlassian-plugin:2.0.1-SNAPSHOT
+11278 [INFO] +- com.blackducksoftware.integration:hub-common:jar:1.4.7:compile
+11278 [INFO] |  +- org.apache.ant:ant:jar:1.9.7:compile
+11278 [INFO] |  |  \- org.apache.ant:ant-launcher:jar:1.9.7:compile
+11278 [INFO] |  +- com.google.guava:guava:jar:19.0:compile
+11278 [INFO] |  +- joda-time:joda-time:jar:2.9.4:compile
+11278 [INFO] |  +- org.apache.commons:commons-lang3:jar:3.4:compile
+11278 [INFO] |  +- commons-io:commons-io:jar:2.5:compile
+11278 [INFO] |  +- com.google.code.gson:gson:jar:2.7:compile
+11278 [INFO] |  +- org.restlet.jse:org.restlet:jar:2.3.7:compile
+11278 [INFO] |  +- org.restlet.jse:org.restlet.ext.httpclient:jar:2.3.7:compile
+11278 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.5:compile - omitted for conflict with 1.10)
+11278 [INFO] |  |  +- org.apache.httpcomponents:httpclient:jar:4.3.2:compile
+11278 [INFO] |  |  |  +- (org.apache.httpcomponents:httpcore:jar:4.3.1:compile - omitted for duplicate)
+11278 [INFO] |  |  |  +- (commons-logging:commons-logging:jar:1.1.3:compile - omitted for duplicate)
+11278 [INFO] |  |  |  \- (commons-codec:commons-codec:jar:1.6:compile - omitted for conflict with 1.5)
+11278 [INFO] |  |  +- org.apache.httpcomponents:httpcore:jar:4.3.1:compile
+11278 [INFO] |  |  +- org.apache.httpcomponents:httpmime:jar:4.3:compile
+11278 [INFO] |  |  |  \- (org.apache.httpcomponents:httpclient:jar:4.3:compile - omitted for conflict with 4.3.2)
+11278 [INFO] |  |  +- net.jcip:jcip-annotations:jar:1.0:compile
+11278 [INFO] |  |  +- commons-logging:commons-logging:jar:1.1.1:compile
+11278 [INFO] |  |  +- org.apache.james:apache-mime4j-core:jar:0.7.2:compile
+11278 [INFO] |  |  \- (org.restlet.jse:org.restlet:jar:2.3.7:compile - omitted for duplicate)
+11278 [INFO] |  +- commons-codec:commons-codec:jar:1.10:compile
+11278 [INFO] |  \- org.slf4j:slf4j-api:jar:1.7.21:compile
+11278 [INFO] +- com.blackducksoftware.integration:phone-home-api:jar:1.1.7-SNAPSHOT:compile
+11278 [INFO] |  +- (commons-codec:commons-codec:jar:1.10:compile - omitted for duplicate)
+11278 [INFO] |  +- org.json:json:jar:20160212:compile
+11278 [INFO] |  +- org.restlet.jse:org.restlet.ext.json:jar:2.3.1:compile
+11278 [INFO] |  |  +- org.restlet.jse:org.restlet.lib.org.json:jar:2.0:compile
+11278 [INFO] |  |  \- (org.restlet.jse:org.restlet:jar:2.3.1:compile - omitted for conflict with 2.3.7)
+11278 [INFO] |  +- org.restlet.jee:org.restlet.ext.gson:jar:2.3.1:compile
+11278 [INFO] |  |  +- (com.google.code.gson:gson:jar:2.3.1:compile - omitted for conflict with 2.7)
+11278 [INFO] |  |  +- (joda-time:joda-time:jar:2.3:compile - omitted for conflict with 2.9.4)
+11278 [INFO] |  |  \- org.restlet.jee:org.restlet:jar:2.3.1:compile
+11278 [INFO] |  +- (org.slf4j:slf4j-api:jar:1.7.12:compile - omitted for conflict with 1.7.21)
+11278 [INFO] |  +- (org.restlet.jse:org.restlet:jar:2.3.1:compile - omitted for conflict with 2.3.7)
+11279 [INFO] |  \- (org.apache.commons:commons-lang3:jar:3.4:compile - omitted for duplicate)
+11279 [INFO] +- stax:stax-api:jar:1.0.1:compile
+11279 [INFO] +- com.sun.net.httpserver:http:jar:20070405:compile
+11279 [INFO] +- com.blackducksoftware.integration:hub-atlassian-config:jar:1.0.1:provided
+11279 [INFO] |  +- org.slf4j:slf4j-simple:jar:1.5.8:provided
+11279 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11279 [INFO] |  \- (com.google.code.gson:gson:jar:2.3.1:provided - omitted for conflict with 2.7)
+11279 [INFO] +- com.atlassian.jira:jira-core:jar:6.4:provided
+11279 [INFO] |  +- (com.atlassian.jira:jira-api:jar:6.4:provided - omitted for duplicate)
+11279 [INFO] |  +- com.atlassian.jira:jira-attachment-dmz:jar:6.4:provided
+11279 [INFO] |  |  +- (com.atlassian.jira:jira-api:jar:6.4:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2-atlassian-02:provided - omitted for conflict with 19.0)
+11279 [INFO] |  |  +- (com.atlassian.fugue:fugue:jar:2.2.0:provided - omitted for duplicate)
+11279 [INFO] |  |  \- (io.atlassian.blobstore:blobstore-client-api:jar:1.3.0:provided - omitted for duplicate)
+11279 [INFO] |  +- com.atlassian.crowd:embedded-crowd-core:jar:2.8.1-rc:provided
+11279 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-spi:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-core:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-events:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-ldap:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-remote:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.5:provided - omitted for duplicate)
+11279 [INFO] |  |  +- com.atlassian.crowd:crowd-core-tiny:jar:2.8.1-rc:provided
+11279 [INFO] |  |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11279 [INFO] |  |  +- (opensymphony:propertyset:jar:1.3-21Nov03:provided - omitted for conflict with 1.5)
+11279 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11279 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11279 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11279 [INFO] |  |  \- (dom4j:dom4j:jar:1.6.1:provided - omitted for conflict with 1.4)
+11279 [INFO] |  +- com.atlassian.crowd:embedded-crowd-spi:jar:2.8.1-rc:provided
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  \- com.google.code.findbugs:jsr305:jar:2.0.3:provided
+11279 [INFO] |  +- com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11279 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11279 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.2.1:provided - omitted for duplicate)
+11279 [INFO] |  |  \- (javax.mail:mail:jar:1.4.7:provided - omitted for conflict with 1.4.5)
+11279 [INFO] |  +- com.atlassian.crowd:crowd-server-api:jar:2.8.1-rc:provided
+11279 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11279 [INFO] |  |  +- (com.atlassian.fugue:fugue:jar:2.1.0:provided - omitted for conflict with 2.2.0)
+11280 [INFO] |  |  \- (javax.servlet:servlet-api:jar:2.5:provided - omitted for conflict with 2.4)
+11280 [INFO] |  +- com.atlassian.crowd:crowd-core:jar:2.8.1-rc:provided
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-ldap:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-persistence:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-events:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-password-encoders:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- com.atlassian.crowd:crowd-query-language:jar:2.8.1-rc:provided
+11280 [INFO] |  |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  |  +- (joda-time:joda-time:jar:2.4:provided - omitted for conflict with 2.9.4)
+11280 [INFO] |  |  |  \- (org.antlr:antlr-runtime:jar:3.5.2:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.security:atlassian-secure-random:jar:3.2.4:provided - omitted for conflict with 3.2.3)
+11280 [INFO] |  |  +- (com.atlassian.crowd:crowd-core-tiny:jar:2.8.1-rc:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.5:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (com.atlassian.beehive:beehive-api:jar:0.1.3:provided - omitted for conflict with 0.2)
+11280 [INFO] |  |  +- (com.atlassian.cache:atlassian-cache-api:jar:2.5.0:provided - omitted for conflict with 2.5.4)
+11280 [INFO] |  |  +- (com.atlassian.scheduler:atlassian-scheduler-api:jar:1.3:provided - omitted for conflict with 1.3.2)
+11280 [INFO] |  |  +- net.sf.ehcache:ehcache:jar:2.8.3:provided
+11280 [INFO] |  |  |  \- (org.slf4j:slf4j-api:jar:1.6.6:provided - omitted for conflict with 1.7.21)
+11280 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11280 [INFO] |  |  +- (org.apache.httpcomponents:httpclient:jar:4.3.6:provided - omitted for conflict with 4.3.2)
+11280 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11280 [INFO] |  |  +- (javax.mail:mail:jar:1.4.7:provided - omitted for duplicate)
+11280 [INFO] |  |  +- (org.springframework:spring-beans:jar:3.2.10.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11280 [INFO] |  |  \- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11280 [INFO] |  +- com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided
+11281 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11281 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11281 [INFO] |  +- com.atlassian.crowd:crowd-integration-client-rest:jar:2.8.1-rc:provided
+11281 [INFO] |  |  +- com.atlassian.crowd:crowd-integration-client-common:jar:2.8.1-rc:provided
+11281 [INFO] |  |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  |  +- (com.atlassian.security:atlassian-cookie-tools:jar:3.2.4:provided - omitted for conflict with 3.2.3)
+11281 [INFO] |  |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (org.apache.httpcomponents:httpclient:jar:4.3.6:provided - omitted for conflict with 4.3.2)
+11281 [INFO] |  |  \- org.apache.httpcomponents:httpclient-cache:jar:4.3.6:provided
+11281 [INFO] |  |     \- (org.apache.httpcomponents:httpclient:jar:4.3.6:provided - omitted for conflict with 4.3.2)
+11281 [INFO] |  +- com.atlassian.crowd:crowd-persistence:jar:2.8.1-rc:provided
+11281 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-spi:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-events:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-password-encoders:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.5:provided - omitted for duplicate)
+11281 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:3.0.0:provided - omitted for conflict with 2.6.2)
+11281 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11281 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11281 [INFO] |  |  +- (com.atlassian.sal:sal-api:jar:2.10.16:provided - omitted for conflict with 2.11.2)
+11281 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11281 [INFO] |  +- com.atlassian.crowd:crowd-events:jar:2.8.1-rc:provided
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  |  \- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11281 [INFO] |  +- com.atlassian.crowd:crowd-ldap:jar:2.8.1-rc:provided
+11281 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-password-encoders:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-events:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-persistence:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-remote:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-query-language:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.5:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11282 [INFO] |  |  +- (org.springframework.ldap:spring-ldap-core:jar:2.0.2.RELEASE:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (org.springframework:spring-tx:jar:3.2.10.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11282 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11282 [INFO] |  +- com.atlassian.crowd:crowd-remote:jar:2.8.1-rc:provided
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-client-rest:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-persistence:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.5:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:3.0.0:provided - omitted for duplicate)
+11282 [INFO] |  |  \- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11282 [INFO] |  +- com.atlassian.crowd:crowd-server-common:jar:2.8.1-rc:provided
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-client-common:jar:2.8.1-rc:provided - omitted for duplicate)
+11282 [INFO] |  |  \- (com.atlassian.ip:atlassian-ip:jar:3.1:provided - omitted for conflict with 3.0)
+11282 [INFO] |  +- com.atlassian.crowd:crowd-password-encoders:jar:2.8.1-rc:provided
+11283 [INFO] |  |  +- (com.atlassian.crowd:crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11283 [INFO] |  |  +- (com.atlassian.security:atlassian-password-encoder:jar:3.2.4:provided - omitted for conflict with 3.2.3)
+11283 [INFO] |  |  +- (com.atlassian.security:atlassian-secure-random:jar:3.2.4:provided - omitted for duplicate)
+11283 [INFO] |  |  +- (org.springframework.security:spring-security-core:jar:3.2.5.RELEASE:provided - omitted for conflict with 3.1.0.RELEASE)
+11283 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.9:provided - omitted for conflict with 1.10)
+11283 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-core:jar:3.0.16:provided - omitted for conflict with 3.2.15)
+11283 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11283 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11283 [INFO] |  +- com.mysema.querydsl:querydsl-sql:jar:3.4.2:provided
+11283 [INFO] |  |  +- com.mysema.querydsl:querydsl-core:jar:3.4.2:provided
+11283 [INFO] |  |  |  +- (com.google.guava:guava:jar:14.0:provided - omitted for conflict with 19.0)
+11283 [INFO] |  |  |  +- (com.google.code.findbugs:jsr305:jar:1.3.9:provided - omitted for conflict with 2.0.3)
+11283 [INFO] |  |  |  \- com.mysema.commons:mysema-commons-lang:jar:0.2.4:provided
+11283 [INFO] |  |  +- (joda-time:joda-time:jar:1.6:provided - omitted for conflict with 2.9.4)
+11283 [INFO] |  |  +- javax.validation:validation-api:jar:1.1.0.Final:provided
+11283 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.6.1:provided - omitted for conflict with 1.7.21)
+11283 [INFO] |  |  \- org.apache.servicemix.bundles:org.apache.servicemix.bundles.javax-inject:jar:1_2:provided
+11283 [INFO] |  +- com.atlassian.ip:atlassian-ip:jar:3.0:provided
+11283 [INFO] |  +- com.atlassian.threadlocal:atlassian-threadlocal:jar:1.3:provided
+11283 [INFO] |  +- com.atlassian.security:atlassian-password-encoder:jar:3.2.3:provided
+11283 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.8:provided - omitted for conflict with 1.10)
+11283 [INFO] |  |  \- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11283 [INFO] |  +- com.atlassian.security:atlassian-secure-utils:jar:3.2.3:provided
+11283 [INFO] |  |  \- (commons-codec:commons-codec:jar:1.8:provided - omitted for conflict with 1.10)
+11283 [INFO] |  +- com.atlassian.tenancy:atlassian-tenancy-api:jar:1.4.0:provided
+11283 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.4.1:provided - omitted for conflict with 3.0.0)
+11283 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.3.2:provided - omitted for conflict with 2.3.5)
+11283 [INFO] |  |  +- (com.atlassian.fugue:fugue:jar:1.1:provided - omitted for conflict with 2.2.0)
+11283 [INFO] |  |  \- (com.atlassian.annotations:atlassian-annotations:jar:0.8.1:provided - omitted for conflict with 0.14)
+11283 [INFO] |  +- com.atlassian.plugins:atlassian-landlord-spi:jar:2.0.0:provided
+11283 [INFO] |  |  +- (com.atlassian.annotations:atlassian-annotations:jar:0.10:provided - omitted for conflict with 0.14)
+11283 [INFO] |  |  \- (com.google.code.gson:gson:jar:2.2.2-atlassian-1:provided - omitted for conflict with 2.7)
+11283 [INFO] |  +- org.springframework.security:spring-security-core:jar:3.1.0.RELEASE:provided
+11284 [INFO] |  |  +- aopalliance:aopalliance:jar:1.0:provided
+11284 [INFO] |  |  +- (org.springframework:spring-beans:jar:3.0.6.RELEASE:provided - omitted for conflict with 3.2.10.RELEASE)
+11284 [INFO] |  |  +- (org.springframework:spring-core:jar:3.0.6.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11284 [INFO] |  |  \- org.springframework.security:spring-security-crypto:jar:3.1.0.RELEASE:provided
+11284 [INFO] |  |     \- (org.springframework:spring-core:jar:3.0.6.RELEASE:provided - omitted for duplicate)
+11284 [INFO] |  +- org.springframework:spring-context:jar:2.5.6.SEC01:provided
+11284 [INFO] |  |  +- (aopalliance:aopalliance:jar:1.0:provided - omitted for duplicate)
+11284 [INFO] |  |  +- (commons-logging:commons-logging:jar:1.1.1:provided - omitted for conflict with 1.1.1)
+11284 [INFO] |  |  +- (org.springframework:spring-beans:jar:2.5.6.SEC01:provided - omitted for conflict with 3.2.10.RELEASE)
+11284 [INFO] |  |  \- (org.springframework:spring-core:jar:2.5.6.SEC01:provided - omitted for conflict with 3.0.6.RELEASE)
+11284 [INFO] |  +- org.springframework:spring-core:jar:2.5.6.SEC01:provided
+11284 [INFO] |  |  \- (commons-logging:commons-logging:jar:1.1.1:provided - omitted for conflict with 1.1.1)
+11284 [INFO] |  +- (org.springframework:spring-beans:jar:2.5.6.SEC01:provided - omitted for conflict with 2.5.6.SEC03)
+11284 [INFO] |  +- org.springframework.ldap:spring-ldap-core:jar:2.0.2.RELEASE:provided
+11284 [INFO] |  |  +- (org.springframework:spring-tx:jar:3.2.8.RELEASE:provided - omitted for conflict with 3.2.10.RELEASE)
+11284 [INFO] |  |  +- org.springframework.data:spring-data-commons:jar:1.6.1.RELEASE:provided
+11284 [INFO] |  |  |  +- (org.springframework:spring-core:jar:3.1.4.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11284 [INFO] |  |  |  +- (org.springframework:spring-beans:jar:3.1.4.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11284 [INFO] |  |  |  +- (org.slf4j:slf4j-api:jar:1.7.1:provided - omitted for conflict with 1.7.21)
+11284 [INFO] |  |  |  \- (org.slf4j:jcl-over-slf4j:jar:1.7.1:provided - omitted for conflict with 1.7.9)
+11284 [INFO] |  |  +- (org.springframework:spring-beans:jar:3.2.8.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11284 [INFO] |  |  \- (org.springframework:spring-core:jar:3.2.8.RELEASE:provided - omitted for conflict with 2.5.6.SEC01)
+11284 [INFO] |  +- org.springframework:spring-tx:jar:2.5.6.SEC01:provided
+11284 [INFO] |  |  +- (commons-logging:commons-logging:jar:1.1.1:provided - omitted for conflict with 1.1.1)
+11284 [INFO] |  |  +- (org.springframework:spring-beans:jar:2.5.6.SEC01:provided - omitted for duplicate)
+11284 [INFO] |  |  \- (org.springframework:spring-core:jar:2.5.6.SEC01:provided - omitted for duplicate)
+11284 [INFO] |  +- com.atlassian.crowd:crowd-integration-seraph25:jar:2.8.1-rc:provided
+11284 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11284 [INFO] |  |  +- (com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided - omitted for duplicate)
+11284 [INFO] |  |  +- (com.atlassian.crowd:crowd-integration-client-common:jar:2.8.1-rc:provided - omitted for duplicate)
+11284 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11285 [INFO] |  +- wsdl4j:wsdl4j:jar:1.6.1:provided
+11285 [INFO] |  +- org.codehaus.xfire:xfire-core:jar:1.2.6:provided
+11285 [INFO] |  |  +- (javax.activation:activation:jar:1.1:provided - omitted for conflict with 1.1.1)
+11285 [INFO] |  |  +- (javax.mail:mail:jar:1.4:provided - omitted for conflict with 1.4.7)
+11285 [INFO] |  |  +- (wsdl4j:wsdl4j:jar:1.6.1:provided - omitted for duplicate)
+11285 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.3:provided - omitted for conflict with 1.10)
+11285 [INFO] |  |  +- (org.codehaus.woodstox:wstx-asl:jar:3.2.0:provided - omitted for conflict with 3.2.4)
+11285 [INFO] |  |  +- (jdom:jdom:jar:1.0:provided - omitted for duplicate)
+11285 [INFO] |  |  \- (commons-httpclient:commons-httpclient:jar:3.0:provided - omitted for conflict with 3.0.1)
+11285 [INFO] |  +- org.codehaus.xfire:xfire-aegis:jar:1.2.6:provided
+11285 [INFO] |  +- com.atlassian.soy:soy-template-renderer-api:jar:2.8.0:provided
+11285 [INFO] |  +- com.atlassian.sal:sal-spi:jar:2.11.2:provided
+11285 [INFO] |  +- com.atlassian.gadgets:atlassian-gadgets-api:jar:3.10.10:provided
+11285 [INFO] |  +- com.atlassian.gadgets:atlassian-gadgets-spi:jar:3.10.10:provided
+11285 [INFO] |  |  \- (net.jcip:jcip-annotations:jar:1.0:provided - omitted for duplicate)
+11285 [INFO] |  +- com.atlassian.oauth:atlassian-oauth-api:jar:1.9.8:provided
+11285 [INFO] |  +- com.atlassian.p4package:atlassian-p4package:jar:2007.12.14:provided
+11285 [INFO] |  |  \- (log4j:log4j:jar:1.2.9:provided - omitted for conflict with 1.2.16)
+11285 [INFO] |  +- com.atlassian.extras:atlassian-extras:jar:2.2.2:provided
+11285 [INFO] |  |  +- (log4j:log4j:jar:1.2.15:provided - omitted for conflict with 1.2.16)
+11285 [INFO] |  |  \- (commons-codec:commons-codec:jar:1.3:provided - omitted for conflict with 1.10)
+11285 [INFO] |  +- com.atlassian.cache:atlassian-cache-api:jar:2.5.4:provided
+11285 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:0.0.12:provided - omitted for conflict with 3.0.0)
+11285 [INFO] |  |  \- (com.atlassian.annotations:atlassian-annotations:jar:0.7:provided - omitted for conflict with 0.14)
+11285 [INFO] |  +- com.atlassian.cache:atlassian-cache-ehcache:jar:2.5.4:provided
+11285 [INFO] |  |  +- com.atlassian.cache:atlassian-cache-common-impl:jar:2.5.4:provided
+11285 [INFO] |  |  |  \- (com.atlassian.cache:atlassian-cache-api:jar:2.5.4:provided - omitted for duplicate)
+11285 [INFO] |  |  +- (net.sf.ehcache:ehcache:jar:2.7.5:provided - omitted for conflict with 2.8.3)
+11285 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.6:provided - omitted for conflict with 1.7.21)
+11285 [INFO] |  +- com.atlassian.cache:atlassian-cache-memory:jar:2.5.4:provided
+11285 [INFO] |  |  \- (com.atlassian.cache:atlassian-cache-common-impl:jar:2.5.4:provided - omitted for duplicate)
+11285 [INFO] |  +- com.atlassian.beehive:beehive-single-node:jar:0.2:provided
+11285 [INFO] |  |  \- com.atlassian.beehive:beehive-core:jar:0.2:provided
+11285 [INFO] |  +- com.atlassian.beehive:beehive-db:jar:0.2:provided
+11286 [INFO] |  |  \- (com.atlassian.beehive:beehive-core:jar:0.2:provided - omitted for duplicate)
+11286 [INFO] |  +- com.atlassian.config:atlassian-config:jar:0.15:provided
+11286 [INFO] |  |  +- (com.atlassian.core:atlassian-core:jar:5.0-rc1:provided - omitted for conflict with 4.6.18)
+11286 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-core:jar:2.1.0:provided - omitted for conflict with 3.0.16)
+11286 [INFO] |  |  +- com.atlassian.spring:atlassian-spring:jar:1.1:provided
+11286 [INFO] |  |  |  +- (com.atlassian.event:atlassian-event:jar:0.5:provided - omitted for conflict with 2.3.5)
+11286 [INFO] |  |  |  +- (com.atlassian.profiling:atlassian-profiling:jar:1.8:provided - omitted for conflict with 1.9)
+11286 [INFO] |  |  |  +- (javax.servlet:servlet-api:jar:2.3:provided - omitted for conflict with 2.4)
+11286 [INFO] |  |  |  +- (log4j:log4j:jar:1.2.9:provided - omitted for conflict with 1.2.16)
+11286 [INFO] |  |  |  +- (org.springframework:spring-core:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  +- org.springframework:spring-web:jar:2.0.6:provided
+11286 [INFO] |  |  |  |  +- (commons-logging:commons-logging:jar:1.1:provided - omitted for conflict with 1.1.1)
+11286 [INFO] |  |  |  |  +- (org.springframework:spring-beans:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  |  \- (org.springframework:spring-core:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  +- org.springframework:spring-hibernate2:jar:2.0.6:provided
+11286 [INFO] |  |  |  |  +- (aopalliance:aopalliance:jar:1.0:provided - omitted for duplicate)
+11286 [INFO] |  |  |  |  +- (commons-logging:commons-logging:jar:1.1:provided - omitted for conflict with 1.1.1)
+11286 [INFO] |  |  |  |  +- (hibernate:hibernate:jar:2.1.8:provided - omitted for conflict with 2.1.8-atlassian)
+11286 [INFO] |  |  |  |  +- (org.springframework:spring-beans:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  |  +- (org.springframework:spring-core:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  |  +- org.springframework:spring-dao:jar:2.0.6:provided
+11286 [INFO] |  |  |  |  |  +- (aopalliance:aopalliance:jar:1.0:provided - omitted for duplicate)
+11286 [INFO] |  |  |  |  |  +- (commons-logging:commons-logging:jar:1.1:provided - omitted for conflict with 1.1.1)
+11286 [INFO] |  |  |  |  |  +- (org.springframework:spring-beans:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  |  |  \- (org.springframework:spring-core:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11286 [INFO] |  |  |  |  \- org.springframework:spring-jdbc:jar:2.0.6:provided
+11286 [INFO] |  |  |  |     +- (commons-logging:commons-logging:jar:1.1:provided - omitted for conflict with 1.1.1)
+11286 [INFO] |  |  |  |     +- (org.springframework:spring-beans:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11287 [INFO] |  |  |  |     +- (org.springframework:spring-core:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11287 [INFO] |  |  |  |     \- (org.springframework:spring-dao:jar:2.0.6:provided - omitted for duplicate)
+11287 [INFO] |  |  |  +- (commons-logging:commons-logging:jar:1.0.4:provided - omitted for conflict with 1.1.1)
+11287 [INFO] |  |  |  \- hibernate:hibernate:jar:2.1.8-atlassian:provided
+11287 [INFO] |  |  +- (com.atlassian.johnson:atlassian-johnson:jar:1.0:provided - omitted for conflict with 1.1.2)
+11287 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.0.0.beta1:provided - omitted for conflict with 2.3.5)
+11287 [INFO] |  |  +- (dom4j:dom4j:jar:1.4:provided - omitted for conflict with 1.6.1)
+11287 [INFO] |  |  +- (log4j:log4j:jar:1.2.9:provided - omitted for conflict with 1.2.16)
+11287 [INFO] |  |  +- (org.springframework:spring-beans:jar:2.0.6:provided - omitted for conflict with 2.5.6.SEC01)
+11287 [INFO] |  |  \- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11287 [INFO] |  +- com.atlassian:atlassian-localhost:jar:1.1.0:provided
+11287 [INFO] |  +- com.sun:jai_core:jar:1.1.3:provided
+11287 [INFO] |  +- com.sun:jai_codec:jar:1.1.3:provided
+11287 [INFO] |  +- commons-collections:commons-collections:jar:3.2.1:provided
+11287 [INFO] |  +- com.atlassian.activeobjects:activeobjects-spi:jar:0.28.7:provided
+11287 [INFO] |  +- dom4j:dom4j:jar:1.4:provided
+11287 [INFO] |  +- oro:oro:jar:2.0.7:provided
+11287 [INFO] |  +- com.atlassian.adapter:jackson:jar:1.0:provided
+11287 [INFO] |  |  \- (org.codehaus.jackson:jackson-mapper-asl:jar:1.9.1:provided - omitted for duplicate)
+11287 [INFO] |  +- com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.6.2:provided
+11287 [INFO] |  +- com.atlassian.profiling:atlassian-profiling:jar:1.9:provided
+11287 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.4.3:provided - omitted for conflict with 1.7.21)
+11287 [INFO] |  |  \- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11287 [INFO] |  +- com.atlassian.instrumentation:atlassian-instrumentation-core:jar:1.8.1:provided
+11287 [INFO] |  +- org.slf4j:slf4j-log4j12:jar:1.7.9:provided
+11287 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.7.9:provided - omitted for conflict with 1.7.21)
+11287 [INFO] |  |  \- (log4j:log4j:jar:1.2.17:provided - omitted for conflict with 1.2.16)
+11287 [INFO] |  +- org.slf4j:jul-to-slf4j:jar:1.7.9:provided
+11287 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.9:provided - omitted for conflict with 1.7.21)
+11287 [INFO] |  +- org.slf4j:jcl-over-slf4j:jar:1.7.9:provided
+11287 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.7.9:provided - omitted for conflict with 1.7.21)
+11287 [INFO] |  +- atlassian-logging:atlassian-logging:jar:1.1:provided
+11288 [INFO] |  +- com.atlassian.jdk.utilities:atlassian-jdk-utilities:jar:0.4:provided
+11288 [INFO] |  |  \- (log4j:log4j:jar:1.2.7:provided - omitted for conflict with 1.2.16)
+11288 [INFO] |  +- com.atlassian.scheduler:atlassian-scheduler-core:jar:1.3.2:provided
+11288 [INFO] |  +- com.atlassian.scheduler:atlassian-scheduler-quartz1:jar:1.3.2:provided
+11288 [INFO] |  |  +- (org.quartz-scheduler:quartz:jar:1.8.6:provided - omitted for duplicate)
+11288 [INFO] |  |  \- org.quartz-scheduler:quartz-oracle:jar:1.8.6:provided
+11288 [INFO] |  |     \- (org.quartz-scheduler:quartz:jar:1.8.6:provided - omitted for duplicate)
+11288 [INFO] |  +- com.atlassian.johnson:atlassian-johnson:jar:1.1.2:provided
+11288 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11288 [INFO] |  |  +- (log4j:log4j:jar:1.2.7:provided - omitted for conflict with 1.2.16)
+11288 [INFO] |  |  \- (opensymphony:oscore:jar:2.2.7:provided - omitted for conflict with 2.2.7-atlassian-1)
+11288 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-core:jar:3.2.15:provided
+11288 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.6.4:provided - omitted for conflict with 1.7.21)
+11288 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11288 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.2:provided - omitted for conflict with 3.2.1)
+11288 [INFO] |  |  +- (commons-io:commons-io:jar:1.4:provided - omitted for conflict with 2.5)
+11288 [INFO] |  |  +- (dom4j:dom4j:jar:1.4:provided - omitted for duplicate)
+11288 [INFO] |  |  +- (com.atlassian.event:atlassian-event:jar:2.2.0:provided - omitted for conflict with 2.3.5)
+11288 [INFO] |  |  +- (com.atlassian.fugue:fugue:jar:1.1:provided - omitted for conflict with 2.2.0)
+11288 [INFO] |  |  \- (com.atlassian.annotations:atlassian-annotations:jar:0.7:provided - omitted for conflict with 0.14)
+11288 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-schema:jar:3.2.15:provided
+11288 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-osgi:jar:3.2.15:provided - omitted for duplicate)
+11288 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11288 [INFO] |  |  +- (dom4j:dom4j:jar:1.4:provided - omitted for duplicate)
+11288 [INFO] |  |  \- (com.atlassian.security:atlassian-secure-xml:jar:3.1.4:provided - omitted for conflict with 3.2.3)
+11288 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-servlet:jar:3.2.15:provided
+11288 [INFO] |  |  \- (com.atlassian.plugins:atlassian-plugins-core:jar:3.2.15:provided - omitted for duplicate)
+11288 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-webresource:jar:3.1.8:provided
+11288 [INFO] |  |  +- com.atlassian.plugins:atlassian-plugins-webresource-api:jar:3.1.8:provided
+11288 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.3:provided - omitted for conflict with 1.10)
+11288 [INFO] |  |  +- (org.tuckey:urlrewritefilter:jar:4.0.4:provided - omitted for conflict with 4.0.3)
+11288 [INFO] |  |  \- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.4.1:provided - omitted for conflict with 2.6.2)
+11288 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-osgi:jar:3.2.15:provided
+11289 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-core:jar:3.2.15:provided - omitted for duplicate)
+11289 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-osgi-events:jar:3.2.15:provided - omitted for duplicate)
+11289 [INFO] |  |  +- biz.aQute:bndlib:jar:1.43.0-atlassian-1:provided
+11289 [INFO] |  |  +- org.apache.felix:org.apache.felix.framework:jar:3.0.2:provided
+11289 [INFO] |  |  +- org.twdata.pkgscanner:package-scanner:jar:0.9.5:provided
+11289 [INFO] |  |  |  \- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11289 [INFO] |  |  \- (commons-io:commons-io:jar:1.4:provided - omitted for conflict with 2.5)
+11289 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-osgi-events:jar:3.2.15:provided
+11289 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-eventlistener:jar:3.2.15:provided
+11289 [INFO] |  |  \- (com.atlassian.plugins:atlassian-plugins-core:jar:3.2.15:provided - omitted for duplicate)
+11289 [INFO] |  +- com.atlassian.seraph:atlassian-seraph:jar:2.6.4:provided
+11289 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.6:provided - omitted for duplicate)
+11289 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.7.7:provided - omitted for conflict with 1.7.21)
+11289 [INFO] |  |  +- (opensymphony:oscore:jar:2.2.7:provided - omitted for duplicate)
+11289 [INFO] |  |  +- (com.atlassian.security:atlassian-secure-random:jar:3.2.3:provided - omitted for conflict with 3.2.4)
+11289 [INFO] |  |  \- com.atlassian.security:atlassian-cookie-tools:jar:3.2.3:provided
+11289 [INFO] |  +- com.atlassian.security:atlassian-secure-random:jar:3.2.3:provided
+11289 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11289 [INFO] |  |  \- (commons-codec:commons-codec:jar:1.8:provided - omitted for conflict with 1.10)
+11289 [INFO] |  +- com.atlassian.security.auth.trustedapps:atlassian-trusted-apps-core:jar:3.0.8:provided
+11289 [INFO] |  |  +- (javax.servlet:servlet-api:jar:2.3:provided - omitted for conflict with 2.4)
+11289 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.5.0:provided - omitted for conflict with 1.7.21)
+11289 [INFO] |  |  +- (com.atlassian.ip:atlassian-ip:jar:2.0:provided - omitted for conflict with 3.0)
+11289 [INFO] |  |  \- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11289 [INFO] |  +- com.atlassian.security.auth.trustedapps:atlassian-trusted-apps-seraph-integration:jar:3.0.8:provided
+11289 [INFO] |  |  +- (com.atlassian.security.auth.trustedapps:atlassian-trusted-apps-core:jar:3.0.8:provided - omitted for duplicate)
+11289 [INFO] |  |  \- (com.atlassian.seraph:atlassian-seraph:jar:2.0:provided - omitted for conflict with 2.6.4)
+11289 [INFO] |  +- com.atlassian.analytics:analytics-api:jar:3.53:provided
+11289 [INFO] |  +- org.bouncycastle:bcprov-jdk15on:jar:1.50:provided
+11289 [INFO] |  +- com.atlassian.renderer:atlassian-renderer:jar:8.0.5:provided
+11289 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.1:provided - omitted for conflict with 2.6)
+11289 [INFO] |  |  +- (commons-beanutils:commons-beanutils:jar:1.6.1:provided - omitted for duplicate)
+11289 [INFO] |  |  +- (log4j:log4j:jar:1.2.7:provided - omitted for conflict with 1.2.16)
+11289 [INFO] |  |  +- (xerces:xercesImpl:jar:2.6.2:provided - omitted for conflict with 2.9.1)
+11290 [INFO] |  |  +- (javax.activation:activation:jar:1.0.2:provided - omitted for conflict with 1.1)
+11290 [INFO] |  |  +- (com.atlassian.profiling:atlassian-profiling:jar:1.8:provided - omitted for conflict with 1.9)
+11290 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:0.0.12:provided - omitted for conflict with 2.6.2)
+11290 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-core:jar:2.1.0:provided - omitted for conflict with 3.2.15)
+11290 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-webfragment:jar:2.1.0:provided - omitted for conflict with 3.0.5)
+11290 [INFO] |  |  \- (radeox:radeox:jar:1.0b2-forked-22Apr2004:provided - omitted for duplicate)
+11290 [INFO] |  +- com.atlassian.gzipfilter:atlassian-gzipfilter:jar:1.21:provided
+11290 [INFO] |  |  +- (javax.servlet:servlet-api:jar:2.3:provided - omitted for conflict with 2.4)
+11290 [INFO] |  |  +- com.atlassian.gzipfilter:atlassian-flushable-gzipoutputstream:jar:1.1:provided
+11290 [INFO] |  |  +- (log4j:log4j:jar:1.2.8:provided - omitted for conflict with 1.2.16)
+11290 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11290 [INFO] |  |  +- (org.slf4j:slf4j-log4j12:jar:1.5.8:provided - omitted for conflict with 1.7.9)
+11290 [INFO] |  |  \- (org.slf4j:jul-to-slf4j:jar:1.5.8:provided - omitted for conflict with 1.7.9)
+11290 [INFO] |  +- com.atlassian.event:atlassian-event:jar:2.3.5:provided
+11290 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.4.1:provided - omitted for conflict with 2.6.2)
+11290 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11290 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11290 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11290 [INFO] |  +- opensymphony:oscore:jar:2.2.7-atlassian-1:provided
+11290 [INFO] |  +- opensymphony:sitemesh:jar:2.5-atlassian-10:provided
+11290 [INFO] |  +- commons-digester:commons-digester:jar:1.4.1:provided
+11290 [INFO] |  |  +- (commons-beanutils:commons-beanutils:jar:1.6:provided - omitted for conflict with 1.6.1)
+11290 [INFO] |  |  \- (commons-collections:commons-collections:jar:2.1:provided - omitted for conflict with 3.2.1)
+11290 [INFO] |  +- commons-beanutils:commons-beanutils:jar:1.6.1:provided
+11290 [INFO] |  |  \- (commons-collections:commons-collections:jar:2.0:provided - omitted for conflict with 3.2.1)
+11290 [INFO] |  +- commons-configuration:commons-configuration:jar:1.0:provided
+11290 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.0:provided - omitted for conflict with 3.2.1)
+11290 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.0:provided - omitted for conflict with 2.6)
+11290 [INFO] |  |  +- (dom4j:dom4j:jar:1.4:provided - omitted for duplicate)
+11290 [INFO] |  |  +- (commons-digester:commons-digester:jar:1.5:provided - omitted for conflict with 1.4.1)
+11290 [INFO] |  |  +- (xerces:xercesImpl:jar:2.2.1:provided - omitted for conflict with 2.6.2)
+11290 [INFO] |  |  +- (xml-apis:xml-apis:jar:1.0.b2:provided - omitted for conflict with 1.3.04)
+11290 [INFO] |  |  +- (commons-dbcp:commons-dbcp:jar:1.1:provided - omitted for conflict with 1.4)
+11290 [INFO] |  |  +- (commons-pool:commons-pool:jar:1.1:provided - omitted for conflict with 1.5.4)
+11290 [INFO] |  |  \- (hsqldb:hsqldb:jar:1.7.2.2:provided - omitted for conflict with 1.8.0.5)
+11290 [INFO] |  +- org.apache.lucene:lucene-analyzers:jar:3.3.0:provided
+11290 [INFO] |  |  \- (org.apache.lucene:lucene-core:jar:3.3.0:provided - omitted for conflict with 3.3.0-atlassian-1)
+11290 [INFO] |  +- com.atlassian:lucene-extras:jar:3.3.0-atlassian-3:provided
+11290 [INFO] |  +- org.apache.velocity:velocity:jar:1.6.4-atlassian-7:provided
+11291 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.2.1:provided - omitted for duplicate)
+11291 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11291 [INFO] |  |  \- (oro:oro:jar:2.0.8:provided - omitted for conflict with 2.0.7)
+11291 [INFO] |  +- org.apache.velocity:velocity-tools:jar:1.3:provided
+11291 [INFO] |  |  +- (commons-beanutils:commons-beanutils:jar:1.7.0:provided - omitted for conflict with 1.6.1)
+11291 [INFO] |  |  +- (commons-digester:commons-digester:jar:1.8:provided - omitted for conflict with 1.4.1)
+11291 [INFO] |  |  +- (javax.servlet:servlet-api:jar:2.3:provided - omitted for conflict with 2.4)
+11291 [INFO] |  |  \- (oro:oro:jar:2.0.8:provided - omitted for conflict with 2.0.7)
+11291 [INFO] |  +- com.atlassian.velocity.htmlsafe:velocity-htmlsafe:jar:1.2.3:provided
+11291 [INFO] |  |  +- (org.apache.velocity:velocity:jar:1.6.4-atlassian-7:provided - omitted for duplicate)
+11291 [INFO] |  |  +- (commons-pool:commons-pool:jar:1.5.4:provided - omitted for conflict with 1.1)
+11291 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.5.2:provided - omitted for conflict with 1.7.21)
+11291 [INFO] |  |  +- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11291 [INFO] |  |  \- (org.apache.commons:commons-lang3:jar:3.1:provided - omitted for conflict with 3.4)
+11291 [INFO] |  +- javax.activation:activation:jar:1.1.1:provided
+11291 [INFO] |  +- javax.mail:mail:jar:1.4.5:provided
+11291 [INFO] |  |  \- (javax.activation:activation:jar:1.1:provided - omitted for conflict with 1.1.1)
+11291 [INFO] |  +- glue:glue:jar:5.0b2:provided
+11291 [INFO] |  +- bsf:bsf:jar:2.2:provided
+11291 [INFO] |  +- bsh:bsh:jar:1.2b7:provided
+11291 [INFO] |  +- com.atlassian.ofbiz:entityengine-share:jar:1.0.62:provided
+11291 [INFO] |  |  +- (log4j:log4j:jar:1.2.15:provided - omitted for conflict with 1.2.16)
+11291 [INFO] |  |  \- (xerces:xercesImpl:jar:2.4.0:provided - omitted for conflict with 2.6.2)
+11291 [INFO] |  +- com.atlassian.ofbiz:entityengine:jar:1.0.62:provided
+11291 [INFO] |  |  +- (com.atlassian.ofbiz:entityengine-share:jar:1.0.62:provided - omitted for duplicate)
+11291 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.2.1:provided - omitted for duplicate)
+11291 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:0.0.9:provided - omitted for conflict with 2.6.2)
+11291 [INFO] |  |  +- org.weakref:jmxutils:jar:1.8:provided
+11291 [INFO] |  |  +- net.ju-n.commons-dbcp-jmx:commons-dbcp-jmx-jdbc4:jar:0.2:provided
+11291 [INFO] |  |  |  +- (commons-dbcp:commons-dbcp:jar:1.4:provided - omitted for conflict with 1.1)
+11291 [INFO] |  |  |  \- (org.weakref:jmxutils:jar:1.8:provided - omitted for duplicate)
+11291 [INFO] |  |  \- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11291 [INFO] |  +- csv:csv:jar:20:provided
+11291 [INFO] |  +- org.picocontainer:picocontainer:jar:2.14.3:provided
+11291 [INFO] |  +- jzlib:jzlib:jar:1.0.5:provided
+11291 [INFO] |  +- com.octo.captcha:jcaptcha:jar:2.0-alpha-1:provided
+11291 [INFO] |  +- com.octo.captcha:jcaptcha-api:jar:2.0-alpha-1:provided
+11291 [INFO] |  +- com.jhlabs:filters:jar:2.0.235:provided
+11291 [INFO] |  +- commons-dbcp:commons-dbcp:jar:1.4:provided
+11291 [INFO] |  |  \- (commons-pool:commons-pool:jar:1.5.4:provided - omitted for conflict with 1.1)
+11291 [INFO] |  +- commons-pool:commons-pool:jar:1.5.4:provided
+11291 [INFO] |  +- hsqldb:hsqldb:jar:1.8.0.5:provided
+11291 [INFO] |  +- ots-jts:ots-jts:jar:1.0:provided
+11291 [INFO] |  +- jotm:jotm:jar:1.4.3:provided
+11291 [INFO] |  +- jotm:jotm-jrmp_stubs:jar:1.4.3:provided
+11291 [INFO] |  +- jotm:jotm-iiop_stubs:jar:1.4.3:provided
+11291 [INFO] |  +- jotm:jonas_timer:jar:1.4.3:provided
+11291 [INFO] |  +- jotm:objectweb-datasource:jar:1.4.3:provided
+11292 [INFO] |  +- carol:carol:jar:1.5.2:provided
+11292 [INFO] |  +- carol:carol-properties:jar:1.5.2:provided
+11292 [INFO] |  +- xapool:xapool:jar:1.3.1:provided
+11292 [INFO] |  +- xml-apis:xml-apis:jar:1.3.04:provided
+11292 [INFO] |  +- commons-jexl:commons-jexl:jar:1.1:provided
+11292 [INFO] |  +- commons-httpclient:commons-httpclient:jar:3.0.1:provided
+11292 [INFO] |  |  \- (commons-codec:commons-codec:jar:1.2:provided - omitted for conflict with 1.10)
+11292 [INFO] |  +- (commons-codec:commons-codec:jar:1.9:provided - omitted for conflict with 1.10)
+11292 [INFO] |  +- org.apache.commons:commons-compress:jar:1.8.1:provided
+11292 [INFO] |  +- xmlrpc:xmlrpc:jar:2.0:provided
+11292 [INFO] |  +- axis:axis:jar:1.3-atlassian-1:provided
+11292 [INFO] |  |  +- (axis:axis-jaxrpc:jar:1.3:provided - omitted for duplicate)
+11292 [INFO] |  |  +- (axis:axis-saaj:jar:1.3:provided - omitted for duplicate)
+11292 [INFO] |  |  \- (commons-discovery:commons-discovery:jar:0.2:provided - omitted for duplicate)
+11292 [INFO] |  +- axis:axis-jaxrpc:jar:1.3:provided
+11292 [INFO] |  +- axis:axis-saaj:jar:1.3:provided
+11292 [INFO] |  +- commons-discovery:commons-discovery:jar:0.2:provided
+11292 [INFO] |  +- xerces:xercesImpl:jar:2.9.1:provided
+11292 [INFO] |  |  \- (xml-apis:xml-apis:jar:1.3.04:provided - omitted for duplicate)
+11292 [INFO] |  +- xalan:xalan:jar:2.7.0:provided
+11292 [INFO] |  |  \- (xml-apis:xml-apis:jar:1.0.b2:provided - omitted for conflict with 1.3.04)
+11292 [INFO] |  +- xml-security:xmlsec:jar:1.4.2:provided
+11292 [INFO] |  +- com.atlassian.security:atlassian-secure-xml:jar:3.2.3:provided
+11292 [INFO] |  +- datafile:datafile:jar:1.3.3:provided
+11292 [INFO] |  +- xpp3:xpp3:jar:1.1.4c:provided
+11292 [INFO] |  +- com.thoughtworks.xstream:xstream:jar:1.3.1:provided
+11292 [INFO] |  +- jfree:jfreechart:jar:1.0.13:provided
+11292 [INFO] |  +- jfree:jcommon:jar:1.0.8:provided
+11292 [INFO] |  +- org.tuckey:urlrewritefilter:jar:4.0.3:provided
+11292 [INFO] |  +- radeox:radeox:jar:1.0b2-forked-22Apr2004:provided
+11292 [INFO] |  +- jtidy:jtidy:jar:r8-20050104:provided
+11292 [INFO] |  +- jdom:jdom:jar:1.0:provided
+11292 [INFO] |  +- org.jsoup:jsoup:jar:1.3.3:provided
+11292 [INFO] |  +- org.codehaus.woodstox:wstx-asl:jar:3.2.4:provided
+11292 [INFO] |  +- com.atlassian.modzdetector:modz-detector:jar:0.12:provided
+11292 [INFO] |  |  +- (commons-codec:commons-codec:jar:1.3:provided - omitted for conflict with 1.10)
+11292 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.5.8:provided - omitted for conflict with 1.7.21)
+11292 [INFO] |  +- org.antlr:antlr-runtime:jar:3.5.2:provided
+11292 [INFO] |  +- commons-jrcs:commons-jrcs:jar:diff-0.1.7:provided
+11292 [INFO] |  +- cglib:cglib-nodep:jar:2.1_3:provided
+11292 [INFO] |  +- (com.atlassian.sal:sal-api:jar:2.11.2:provided - omitted for conflict with 2.0.17)
+11292 [INFO] |  +- com.atlassian.applinks:applinks-api:jar:4.2.5:provided
+11292 [INFO] |  +- com.atlassian.applinks:applinks-spi:jar:4.2.5:provided
+11292 [INFO] |  +- com.atlassian.applinks:applinks-host:jar:4.2.5:provided
+11292 [INFO] |  +- org.mozilla:rhino:jar:1.7R4:provided
+11292 [INFO] |  +- com.atlassian.ozymandias:atlassian-plugin-point-safety:jar:0.10:provided
+11292 [INFO] |  |  \- (com.atlassian.fugue:fugue:jar:1.1:provided - omitted for conflict with 2.2.0)
+11292 [INFO] |  +- commons-validator:commons-validator:jar:1.4.0:provided
+11292 [INFO] |  |  +- (commons-beanutils:commons-beanutils:jar:1.8.3:provided - omitted for conflict with 1.6.1)
+11292 [INFO] |  |  +- (commons-digester:commons-digester:jar:1.8:provided - omitted for conflict with 1.4.1)
+11292 [INFO] |  |  \- (commons-logging:commons-logging:jar:1.1.1:provided - omitted for conflict with 1.1.1)
+11292 [INFO] |  +- com.atlassian.botocss:botocss-core:jar:4.4-spudbean-2:provided
+11292 [INFO] |  |  +- (org.slf4j:slf4j-api:jar:1.5.10:provided - omitted for conflict with 1.7.21)
+11292 [INFO] |  |  +- (org.jsoup:jsoup:jar:1.7.2:provided - omitted for conflict with 1.3.3)
+11292 [INFO] |  |  +- (com.google.guava:guava:jar:14.0.1:provided - omitted for conflict with 19.0)
+11293 [INFO] |  |  +- net.sf.cssbox:jstyleparser:jar:1.16-atlassian-1:provided
+11293 [INFO] |  |  |  +- (org.antlr:antlr-runtime:jar:3.5.2:provided - omitted for duplicate)
+11293 [INFO] |  |  |  +- net.sourceforge.nekohtml:nekohtml:jar:1.9.19:provided
+11293 [INFO] |  |  |  |  \- (xerces:xercesImpl:jar:2.10.0:provided - omitted for conflict with 2.9.1)
+11293 [INFO] |  |  |  +- (xerces:xercesImpl:jar:2.11.0:provided - omitted for conflict with 2.9.1)
+11293 [INFO] |  |  |  +- (xml-apis:xml-apis:jar:1.4.01:provided - omitted for conflict with 1.3.04)
+11293 [INFO] |  |  |  \- (org.slf4j:slf4j-api:jar:1.7.5:provided - omitted for conflict with 1.7.21)
+11293 [INFO] |  |  \- (log4j:log4j:jar:1.2.16:provided - omitted for duplicate)
+11293 [INFO] |  +- com.atlassian.json:atlassian-json-api:jar:0.9:provided
+11293 [INFO] |  +- io.atlassian.blobstore:blobstore-client-api:jar:1.3.0:provided
+11293 [INFO] |  |  +- (com.atlassian.fugue:fugue:jar:1.2.0:provided - omitted for conflict with 2.2.0)
+11293 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.6.2:provided - omitted for duplicate)
+11293 [INFO] |  |  \- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11293 [INFO] |  \- com.atlassian.plugins:atlassian-plugins-webresource-common:jar:3.2.15:provided
+11293 [INFO] |     +- (com.atlassian.plugins:atlassian-plugins-core:jar:3.2.15:provided - omitted for duplicate)
+11293 [INFO] |     \- (javax.servlet:servlet-api:jar:2.3:provided - omitted for conflict with 2.4)
+11293 [INFO] +- com.atlassian.jira:jira-api:jar:6.4:provided
+11293 [INFO] |  +- com.atlassian.annotations:atlassian-annotations:jar:0.14:provided
+11293 [INFO] |  +- (com.atlassian.ofbiz:entityengine-share:jar:1.0.62:provided - omitted for duplicate)
+11293 [INFO] |  +- (com.atlassian.ofbiz:entityengine:jar:1.0.62:provided - omitted for duplicate)
+11293 [INFO] |  +- opensymphony:webwork:jar:1.4-atlassian-30:provided
+11293 [INFO] |  |  \- com.atlassian.html:atlassian-html-encoder:jar:1.4:provided
+11293 [INFO] |  +- webwork:pell-multipart-request:jar:1.31.0:provided
+11293 [INFO] |  +- org.apache.lucene:lucene-core:jar:3.3.0-atlassian-1:provided
+11293 [INFO] |  +- com.atlassian.core:atlassian-core:jar:4.6.18:provided
+11293 [INFO] |  |  +- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11293 [INFO] |  |  +- org.apache.sanselan:sanselan:jar:0.97-incubator:provided
+11293 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.1:provided - omitted for conflict with 3.2.1)
+11293 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for conflict with 2.6)
+11293 [INFO] |  |  +- (opensymphony:propertyset:jar:1.3-21Nov03:provided - omitted for conflict with 1.5)
+11293 [INFO] |  |  +- (dom4j:dom4j:jar:1.4:provided - omitted for duplicate)
+11293 [INFO] |  |  +- com.atlassian.image:atlassian-image-consumer:jar:1.0.1:provided
+11293 [INFO] |  |  +- (log4j:log4j:jar:1.2.7:provided - omitted for conflict with 1.2.16)
+11293 [INFO] |  |  +- javax.media:jai-core:jar:1.1.3:provided
+11293 [INFO] |  |  \- (com.sun:jai_codec:jar:1.1.3:provided - omitted for duplicate)
+11293 [INFO] |  +- (com.atlassian.extras:atlassian-extras:jar:2.2.2:provided - omitted for duplicate)
+11293 [INFO] |  +- com.atlassian.velocity:atlassian-velocity:jar:1.3:provided
+11293 [INFO] |  |  +- (com.atlassian.core:atlassian-core:jar:4.6.0:provided - omitted for conflict with 4.6.18)
+11293 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.6:provided - omitted for conflict with 2.4)
+11293 [INFO] |  |  +- (log4j:log4j:jar:1.2.16:provided - omitted for conflict with 1.2.7)
+11293 [INFO] |  |  +- (opensymphony:oscore:jar:2.2.7:provided - omitted for conflict with 2.2.7-atlassian-1)
+11293 [INFO] |  |  \- (org.apache.velocity:velocity:jar:1.6.4:provided - omitted for conflict with 1.6.4-atlassian-7)
+11293 [INFO] |  +- osworkflow:osworkflow:jar:2.8.1:provided
+11293 [INFO] |  +- opensymphony:propertyset:jar:1.5:provided
+11293 [INFO] |  +- (com.atlassian.cache:atlassian-cache-api:jar:2.5.4:provided - omitted for duplicate)
+11293 [INFO] |  +- com.atlassian.beehive:beehive-api:jar:0.2:provided
+11293 [INFO] |  +- (com.atlassian.tenancy:atlassian-tenancy-api:jar:1.4.0:provided - omitted for duplicate)
+11293 [INFO] |  +- com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:provided
+11293 [INFO] |  |  +- (org.apache.commons:commons-lang3:jar:3.3.2:provided - omitted for conflict with 3.4)
+11293 [INFO] |  |  +- (com.google.guava:guava:jar:11.0.2:provided - omitted for conflict with 19.0)
+11293 [INFO] |  |  \- (com.google.code.findbugs:jsr305:jar:2.0.3:provided - omitted for duplicate)
+11293 [INFO] |  +- (com.google.guava:guava:jar:11.0.2-atlassian-02:provided - omitted for conflict with 19.0)
+11293 [INFO] |  +- com.atlassian.fugue:fugue:jar:2.2.0:provided
+11293 [INFO] |  +- org.codehaus.jackson:jackson-core-asl:jar:1.9.1:provided
+11293 [INFO] |  +- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.1:provided
+11293 [INFO] |  |  \- (org.codehaus.jackson:jackson-core-asl:jar:1.9.1:provided - omitted for duplicate)
+11293 [INFO] |  +- com.atlassian.mail:atlassian-mail:jar:2.5.6:provided
+11293 [INFO] |  |  +- (com.atlassian.core:atlassian-core:jar:4.6.0:provided - omitted for conflict with 4.6.18)
+11293 [INFO] |  |  +- (commons-beanutils:commons-beanutils:jar:1.6.1:provided - omitted for duplicate)
+11293 [INFO] |  |  +- (commons-collections:commons-collections:jar:3.1:provided - omitted for conflict with 3.2.1)
+11294 [INFO] |  |  +- (commons-digester:commons-digester:jar:1.4.1:provided - omitted for duplicate)
+11294 [INFO] |  |  +- (commons-lang:commons-lang:jar:2.4:provided - omitted for duplicate)
+11294 [INFO] |  |  +- (commons-io:commons-io:jar:1.4:provided - omitted for conflict with 2.5)
+11294 [INFO] |  |  +- (javax.mail:mail:jar:1.4.5:provided - omitted for duplicate)
+11294 [INFO] |  |  +- (log4j:log4j:jar:1.2.7:provided - omitted for duplicate)
+11294 [INFO] |  |  +- (com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.3.0:provided - omitted for conflict with 2.6.2)
+11294 [INFO] |  |  +- (com.google.guava:guava:jar:10.0.1:provided - omitted for conflict with 19.0)
+11294 [INFO] |  |  \- (com.atlassian:atlassian-localhost:jar:1.1.0:provided - omitted for duplicate)
+11294 [INFO] |  +- (oro:oro:jar:2.0.7:provided - omitted for duplicate)
+11294 [INFO] |  +- atlassian-bandana:atlassian-bandana:jar:0.1.13:provided
+11294 [INFO] |  +- (com.atlassian.threadlocal:atlassian-threadlocal:jar:1.3:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.applinks:applinks-api:jar:4.2.5:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.velocity.htmlsafe:velocity-htmlsafe:jar:1.2.3:provided - omitted for duplicate)
+11294 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-webfragment:jar:3.0.5:provided
+11294 [INFO] |  |  +- (com.atlassian.plugins:atlassian-plugins-webfragment-api:jar:3.0.5:provided - omitted for duplicate)
+11294 [INFO] |  |  \- (com.atlassian.plugins:atlassian-plugins-core:jar:3.0.0:provided - omitted for conflict with 3.2.15)
+11294 [INFO] |  +- com.atlassian.plugins:atlassian-plugins-webfragment-api:jar:3.0.5:provided
+11294 [INFO] |  |  \- (com.atlassian.annotations:atlassian-annotations:jar:0.8.1:provided - omitted for conflict with 0.14)
+11294 [INFO] |  +- (com.atlassian.ozymandias:atlassian-plugin-point-safety:jar:0.10:provided - omitted for duplicate)
+11294 [INFO] |  +- (jfree:jfreechart:jar:1.0.13:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.plugins:atlassian-plugins-webresource:jar:3.1.8:provided - omitted for duplicate)
+11294 [INFO] |  +- (jfree:jcommon:jar:1.0.8:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.sal:sal-api:jar:2.11.2:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.gadgets:atlassian-gadgets-api:jar:3.10.10:provided - omitted for duplicate)
+11294 [INFO] |  +- (com.atlassian.johnson:atlassian-johnson:jar:1.1.2:provided - omitted for duplicate)
+11294 [INFO] |  +- (joda-time:joda-time:jar:2.3:provided - omitted for conflict with 2.9.4)
+11294 [INFO] |  +- commons-lang:commons-lang:jar:2.6:provided
+11294 [INFO] |  +- (commons-io:commons-io:jar:1.4:provided - omitted for conflict with 2.5)
+11294 [INFO] |  +- (commons-httpclient:commons-httpclient:jar:3.0.1:provided - omitted for duplicate)
+11294 [INFO] |  +- log4j:log4j:jar:1.2.16:provided
+11294 [INFO] |  +- (org.slf4j:slf4j-api:jar:1.7.9:provided - omitted for conflict with 1.7.21)
+11294 [INFO] |  +- org.quartz-scheduler:quartz:jar:1.8.6:provided
+11294 [INFO] |  |  \- (org.slf4j:slf4j-api:jar:1.6.0:provided - omitted for conflict with 1.7.21)
+11294 [INFO] |  +- (com.atlassian.profiling:atlassian-profiling:jar:1.9:provided - omitted for duplicate)
+11294 [INFO] |  +- com.atlassian.scheduler:atlassian-scheduler-api:jar:1.3.2:provided
+11294 [INFO] |  +- (com.atlassian.analytics:analytics-api:jar:3.53:provided - omitted for duplicate)
+11294 [INFO] |  \- (javax.servlet:servlet-api:jar:2.4:provided - omitted for duplicate)
+11294 [INFO] +- javax.transaction:jta:jar:1.0.1B:provided
+11294 [INFO] +- javax.ws.rs:jsr311-api:jar:1.1.1:provided
+11294 [INFO] +- javax.servlet:servlet-api:jar:2.4:provided
+11294 [INFO] +- com.atlassian.sal:sal-api:jar:2.0.17:provided
+11294 [INFO] +- com.atlassian.templaterenderer:atlassian-template-renderer-api:jar:1.1.1:provided
+11294 [INFO] +- javax.inject:javax.inject:jar:1:provided
+11294 [INFO] +- org.springframework:spring-beans:jar:2.5.6.SEC03:provided
+11294 [INFO] |  +- (commons-logging:commons-logging:jar:1.1.1:compile - scope updated from provided; omitted for duplicate)
+11294 [INFO] |  \- (org.springframework:spring-core:jar:2.5.6.SEC03:provided - omitted for conflict with 2.5.6.SEC01)
+11294 [INFO] +- com.atlassian.plugins:atlassian-plugins-osgi-testrunner:jar:1.1.4:test
+11294 [INFO] |  +- org.apache.wink:wink-client:jar:1.1.3-incubating:test
+11294 [INFO] |  |  +- org.apache.wink:wink-common:jar:1.1.3-incubating:test
+11294 [INFO] |  |  |  +- (javax.xml.bind:jaxb-api:jar:2.2:test - omitted for duplicate)
+11294 [INFO] |  |  |  +- (com.sun.xml.bind:jaxb-impl:jar:2.2.1.1:test - omitted for duplicate)
+11294 [INFO] |  |  |  +- (javax.activation:activation:jar:1.1:test - omitted for conflict with 1.1.1)
+11294 [INFO] |  |  |  +- (javax.ws.rs:jsr311-api:jar:1.1.1:test - omitted for duplicate)
+11294 [INFO] |  |  |  \- org.apache.geronimo.specs:geronimo-annotation_1.1_spec:jar:1.0:test
+11294 [INFO] |  |  +- javax.xml.bind:jaxb-api:jar:2.2:test
+11294 [INFO] |  |  |  +- javax.xml.stream:stax-api:jar:1.0-2:test
+11294 [INFO] |  |  |  \- (javax.activation:activation:jar:1.1:test - omitted for conflict with 1.1.1)
+11294 [INFO] |  |  +- com.sun.xml.bind:jaxb-impl:jar:2.2.1.1:test
+11294 [INFO] |  |  |  \- (javax.xml.bind:jaxb-api:jar:2.2.1:test - omitted for conflict with 2.2)
+11295 [INFO] |  |  \- (javax.activation:activation:jar:1.1:test - omitted for conflict with 1.1.1)
+11295 [INFO] |  +- (commons-io:commons-io:jar:1.4:test - omitted for conflict with 2.5)
+11295 [INFO] |  \- (com.google.code.gson:gson:jar:2.2.2-atlassian-1:test - omitted for conflict with 2.7)
+11295 [INFO] +- junit:junit:jar:4.12:test
+11295 [INFO] |  \- org.hamcrest:hamcrest-core:jar:1.3:test
+11295 [INFO] +- org.mockito:mockito-all:jar:1.10.19:test
+11295 [INFO] +- nl.jqno.equalsverifier:equalsverifier:jar:2.1:test
+11295 [INFO] +- org.powermock:powermock-api-mockito:jar:1.6.5:test
+11295 [INFO] |  +- org.mockito:mockito-core:jar:1.10.19:test
+11295 [INFO] |  |  +- (org.hamcrest:hamcrest-core:jar:1.1:test - omitted for conflict with 1.3)
+11295 [INFO] |  |  \- org.objenesis:objenesis:jar:2.1:test
+11295 [INFO] |  +- (org.hamcrest:hamcrest-core:jar:1.3:test - omitted for duplicate)
+11295 [INFO] |  \- org.powermock:powermock-api-mockito-common:jar:1.6.5:test
+11295 [INFO] |     +- (org.hamcrest:hamcrest-core:jar:1.3:test - omitted for duplicate)
+11295 [INFO] |     \- org.powermock:powermock-api-support:jar:1.6.5:test
+11295 [INFO] |        +- (org.powermock:powermock-core:jar:1.6.5:test - omitted for duplicate)
+11295 [INFO] |        \- (org.powermock:powermock-reflect:jar:1.6.5:test - omitted for duplicate)
+11295 [INFO] \- org.powermock:powermock-module-junit4:jar:1.6.5:test
+11295 [INFO]    +- (junit:junit:jar:4.12:test - omitted for duplicate)
+11295 [INFO]    \- org.powermock:powermock-module-junit4-common:jar:1.6.5:test
+11295 [INFO]       +- (junit:junit:jar:4.12:test - omitted for duplicate)
+11295 [INFO]       +- org.powermock:powermock-core:jar:1.6.5:test
+11295 [INFO]       |  +- (org.powermock:powermock-reflect:jar:1.6.5:test - omitted for duplicate)
+11295 [INFO]       |  \- org.javassist:javassist:jar:3.20.0-GA:test
+11295 [INFO]       \- org.powermock:powermock-reflect:jar:1.6.5:test
+11295 [INFO]          \- (org.objenesis:objenesis:jar:2.2:test - omitted for conflict with 2.1)
+11295 [INFO] ------------------------------------------------------------------------
+11295 [INFO] BUILD SUCCESS
+11295 [INFO] ------------------------------------------------------------------------
+11296 [INFO] Total time: 10.152s
+11296 [INFO] Finished at: Tue Oct 04 16:28:54 EDT 2016
+11507 [INFO] Final Memory: 45M/695M
+11507 [INFO] ------------------------------------------------------------------------
