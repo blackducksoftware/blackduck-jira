@@ -213,14 +213,14 @@ public class HubJiraTask {
 			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
 		logger.debug("Jira user: " + this.jiraUser);
 
-		final Gson gson = new GsonBuilder().create();
-		final JsonParser jsonParser = new JsonParser();
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
 		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
 
 		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
 				logger, policyFilter);
+		final Gson gson = new GsonBuilder().create();
+		final JsonParser jsonParser = new JsonParser();
 		final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
 				restConnection, gson, jsonParser);
 

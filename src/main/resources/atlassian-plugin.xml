@@ -4,8 +4,8 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
-        <param name="plugin-icon">images/BlackDuckLogo.png</param>
-        <param name="plugin-logo">images/BlackDuckLogo.png</param>
+        <param name="plugin-icon">images/Ducky-200.png</param>
+        <param name="plugin-logo">images/Ducky-200.png</param>
         
         <bundle-instructions>
         	<Embed-Dependency>stream</Embed-Dependency>
@@ -63,7 +63,6 @@
 				org.osgi.util.tracker,
 				org.slf4j;version="0.0",
 				org.slf4j.impl;version="0.0",
-				org.slf4j*;version="0.0",
 				org.springframework.beans,
 				org.springframework.beans.factory,
 				org.springframework.beans.factory.annotation,

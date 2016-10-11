@@ -190,6 +190,31 @@ function populateForm() {
 	  });
 }
 
+
+function resetSalKeys(){
+	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/reset';
+	AJS.$.ajax({
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{}',
+	    processData: false,
+	    success: function() {
+	    	alert('Hub Jira keys reset!');
+	    },
+	    error: function(response){
+	    	alert(response.responseText);
+	    },
+     	complete: function(jqXHR, textStatus){
+	    	  stopProgressSpinner('resetSpinner');
+	    }
+	  });
+	  
+	  var ticketCreationErrorTable = AJS.$('#' + ticketCreationErrorsTableId);
+	  ticketCreationErrorTable.empty();
+}
+
 function handleErrorResize(expansionIcon){
 	var currentIcon = AJS.$(expansionIcon);
 	var errorRow = currentIcon.closest("tr");

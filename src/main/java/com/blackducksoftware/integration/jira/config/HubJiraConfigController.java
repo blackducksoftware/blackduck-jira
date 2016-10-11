@@ -489,6 +489,41 @@ public class HubJiraConfigController {
 		return Response.noContent().build();
 	}
 
+	@Path("/reset")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
+		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+		final Response response = checkUserPermissions(request, settings);
+		if (response != null) {
+			return response;
+		}
+
+		final Object obj = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction() {
+				try {
+					final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+					final Date runDate = new Date();
+
+					final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+					dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+					setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
+					setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
+				} catch (final Exception e) {
+					return e.getMessage();
+				}
+				return null;
+			}
+		});
+
+		if (obj != null) {
+			return Response.ok(obj).status(Status.BAD_REQUEST).build();
+		}
+		return Response.noContent().build();
+	}
+
 	private void updateHubTaskInterval(final String previousIntervalString, final String newIntervalString) {
 		final int previousInterval = NumberUtils.toInt(previousIntervalString);
 		int newInterval;
