@@ -27,6 +27,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
@@ -49,6 +50,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+	private final HubIntRestService hubIntRestService;
 	private final VulnerableBomComponentRestService vulnerableBomComponentRestService;
 	private final NotificationDataService notificationDataService;
 	private final JiraContext jiraContext;
@@ -56,10 +58,12 @@ public class TicketGenerator {
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	public TicketGenerator(final VulnerableBomComponentRestService vulnerableBomComponentRestService,
+	public TicketGenerator(final HubIntRestService hubIntRestService,
+			final VulnerableBomComponentRestService vulnerableBomComponentRestService,
 			final NotificationDataService notificationDataService, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
 			final TicketInfoFromSetup ticketInfoFromSetup) {
+		this.hubIntRestService = hubIntRestService;
 		this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
 		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
@@ -87,7 +91,7 @@ public class TicketGenerator {
 			}
 
 			final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
-					jiraContext, jiraSettingsService, vulnerableBomComponentRestService);
+					jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
 
 			final List<HubEvent> events = processor.generateEvents(notifs);
 			if ((events == null) || (events.size() == 0)) {

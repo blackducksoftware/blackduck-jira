@@ -210,7 +210,8 @@ public class HubJiraTask {
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
+			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
+			throws URISyntaxException {
 		logger.debug("Jira user: " + this.jiraUser);
 
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
@@ -224,7 +225,10 @@ public class HubJiraTask {
 		final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
 				restConnection, gson, jsonParser);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+		final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
+
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService,
 				notificationDataService,
 				jiraServices, jiraContext,
 				jiraSettingsService, ticketInfoFromSetup);

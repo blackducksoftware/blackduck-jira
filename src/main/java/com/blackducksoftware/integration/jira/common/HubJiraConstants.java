@@ -60,4 +60,6 @@ public class HubJiraConstants {
 	public static final String ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME = "hpv";
 	public static final String ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME = "hcv";
 	public static final String ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME = "hr";
+
+	public static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
 }

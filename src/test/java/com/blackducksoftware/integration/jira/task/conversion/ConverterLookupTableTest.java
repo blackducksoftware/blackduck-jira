@@ -36,6 +36,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
@@ -58,10 +59,12 @@ public class ConverterLookupTableTest {
 
 	@Test
 	public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
 		final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
 				.mock(VulnerableBomComponentRestService.class);
 		final JiraServices jiraServices = mockJiraServices();
 		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null,
+ hubIntRestService,
 				vulnerableBomComponentRestService);
 
 		try {

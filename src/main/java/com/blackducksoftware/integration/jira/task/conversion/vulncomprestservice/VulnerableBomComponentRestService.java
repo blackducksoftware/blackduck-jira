@@ -21,10 +21,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice;
 
-import static com.blackducksoftware.integration.hub.api.UrlConstants.SEGMENT_API;
-import static com.blackducksoftware.integration.hub.api.UrlConstants.SEGMENT_PROJECTS;
-import static com.blackducksoftware.integration.hub.api.UrlConstants.SEGMENT_VERSIONS;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
@@ -51,17 +47,13 @@ public class VulnerableBomComponentRestService extends HubItemRestService<Vulner
 		super(restConnection, gson, jsonParser, ITEM_TYPE, ITEM_LIST_TYPE);
 	}
 
-	public List<VulnerableBomComponentItem> getVulnerableComponentsMatchingComponentName(final String projectId,
-			final String projectVersionId, final String componentName) throws IOException, URISyntaxException,
+	public List<VulnerableBomComponentItem> getVulnerableComponentsMatchingComponentName(
+			final String vulnerableBomComponentsUrl, final String componentName) throws IOException,
+			URISyntaxException,
 			BDRestException {
 		final HubRequest itemRequest = new HubRequest(getRestConnection(), getJsonParser());
 		itemRequest.setMethod(Method.GET);
-		itemRequest.addUrlSegment(SEGMENT_API);
-		itemRequest.addUrlSegment(SEGMENT_PROJECTS);
-		itemRequest.addUrlSegment(projectId);
-		itemRequest.addUrlSegment(SEGMENT_VERSIONS);
-		itemRequest.addUrlSegment(projectVersionId);
-		itemRequest.addUrlSegment("vulnerable-bom-components");
+		itemRequest.setUrl(vulnerableBomComponentsUrl);
 		itemRequest.setQ(componentName);
 
 		final JsonObject jsonObject = itemRequest.executeForResponseJson();

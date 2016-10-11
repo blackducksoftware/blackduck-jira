@@ -73,6 +73,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
@@ -227,8 +228,9 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
-
-		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService,
 				notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
@@ -313,8 +315,10 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(vulnerableBomComponentRestService,
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService,
 				notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
