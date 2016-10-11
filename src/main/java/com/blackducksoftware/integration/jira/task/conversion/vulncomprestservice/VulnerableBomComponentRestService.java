@@ -30,6 +30,7 @@ import org.restlet.data.Method;
 
 import com.blackducksoftware.integration.hub.api.HubItemRestService;
 import com.blackducksoftware.integration.hub.api.HubRequest;
+import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentItem;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.google.gson.Gson;
@@ -47,6 +48,7 @@ public class VulnerableBomComponentRestService extends HubItemRestService<Vulner
 		super(restConnection, gson, jsonParser, ITEM_TYPE, ITEM_LIST_TYPE);
 	}
 
+	// TODO: move to VulnerableBomComponentRestService in hub common
 	public List<VulnerableBomComponentItem> getVulnerableComponentsMatchingComponentName(
 			final String vulnerableBomComponentsUrl, final String componentName) throws IOException,
 			URISyntaxException,
