@@ -27,7 +27,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
@@ -37,6 +37,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -49,18 +50,21 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  */
 public class TicketGenerator {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final DataServicesFactory dataServicesFactory;
+	private final HubIntRestService hubIntRestService;
+	private final VulnerableBomComponentRestService vulnerableBomComponentRestService;
 	private final NotificationDataService notificationDataService;
 	private final JiraContext jiraContext;
 	private final JiraServices jiraServices;
 	private final JiraSettingsService jiraSettingsService;
 	private final TicketInfoFromSetup ticketInfoFromSetup;
 
-	public TicketGenerator(final DataServicesFactory dataServicesFactory,
+	public TicketGenerator(final HubIntRestService hubIntRestService,
+			final VulnerableBomComponentRestService vulnerableBomComponentRestService,
 			final NotificationDataService notificationDataService, final JiraServices jiraServices,
 			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
 			final TicketInfoFromSetup ticketInfoFromSetup) {
-		this.dataServicesFactory = dataServicesFactory;
+		this.hubIntRestService = hubIntRestService;
+		this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
 		this.notificationDataService = notificationDataService;
 		this.jiraServices = jiraServices;
 		this.jiraContext = jiraContext;
@@ -87,7 +91,7 @@ public class TicketGenerator {
 			}
 
 			final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
-					jiraContext, jiraSettingsService, dataServicesFactory);
+					jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
 
 			final List<HubEvent> events = processor.generateEvents(notifs);
 			if ((events == null) || (events.size() == 0)) {

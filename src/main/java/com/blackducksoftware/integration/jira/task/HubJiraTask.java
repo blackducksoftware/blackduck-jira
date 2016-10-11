@@ -52,12 +52,16 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
 import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
 import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 public class HubJiraTask {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -206,7 +210,8 @@ public class HubJiraTask {
 	}
 
 	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup) {
+			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
+			throws URISyntaxException {
 		logger.debug("Jira user: " + this.jiraUser);
 
 		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
@@ -215,8 +220,15 @@ public class HubJiraTask {
 
 		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
 				logger, policyFilter);
+		final Gson gson = new GsonBuilder().create();
+		final JsonParser jsonParser = new JsonParser();
+		final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
+				restConnection, gson, jsonParser);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+		final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
+
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService, notificationDataService,
 				jiraServices, jiraContext,
 				jiraSettingsService, ticketInfoFromSetup);
 		return ticketGenerator;

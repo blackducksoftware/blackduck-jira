@@ -73,6 +73,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
@@ -101,6 +102,7 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -128,9 +130,11 @@ public class TicketGeneratorTest {
 	private static PolicyRule rule;
 	private static BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
 	private static DataServicesFactory dataServicesFactory;
+	private static VulnerableBomComponentRestService vulnerableBomComponentRestService;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		vulnerableBomComponentRestService = Mockito.mock(VulnerableBomComponentRestService.class);
 		dataServicesFactory = Mockito.mock(DataServicesFactory.class);
 		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
 		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
@@ -227,7 +231,9 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService, notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
 
@@ -311,8 +317,10 @@ public class TicketGeneratorTest {
 		final JiraContext jiraContext = Mockito.mock(JiraContext.class);
 		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 		final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(dataServicesFactory, notificationDataService,
+		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+				vulnerableBomComponentRestService, notificationDataService,
 				jiraServices, jiraContext,
 				settingsService, null);
 
@@ -516,10 +524,11 @@ public class TicketGeneratorTest {
 
 		Mockito.when(
 				notificationDataService.getAllNotifications(Mockito.any(Date.class), Mockito.any(Date.class)))
-		.thenReturn(notificationItems);
+				.thenReturn(notificationItems);
 	}
 
-	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate) {
+	private List<PolicyViolationContentItem> mockRuleViolationNotificationItems(final boolean createDuplicate)
+			throws URISyntaxException {
 		final List<PolicyViolationContentItem> notificationItems = new ArrayList<>();
 
 		final List<PolicyRule> policyRules = new ArrayList<>();
@@ -531,12 +540,14 @@ public class TicketGeneratorTest {
 		projectVersion.setProjectName("projectName");
 		projectVersion.setProjectVersionName("hubProjectVersionName");
 
-		projectVersion.setProjectVersionLink(
+		projectVersion.setUrl(
 				"http://localhost/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
 
+		final String componentVersionUrl = "http://hub.blackducksoftware.com/api/projects/" + UUID.randomUUID()
+				+ "/versions/" + UUID.randomUUID() + "/";
 		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
 				"componentName",
-				"componentVersionName", UUID.randomUUID(), UUID.randomUUID(), policyRules);
+ "componentVersionName", componentVersionUrl, policyRules);
 
 		notificationItems.add(notif);
 		if (createDuplicate) {
@@ -546,14 +557,14 @@ public class TicketGeneratorTest {
 	}
 
 	private List<VulnerabilityContentItem> mockNewVulnerabilityNotificationItems(final boolean createDuplicate)
-			throws IOException {
+			throws IOException, URISyntaxException {
 		final List<VulnerabilityContentItem> notificationItems = new ArrayList<>();
 
+		final String projectVersionUrl = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f";
 		final ProjectVersion projectVersion = new ProjectVersion();
 		projectVersion.setProjectName("4Drew");
 		projectVersion.setProjectVersionName("2Drew");
-		projectVersion.setProjectVersionLink(
-				"http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f");
+		projectVersion.setUrl(projectVersionUrl);
 
 		final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
 		final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId("NVD", "CVE-2016-0001");
@@ -561,8 +572,7 @@ public class TicketGeneratorTest {
 
 		final VulnerabilityContentItem notif = new VulnerabilityContentItem(new Date(), projectVersion, "TestNG",
 				"2.0.0",
-				UUID.fromString("d15b7f61-c5b9-4f31-8605-769b12198d91"),
-				UUID.fromString("0ce0a7b7-1872-4643-b389-da58a753d70d"), addedVulnList,
+ projectVersionUrl, addedVulnList,
 				new ArrayList<VulnerabilitySourceQualifiedId>(), new ArrayList<VulnerabilitySourceQualifiedId>());
 
 		notificationItems.add(notif);
@@ -572,13 +582,13 @@ public class TicketGeneratorTest {
 		return notificationItems;
 	}
 
-	private List<PolicyOverrideContentItem> mockPolicyOverrideNotificationItems() {
+	private List<PolicyOverrideContentItem> mockPolicyOverrideNotificationItems() throws URISyntaxException {
 		final List<PolicyOverrideContentItem> notificationItems = new ArrayList<>();
 
 		final ProjectVersion projectVersion = new ProjectVersion();
 		projectVersion.setProjectName("projectName");
 		projectVersion.setProjectVersionName("projectVersionName");
-		projectVersion.setProjectVersionLink(
+		projectVersion.setUrl(
 				"http://localhost/projects/" + UUID.randomUUID() + "/versions/" + UUID.randomUUID());
 
 		final List<PolicyRule> policyRules = new ArrayList<>();
@@ -586,10 +596,11 @@ public class TicketGeneratorTest {
 		final PolicyRule rule = new PolicyRule(meta, "someRule", null, null, true, null, null, null, null, null);
 		policyRules.add(rule);
 
+		final String componentVersionUrl = "http://hub.blackducksoftware.com/api/projects/"
+				+ "0934ea45-c739-4b58-bcb1-ee777022ce4f" + "/versions/" + "7c45d411-92ca-45b0-80fc-76b765b954ef";
 		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
 				"componentName",
-				"componentVersionName", UUID.fromString("0934ea45-c739-4b58-bcb1-ee777022ce4f"),
-				UUID.fromString("7c45d411-92ca-45b0-80fc-76b765b954ef"), policyRules, "firstName", "lastName");
+ "componentVersionName", componentVersionUrl, policyRules, "firstName", "lastName");
 
 		notificationItems.add(notif);
 		return notificationItems;

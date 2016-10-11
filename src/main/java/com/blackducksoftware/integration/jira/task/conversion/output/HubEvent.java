@@ -21,9 +21,13 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import java.net.URISyntaxException;
+
+import org.apache.log4j.Logger;
+
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 /**
  * An event is one of the following: Policy violation by a specific component on
@@ -35,7 +39,7 @@ import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
  *
  */
 public abstract class HubEvent<T extends NotificationContentItem> {
-
+	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 	private final HubEventAction action;
 	private final String jiraUserName;
 	private final String jiraUserId;
@@ -104,7 +108,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 		return null;
 	}
 
-	public abstract String getUniquePropertyKey() throws MissingUUIDException;
+	public abstract String getUniquePropertyKey() throws URISyntaxException;
 
 	public abstract String getIssueSummary();
 
@@ -113,4 +117,10 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
 
 	public abstract IssueProperties createIssueProperties(final Issue issue);
+
+	protected String hashString(final String origString) {
+		final String hashString = String.valueOf(origString.hashCode());
+		logger.debug("Hash string for '" + origString + "': " + hashString);
+		return hashString;
+	}
 }

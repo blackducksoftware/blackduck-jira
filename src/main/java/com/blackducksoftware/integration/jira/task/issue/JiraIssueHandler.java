@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -46,7 +47,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -127,7 +127,7 @@ public class JiraIssueHandler {
 		String notificationUniqueKey = null;
 		try {
 			notificationUniqueKey = notificationEvent.getUniquePropertyKey();
-		} catch (final MissingUUIDException e) {
+		} catch (final URISyntaxException e) {
 			logger.error(e);
 			jiraSettingsService.addHubError(e, notificationEvent.getNotif().getProjectVersion().getProjectName(),
 					notificationEvent.getNotif().getProjectVersion().getProjectVersionName(),
@@ -303,8 +303,8 @@ public class JiraIssueHandler {
 		logger.debug("Found this many actions : " + actions.size());
 		if (actions.size() == 0) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : " + currentStatus.getName()
-			+ ". There are no steps from this status to any other status.";
+					+ ", from status : " + currentStatus.getName()
+					+ ". There are no steps from this status to any other status.";
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),
@@ -320,7 +320,7 @@ public class JiraIssueHandler {
 		}
 		if (transitionAction == null) {
 			final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey()
-			+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
+					+ ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
 			logger.error(errorMessage);
 			jiraSettingsService.addHubError(errorMessage,
 					notificationEvent.getNotif().getProjectVersion().getProjectName(),

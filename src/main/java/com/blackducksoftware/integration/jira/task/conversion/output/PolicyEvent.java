@@ -21,12 +21,13 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import java.net.URISyntaxException;
+
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.google.gson.Gson;
@@ -62,19 +63,32 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	}
 
 	@Override
-	public String getUniquePropertyKey() throws MissingUUIDException {
+	public String getUniquePropertyKey() throws URISyntaxException {
 		final StringBuilder keyBuilder = new StringBuilder();
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
 		keyBuilder.append(getJiraProjectId().toString());
-		keyBuilder.append(".");
-		keyBuilder.append(getNotificationContentItem().getProjectVersion().getVersionId().toString());
-		keyBuilder.append(".");
-		keyBuilder.append(getNotificationContentItem().getComponentId().toString());
-		keyBuilder.append(".");
-		if (getNotificationContentItem().getComponentVersionId() != null) {
-			keyBuilder.append(getNotificationContentItem().getComponentVersionId().toString());
-			keyBuilder.append(".");
-		}
-		keyBuilder.append(getPolicyRule().getPolicyRuleId().toString());
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(hashString(getNotificationContentItem().getProjectVersion().getRelativeUrl()));
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(hashString(getNotificationContentItem().getComponentVersionRelativeUrl()));
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(hashString(getPolicyRule().getMeta().getRelativeHref()));
+
 		final String key = keyBuilder.toString();
 		logger.debug("property key: " + key);
 		return key;

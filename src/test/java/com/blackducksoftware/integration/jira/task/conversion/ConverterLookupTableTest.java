@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,16 +36,18 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
+import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
+	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -55,10 +58,13 @@ public class ConverterLookupTableTest {
 	}
 
 	@Test
-	public void test() throws NotificationServiceException, ConfigurationException {
-		final DataServicesFactory dataServicesFactory = Mockito.mock(DataServicesFactory.class);
+	public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
+		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
+		final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
+				.mock(VulnerableBomComponentRestService.class);
 		final JiraServices jiraServices = mockJiraServices();
-		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, dataServicesFactory);
+		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, hubIntRestService,
+				vulnerableBomComponentRestService);
 
 		try {
 			assertEquals(null, table.getConverter(null));
@@ -69,16 +75,17 @@ public class ConverterLookupTableTest {
 
 		NotificationToEventConverter converter = table
 				.getConverter(new VulnerabilityContentItem(new Date(), null,
-						null, null, null, null, null, null, null));
+				null, null, COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null, null, null));
+		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null,
+				COMPONENT_VERSION_URL, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null, null, null,
-				null, null));
+		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null,
+				COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
 	}
