@@ -36,14 +36,13 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldConfigurationSetup {
-	public static final String HUB_FIELD_CONFIGURATION_SCHEME_NAME = "Hub Field Configuration Scheme";
 
-	public static final String HUB_FIELD_CONFIGURATION = "Hub Field Configuration";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -70,9 +69,11 @@ public class HubFieldConfigurationSetup {
 		final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
 		if (fieldLayoutSchemes != null) {
 			for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
-				if (HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
+				if (HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme
+						.getName())) {
 					logger.debug(
-							"Field Configuration Scheme " + HUB_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
+"Field Configuration Scheme " + HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME
+							+ " already exists");
 					fieldConfigurationScheme = existingFieldConfigurationScheme;
 					break;
 				}
@@ -81,7 +82,9 @@ public class HubFieldConfigurationSetup {
 
 		if (fieldConfigurationScheme == null) {
 			fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
-					.createFieldLayoutScheme(HUB_FIELD_CONFIGURATION_SCHEME_NAME, HUB_FIELD_CONFIGURATION_SCHEME_NAME);
+.createFieldLayoutScheme(
+					HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME,
+					HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME);
 			changesToStore = true;
 		}
 
@@ -136,7 +139,7 @@ public class HubFieldConfigurationSetup {
 					.getEditableFieldLayouts();
 			if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
 				for (final EditableFieldLayout layout : fieldLayouts) {
-					if (layout.getName().equals(HUB_FIELD_CONFIGURATION)) {
+					if (layout.getName().equals(HubJiraConstants.HUB_FIELD_CONFIGURATION)) {
 						hubFieldLayout = layout;
 						break;
 					}
@@ -150,7 +153,7 @@ public class HubFieldConfigurationSetup {
 				// Creates a copy of the default field layout
 				hubFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
 
-				hubFieldLayout.setName(HUB_FIELD_CONFIGURATION);
+				hubFieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
 				fieldConfigurationNeedsUpdate = true;
 			}
 			final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();

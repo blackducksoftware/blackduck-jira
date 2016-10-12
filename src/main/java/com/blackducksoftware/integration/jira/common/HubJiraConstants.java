@@ -22,19 +22,30 @@
 package com.blackducksoftware.integration.jira.common;
 
 public class HubJiraConstants {
-	public final static String HUB_JIRA_GROUP = "hub-jira";
+	private final static String HUB_JIRA_GROUP = "hub-jira";
 	public final static String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
 	public final static String HUB_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
-	public final static String HUB_JIRA_WORKFLOW = "Hub Workflow";
 
+	// Issue type names (user visible)
 	public final static String HUB_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
 	public final static String HUB_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
 
-	public final static String HUB_CUSTOM_FIELD_PROJECT = "Hub Project";
-	public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "Hub Project Version";
-	public final static String HUB_CUSTOM_FIELD_COMPONENT = "Hub Component";
-	public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "Hub Component Version";
-	public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "Hub Policy Rule";
+	// Field names (user visible)
+	public final static String HUB_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
+	public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
+	public final static String HUB_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
+	public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
+	public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
+
+	// Configuration object names visible only to administrators
+	public final static String HUB_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
+	public static final String HUB_FIELD_CONFIGURATION_SCHEME_NAME = "BDS Hub PlugIn Field Configuration Scheme";
+	public static final String HUB_FIELD_CONFIGURATION = "BDS Hub PlugIn Field Configuration";
+	public static final String HUB_POLICY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Policy Screen Scheme";
+	public static final String HUB_SECURITY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Security Screen Scheme";
+	public static final String HUB_POLICY_SCREEN_NAME = "BDS Hub PlugIn Policy Screen";
+	public static final String HUB_SECURITY_SCREEN_NAME = "BDS Hub PlugIn Security Screen";
+	public static final String HUB_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
 
 	public final static String HUB_WORKFLOW_STATUS_OPEN = "Open";
 	public final static String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";

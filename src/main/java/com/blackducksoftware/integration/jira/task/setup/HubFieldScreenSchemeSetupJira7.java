@@ -28,6 +28,7 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
+// TODO abstract and this subclass can now be collapsed into one
 public class HubFieldScreenSchemeSetupJira7 extends AbstractHubFieldScreenSchemeSetup {
 
 	public HubFieldScreenSchemeSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {

@@ -127,7 +127,7 @@ public class HubFieldConfigurationSetupTest {
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-		fieldLayout.setName(HubFieldConfigurationSetup.HUB_FIELD_CONFIGURATION);
+		fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
 		addFieldLayoutItems(fieldLayout);
 		addFieldLayoutItem(fieldLayout, "custom", true);
 		final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
@@ -151,7 +151,7 @@ public class HubFieldConfigurationSetupTest {
 		final PluginSettingsMock settingsMock = new PluginSettingsMock();
 		final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-		fieldLayout.setName(HubFieldConfigurationSetup.HUB_FIELD_CONFIGURATION);
+		fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
 		addFieldLayoutItems(fieldLayout);
 		final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
 		fieldLayoutManager.addEditableFieldLayout(fieldLayout);
@@ -173,15 +173,15 @@ public class HubFieldConfigurationSetupTest {
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 
 		Mockito.when(fieldConfigSetupSpy.createEditableFieldLayout(Mockito.anyListOf(FieldLayoutItem.class)))
-				.thenAnswer(new Answer<EditableFieldLayout>() {
-					@Override
-					public EditableFieldLayout answer(final InvocationOnMock invocation) throws Throwable {
-						final Object[] arguments = invocation.getArguments();
-						final List<FieldLayoutItem> fields = (List<FieldLayoutItem>) arguments[0];
-						fieldLayout.setFieldLayoutItems(fields);
-						return fieldLayout;
-					}
-				});
+		.thenAnswer(new Answer<EditableFieldLayout>() {
+			@Override
+			public EditableFieldLayout answer(final InvocationOnMock invocation) throws Throwable {
+				final Object[] arguments = invocation.getArguments();
+				final List<FieldLayoutItem> fields = (List<FieldLayoutItem>) arguments[0];
+				fieldLayout.setFieldLayoutItems(fields);
+				return fieldLayout;
+			}
+		});
 		return fieldLayout;
 	}
 

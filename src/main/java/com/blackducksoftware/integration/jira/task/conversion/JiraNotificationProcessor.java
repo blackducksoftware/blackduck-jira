@@ -28,6 +28,7 @@ import java.util.SortedSet;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
@@ -37,7 +38,6 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
-import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraNotificationProcessor {

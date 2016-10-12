@@ -141,9 +141,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 5);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 4);
 			}
 		}
@@ -154,9 +154,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -201,9 +201,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -214,9 +214,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -260,9 +260,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -274,9 +274,9 @@ public class HubFieldScreenSchemeSetupTest {
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -301,9 +301,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -314,9 +314,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira7.HUB_SECURITY_SCREEN_NAME));
+								.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
