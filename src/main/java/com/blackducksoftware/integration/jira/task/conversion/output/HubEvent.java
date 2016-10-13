@@ -119,7 +119,12 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 	public abstract IssueProperties createIssueProperties(final Issue issue);
 
 	protected String hashString(final String origString) {
-		final String hashString = String.valueOf(origString.hashCode());
+		String hashString;
+		if (origString == null) {
+			hashString = "";
+		} else {
+			hashString = String.valueOf(origString.hashCode());
+		}
 		logger.debug("Hash string for '" + origString + "': " + hashString);
 		return hashString;
 	}

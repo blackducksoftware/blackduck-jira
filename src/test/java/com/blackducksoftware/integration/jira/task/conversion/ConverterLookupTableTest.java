@@ -37,13 +37,13 @@ import org.mockito.Mockito;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
@@ -64,7 +64,7 @@ public class ConverterLookupTableTest {
 				.mock(VulnerableBomComponentRestService.class);
 		final JiraServices jiraServices = mockJiraServices();
 		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null,
- hubIntRestService,
+				hubIntRestService,
 				vulnerableBomComponentRestService);
 
 		try {
@@ -81,11 +81,13 @@ public class ConverterLookupTableTest {
 				converter.getClass().getName());
 
 		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null,
+				null,
 				COMPONENT_VERSION_URL, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
 		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null,
+				null,
 				COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());

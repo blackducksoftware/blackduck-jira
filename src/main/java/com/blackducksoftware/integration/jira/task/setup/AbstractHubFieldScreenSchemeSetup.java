@@ -56,13 +56,6 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractHubFieldScreenSchemeSetup {
-	public static final String HUB_POLICY_SCREEN_SCHEME_NAME = "Hub Policy Screen Scheme";
-	public static final String HUB_SECURITY_SCREEN_SCHEME_NAME = "Hub Security Screen Scheme";
-
-	public static final String HUB_POLICY_SCREEN_NAME = "Hub Policy Screen";
-	public static final String HUB_SECURITY_SCREEN_NAME = "Hub Security Screen";
-
-	public static final String HUB_SCREEN_TAB = "Hub Screen Tab";
 
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -242,7 +235,7 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
 		FieldScreenTab myTab = null;
 		if (hubScreen != null && hubScreen.getTabs() != null && !hubScreen.getTabs().isEmpty()) {
 			for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
-				if (screenTab.getName().equals(HUB_SCREEN_TAB)) {
+				if (screenTab.getName().equals(HubJiraConstants.HUB_SCREEN_TAB)) {
 					myTab = screenTab;
 					break;
 				}
@@ -250,7 +243,7 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
 		}
 		boolean needToUpdateTabAndScreen = false;
 		if (myTab == null) {
-			myTab = hubScreen.addTab(HUB_SCREEN_TAB);
+			myTab = hubScreen.addTab(HubJiraConstants.HUB_SCREEN_TAB);
 			needToUpdateTabAndScreen = true;
 		}
 		if (customFields != null && !customFields.isEmpty()) {
@@ -286,14 +279,14 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
 			final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = createPolicyViolationFields(issueType,
 				commonIssueTypeList);
-		final FieldScreen screen = createScreen(HUB_POLICY_SCREEN_NAME, customFields);
+		final FieldScreen screen = createScreen(HubJiraConstants.HUB_POLICY_SCREEN_NAME, customFields);
 		return screen;
 	}
 
 	private FieldScreen createSecurityScreen(final IssueType issueType,
 			final List<Object> commonIssueTypeList) {
 		final List<OrderableField> customFields = createSecurityFields(issueType, commonIssueTypeList);
-		final FieldScreen screen = createScreen(HUB_SECURITY_SCREEN_NAME, customFields);
+		final FieldScreen screen = createScreen(HubJiraConstants.HUB_SECURITY_SCREEN_NAME, customFields);
 		return screen;
 	}
 
@@ -375,14 +368,16 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
 	private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType,
 			final List<Object> commonIssueTypeList) {
 		final FieldScreen screen = createPolicyViolationScreen(issueType, commonIssueTypeList);
-		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_POLICY_SCREEN_SCHEME_NAME, screen);
+		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HubJiraConstants.HUB_POLICY_SCREEN_SCHEME_NAME,
+				screen);
 		return fieldScreenScheme;
 	}
 
 	private FieldScreenScheme createSecurityScreenScheme(final IssueType issueType,
 			final List<Object> commonIssueTypeList) {
 		final FieldScreen screen = createSecurityScreen(issueType, commonIssueTypeList);
-		final FieldScreenScheme fieldScreenScheme = createScreenScheme(HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
+		final FieldScreenScheme fieldScreenScheme = createScreenScheme(
+				HubJiraConstants.HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
 		return fieldScreenScheme;
 	}
 

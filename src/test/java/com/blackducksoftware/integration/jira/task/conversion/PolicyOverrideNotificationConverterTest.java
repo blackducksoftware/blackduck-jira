@@ -164,7 +164,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
 				HUB_COMPONENT_NAME,
- VERSION_NAME, COMPONENT_VERSION_URL, rules, null, null);
+				VERSION_NAME, null, COMPONENT_VERSION_URL, rules, null, null);
 		System.out.println("Notif: " + notif);
 
 		return notif;

@@ -82,6 +82,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
@@ -101,7 +102,6 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.task.conversion.vulncomprestservice.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -546,7 +546,7 @@ public class TicketGeneratorTest {
 				+ "/versions/" + UUID.randomUUID() + "/";
 		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
 				"componentName",
-				"componentVersionName", componentVersionUrl, policyRules);
+				"componentVersionName", null, componentVersionUrl, policyRules);
 
 		notificationItems.add(notif);
 		if (createDuplicate) {
@@ -599,7 +599,8 @@ public class TicketGeneratorTest {
 				+ "0934ea45-c739-4b58-bcb1-ee777022ce4f" + "/versions/" + "7c45d411-92ca-45b0-80fc-76b765b954ef";
 		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
 				"componentName",
-				"componentVersionName", componentVersionUrl, policyRules, "firstName", "lastName");
+				"componentVersionName", null, componentVersionUrl, policyRules, "firstName",
+				"lastName");
 
 		notificationItems.add(notif);
 		return notificationItems;

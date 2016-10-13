@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyContentItem;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.google.gson.Gson;
@@ -35,7 +36,7 @@ import com.google.gson.GsonBuilder;
 
 public class PolicyEvent extends HubEvent<NotificationContentItem> {
 	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final NotificationContentItem notificationContentItem;
+	private final PolicyContentItem notificationContentItem;
 	private final PolicyRule policyRule;
 	private final String resolveComment;
 
@@ -43,7 +44,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 			final String issueAssigneeId,
 			final String jiraIssueTypeId,
 			final Long jiraProjectId, final String jiraProjectName,
-			final NotificationContentItem notificationContentItem,
+ final PolicyContentItem notificationContentItem,
 			final PolicyRule policyRule, final String resolveComment) {
 
 		super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
@@ -53,7 +54,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 		this.resolveComment = resolveComment;
 	}
 
-	public NotificationContentItem getNotificationContentItem() {
+	public PolicyContentItem getNotificationContentItem() {
 		return notificationContentItem;
 	}
 
@@ -77,6 +78,11 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
 		keyBuilder.append(hashString(getNotificationContentItem().getProjectVersion().getRelativeUrl()));
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
+		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+		keyBuilder.append(hashString(getNotificationContentItem().getComponentRelativeUrl()));
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
 		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);

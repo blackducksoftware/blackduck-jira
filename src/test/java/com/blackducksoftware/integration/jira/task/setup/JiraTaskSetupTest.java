@@ -107,12 +107,11 @@ import com.blackducksoftware.integration.jira.task.JiraTask;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraTaskSetupTest {
-
+	private final static String HUB_JIRA_GROUP = "hub-jira";
 	private static final String HUB_PROJECT_NAME = "Test Hub Project";
 	private static final String JIRA_PROJECT_NAME = ProjectManagerMock.JIRA_PROJECT_PREFIX;
 	private static final long JIRA_PROJECT_ID = ProjectManagerMock.JIRA_PROJECT_ID_BASE;
 	private static final String JIRA_USER = "Jira User";
-	private static final String HUB_WORKFLOW_NAME = "Hub Workflow";
 
 	@Test
 	public void testServerSetupIssueTypesAlreadyCreated() throws JiraException {
@@ -135,9 +134,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -149,9 +148,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -185,9 +184,9 @@ public class JiraTaskSetupTest {
 
 		for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -199,9 +198,9 @@ public class JiraTaskSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+						.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
@@ -278,14 +277,14 @@ public class JiraTaskSetupTest {
 		fieldLayoutManager.setProjectFieldConfigScheme(projectFieldConfigScheme);
 
 		final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-		fieldLayout.setName("Hub Field Configuration");
+		fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
 		fieldLayout.setDescription("mock");
 		final List<FieldLayoutItem> fields = new ArrayList<>();
 		final FieldLayoutItemMock field = new FieldLayoutItemMock();
 		field.setIsRequired(false);
 		final OrderableFieldMock orderableField = new OrderableFieldMock();
 		orderableField.setId("1");
-		orderableField.setName("Policy Rule");
+		orderableField.setName(HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE);
 		field.setOrderableField(orderableField);
 		fields.add(field);
 		fieldLayout.setFieldLayoutItems(fields);
@@ -446,10 +445,12 @@ public class JiraTaskSetupTest {
 		final WorkflowSchemeManagerMock workflowSchemeManagerMock = new WorkflowSchemeManagerMock();
 
 		final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-		hubWorkflow.setName(HUB_WORKFLOW_NAME);
+		hubWorkflow.setName(HubJiraConstants.HUB_JIRA_WORKFLOW);
 		if (workflowMappedToOurIssueTypes) {
-			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, HUB_WORKFLOW_NAME);
-			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_VULNERABILITY_ISSUE, HUB_WORKFLOW_NAME);
+			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
+					HubJiraConstants.HUB_JIRA_WORKFLOW);
+			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_VULNERABILITY_ISSUE,
+					HubJiraConstants.HUB_JIRA_WORKFLOW);
 		} else {
 			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, "Fake Workflow");
 			hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_VULNERABILITY_ISSUE, "Fake Workflow");
@@ -483,7 +484,7 @@ public class JiraTaskSetupTest {
 	private GroupManagerMock getGroupManagerMock(final boolean groupAlreadyExists) {
 		final GroupManagerMock groupManager = new GroupManagerMock();
 		if (groupAlreadyExists) {
-			groupManager.addGroupByName(HubJiraConstants.HUB_JIRA_GROUP);
+			groupManager.addGroupByName(HUB_JIRA_GROUP);
 		}
 		return groupManager;
 	}

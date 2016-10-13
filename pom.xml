@@ -75,7 +75,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>1.4.9-SNAPSHOT</version>
+      <version>1.4.11</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -87,7 +87,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>phone-home-api</artifactId>
-      <version>1.1.7-SNAPSHOT</version>
+      <version>1.1.7</version>
     </dependency>
 
     <dependency>

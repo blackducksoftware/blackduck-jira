@@ -104,20 +104,20 @@ public class HubFieldScreenSchemeSetupTest {
 		fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-				.thenAnswer(new Answer<FieldScreen>() {
-					@Override
-					public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreen>() {
+			@Override
+			public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-				.thenAnswer(new Answer<FieldScreenScheme>() {
-					@Override
-					public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenSchemeMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreenScheme>() {
+			@Override
+			public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenSchemeMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
 				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
@@ -138,9 +138,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 5);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 4);
 			}
 		}
@@ -151,9 +151,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -197,9 +197,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -210,9 +210,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -255,9 +255,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -269,9 +269,9 @@ public class HubFieldScreenSchemeSetupTest {
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -296,9 +296,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 		for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
 			final String screenName = tab.getFieldScreen().getName();
-			if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
-			} else if (screenName.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)) {
+			} else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
 				assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
 			}
 		}
@@ -309,9 +309,9 @@ public class HubFieldScreenSchemeSetupTest {
 
 			for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 				assertTrue(currentSchemeItem.getFieldScreen().getName()
-						.equals(HubFieldScreenSchemeSetupJira6.HUB_POLICY_SCREEN_NAME)
+.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
 						|| currentSchemeItem.getFieldScreen().getName()
-								.equals(HubFieldScreenSchemeSetupJira6.HUB_SECURITY_SCREEN_NAME));
+						.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
 			}
 		}
 		assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -321,20 +321,20 @@ public class HubFieldScreenSchemeSetupTest {
 
 	private void mockCreationMethods(final HubFieldScreenSchemeSetupJira6 fieldConfigSetup) {
 		Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-				.thenAnswer(new Answer<FieldScreen>() {
-					@Override
-					public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreen>() {
+			@Override
+			public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-				.thenAnswer(new Answer<FieldScreenScheme>() {
-					@Override
-					public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-						return new FieldScreenSchemeMock();
-					}
-				});
+		.thenAnswer(new Answer<FieldScreenScheme>() {
+			@Override
+			public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+				return new FieldScreenSchemeMock();
+			}
+		});
 
 		Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
 				Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {

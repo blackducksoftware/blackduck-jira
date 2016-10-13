@@ -44,7 +44,7 @@ public class PolicyEventTest {
 		projectVersion.setUrl(projectVersionUrl);
 
 		final PolicyViolationContentItem vulnerabilityContentItem = new PolicyViolationContentItem(new Date(),
-				projectVersion, "componentName", "componentVersion", componentVersionUrl, null);
+				projectVersion, "componentName", "componentVersion", null, componentVersionUrl, null);
 		final MetaInformation meta = new MetaInformation(new ArrayList<String>(), "http://hub.bds.com/policies/1234",
 				new ArrayList<MetaLink>());
 		final PolicyExpressions expression = new PolicyExpressions("AND", new ArrayList<PolicyExpression>());
@@ -54,7 +54,9 @@ public class PolicyEventTest {
 		final PolicyEvent event = new PolicyEvent(HubEventAction.OPEN, "jiraUserName", "jiraUserId", "issueAssigneeId",
 				"jiraIssueTypeId", 1L, "jiraProjectName", vulnerabilityContentItem, policyRule, "resolveComment");
 
-		final String expectedKey = "t=p|jp=1|hpv=" + String.valueOf(projectVersionRelativeUrl.hashCode()) + "|hcv="
+		final String expectedKey = "t=p|jp=1|hpv="
+				+ String.valueOf(projectVersionRelativeUrl.hashCode())
+				+ "|hc=|hcv="
 				+ String.valueOf(componentVersionRelativeUrl.hashCode() + "|hr="
 						+ String.valueOf(policyRule.getMeta().getRelativeHref().hashCode()));
 
