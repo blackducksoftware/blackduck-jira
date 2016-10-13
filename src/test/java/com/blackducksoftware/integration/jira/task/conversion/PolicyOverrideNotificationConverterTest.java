@@ -89,7 +89,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
@@ -108,7 +108,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void testNoProjectMappingMatch()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
@@ -116,7 +116,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 	@Test
 	public void testWithoutMappings()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
@@ -125,8 +125,8 @@ public class PolicyOverrideNotificationConverterTest {
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch)
- throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException, URISyntaxException {
+					throws NotificationServiceException, UnexpectedHubResponseException,
+					ConfigurationException, URISyntaxException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -164,7 +164,7 @@ public class PolicyOverrideNotificationConverterTest {
 
 		final PolicyOverrideContentItem notif = new PolicyOverrideContentItem(new Date(), projectVersion,
 				HUB_COMPONENT_NAME,
-				VERSION_NAME, COMPONENT_VERSION_URL, rules, null, null);
+ VERSION_NAME, null, COMPONENT_VERSION_URL, rules, null, null);
 		System.out.println("Notif: " + notif);
 
 		return notif;

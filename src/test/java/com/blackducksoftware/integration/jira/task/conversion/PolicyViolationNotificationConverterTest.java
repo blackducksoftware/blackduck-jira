@@ -85,7 +85,7 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testWithRuleListWithMatches()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, true);
 
@@ -99,7 +99,7 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testNoProjectMappingMatch()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, true, false);
 		assertEquals(0, events.size());
@@ -107,7 +107,7 @@ public class PolicyViolationNotificationConverterTest {
 
 	@Test
 	public void testWithoutMappings()
- throws NotificationServiceException, UnexpectedHubResponseException,
+			throws NotificationServiceException, UnexpectedHubResponseException,
 			ConfigurationException, URISyntaxException {
 		final List<HubEvent> events = generateEvents(rules, false, false);
 
@@ -116,8 +116,8 @@ public class PolicyViolationNotificationConverterTest {
 
 	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
 			final boolean projectMappingMatch)
- throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException, URISyntaxException {
+					throws NotificationServiceException, UnexpectedHubResponseException,
+					ConfigurationException, URISyntaxException {
 
 		final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
@@ -147,7 +147,7 @@ public class PolicyViolationNotificationConverterTest {
 		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
 
 		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
-				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, COMPONENT_VERSION_URL, policyRule);
+				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, COMPONENT_VERSION_URL, policyRule);
 		System.out.println("Notif: " + notif);
 
 		return notif;

@@ -79,12 +79,12 @@ public class ConverterLookupTableTest {
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null,
+		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null,
 				COMPONENT_VERSION_URL, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
 				converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null,
+		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null,
 				COMPONENT_VERSION_URL, null, null, null));
 		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
 				converter.getClass().getName());
