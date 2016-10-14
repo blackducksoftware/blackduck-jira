@@ -67,6 +67,7 @@ import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.item.HubItemFilterUtil;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
@@ -689,6 +690,8 @@ public class HubJiraConfigController {
 			} catch (IOException | BDRestException | URISyntaxException e) {
 				config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
 			}
+			final HubItemFilterUtil<ProjectItem> filter = new HubItemFilterUtil<>();
+			hubProjectItems = filter.getAccessibleItems(hubProjectItems);
 
 			if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
 				for (final ProjectItem project : hubProjectItems) {

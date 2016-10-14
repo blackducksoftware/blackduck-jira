@@ -16,6 +16,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.MissingUUIDException;
+import com.blackducksoftware.integration.hub.meta.MetaAllowEnum;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.meta.MetaLink;
 
@@ -45,7 +46,8 @@ public class PolicyEventTest {
 
 		final PolicyViolationContentItem vulnerabilityContentItem = new PolicyViolationContentItem(new Date(),
 				projectVersion, "componentName", "componentVersion", null, componentVersionUrl, null);
-		final MetaInformation meta = new MetaInformation(new ArrayList<String>(), "http://hub.bds.com/policies/1234",
+		final MetaInformation meta = new MetaInformation(new ArrayList<MetaAllowEnum>(),
+				"http://hub.bds.com/policies/1234",
 				new ArrayList<MetaLink>());
 		final PolicyExpressions expression = new PolicyExpressions("AND", new ArrayList<PolicyExpression>());
 		final PolicyRule policyRule = new PolicyRule(meta, "name", "description", true, true, expression,
