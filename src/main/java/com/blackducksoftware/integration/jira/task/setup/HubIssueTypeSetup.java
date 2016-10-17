@@ -164,6 +164,7 @@ public class HubIssueTypeSetup {
 		}
 	}
 
+	// TODO this method is awfully big
 	public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project,
 			final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType) {
 
@@ -179,22 +180,70 @@ public class HubIssueTypeSetup {
 		final ConstantsManager constantsManager = jiraServices.getConstantsManager();
 
 		final List<IssueType> origIssueTypes = getExistingIssueTypes(issueTypeScreenScheme);
+		final List<IssueTypeScreenSchemeEntity> entitiesToRemove = new ArrayList<>();
+		final List<IssueTypeScreenSchemeEntity> entitiesToAdd = new ArrayList<>();
+		final Collection<IssueTypeScreenSchemeEntity> existingEntities = issueTypeScreenScheme.getEntities();
 
 		for (final IssueType issueType : screenSchemesByIssueType.keySet()) {
 			if (origIssueTypes.contains(issueType)) {
 				logger.debug("Issue Type " + issueType.getName() + " is already on Issue Type Screen Scheme "
-						+ issueTypeScreenScheme.getName());
-				continue;
+						+ issueTypeScreenScheme.getName() + "; Will check its accuracy");
 			}
-			final FieldScreenScheme screenScheme = screenSchemesByIssueType.get(issueType);
+			final FieldScreenScheme fieldScreenScheme = screenSchemesByIssueType.get(issueType);
 			logger.debug("Associating issue type " + issueType.getName() + " with screen scheme "
-					+ screenScheme.getName() + " on issue type screen scheme " + issueTypeScreenScheme.getName());
-			final IssueTypeScreenSchemeEntity issueTypeScreenSchemeEntity = new IssueTypeScreenSchemeEntityImpl(
-					issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
-			issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
-			issueTypeScreenSchemeEntity
-			.setFieldScreenScheme(fieldScreenSchemeManager.getFieldScreenScheme(screenScheme.getId()));
-			issueTypeScreenScheme.addEntity(issueTypeScreenSchemeEntity);
+					+ fieldScreenScheme.getName() + " on issue type screen scheme " + issueTypeScreenScheme.getName());
+
+			boolean entityExists = false;
+			if (existingEntities != null) {
+				for (final IssueTypeScreenSchemeEntity existingEntity : existingEntities) {
+					final FieldScreenScheme existingFieldScreenScheme = existingEntity.getFieldScreenScheme();
+					final IssueType existingIssueType = existingEntity.getIssueType();
+					final IssueTypeScreenScheme existingIssueTypeScreenScheme = existingEntity.getIssueTypeScreenScheme();
+					String existingIssueTypeName;
+					String existingIssueTypeId;
+					if (existingIssueType == null) {
+						existingIssueTypeName = null;
+						existingIssueTypeId = null;
+					} else {
+						existingIssueTypeName = existingIssueType.getName();
+						existingIssueTypeId = existingIssueType.getId();
+					}
+					logger.debug("existingFieldScreenScheme: " + existingFieldScreenScheme.getName()
+							+ "; existingIssueType: " + existingIssueTypeName + "; existingIssueTypeScreenScheme: "
+							+ existingIssueTypeScreenScheme.getName());
+
+					if ((existingIssueTypeId == issueType.getId())
+							&& (existingFieldScreenScheme.getId() == fieldScreenScheme.getId())) {
+						logger.debug("The fieldScreenScheme -- issueTypeScreenScheme already exists");
+						entityExists = true;
+						break;
+					} else if (existingIssueTypeId == issueType.getId()) {
+						logger.debug("issueType " + issueType.getName() + " is associated with FieldScreenScheme "
+								+ existingFieldScreenScheme.getName() + " which is wrong. Will remove this association");
+						entitiesToRemove.add(existingEntity);
+					}
+				}
+			}
+
+			if (!entityExists) {
+				logger.debug("Associating issueType " + issueType.getName() + " with FieldScreenScheme "
+						+ fieldScreenScheme.getName());
+				final IssueTypeScreenSchemeEntity issueTypeScreenSchemeEntity = new IssueTypeScreenSchemeEntityImpl(
+						issueTypeScreenSchemeManager, (GenericValue) null, fieldScreenSchemeManager, constantsManager);
+				issueTypeScreenSchemeEntity.setIssueTypeId(issueType.getId());
+				issueTypeScreenSchemeEntity
+				.setFieldScreenScheme(fieldScreenSchemeManager
+						.getFieldScreenScheme(fieldScreenScheme.getId()));
+				entitiesToAdd.add(issueTypeScreenSchemeEntity);
+			}
+		}
+		for (final IssueTypeScreenSchemeEntity entityToRemove : entitiesToRemove) {
+			logger.debug("Removing entity for issueTypeId " + entityToRemove.getIssueTypeId());
+			issueTypeScreenScheme.removeEntity(entityToRemove.getIssueTypeId());
+			changesMade = true;
+		}
+		for (final IssueTypeScreenSchemeEntity entityToAdd : entitiesToAdd) {
+			issueTypeScreenScheme.addEntity(entityToAdd);
 			changesMade = true;
 		}
 		if (changesMade) {
@@ -202,7 +251,7 @@ public class HubIssueTypeSetup {
 			issueTypeScreenScheme.store();
 		} else {
 			logger.debug("Issue Type Screen Scheme " + issueTypeScreenScheme.getName()
-					+ " already had Black Duck IssueType associations");
+					+ " already had the correct Black Duck IssueType associations");
 		}
 	}
 
