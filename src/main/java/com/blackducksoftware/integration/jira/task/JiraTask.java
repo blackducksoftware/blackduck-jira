@@ -105,14 +105,14 @@ public class JiraTask implements PluginJob {
 		try {
 			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
 		} catch (final Exception e) {
-			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run");
+			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
 			return;
 		}
 		final DateTime afterSetup = new DateTime();
 
 		final Period diff = new Period(beforeSetup, afterSetup);
 		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-		+ "ms.");
+				+ "ms.");
 
 		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
 		hubConfigBuilder.setHubUrl(hubUrl);
@@ -154,7 +154,7 @@ public class JiraTask implements PluginJob {
 
 	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
 			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-			throws ConfigurationException, JiraException {
+					throws ConfigurationException, JiraException {
 		//////////////////////// Create Issue Types, workflow, etc ////////////
 		final JiraVersion jiraVersion = getJiraVersion();
 		HubIssueTypeSetup issueTypeSetup;
