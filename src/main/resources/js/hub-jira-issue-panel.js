@@ -22,7 +22,7 @@
 var detailsModuleId = "details-module";
 var customFieldsModuleId = "customfieldmodule";
 
-var hubCustomFields = ["Hub Project", "Hub Project Version", "Hub Component", "Hub Component Version", "Hub Policy Rule"];
+var hubCustomFields = ["BDS Hub Project", "BDS Hub Project Version", "BDS Hub Component", "BDS Hub Component Version", "BDS Hub Policy Rule"];
 
 
 function hideHubCustomFields(){

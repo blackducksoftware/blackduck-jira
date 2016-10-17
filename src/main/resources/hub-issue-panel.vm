@@ -4,33 +4,33 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
-#if ($hubProject)
+#if ($bdsHubProject)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
-		<div id="hubProjectName" class="value">$hubProject</div>
+		<div id="hubProjectName" class="value">$bdsHubProject</div>
 	</div>
 #end
-#if ($hubProjectVersion)
+#if ($bdsHubProjectVersion)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
-		<div id="hubProjectVersionName" class="value">$hubProjectVersion</div>
+		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
 #end
-#if ($hubComponent)
+#if ($bdsHubComponent)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
-		<div id="hubComponentName" class="value">$hubComponent</div>
+		<div id="hubComponentName" class="value">$bdsHubComponent</div>
 	</div>
 #end
-#if ($hubComponentVersion)
+#if ($bdsHubComponentVersion)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
-		<div id="hubComponentVersionName" class="value">$hubComponentVersion</div>
+		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
 	</div>
 #end
-#if ($hubPolicyRule)
+#if ($bdsHubPolicyRule)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
-		<div id="hubPolicyRuleName" class="value">$hubPolicyRule</div>
+		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
 	</div>
 #end
