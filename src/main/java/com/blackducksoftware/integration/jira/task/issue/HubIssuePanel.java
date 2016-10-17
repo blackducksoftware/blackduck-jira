@@ -50,27 +50,27 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
 			final String hubProject = getCustomFieldValue(currentIssue, customFieldManager,
 					HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT);
 			if (hubProject != null) {
-				contextMap.put("hubProject", hubProject);
+				contextMap.put("bdsHubProject", hubProject);
 			}
 			final String hubProjectVersion = getCustomFieldValue(currentIssue, customFieldManager,
 					HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION);
 			if (hubProjectVersion != null) {
-				contextMap.put("hubProjectVersion", hubProjectVersion);
+				contextMap.put("bdsHubProjectVersion", hubProjectVersion);
 			}
 			final String hubComponent = getCustomFieldValue(currentIssue, customFieldManager,
 					HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT);
 			if (hubComponent != null) {
-				contextMap.put("hubComponent", hubComponent);
+				contextMap.put("bdsHubComponent", hubComponent);
 			}
 			final String hubComponentVersion = getCustomFieldValue(currentIssue, customFieldManager,
 					HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION);
 			if (hubComponentVersion != null) {
-				contextMap.put("hubComponentVersion", hubComponentVersion);
+				contextMap.put("bdsHubComponentVersion", hubComponentVersion);
 			}
 			final String hubPolicyRule = getCustomFieldValue(currentIssue, customFieldManager,
 					HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE);
 			if (hubPolicyRule != null) {
-				contextMap.put("hubPolicyRule", hubPolicyRule);
+				contextMap.put("bdsHubPolicyRule", hubPolicyRule);
 			}
 		}
 		return contextMap;
