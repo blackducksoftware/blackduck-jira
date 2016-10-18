@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.hub.dataservices.notification.Notificat
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -242,7 +243,7 @@ public class HubJiraTask {
 
 	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
 
-		final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
+		final RestConnection restConnection = new CredentialsRestConnection(serverConfig);
 
 		restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
 				serverConfig.getGlobalCredentials().getDecryptedPassword());

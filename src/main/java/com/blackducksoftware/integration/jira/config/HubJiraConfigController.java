@@ -75,6 +75,7 @@ import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -666,7 +667,7 @@ public class HubJiraConfigController {
 				return null;
 			}
 
-			final RestConnection restConnection = new RestConnection(serverConfig.getHubUrl().toString());
+			final RestConnection restConnection = new CredentialsRestConnection(serverConfig);
 			restConnection.setTimeout(serverConfig.getTimeout());
 			restConnection.setProxyProperties(serverConfig.getProxyInfo());
 			restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
