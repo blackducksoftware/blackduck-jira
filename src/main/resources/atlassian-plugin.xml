@@ -145,5 +145,6 @@
         <label key="hub.issue.panel.title" />
         <context-provider class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanel"/>
 		<resource name="view" type="velocity" location="hub-issue-panel.vm"/>
+		<condition class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanelCondition" />
 	</web-panel>
 </atlassian-plugin>

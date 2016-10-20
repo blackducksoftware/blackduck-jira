@@ -61,7 +61,8 @@ function checkPropertyAndHideHubField(property){
 	if(arrayIndex >= 0){
 		var displayStyle = AJS.$(property).css("display");
 		if(displayStyle && displayStyle != "none"){
-			AJS.$(property).css("display", "none");
+			//AJS.$(property).css("display", "none");
+			AJS.$(property).remove();
 		}
 	}
 	
