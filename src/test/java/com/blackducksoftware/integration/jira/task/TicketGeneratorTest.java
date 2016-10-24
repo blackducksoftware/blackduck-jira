@@ -23,9 +23,6 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,6 +35,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,16 +72,17 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.api.component.BomComponentVersionPolicyStatus;
-import com.blackducksoftware.integration.hub.api.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyExpression;
-import com.blackducksoftware.integration.hub.api.policy.PolicyExpressions;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.api.project.version.ComplexLicense;
+import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionItem;
+import com.blackducksoftware.integration.hub.api.project.version.SourceEnum;
+import com.blackducksoftware.integration.hub.api.version.DistributionEnum;
+import com.blackducksoftware.integration.hub.api.version.PhaseEnum;
 import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
@@ -104,8 +103,6 @@ import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
 
@@ -114,11 +111,18 @@ import com.opensymphony.workflow.loader.StepDescriptor;
  *
  */
 public class TicketGeneratorTest {
+    private static final String PROJECT_VERSION_NAME = "2Drew";
+
+    private static final String PROJECT_VERSION_URL = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f";
+
+    private static final String VULNERABLE_COMPONENTS_URL = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f/vulnerable-bom-components";
+
     private static final String VULNERABILITY_ISSUE_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n"
             + "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: None\n"
             + "Vulnerabilities deleted: None\n";
 
-    private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. See comments for details.";
+    private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" 
+            + VULNERABLE_COMPONENTS_URL;
 
     private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
 
@@ -134,39 +138,26 @@ public class TicketGeneratorTest {
 
     private static ErrorCollection succeeded;
 
-    private static PolicyRule rule;
-
-    private static BomComponentVersionPolicyStatus bomComponentVersionPolicyStatus;
-
-    private static DataServicesFactory dataServicesFactory;
-
     private static VulnerableBomComponentRestService vulnerableBomComponentRestService;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         vulnerableBomComponentRestService = Mockito.mock(VulnerableBomComponentRestService.class);
-        dataServicesFactory = Mockito.mock(DataServicesFactory.class);
         dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
 
         succeeded = Mockito.mock(ErrorCollection.class);
         Mockito.when(succeeded.hasAnyErrors()).thenReturn(false);
 
-        final MetaInformation policyRuleMeta = new MetaInformation(null, POLICY_RULE_URL, null);
         final List<PolicyValue> policyValues = new ArrayList<>();
         final PolicyValue policyValue = new PolicyValue("policyLabel", "policyValue");
         policyValues.add(policyValue);
         final List<PolicyExpression> policyExpressionList = new ArrayList<>();
         final PolicyExpression policyExpression = new PolicyExpression("COMPONENT_USAGE", "AND", policyValues);
         policyExpressionList.add(policyExpression);
-        final PolicyExpressions policyExpressionsObject = new PolicyExpressions("AND", policyExpressionList);
-        rule = new PolicyRule(policyRuleMeta, "someRule", "Some Rule", true, true, policyExpressionsObject, null, null,
-                null, null);
 
         final List<MetaLink> links = new ArrayList<>();
         links.add(new MetaLink("policy-rule", "ruleUrl"));
-        final MetaInformation bomComponentVersionPolicyStatusMeta = new MetaInformation(null, null, links);
-        bomComponentVersionPolicyStatus = new BomComponentVersionPolicyStatus(bomComponentVersionPolicyStatusMeta);
     }
 
     @AfterClass
@@ -216,19 +207,6 @@ public class TicketGeneratorTest {
         testRuleNotifications(true, true, false);
     }
 
-    private String readFile(final String path) throws IOException {
-        final byte[] jsonBytes = Files.readAllBytes(Paths.get(path));
-        final String jsonString = new String(jsonBytes, Charset.forName("UTF-8"));
-        return jsonString;
-    }
-
-    private VulnerabilityNotificationContent createVulnerabilityNotificationContent(final String jsonString) {
-        final Gson gson = new GsonBuilder().create();
-        final VulnerabilityNotificationContent vulnContent = gson.fromJson(jsonString,
-                VulnerabilityNotificationContent.class);
-        return vulnContent;
-    }
-
     private void testVulnerabilityNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
             final boolean createDuplicateNotification, final String expectedIssueSummary,
             final String expectedIssueDescription)
@@ -242,6 +220,15 @@ public class TicketGeneratorTest {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
+        List<MetaLink> links = new ArrayList<>();
+        MetaLink metaLink = new MetaLink("vulnerable-components", VULNERABLE_COMPONENTS_URL);
+        links.add(metaLink);
+        final MetaInformation meta = new MetaInformation(null, "", links);
+        ProjectVersionItem projectVersionItem = new ProjectVersionItem(meta, DistributionEnum.EXTERNAL,
+            null, PROJECT_VERSION_NAME, PhaseEnum.DEVELOPMENT, "releaseComments",
+            new DateTime(), SourceEnum.KB, PROJECT_VERSION_NAME);
+        Mockito.when(hubIntRestService.getProjectVersion(PROJECT_VERSION_URL)).thenReturn(projectVersionItem);
+
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
@@ -328,7 +315,7 @@ public class TicketGeneratorTest {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
-
+        
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
@@ -570,10 +557,10 @@ public class TicketGeneratorTest {
             throws IOException, URISyntaxException {
         final List<VulnerabilityContentItem> notificationItems = new ArrayList<>();
 
-        final String projectVersionUrl = "http://eng-hub-valid01.dc1.lan/api/projects/3670db83-7916-4398-af2c-a05798bbf2ef/versions/17b5cf06-439f-4ffe-9b4f-d262f56b2d8f";
+        final String projectVersionUrl = PROJECT_VERSION_URL;
         final ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setProjectName("4Drew");
-        projectVersion.setProjectVersionName("2Drew");
+        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
         projectVersion.setUrl(projectVersionUrl);
 
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
