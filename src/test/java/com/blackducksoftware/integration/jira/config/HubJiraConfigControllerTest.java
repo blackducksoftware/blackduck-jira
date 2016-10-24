@@ -47,6 +47,7 @@ import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
+import com.blackducksoftware.integration.hub.api.project.version.SourceEnum;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.hub.meta.MetaAllowEnum;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
@@ -78,16 +79,16 @@ public class HubJiraConfigControllerTest {
 		allows.add(MetaAllowEnum.GET);
 		allows.add(MetaAllowEnum.PUT);
 		final MetaInformation metaInfo1 = new MetaInformation(allows, "projectURL1", null);
-		final ProjectItem project1 = new ProjectItem("HubProject1", null, metaInfo1);
+		final ProjectItem project1 = new ProjectItem(metaInfo1, "HubProject1", "HubProject1", false, 1, SourceEnum.KB);
 
 		final MetaInformation metaInfo2 = new MetaInformation(allows, "projectURL2", null);
-		final ProjectItem project2 = new ProjectItem("HubProject2", null, metaInfo2);
+		final ProjectItem project2 = new ProjectItem(metaInfo2, "HubProject2", "HubProject2", false, 1, SourceEnum.KB);
 
 		final MetaInformation metaInfo3 = new MetaInformation(allows, "projectURL3", null);
-		final ProjectItem project3 = new ProjectItem("HubProject3", null, metaInfo3);
+		final ProjectItem project3 = new ProjectItem(metaInfo3, "HubProject3", "HubProject3", false, 1, SourceEnum.KB);
 
 		final MetaInformation metaInfo4 = new MetaInformation(null, "projectURL4", null);
-		final ProjectItem project4 = new ProjectItem("HubProject4", null, metaInfo4);
+		final ProjectItem project4 = new ProjectItem(metaInfo4, "HubProject4", "HubProject4", false, 1, SourceEnum.KB);
 
 		hubProjects.add(project1);
 		hubProjects.add(project2);
