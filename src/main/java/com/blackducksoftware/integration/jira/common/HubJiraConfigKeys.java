@@ -22,7 +22,6 @@
 package com.blackducksoftware.integration.jira.common;
 
 public class HubJiraConfigKeys {
-
 	public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
 	public final static String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX
 			+ ".intervalBetweenChecks";
