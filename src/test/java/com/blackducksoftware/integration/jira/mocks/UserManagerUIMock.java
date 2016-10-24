@@ -30,59 +30,57 @@ import javax.servlet.http.HttpServletRequest;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.user.UserResolutionException;
 
-
 public class UserManagerUIMock implements UserManager {
 
-	String remoteUsername;
-	boolean isSystemAdmin;
+    String remoteUsername;
 
-	List<String> userGroups = new ArrayList<>();
+    boolean isSystemAdmin;
 
+    List<String> userGroups = new ArrayList<>();
 
-	public UserManagerUIMock() {
-	}
+    public UserManagerUIMock() {
+    }
 
+    public void addGroup(final String group) {
+        userGroups.add(group);
+    }
 
-	public void addGroup(final String group) {
-		userGroups.add(group);
-	}
+    public void setRemoteUsername(final String remoteUsername) {
+        this.remoteUsername = remoteUsername;
+    }
 
-	public void setRemoteUsername(final String remoteUsername) {
-		this.remoteUsername = remoteUsername;
-	}
+    @Override
+    public String getRemoteUsername() {
+        return remoteUsername;
+    }
 
-	@Override
-	public String getRemoteUsername() {
-		return remoteUsername;
-	}
+    @Override
+    public String getRemoteUsername(final HttpServletRequest request) {
+        return remoteUsername;
+    }
 
-	@Override
-	public String getRemoteUsername(final HttpServletRequest request) {
-		return remoteUsername;
-	}
+    @Override
+    public boolean isUserInGroup(final String username, final String group) {
+        return userGroups.contains(group);
+    }
 
-	@Override
-	public boolean isUserInGroup(final String username, final String group) {
-		return userGroups.contains(group);
-	}
+    public void setIsSystemAdmin(final boolean isSystemAdmin) {
+        this.isSystemAdmin = isSystemAdmin;
+    }
 
-	public void setIsSystemAdmin(final boolean isSystemAdmin) {
-		this.isSystemAdmin = isSystemAdmin;
-	}
+    @Override
+    public boolean isSystemAdmin(final String username) {
+        return isSystemAdmin;
+    }
 
-	@Override
-	public boolean isSystemAdmin(final String username) {
-		return isSystemAdmin;
-	}
+    @Override
+    public boolean authenticate(final String username, final String password) {
+        return false;
+    }
 
-	@Override
-	public boolean authenticate(final String username, final String password) {
-		return false;
-	}
-
-	@Override
-	public Principal resolve(final String username) throws UserResolutionException {
-		return null;
-	}
+    @Override
+    public Principal resolve(final String username) throws UserResolutionException {
+        return null;
+    }
 
 }

@@ -28,46 +28,46 @@ import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
 
 public class FieldConfigurationSchemeMock implements FieldConfigurationScheme {
 
-	private String name;
+    private String name;
 
-	private Long id;
+    private Long id;
 
-	@Override
-	public Set<Long> getAllFieldLayoutIds(final Collection<String> arg0) {
+    @Override
+    public Set<Long> getAllFieldLayoutIds(final Collection<String> arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getFieldLayoutId(final String arg0) {
+    @Override
+    public Long getFieldLayoutId(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return id;
-	}
+        return id;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
 }

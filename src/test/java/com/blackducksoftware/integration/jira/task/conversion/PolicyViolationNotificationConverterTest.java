@@ -55,130 +55,136 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverterTest {
-	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
-	private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
-	private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
-	private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
-	private static final String PROJECT_URL_PREFIX = "http://test.project.url";
-	private static final String VERSION_NAME_PREFIX = "versionName";
-	private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
+    private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 
-	private static List<PolicyRule> rules;
+    private static final String TEST_PROJECT_VERSION_PREFIX = "testVersionName";
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		rules = new ArrayList<>();
-		final PolicyRule includedRule1 = new PolicyRule(null, "ruleUrl0", null, null, null, null, null, null, null,
-				null);
-		final PolicyRule includedRule2 = new PolicyRule(null, "ruleUrl", null, null, null, null, null, null, null,
-				null);
-		final PolicyRule includedRule3 = new PolicyRule(null, "ruleUrl99", null, null, null, null, null, null, null,
-				null);
-		rules.add(includedRule1);
-		rules.add(includedRule2);
-		rules.add(includedRule3);
-	}
+    private static final String HUB_COMPONENT_NAME_PREFIX = "test Hub Component";
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+    private static final String HUB_PROJECT_NAME_PREFIX = "test Hub Project";
 
-	@Test
-	public void testWithRuleListWithMatches()
-			throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException, URISyntaxException {
-		final List<HubEvent> events = generateEvents(rules, true, true);
+    private static final String PROJECT_URL_PREFIX = "http://test.project.url";
 
-		assertEquals(3, events.size());
+    private static final String VERSION_NAME_PREFIX = "versionName";
 
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
-		assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
-	}
+    private static final String PROJECTVERSION_URL_PREFIX = "http://test.projectversion.url";
 
-	@Test
-	public void testNoProjectMappingMatch()
-			throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException, URISyntaxException {
-		final List<HubEvent> events = generateEvents(rules, true, false);
-		assertEquals(0, events.size());
-	}
+    private static List<PolicyRule> rules;
 
-	@Test
-	public void testWithoutMappings()
-			throws NotificationServiceException, UnexpectedHubResponseException,
-			ConfigurationException, URISyntaxException {
-		final List<HubEvent> events = generateEvents(rules, false, false);
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        rules = new ArrayList<>();
+        final PolicyRule includedRule1 = new PolicyRule(null, "ruleUrl0", null, null, null, null, null, null, null,
+                null);
+        final PolicyRule includedRule2 = new PolicyRule(null, "ruleUrl", null, null, null, null, null, null, null,
+                null);
+        final PolicyRule includedRule3 = new PolicyRule(null, "ruleUrl99", null, null, null, null, null, null, null,
+                null);
+        rules.add(includedRule1);
+        rules.add(includedRule2);
+        rules.add(includedRule3);
+    }
 
-		assertEquals(0, events.size());
-	}
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+    }
 
-	private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
-			final boolean projectMappingMatch)
-					throws NotificationServiceException, UnexpectedHubResponseException,
-					ConfigurationException, URISyntaxException {
+    @Test
+    public void testWithRuleListWithMatches()
+            throws NotificationServiceException, UnexpectedHubResponseException,
+            ConfigurationException, URISyntaxException {
+        final List<HubEvent> events = generateEvents(rules, true, true);
 
-		final ApplicationUserMock jiraUser = new ApplicationUserMock();
+        assertEquals(3, events.size());
 
-		final JiraContext jiraContext = new JiraContext(jiraUser);
+        assertTrue(events.get(0).getIssueSummary().contains(HUB_PROJECT_NAME_PREFIX));
+        assertTrue(events.get(0).getIssueSummary().contains(TEST_PROJECT_VERSION_PREFIX));
+        assertTrue(events.get(0).getIssueSummary().contains(HUB_COMPONENT_NAME_PREFIX));
+        assertTrue(events.get(0).getIssueSummary().contains(VERSION_NAME_PREFIX));
+    }
 
-		final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
+    @Test
+    public void testNoProjectMappingMatch()
+            throws NotificationServiceException, UnexpectedHubResponseException,
+            ConfigurationException, URISyntaxException {
+        final List<HubEvent> events = generateEvents(rules, true, false);
+        assertEquals(0, events.size());
+    }
 
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices,
-				createProjectMappings(includeProjectMappings, projectMappingMatch));
+    @Test
+    public void testWithoutMappings()
+            throws NotificationServiceException, UnexpectedHubResponseException,
+            ConfigurationException, URISyntaxException {
+        final List<HubEvent> events = generateEvents(rules, false, false);
 
-		final NotificationContentItem notification = createNotification(rules);
+        assertEquals(0, events.size());
+    }
 
-		final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
+    private List<HubEvent> generateEvents(final List<PolicyRule> rules, final boolean includeProjectMappings,
+            final boolean projectMappingMatch)
+            throws NotificationServiceException, UnexpectedHubResponseException,
+            ConfigurationException, URISyntaxException {
 
-		final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
-				jiraContext, jiraSettingsService);
-		final List<HubEvent> events = converter.generateEvents(notification);
+        final ApplicationUserMock jiraUser = new ApplicationUserMock();
 
-		return events;
-	}
+        final JiraContext jiraContext = new JiraContext(jiraUser);
 
-	private NotificationContentItem createNotification(final List<PolicyRule> policyRule) throws URISyntaxException {
+        final JiraServices jiraServices = ConverterTestUtils.mockJiraServices();
 
-		final ProjectVersion projectVersion = new ProjectVersion();
-		projectVersion.setProjectName(HUB_PROJECT_NAME_PREFIX);
-		projectVersion.setUrl(PROJECTVERSION_URL_PREFIX);
-		projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
+        final HubProjectMappings mappings = new HubProjectMappings(jiraServices,
+                createProjectMappings(includeProjectMappings, projectMappingMatch));
 
-		final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
-				HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, COMPONENT_VERSION_URL, policyRule);
-		System.out.println("Notif: " + notif);
+        final NotificationContentItem notification = createNotification(rules);
 
-		return notif;
-	}
+        final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
 
-	private Set<HubProjectMapping> createProjectMappings(final boolean includeMapping, final boolean includeMatch) {
+        final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
+                jiraContext, jiraSettingsService);
+        final List<HubEvent> events = converter.generateEvents(notification);
 
-		final Set<HubProjectMapping> mappings = new HashSet<>();
+        return events;
+    }
 
-		if (includeMapping) {
-			String suffix;
-			if (includeMatch) {
-				suffix = "";
-			} else {
-				suffix = "XX";
-			}
+    private NotificationContentItem createNotification(final List<PolicyRule> policyRule) throws URISyntaxException {
 
-			final HubProjectMapping mapping = new HubProjectMapping();
-			final HubProject hubProject = new HubProject();
-			hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX + suffix);
-			hubProject.setProjectUrl(PROJECT_URL_PREFIX);
-			mapping.setHubProject(hubProject);
-			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE);
-			jiraProject.setProjectName(ProjectManagerMock.JIRA_PROJECT_PREFIX);
-			mapping.setJiraProject(jiraProject);
+        final ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setProjectName(HUB_PROJECT_NAME_PREFIX);
+        projectVersion.setUrl(PROJECTVERSION_URL_PREFIX);
+        projectVersion.setProjectVersionName(TEST_PROJECT_VERSION_PREFIX);
 
-			System.out.println("Mapping: " + mapping);
-			mappings.add(mapping);
-		}
-		return mappings;
-	}
+        final PolicyViolationContentItem notif = new PolicyViolationContentItem(new Date(), projectVersion,
+                HUB_COMPONENT_NAME_PREFIX, VERSION_NAME_PREFIX, null, COMPONENT_VERSION_URL, policyRule);
+        System.out.println("Notif: " + notif);
+
+        return notif;
+    }
+
+    private Set<HubProjectMapping> createProjectMappings(final boolean includeMapping, final boolean includeMatch) {
+
+        final Set<HubProjectMapping> mappings = new HashSet<>();
+
+        if (includeMapping) {
+            String suffix;
+            if (includeMatch) {
+                suffix = "";
+            } else {
+                suffix = "XX";
+            }
+
+            final HubProjectMapping mapping = new HubProjectMapping();
+            final HubProject hubProject = new HubProject();
+            hubProject.setProjectName(HUB_PROJECT_NAME_PREFIX + suffix);
+            hubProject.setProjectUrl(PROJECT_URL_PREFIX);
+            mapping.setHubProject(hubProject);
+            final JiraProject jiraProject = new JiraProject();
+            jiraProject.setProjectId(ProjectManagerMock.JIRA_PROJECT_ID_BASE);
+            jiraProject.setProjectName(ProjectManagerMock.JIRA_PROJECT_PREFIX);
+            mapping.setJiraProject(jiraProject);
+
+            System.out.println("Mapping: " + mapping);
+            mappings.add(mapping);
+        }
+        return mappings;
+    }
 
 }

@@ -35,164 +35,165 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class EditableFieldLayoutMock implements EditableFieldLayout {
 
-	private List<FieldLayoutItem> fields = new ArrayList<>();
-	private String name;
+    private List<FieldLayoutItem> fields = new ArrayList<>();
 
-	private final List<FieldLayoutItem> fieldsToMakeOptional = new ArrayList<>();
+    private String name;
 
-	public List<FieldLayoutItem> getFieldsToMakeOptional() {
-		return fieldsToMakeOptional;
-	}
+    private final List<FieldLayoutItem> fieldsToMakeOptional = new ArrayList<>();
 
-	@Override
-	public String getDescription() {
+    public List<FieldLayoutItem> getFieldsToMakeOptional() {
+        return fieldsToMakeOptional;
+    }
 
-		return null;
-	}
+    @Override
+    public String getDescription() {
 
-	@Override
-	public FieldLayoutItem getFieldLayoutItem(final OrderableField arg0) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public FieldLayoutItem getFieldLayoutItem(final OrderableField arg0) {
 
-	@Override
-	public FieldLayoutItem getFieldLayoutItem(final String arg0) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public FieldLayoutItem getFieldLayoutItem(final String arg0) {
 
-	@Override
-	public List<FieldLayoutItem> getFieldLayoutItems() {
+        return null;
+    }
 
-		return fields;
-	}
+    @Override
+    public List<FieldLayoutItem> getFieldLayoutItems() {
 
-	public void setFieldLayoutItems(final List<FieldLayoutItem> fields) {
-		this.fields = fields;
-	}
+        return fields;
+    }
 
-	public void addFieldLayoutItem(final FieldLayoutItem field) {
-		this.fields.add(field);
-	}
+    public void setFieldLayoutItems(final List<FieldLayoutItem> fields) {
+        this.fields = fields;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    public void addFieldLayoutItem(final FieldLayoutItem field) {
+        this.fields.add(field);
+    }
 
-		return null;
-	}
+    @Override
+    public GenericValue getGenericValue() {
 
-	@Override
-	public List<Field> getHiddenFields(final Project arg0, final List<String> arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public List<Field> getHiddenFields(final Project arg0, final List<String> arg1) {
 
-	@Override
-	public Long getId() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Long getId() {
 
-	@Override
-	public String getName() {
+        return null;
+    }
 
-		return name;
-	}
+    @Override
+    public String getName() {
 
-	@Override
-	public void setName(final String name) {
-		this.name = name;
+        return name;
+    }
 
-	}
+    @Override
+    public void setName(final String name) {
+        this.name = name;
 
-	@Override
-	public String getRendererTypeForField(final String arg0) {
+    }
 
-		return null;
-	}
+    @Override
+    public String getRendererTypeForField(final String arg0) {
 
-	@Override
-	public List<FieldLayoutItem> getRequiredFieldLayoutItems(final Project arg0, final List<String> arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public List<FieldLayoutItem> getRequiredFieldLayoutItems(final Project arg0, final List<String> arg1) {
 
-	@Override
-	public List<FieldLayoutItem> getVisibleCustomFieldLayoutItems(final Project arg0, final List<String> arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public List<FieldLayoutItem> getVisibleCustomFieldLayoutItems(final Project arg0, final List<String> arg1) {
 
-	@Override
-	public List<FieldLayoutItem> getVisibleLayoutItems(final Project arg0, final List<String> arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public List<FieldLayoutItem> getVisibleLayoutItems(final Project arg0, final List<String> arg1) {
 
-	@Override
-	public boolean isDefault() {
+        return null;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isDefault() {
 
-	@Override
-	public boolean isFieldHidden(final String arg0) {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isFieldHidden(final String arg0) {
 
-	@Override
-	public String getType() {
+        return false;
+    }
 
-		return null;
-	}
+    @Override
+    public String getType() {
 
-	@Override
-	public void hide(final FieldLayoutItem arg0) {
+        return null;
+    }
 
-	}
+    @Override
+    public void hide(final FieldLayoutItem arg0) {
 
-	@Override
-	public void makeOptional(final FieldLayoutItem fieldToUpdate) {
-		for (final FieldLayoutItem field : fields) {
-			if (field.equals(fieldToUpdate)) {
-				fieldsToMakeOptional.add(field);
-			}
-		}
+    }
 
-	}
+    @Override
+    public void makeOptional(final FieldLayoutItem fieldToUpdate) {
+        for (final FieldLayoutItem field : fields) {
+            if (field.equals(fieldToUpdate)) {
+                fieldsToMakeOptional.add(field);
+            }
+        }
 
-	@Override
-	public void makeRequired(final FieldLayoutItem arg0) {
+    }
 
-	}
+    @Override
+    public void makeRequired(final FieldLayoutItem arg0) {
 
-	@Override
-	public void setDescription(final String arg0) {
+    }
 
-	}
+    @Override
+    public void setDescription(final String arg0) {
 
-	@Override
-	public void setDescription(final FieldLayoutItem arg0, final String arg1) {
+    }
 
-	}
+    @Override
+    public void setDescription(final FieldLayoutItem arg0, final String arg1) {
 
-	@Override
-	public void setRendererType(final FieldLayoutItem arg0, final String arg1) {
+    }
 
-	}
+    @Override
+    public void setRendererType(final FieldLayoutItem arg0, final String arg1) {
 
-	@Override
-	public void show(final FieldLayoutItem arg0) {
+    }
 
-	}
+    @Override
+    public void show(final FieldLayoutItem arg0) {
 
-	@Override
-	public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
-			final List<String> arg2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
+
+    @Override
+    public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
+            final List<String> arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

@@ -39,48 +39,49 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	public static final String PROJECT_LINK = "project";
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final String issueTypeName)
-			throws ConfigurationException {
-		super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName);
-	}
+    public static final String PROJECT_LINK = "project";
 
-	@Override
-	public List<HubEvent> generateEvents(final NotificationContentItem notif) {
-		final List<HubEvent> notifEvents = new ArrayList<>();
+    public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final String issueTypeName)
+            throws ConfigurationException {
+        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName);
+    }
 
-		logger.debug("policyNotif: " + notif);
-		logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
-		final List<JiraProject> mappingJiraProjects = getMappings()
-				.getJiraProjects(notif.getProjectVersion().getProjectName());
-		logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
-				+ notif.getProjectVersion().getProjectName());
+    @Override
+    public List<HubEvent> generateEvents(final NotificationContentItem notif) {
+        final List<HubEvent> notifEvents = new ArrayList<>();
 
-		if (!mappingJiraProjects.isEmpty()) {
+        logger.debug("policyNotif: " + notif);
+        logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
+        final List<JiraProject> mappingJiraProjects = getMappings()
+                .getJiraProjects(notif.getProjectVersion().getProjectName());
+        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
+                + notif.getProjectVersion().getProjectName());
 
-			for (final JiraProject jiraProject : mappingJiraProjects) {
-				logger.debug("JIRA Project: " + jiraProject);
-				try {
-					final List<HubEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
-					if (projectEvents != null) {
-						notifEvents.addAll(projectEvents);
-					}
-				} catch (final Exception e) {
-					logger.error(e);
-					getJiraSettingsService().addHubError(e, notif.getProjectVersion().getProjectName(),
-							notif.getProjectVersion().getProjectVersionName(), jiraProject.getProjectName(),
-							getJiraContext().getJiraUser().getName(), "transitionIssue");
-					return null;
-				}
+        if (!mappingJiraProjects.isEmpty()) {
 
-			}
-		}
-		return notifEvents;
-	}
+            for (final JiraProject jiraProject : mappingJiraProjects) {
+                logger.debug("JIRA Project: " + jiraProject);
+                try {
+                    final List<HubEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
+                    if (projectEvents != null) {
+                        notifEvents.addAll(projectEvents);
+                    }
+                } catch (final Exception e) {
+                    logger.error(e);
+                    getJiraSettingsService().addHubError(e, notif.getProjectVersion().getProjectName(),
+                            notif.getProjectVersion().getProjectVersionName(), jiraProject.getProjectName(),
+                            getJiraContext().getJiraUser().getName(), "transitionIssue");
+                    return null;
+                }
 
-	protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException;
+            }
+        }
+        return notifEvents;
+    }
+
+    protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException;
 }

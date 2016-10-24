@@ -31,21 +31,20 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 // TODO abstract and this subclass can now be collapsed into one
 public class HubFieldScreenSchemeSetupJira7 extends AbstractHubFieldScreenSchemeSetup {
 
-	public HubFieldScreenSchemeSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {
-		super(settingService, jiraServices);
-	}
+    public HubFieldScreenSchemeSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {
+        super(settingService, jiraServices);
+    }
 
-	@Override
-	protected List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
-		final List<IssueType> issueTypes = new ArrayList<>();
-		issueTypes.addAll(hubIssueTypes);
-		return issueTypes;
-	}
+    @Override
+    protected List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
+        final List<IssueType> issueTypes = new ArrayList<>();
+        issueTypes.addAll(hubIssueTypes);
+        return issueTypes;
+    }
 
-	@Override
-	protected IssueType getIssueTypeObject(final IssueType hubIssueType) {
-		return hubIssueType;
-	}
-
+    @Override
+    protected IssueType getIssueTypeObject(final IssueType hubIssueType) {
+        return hubIssueType;
+    }
 
 }

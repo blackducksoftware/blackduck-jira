@@ -43,208 +43,206 @@ import com.atlassian.jira.web.bean.BulkEditBean;
 
 public class OrderableFieldMock implements OrderableField {
 
-	private String name;
+    private String name;
 
-	private String id;
+    private String id;
 
-	@Override
-	public String getId() {
+    @Override
+    public String getId() {
 
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(final String id) {
-		this.id = id;
-	}
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getNameKey() {
+    @Override
+    public String getNameKey() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public int compareTo(final Object o) {
+    @Override
+    public int compareTo(final Object o) {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public SearchHandler createAssociatedSearchHandler() {
+    @Override
+    public SearchHandler createAssociatedSearchHandler() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String availableForBulkEdit(final BulkEditBean arg0) {
+    @Override
+    public String availableForBulkEdit(final BulkEditBean arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean canRemoveValueFromIssueObject(final Issue arg0) {
+    @Override
+    public boolean canRemoveValueFromIssueObject(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void createValue(final Issue arg0, final Object arg1) {
+    @Override
+    public void createValue(final Issue arg0, final Object arg1) {
 
-	}
+    }
 
-	@Override
-	public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
-			final Map arg3) {
+    @Override
+    public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
+            final Map arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map arg4) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getDefaultValue(final Issue arg0) {
+    @Override
+    public Object getDefaultValue(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map arg4) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getValueFromParams(final Map arg0) throws FieldValidationException {
+    @Override
+    public Object getValueFromParams(final Map arg0) throws FieldValidationException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Map arg3) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Map arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
-			final Map arg4) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
+            final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
+    @Override
+    public boolean hasValue(final Issue arg0) {
 
-	@Override
-	public boolean hasValue(final Issue arg0) {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isShown(final Issue arg0) {
 
-	@Override
-	public boolean isShown(final Issue arg0) {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public MessagedResult needsMove(final Collection arg0, final Issue arg1, final FieldLayoutItem arg2) {
 
-	@Override
-	public MessagedResult needsMove(final Collection arg0, final Issue arg1, final FieldLayoutItem arg2) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public void removeValueFromIssueObject(final MutableIssue arg0) {
 
+    }
 
-	@Override
-	public void removeValueFromIssueObject(final MutableIssue arg0) {
+    @Override
+    public void updateIssue(final FieldLayoutItem arg0, final MutableIssue arg1, final Map arg2) {
 
-	}
+    }
 
-	@Override
-	public void updateIssue(final FieldLayoutItem arg0, final MutableIssue arg1, final Map arg2) {
+    @Override
+    public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
+            final IssueChangeHolder arg3) {
 
-	}
+    }
 
-	@Override
-	public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
-			final IssueChangeHolder arg3) {
+    @Override
+    public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
+            final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
 
-	}
+    }
 
-	@Override
-	public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
-			final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
+    @Override
+    public boolean hasParam(final Map arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	}
+    @Override
+    public void populateDefaults(final Map arg0, final Issue arg1) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public boolean hasParam(final Map arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    }
 
-	@Override
-	public void populateDefaults(final Map arg0, final Issue arg1) {
-		// TODO Auto-generated method stub
+    @Override
+    public void populateForMove(final Map arg0, final Issue arg1, final Issue arg2) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void populateForMove(final Map arg0, final Issue arg1, final Issue arg2) {
-		// TODO Auto-generated method stub
+    @Override
+    public void populateFromIssue(final Map arg0, final Issue arg1) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void populateFromIssue(final Map arg0, final Issue arg1) {
-		// TODO Auto-generated method stub
+    @Override
+    public void populateFromParams(final Map arg0, final Map arg1) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void populateFromParams(final Map arg0, final Map arg1) {
-		// TODO Auto-generated method stub
+    @Override
+    public void populateParamsFromString(final Map arg0, final String arg1, final Issue arg2)
+            throws FieldValidationException {
+        // TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void populateParamsFromString(final Map arg0, final String arg1, final Issue arg2)
-			throws FieldValidationException {
-		// TODO Auto-generated method stub
-
-	}
+    }
 
 }

@@ -30,86 +30,86 @@ import com.atlassian.jira.issue.operation.ScreenableIssueOperation;
 
 public class FieldScreenSchemeItemMock implements FieldScreenSchemeItem {
 
-	private ScreenableIssueOperation issueOperation;
+    private ScreenableIssueOperation issueOperation;
 
-	private FieldScreen fieldScreen;
+    private FieldScreen fieldScreen;
 
-	@Override
-	public int compareTo(final FieldScreenSchemeItem o) {
+    @Override
+    public int compareTo(final FieldScreenSchemeItem o) {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public FieldScreen getFieldScreen() {
+    @Override
+    public FieldScreen getFieldScreen() {
 
-		return fieldScreen;
-	}
+        return fieldScreen;
+    }
 
-	@Override
-	public Long getFieldScreenId() {
+    @Override
+    public Long getFieldScreenId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldScreenScheme getFieldScreenScheme() {
+    @Override
+    public FieldScreenScheme getFieldScreenScheme() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ScreenableIssueOperation getIssueOperation() {
-		return issueOperation;
-	}
+    @Override
+    public ScreenableIssueOperation getIssueOperation() {
+        return issueOperation;
+    }
 
-	@Override
-	public String getIssueOperationName() {
+    @Override
+    public String getIssueOperationName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void remove() {
+    @Override
+    public void remove() {
 
-	}
+    }
 
-	@Override
-	public void setFieldScreen(final FieldScreen fieldScreen) {
-		this.fieldScreen = fieldScreen;
-	}
+    @Override
+    public void setFieldScreen(final FieldScreen fieldScreen) {
+        this.fieldScreen = fieldScreen;
+    }
 
-	@Override
-	public void setFieldScreenScheme(final FieldScreenScheme arg0) {
+    @Override
+    public void setFieldScreenScheme(final FieldScreenScheme arg0) {
 
-	}
+    }
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
 
-	}
+    }
 
-	@Override
-	public void setIssueOperation(final ScreenableIssueOperation issueOperation) {
-		this.issueOperation = issueOperation;
+    @Override
+    public void setIssueOperation(final ScreenableIssueOperation issueOperation) {
+        this.issueOperation = issueOperation;
 
-	}
+    }
 
-	@Override
-	public void store() {
+    @Override
+    public void store() {
 
-	}
+    }
 
 }

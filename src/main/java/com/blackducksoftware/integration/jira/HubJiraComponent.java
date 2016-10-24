@@ -22,5 +22,5 @@
 package com.blackducksoftware.integration.jira;
 
 public interface HubJiraComponent {
-	String getName();
+    String getName();
 }

@@ -41,46 +41,46 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraNotificationProcessor {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	private final ConverterLookupTable converterTable;
+    private final ConverterLookupTable converterTable;
 
-	public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final HubIntRestService hubIntRestService,
-			final VulnerableBomComponentRestService vulnerableBomComponentRestService)
-					throws ConfigurationException {
-		converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService,
-				hubIntRestService, vulnerableBomComponentRestService);
-	}
+    public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final HubIntRestService hubIntRestService,
+            final VulnerableBomComponentRestService vulnerableBomComponentRestService)
+            throws ConfigurationException {
+        converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService,
+                hubIntRestService, vulnerableBomComponentRestService);
+    }
 
-	public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
-			throws NotificationServiceException {
-		final List<HubEvent> allEvents = new ArrayList<>();
+    public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
+            throws NotificationServiceException {
+        final List<HubEvent> allEvents = new ArrayList<>();
 
-		logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-				+ " notifications");
-		for (final NotificationContentItem notif : notifications) {
-			logger.debug("Notification: " + notif);
+        logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
+                + " notifications");
+        for (final NotificationContentItem notif : notifications) {
+            logger.debug("Notification: " + notif);
 
-			List<HubEvent> notifEvents;
-			try {
-				notifEvents = generateEvents(notif);
-			} catch (final UnexpectedHubResponseException e) {
-				throw new NotificationServiceException("Error converting notifications to issues", e);
-			}
-			if (notifEvents != null) {
-				allEvents.addAll(notifEvents);
-			}
-		}
-		return allEvents;
-	}
+            List<HubEvent> notifEvents;
+            try {
+                notifEvents = generateEvents(notif);
+            } catch (final UnexpectedHubResponseException e) {
+                throw new NotificationServiceException("Error converting notifications to issues", e);
+            }
+            if (notifEvents != null) {
+                allEvents.addAll(notifEvents);
+            }
+        }
+        return allEvents;
+    }
 
-	private List<HubEvent> generateEvents(final NotificationContentItem notif)
-			throws UnexpectedHubResponseException, NotificationServiceException {
-		final NotificationToEventConverter converter = converterTable.getConverter(notif);
-		final List<HubEvent> events = converter.generateEvents(notif);
-		return events;
-	}
+    private List<HubEvent> generateEvents(final NotificationContentItem notif)
+            throws UnexpectedHubResponseException, NotificationServiceException {
+        final NotificationToEventConverter converter = converterTable.getConverter(notif);
+        final List<HubEvent> events = converter.generateEvents(notif);
+        return events;
+    }
 
 }

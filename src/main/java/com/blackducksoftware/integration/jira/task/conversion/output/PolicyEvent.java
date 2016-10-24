@@ -35,150 +35,153 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class PolicyEvent extends HubEvent<NotificationContentItem> {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final PolicyContentItem notificationContentItem;
-	private final PolicyRule policyRule;
-	private final String resolveComment;
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+    private final PolicyContentItem notificationContentItem;
 
-			final String issueAssigneeId,
-			final String jiraIssueTypeId,
-			final Long jiraProjectId, final String jiraProjectName,
-			final PolicyContentItem notificationContentItem,
-			final PolicyRule policyRule, final String resolveComment) {
+    private final PolicyRule policyRule;
 
-		super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-				notificationContentItem);
-		this.notificationContentItem = notificationContentItem;
-		this.policyRule = policyRule;
-		this.resolveComment = resolveComment;
-	}
+    private final String resolveComment;
 
-	public PolicyContentItem getNotificationContentItem() {
-		return notificationContentItem;
-	}
+    public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
 
-	public PolicyRule getPolicyRule() {
-		return policyRule;
-	}
+            final String issueAssigneeId,
+            final String jiraIssueTypeId,
+            final Long jiraProjectId, final String jiraProjectName,
+            final PolicyContentItem notificationContentItem,
+            final PolicyRule policyRule, final String resolveComment) {
 
-	@Override
-	public String getUniquePropertyKey() throws URISyntaxException {
-		final StringBuilder keyBuilder = new StringBuilder();
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
+                notificationContentItem);
+        this.notificationContentItem = notificationContentItem;
+        this.policyRule = policyRule;
+        this.resolveComment = resolveComment;
+    }
 
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(getJiraProjectId().toString());
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+    public PolicyContentItem getNotificationContentItem() {
+        return notificationContentItem;
+    }
 
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(hashString(getNotificationContentItem().getProjectVersion().getRelativeUrl()));
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+    public PolicyRule getPolicyRule() {
+        return policyRule;
+    }
 
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(hashString(getNotificationContentItem().getComponentRelativeUrl()));
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+    @Override
+    public String getUniquePropertyKey() throws URISyntaxException {
+        final StringBuilder keyBuilder = new StringBuilder();
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(hashString(getNotificationContentItem().getComponentVersionRelativeUrl()));
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(getJiraProjectId().toString());
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
-		keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-		keyBuilder.append(hashString(getPolicyRule().getMeta().getRelativeHref()));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(getNotificationContentItem().getProjectVersion().getRelativeUrl()));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-		final String key = keyBuilder.toString();
-		logger.debug("property key: " + key);
-		return key;
-	}
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(getNotificationContentItem().getComponentRelativeUrl()));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
-		builder.append("PolicyEvent [notificationContentItem=");
-		builder.append(notificationContentItem);
-		builder.append(", policyRule=");
-		builder.append(policyRule);
-		builder.append(", getJiraUserName()=");
-		builder.append(getJiraUserName());
-		builder.append(", getJiraIssueTypeId()=");
-		builder.append(getJiraIssueTypeId());
-		builder.append(", getJiraProjectId()=");
-		builder.append(getJiraProjectId());
-		builder.append(", getJiraProjectName()=");
-		builder.append(getJiraProjectName());
-		builder.append("]");
-		return builder.toString();
-	}
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(getNotificationContentItem().getComponentVersionRelativeUrl()));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-	@Override
-	public String getIssueSummary() {
-		final StringBuilder issueSummary = new StringBuilder();
-		issueSummary.append("Black Duck Policy Violation detected on Hub Project '");
-		issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectName());
-		issueSummary.append("' / '");
-		issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
-		issueSummary.append("', component '");
-		issueSummary.append(getNotificationContentItem().getComponentName());
-		issueSummary.append("' / '");
-		issueSummary.append(getNotificationContentItem().getComponentVersion());
-		issueSummary.append("'");
-		issueSummary.append(" [Rule: '");
-		issueSummary.append(getPolicyRule().getName());
-		issueSummary.append("']");
-		return issueSummary.toString();
-	}
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(getPolicyRule().getMeta().getRelativeHref()));
 
-	@Override
-	public String getIssueDescription() {
-		final StringBuilder issueDescription = new StringBuilder();
-		issueDescription.append("The Black Duck Hub has detected a Policy Violation on Hub Project '");
-		issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectName());
-		issueDescription.append("' / '");
-		issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
-		issueDescription.append("', component '");
-		issueDescription.append(getNotificationContentItem().getComponentName());
-		issueDescription.append("' / '");
-		issueDescription.append(getNotificationContentItem().getComponentVersion());
-		issueDescription.append("'.");
-		issueDescription.append(" The rule violated is: '");
-		issueDescription.append(getPolicyRule().getName());
-		issueDescription.append("'. Rule overridable : ");
-		issueDescription.append(getPolicyRule().getOverridable());
-		return issueDescription.toString();
-	}
+        final String key = keyBuilder.toString();
+        logger.debug("property key: " + key);
+        return key;
+    }
 
-	@Override
-	public PolicyViolationIssueProperties createIssuePropertiesFromJson(final String json) {
-		final Gson gson = new GsonBuilder().create();
-		return gson.fromJson(json, PolicyViolationIssueProperties.class);
-	}
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("PolicyEvent [notificationContentItem=");
+        builder.append(notificationContentItem);
+        builder.append(", policyRule=");
+        builder.append(policyRule);
+        builder.append(", getJiraUserName()=");
+        builder.append(getJiraUserName());
+        builder.append(", getJiraIssueTypeId()=");
+        builder.append(getJiraIssueTypeId());
+        builder.append(", getJiraProjectId()=");
+        builder.append(getJiraProjectId());
+        builder.append(", getJiraProjectName()=");
+        builder.append(getJiraProjectName());
+        builder.append("]");
+        return builder.toString();
+    }
 
-	@Override
-	public IssueProperties createIssueProperties(final Issue issue) {
-		final IssueProperties properties = new PolicyViolationIssueProperties(
-				getNotificationContentItem().getProjectVersion().getProjectName(),
-				getNotificationContentItem().getProjectVersion().getProjectVersionName(),
-				getNotificationContentItem().getComponentName(), getNotificationContentItem().getComponentVersion(),
-				issue.getId(), getPolicyRule().getName());
-		return properties;
-	}
+    @Override
+    public String getIssueSummary() {
+        final StringBuilder issueSummary = new StringBuilder();
+        issueSummary.append("Black Duck Policy Violation detected on Hub Project '");
+        issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectName());
+        issueSummary.append("' / '");
+        issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
+        issueSummary.append("', component '");
+        issueSummary.append(getNotificationContentItem().getComponentName());
+        issueSummary.append("' / '");
+        issueSummary.append(getNotificationContentItem().getComponentVersion());
+        issueSummary.append("'");
+        issueSummary.append(" [Rule: '");
+        issueSummary.append(getPolicyRule().getName());
+        issueSummary.append("']");
+        return issueSummary.toString();
+    }
 
-	@Override
-	public String getReopenComment() {
-		return HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-	}
+    @Override
+    public String getIssueDescription() {
+        final StringBuilder issueDescription = new StringBuilder();
+        issueDescription.append("The Black Duck Hub has detected a Policy Violation on Hub Project '");
+        issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectName());
+        issueDescription.append("' / '");
+        issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
+        issueDescription.append("', component '");
+        issueDescription.append(getNotificationContentItem().getComponentName());
+        issueDescription.append("' / '");
+        issueDescription.append(getNotificationContentItem().getComponentVersion());
+        issueDescription.append("'.");
+        issueDescription.append(" The rule violated is: '");
+        issueDescription.append(getPolicyRule().getName());
+        issueDescription.append("'. Rule overridable : ");
+        issueDescription.append(getPolicyRule().getOverridable());
+        return issueDescription.toString();
+    }
 
-	@Override
-	public String getResolveComment() {
-		return resolveComment;
-	}
+    @Override
+    public PolicyViolationIssueProperties createIssuePropertiesFromJson(final String json) {
+        final Gson gson = new GsonBuilder().create();
+        return gson.fromJson(json, PolicyViolationIssueProperties.class);
+    }
+
+    @Override
+    public IssueProperties createIssueProperties(final Issue issue) {
+        final IssueProperties properties = new PolicyViolationIssueProperties(
+                getNotificationContentItem().getProjectVersion().getProjectName(),
+                getNotificationContentItem().getProjectVersion().getProjectVersionName(),
+                getNotificationContentItem().getComponentName(), getNotificationContentItem().getComponentVersion(),
+                issue.getId(), getPolicyRule().getName());
+        return properties;
+    }
+
+    @Override
+    public String getReopenComment() {
+        return HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
+    }
+
+    @Override
+    public String getResolveComment() {
+        return resolveComment;
+    }
 }

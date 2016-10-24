@@ -38,146 +38,148 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class ProjectMock implements Project {
 
-	private String name;
-	private Long id;
-	private List<IssueType> issueTypes = new ArrayList<IssueType>();
+    private String name;
 
-	@Override
-	public Collection<IssueType> getIssueTypes() {
+    private Long id;
 
-		return issueTypes;
-	}
+    private List<IssueType> issueTypes = new ArrayList<IssueType>();
 
-	public void addIssueType(final IssueType issue) {
-		issueTypes.add(issue);
-	}
+    @Override
+    public Collection<IssueType> getIssueTypes() {
 
-	public void setIssueTypes(final List<IssueType> issueTypes) {
-		this.issueTypes = issueTypes;
-	}
+        return issueTypes;
+    }
 
-	@Override
-	public Long getId() {
+    public void addIssueType(final IssueType issue) {
+        issueTypes.add(issue);
+    }
 
-		return id;
-	}
+    public void setIssueTypes(final List<IssueType> issueTypes) {
+        this.issueTypes = issueTypes;
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    @Override
+    public Long getId() {
 
-	@Override
-	public String getName() {
-		return name;
-	}
+        return id;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	@Override
-	public Long getAssigneeType() {
+    @Override
+    public String getName() {
+        return name;
+    }
 
-		return null;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	@Override
-	public Avatar getAvatar() {
+    @Override
+    public Long getAssigneeType() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public Avatar getAvatar() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEmail() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public String getEmail() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getKey() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getLeadUserName() {
+    @Override
+    public String getKey() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ProjectCategory getProjectCategoryObject() {
+    @Override
+    public String getLeadUserName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<ProjectComponent> getProjectComponents() {
+    @Override
+    public ProjectCategory getProjectCategoryObject() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getUrl() {
+    @Override
+    public Collection<ProjectComponent> getProjectComponents() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<Version> getVersions() {
+    @Override
+    public String getUrl() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getLeadUserKey() {
-		return null;
-	}
+    @Override
+    public Collection<Version> getVersions() {
 
-	@Override
-	public String getOriginalKey() {
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ApplicationUser getProjectLead() {
-		return null;
-	}
+    @Override
+    public String getLeadUserKey() {
+        return null;
+    }
 
-	@Override
-	public ApplicationUser getLead() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getOriginalKey() {
+        return null;
+    }
 
-	@Override
-	public ProjectCategory getProjectCategory() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ApplicationUser getProjectLead() {
+        return null;
+    }
 
-	@Override
-	public ProjectTypeKey getProjectTypeKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ApplicationUser getLead() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Collection<ProjectComponent> getComponents() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ProjectCategory getProjectCategory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProjectTypeKey getProjectTypeKey() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Collection<ProjectComponent> getComponents() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

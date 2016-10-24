@@ -32,61 +32,63 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubProjectMappings {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final Set<HubProjectMapping> mappings;
-	private final JiraServices jiraServices;
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public HubProjectMappings(final JiraServices jiraServices,
-			final Set<HubProjectMapping> mappings) {
-		this.jiraServices = jiraServices;
-		this.mappings = mappings;
-	}
+    private final Set<HubProjectMapping> mappings;
 
-	public List<JiraProject> getJiraProjects(final String hubProjectName) {
-		final List<JiraProject> matchingJiraProjects = new ArrayList<>();
+    private final JiraServices jiraServices;
 
-		if (mappings == null || mappings.isEmpty()) {
-			logger.debug("There are no configured project mapping");
-			return matchingJiraProjects;
-		}
+    public HubProjectMappings(final JiraServices jiraServices,
+            final Set<HubProjectMapping> mappings) {
+        this.jiraServices = jiraServices;
+        this.mappings = mappings;
+    }
 
-		for (final HubProjectMapping mapping : mappings) {
-			final JiraProject mappingJiraProject = mapping.getJiraProject();
-			final JiraProject jiraProject;
-			try {
-				jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
-			} catch (final NotificationServiceException e) {
-				logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
-						+ mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
-				continue;
-			}
-			if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
-				logger.error(jiraProject.getProjectError());
-				continue;
-			}
+    public List<JiraProject> getJiraProjects(final String hubProjectName) {
+        final List<JiraProject> matchingJiraProjects = new ArrayList<>();
 
-			logger.debug("JIRA Project: " + jiraProject);
+        if (mappings == null || mappings.isEmpty()) {
+            logger.debug("There are no configured project mapping");
+            return matchingJiraProjects;
+        }
 
-			final HubProject hubProject = mapping.getHubProject();
+        for (final HubProjectMapping mapping : mappings) {
+            final JiraProject mappingJiraProject = mapping.getJiraProject();
+            final JiraProject jiraProject;
+            try {
+                jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
+            } catch (final NotificationServiceException e) {
+                logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
+                        + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
+                continue;
+            }
+            if (StringUtils.isNotBlank(jiraProject.getProjectError())) {
+                logger.error(jiraProject.getProjectError());
+                continue;
+            }
 
-			// Check by name because the notifications may be for Hub projects
-			// that the User doesnt have access to
-			logger.debug("hubProject.getProjectName() (from config mapping): " + hubProject.getProjectName());
-			logger.debug("hubProjectName (from notification content)       : " + hubProjectName);
-			if ((!StringUtils.isBlank(hubProject.getProjectName())
-					&& (hubProject.getProjectName().equals(hubProjectName)))) {
-				logger.debug("Match!");
-				matchingJiraProjects.add(jiraProject);
-			}
-		}
-		logger.debug("Number of matches found: " + matchingJiraProjects.size());
-		return matchingJiraProjects;
-	}
+            logger.debug("JIRA Project: " + jiraProject);
 
-	public int size() {
-		if (mappings == null) {
-			return 0;
-		}
-		return mappings.size();
-	}
+            final HubProject hubProject = mapping.getHubProject();
+
+            // Check by name because the notifications may be for Hub projects
+            // that the User doesnt have access to
+            logger.debug("hubProject.getProjectName() (from config mapping): " + hubProject.getProjectName());
+            logger.debug("hubProjectName (from notification content)       : " + hubProjectName);
+            if ((!StringUtils.isBlank(hubProject.getProjectName())
+                    && (hubProject.getProjectName().equals(hubProjectName)))) {
+                logger.debug("Match!");
+                matchingJiraProjects.add(jiraProject);
+            }
+        }
+        logger.debug("Number of matches found: " + matchingJiraProjects.size());
+        return matchingJiraProjects;
+    }
+
+    public int size() {
+        if (mappings == null) {
+            return 0;
+        }
+        return mappings.size();
+    }
 }

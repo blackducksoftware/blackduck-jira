@@ -27,12 +27,12 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 
 public class LoginUriProviderMock implements LoginUriProvider {
 
-	public LoginUriProviderMock() {
-	}
+    public LoginUriProviderMock() {
+    }
 
-	@Override
-	public URI getLoginUri(final URI returnUri) {
-		return returnUri;
-	}
+    @Override
+    public URI getLoginUri(final URI returnUri) {
+        return returnUri;
+    }
 
 }

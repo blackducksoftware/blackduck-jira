@@ -30,62 +30,62 @@ import com.atlassian.jira.web.util.OutlookDate;
 
 public class JiraAuthenticationContextMock implements JiraAuthenticationContext {
 
-	@Override
-	public void clearLoggedInUser() {
+    @Override
+    public void clearLoggedInUser() {
 
-	}
+    }
 
-	@Override
-	public I18nHelper getI18nBean() {
+    @Override
+    public I18nHelper getI18nBean() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public I18nHelper getI18nHelper() {
+    @Override
+    public I18nHelper getI18nHelper() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Locale getLocale() {
+    @Override
+    public Locale getLocale() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public OutlookDate getOutlookDate() {
+    @Override
+    public OutlookDate getOutlookDate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getText(final String arg0) {
+    @Override
+    public String getText(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ApplicationUser getUser() {
+    @Override
+    public ApplicationUser getUser() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isLoggedInUser() {
+    @Override
+    public boolean isLoggedInUser() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void setLoggedInUser(final ApplicationUser arg0) {
+    @Override
+    public void setLoggedInUser(final ApplicationUser arg0) {
 
-	}
+    }
 
-	@Override
-	public ApplicationUser getLoggedInUser() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ApplicationUser getLoggedInUser() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

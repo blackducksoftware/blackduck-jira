@@ -31,453 +31,457 @@ import com.atlassian.jira.issue.changehistory.metadata.HistoryMetadata;
 
 public class IssueInputParametersMock implements IssueInputParameters {
 
-	private Long projectId;
-	private String issueTypeId;
-	private String summary;
-	private String reporterId;
-	private String description;
+    private Long projectId;
 
-	@Override
-	public String getDescription() {
+    private String issueTypeId;
 
-		return description;
-	}
+    private String summary;
 
-	@Override
-	public IssueInputParameters setDescription(final String description) {
-		this.description = description;
-		return this;
-	}
+    private String reporterId;
 
-	@Override
-	public IssueInputParameters setProjectId(final Long projectId) {
-		this.projectId = projectId;
-		return this;
-	}
+    private String description;
 
-	@Override
-	public IssueInputParameters setReporterId(final String reporterId) {
-		this.reporterId = reporterId;
-		return this;
-	}
+    @Override
+    public String getDescription() {
 
-	@Override
-	public IssueInputParameters setSummary(final String summary) {
-		this.summary = summary;
-		return this;
-	}
+        return description;
+    }
 
-	@Override
-	public String getReporterId() {
+    @Override
+    public IssueInputParameters setDescription(final String description) {
+        this.description = description;
+        return this;
+    }
 
-		return reporterId;
-	}
+    @Override
+    public IssueInputParameters setProjectId(final Long projectId) {
+        this.projectId = projectId;
+        return this;
+    }
 
-	@Override
-	public Long getProjectId() {
+    @Override
+    public IssueInputParameters setReporterId(final String reporterId) {
+        this.reporterId = reporterId;
+        return this;
+    }
 
-		return projectId;
-	}
+    @Override
+    public IssueInputParameters setSummary(final String summary) {
+        this.summary = summary;
+        return this;
+    }
 
-	@Override
-	public String getSummary() {
+    @Override
+    public String getReporterId() {
 
-		return summary;
-	}
+        return reporterId;
+    }
 
-	@Override
-	public String getIssueTypeId() {
+    @Override
+    public Long getProjectId() {
 
-		return issueTypeId;
-	}
+        return projectId;
+    }
 
-	@Override
-	public IssueInputParameters setIssueTypeId(final String issueTypeId) {
-		this.issueTypeId = issueTypeId;
-		return this;
-	}
+    @Override
+    public String getSummary() {
 
-	@Override
-	public IssueInputParameters addCustomFieldValue(final Long arg0, final String... arg1) {
+        return summary;
+    }
 
-		return null;
-	}
+    @Override
+    public String getIssueTypeId() {
 
-	@Override
-	public IssueInputParameters addCustomFieldValue(final String arg0, final String... arg1) {
+        return issueTypeId;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueInputParameters setIssueTypeId(final String issueTypeId) {
+        this.issueTypeId = issueTypeId;
+        return this;
+    }
 
-	@Override
-	public void addFieldToForcePresent(final String arg0) {
+    @Override
+    public IssueInputParameters addCustomFieldValue(final Long arg0, final String... arg1) {
 
-	}
+        return null;
+    }
 
-	@Override
-	public boolean applyDefaultValuesWhenParameterNotProvided() {
+    @Override
+    public IssueInputParameters addCustomFieldValue(final String arg0, final String... arg1) {
 
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public Map<String, String[]> getActionParameters() {
+    @Override
+    public void addFieldToForcePresent(final String arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public Long[] getAffectedVersionIds() {
+    @Override
+    public boolean applyDefaultValuesWhenParameterNotProvided() {
 
-		return null;
-	}
+        return false;
+    }
 
-	@Override
-	public String getAssigneeId() {
+    @Override
+    public Map<String, String[]> getActionParameters() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCommentValue() {
+    @Override
+    public Long[] getAffectedVersionIds() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long[] getComponentIds() {
+    @Override
+    public String getAssigneeId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String[] getCustomFieldValue(final Long arg0) {
+    @Override
+    public String getCommentValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String[] getCustomFieldValue(final String arg0) {
+    @Override
+    public Long[] getComponentIds() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDueDate() {
+    @Override
+    public String[] getCustomFieldValue(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEnvironment() {
+    @Override
+    public String[] getCustomFieldValue(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Map<String, Object> getFieldValuesHolder() {
+    @Override
+    public String getDueDate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long[] getFixVersionIds() {
+    @Override
+    public String getEnvironment() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getFormToken() {
+    @Override
+    public Map<String, Object> getFieldValuesHolder() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public HistoryMetadata getHistoryMetadata() {
+    @Override
+    public Long[] getFixVersionIds() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getOriginalEstimate() {
+    @Override
+    public String getFormToken() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getOriginalEstimateAsDurationString() {
+    @Override
+    public HistoryMetadata getHistoryMetadata() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getPriorityId() {
+    @Override
+    public Long getOriginalEstimate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<String> getProvidedFields() {
+    @Override
+    public String getOriginalEstimateAsDurationString() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getRemainingEstimate() {
+    @Override
+    public String getPriorityId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getRemainingEstimateAsDurationString() {
+    @Override
+    public Collection<String> getProvidedFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getResolutionDate() {
+    @Override
+    public Long getRemainingEstimate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getResolutionId() {
+    @Override
+    public String getRemainingEstimateAsDurationString() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getSecurityLevelId() {
+    @Override
+    public String getResolutionDate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getStatusId() {
+    @Override
+    public String getResolutionId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getTimeSpent() {
+    @Override
+    public Long getSecurityLevelId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isFieldPresent(final String arg0) {
+    @Override
+    public String getStatusId() {
 
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isFieldSet(final String arg0) {
+    @Override
+    public Long getTimeSpent() {
 
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean onlyValidatePresentFieldsWhenRetainingExistingValues() {
+    @Override
+    public boolean isFieldPresent(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean retainExistingValuesWhenParameterNotProvided() {
+    @Override
+    public boolean isFieldSet(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public IssueInputParameters setAffectedVersionIds(final Long... arg0) {
+    @Override
+    public boolean onlyValidatePresentFieldsWhenRetainingExistingValues() {
 
-		return null;
-	}
+        return false;
+    }
 
-	@Override
-	public void setApplyDefaultValuesWhenParameterNotProvided(final boolean arg0) {
+    @Override
+    public boolean retainExistingValuesWhenParameterNotProvided() {
 
-	}
+        return false;
+    }
 
-	@Override
-	public IssueInputParameters setAssigneeId(final String arg0) {
+    @Override
+    public IssueInputParameters setAffectedVersionIds(final Long... arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setComment(final String arg0) {
+    @Override
+    public void setApplyDefaultValuesWhenParameterNotProvided(final boolean arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public IssueInputParameters setComment(final String arg0, final Long arg1) {
+    @Override
+    public IssueInputParameters setAssigneeId(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setComment(final String arg0, final String arg1) {
+    @Override
+    public IssueInputParameters setComment(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setComponentIds(final Long... arg0) {
+    @Override
+    public IssueInputParameters setComment(final String arg0, final Long arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setDueDate(final String arg0) {
+    @Override
+    public IssueInputParameters setComment(final String arg0, final String arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setEnvironment(final String arg0) {
+    @Override
+    public IssueInputParameters setComponentIds(final Long... arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setFieldValuesHolder(final Map<String, Object> arg0) {
+    @Override
+    public IssueInputParameters setDueDate(final String arg0) {
 
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setFixVersionIds(final Long... arg0) {
+    @Override
+    public IssueInputParameters setEnvironment(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setHistoryMetadata(final HistoryMetadata arg0) {
+    @Override
+    public void setFieldValuesHolder(final Map<String, Object> arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public IssueInputParameters setOriginalAndRemainingEstimate(final String arg0, final String arg1) {
+    @Override
+    public IssueInputParameters setFixVersionIds(final Long... arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setOriginalAndRemainingEstimate(final Long arg0, final Long arg1) {
+    @Override
+    public IssueInputParameters setHistoryMetadata(final HistoryMetadata arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setOriginalEstimate(final Long arg0) {
+    @Override
+    public IssueInputParameters setOriginalAndRemainingEstimate(final String arg0, final String arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setOriginalEstimate(final String arg0) {
+    @Override
+    public IssueInputParameters setOriginalAndRemainingEstimate(final Long arg0, final Long arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setPriorityId(final String arg0) {
+    @Override
+    public IssueInputParameters setOriginalEstimate(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setProvidedFields(final Collection<String> arg0) {
+    @Override
+    public IssueInputParameters setOriginalEstimate(final String arg0) {
 
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setRemainingEstimate(final String arg0) {
+    @Override
+    public IssueInputParameters setPriorityId(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setRemainingEstimate(final Long arg0) {
+    @Override
+    public void setProvidedFields(final Collection<String> arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public IssueInputParameters setResolutionDate(final String arg0) {
+    @Override
+    public IssueInputParameters setRemainingEstimate(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setResolutionId(final String arg0) {
+    @Override
+    public IssueInputParameters setRemainingEstimate(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0) {
+    @Override
+    public IssueInputParameters setResolutionDate(final String arg0) {
 
-	}
+        return null;
+    }
 
-	@Override
-	public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0, final boolean arg1) {
+    @Override
+    public IssueInputParameters setResolutionId(final String arg0) {
 
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setSecurityLevelId(final Long arg0) {
+    @Override
+    public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public void setSkipScreenCheck(final boolean arg0) {
+    @Override
+    public void setRetainExistingValuesWhenParameterNotProvided(final boolean arg0, final boolean arg1) {
 
-	}
+    }
 
-	@Override
-	public IssueInputParameters setStatusId(final String arg0) {
+    @Override
+    public IssueInputParameters setSecurityLevelId(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters setTimeSpent(final Long arg0) {
+    @Override
+    public void setSkipScreenCheck(final boolean arg0) {
 
-		return null;
-	}
+    }
 
-	@Override
-	public boolean skipScreenCheck() {
+    @Override
+    public IssueInputParameters setStatusId(final String arg0) {
 
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueInputParameters addProperty(final String arg0, final JsonNode arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IssueInputParameters setTimeSpent(final Long arg0) {
 
-	@Override
-	public Map<String, JsonNode> properties() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setSkipLicenceCheck(final boolean arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public boolean skipScreenCheck() {
 
-	}
+        return false;
+    }
 
-	@Override
-	public boolean skipLicenceCheck() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public IssueInputParameters addProperty(final String arg0, final JsonNode arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Map<String, JsonNode> properties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setSkipLicenceCheck(final boolean arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean skipLicenceCheck() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

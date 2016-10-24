@@ -40,232 +40,232 @@ import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 public class JiraWorkflowMock implements JiraWorkflow {
 
-	private String name;
+    private String name;
 
-	@Override
-	public int compareTo(final JiraWorkflow o) {
+    @Override
+    public int compareTo(final JiraWorkflow o) {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public String getActionType(final ActionDescriptor arg0) {
+    @Override
+    public String getActionType(final ActionDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<ActionDescriptor> getActionsByName(final String arg0) {
+    @Override
+    public Collection<ActionDescriptor> getActionsByName(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<ActionDescriptor> getActionsForScreen(final FieldScreen arg0) {
+    @Override
+    public Collection<ActionDescriptor> getActionsForScreen(final FieldScreen arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<ActionDescriptor> getActionsWithResult(final StepDescriptor arg0) {
+    @Override
+    public Collection<ActionDescriptor> getActionsWithResult(final StepDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<ActionDescriptor> getAllActions() {
+    @Override
+    public Collection<ActionDescriptor> getAllActions() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public WorkflowDescriptor getDescriptor() {
+    @Override
+    public WorkflowDescriptor getDescriptor() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDisplayName() {
+    @Override
+    public String getDisplayName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getLinkedStatusId(final StepDescriptor arg0) {
+    @Override
+    public String getLinkedStatusId(final StepDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Set<String> getLinkedStatusIds() {
+    @Override
+    public Set<String> getLinkedStatusIds() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Status getLinkedStatusObject(final StepDescriptor arg0) {
+    @Override
+    public Status getLinkedStatusObject(final StepDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<Status> getLinkedStatusObjects() {
+    @Override
+    public List<Status> getLinkedStatusObjects() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<GenericValue> getLinkedStatuses() {
+    @Override
+    public List<GenericValue> getLinkedStatuses() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public StepDescriptor getLinkedStep(final GenericValue arg0) {
+    @Override
+    public StepDescriptor getLinkedStep(final GenericValue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public StepDescriptor getLinkedStep(final Status arg0) {
+    @Override
+    public StepDescriptor getLinkedStep(final Status arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getMode() {
+    @Override
+    public String getMode() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	public void setName(final String name) {
+    public void setName(final String name) {
 
-		this.name = name;
-	}
+        this.name = name;
+    }
 
-	@Override
-	public int getNextActionId() {
+    @Override
+    public int getNextActionId() {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public Collection<FunctionDescriptor> getPostFunctionsForTransition(final ActionDescriptor arg0) {
+    @Override
+    public Collection<FunctionDescriptor> getPostFunctionsForTransition(final ActionDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<StepDescriptor> getStepsForTransition(final ActionDescriptor arg0) {
+    @Override
+    public Collection<StepDescriptor> getStepsForTransition(final ActionDescriptor arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ApplicationUser getUpdateAuthor() {
+    @Override
+    public ApplicationUser getUpdateAuthor() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getUpdateAuthorName() {
+    @Override
+    public String getUpdateAuthorName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Date getUpdatedDate() {
+    @Override
+    public Date getUpdatedDate() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean hasDraftWorkflow() {
+    @Override
+    public boolean hasDraftWorkflow() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isActive() throws WorkflowException {
+    @Override
+    public boolean isActive() throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isCommonAction(final ActionDescriptor arg0) {
+    @Override
+    public boolean isCommonAction(final ActionDescriptor arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isDefault() {
+    @Override
+    public boolean isDefault() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isDraftWorkflow() {
+    @Override
+    public boolean isDraftWorkflow() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isEditable() throws WorkflowException {
+    @Override
+    public boolean isEditable() throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isGlobalAction(final ActionDescriptor arg0) {
+    @Override
+    public boolean isGlobalAction(final ActionDescriptor arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isInitialAction(final ActionDescriptor arg0) {
+    @Override
+    public boolean isInitialAction(final ActionDescriptor arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isOrdinaryAction(final ActionDescriptor arg0) {
+    @Override
+    public boolean isOrdinaryAction(final ActionDescriptor arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isSystemWorkflow() throws WorkflowException {
+    @Override
+    public boolean isSystemWorkflow() throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean removeStep(final StepDescriptor arg0) {
+    @Override
+    public boolean removeStep(final StepDescriptor arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void reset() {
+    @Override
+    public void reset() {
 
-	}
+    }
 
-	@Override
-	public Status getLinkedStatus(final StepDescriptor arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Status getLinkedStatus(final StepDescriptor arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

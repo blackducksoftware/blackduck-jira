@@ -39,37 +39,37 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTable {
-	private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
+    private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
-	public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final HubIntRestService hubIntRestService,
-			final VulnerableBomComponentRestService vulnerableBomComponentRestService)
-					throws ConfigurationException {
+    public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final HubIntRestService hubIntRestService,
+            final VulnerableBomComponentRestService vulnerableBomComponentRestService)
+            throws ConfigurationException {
 
-		final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-				mappings, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
-				vulnerableBomComponentRestService);
-		final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
-				mappings, jiraServices, jiraContext, jiraSettingsService);
-		final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
-				mappings, jiraServices, jiraContext, jiraSettingsService);
-		final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-				mappings, jiraServices, jiraContext, jiraSettingsService);
+        final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
+                mappings, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
+                vulnerableBomComponentRestService);
+        final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
+                mappings, jiraServices, jiraContext, jiraSettingsService);
+        final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
+                mappings, jiraServices, jiraContext, jiraSettingsService);
+        final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
+                mappings, jiraServices, jiraContext, jiraSettingsService);
 
-		lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
-		lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
-		lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
-		lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
-	}
+        lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
+        lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
+        lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
+        lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+    }
 
-	public NotificationToEventConverter getConverter(final NotificationContentItem notif)
-			throws NotificationServiceException {
-		final Class<? extends NotificationContentItem> c = notif.getClass();
-		final NotificationToEventConverter converter = lookupTable.get(c);
-		if (converter == null) {
-			throw new NotificationServiceException("Notification type unknown for notification: " + notif);
-		}
-		return converter;
-	}
+    public NotificationToEventConverter getConverter(final NotificationContentItem notif)
+            throws NotificationServiceException {
+        final Class<? extends NotificationContentItem> c = notif.getClass();
+        final NotificationToEventConverter converter = lookupTable.get(c);
+        if (converter == null) {
+            throw new NotificationServiceException("Notification type unknown for notification: " + notif);
+        }
+        return converter;
+    }
 }

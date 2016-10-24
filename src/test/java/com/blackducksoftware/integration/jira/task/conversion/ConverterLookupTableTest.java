@@ -47,68 +47,68 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
-	private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
+    private static final String COMPONENT_VERSION_URL = "http://eng-hub-valid03.dc1.lan/api/components/0934ea45-c739-4b58-bcb1-ee777022ce4f/versions/7c45d411-92ca-45b0-80fc-76b765b954ef";
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+    }
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+    }
 
-	@Test
-	public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
-		final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
-		final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
-				.mock(VulnerableBomComponentRestService.class);
-		final JiraServices jiraServices = mockJiraServices();
-		final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, hubIntRestService,
-				vulnerableBomComponentRestService);
+    @Test
+    public void test() throws NotificationServiceException, ConfigurationException, URISyntaxException {
+        final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
+        final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
+                .mock(VulnerableBomComponentRestService.class);
+        final JiraServices jiraServices = mockJiraServices();
+        final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, hubIntRestService,
+                vulnerableBomComponentRestService);
 
-		try {
-			assertEquals(null, table.getConverter(null));
-			fail("Expected null pointer exception");
-		} catch (final NullPointerException e) {
-			// expected
-		}
+        try {
+            assertEquals(null, table.getConverter(null));
+            fail("Expected null pointer exception");
+        } catch (final NullPointerException e) {
+            // expected
+        }
 
-		NotificationToEventConverter converter = table
-				.getConverter(new VulnerabilityContentItem(new Date(), null,
-						null, null, COMPONENT_VERSION_URL, null, null, null));
-		assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
-				converter.getClass().getName());
+        NotificationToEventConverter converter = table
+                .getConverter(new VulnerabilityContentItem(new Date(), null,
+                        null, null, COMPONENT_VERSION_URL, null, null, null));
+        assertEquals("com.blackducksoftware.integration.jira.task.conversion.VulnerabilityNotificationConverter",
+                converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null,
-				COMPONENT_VERSION_URL, null));
-		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
-				converter.getClass().getName());
+        converter = table.getConverter(new PolicyViolationContentItem(new Date(), null, null, null, null,
+                COMPONENT_VERSION_URL, null));
+        assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyViolationNotificationConverter",
+                converter.getClass().getName());
 
-		converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null,
-				COMPONENT_VERSION_URL, null, null, null));
-		assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
-				converter.getClass().getName());
-	}
+        converter = table.getConverter(new PolicyOverrideContentItem(new Date(), null, null, null, null,
+                COMPONENT_VERSION_URL, null, null, null));
+        assertEquals("com.blackducksoftware.integration.jira.task.conversion.PolicyOverrideNotificationConverter",
+                converter.getClass().getName());
+    }
 
-	private JiraServices mockJiraServices() {
+    private JiraServices mockJiraServices() {
 
-		final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
-		final Collection<IssueType> issueTypes = new ArrayList<>();
-		final IssueType policyIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(policyIssueType.getName()).thenReturn(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-		Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
-		issueTypes.add(policyIssueType);
-		final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
-		Mockito.when(vulnerabilityIssueType.getName()).thenReturn(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
-		Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
-		issueTypes.add(vulnerabilityIssueType);
+        final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
+        final Collection<IssueType> issueTypes = new ArrayList<>();
+        final IssueType policyIssueType = Mockito.mock(IssueType.class);
+        Mockito.when(policyIssueType.getName()).thenReturn(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
+        issueTypes.add(policyIssueType);
+        final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
+        Mockito.when(vulnerabilityIssueType.getName()).thenReturn(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
+        Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
+        issueTypes.add(vulnerabilityIssueType);
 
-		Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
+        Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
 
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-		Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
+        final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+        Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
 
-		return jiraServices;
-	}
+        return jiraServices;
+    }
 
 }

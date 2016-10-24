@@ -64,195 +64,194 @@ import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
  *
  */
 public class JiraTask implements PluginJob {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public JiraTask() {
-	}
+    public JiraTask() {
+    }
 
-	@Override
-	public void execute(final Map<String, Object> jobDataMap) {
-		logger.info("Running the Hub Jira task.");
+    @Override
+    public void execute(final Map<String, Object> jobDataMap) {
+        logger.info("Running the Hub Jira task.");
 
-		final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-		final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
-		final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
-		final String hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
-		final String hubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
-		final String hubTimeoutString = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
+        final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
+        final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
+        final String hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
+        final String hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
+        final String hubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
+        final String hubTimeoutString = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
 
-		final String hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
-		final String hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
-		final String hubProxyNoHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
-		final String hubProxyUser = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_USER);
-		final String hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
-		final String hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        final String hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
+        final String hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
+        final String hubProxyNoHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
+        final String hubProxyUser = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_USER);
+        final String hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
+        final String hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-		final String intervalString = getStringValue(settings,
-				HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-		final String projectMappingJson = getStringValue(settings,
-				HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-		final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-		final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
-		final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+        final String intervalString = getStringValue(settings,
+                HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        final String projectMappingJson = getStringValue(settings,
+                HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+        final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+        final String installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
-		final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+        final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
 
-		final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+        final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-		final DateTime beforeSetup = new DateTime();
-		// Do Jira setup here
-		final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
-		try {
-			jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
-		} catch (final Exception e) {
-			logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
-			return;
-		}
-		final DateTime afterSetup = new DateTime();
+        final DateTime beforeSetup = new DateTime();
+        // Do Jira setup here
+        final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
+        try {
+            jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
+        } catch (final Exception e) {
+            logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
+            return;
+        }
+        final DateTime afterSetup = new DateTime();
 
-		final Period diff = new Period(beforeSetup, afterSetup);
-		logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-				+ "ms.");
+        final Period diff = new Period(beforeSetup, afterSetup);
+        logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
+                + "ms.");
 
-		final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
-		hubConfigBuilder.setHubUrl(hubUrl);
-		hubConfigBuilder.setUsername(hubUsername);
-		hubConfigBuilder.setPassword(hubPasswordEncrypted);
-		hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));
-		hubConfigBuilder.setTimeout(hubTimeoutString);
+        final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
+        hubConfigBuilder.setHubUrl(hubUrl);
+        hubConfigBuilder.setUsername(hubUsername);
+        hubConfigBuilder.setPassword(hubPasswordEncrypted);
+        hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));
+        hubConfigBuilder.setTimeout(hubTimeoutString);
 
-		hubConfigBuilder.setProxyHost(hubProxyHost);
-		hubConfigBuilder.setProxyPort(hubProxyPort);
-		hubConfigBuilder.setIgnoredProxyHosts(hubProxyNoHost);
-		hubConfigBuilder.setProxyUsername(hubProxyUser);
-		hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
-		hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
+        hubConfigBuilder.setProxyHost(hubProxyHost);
+        hubConfigBuilder.setProxyPort(hubProxyPort);
+        hubConfigBuilder.setIgnoredProxyHosts(hubProxyNoHost);
+        hubConfigBuilder.setProxyUsername(hubProxyUser);
+        hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
+        hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
 
-		HubServerConfig serverConfig = null;
-		try {
-			serverConfig = hubConfigBuilder.build();
-		} catch (final IllegalStateException e) {
-			logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
-					+ e.getMessage());
-			return;
-		}
+        HubServerConfig serverConfig = null;
+        try {
+            serverConfig = hubConfigBuilder.build();
+        } catch (final IllegalStateException e) {
+            logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
+                    + e.getMessage());
+            return;
+        }
 
-		if (hubConfigBuilder.buildResults().hasErrors()) {
-			logger.error(
-					"At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
-			return;
-		}
+        if (hubConfigBuilder.buildResults().hasErrors()) {
+            logger.error(
+                    "At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
+            return;
+        }
 
-		final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
-				lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
-				ticketInfoFromSetup);
-		final String runDateString = processor.execute();
-		if (runDateString != null) {
-			settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
-		}
-	}
+        final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
+                lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
+                ticketInfoFromSetup);
+        final String runDateString = processor.execute();
+        if (runDateString != null) {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
+        }
+    }
 
-	public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-			final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
-					throws ConfigurationException, JiraException {
-		//////////////////////// Create Issue Types, workflow, etc ////////////
-		final JiraVersion jiraVersion = getJiraVersion();
-		HubIssueTypeSetup issueTypeSetup;
-		try {
-			issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraUserName);
-		} catch (final ConfigurationException e) {
-			logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
-			return;
-		}
-		final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
-		if (issueTypes == null || issueTypes.isEmpty()) {
-			logger.error("No Black Duck Issue Types found or created");
-			return;
-		}
-		logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
+    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
+            final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
+            throws ConfigurationException, JiraException {
+        //////////////////////// Create Issue Types, workflow, etc ////////////
+        final JiraVersion jiraVersion = getJiraVersion();
+        HubIssueTypeSetup issueTypeSetup;
+        try {
+            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraUserName);
+        } catch (final ConfigurationException e) {
+            logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
+            return;
+        }
+        final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
+        if (issueTypes == null || issueTypes.isEmpty()) {
+            logger.error("No Black Duck Issue Types found or created");
+            return;
+        }
+        logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-		final AbstractHubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
-				jiraSettingsService,
-				jiraServices, jiraVersion);
+        final AbstractHubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
+                jiraSettingsService,
+                jiraServices, jiraVersion);
 
-		final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
-				.addHubFieldConfigurationToJira(issueTypes);
-		if (screenSchemesByIssueType == null || screenSchemesByIssueType.isEmpty()) {
-			logger.error("No Black Duck Screen Schemes found or created");
-		}
-		ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
+        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
+                .addHubFieldConfigurationToJira(issueTypes);
+        if (screenSchemesByIssueType == null || screenSchemesByIssueType.isEmpty()) {
+            logger.error("No Black Duck Screen Schemes found or created");
+        }
+        ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
 
-		logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
+        logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-		final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService,
-				jiraServices);
-		final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
-		final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
-				.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
+        final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService,
+                jiraServices);
+        final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
+        final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
+                .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-		final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
-				jiraVersion);
-		final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
-		////////////////////////////////////////////////////////////////////////
+        final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
+                jiraVersion);
+        final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+        ////////////////////////////////////////////////////////////////////////
 
-		/////////////////////// Associate with projects ///////////////////////
-		if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
-			final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-			// Converts Json to list of mappings
-			config.setHubProjectMappingsJson(projectMappingJson);
-			if (!config.getHubProjectMappings().isEmpty()) {
-				for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
-					if (projectMapping.getJiraProject() != null
-							&& projectMapping.getJiraProject().getProjectId() != null) {
-						// Get jira Project object by Id
-						// from the JiraProject in the mapping
-						final Project jiraProject = jiraServices.getJiraProjectManager()
-								.getProjectObj(projectMapping.getJiraProject().getProjectId());
-						// add issuetypes to this project
-						issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-						issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
-								screenSchemesByIssueType);
-						issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
-								jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
-						workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
-					}
-				}
-			}
-		}
-		/////////////////////////////////////////////////////////////////////////
-	}
+        /////////////////////// Associate with projects ///////////////////////
+        if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
+            final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+            // Converts Json to list of mappings
+            config.setHubProjectMappingsJson(projectMappingJson);
+            if (!config.getHubProjectMappings().isEmpty()) {
+                for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
+                    if (projectMapping.getJiraProject() != null
+                            && projectMapping.getJiraProject().getProjectId() != null) {
+                        // Get jira Project object by Id
+                        // from the JiraProject in the mapping
+                        final Project jiraProject = jiraServices.getJiraProjectManager()
+                                .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                        // add issuetypes to this project
+                        issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
+                        issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
+                                screenSchemesByIssueType);
+                        issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
+                                jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
+                        workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+                    }
+                }
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////
+    }
 
-	public JiraVersion getJiraVersion() throws ConfigurationException {
-		return new JiraVersion();
-	}
+    public JiraVersion getJiraVersion() throws ConfigurationException {
+        return new JiraVersion();
+    }
 
-	private HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
-		return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
-	}
+    private HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
+            final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
+        return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
+    }
 
-	public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
-			final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices, final JiraVersion jiraVersion) {
-		return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
-	}
+    public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
+            final JiraSettingsService jiraSettingsService,
+            final JiraServices jiraServices, final JiraVersion jiraVersion) {
+        return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
+    }
 
-	private HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices) {
-		return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
-	}
+    private HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
+            final JiraServices jiraServices) {
+        return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
+    }
 
-	private AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-			final JiraServices jiraServices, final JiraVersion jiraVersion) {
-		return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
-	}
+    private AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
+            final JiraServices jiraServices, final JiraVersion jiraVersion) {
+        return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
+    }
 
+    private Object getValue(final PluginSettings settings, final String key) {
+        return settings.get(key);
+    }
 
-	private Object getValue(final PluginSettings settings, final String key) {
-		return settings.get(key);
-	}
-
-	private String getStringValue(final PluginSettings settings, final String key) {
-		return (String) getValue(settings, key);
-	}
+    private String getStringValue(final PluginSettings settings, final String key) {
+        return (String) getValue(settings, key);
+    }
 }

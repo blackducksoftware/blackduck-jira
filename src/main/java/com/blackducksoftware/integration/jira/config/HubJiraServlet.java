@@ -40,72 +40,75 @@ import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 
 public class HubJiraServlet extends HttpServlet {
 
-	private static final long serialVersionUID = 8293922701957754642L;
+    private static final long serialVersionUID = 8293922701957754642L;
 
-	private final UserManager userManager;
-	private final LoginUriProvider loginUriProvider;
-	private final TemplateRenderer renderer;
-	private final PluginSettingsFactory pluginSettingsFactory;
+    private final UserManager userManager;
 
-	public HubJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider,
-			final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
-		this.userManager = userManager;
-		this.loginUriProvider = loginUriProvider;
-		this.renderer = renderer;
-		this.pluginSettingsFactory = pluginSettingsFactory;
-	}
+    private final LoginUriProvider loginUriProvider;
 
-	private boolean isUserAuthorized(final HttpServletRequest request) {
-		final String username = userManager.getRemoteUsername(request);
-		if (username == null) {
-			return false;
-		}
-		if (userManager.isSystemAdmin(username)) {
-			return true;
-		}
+    private final TemplateRenderer renderer;
 
-		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-		final String hubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+    private final PluginSettingsFactory pluginSettingsFactory;
 
-		if (StringUtils.isNotBlank(hubJiraGroupsString)) {
-			final String[] hubJiraGroups = hubJiraGroupsString.split(",");
-				boolean userIsInGroups = false;
-				for (final String hubJiraGroup : hubJiraGroups) {
-					if (userManager.isUserInGroup(username, hubJiraGroup)) {
-						userIsInGroups = true;
-						break;
-					}
-				}
-				if (userIsInGroups) {
-					return true;
-				}
-		}
-		return false;
-	}
+    public HubJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider,
+            final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
+        this.userManager = userManager;
+        this.loginUriProvider = loginUriProvider;
+        this.renderer = renderer;
+        this.pluginSettingsFactory = pluginSettingsFactory;
+    }
 
-	@Override
-	public void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		if (!isUserAuthorized(request)) {
-			redirectToLogin(request, response);
-			return;
-		}
+    private boolean isUserAuthorized(final HttpServletRequest request) {
+        final String username = userManager.getRemoteUsername(request);
+        if (username == null) {
+            return false;
+        }
+        if (userManager.isSystemAdmin(username)) {
+            return true;
+        }
 
-		response.setContentType("text/html;charset=utf-8");
-		renderer.render("hub-jira.vm", response.getWriter());
-	}
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final String hubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
 
-	private void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException {
-		response.sendRedirect(loginUriProvider.getLoginUri(getUri(request)).toASCIIString());
-	}
+        if (StringUtils.isNotBlank(hubJiraGroupsString)) {
+            final String[] hubJiraGroups = hubJiraGroupsString.split(",");
+            boolean userIsInGroups = false;
+            for (final String hubJiraGroup : hubJiraGroups) {
+                if (userManager.isUserInGroup(username, hubJiraGroup)) {
+                    userIsInGroups = true;
+                    break;
+                }
+            }
+            if (userIsInGroups) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	private URI getUri(final HttpServletRequest request) {
-		final StringBuffer builder = request.getRequestURL();
-		if (request.getQueryString() != null) {
-			builder.append("?");
-			builder.append(request.getQueryString());
-		}
-		return URI.create(builder.toString());
-	}
+    @Override
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException, ServletException {
+        if (!isUserAuthorized(request)) {
+            redirectToLogin(request, response);
+            return;
+        }
+
+        response.setContentType("text/html;charset=utf-8");
+        renderer.render("hub-jira.vm", response.getWriter());
+    }
+
+    private void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
+        response.sendRedirect(loginUriProvider.getLoginUri(getUri(request)).toASCIIString());
+    }
+
+    private URI getUri(final HttpServletRequest request) {
+        final StringBuffer builder = request.getRequestURL();
+        if (request.getQueryString() != null) {
+            builder.append("?");
+            builder.append(request.getQueryString());
+        }
+        return URI.create(builder.toString());
+    }
 }

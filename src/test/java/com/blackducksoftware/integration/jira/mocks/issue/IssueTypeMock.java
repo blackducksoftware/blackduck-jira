@@ -29,116 +29,119 @@ import com.atlassian.jira.util.I18nHelper;
 
 public class IssueTypeMock implements IssueType {
 
-	private String name;
-	private String id;
-	private GenericValue value;
-	private String description;
+    private String name;
 
-	public void setDescription(final String description) {
-		this.description = description;
-	}
+    private String id;
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    private GenericValue value;
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    private String description;
 
-	@Override
-	public String getCompleteIconUrl() {
-		return null;
-	}
+    public void setDescription(final String description) {
+        this.description = description;
+    }
 
-	@Override
-	public String getDescTranslation() {
-		return null;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getDescTranslation(final String arg0) {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getDescTranslation(final I18nHelper arg0) {
+    @Override
+    public String getCompleteIconUrl() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getDescTranslation() {
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescTranslation(final String arg0) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getDescTranslation(final I18nHelper arg0) {
 
-	public void setValue(final GenericValue value) {
-		this.value = value;
-	}
+        return null;
+    }
 
-	@Override
-	public String getIconUrl() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getIconUrlHtml() {
+    public void setValue(final GenericValue value) {
+        this.value = value;
+    }
 
-		return null;
-	}
+    @Override
+    public String getIconUrl() {
 
-	@Override
-	public String getId() {
+        return null;
+    }
 
-		return id;
-	}
+    @Override
+    public String getIconUrlHtml() {
 
-	public void setId(final String id) {
-		this.id = id;
-	}
+        return null;
+    }
 
-	@Override
-	public String getNameTranslation() {
+    @Override
+    public String getId() {
 
-		return null;
-	}
+        return id;
+    }
 
-	@Override
-	public String getNameTranslation(final String arg0) {
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-		return null;
-	}
+    @Override
+    public String getNameTranslation() {
 
-	@Override
-	public String getNameTranslation(final I18nHelper arg0) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getNameTranslation(final String arg0) {
 
-	@Override
-	public Long getSequence() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getNameTranslation(final I18nHelper arg0) {
 
-	@Override
-	public int compareTo(final Object o) {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public Long getSequence() {
 
-	@Override
-	public boolean isSubTask() {
+        return null;
+    }
 
-		return false;
-	}
+    @Override
+    public int compareTo(final Object o) {
 
-	@Override
-	public Avatar getAvatar() {
-		return null;
-	}
+        return 0;
+    }
+
+    @Override
+    public boolean isSubTask() {
+
+        return false;
+    }
+
+    @Override
+    public Avatar getAvatar() {
+        return null;
+    }
 
 }

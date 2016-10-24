@@ -41,30 +41,30 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
-	public static final String PROJECT_LINK = "project";
+    public static final String PROJECT_LINK = "project";
 
-	public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
-					throws ConfigurationException {
-		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-	}
+    public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+            throws ConfigurationException {
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+    }
 
-	@Override
-	protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
-		final List<HubEvent> events = new ArrayList<>();
+    @Override
+    protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+        final List<HubEvent> events = new ArrayList<>();
 
-		final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
-		for (final PolicyRule rule : notification.getPolicyRuleList()) {
-			final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
-					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
-					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
-					notification, rule,
-					HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+        final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
+        for (final PolicyRule rule : notification.getPolicyRuleList()) {
+            final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
+                    getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
+                    getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+                    notification, rule,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
 
-			events.add(event);
-		}
+            events.add(event);
+        }
 
-		return events;
-	}
+        return events;
+    }
 }

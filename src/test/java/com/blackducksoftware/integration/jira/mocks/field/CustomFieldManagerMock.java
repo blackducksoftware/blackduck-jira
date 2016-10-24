@@ -39,193 +39,192 @@ import com.atlassian.jira.project.Project;
 
 public class CustomFieldManagerMock implements CustomFieldManager {
 
-	private static final List<CustomField> customFields = new ArrayList<>();
+    private static final List<CustomField> customFields = new ArrayList<>();
 
-	public static List<CustomField> getCustomFields() {
-		return customFields;
-	}
+    public static List<CustomField> getCustomFields() {
+        return customFields;
+    }
 
-	@Override
-	public void clear() {
+    @Override
+    public void clear() {
 
-	}
+    }
 
-	@Override
-	public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType,
-			final CustomFieldSearcher searcher, final List contexts, final List genericValues)
-			throws GenericEntityException {
-		final CustomFieldMock customField = new CustomFieldMock();
-		customField.setName(name);
-		customField.setDescription(description);
-		customField.setCustomFieldType(fieldType);
-		customField.setCustomFieldSearcher(searcher);
-		customFields.add(customField);
-		return customField;
-	}
+    @Override
+    public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType,
+            final CustomFieldSearcher searcher, final List contexts, final List genericValues)
+            throws GenericEntityException {
+        final CustomFieldMock customField = new CustomFieldMock();
+        customField.setName(name);
+        customField.setDescription(description);
+        customField.setCustomFieldType(fieldType);
+        customField.setCustomFieldSearcher(searcher);
+        customFields.add(customField);
+        return customField;
+    }
 
-	@Override
-	public boolean exists(final String arg0) {
+    @Override
+    public boolean exists(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public CustomField getCustomFieldInstance(final GenericValue arg0) {
+    @Override
+    public CustomField getCustomFieldInstance(final GenericValue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomField getCustomFieldObject(final Long arg0) {
+    @Override
+    public CustomField getCustomFieldObject(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomField getCustomFieldObject(final String arg0) {
+    @Override
+    public CustomField getCustomFieldObject(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomField getCustomFieldObjectByName(final String name) {
-		if (!customFields.isEmpty()) {
-			for (final CustomField field : customFields) {
-				if (field.getName().equals(name)) {
-					return field;
-				}
-			}
-		}
-		return null;
-	}
+    @Override
+    public CustomField getCustomFieldObjectByName(final String name) {
+        if (!customFields.isEmpty()) {
+            for (final CustomField field : customFields) {
+                if (field.getName().equals(name)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects() {
+    @Override
+    public List<CustomField> getCustomFieldObjects() {
 
-		return customFields;
-	}
+        return customFields;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects(final SearchContext arg0) {
+    @Override
+    public List<CustomField> getCustomFieldObjects(final SearchContext arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects(final GenericValue arg0) {
+    @Override
+    public List<CustomField> getCustomFieldObjects(final GenericValue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects(final Issue arg0) {
+    @Override
+    public List<CustomField> getCustomFieldObjects(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects(final Long arg0, final String arg1) {
+    @Override
+    public List<CustomField> getCustomFieldObjects(final Long arg0, final String arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getCustomFieldObjects(final Long arg0, final List<String> arg1) {
+    @Override
+    public List<CustomField> getCustomFieldObjects(final Long arg0, final List<String> arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<CustomField> getCustomFieldObjectsByName(final String arg0) {
+    @Override
+    public Collection<CustomField> getCustomFieldObjectsByName(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldSearcher getCustomFieldSearcher(final String arg0) {
+    @Override
+    public CustomFieldSearcher getCustomFieldSearcher(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Class<? extends CustomFieldSearcher> getCustomFieldSearcherClass(final String arg0) {
+    @Override
+    public Class<? extends CustomFieldSearcher> getCustomFieldSearcherClass(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomFieldSearcher> getCustomFieldSearchers(final CustomFieldType arg0) {
+    @Override
+    public List<CustomFieldSearcher> getCustomFieldSearchers(final CustomFieldType arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldType getCustomFieldType(final String arg0) {
+    @Override
+    public CustomFieldType getCustomFieldType(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomFieldType<?, ?>> getCustomFieldTypes() {
+    @Override
+    public List<CustomFieldType<?, ?>> getCustomFieldTypes() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldSearcher getDefaultSearcher(final CustomFieldType<?, ?> arg0) {
+    @Override
+    public CustomFieldSearcher getDefaultSearcher(final CustomFieldType<?, ?> arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<CustomField> getGlobalCustomFieldObjects() {
+    @Override
+    public List<CustomField> getGlobalCustomFieldObjects() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isCustomField(final String arg0) {
+    @Override
+    public boolean isCustomField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void refresh() {
+    @Override
+    public void refresh() {
 
-	}
+    }
 
-	@Override
-	public void refreshConfigurationSchemes(final Long arg0) {
+    @Override
+    public void refreshConfigurationSchemes(final Long arg0) {
 
-	}
+    }
 
-	@Override
-	public void removeCustomField(final CustomField field) throws RemoveException {
-		customFields.remove(field);
+    @Override
+    public void removeCustomField(final CustomField field) throws RemoveException {
+        customFields.remove(field);
 
-	}
+    }
 
-	@Override
-	public void removeCustomFieldPossiblyLeavingOrphanedData(final Long arg0)
-			throws RemoveException, IllegalArgumentException {
+    @Override
+    public void removeCustomFieldPossiblyLeavingOrphanedData(final Long arg0)
+            throws RemoveException, IllegalArgumentException {
 
-	}
+    }
 
-	@Override
-	public void removeCustomFieldValues(final GenericValue arg0) throws GenericEntityException {
+    @Override
+    public void removeCustomFieldValues(final GenericValue arg0) throws GenericEntityException {
 
-	}
+    }
 
+    @Override
+    public void removeProjectAssociations(final Project arg0) {
 
-	@Override
-	public void removeProjectAssociations(final Project arg0) {
+    }
 
-	}
+    @Override
+    public void updateCustomField(final Long arg0, final String arg1, final String arg2,
+            final CustomFieldSearcher arg3) {
 
-	@Override
-	public void updateCustomField(final Long arg0, final String arg1, final String arg2,
-			final CustomFieldSearcher arg3) {
-
-	}
+    }
 
 }

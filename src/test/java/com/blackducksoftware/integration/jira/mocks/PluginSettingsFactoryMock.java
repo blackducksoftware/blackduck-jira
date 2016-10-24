@@ -26,16 +26,16 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 public class PluginSettingsFactoryMock implements PluginSettingsFactory {
 
-	PluginSettings settings = new PluginSettingsMock();
+    PluginSettings settings = new PluginSettingsMock();
 
-	@Override
-	public PluginSettings createSettingsForKey(final String key) {
-		return null;
-	}
+    @Override
+    public PluginSettings createSettingsForKey(final String key) {
+        return null;
+    }
 
-	@Override
-	public PluginSettings createGlobalSettings() {
-		return settings;
-	}
+    @Override
+    public PluginSettings createGlobalSettings() {
+        return settings;
+    }
 
 }

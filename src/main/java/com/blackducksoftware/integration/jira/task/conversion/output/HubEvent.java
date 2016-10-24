@@ -39,93 +39,101 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
  *
  */
 public abstract class HubEvent<T extends NotificationContentItem> {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final HubEventAction action;
-	private final String jiraUserName;
-	private final String jiraUserId;
-	// if issueAssigneeId is null: leave it unassigned
-	private final String issueAssigneeId;
-	private final String jiraIssueTypeId;
-	private final Long jiraProjectId;
-	private final String jiraProjectName;
-	private final T notif;
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
-			final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
-			final String jiraProjectName, final T notif) {
-		this.action = action;
-		this.jiraUserName = jiraUserName;
-		this.jiraUserId = jiraUserId;
-		this.issueAssigneeId = issueAssigneeId;
-		this.jiraIssueTypeId = jiraIssueTypeId;
-		this.jiraProjectId = jiraProjectId;
-		this.jiraProjectName = jiraProjectName;
-		this.notif = notif;
-	}
+    private final HubEventAction action;
 
-	public HubEventAction getAction() {
-		return action;
-	}
+    private final String jiraUserName;
 
-	public T getNotif() {
-		return notif;
-	}
+    private final String jiraUserId;
 
-	public String getJiraUserName() {
-		return jiraUserName;
-	}
+    // if issueAssigneeId is null: leave it unassigned
+    private final String issueAssigneeId;
 
-	public String getJiraUserId() {
-		return jiraUserId;
-	}
+    private final String jiraIssueTypeId;
 
-	public String getIssueAssigneeId() {
-		return issueAssigneeId;
-	}
+    private final Long jiraProjectId;
 
-	public String getJiraIssueTypeId() {
-		return jiraIssueTypeId;
-	}
+    private final String jiraProjectName;
 
-	public Long getJiraProjectId() {
-		return jiraProjectId;
-	}
+    private final T notif;
 
-	public String getJiraProjectName() {
-		return jiraProjectName;
-	}
+    public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+            final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
+            final String jiraProjectName, final T notif) {
+        this.action = action;
+        this.jiraUserName = jiraUserName;
+        this.jiraUserId = jiraUserId;
+        this.issueAssigneeId = issueAssigneeId;
+        this.jiraIssueTypeId = jiraIssueTypeId;
+        this.jiraProjectId = jiraProjectId;
+        this.jiraProjectName = jiraProjectName;
+        this.notif = notif;
+    }
 
-	// Override these to generate comments
-	public String getReopenComment() {
-		return null;
-	}
+    public HubEventAction getAction() {
+        return action;
+    }
 
-	public String getComment() {
-		return null; // most event types don't produce comments
-	}
+    public T getNotif() {
+        return notif;
+    }
 
-	public String getResolveComment() {
-		return null;
-	}
+    public String getJiraUserName() {
+        return jiraUserName;
+    }
 
-	public abstract String getUniquePropertyKey() throws URISyntaxException;
+    public String getJiraUserId() {
+        return jiraUserId;
+    }
 
-	public abstract String getIssueSummary();
+    public String getIssueAssigneeId() {
+        return issueAssigneeId;
+    }
 
-	public abstract String getIssueDescription();
+    public String getJiraIssueTypeId() {
+        return jiraIssueTypeId;
+    }
 
-	public abstract IssueProperties createIssuePropertiesFromJson(final String json);
+    public Long getJiraProjectId() {
+        return jiraProjectId;
+    }
 
-	public abstract IssueProperties createIssueProperties(final Issue issue);
+    public String getJiraProjectName() {
+        return jiraProjectName;
+    }
 
-	protected String hashString(final String origString) {
-		String hashString;
-		if (origString == null) {
-			hashString = "";
-		} else {
-			hashString = String.valueOf(origString.hashCode());
-		}
-		logger.debug("Hash string for '" + origString + "': " + hashString);
-		return hashString;
-	}
+    // Override these to generate comments
+    public String getReopenComment() {
+        return null;
+    }
+
+    public String getComment() {
+        return null; // most event types don't produce comments
+    }
+
+    public String getResolveComment() {
+        return null;
+    }
+
+    public abstract String getUniquePropertyKey() throws URISyntaxException;
+
+    public abstract String getIssueSummary();
+
+    public abstract String getIssueDescription();
+
+    public abstract IssueProperties createIssuePropertiesFromJson(final String json);
+
+    public abstract IssueProperties createIssueProperties(final Issue issue);
+
+    protected String hashString(final String origString) {
+        String hashString;
+        if (origString == null) {
+            hashString = "";
+        } else {
+            hashString = String.valueOf(origString.hashCode());
+        }
+        logger.debug("Hash string for '" + origString + "': " + hashString);
+        return hashString;
+    }
 }

@@ -26,61 +26,61 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class ApplicationUserMock implements ApplicationUser {
 
-	private String name;
+    private String name;
 
-	@Override
-	public long getDirectoryId() {
-		return 0;
-	}
+    @Override
+    public long getDirectoryId() {
+        return 0;
+    }
 
-	@Override
-	public User getDirectoryUser() {
+    @Override
+    public User getDirectoryUser() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDisplayName() {
+    @Override
+    public String getDisplayName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEmailAddress() {
+    @Override
+    public String getEmailAddress() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getKey() {
+    @Override
+    public String getKey() {
 
-		return name;
-	}
+        return name;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getUsername() {
+    @Override
+    public String getUsername() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isActive() {
+    @Override
+    public boolean isActive() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public Long getId() {
-		return 123L;
-	}
+    @Override
+    public Long getId() {
+        return 123L;
+    }
 
 }

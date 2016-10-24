@@ -25,13 +25,13 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class JiraContext {
 
-	private final ApplicationUser jiraUser;
+    private final ApplicationUser jiraUser;
 
-	public JiraContext(final ApplicationUser jiraUser) {
-		this.jiraUser = jiraUser;
-	}
+    public JiraContext(final ApplicationUser jiraUser) {
+        this.jiraUser = jiraUser;
+    }
 
-	public ApplicationUser getJiraUser() {
-		return jiraUser;
-	}
+    public ApplicationUser getJiraUser() {
+        return jiraUser;
+    }
 }

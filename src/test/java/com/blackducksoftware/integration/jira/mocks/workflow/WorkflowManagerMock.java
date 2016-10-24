@@ -47,323 +47,323 @@ import com.opensymphony.workflow.spi.WorkflowStore;
 
 public class WorkflowManagerMock implements WorkflowManager {
 
-	private final Map<String, JiraWorkflow> workflowMap = new HashMap<>();
+    private final Map<String, JiraWorkflow> workflowMap = new HashMap<>();
 
-	boolean attemptedCreateWorkflow;
+    boolean attemptedCreateWorkflow;
 
-	public boolean getAttemptedCreateWorkflow() {
-		return attemptedCreateWorkflow;
-	}
+    public boolean getAttemptedCreateWorkflow() {
+        return attemptedCreateWorkflow;
+    }
 
-	public void addWorkflow(final JiraWorkflow jiraWorkflow) {
-		workflowMap.put(jiraWorkflow.getName(), jiraWorkflow);
-	}
+    public void addWorkflow(final JiraWorkflow jiraWorkflow) {
+        workflowMap.put(jiraWorkflow.getName(), jiraWorkflow);
+    }
 
-	@Override
-	public JiraWorkflow copyWorkflow(final String arg0, final String arg1, final String arg2, final JiraWorkflow arg3) {
+    @Override
+    public JiraWorkflow copyWorkflow(final String arg0, final String arg1, final String arg2, final JiraWorkflow arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow copyWorkflow(final ApplicationUser arg0, final String arg1, final String arg2,
-			final JiraWorkflow arg3) {
+    @Override
+    public JiraWorkflow copyWorkflow(final ApplicationUser arg0, final String arg1, final String arg2,
+            final JiraWorkflow arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow createDraftWorkflow(final String arg0, final String arg1)
-			throws IllegalStateException, IllegalArgumentException {
+    @Override
+    public JiraWorkflow createDraftWorkflow(final String arg0, final String arg1)
+            throws IllegalStateException, IllegalArgumentException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow createDraftWorkflow(final ApplicationUser arg0, final String arg1)
-			throws IllegalStateException, IllegalArgumentException {
+    @Override
+    public JiraWorkflow createDraftWorkflow(final ApplicationUser arg0, final String arg1)
+            throws IllegalStateException, IllegalArgumentException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public GenericValue createIssue(final String arg0, final Map<String, Object> arg1) throws WorkflowException {
+    @Override
+    public GenericValue createIssue(final String arg0, final Map<String, Object> arg1) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void createWorkflow(final String arg0, final JiraWorkflow arg1) throws WorkflowException {
+    @Override
+    public void createWorkflow(final String arg0, final JiraWorkflow arg1) throws WorkflowException {
 
-	}
+    }
 
-	@Override
-	public void createWorkflow(final ApplicationUser arg0, final JiraWorkflow arg1) throws WorkflowException {
-		attemptedCreateWorkflow = true;
-	}
+    @Override
+    public void createWorkflow(final ApplicationUser arg0, final JiraWorkflow arg1) throws WorkflowException {
+        attemptedCreateWorkflow = true;
+    }
 
-	@Override
-	public boolean deleteDraftWorkflow(final String arg0) throws IllegalArgumentException {
+    @Override
+    public boolean deleteDraftWorkflow(final String arg0) throws IllegalArgumentException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void deleteWorkflow(final JiraWorkflow arg0) throws WorkflowException {
+    @Override
+    public void deleteWorkflow(final JiraWorkflow arg0) throws WorkflowException {
 
-	}
+    }
 
-	@Override
-	public void doWorkflowAction(final WorkflowProgressAware arg0) {
+    @Override
+    public void doWorkflowAction(final WorkflowProgressAware arg0) {
 
-	}
+    }
 
-	@Override
-	public ActionDescriptor getActionDescriptor(final WorkflowProgressAware arg0) throws Exception {
+    @Override
+    public ActionDescriptor getActionDescriptor(final WorkflowProgressAware arg0) throws Exception {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<JiraWorkflow> getActiveWorkflows() throws WorkflowException {
+    @Override
+    public Collection<JiraWorkflow> getActiveWorkflows() throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getDefaultWorkflow() throws WorkflowException {
+    @Override
+    public JiraWorkflow getDefaultWorkflow() throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getDraftWorkflow(final String arg0) throws IllegalArgumentException {
+    @Override
+    public JiraWorkflow getDraftWorkflow(final String arg0) throws IllegalArgumentException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getNextStatusIdForAction(final Issue arg0, final int arg1) {
+    @Override
+    public String getNextStatusIdForAction(final Issue arg0, final int arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Map<ActionDescriptor, Collection<FunctionDescriptor>> getPostFunctionsForWorkflow(final JiraWorkflow arg0) {
+    @Override
+    public Map<ActionDescriptor, Collection<FunctionDescriptor>> getPostFunctionsForWorkflow(final JiraWorkflow arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getStepId(final long arg0, final String arg1) {
+    @Override
+    public String getStepId(final long arg0, final String arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public WorkflowStore getStore() throws StoreException {
+    @Override
+    public WorkflowStore getStore() throws StoreException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflow(final String workflowName) {
+    @Override
+    public JiraWorkflow getWorkflow(final String workflowName) {
 
-		return workflowMap.get(workflowName);
-	}
+        return workflowMap.get(workflowName);
+    }
 
-	@Override
-	public JiraWorkflow getWorkflow(final GenericValue arg0) throws WorkflowException {
+    @Override
+    public JiraWorkflow getWorkflow(final GenericValue arg0) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflow(final Issue arg0) throws WorkflowException {
+    @Override
+    public JiraWorkflow getWorkflow(final Issue arg0) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflow(final Long arg0, final String arg1) throws WorkflowException {
+    @Override
+    public JiraWorkflow getWorkflow(final Long arg0, final String arg1) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflowClone(final String arg0) {
+    @Override
+    public JiraWorkflow getWorkflowClone(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflowFromScheme(final GenericValue arg0, final String arg1) throws WorkflowException {
+    @Override
+    public JiraWorkflow getWorkflowFromScheme(final GenericValue arg0, final String arg1) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JiraWorkflow getWorkflowFromScheme(final WorkflowScheme arg0, final String arg1) throws WorkflowException {
+    @Override
+    public JiraWorkflow getWorkflowFromScheme(final WorkflowScheme arg0, final String arg1) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<JiraWorkflow> getWorkflows() {
+    @Override
+    public Collection<JiraWorkflow> getWorkflows() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<JiraWorkflow> getWorkflowsFromScheme(final GenericValue arg0) throws WorkflowException {
+    @Override
+    public Collection<JiraWorkflow> getWorkflowsFromScheme(final GenericValue arg0) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Iterable<JiraWorkflow> getWorkflowsFromScheme(final Scheme arg0) throws WorkflowException {
+    @Override
+    public Iterable<JiraWorkflow> getWorkflowsFromScheme(final Scheme arg0) throws WorkflowException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<JiraWorkflow> getWorkflowsIncludingDrafts() {
+    @Override
+    public List<JiraWorkflow> getWorkflowsIncludingDrafts() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isActive(final JiraWorkflow arg0) throws WorkflowException {
+    @Override
+    public boolean isActive(final JiraWorkflow arg0) throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isEditable(final Issue arg0) {
+    @Override
+    public boolean isEditable(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isSystemWorkflow(final JiraWorkflow arg0) throws WorkflowException {
+    @Override
+    public boolean isSystemWorkflow(final JiraWorkflow arg0) throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public Workflow makeWorkflow(final String arg0) {
+    @Override
+    public Workflow makeWorkflow(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Workflow makeWorkflow(final ApplicationUser arg0) {
+    @Override
+    public Workflow makeWorkflow(final ApplicationUser arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Workflow makeWorkflowWithUserKey(final String arg0) {
+    @Override
+    public Workflow makeWorkflowWithUserKey(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Workflow makeWorkflowWithUserName(final String arg0) {
+    @Override
+    public Workflow makeWorkflowWithUserName(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void migrateIssueToWorkflow(final MutableIssue arg0, final JiraWorkflow arg1, final Status arg2)
-			throws WorkflowException {
+    @Override
+    public void migrateIssueToWorkflow(final MutableIssue arg0, final JiraWorkflow arg1, final Status arg2)
+            throws WorkflowException {
 
-	}
+    }
 
-	@Override
-	public void migrateIssueToWorkflow(final GenericValue arg0, final JiraWorkflow arg1, final GenericValue arg2)
-			throws WorkflowException {
+    @Override
+    public void migrateIssueToWorkflow(final GenericValue arg0, final JiraWorkflow arg1, final GenericValue arg2)
+            throws WorkflowException {
 
-	}
+    }
 
-	@Override
-	public boolean migrateIssueToWorkflowNoReindex(final GenericValue arg0, final JiraWorkflow arg1,
-			final GenericValue arg2) throws WorkflowException {
+    @Override
+    public boolean migrateIssueToWorkflowNoReindex(final GenericValue arg0, final JiraWorkflow arg1,
+            final GenericValue arg2) throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void overwriteActiveWorkflow(final String arg0, final String arg1) {
+    @Override
+    public void overwriteActiveWorkflow(final String arg0, final String arg1) {
 
-	}
+    }
 
-	@Override
-	public void overwriteActiveWorkflow(final ApplicationUser arg0, final String arg1) {
+    @Override
+    public void overwriteActiveWorkflow(final ApplicationUser arg0, final String arg1) {
 
-	}
+    }
 
-	@Override
-	public void removeWorkflowEntries(final GenericValue arg0) {
+    @Override
+    public void removeWorkflowEntries(final GenericValue arg0) {
 
-	}
+    }
 
-	@Override
-	public void saveWorkflowWithoutAudit(final JiraWorkflow arg0) throws WorkflowException {
+    @Override
+    public void saveWorkflowWithoutAudit(final JiraWorkflow arg0) throws WorkflowException {
 
-	}
+    }
 
-	@Override
-	public void updateWorkflow(final String arg0, final JiraWorkflow arg1) {
+    @Override
+    public void updateWorkflow(final String arg0, final JiraWorkflow arg1) {
 
-	}
+    }
 
-	@Override
-	public void updateWorkflow(final ApplicationUser arg0, final JiraWorkflow arg1) {
+    @Override
+    public void updateWorkflow(final ApplicationUser arg0, final JiraWorkflow arg1) {
 
-	}
+    }
 
-	@Override
-	public void updateWorkflowNameAndDescription(final String arg0, final JiraWorkflow arg1, final String arg2,
-			final String arg3) {
+    @Override
+    public void updateWorkflowNameAndDescription(final String arg0, final JiraWorkflow arg1, final String arg2,
+            final String arg3) {
 
-	}
+    }
 
-	@Override
-	public void updateWorkflowNameAndDescription(final ApplicationUser arg0, final JiraWorkflow arg1, final String arg2,
-			final String arg3) {
+    @Override
+    public void updateWorkflowNameAndDescription(final ApplicationUser arg0, final JiraWorkflow arg1, final String arg2,
+            final String arg3) {
 
-	}
+    }
 
-	@Override
-	public boolean workflowExists(final String arg0) throws WorkflowException {
+    @Override
+    public boolean workflowExists(final String arg0) throws WorkflowException {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void copyAndDeleteDraftWorkflows(final ApplicationUser arg0, final Set<JiraWorkflow> arg1) {
-		// TODO Auto-generated method stub
+    @Override
+    public void copyAndDeleteDraftWorkflows(final ApplicationUser arg0, final Set<JiraWorkflow> arg1) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void copyAndDeleteDraftsForInactiveWorkflowsIn(final ApplicationUser arg0, final Iterable<JiraWorkflow> arg1) {
-		// TODO Auto-generated method stub
+    @Override
+    public void copyAndDeleteDraftsForInactiveWorkflowsIn(final ApplicationUser arg0, final Iterable<JiraWorkflow> arg1) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public ActionDescriptor getActionDescriptor(final Issue arg0, final int arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ActionDescriptor getActionDescriptor(final Issue arg0, final int arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void replaceConditionInTransition(final ActionDescriptor arg0, final Map<String, String> arg1,
-			final Map<String, String> arg2) {
-		// TODO Auto-generated method stub
+    @Override
+    public void replaceConditionInTransition(final ActionDescriptor arg0, final Map<String, String> arg1,
+            final Map<String, String> arg2) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
 }

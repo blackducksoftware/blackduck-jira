@@ -33,109 +33,112 @@ import com.atlassian.jira.project.Project;
 
 public class FieldLayoutSchemeMock implements FieldLayoutScheme {
 
-	private String name;
-	private Collection<FieldLayoutSchemeEntity> entities;
-	private final Collection<FieldLayoutSchemeEntity> entitiesAdded = new ArrayList<>();
-	private int storeCount = 0;
+    private String name;
 
-	@Override
-	public void addEntity(final FieldLayoutSchemeEntity entity) {
-		entitiesAdded.add(entity);
-	}
+    private Collection<FieldLayoutSchemeEntity> entities;
 
-	public Collection<FieldLayoutSchemeEntity> getEntitiesAdded() {
-		return entitiesAdded;
-	}
+    private final Collection<FieldLayoutSchemeEntity> entitiesAdded = new ArrayList<>();
 
-	@Override
-	public boolean containsEntity(final String arg0) {
-		return false;
-	}
+    private int storeCount = 0;
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public void addEntity(final FieldLayoutSchemeEntity entity) {
+        entitiesAdded.add(entity);
+    }
 
-	public void setEntities(final Collection<FieldLayoutSchemeEntity> entities) {
-		this.entities = entities;
-	}
+    public Collection<FieldLayoutSchemeEntity> getEntitiesAdded() {
+        return entitiesAdded;
+    }
 
-	@Override
-	public Collection<FieldLayoutSchemeEntity> getEntities() {
-		return entities;
-	}
+    @Override
+    public boolean containsEntity(final String arg0) {
+        return false;
+    }
 
-	@Override
-	public FieldLayoutSchemeEntity getEntity(final String arg0) {
-		return null;
-	}
+    @Override
+    public String getDescription() {
+        return null;
+    }
 
-	@Override
-	public FieldLayoutSchemeEntity getEntity(final EditableFieldLayout arg0) {
-		return null;
-	}
+    public void setEntities(final Collection<FieldLayoutSchemeEntity> entities) {
+        this.entities = entities;
+    }
 
-	@Override
-	public Long getFieldLayoutId(final String arg0) {
-		return null;
-	}
+    @Override
+    public Collection<FieldLayoutSchemeEntity> getEntities() {
+        return entities;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
-		return null;
-	}
+    @Override
+    public FieldLayoutSchemeEntity getEntity(final String arg0) {
+        return null;
+    }
 
-	@Override
-	public Long getId() {
-		return null;
-	}
+    @Override
+    public FieldLayoutSchemeEntity getEntity(final EditableFieldLayout arg0) {
+        return null;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public Long getFieldLayoutId(final String arg0) {
+        return null;
+    }
 
-	@Override
-	public Collection<GenericValue> getProjects() {
-		return null;
-	}
+    @Override
+    public GenericValue getGenericValue() {
+        return null;
+    }
 
-	@Override
-	public Collection<Project> getProjectsUsing() {
-		return null;
-	}
+    @Override
+    public Long getId() {
+        return null;
+    }
 
-	@Override
-	public void remove() {
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public void removeEntity(final String arg0) {
+    @Override
+    public Collection<GenericValue> getProjects() {
+        return null;
+    }
 
-	}
+    @Override
+    public Collection<Project> getProjectsUsing() {
+        return null;
+    }
 
-	@Override
-	public void setDescription(final String arg0) {
+    @Override
+    public void remove() {
+    }
 
-	}
+    @Override
+    public void removeEntity(final String arg0) {
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
-	}
+    }
 
-	@Override
-	public void setName(final String name) {
-		this.name = name;
-	}
+    @Override
+    public void setDescription(final String arg0) {
 
-	@Override
-	public void store() {
-		this.storeCount++;
-	}
+    }
 
-	public int getStoreCount() {
-		return storeCount;
-	}
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void store() {
+        this.storeCount++;
+    }
+
+    public int getStoreCount() {
+        return storeCount;
+    }
 
 }

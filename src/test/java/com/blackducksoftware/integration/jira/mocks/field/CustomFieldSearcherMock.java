@@ -31,44 +31,44 @@ import com.atlassian.jira.plugin.customfield.CustomFieldSearcherModuleDescriptor
 
 public class CustomFieldSearcherMock implements CustomFieldSearcher {
 
-	@Override
-	public SearcherInformation<CustomField> getSearchInformation() {
+    @Override
+    public SearcherInformation<CustomField> getSearchInformation() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public SearchInputTransformer getSearchInputTransformer() {
+    @Override
+    public SearchInputTransformer getSearchInputTransformer() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public SearchRenderer getSearchRenderer() {
+    @Override
+    public SearchRenderer getSearchRenderer() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void init(final CustomField arg0) {
+    @Override
+    public void init(final CustomField arg0) {
 
-	}
+    }
 
-	@Override
-	public CustomFieldSearcherClauseHandler getCustomFieldSearcherClauseHandler() {
+    @Override
+    public CustomFieldSearcherClauseHandler getCustomFieldSearcherClauseHandler() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldSearcherModuleDescriptor getDescriptor() {
+    @Override
+    public CustomFieldSearcherModuleDescriptor getDescriptor() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void init(final CustomFieldSearcherModuleDescriptor arg0) {
+    @Override
+    public void init(final CustomFieldSearcherModuleDescriptor arg0) {
 
-	}
+    }
 
 }

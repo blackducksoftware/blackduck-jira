@@ -36,130 +36,130 @@ import webwork.action.Action;
 
 public class FieldScreenLayoutItemMock implements FieldScreenLayoutItem {
 
-	private Long id;
+    private Long id;
 
-	private OrderableField field;
+    private OrderableField field;
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map<String, Object> arg4) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map<String, Object> arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map<String, Object> arg4) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map<String, Object> arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getFieldId() {
+    @Override
+    public String getFieldId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldScreenTab getFieldScreenTab() {
+    @Override
+    public FieldScreenTab getFieldScreenTab() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	@Override
-	public OrderableField getOrderableField() {
+    @Override
+    public OrderableField getOrderableField() {
 
-		return field;
-	}
+        return field;
+    }
 
-	public void setOrderableField(final OrderableField field) {
-		this.field = field;
-	}
+    public void setOrderableField(final OrderableField field) {
+        this.field = field;
+    }
 
-	@Override
-	public int getPosition() {
+    @Override
+    public int getPosition() {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map<String, Object> arg4) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map<String, Object> arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isShown(final Issue arg0) {
+    @Override
+    public boolean isShown(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void remove() {
+    @Override
+    public void remove() {
 
-	}
+    }
 
-	@Override
-	public void setFieldId(final String arg0) {
+    @Override
+    public void setFieldId(final String arg0) {
 
-	}
+    }
 
-	@Override
-	public void setFieldScreenTab(final FieldScreenTab arg0) {
+    @Override
+    public void setFieldScreenTab(final FieldScreenTab arg0) {
 
-	}
+    }
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
 
-	}
+    }
 
-	@Override
-	public void setPosition(final int arg0) {
+    @Override
+    public void setPosition(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void store() {
+    @Override
+    public void store() {
 
-	}
+    }
 
 }

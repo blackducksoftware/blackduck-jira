@@ -27,14 +27,14 @@ import com.atlassian.jira.issue.fields.CustomField;
 
 public class TicketInfoFromSetup {
 
-	private Map<String, CustomField> customFields;
+    private Map<String, CustomField> customFields;
 
-	public void setCustomFields(final Map<String, CustomField> customFields) {
-		this.customFields = customFields;
-	}
+    public void setCustomFields(final Map<String, CustomField> customFields) {
+        this.customFields = customFields;
+    }
 
-	public Map<String, CustomField> getCustomFields() {
-		return customFields;
-	}
+    public Map<String, CustomField> getCustomFields() {
+        return customFields;
+    }
 
 }

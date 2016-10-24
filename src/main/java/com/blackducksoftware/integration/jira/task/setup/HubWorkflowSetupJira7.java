@@ -29,18 +29,17 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubWorkflowSetupJira7 extends AbstractHubWorkflowSetup {
 
-	public HubWorkflowSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {
-		super(settingService, jiraServices);
-	}
+    public HubWorkflowSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {
+        super(settingService, jiraServices);
+    }
 
-
-	@Override
-	protected ApplicationUser getJiraSystemAdmin() {
-		final Collection jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
-		if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
-			return null;
-		}
-		return (ApplicationUser) jiraSysAdmins.iterator().next();
-	}
+    @Override
+    protected ApplicationUser getJiraSystemAdmin() {
+        final Collection jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
+        if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
+            return null;
+        }
+        return (ApplicationUser) jiraSysAdmins.iterator().next();
+    }
 
 }

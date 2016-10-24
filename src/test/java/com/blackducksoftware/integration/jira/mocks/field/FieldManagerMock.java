@@ -43,270 +43,270 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class FieldManagerMock implements FieldManager {
 
-	@Override
-	public Set<NavigableField> getAllAvailableNavigableFields() throws FieldException {
+    @Override
+    public Set<NavigableField> getAllAvailableNavigableFields() throws FieldException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Set<SearchableField> getAllSearchableFields() {
+    @Override
+    public Set<SearchableField> getAllSearchableFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ConfigurableField getConfigurableField(final String arg0) {
+    @Override
+    public ConfigurableField getConfigurableField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomField getCustomField(final String arg0) {
+    @Override
+    public CustomField getCustomField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Field getField(final String arg0) {
+    @Override
+    public Field getField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public HideableField getHideableField(final String arg0) {
+    @Override
+    public HideableField getHideableField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public IssueTypeField getIssueTypeField() {
+    @Override
+    public IssueTypeField getIssueTypeField() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public NavigableField getNavigableField(final String arg0) {
+    @Override
+    public NavigableField getNavigableField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Set<NavigableField> getNavigableFields() {
+    @Override
+    public Set<NavigableField> getNavigableFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public OrderableField getOrderableField(final String fieldName) {
-		final List<CustomField> customFields = CustomFieldManagerMock.getCustomFields();
-		if (customFields != null && !customFields.isEmpty()) {
-			for (final CustomField field : customFields) {
-				if (field.getName().equals(fieldName)) {
-					return field;
-				}
-			}
-		}
-		return null;
-	}
+    @Override
+    public OrderableField getOrderableField(final String fieldName) {
+        final List<CustomField> customFields = CustomFieldManagerMock.getCustomFields();
+        if (customFields != null && !customFields.isEmpty()) {
+            for (final CustomField field : customFields) {
+                if (field.getName().equals(fieldName)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public Set<OrderableField> getOrderableFields() {
+    @Override
+    public Set<OrderableField> getOrderableFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ProjectField getProjectField() {
+    @Override
+    public ProjectField getProjectField() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public RequirableField getRequiredField(final String arg0) {
+    @Override
+    public RequirableField getRequiredField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Set<SearchableField> getSystemSearchableFields() {
+    @Override
+    public Set<SearchableField> getSystemSearchableFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Set<Field> getUnavailableFields() {
+    @Override
+    public Set<Field> getUnavailableFields() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isCustomField(final String arg0) {
+    @Override
+    public boolean isCustomField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isCustomField(final Field arg0) {
+    @Override
+    public boolean isCustomField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isFieldHidden(final Set<FieldLayout> arg0, final Field arg1) {
+    @Override
+    public boolean isFieldHidden(final Set<FieldLayout> arg0, final Field arg1) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isHideableField(final String arg0) {
+    @Override
+    public boolean isHideableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isHideableField(final Field arg0) {
+    @Override
+    public boolean isHideableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isMandatoryField(final String arg0) {
+    @Override
+    public boolean isMandatoryField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isMandatoryField(final Field arg0) {
+    @Override
+    public boolean isMandatoryField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isNavigableField(final String arg0) {
+    @Override
+    public boolean isNavigableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isNavigableField(final Field arg0) {
+    @Override
+    public boolean isNavigableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isOrderableField(final String arg0) {
+    @Override
+    public boolean isOrderableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isOrderableField(final Field arg0) {
+    @Override
+    public boolean isOrderableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRenderableField(final String arg0) {
+    @Override
+    public boolean isRenderableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRenderableField(final Field arg0) {
+    @Override
+    public boolean isRenderableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRequirableField(final String arg0) {
+    @Override
+    public boolean isRequirableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRequirableField(final Field arg0) {
+    @Override
+    public boolean isRequirableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isTimeTrackingOn() {
+    @Override
+    public boolean isTimeTrackingOn() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isUnscreenableField(final String arg0) {
+    @Override
+    public boolean isUnscreenableField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isUnscreenableField(final Field arg0) {
+    @Override
+    public boolean isUnscreenableField(final Field arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void refresh() {
+    @Override
+    public void refresh() {
 
-	}
+    }
 
-	@Override
-	public Set<CustomField> getAvailableCustomFields(final ApplicationUser arg0, final Issue arg1)
-			throws FieldException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Set<CustomField> getAvailableCustomFields(final ApplicationUser arg0, final Issue arg1)
+            throws FieldException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Set<NavigableField> getAvailableNavigableFields(final ApplicationUser arg0) throws FieldException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Set<NavigableField> getAvailableNavigableFields(final ApplicationUser arg0) throws FieldException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0) throws FieldException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0) throws FieldException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0, final QueryContext arg1)
-			throws FieldException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0, final QueryContext arg1)
+            throws FieldException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Set<FieldLayout> getVisibleFieldLayouts(final ApplicationUser arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Set<FieldLayout> getVisibleFieldLayouts(final ApplicationUser arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isCustomFieldId(final String arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isCustomFieldId(final String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean isExistingCustomField(final String arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isExistingCustomField(final String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean isFieldHidden(final ApplicationUser arg0, final Field arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isFieldHidden(final ApplicationUser arg0, final Field arg1) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean isFieldHidden(final ApplicationUser arg0, final String arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isFieldHidden(final ApplicationUser arg0, final String arg1) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

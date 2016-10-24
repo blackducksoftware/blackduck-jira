@@ -46,407 +46,408 @@ import javax.servlet.http.Part;
 
 public class HttpServletRequestMock implements HttpServletRequest {
 
-	StringBuffer requestUrl;
-	String queryString;
+    StringBuffer requestUrl;
 
-	@Override
-	public Object getAttribute(final String name) {
+    String queryString;
 
-		return null;
-	}
+    @Override
+    public Object getAttribute(final String name) {
 
-	@Override
-	public Enumeration getAttributeNames() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Enumeration getAttributeNames() {
 
-	@Override
-	public String getCharacterEncoding() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getCharacterEncoding() {
 
-	@Override
-	public void setCharacterEncoding(final String env) throws UnsupportedEncodingException {
+        return null;
+    }
 
-	}
+    @Override
+    public void setCharacterEncoding(final String env) throws UnsupportedEncodingException {
 
-	@Override
-	public int getContentLength() {
+    }
 
-		return 0;
-	}
+    @Override
+    public int getContentLength() {
 
-	@Override
-	public String getContentType() {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public String getContentType() {
 
-	@Override
-	public ServletInputStream getInputStream() throws IOException {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public ServletInputStream getInputStream() throws IOException {
 
-	@Override
-	public String getParameter(final String name) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getParameter(final String name) {
 
-	@Override
-	public Enumeration getParameterNames() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Enumeration getParameterNames() {
 
-	@Override
-	public String[] getParameterValues(final String name) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String[] getParameterValues(final String name) {
 
-	@Override
-	public Map getParameterMap() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Map getParameterMap() {
 
-	@Override
-	public String getProtocol() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getProtocol() {
 
-	@Override
-	public String getScheme() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getScheme() {
 
-	@Override
-	public String getServerName() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getServerName() {
 
-	@Override
-	public int getServerPort() {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public int getServerPort() {
 
-	@Override
-	public BufferedReader getReader() throws IOException {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public BufferedReader getReader() throws IOException {
 
-	@Override
-	public String getRemoteAddr() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRemoteAddr() {
 
-	@Override
-	public String getRemoteHost() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRemoteHost() {
 
-	@Override
-	public void setAttribute(final String name, final Object o) {
+        return null;
+    }
 
-	}
+    @Override
+    public void setAttribute(final String name, final Object o) {
 
-	@Override
-	public void removeAttribute(final String name) {
+    }
 
-	}
+    @Override
+    public void removeAttribute(final String name) {
 
-	@Override
-	public Locale getLocale() {
+    }
 
-		return null;
-	}
+    @Override
+    public Locale getLocale() {
 
-	@Override
-	public Enumeration getLocales() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Enumeration getLocales() {
 
-	@Override
-	public boolean isSecure() {
+        return null;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isSecure() {
 
-	@Override
-	public RequestDispatcher getRequestDispatcher(final String path) {
+        return false;
+    }
 
-		return null;
-	}
+    @Override
+    public RequestDispatcher getRequestDispatcher(final String path) {
 
-	@Override
-	public String getRealPath(final String path) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRealPath(final String path) {
 
-	@Override
-	public int getRemotePort() {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public int getRemotePort() {
 
-	@Override
-	public String getLocalName() {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public String getLocalName() {
 
-	@Override
-	public String getLocalAddr() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getLocalAddr() {
 
-	@Override
-	public int getLocalPort() {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public int getLocalPort() {
 
-	@Override
-	public String getAuthType() {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public String getAuthType() {
 
-	@Override
-	public Cookie[] getCookies() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Cookie[] getCookies() {
 
-	@Override
-	public long getDateHeader(final String name) {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public long getDateHeader(final String name) {
 
-	@Override
-	public String getHeader(final String name) {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public String getHeader(final String name) {
 
-	@Override
-	public Enumeration getHeaders(final String name) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Enumeration getHeaders(final String name) {
 
-	@Override
-	public Enumeration getHeaderNames() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public Enumeration getHeaderNames() {
 
-	@Override
-	public int getIntHeader(final String name) {
+        return null;
+    }
 
-		return 0;
-	}
+    @Override
+    public int getIntHeader(final String name) {
 
-	@Override
-	public String getMethod() {
+        return 0;
+    }
 
-		return null;
-	}
+    @Override
+    public String getMethod() {
 
-	@Override
-	public String getPathInfo() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getPathInfo() {
 
-	@Override
-	public String getPathTranslated() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getPathTranslated() {
 
-	@Override
-	public String getContextPath() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getContextPath() {
 
-	@Override
-	public String getQueryString() {
-		return queryString;
-	}
+        return null;
+    }
 
-	public void setQueryString(final String queryString) {
-		this.queryString = queryString;
-	}
+    @Override
+    public String getQueryString() {
+        return queryString;
+    }
 
-	@Override
-	public String getRemoteUser() {
+    public void setQueryString(final String queryString) {
+        this.queryString = queryString;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRemoteUser() {
 
-	@Override
-	public boolean isUserInRole(final String role) {
+        return null;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isUserInRole(final String role) {
 
-	@Override
-	public Principal getUserPrincipal() {
+        return false;
+    }
 
-		return null;
-	}
+    @Override
+    public Principal getUserPrincipal() {
 
-	@Override
-	public String getRequestedSessionId() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRequestedSessionId() {
 
-	@Override
-	public String getRequestURI() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public String getRequestURI() {
 
-	@Override
-	public StringBuffer getRequestURL() {
-		return requestUrl;
-	}
+        return null;
+    }
 
-	public void setRequestURL(final StringBuffer requestUrl) {
-		this.requestUrl = requestUrl;
-	}
+    @Override
+    public StringBuffer getRequestURL() {
+        return requestUrl;
+    }
 
-	@Override
-	public String getServletPath() {
+    public void setRequestURL(final StringBuffer requestUrl) {
+        this.requestUrl = requestUrl;
+    }
 
-		return null;
-	}
+    @Override
+    public String getServletPath() {
 
-	@Override
-	public HttpSession getSession(final boolean create) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public HttpSession getSession(final boolean create) {
 
-	@Override
-	public HttpSession getSession() {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public HttpSession getSession() {
 
-	@Override
-	public boolean isRequestedSessionIdValid() {
+        return null;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isRequestedSessionIdValid() {
 
-	@Override
-	public boolean isRequestedSessionIdFromCookie() {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isRequestedSessionIdFromCookie() {
 
-	@Override
-	public boolean isRequestedSessionIdFromURL() {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isRequestedSessionIdFromURL() {
 
-	@Override
-	public boolean isRequestedSessionIdFromUrl() {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public boolean isRequestedSessionIdFromUrl() {
 
-	@Override
-	public ServletContext getServletContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return false;
+    }
 
-	@Override
-	public AsyncContext startAsync() throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ServletContext getServletContext() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
-			throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isAsyncStarted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
+            throws IllegalStateException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isAsyncSupported() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isAsyncStarted() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public AsyncContext getAsyncContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isAsyncSupported() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public DispatcherType getDispatcherType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public AsyncContext getAsyncContext() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean authenticate(final HttpServletResponse response) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public DispatcherType getDispatcherType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void login(final String username, final String password) throws ServletException {
-		// TODO Auto-generated method stub
+    @Override
+    public boolean authenticate(final HttpServletResponse response) throws IOException, ServletException {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	}
+    @Override
+    public void login(final String username, final String password) throws ServletException {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void logout() throws ServletException {
-		// TODO Auto-generated method stub
+    }
 
-	}
+    @Override
+    public void logout() throws ServletException {
+        // TODO Auto-generated method stub
 
-	@Override
-	public Collection<Part> getParts() throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public Part getPart(final String name) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Part getPart(final String name) throws IOException, ServletException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

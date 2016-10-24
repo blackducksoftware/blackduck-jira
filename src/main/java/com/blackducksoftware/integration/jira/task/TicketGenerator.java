@@ -49,71 +49,78 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  *
  */
 public class TicketGenerator {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final HubIntRestService hubIntRestService;
-	private final VulnerableBomComponentRestService vulnerableBomComponentRestService;
-	private final NotificationDataService notificationDataService;
-	private final JiraContext jiraContext;
-	private final JiraServices jiraServices;
-	private final JiraSettingsService jiraSettingsService;
-	private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public TicketGenerator(final HubIntRestService hubIntRestService,
-			final VulnerableBomComponentRestService vulnerableBomComponentRestService,
-			final NotificationDataService notificationDataService, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final TicketInfoFromSetup ticketInfoFromSetup) {
-		this.hubIntRestService = hubIntRestService;
-		this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
-		this.notificationDataService = notificationDataService;
-		this.jiraServices = jiraServices;
-		this.jiraContext = jiraContext;
-		this.jiraSettingsService = jiraSettingsService;
-		this.ticketInfoFromSetup = ticketInfoFromSetup;
-	}
+    private final HubIntRestService hubIntRestService;
 
-	public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
-			final Date endDate) throws NotificationServiceException {
+    private final VulnerableBomComponentRestService vulnerableBomComponentRestService;
 
-		if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
-			logger.debug("The configuration does not specify any Hub projects to monitor");
-			return;
-		}
-		try {
+    private final NotificationDataService notificationDataService;
 
-			final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
-					endDate);
-			// final List<NotificationItem> notifs =
-			// notificationService.fetchNotifications(notificationDateRange);
-			if ((notifs == null) || (notifs.size() == 0)) {
-				logger.info("There are no notifications to handle");
-				return;
-			}
+    private final JiraContext jiraContext;
 
-			final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
-					jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
+    private final JiraServices jiraServices;
 
-			final List<HubEvent> events = processor.generateEvents(notifs);
-			if ((events == null) || (events.size() == 0)) {
-				logger.info("There are no events to handle");
-				return;
-			}
+    private final JiraSettingsService jiraSettingsService;
 
-			final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
-					ticketInfoFromSetup);
+    private final TicketInfoFromSetup ticketInfoFromSetup;
 
-			for (final HubEvent event : events) {
-				try {
-					issueHandler.handleEvent(event);
-				} catch (final Exception e) {
-					logger.error(e);
-					jiraSettingsService.addHubError(e, "issueHandler.handleEvent(event)");
-				}
-			}
-		} catch (final Exception e) {
-			logger.error(e);
-			jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
-		}
+    public TicketGenerator(final HubIntRestService hubIntRestService,
+            final VulnerableBomComponentRestService vulnerableBomComponentRestService,
+            final NotificationDataService notificationDataService, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final TicketInfoFromSetup ticketInfoFromSetup) {
+        this.hubIntRestService = hubIntRestService;
+        this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
+        this.notificationDataService = notificationDataService;
+        this.jiraServices = jiraServices;
+        this.jiraContext = jiraContext;
+        this.jiraSettingsService = jiraSettingsService;
+        this.ticketInfoFromSetup = ticketInfoFromSetup;
+    }
 
-	}
+    public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
+            final Date endDate) throws NotificationServiceException {
+
+        if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
+            logger.debug("The configuration does not specify any Hub projects to monitor");
+            return;
+        }
+        try {
+
+            final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
+                    endDate);
+            // final List<NotificationItem> notifs =
+            // notificationService.fetchNotifications(notificationDateRange);
+            if ((notifs == null) || (notifs.size() == 0)) {
+                logger.info("There are no notifications to handle");
+                return;
+            }
+
+            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
+                    jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
+
+            final List<HubEvent> events = processor.generateEvents(notifs);
+            if ((events == null) || (events.size() == 0)) {
+                logger.info("There are no events to handle");
+                return;
+            }
+
+            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
+                    ticketInfoFromSetup);
+
+            for (final HubEvent event : events) {
+                try {
+                    issueHandler.handleEvent(event);
+                } catch (final Exception e) {
+                    logger.error(e);
+                    jiraSettingsService.addHubError(e, "issueHandler.handleEvent(event)");
+                }
+            }
+        } catch (final Exception e) {
+            logger.error(e);
+            jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
+        }
+
+    }
 }
