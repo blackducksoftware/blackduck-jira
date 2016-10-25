@@ -130,9 +130,11 @@ public class JiraTask implements PluginJob {
 
         HubServerConfig serverConfig = null;
         try {
+            logger.debug("Building Hub configuration");
             serverConfig = hubConfigBuilder.build();
+            logger.debug("Finished building Hub configuration");
         } catch (final IllegalStateException e) {
-            logger.error("At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
+            logger.error("Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
                     + e.getMessage());
             return;
         }
