@@ -247,7 +247,7 @@ public class HubIssueTypeSetup {
                         + existingIssueTypeScreenScheme.getName());
 
                 if ((existingIssueTypeId == issueType.getId())
-                        && (existingFieldScreenScheme.getId() == fieldScreenScheme.getId())) {
+                        && (existingFieldScreenScheme.getId().equals(fieldScreenScheme.getId()))) {
                     logger.debug("The fieldScreenScheme -- issueTypeScreenScheme already exists");
                     entityExists = true;
                     break;
