@@ -44,18 +44,19 @@ public class ConverterLookupTable {
     public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubIntRestService hubIntRestService,
-            final VulnerableBomComponentRestService vulnerableBomComponentRestService)
+            final VulnerableBomComponentRestService vulnerableBomComponentRestService,
+            final boolean changeIssueStateIfExists)
             throws ConfigurationException {
 
         final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
                 mappings, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
-                vulnerableBomComponentRestService);
+                vulnerableBomComponentRestService, changeIssueStateIfExists);
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists);
         final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists);
         final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists);
 
         lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);

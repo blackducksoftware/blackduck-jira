@@ -92,11 +92,13 @@ public class HubJiraTask {
     private final JiraSettingsService jiraSettingsService;
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
+    
+    private final boolean changeIssueStateIfExists;
 
     public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
             final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
             final String jiraUser, final JiraSettingsService jiraSettingsService,
-            final TicketInfoFromSetup ticketInfoFromSetup) {
+            final TicketInfoFromSetup ticketInfoFromSetup, final boolean changeIssueStateIfExists) {
 
         this.serverConfig = serverConfig;
         this.intervalString = intervalString;
@@ -116,6 +118,7 @@ public class HubJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.changeIssueStateIfExists = changeIssueStateIfExists;
     }
 
     /**
@@ -244,7 +247,7 @@ public class HubJiraTask {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup);
+                jiraSettingsService, ticketInfoFromSetup, changeIssueStateIfExists);
         return ticketGenerator;
     }
 

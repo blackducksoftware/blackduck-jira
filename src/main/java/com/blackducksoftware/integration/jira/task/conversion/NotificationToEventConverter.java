@@ -41,17 +41,21 @@ public abstract class NotificationToEventConverter {
     private final JiraContext jiraContext;
 
     private final JiraSettingsService jiraSettingsService;
+    
+    private final boolean changeIssueStateIfExists;
 
     private final HubProjectMappings mappings;
 
     private final String issueTypeId;
 
     public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
-            final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+            final JiraSettingsService jiraSettingsService, final boolean changeIssueStateIfExists,
+            final HubProjectMappings mappings,
             final String issueTypeName) throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
+        this.changeIssueStateIfExists = changeIssueStateIfExists;
         this.mappings = mappings;
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
     }
@@ -60,6 +64,10 @@ public abstract class NotificationToEventConverter {
 
     public JiraSettingsService getJiraSettingsService() {
         return jiraSettingsService;
+    }
+
+    public boolean isChangeIssueStateIfExists() {
+        return changeIssueStateIfExists;
     }
 
     public HubProjectMappings getMappings() {

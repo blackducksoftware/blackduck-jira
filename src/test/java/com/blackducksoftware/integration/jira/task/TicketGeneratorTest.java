@@ -232,7 +232,7 @@ public class TicketGeneratorTest {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null);
+                settingsService, null, true);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         notificationItems.addAll(mockNewVulnerabilityNotificationItems(createDuplicateNotification));
@@ -319,7 +319,7 @@ public class TicketGeneratorTest {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null);
+                settingsService, null, true);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         if (openIssue) {

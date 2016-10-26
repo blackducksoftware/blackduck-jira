@@ -49,22 +49,31 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
     public static final String PROJECT_LINK = "project";
 
     public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final boolean changeIssueStateIfExists) throws ConfigurationException {
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
+        
+        HubEventAction action = HubEventAction.RESOLVE;
+        String commentForExistingIssue = null;
+        if (!isChangeIssueStateIfExists()) {
+            action = HubEventAction.ADD_COMMENT_IF_EXISTS;
+            commentForExistingIssue = HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
+        }
 
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
+            final HubEvent event = new PolicyEvent(action, isChangeIssueStateIfExists(), getJiraContext().getJiraUser().getName(),
                     getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
+                    null, commentForExistingIssue,
                     HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);

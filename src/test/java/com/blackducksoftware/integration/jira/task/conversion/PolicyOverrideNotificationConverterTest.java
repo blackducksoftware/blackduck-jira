@@ -149,7 +149,7 @@ public class PolicyOverrideNotificationConverterTest {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
 
         final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
-                jiraContext, jiraSettingsService);
+                jiraContext, jiraSettingsService, true);
         final List<HubEvent> events = converter.generateEvents(notification);
         return events;
     }

@@ -377,6 +377,7 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final HubEvent notificationEvent) {
+        logger.debug("changeIssueStateIfExists: " + notificationEvent.isChangeIssueStateIfExists());
         switch (notificationEvent.getAction()) {
         case OPEN:
             openIssue(notificationEvent);
@@ -385,15 +386,19 @@ public class JiraIssueHandler {
             closeIssue(notificationEvent);
             break;
         case ADD_COMMENT:
-            final Issue issue = openIssue(notificationEvent);
+            final ExistenceAwareIssue issue = openIssue(notificationEvent);
             if (issue != null) {
-                addComment(notificationEvent.getComment(), issue);
+                if (!issue.isExisted()) {
+                    addComment(notificationEvent.getComment(), issue.getIssue());
+                } else {
+                    addComment(notificationEvent.getCommentForExistingIssue(), issue.getIssue());
+                }
             }
             break;
         case ADD_COMMENT_IF_EXISTS:
             final Issue existingIssue = findIssue(notificationEvent);
             if (existingIssue != null) {
-                addComment(notificationEvent.getComment(), existingIssue);
+                addComment(notificationEvent.getCommentForExistingIssue(), existingIssue);
             }
             break;
         }
@@ -408,7 +413,7 @@ public class JiraIssueHandler {
         commentManager.create(issue, jiraContext.getJiraUser(), comment, true);
     }
 
-    private Issue openIssue(final HubEvent notificationEvent) {
+    private ExistenceAwareIssue openIssue(final HubEvent notificationEvent) {
         logger.debug("Setting logged in User : " + jiraContext.getJiraUser().getDisplayName());
         jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraUser());
         logger.debug("notificationEvent: " + notificationEvent);
@@ -418,7 +423,7 @@ public class JiraIssueHandler {
             final Issue oldIssue = findIssue(notificationEvent);
 
             if (oldIssue == null) {
-
+                // Issue does not yet exist
                 final Issue issue = createIssue(notificationEvent);
                 if (issue != null) {
                     logger.info("Created new Issue.");
@@ -428,9 +433,11 @@ public class JiraIssueHandler {
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(notificationEvent, issue.getId(), notificationUniqueKey, properties);
                 }
-                return issue;
+                return new ExistenceAwareIssue(issue, false);
             } else {
-                if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+                // Issue already exists
+                if (notificationEvent.isChangeIssueStateIfExists() &&
+                        oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
                     final Issue transitionedIssue = transitionIssue(notificationEvent, oldIssue,
                             HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
                             HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
@@ -444,13 +451,16 @@ public class JiraIssueHandler {
                     logger.info("This issue already exists.");
                     printIssueInfo(oldIssue);
                 }
-                return oldIssue;
+                return new ExistenceAwareIssue(oldIssue, true);
             }
         }
         return null;
     }
 
-    private Issue closeIssue(final HubEvent event) {
+    private void closeIssue(final HubEvent event) {
+        if (!event.isChangeIssueStateIfExists()) {
+            return;
+        }
         final Issue oldIssue = findIssue(event);
         if (oldIssue != null) {
             final Issue updatedIssue = transitionIssue(event, oldIssue,
@@ -472,7 +482,6 @@ public class JiraIssueHandler {
                 logger.debug("Hub Rule Name : " + notificationResultRule.getPolicyRule().getName());
             }
         }
-        return oldIssue;
     }
 
     private void printIssueInfo(final Issue issue) {
@@ -484,6 +493,22 @@ public class JiraIssueHandler {
         logger.debug("Status : " + issue.getStatus().getName());
         logger.debug("For Project : " + issue.getProjectObject().getName());
         logger.debug("For Project Id : " + issue.getProjectObject().getId());
+    }
+    
+    private class ExistenceAwareIssue {
+        private final Issue issue;
+        private final boolean existed;
+        public ExistenceAwareIssue(Issue issue, boolean existed) {
+            super();
+            this.issue = issue;
+            this.existed = existed;
+        }
+        private Issue getIssue() {
+            return issue;
+        }
+        private boolean isExisted() {
+            return existed;
+        }
     }
 
 }

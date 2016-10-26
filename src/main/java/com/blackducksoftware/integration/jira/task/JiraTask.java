@@ -96,7 +96,9 @@ public class JiraTask implements PluginJob {
         final String lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
         final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
-
+        
+        final boolean changeIssueStateIfExists = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true); // TODO get this from config
+        logger.debug("changeIssueStateIfExists: " + changeIssueStateIfExists);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
         final DateTime beforeSetup = new DateTime();
@@ -147,7 +149,7 @@ public class JiraTask implements PluginJob {
 
         final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
                 lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
-                ticketInfoFromSetup);
+                ticketInfoFromSetup, changeIssueStateIfExists);
         final String runDateString = processor.execute();
         if (runDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -255,5 +257,17 @@ public class JiraTask implements PluginJob {
 
     private String getStringValue(final PluginSettings settings, final String key) {
         return (String) getValue(settings, key);
+    }
+    
+    private boolean getBooleanValue(final PluginSettings settings, final String key, final boolean defaultValue) {
+        String valueString = (String) getValue(settings, key);
+        
+        if ("true".equalsIgnoreCase(valueString)) {
+            return true;
+        }
+        if ("false".equalsIgnoreCase(valueString)) {
+            return false;
+        }
+        return defaultValue;
     }
 }

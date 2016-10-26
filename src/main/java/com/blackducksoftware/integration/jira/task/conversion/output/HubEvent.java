@@ -42,6 +42,10 @@ public abstract class HubEvent<T extends NotificationContentItem> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final HubEventAction action;
+    
+    // This field modifies the response to action
+    // If false, plugin will not change the state of an existing issue
+    private final boolean changeIssueStateIfExists;
 
     private final String jiraUserName;
 
@@ -58,10 +62,11 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
     private final T notif;
 
-    public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+    public HubEvent(final HubEventAction action, final boolean changeIssueStateIfExists, final String jiraUserName, final String jiraUserId,
             final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
             final String jiraProjectName, final T notif) {
         this.action = action;
+        this.changeIssueStateIfExists = changeIssueStateIfExists;
         this.jiraUserName = jiraUserName;
         this.jiraUserId = jiraUserId;
         this.issueAssigneeId = issueAssigneeId;
@@ -73,6 +78,10 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
     public HubEventAction getAction() {
         return action;
+    }
+
+    public boolean isChangeIssueStateIfExists() {
+        return changeIssueStateIfExists;
     }
 
     public T getNotif() {
@@ -109,7 +118,11 @@ public abstract class HubEvent<T extends NotificationContentItem> {
     }
 
     public String getComment() {
-        return null; // most event types don't produce comments
+        return null;
+    }
+    
+    public String getCommentForExistingIssue() {
+        return null;
     }
 
     public String getResolveComment() {

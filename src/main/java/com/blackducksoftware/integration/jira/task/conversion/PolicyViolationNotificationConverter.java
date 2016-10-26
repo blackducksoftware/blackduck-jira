@@ -44,22 +44,31 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
     public static final String PROJECT_LINK = "project";
 
     public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final boolean changeIssueStateIfExists)
             throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
+        
+        HubEventAction action = HubEventAction.OPEN;
+        String commentForExistingIssue = null;
+        if (!isChangeIssueStateIfExists()) {
+            action = HubEventAction.ADD_COMMENT;
+            commentForExistingIssue = HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
+        }
 
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            final HubEvent event = new PolicyEvent(HubEventAction.OPEN, getJiraContext().getJiraUser().getName(),
+            final HubEvent event = new PolicyEvent(action, isChangeIssueStateIfExists(), getJiraContext().getJiraUser().getName(),
                     getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
+                    null, commentForExistingIssue,
                     HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
             events.add(event);
         }

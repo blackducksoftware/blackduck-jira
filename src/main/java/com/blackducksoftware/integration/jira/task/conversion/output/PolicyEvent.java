@@ -40,21 +40,28 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     private final PolicyContentItem notificationContentItem;
 
     private final PolicyRule policyRule;
+    
+    private final String comment;
 
+    private final String commentForExistingIssue;
+    
     private final String resolveComment;
 
-    public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+    public PolicyEvent(final HubEventAction action, final boolean changeIssueStateIfExists, final String jiraUserName, final String jiraUserId,
 
             final String issueAssigneeId,
             final String jiraIssueTypeId,
             final Long jiraProjectId, final String jiraProjectName,
             final PolicyContentItem notificationContentItem,
-            final PolicyRule policyRule, final String resolveComment) {
+            final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
+            final String resolveComment) {
 
-        super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
+        super(action, changeIssueStateIfExists, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
                 notificationContentItem);
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
+        this.comment = comment;
+        this.commentForExistingIssue = commentForExistingIssue;
         this.resolveComment = resolveComment;
     }
 
@@ -173,6 +180,16 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
                 getNotificationContentItem().getComponentName(), getNotificationContentItem().getComponentVersion(),
                 issue.getId(), getPolicyRule().getName());
         return properties;
+    }
+    
+    @Override
+    public String getComment() {
+        return comment;
+    }
+    
+    @Override
+    public String getCommentForExistingIssue() {
+        return commentForExistingIssue;
     }
 
     @Override

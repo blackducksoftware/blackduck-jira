@@ -64,7 +64,7 @@ public class ConverterLookupTableTest {
                 .mock(VulnerableBomComponentRestService.class);
         final JiraServices jiraServices = mockJiraServices();
         final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, hubIntRestService,
-                vulnerableBomComponentRestService);
+                vulnerableBomComponentRestService, true);
 
         try {
             assertEquals(null, table.getConverter(null));
