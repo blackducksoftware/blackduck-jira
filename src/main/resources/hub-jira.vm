@@ -164,6 +164,20 @@
       		</table>	
       		</div>
       	</fieldSet>
+      	
+      	<fieldset class="fieldSection">
+			<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'optionsArea');"> </i> $i18n.getText("hub.integration.jira.optionsSection.label")</legend>
+			<div id="optionsArea">
+			<div class="field-group">
+		        <label class="label" for="changeIssueState">$i18n.getText("hub.integration.jira.changeIssueState.label")</label>
+		        <input type="checkbox" id="changeIssueState" name="changeIssueState">
+		      </div>
+		      <div class="field-group">
+		      	<label> </label>
+		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+		      </div>
+      		</div>
+      	</fieldSet>
 		
 	   <div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
