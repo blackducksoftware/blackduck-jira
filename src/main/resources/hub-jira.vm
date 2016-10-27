@@ -69,10 +69,10 @@
 			  		<thead>
 			  			<tr>
 			  				<td class="mappingTableCell"/>
-			  				<td class="mappingTableCell error hidden" id="jiraProjectListError">
+			  				<td class="mappingTableCell error" id="jiraProjectListError">
 						    </td>
 						    <td class="mappingTableCell"/>
-						    <td class="mappingTableCell error hidden" id="hubProjectListError">
+						    <td class="mappingTableCell error" id="hubProjectListError">
 						    </td>
 						    <td class="mappingTableCell"/>
 			  			</tr>

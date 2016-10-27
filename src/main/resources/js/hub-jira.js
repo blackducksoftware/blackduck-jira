@@ -91,7 +91,7 @@ function populateForm() {
 	    success: function(admin) {
 	      fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
 	      
-	      handleError('hubJiraGroupsError', admin.hubJiraGroupsError, false);
+	      handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, false);
 	    },
 	    error: function(response){
 	    	handleDataRetrievalError(response, "hubJiraGroupsError", "There was a problem retrieving the Admin configuration.", "Admin Error");
@@ -104,7 +104,7 @@ function populateForm() {
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, false);
+	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, false);
 	    },
 	    error: function(response){
 	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the Interval.", "Interval Error");
@@ -116,8 +116,8 @@ function populateForm() {
 		    success: function(config) {
 		      fillInJiraProjects(config.jiraProjects);
 		      
-		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false);
-		      handleError(errorMessageFieldId, config.errorMessage, false);
+		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
 		      
 		      gotJiraProjects = true;
 		    },
@@ -131,8 +131,8 @@ function populateForm() {
 		    success: function(config) {
 		      fillInHubProjects(config.hubProjects);
 		     
-		      handleError(hubProjectListErrorId, config.hubProjectsError, false);
-		      handleError(errorMessageFieldId, config.errorMessage, false);
+		      handleError(hubProjectListErrorId, config.hubProjectsError, false, false);
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
 		      
 		      gotHubProjects = true;
 		    },
@@ -146,8 +146,8 @@ function populateForm() {
 		    success: function(config) {
 		      addPolicyViolationRules(config.policyRules);
 
-		      handleError(errorMessageFieldId, config.errorMessage, false);
-		      handleError('policyRulesError', config.policyRulesError, false);
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      handleError('policyRulesError', config.policyRulesError, true, false);
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Hub Policy Rules.", "Hub Policy Rules Error");
@@ -162,8 +162,8 @@ function populateForm() {
 		    success: function(config) {
 		      fillInMappings(config.hubProjectMappings);
 		      
-		      handleError(errorMessageFieldId, config.errorMessage, false);
-		      handleError('hubProjectMappingsError', config.hubProjectMappingError, false);
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
 		      
 		      gotProjectMappings = true;
 		    },
@@ -503,7 +503,7 @@ var hubJiraGroups = encodeURI(AJS.$("#hubJiraGroups").val());
 	    error: function(response){
 	    	try {
 		    	var admin = JSON.parse(response.responseText);
-		    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true);
+		    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, true);
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 	    	} catch(err) {
@@ -541,10 +541,10 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    error: function(response){
 	    	try {
 		    	var config = JSON.parse(response.responseText);
-		    	handleError(errorMessageFieldId, config.errorMessage, true);
-		    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
-		    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
-		    	handleError('policyRulesError', config.policyRulesError, true);
+		    	handleError(errorMessageFieldId, config.errorMessage, true, true);
+		    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, true);
+		    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true, true);
+		    	handleError('policyRulesError', config.policyRulesError, true, true);
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 	    	} catch(err) {
@@ -878,11 +878,13 @@ function onMappingInputChange(inputField){
     }
 }
 
-function handleError(fieldId, configField, clearOldMessage) {
+function handleError(fieldId, configField, hideError, clearOldMessage) {
 	if(configField){
 		showError(fieldId, configField, clearOldMessage);
-    } else{
+    } else if(hideError){
     	hideError(fieldId);
+    } else{
+    	showError(fieldId, "", true);
     }
 }
 
