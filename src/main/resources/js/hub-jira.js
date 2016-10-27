@@ -31,6 +31,8 @@ var successStatus = "success";
 
 var hiddenClass = "hidden";
 
+var hubJiraGroupsId = "hubJiraGroups";
+
 var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 var hubMappingStatus = "mappingStatus";
@@ -485,14 +487,14 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 
 function putAdminConfig(restUrl, successMessage, failureMessage) {
 
-var hubJiraGroups = encodeURI(AJS.$("#hubJiraGroups").val()); 
+var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val()); 
 
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
 	    dataType: "json",
 	    contentType: "application/json",
-	    data: '{ "hubJiraGroups": "' + encodeURI(AJS.$("#hubJiraGroups").val())
+	    data: '{ "hubJiraGroups": "' + hubJiraGroups)
 	    + '"}',
 	    processData: false,
 	    success: function() {
@@ -686,7 +688,7 @@ function fillInJiraGroups(hubJiraGroups, jiraGroups){
 	if(hubJiraGroups != null){
 	  splitHubJiraGroups = hubJiraGroups.split(",");
 	}
-	var jiraGroupList = AJS.$("#hubJiraGroups");
+	var jiraGroupList = AJS.$("#"+hubJiraGroupsId);
 	if(jiraGroups != null && jiraGroups.length > 0){
 		for (j = 0; j < jiraGroups.length; j++) {
 			var optionSelected = false;
