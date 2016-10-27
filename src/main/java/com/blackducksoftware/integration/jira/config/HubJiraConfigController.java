@@ -442,7 +442,7 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putOptions(final OptionsSerializable options, @Context final HttpServletRequest request) {
-        logger.debug("putOptions() called");
+        logger.debug("putOptions() called with options: " + options);
         return Response.noContent().build();
     }
 

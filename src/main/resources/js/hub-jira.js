@@ -558,17 +558,20 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	  });
 	  
 	  // Put Options
-	  console.log("Saving options3");
-	  console.log("restUrl: " + restUrl);
+	  console.log("Saving options");
 	  var putOptionsUrl = restUrl + "saveOptions";
 	  console.log("putOptionsUrl: " + putOptionsUrl);
+	  
+	  var changeIssueStateEnabled = AJS.$("#changeIssueStateEnabled")[0].checked;
+	  console.log("changeIssueStateEnabled: " + changeIssueStateEnabled);
+	  
 	  AJS.$.ajax({
 		  
 		  url: putOptionsUrl,
 		    type: "PUT",
 		    dataType: "json",
 		    contentType: "application/json",
-		    data: '{ "changeIssueStateEnabled": ' + true
+		    data: '{ "changeIssueStateEnabled": ' + changeIssueStateEnabled
 		    + '}',
 		    processData: false,
 		    success: function() {
