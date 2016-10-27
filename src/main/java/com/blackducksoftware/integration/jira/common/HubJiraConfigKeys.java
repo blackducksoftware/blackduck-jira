@@ -21,6 +21,8 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.common;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+
 public class HubJiraConfigKeys {
     public final static String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
 
@@ -41,4 +43,16 @@ public class HubJiraConfigKeys {
     public final static String HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS = HUB_CONFIG_JIRA_KEY_PREFIX + ".changeIssueStateIfExists";
 
     public final static String HUB_CONFIG_JIRA_GROUPS = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubJiraGroups";
+    
+    public static boolean getBooleanValue(final PluginSettings settings, final String key, final boolean defaultValue) {
+        String valueString = (String) settings.get(key);
+        
+        if ("true".equalsIgnoreCase(valueString)) {
+            return true;
+        }
+        if ("false".equalsIgnoreCase(valueString)) {
+            return false;
+        }
+        return defaultValue;
+    }
 }

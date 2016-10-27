@@ -556,6 +556,52 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	 stopProgressSpinner('saveSpinner');
 	    }
 	  });
+	  
+	  // Put Options
+	  console.log("Saving options3");
+	  console.log("restUrl: " + restUrl);
+	  var putOptionsUrl = restUrl + "saveOptions";
+	  console.log("putOptionsUrl: " + putOptionsUrl);
+	  AJS.$.ajax({
+		  
+		  url: putOptionsUrl,
+		    type: "PUT",
+		    dataType: "json",
+		    contentType: "application/json",
+		    data: '{ "changeIssueStateEnabled": ' + true
+		    + '}',
+		    processData: false,
+		    success: function() {
+		    	console.log("Saving options: success");
+		    	//hideError(errorMessageFieldId);
+		    	//hideError('intervalBetweenChecksError');
+		    	//hideError('hubProjectMappingsError');
+		    	//hideError('policyRulesError');
+		    	
+			    //showStatusMessage(successStatus, 'Success!', successMessage);
+		    },
+		    error: function(response){
+		    	console.log("Saving options: error");
+		    	console.log("response.responseText: " + response.responseText);
+		    	try {
+			    	var config = JSON.parse(response.responseText);
+			    	//handleError(errorMessageFieldId, config.errorMessage, true);
+			    	//handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
+			    	//handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
+			    	//handleError('policyRulesError', config.policyRulesError, true);
+			    	
+				    //showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+		    	} catch(err) {
+		    		console.log("Saving options: exception");
+		    		// in case the response is not our error object
+		    		//alert(response.responseText);
+		    	}
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Saving options: complete");
+		    	 //stopProgressSpinner('saveSpinner');
+		    }
+		  });
 }
 
 function getJsonArrayFromMapping(){

@@ -169,12 +169,12 @@
 			<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'optionsArea');"> </i> $i18n.getText("hub.integration.jira.optionsSection.label")</legend>
 			<div id="optionsArea">
 			<div class="field-group">
-		        <label class="label" for="changeIssueState">$i18n.getText("hub.integration.jira.changeIssueState.label")</label>
-		        <input type="checkbox" id="changeIssueState" name="changeIssueState">
+		        <label class="label" for="changeIssueStateEnabled">$i18n.getText("hub.integration.jira.changeIssueStateEnabled.label")</label>
+		        <input type="checkbox" id="changeIssueStateEnabled" name="changeIssueStateEnabled">
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
-		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+		      	<div id="changeIssueStateEnabledError" class="error hidden"></div>
 		      </div>
       		</div>
       	</fieldSet>

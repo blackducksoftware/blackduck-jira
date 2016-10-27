@@ -97,7 +97,7 @@ public class JiraTask implements PluginJob {
 
         final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
         
-        final boolean changeIssueStateIfExists = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true); // TODO get this from config
+        final boolean changeIssueStateIfExists = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true); // TODO get this from config
         logger.debug("changeIssueStateIfExists: " + changeIssueStateIfExists);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
@@ -257,17 +257,5 @@ public class JiraTask implements PluginJob {
 
     private String getStringValue(final PluginSettings settings, final String key) {
         return (String) getValue(settings, key);
-    }
-    
-    private boolean getBooleanValue(final PluginSettings settings, final String key, final boolean defaultValue) {
-        String valueString = (String) getValue(settings, key);
-        
-        if ("true".equalsIgnoreCase(valueString)) {
-            return true;
-        }
-        if ("false".equalsIgnoreCase(valueString)) {
-            return false;
-        }
-        return defaultValue;
     }
 }
