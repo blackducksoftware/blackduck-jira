@@ -50,217 +50,237 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
 
-	private ConstantsManager constantsManager;
-	private ProjectManager projectManager;
-	private AvatarManager avatarManager;
-	private IssueTypeSchemeManager issueTypeSchemeManager;
-	private IssueService issueService;
-	private JiraAuthenticationContext jiraAuthenticationContext;
-	private IssuePropertyService issuePropertyService;
-	private WorkflowManager workflowManager;
-	private WorkflowSchemeManager workflowSchemeManager;
-	private JsonEntityPropertyManager jsonEntityPropertyManager;
-	private CommentManager commentManager;
-	private GroupManager groupManager;
-	private UserManager userManager;
-	private Collection<IssueType> issueTypes;
-	private UserUtil userUtil;
-	private FieldScreenManager fieldScreenManager;
-	private FieldScreenSchemeManager fieldScreenSchemeManager;
-	private FieldManager fieldManager;
-	private CustomFieldManager customFieldManager;
-	private FieldLayoutManager fieldLayoutManager;
-	private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
+    private ConstantsManager constantsManager;
 
-	@Override
-	public UserUtil getUserUtil() {
-		return userUtil;
-	}
+    private ProjectManager projectManager;
 
-	public void setUserUtil(final UserUtil userUtil) {
-		this.userUtil = userUtil;
-	}
+    private AvatarManager avatarManager;
 
-	@Override
-	public Collection<IssueType> getIssueTypes() {
-		return issueTypes;
-	}
+    private IssueTypeSchemeManager issueTypeSchemeManager;
 
-	public void setIssueTypes(final Collection<IssueType> issueTypes) {
-		this.issueTypes = issueTypes;
-	}
+    private IssueService issueService;
 
-	public void setProjectManager(final ProjectManager projectManager) {
-		this.projectManager = projectManager;
-	}
+    private JiraAuthenticationContext jiraAuthenticationContext;
 
-	public void setIssueService(final IssueService issueService) {
-		this.issueService = issueService;
-	}
+    private IssuePropertyService issuePropertyService;
 
-	public void setJiraAuthenticationContext(final JiraAuthenticationContext jiraAuthenticationContext) {
-		this.jiraAuthenticationContext = jiraAuthenticationContext;
-	}
+    private WorkflowManager workflowManager;
 
-	public void setIssuePropertyService(final IssuePropertyService issuePropertyService) {
-		this.issuePropertyService = issuePropertyService;
-	}
+    private WorkflowSchemeManager workflowSchemeManager;
 
-	public void setWorkflowManager(final WorkflowManager workflowManager) {
-		this.workflowManager = workflowManager;
-	}
+    private JsonEntityPropertyManager jsonEntityPropertyManager;
 
-	public void setWorkflowSchemeManager(final WorkflowSchemeManager workflowSchemeManager) {
-		this.workflowSchemeManager = workflowSchemeManager;
-	}
+    private CommentManager commentManager;
 
-	public void setJsonEntityPropertyManager(final JsonEntityPropertyManager jsonEntityPropertyManager) {
-		this.jsonEntityPropertyManager = jsonEntityPropertyManager;
-	}
+    private GroupManager groupManager;
 
-	public void setCommentManager(final CommentManager commentManager) {
-		this.commentManager = commentManager;
-	}
+    private UserManager userManager;
 
-	public void setGroupManager(final GroupManager groupManager) {
-		this.groupManager = groupManager;
-	}
+    private Collection<IssueType> issueTypes;
 
-	public void setUserManager(final UserManager userManager) {
-		this.userManager = userManager;
-	}
+    private UserUtil userUtil;
 
-	public void setAvatarManager(final AvatarManager avatarManager) {
-		this.avatarManager = avatarManager;
-	}
+    private FieldScreenManager fieldScreenManager;
 
-	public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
-		this.issueTypeSchemeManager = issueTypeSchemeManager;
-	}
+    private FieldScreenSchemeManager fieldScreenSchemeManager;
 
-	@Override
-	public ConstantsManager getConstantsManager() {
-		return constantsManager;
-	}
+    private FieldManager fieldManager;
 
-	@Override
-	public IssueTypeSchemeManager getIssueTypeSchemeManager() {
-		return issueTypeSchemeManager;
-	}
+    private CustomFieldManager customFieldManager;
 
-	public void setConstantsManager(final ConstantsManager constantsManager) {
-		this.constantsManager = constantsManager;
-	}
+    private FieldLayoutManager fieldLayoutManager;
 
-	@Override
-	public ProjectManager getJiraProjectManager() {
-		return projectManager;
-	}
+    private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
 
-	@Override
-	public AvatarManager getAvatarManager() {
-		return avatarManager;
-	}
+    @Override
+    public UserUtil getUserUtil() {
+        return userUtil;
+    }
 
-	@Override
-	public IssueService getIssueService() {
-		return issueService;
-	}
+    public void setUserUtil(final UserUtil userUtil) {
+        this.userUtil = userUtil;
+    }
 
-	@Override
-	public JiraAuthenticationContext getAuthContext() {
-		return jiraAuthenticationContext;
-	}
+    @Override
+    public Collection<IssueType> getIssueTypes() {
+        return issueTypes;
+    }
 
-	@Override
-	public IssuePropertyService getPropertyService() {
-		return issuePropertyService;
-	}
+    public void setIssueTypes(final Collection<IssueType> issueTypes) {
+        this.issueTypes = issueTypes;
+    }
 
-	@Override
-	public WorkflowManager getWorkflowManager() {
-		return workflowManager;
-	}
+    public void setProjectManager(final ProjectManager projectManager) {
+        this.projectManager = projectManager;
+    }
 
-	@Override
-	public WorkflowSchemeManager getWorkflowSchemeManager() {
-		return workflowSchemeManager;
-	}
+    public void setIssueService(final IssueService issueService) {
+        this.issueService = issueService;
+    }
 
-	@Override
-	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
-		return jsonEntityPropertyManager;
-	}
+    public void setJiraAuthenticationContext(final JiraAuthenticationContext jiraAuthenticationContext) {
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
+    }
 
-	@Override
-	public CommentManager getCommentManager() {
-		return commentManager;
-	}
+    public void setIssuePropertyService(final IssuePropertyService issuePropertyService) {
+        this.issuePropertyService = issuePropertyService;
+    }
 
-	@Override
-	public UserManager getUserManager() {
-		return userManager;
-	}
+    public void setWorkflowManager(final WorkflowManager workflowManager) {
+        this.workflowManager = workflowManager;
+    }
 
-	@Override
-	public ApplicationUser userToApplicationUser(final User user) {
-		final ApplicationUserMock userMock = new ApplicationUserMock();
-		userMock.setName(user.getName());
-		return userMock;
-	}
+    public void setWorkflowSchemeManager(final WorkflowSchemeManager workflowSchemeManager) {
+        this.workflowSchemeManager = workflowSchemeManager;
+    }
 
-	@Override
-	public FieldScreenManager getFieldScreenManager() {
-		return fieldScreenManager;
-	}
+    public void setJsonEntityPropertyManager(final JsonEntityPropertyManager jsonEntityPropertyManager) {
+        this.jsonEntityPropertyManager = jsonEntityPropertyManager;
+    }
 
-	public void setFieldScreenManager(final FieldScreenManager fieldScreenManager) {
-		this.fieldScreenManager = fieldScreenManager;
-	}
+    public void setCommentManager(final CommentManager commentManager) {
+        this.commentManager = commentManager;
+    }
 
-	@Override
-	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
-		return fieldScreenSchemeManager;
-	}
+    public void setGroupManager(final GroupManager groupManager) {
+        this.groupManager = groupManager;
+    }
 
-	public void setFieldScreenSchemeManager(final FieldScreenSchemeManager fieldScreenSchemeManager) {
-		this.fieldScreenSchemeManager = fieldScreenSchemeManager;
-	}
+    public void setUserManager(final UserManager userManager) {
+        this.userManager = userManager;
+    }
 
-	@Override
-	public FieldManager getFieldManager() {
-		return fieldManager;
-	}
+    public void setAvatarManager(final AvatarManager avatarManager) {
+        this.avatarManager = avatarManager;
+    }
 
-	public void setFieldManager(final FieldManager fieldManager) {
-		this.fieldManager = fieldManager;
-	}
+    public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
+        this.issueTypeSchemeManager = issueTypeSchemeManager;
+    }
 
-	@Override
-	public CustomFieldManager getCustomFieldManager() {
-		return customFieldManager;
-	}
+    @Override
+    public ConstantsManager getConstantsManager() {
+        return constantsManager;
+    }
 
-	public void setCustomFieldManager(final CustomFieldManager customFieldManager) {
-		this.customFieldManager = customFieldManager;
-	}
+    @Override
+    public IssueTypeSchemeManager getIssueTypeSchemeManager() {
+        return issueTypeSchemeManager;
+    }
 
-	@Override
-	public FieldLayoutManager getFieldLayoutManager() {
-		return fieldLayoutManager;
-	}
+    public void setConstantsManager(final ConstantsManager constantsManager) {
+        this.constantsManager = constantsManager;
+    }
 
-	public void setFieldLayoutManager(final FieldLayoutManager fieldLayoutManager) {
-		this.fieldLayoutManager = fieldLayoutManager;
-	}
+    @Override
+    public ProjectManager getJiraProjectManager() {
+        return projectManager;
+    }
 
-	@Override
-	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
-		return issueTypeScreenSchemeManager;
-	}
+    @Override
+    public AvatarManager getAvatarManager() {
+        return avatarManager;
+    }
 
-	public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
-		this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
-	}
+    @Override
+    public IssueService getIssueService() {
+        return issueService;
+    }
+
+    @Override
+    public JiraAuthenticationContext getAuthContext() {
+        return jiraAuthenticationContext;
+    }
+
+    @Override
+    public IssuePropertyService getPropertyService() {
+        return issuePropertyService;
+    }
+
+    @Override
+    public WorkflowManager getWorkflowManager() {
+        return workflowManager;
+    }
+
+    @Override
+    public WorkflowSchemeManager getWorkflowSchemeManager() {
+        return workflowSchemeManager;
+    }
+
+    @Override
+    public JsonEntityPropertyManager getJsonEntityPropertyManager() {
+        return jsonEntityPropertyManager;
+    }
+
+    @Override
+    public CommentManager getCommentManager() {
+        return commentManager;
+    }
+
+    @Override
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    @Override
+    public ApplicationUser userToApplicationUser(final User user) {
+        final ApplicationUserMock userMock = new ApplicationUserMock();
+        userMock.setName(user.getName());
+        return userMock;
+    }
+
+    @Override
+    public FieldScreenManager getFieldScreenManager() {
+        return fieldScreenManager;
+    }
+
+    public void setFieldScreenManager(final FieldScreenManager fieldScreenManager) {
+        this.fieldScreenManager = fieldScreenManager;
+    }
+
+    @Override
+    public FieldScreenSchemeManager getFieldScreenSchemeManager() {
+        return fieldScreenSchemeManager;
+    }
+
+    public void setFieldScreenSchemeManager(final FieldScreenSchemeManager fieldScreenSchemeManager) {
+        this.fieldScreenSchemeManager = fieldScreenSchemeManager;
+    }
+
+    @Override
+    public FieldManager getFieldManager() {
+        return fieldManager;
+    }
+
+    public void setFieldManager(final FieldManager fieldManager) {
+        this.fieldManager = fieldManager;
+    }
+
+    @Override
+    public CustomFieldManager getCustomFieldManager() {
+        return customFieldManager;
+    }
+
+    public void setCustomFieldManager(final CustomFieldManager customFieldManager) {
+        this.customFieldManager = customFieldManager;
+    }
+
+    @Override
+    public FieldLayoutManager getFieldLayoutManager() {
+        return fieldLayoutManager;
+    }
+
+    public void setFieldLayoutManager(final FieldLayoutManager fieldLayoutManager) {
+        this.fieldLayoutManager = fieldLayoutManager;
+    }
+
+    @Override
+    public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+        return issueTypeScreenSchemeManager;
+    }
+
+    public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
+        this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
+    }
 
 }

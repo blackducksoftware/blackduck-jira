@@ -44,32 +44,33 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	public static final String PROJECT_LINK = "project";
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-			final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
-		super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-	}
+    public static final String PROJECT_LINK = "project";
 
-	@Override
-	protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-			final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
-		final List<HubEvent> events = new ArrayList<>();
+    public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+    }
 
-		final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
-		logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
-		for (final PolicyRule rule : notification.getPolicyRuleList()) {
-			final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
-					getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
-					getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
- notification, rule,
-					HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
-			logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
-			events.add(event);
-		}
+    @Override
+    protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+        final List<HubEvent> events = new ArrayList<>();
 
-		return events;
-	}
+        final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
+        logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
+        for (final PolicyRule rule : notification.getPolicyRuleList()) {
+            final HubEvent event = new PolicyEvent(HubEventAction.RESOLVE, getJiraContext().getJiraUser().getName(),
+                    getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
+                    getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+                    notification, rule,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+            logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
+            events.add(event);
+        }
+
+        return events;
+    }
 
 }

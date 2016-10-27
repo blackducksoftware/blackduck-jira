@@ -34,102 +34,102 @@ import com.atlassian.jira.issue.operation.IssueOperation;
 
 public class FieldScreenSchemeMock implements FieldScreenScheme {
 
-	private String name;
+    private String name;
 
-	private boolean attemptedScreenSchemeStore;
+    private boolean attemptedScreenSchemeStore;
 
-	private final List<FieldScreenSchemeItem> schemeItems = new ArrayList<>();
+    private final List<FieldScreenSchemeItem> schemeItems = new ArrayList<>();
 
-	public boolean getAttemptedScreenSchemeStore() {
-		return attemptedScreenSchemeStore;
-	}
+    public boolean getAttemptedScreenSchemeStore() {
+        return attemptedScreenSchemeStore;
+    }
 
-	@Override
-	public void addFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
-		schemeItems.add(schemeItem);
-	}
+    @Override
+    public void addFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
+        schemeItems.add(schemeItem);
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldScreen getFieldScreen(final IssueOperation arg0) {
+    @Override
+    public FieldScreen getFieldScreen(final IssueOperation arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation issueOperation) {
-		for (final FieldScreenSchemeItem schemeItem : schemeItems) {
-			if (schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey())) {
-				return schemeItem;
-			}
-		}
-		return null;
-	}
+    @Override
+    public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation issueOperation) {
+        for (final FieldScreenSchemeItem schemeItem : schemeItems) {
+            if (schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey())) {
+                return schemeItem;
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems() {
+    @Override
+    public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems() {
 
-		return schemeItems;
-	}
+        return schemeItems;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	@Override
-	public void remove() {
+    @Override
+    public void remove() {
 
-	}
+    }
 
-	@Override
-	public FieldScreenSchemeItem removeFieldScreenSchemeItem(final IssueOperation arg0) {
+    @Override
+    public FieldScreenSchemeItem removeFieldScreenSchemeItem(final IssueOperation arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setDescription(final String arg0) {
+    @Override
+    public void setDescription(final String arg0) {
 
-	}
+    }
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
 
-	}
+    }
 
-	@Override
-	public void setId(final Long arg0) {
+    @Override
+    public void setId(final Long arg0) {
 
-	}
+    }
 
-	@Override
-	public void setName(final String name) {
-		this.name = name;
+    @Override
+    public void setName(final String name) {
+        this.name = name;
 
-	}
+    }
 
-	@Override
-	public void store() {
-		attemptedScreenSchemeStore = true;
-	}
+    @Override
+    public void store() {
+        attemptedScreenSchemeStore = true;
+    }
 
 }

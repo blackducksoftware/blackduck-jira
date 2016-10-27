@@ -33,102 +33,103 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEnt
 import com.atlassian.jira.issue.issuetype.IssueType;
 
 public class IssueTypeScreenSchemeMock implements IssueTypeScreenScheme {
-	private final List<IssueTypeScreenSchemeEntity> addedEntities = new ArrayList<>();
-	public IssueTypeScreenSchemeMock() {
-	}
+    private final List<IssueTypeScreenSchemeEntity> addedEntities = new ArrayList<>();
 
-	@Override
-	public void addEntity(final IssueTypeScreenSchemeEntity arg0) {
-		addedEntities.add(arg0);
-	}
+    public IssueTypeScreenSchemeMock() {
+    }
 
-	public List<IssueTypeScreenSchemeEntity> getAddedEntities() {
-		return addedEntities;
-	}
+    @Override
+    public void addEntity(final IssueTypeScreenSchemeEntity arg0) {
+        addedEntities.add(arg0);
+    }
 
-	@Override
-	public boolean containsEntity(final String arg0) {
-		return false;
-	}
+    public List<IssueTypeScreenSchemeEntity> getAddedEntities() {
+        return addedEntities;
+    }
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public boolean containsEntity(final String arg0) {
+        return false;
+    }
 
-	@Override
-	public FieldScreenScheme getEffectiveFieldScreenScheme(final IssueType arg0) {
-		return null;
-	}
+    @Override
+    public String getDescription() {
+        return null;
+    }
 
-	@Override
-	public Collection<IssueTypeScreenSchemeEntity> getEntities() {
-		return null;
-	}
+    @Override
+    public FieldScreenScheme getEffectiveFieldScreenScheme(final IssueType arg0) {
+        return null;
+    }
 
-	@Override
-	public IssueTypeScreenSchemeEntity getEntity(final String arg0) {
-		return null;
-	}
+    @Override
+    public Collection<IssueTypeScreenSchemeEntity> getEntities() {
+        return null;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
-		return null;
-	}
+    @Override
+    public IssueTypeScreenSchemeEntity getEntity(final String arg0) {
+        return null;
+    }
 
-	@Override
-	public Long getId() {
-		return null;
-	}
+    @Override
+    public GenericValue getGenericValue() {
+        return null;
+    }
 
-	@Override
-	public String getName() {
-		return null;
-	}
+    @Override
+    public Long getId() {
+        return null;
+    }
 
-	@Override
-	public Collection<GenericValue> getProjects() {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return null;
+    }
 
-	@Override
-	public boolean isDefault() {
-		return false;
-	}
+    @Override
+    public Collection<GenericValue> getProjects() {
+        return null;
+    }
 
-	@Override
-	public void remove() {
+    @Override
+    public boolean isDefault() {
+        return false;
+    }
 
-	}
+    @Override
+    public void remove() {
 
-	@Override
-	public void removeEntity(final String arg0) {
+    }
 
-	}
+    @Override
+    public void removeEntity(final String arg0) {
 
-	@Override
-	public void setDescription(final String arg0) {
+    }
 
-	}
+    @Override
+    public void setDescription(final String arg0) {
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
+    }
 
-	}
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
 
-	@Override
-	public void setId(final Long arg0) {
+    }
 
-	}
+    @Override
+    public void setId(final Long arg0) {
 
-	@Override
-	public void setName(final String arg0) {
+    }
 
-	}
+    @Override
+    public void setName(final String arg0) {
 
-	@Override
-	public void store() {
+    }
 
-	}
+    @Override
+    public void store() {
+
+    }
 
 }

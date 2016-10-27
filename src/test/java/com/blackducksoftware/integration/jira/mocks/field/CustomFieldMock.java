@@ -71,539 +71,539 @@ import com.opensymphony.module.propertyset.PropertySet;
 
 public class CustomFieldMock implements CustomField {
 
-	private String name;
+    private String name;
 
-	private String description;
+    private String description;
 
-	private CustomFieldType fieldType;
+    private CustomFieldType fieldType;
 
-	private CustomFieldSearcher searcher;
+    private CustomFieldSearcher searcher;
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	public void setDescription(final String description) {
-		this.description = description;
-	}
+    public void setDescription(final String description) {
+        this.description = description;
+    }
 
-	public void setFieldType(final CustomFieldType fieldType) {
-		this.fieldType = fieldType;
-	}
+    public void setFieldType(final CustomFieldType fieldType) {
+        this.fieldType = fieldType;
+    }
 
-	public void setCustomFieldSearcher(final CustomFieldSearcher searcher) {
-		this.searcher = searcher;
-	}
+    public void setCustomFieldSearcher(final CustomFieldSearcher searcher) {
+        this.searcher = searcher;
+    }
 
-	@Override
-	public String getColumnCssClass() {
+    @Override
+    public String getColumnCssClass() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getColumnHeadingKey() {
+    @Override
+    public String getColumnHeadingKey() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getColumnViewHtml(final FieldLayoutItem arg0, final Map arg1, final Issue arg2) {
+    @Override
+    public String getColumnViewHtml(final FieldLayoutItem arg0, final Map arg1, final Issue arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDefaultSortOrder() {
+    @Override
+    public String getDefaultSortOrder() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getHiddenFieldId() {
+    @Override
+    public String getHiddenFieldId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldComparatorSource getSortComparatorSource() {
+    @Override
+    public FieldComparatorSource getSortComparatorSource() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<SortField> getSortFields(final boolean arg0) {
+    @Override
+    public List<SortField> getSortFields(final boolean arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public LuceneFieldSorter getSorter() {
+    @Override
+    public LuceneFieldSorter getSorter() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String prettyPrintChangeHistory(final String arg0) {
+    @Override
+    public String prettyPrintChangeHistory(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String prettyPrintChangeHistory(final String arg0, final I18nHelper arg1) {
+    @Override
+    public String prettyPrintChangeHistory(final String arg0, final I18nHelper arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getId() {
-		return name;
-	}
+    @Override
+    public String getId() {
+        return name;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	@Override
-	public String getNameKey() {
+    @Override
+    public String getNameKey() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public int compareTo(final Object o) {
+    @Override
+    public int compareTo(final Object o) {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public List<FieldConfigItemType> getConfigurationItemTypes() {
+    @Override
+    public List<FieldConfigItemType> getConfigurationItemTypes() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String availableForBulkEdit(final BulkEditBean arg0) {
+    @Override
+    public String availableForBulkEdit(final BulkEditBean arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean canRemoveValueFromIssueObject(final Issue arg0) {
+    @Override
+    public boolean canRemoveValueFromIssueObject(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void createValue(final Issue arg0, final Object arg1) {
+    @Override
+    public void createValue(final Issue arg0, final Object arg1) {
 
-	}
+    }
 
-	@Override
-	public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
-			final Map arg3) {
+    @Override
+    public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
+            final Map arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map arg4) {
+    @Override
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getDefaultValue(final Issue arg0) {
+    @Override
+    public Object getDefaultValue(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-			final Issue arg3, final Map arg4) {
+    @Override
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
+            final Issue arg3, final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getValueFromParams(final Map arg0) throws FieldValidationException {
+    @Override
+    public Object getValueFromParams(final Map arg0) throws FieldValidationException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Map arg3) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Map arg3) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
-			final Map arg4) {
+    @Override
+    public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
+            final Map arg4) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean hasParam(final Map<String, String[]> arg0) {
+    @Override
+    public boolean hasParam(final Map<String, String[]> arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean hasValue(final Issue arg0) {
+    @Override
+    public boolean hasValue(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isShown(final Issue arg0) {
+    @Override
+    public boolean isShown(final Issue arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public MessagedResult needsMove(final Collection arg0, final Issue arg1, final FieldLayoutItem arg2) {
+    @Override
+    public MessagedResult needsMove(final Collection arg0, final Issue arg1, final FieldLayoutItem arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void populateDefaults(final Map<String, Object> arg0, final Issue arg1) {
+    @Override
+    public void populateDefaults(final Map<String, Object> arg0, final Issue arg1) {
 
-	}
+    }
 
-	@Override
-	public void populateForMove(final Map<String, Object> arg0, final Issue arg1, final Issue arg2) {
+    @Override
+    public void populateForMove(final Map<String, Object> arg0, final Issue arg1, final Issue arg2) {
 
-	}
+    }
 
-	@Override
-	public void populateFromIssue(final Map<String, Object> arg0, final Issue arg1) {
+    @Override
+    public void populateFromIssue(final Map<String, Object> arg0, final Issue arg1) {
 
-	}
+    }
 
-	@Override
-	public void populateFromParams(final Map<String, Object> arg0, final Map<String, String[]> arg1) {
+    @Override
+    public void populateFromParams(final Map<String, Object> arg0, final Map<String, String[]> arg1) {
 
-	}
+    }
 
-	@Override
-	public void populateParamsFromString(final Map<String, Object> arg0, final String arg1, final Issue arg2)
-			throws FieldValidationException {
+    @Override
+    public void populateParamsFromString(final Map<String, Object> arg0, final String arg1, final Issue arg2)
+            throws FieldValidationException {
 
-	}
+    }
 
-	@Override
-	public void removeValueFromIssueObject(final MutableIssue arg0) {
+    @Override
+    public void removeValueFromIssueObject(final MutableIssue arg0) {
 
-	}
+    }
 
-	@Override
-	public void updateIssue(final FieldLayoutItem arg0, final MutableIssue arg1, final Map arg2) {
+    @Override
+    public void updateIssue(final FieldLayoutItem arg0, final MutableIssue arg1, final Map arg2) {
 
-	}
+    }
 
-	@Override
-	public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
-			final IssueChangeHolder arg3) {
+    @Override
+    public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
+            final IssueChangeHolder arg3) {
 
-	}
+    }
 
-	@Override
-	public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
-			final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
+    @Override
+    public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
+            final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
 
-	}
+    }
 
-	@Override
-	public SearchHandler createAssociatedSearchHandler() {
+    @Override
+    public SearchHandler createAssociatedSearchHandler() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getValueFromIssue(final Issue arg0) {
+    @Override
+    public String getValueFromIssue(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isRenderable() {
+    @Override
+    public boolean isRenderable() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public FieldTypeInfo getFieldTypeInfo(final FieldTypeInfoContext arg0) {
+    @Override
+    public FieldTypeInfo getFieldTypeInfo(final FieldTypeInfoContext arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldJsonRepresentation getJsonFromIssue(final Issue arg0, final boolean arg1, final FieldLayoutItem arg2) {
+    @Override
+    public FieldJsonRepresentation getJsonFromIssue(final Issue arg0, final boolean arg1, final FieldLayoutItem arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JsonType getJsonSchema() {
+    @Override
+    public JsonType getJsonSchema() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public JsonData getJsonDefaultValue(final IssueContext arg0) {
+    @Override
+    public JsonData getJsonDefaultValue(final IssueContext arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public RestFieldOperationsHandler getRestFieldOperation() {
+    @Override
+    public RestFieldOperationsHandler getRestFieldOperation() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public int compare(final Issue arg0, final Issue arg1) throws IllegalArgumentException {
+    @Override
+    public int compare(final Issue arg0, final Issue arg1) throws IllegalArgumentException {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public List<Project> getAssociatedProjectObjects() {
+    @Override
+    public List<Project> getAssociatedProjectObjects() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ClauseNames getClauseNames() {
+    @Override
+    public ClauseNames getClauseNames() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<FieldConfigScheme> getConfigurationSchemes() {
+    @Override
+    public List<FieldConfigScheme> getConfigurationSchemes() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldSearcher getCustomFieldSearcher() {
+    @Override
+    public CustomFieldSearcher getCustomFieldSearcher() {
 
-		return searcher;
-	}
+        return searcher;
+    }
 
-	@Override
-	public CustomFieldType getCustomFieldType() {
+    @Override
+    public CustomFieldType getCustomFieldType() {
 
-		return fieldType;
-	}
+        return fieldType;
+    }
 
-	public void setCustomFieldType(final CustomFieldType customFieldType) {
-		this.fieldType = customFieldType;
-	}
+    public void setCustomFieldType(final CustomFieldType customFieldType) {
+        this.fieldType = customFieldType;
+    }
 
-	@Override
-	public CustomFieldParams getCustomFieldValues(final Map arg0) {
+    @Override
+    public CustomFieldParams getCustomFieldValues(final Map arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return description;
-	}
+        return description;
+    }
 
-	@Override
-	public RenderableProperty getDescriptionProperty() {
+    @Override
+    public RenderableProperty getDescriptionProperty() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getFieldName() {
+    @Override
+    public String getFieldName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getIdAsLong() {
+    @Override
+    public Long getIdAsLong() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Options getOptions(final String arg0, final JiraContextNode arg1) {
+    @Override
+    public Options getOptions(final String arg0, final JiraContextNode arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Options getOptions(final String arg0, final FieldConfig arg1, final JiraContextNode arg2) {
+    @Override
+    public Options getOptions(final String arg0, final FieldConfig arg1, final JiraContextNode arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public PropertySet getPropertySet() {
+    @Override
+    public PropertySet getPropertySet() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldConfig getRelevantConfig(final Issue arg0) {
+    @Override
+    public FieldConfig getRelevantConfig(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldConfig getRelevantConfig(final IssueContext arg0) {
+    @Override
+    public FieldConfig getRelevantConfig(final IssueContext arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldConfig getReleventConfig(final SearchContext arg0) {
+    @Override
+    public FieldConfig getReleventConfig(final SearchContext arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getUntranslatedDescription() {
+    @Override
+    public String getUntranslatedDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public RenderableProperty getUntranslatedDescriptionProperty() {
+    @Override
+    public RenderableProperty getUntranslatedDescriptionProperty() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getUntranslatedName() {
+    @Override
+    public String getUntranslatedName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getValue(final Issue arg0) {
+    @Override
+    public Object getValue(final Issue arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isAllIssueTypes() {
+    @Override
+    public boolean isAllIssueTypes() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isAllProjects() {
+    @Override
+    public boolean isAllProjects() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isEditable() {
+    @Override
+    public boolean isEditable() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isEnabled() {
+    @Override
+    public boolean isEnabled() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isGlobal() {
+    @Override
+    public boolean isGlobal() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isInScope(final SearchContext arg0) {
+    @Override
+    public boolean isInScope(final SearchContext arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isInScope(final Project arg0, final List<String> arg1) {
+    @Override
+    public boolean isInScope(final Project arg0, final List<String> arg1) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isInScope(final long arg0, final String arg1) {
+    @Override
+    public boolean isInScope(final long arg0, final String arg1) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isInScopeForSearch(final Project arg0, final List<String> arg1) {
+    @Override
+    public boolean isInScopeForSearch(final Project arg0, final List<String> arg1) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRelevantForIssueContext(final IssueContext arg0) {
+    @Override
+    public boolean isRelevantForIssueContext(final IssueContext arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public Set<Long> remove() {
+    @Override
+    public Set<Long> remove() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void validateFromActionParams(final Map arg0, final ErrorCollection arg1, final FieldConfig arg2) {
+    @Override
+    public void validateFromActionParams(final Map arg0, final ErrorCollection arg1, final FieldConfig arg2) {
 
-	}
+    }
 
-	@Override
-	public List<IssueType> getAssociatedIssueTypeObjects() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<IssueType> getAssociatedIssueTypeObjects() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<IssueType> getAssociatedIssueTypes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<IssueType> getAssociatedIssueTypes() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

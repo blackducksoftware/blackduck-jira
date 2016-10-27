@@ -65,258 +65,271 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
 public class HubJiraTask {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-	private final HubServerConfig serverConfig;
-	private final String intervalString;
-	private final String installDateString;
-	private final String lastRunDateString;
-	private final String projectMappingJson;
-	private final String policyRulesJson;
-	private final String jiraUser;
-	private final Date runDate;
-	private final String runDateString;
-	private final SimpleDateFormat dateFormatter;
-	private final JiraServices jiraServices = new JiraServices();
-	private final JiraSettingsService jiraSettingsService;
-	private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
-			final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-			final String jiraUser, final JiraSettingsService jiraSettingsService,
-			final TicketInfoFromSetup ticketInfoFromSetup) {
+    private final HubServerConfig serverConfig;
 
-		this.serverConfig = serverConfig;
-		this.intervalString = intervalString;
-		this.installDateString = installDateString;
-		this.lastRunDateString = lastRunDateString;
-		this.projectMappingJson = projectMappingJson;
-		this.policyRulesJson = policyRulesJson;
-		this.jiraUser = jiraUser;
-		this.runDate = new Date();
+    private final String intervalString;
 
-		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-		this.runDateString = dateFormatter.format(runDate);
+    private final String installDateString;
 
-		logger.debug("Install date: " + installDateString);
-		logger.debug("Last run date: " + lastRunDateString);
+    private final String lastRunDateString;
 
-		this.jiraSettingsService = jiraSettingsService;
-		this.ticketInfoFromSetup = ticketInfoFromSetup;
-	}
+    private final String projectMappingJson;
 
-	/**
-	 * Setup, then generate JIRA tickets based on recent notifications
-	 *
-	 * @return this execution's run date/time string on success, null otherwise
-	 */
-	public String execute() {
+    private final String policyRulesJson;
 
-		final HubJiraConfigSerializable config = validateInput();
-		if (config == null) {
-			return null;
-		}
+    private final String jiraUser;
 
-		final Date startDate;
-		try {
-			startDate = deriveStartDate(installDateString, lastRunDateString);
-		} catch (final ParseException e) {
-			logger.info(
-					"This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-			return runDateString;
-		}
+    private final Date runDate;
 
-		try {
-			final RestConnection restConnection = initRestConnection();
-			final HubIntRestService hub = initHubRestService(restConnection);
+    private final String runDateString;
 
-			final JiraContext jiraContext = initJiraContext(jiraUser);
+    private final SimpleDateFormat dateFormatter;
 
-			if (jiraContext == null) {
-				logger.info("Missing information to generate tickets.");
+    private final JiraServices jiraServices = new JiraServices();
 
-				return null;
-			}
+    private final JiraSettingsService jiraSettingsService;
 
-			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+    private final TicketInfoFromSetup ticketInfoFromSetup;
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
-					linksOfRulesToMonitor, ticketInfoFromSetup);
+    public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
+            final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
+            final String jiraUser, final JiraSettingsService jiraSettingsService,
+            final TicketInfoFromSetup ticketInfoFromSetup) {
 
-			// Phone-Home
-			final HubSupportHelper hubSupport = new HubSupportHelper();
-			try {
-				final String hubVersion = hubSupport.getHubVersion(hub);
-				String regId = null;
-				String hubHostName = null;
-				try {
-					regId = hub.getRegistrationId();
-				} catch (final Exception e) {
-					logger.debug("Could not get the Hub registration Id.");
-				}
-				try {
-					hubHostName = serverConfig.getHubUrl().getHost();
-				} catch (final Exception e) {
-					logger.debug("Could not get the Hub Host name.");
-				}
-				bdPhoneHome(hubVersion, regId, hubHostName);
-			} catch (final Exception e) {
-				logger.debug("Unable to phone-home", e);
-			}
+        this.serverConfig = serverConfig;
+        this.intervalString = intervalString;
+        this.installDateString = installDateString;
+        this.lastRunDateString = lastRunDateString;
+        this.projectMappingJson = projectMappingJson;
+        this.policyRulesJson = policyRulesJson;
+        this.jiraUser = jiraUser;
+        this.runDate = new Date();
 
-			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+        dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+        this.runDateString = dateFormatter.format(runDate);
 
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
-					config.getHubProjectMappings());
+        logger.debug("Install date: " + installDateString);
+        logger.debug("Last run date: " + lastRunDateString);
 
-			// Generate Jira Issues based on recent notifications
-			ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
-		} catch (final Exception e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			jiraSettingsService.addHubError(e, "executeHubJiraTask");
-			return null;
-		}
-		return runDateString;
-	}
+        this.jiraSettingsService = jiraSettingsService;
+        this.ticketInfoFromSetup = ticketInfoFromSetup;
+    }
 
-	private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
-		final List<String> ruleUrls = new ArrayList<>();
-		final List<PolicyRuleSerializable> rules = config.getPolicyRules();
-		for (final PolicyRuleSerializable rule : rules) {
-			final String ruleUrl = rule.getPolicyUrl();
-			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
-					+ rule.getChecked());
-			if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
-				ruleUrls.add(ruleUrl);
-			}
-		}
-		if (ruleUrls.size() > 0) {
-			return ruleUrls;
-		} else {
-			logger.error("No valid rule URLs found in configuration");
-			return null;
-		}
-	}
+    /**
+     * Setup, then generate JIRA tickets based on recent notifications
+     *
+     * @return this execution's run date/time string on success, null otherwise
+     */
+    public String execute() {
 
-	private JiraContext initJiraContext(final String jiraUser) {
-		final UserManager jiraUserManager = jiraServices.getUserManager();
-		final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
-		if (jiraSysAdmin == null) {
-			logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
-			return null;
-		}
+        final HubJiraConfigSerializable config = validateInput();
+        if (config == null) {
+            return null;
+        }
 
-		final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
-		return jiraContext;
-	}
+        final Date startDate;
+        try {
+            startDate = deriveStartDate(installDateString, lastRunDateString);
+        } catch (final ParseException e) {
+            logger.info(
+                    "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+            return runDateString;
+        }
 
-	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
-					throws URISyntaxException {
-		logger.debug("Jira user: " + this.jiraUser);
+        try {
+            final RestConnection restConnection = initRestConnection();
+            final HubIntRestService hub = initHubRestService(restConnection);
 
-		final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
+            final JiraContext jiraContext = initJiraContext(jiraUser);
 
-		final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
+            if (jiraContext == null) {
+                logger.info("Missing information to generate tickets.");
 
-		final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
-				logger, policyFilter);
-		final Gson gson = new GsonBuilder().create();
-		final JsonParser jsonParser = new JsonParser();
-		final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
-				restConnection, gson, jsonParser);
+                return null;
+            }
 
-		final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
+            final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
-				vulnerableBomComponentRestService, notificationDataService,
-				jiraServices, jiraContext,
-				jiraSettingsService, ticketInfoFromSetup);
-		return ticketGenerator;
-	}
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
+                    linksOfRulesToMonitor, ticketInfoFromSetup);
 
-	private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
-		final HubIntRestService hub = new HubIntRestService(restConnection);
-		return hub;
-	}
+            // Phone-Home
+            final HubSupportHelper hubSupport = new HubSupportHelper();
+            try {
+                final String hubVersion = hubSupport.getHubVersion(hub);
+                String regId = null;
+                String hubHostName = null;
+                try {
+                    regId = hub.getRegistrationId();
+                } catch (final Exception e) {
+                    logger.debug("Could not get the Hub registration Id.");
+                }
+                try {
+                    hubHostName = serverConfig.getHubUrl().getHost();
+                } catch (final Exception e) {
+                    logger.debug("Could not get the Hub Host name.");
+                }
+                bdPhoneHome(hubVersion, regId, hubHostName);
+            } catch (final Exception e) {
+                logger.debug("Unable to phone-home", e);
+            }
 
-	private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
+            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
 
-		final RestConnection restConnection = new CredentialsRestConnection(serverConfig);
+            final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
+                    config.getHubProjectMappings());
 
-		restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
-				serverConfig.getGlobalCredentials().getDecryptedPassword());
-		restConnection.setProxyProperties(serverConfig.getProxyInfo());
+            // Generate Jira Issues based on recent notifications
+            ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
+        } catch (final Exception e) {
+            logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+            jiraSettingsService.addHubError(e, "executeHubJiraTask");
+            return null;
+        }
+        return runDateString;
+    }
 
-		logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
-		restConnection.setTimeout(serverConfig.getTimeout());
-		return restConnection;
-	}
+    private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
+        final List<String> ruleUrls = new ArrayList<>();
+        final List<PolicyRuleSerializable> rules = config.getPolicyRules();
+        for (final PolicyRuleSerializable rule : rules) {
+            final String ruleUrl = rule.getPolicyUrl();
+            logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
+                    + rule.getChecked());
+            if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
+                ruleUrls.add(ruleUrl);
+            }
+        }
+        if (ruleUrls.size() > 0) {
+            return ruleUrls;
+        } else {
+            logger.error("No valid rule URLs found in configuration");
+            return null;
+        }
+    }
 
-	private HubJiraConfigSerializable validateInput() {
-		if (projectMappingJson == null) {
-			logger.debug(
-					"HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-			return null;
-		}
+    private JiraContext initJiraContext(final String jiraUser) {
+        final UserManager jiraUserManager = jiraServices.getUserManager();
+        final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
+        if (jiraSysAdmin == null) {
+            logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
+            return null;
+        }
 
-		if (policyRulesJson == null) {
-			logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-			return null;
-		}
+        final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
+        return jiraContext;
+    }
 
-		logger.debug("Last run date: " + lastRunDateString);
-		logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
-				+ serverConfig.getGlobalCredentials().getUsername());
-		logger.debug("Interval: " + intervalString);
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
+            final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
+            throws URISyntaxException {
+        logger.debug("Jira user: " + this.jiraUser);
 
-		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-		config.setHubProjectMappingsJson(projectMappingJson);
-		config.setPolicyRulesJson(policyRulesJson);
-		logger.debug("Mappings:");
-		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-			logger.debug(mapping.toString());
-		}
-		logger.debug("Policy Rules:");
-		for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-			logger.debug(rule.toString());
-		}
-		return config;
-	}
+        final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
-	private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
-		final Date startDate;
-		if (lastRunDateString == null) {
-			logger.info(
-					"No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
-							+ installDateString);
+        final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
 
-			startDate = dateFormatter.parse(installDateString);
+        final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
+                logger, policyFilter);
+        final Gson gson = new GsonBuilder().create();
+        final JsonParser jsonParser = new JsonParser();
+        final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
+                restConnection, gson, jsonParser);
 
-		} else {
-			startDate = dateFormatter.parse(lastRunDateString);
-		}
-		return startDate;
-	}
+        final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
 
-	/**
-	 * @param blackDuckVersion
-	 *            Version of the blackduck product, in this instance, the hub
-	 * @param regId
-	 *            Registration ID of the hub instance that this plugin uses
-	 * @param hubHostName
-	 *            Host name of the hub instance that this plugin uses
-	 *
-	 *            This method "phones-home" to the internal BlackDuck
-	 *            Integrations server.
-	 */
-	public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName)
-			throws IOException, PhoneHomeException, PropertiesLoaderException, ResourceException, JSONException {
-		final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
-		final String pluginVersion = jiraServices.getPluginVersion();
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
+                vulnerableBomComponentRestService, notificationDataService,
+                jiraServices, jiraContext,
+                jiraSettingsService, ticketInfoFromSetup);
+        return ticketGenerator;
+    }
 
-		final PhoneHomeClient phClient = new PhoneHomeClient();
-		phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
-				thirdPartyVersion, pluginVersion);
-	}
+    private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
+        final HubIntRestService hub = new HubIntRestService(restConnection);
+        return hub;
+    }
+
+    private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
+
+        final RestConnection restConnection = new CredentialsRestConnection(serverConfig);
+
+        restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
+                serverConfig.getGlobalCredentials().getDecryptedPassword());
+        restConnection.setProxyProperties(serverConfig.getProxyInfo());
+
+        logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
+        restConnection.setTimeout(serverConfig.getTimeout());
+        return restConnection;
+    }
+
+    private HubJiraConfigSerializable validateInput() {
+        if (projectMappingJson == null) {
+            logger.debug(
+                    "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+            return null;
+        }
+
+        if (policyRulesJson == null) {
+            logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
+            return null;
+        }
+
+        logger.debug("Last run date: " + lastRunDateString);
+        logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
+                + serverConfig.getGlobalCredentials().getUsername());
+        logger.debug("Interval: " + intervalString);
+
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingsJson(projectMappingJson);
+        config.setPolicyRulesJson(policyRulesJson);
+        logger.debug("Mappings:");
+        for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+            logger.debug(mapping.toString());
+        }
+        logger.debug("Policy Rules:");
+        for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
+            logger.debug(rule.toString());
+        }
+        return config;
+    }
+
+    private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
+        final Date startDate;
+        if (lastRunDateString == null) {
+            logger.info(
+                    "No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
+                            + installDateString);
+
+            startDate = dateFormatter.parse(installDateString);
+
+        } else {
+            startDate = dateFormatter.parse(lastRunDateString);
+        }
+        return startDate;
+    }
+
+    /**
+     * @param blackDuckVersion
+     *            Version of the blackduck product, in this instance, the hub
+     * @param regId
+     *            Registration ID of the hub instance that this plugin uses
+     * @param hubHostName
+     *            Host name of the hub instance that this plugin uses
+     *
+     *            This method "phones-home" to the internal BlackDuck
+     *            Integrations server.
+     */
+    public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName)
+            throws IOException, PhoneHomeException, PropertiesLoaderException, ResourceException, JSONException {
+        final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
+        final String pluginVersion = jiraServices.getPluginVersion();
+
+        final PhoneHomeClient phClient = new PhoneHomeClient();
+        phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
+                thirdPartyVersion, pluginVersion);
+    }
 }

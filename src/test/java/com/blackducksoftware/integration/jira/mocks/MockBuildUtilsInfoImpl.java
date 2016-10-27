@@ -4,25 +4,26 @@ import com.atlassian.jira.util.BuildUtilsInfoImpl;
 
 public class MockBuildUtilsInfoImpl extends BuildUtilsInfoImpl {
 
-	private int[] versionNumbers;
-	private String version;
+    private int[] versionNumbers;
 
-	@Override
-	public String getVersion() {
-		return version;
-	}
+    private String version;
 
-	@Override
-	public int[] getVersionNumbers() {
-		return versionNumbers;
-	}
+    @Override
+    public String getVersion() {
+        return version;
+    }
 
-	public void setVersionNumbers(final int[] versionNumbers) {
-		this.versionNumbers = versionNumbers;
-	}
+    @Override
+    public int[] getVersionNumbers() {
+        return versionNumbers;
+    }
 
-	public void setVersion(final String version) {
-		this.version = version;
-	}
+    public void setVersionNumbers(final int[] versionNumbers) {
+        this.versionNumbers = versionNumbers;
+    }
+
+    public void setVersion(final String version) {
+        this.version = version;
+    }
 
 }

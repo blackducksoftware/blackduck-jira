@@ -31,81 +31,81 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeItem;
 
 public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager {
 
-	private final List<FieldScreenScheme> updatedSchemes = new ArrayList<>();
+    private final List<FieldScreenScheme> updatedSchemes = new ArrayList<>();
 
-	private final List<FieldScreenSchemeItem> updatedSchemeItems = new ArrayList<>();
+    private final List<FieldScreenSchemeItem> updatedSchemeItems = new ArrayList<>();
 
-	public List<FieldScreenScheme> getUpdatedSchemes() {
-		return updatedSchemes;
-	}
+    public List<FieldScreenScheme> getUpdatedSchemes() {
+        return updatedSchemes;
+    }
 
-	public List<FieldScreenSchemeItem> getUpdatedSchemeItems() {
-		return updatedSchemeItems;
-	}
+    public List<FieldScreenSchemeItem> getUpdatedSchemeItems() {
+        return updatedSchemeItems;
+    }
 
-	@Override
-	public void createFieldScreenScheme(final FieldScreenScheme arg0) {
+    @Override
+    public void createFieldScreenScheme(final FieldScreenScheme arg0) {
 
-	}
+    }
 
-	@Override
-	public void createFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
+    @Override
+    public void createFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
 
-	}
+    }
 
-	@Override
-	public FieldScreenScheme getFieldScreenScheme(final Long arg0) {
+    @Override
+    public FieldScreenScheme getFieldScreenScheme(final Long arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screneScheme) {
+    @Override
+    public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screneScheme) {
 
-		return screneScheme.getFieldScreenSchemeItems();
-	}
+        return screneScheme.getFieldScreenSchemeItems();
+    }
 
-	@Override
-	public Collection<FieldScreenScheme> getFieldScreenSchemes() {
+    @Override
+    public Collection<FieldScreenScheme> getFieldScreenSchemes() {
 
-		return updatedSchemes;
-	}
+        return updatedSchemes;
+    }
 
-	@Override
-	public Collection<FieldScreenScheme> getFieldScreenSchemes(final FieldScreen arg0) {
+    @Override
+    public Collection<FieldScreenScheme> getFieldScreenSchemes(final FieldScreen arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void refresh() {
+    @Override
+    public void refresh() {
 
-	}
+    }
 
-	@Override
-	public void removeFieldSchemeItems(final FieldScreenScheme arg0) {
+    @Override
+    public void removeFieldSchemeItems(final FieldScreenScheme arg0) {
 
-	}
+    }
 
-	@Override
-	public void removeFieldScreenScheme(final FieldScreenScheme arg0) {
+    @Override
+    public void removeFieldScreenScheme(final FieldScreenScheme arg0) {
 
-	}
+    }
 
-	@Override
-	public void removeFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
+    @Override
+    public void removeFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
 
-	}
+    }
 
-	@Override
-	public void updateFieldScreenScheme(final FieldScreenScheme scheme) {
-		updatedSchemes.add(scheme);
-	}
+    @Override
+    public void updateFieldScreenScheme(final FieldScreenScheme scheme) {
+        updatedSchemes.add(scheme);
+    }
 
-	@Override
-	public void updateFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
-		updatedSchemeItems.add(schemeItem);
+    @Override
+    public void updateFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
+        updatedSchemeItems.add(schemeItem);
 
-	}
+    }
 
 }

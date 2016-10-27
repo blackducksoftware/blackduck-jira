@@ -33,157 +33,157 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 
 public class FieldScreenTabMock implements FieldScreenTab {
 
-	private String name;
+    private String name;
 
-	private FieldScreen screen;
+    private FieldScreen screen;
 
-	private final List<FieldScreenLayoutItem> layoutItems = new ArrayList<>();
+    private final List<FieldScreenLayoutItem> layoutItems = new ArrayList<>();
 
-	@Override
-	public void addFieldScreenLayoutItem(final String fieldId) {
-		final FieldScreenLayoutItemMock layoutItem = new FieldScreenLayoutItemMock();
-		final OrderableFieldMock field = new OrderableFieldMock();
-		field.setId(fieldId);
-		layoutItem.setOrderableField(field);
-		layoutItems.add(layoutItem);
+    @Override
+    public void addFieldScreenLayoutItem(final String fieldId) {
+        final FieldScreenLayoutItemMock layoutItem = new FieldScreenLayoutItemMock();
+        final OrderableFieldMock field = new OrderableFieldMock();
+        field.setId(fieldId);
+        layoutItem.setOrderableField(field);
+        layoutItems.add(layoutItem);
 
-	}
+    }
 
-	@Override
-	public void addFieldScreenLayoutItem(final String arg0, final int arg1) {
+    @Override
+    public void addFieldScreenLayoutItem(final String arg0, final int arg1) {
 
-	}
+    }
 
-	@Override
-	public FieldScreen getFieldScreen() {
+    @Override
+    public FieldScreen getFieldScreen() {
 
-		return screen;
-	}
+        return screen;
+    }
 
-	@Override
-	public FieldScreenLayoutItem getFieldScreenLayoutItem(final int arg0) {
+    @Override
+    public FieldScreenLayoutItem getFieldScreenLayoutItem(final int arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldScreenLayoutItem getFieldScreenLayoutItem(final String id) {
-		for (final FieldScreenLayoutItem layoutItem : layoutItems) {
-			if (layoutItem.getOrderableField().getId().equals(id)) {
-				return layoutItem;
-			}
-		}
-		return null;
-	}
+    @Override
+    public FieldScreenLayoutItem getFieldScreenLayoutItem(final String id) {
+        for (final FieldScreenLayoutItem layoutItem : layoutItems) {
+            if (layoutItem.getOrderableField().getId().equals(id)) {
+                return layoutItem;
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public List<FieldScreenLayoutItem> getFieldScreenLayoutItems() {
+    @Override
+    public List<FieldScreenLayoutItem> getFieldScreenLayoutItems() {
 
-		return layoutItems;
-	}
+        return layoutItems;
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return name;
-	}
+        return name;
+    }
 
-	@Override
-	public int getPosition() {
+    @Override
+    public int getPosition() {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public boolean isContainsField(final String arg0) {
+    @Override
+    public boolean isContainsField(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isModified() {
+    @Override
+    public boolean isModified() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void moveFieldScreenLayoutItemDown(final int arg0) {
+    @Override
+    public void moveFieldScreenLayoutItemDown(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void moveFieldScreenLayoutItemFirst(final int arg0) {
+    @Override
+    public void moveFieldScreenLayoutItemFirst(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void moveFieldScreenLayoutItemLast(final int arg0) {
+    @Override
+    public void moveFieldScreenLayoutItemLast(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void moveFieldScreenLayoutItemToPosition(final Map<Integer, FieldScreenLayoutItem> arg0) {
+    @Override
+    public void moveFieldScreenLayoutItemToPosition(final Map<Integer, FieldScreenLayoutItem> arg0) {
 
-	}
+    }
 
-	@Override
-	public void moveFieldScreenLayoutItemUp(final int arg0) {
+    @Override
+    public void moveFieldScreenLayoutItemUp(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void remove() {
+    @Override
+    public void remove() {
 
-	}
+    }
 
-	@Override
-	public FieldScreenLayoutItem removeFieldScreenLayoutItem(final int arg0) {
+    @Override
+    public FieldScreenLayoutItem removeFieldScreenLayoutItem(final int arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void rename(final String arg0) {
+    @Override
+    public void rename(final String arg0) {
 
-	}
+    }
 
-	@Override
-	public void setFieldScreen(final FieldScreen screen) {
-		this.screen = screen;
+    @Override
+    public void setFieldScreen(final FieldScreen screen) {
+        this.screen = screen;
 
-	}
+    }
 
-	@Override
-	public void setGenericValue(final GenericValue arg0) {
+    @Override
+    public void setGenericValue(final GenericValue arg0) {
 
-	}
+    }
 
-	@Override
-	public void setName(final String name) {
-		this.name = name;
+    @Override
+    public void setName(final String name) {
+        this.name = name;
 
-	}
+    }
 
-	@Override
-	public void setPosition(final int arg0) {
+    @Override
+    public void setPosition(final int arg0) {
 
-	}
+    }
 
-	@Override
-	public void store() {
+    @Override
+    public void store() {
 
-	}
+    }
 
 }

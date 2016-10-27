@@ -33,140 +33,130 @@ import com.atlassian.jira.workflow.TransitionOptions;
 
 public class IssueServiceMock implements IssueService {
 
-	@Override
-	public IssueResult assign(final ApplicationUser arg0, final AssignValidationResult arg1) {
+    @Override
+    public IssueResult assign(final ApplicationUser arg0, final AssignValidationResult arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
+    @Override
+    public IssueResult create(final ApplicationUser arg0, final CreateValidationResult arg1) {
 
-	@Override
-	public IssueResult create(final ApplicationUser arg0, final CreateValidationResult arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueResult create(final ApplicationUser arg0, final CreateValidationResult arg1, final String arg2) {
 
-	@Override
-	public IssueResult create(final ApplicationUser arg0, final CreateValidationResult arg1, final String arg2) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public ErrorCollection delete(final ApplicationUser arg0, final DeleteValidationResult arg1) {
 
-	@Override
-	public ErrorCollection delete(final ApplicationUser arg0, final DeleteValidationResult arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public ErrorCollection delete(final ApplicationUser arg0, final DeleteValidationResult arg1,
+            final EventDispatchOption arg2, final boolean arg3) {
 
-	@Override
-	public ErrorCollection delete(final ApplicationUser arg0, final DeleteValidationResult arg1,
-			final EventDispatchOption arg2, final boolean arg3) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueResult getIssue(final ApplicationUser arg0, final Long arg1) {
 
-	@Override
-	public IssueResult getIssue(final ApplicationUser arg0, final Long arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueResult getIssue(final ApplicationUser arg0, final String arg1) {
 
-	@Override
-	public IssueResult getIssue(final ApplicationUser arg0, final String arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public boolean isEditable(final Issue arg0, final ApplicationUser arg1) {
 
-	@Override
-	public boolean isEditable(final Issue arg0, final ApplicationUser arg1) {
+        return false;
+    }
 
-		return false;
-	}
+    @Override
+    public IssueInputParameters newIssueInputParameters() {
 
-	@Override
-	public IssueInputParameters newIssueInputParameters() {
+        return new IssueInputParametersMock();
+    }
 
-		return new IssueInputParametersMock();
-	}
+    @Override
+    public IssueInputParameters newIssueInputParameters(final Map<String, String[]> arg0) {
 
-	@Override
-	public IssueInputParameters newIssueInputParameters(final Map<String, String[]> arg0) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueResult transition(final ApplicationUser arg0, final TransitionValidationResult arg1) {
 
-	@Override
-	public IssueResult transition(final ApplicationUser arg0, final TransitionValidationResult arg1) {
+        return null;
+    }
 
-		return null;
-	}
+    @Override
+    public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1,
+            final EventDispatchOption arg2, final boolean arg3) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public AssignValidationResult validateAssign(final ApplicationUser arg0, final Long arg1, final String arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public CreateValidationResult validateCreate(final ApplicationUser arg0, final IssueInputParameters arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1,
-			final EventDispatchOption arg2, final boolean arg3) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DeleteValidationResult validateDelete(final ApplicationUser arg0, final Long arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public CreateValidationResult validateSubTaskCreate(final ApplicationUser arg0, final Long arg1,
+            final IssueInputParameters arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public AssignValidationResult validateAssign(final ApplicationUser arg0, final Long arg1, final String arg2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
+            final IssueInputParameters arg3) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
+            final IssueInputParameters arg3, final TransitionOptions arg4) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public CreateValidationResult validateCreate(final ApplicationUser arg0, final IssueInputParameters arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public DeleteValidationResult validateDelete(final ApplicationUser arg0, final Long arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public CreateValidationResult validateSubTaskCreate(final ApplicationUser arg0, final Long arg1,
-			final IssueInputParameters arg2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
-			final IssueInputParameters arg3) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
-			final IssueInputParameters arg3, final TransitionOptions arg4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public UpdateValidationResult validateUpdate(final ApplicationUser arg0, final Long arg1,
-			final IssueInputParameters arg2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public UpdateValidationResult validateUpdate(final ApplicationUser arg0, final Long arg1,
+            final IssueInputParameters arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

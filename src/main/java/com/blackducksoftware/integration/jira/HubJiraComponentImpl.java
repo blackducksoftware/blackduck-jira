@@ -24,18 +24,18 @@ package com.blackducksoftware.integration.jira;
 import com.atlassian.sal.api.ApplicationProperties;
 
 public class HubJiraComponentImpl implements HubJiraComponent {
-	private final ApplicationProperties applicationProperties;
+    private final ApplicationProperties applicationProperties;
 
-	public HubJiraComponentImpl(final ApplicationProperties applicationProperties) {
-		this.applicationProperties = applicationProperties;
-	}
+    public HubJiraComponentImpl(final ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+    }
 
-	@Override
-	public String getName() {
-		if (applicationProperties != null) {
-			return "hubJira:" + applicationProperties.getDisplayName();
-		}
+    @Override
+    public String getName() {
+        if (applicationProperties != null) {
+            return "hubJira:" + applicationProperties.getDisplayName();
+        }
 
-		return "hubJira";
-	}
+        return "hubJira";
+    }
 }

@@ -27,64 +27,64 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 
 public class FieldLayoutItemMock implements FieldLayoutItem {
 
-	private OrderableField orderableField;
+    private OrderableField orderableField;
 
-	private boolean isRequired;
+    private boolean isRequired;
 
-	@Override
-	public int compareTo(final FieldLayoutItem o) {
+    @Override
+    public int compareTo(final FieldLayoutItem o) {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
-	public String getFieldDescription() {
+    @Override
+    public String getFieldDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldLayout getFieldLayout() {
+    @Override
+    public FieldLayout getFieldLayout() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public OrderableField getOrderableField() {
+    @Override
+    public OrderableField getOrderableField() {
 
-		return orderableField;
-	}
+        return orderableField;
+    }
 
-	public void setOrderableField(final OrderableField orderableField) {
-		this.orderableField = orderableField;
-	}
+    public void setOrderableField(final OrderableField orderableField) {
+        this.orderableField = orderableField;
+    }
 
-	@Override
-	public String getRawFieldDescription() {
+    @Override
+    public String getRawFieldDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getRendererType() {
+    @Override
+    public String getRendererType() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isHidden() {
+    @Override
+    public boolean isHidden() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isRequired() {
+    @Override
+    public boolean isRequired() {
 
-		return isRequired;
-	}
+        return isRequired;
+    }
 
-	public void setIsRequired(final boolean isRequired) {
-		this.isRequired = isRequired;
-	}
+    public void setIsRequired(final boolean isRequired) {
+        this.isRequired = isRequired;
+    }
 
 }

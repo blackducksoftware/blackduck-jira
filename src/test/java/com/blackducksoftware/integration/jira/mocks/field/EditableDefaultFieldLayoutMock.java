@@ -35,147 +35,147 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class EditableDefaultFieldLayoutMock implements EditableDefaultFieldLayout {
 
-	private final List<FieldLayoutItem> fieldLayoutItems = new ArrayList<>();
+    private final List<FieldLayoutItem> fieldLayoutItems = new ArrayList<>();
 
-	@Override
-	public String getType() {
+    @Override
+    public String getType() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void hide(final FieldLayoutItem arg0) {
+    @Override
+    public void hide(final FieldLayoutItem arg0) {
 
-	}
+    }
 
-	@Override
-	public void makeOptional(final FieldLayoutItem arg0) {
+    @Override
+    public void makeOptional(final FieldLayoutItem arg0) {
 
-	}
+    }
 
-	@Override
-	public void makeRequired(final FieldLayoutItem arg0) {
+    @Override
+    public void makeRequired(final FieldLayoutItem arg0) {
 
-	}
+    }
 
-	@Override
-	public void setDescription(final String arg0) {
+    @Override
+    public void setDescription(final String arg0) {
 
-	}
+    }
 
-	@Override
-	public void setDescription(final FieldLayoutItem arg0, final String arg1) {
+    @Override
+    public void setDescription(final FieldLayoutItem arg0, final String arg1) {
 
-	}
+    }
 
-	@Override
-	public void setName(final String arg0) {
+    @Override
+    public void setName(final String arg0) {
 
-	}
+    }
 
-	@Override
-	public void setRendererType(final FieldLayoutItem arg0, final String arg1) {
+    @Override
+    public void setRendererType(final FieldLayoutItem arg0, final String arg1) {
 
-	}
+    }
 
-	@Override
-	public void show(final FieldLayoutItem arg0) {
+    @Override
+    public void show(final FieldLayoutItem arg0) {
 
-	}
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldLayoutItem getFieldLayoutItem(final OrderableField arg0) {
+    @Override
+    public FieldLayoutItem getFieldLayoutItem(final OrderableField arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public FieldLayoutItem getFieldLayoutItem(final String arg0) {
+    @Override
+    public FieldLayoutItem getFieldLayoutItem(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<FieldLayoutItem> getFieldLayoutItems() {
+    @Override
+    public List<FieldLayoutItem> getFieldLayoutItems() {
 
-		return fieldLayoutItems;
-	}
+        return fieldLayoutItems;
+    }
 
-	public void addFieldLayoutItem(final FieldLayoutItem fieldLayoutItem) {
-		fieldLayoutItems.add(fieldLayoutItem);
-	}
+    public void addFieldLayoutItem(final FieldLayoutItem fieldLayoutItem) {
+        fieldLayoutItems.add(fieldLayoutItem);
+    }
 
-	@Override
-	public GenericValue getGenericValue() {
+    @Override
+    public GenericValue getGenericValue() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<Field> getHiddenFields(final Project arg0, final List<String> arg1) {
+    @Override
+    public List<Field> getHiddenFields(final Project arg0, final List<String> arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Long getId() {
+    @Override
+    public Long getId() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getRendererTypeForField(final String arg0) {
+    @Override
+    public String getRendererTypeForField(final String arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<FieldLayoutItem> getRequiredFieldLayoutItems(final Project arg0, final List<String> arg1) {
+    @Override
+    public List<FieldLayoutItem> getRequiredFieldLayoutItems(final Project arg0, final List<String> arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<FieldLayoutItem> getVisibleCustomFieldLayoutItems(final Project arg0, final List<String> arg1) {
+    @Override
+    public List<FieldLayoutItem> getVisibleCustomFieldLayoutItems(final Project arg0, final List<String> arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List<FieldLayoutItem> getVisibleLayoutItems(final Project arg0, final List<String> arg1) {
+    @Override
+    public List<FieldLayoutItem> getVisibleLayoutItems(final Project arg0, final List<String> arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean isDefault() {
+    @Override
+    public boolean isDefault() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public boolean isFieldHidden(final String arg0) {
+    @Override
+    public boolean isFieldHidden(final String arg0) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
-			final List<String> arg2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
+            final List<String> arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

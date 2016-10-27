@@ -60,136 +60,136 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 
 public class JiraServices {
 
-	public ConstantsManager getConstantsManager() {
-		return ComponentAccessor.getConstantsManager();
-	}
+    public ConstantsManager getConstantsManager() {
+        return ComponentAccessor.getConstantsManager();
+    }
 
-	public ProjectManager getJiraProjectManager() {
-		return ComponentAccessor.getProjectManager();
-	}
+    public ProjectManager getJiraProjectManager() {
+        return ComponentAccessor.getProjectManager();
+    }
 
-	public AvatarManager getAvatarManager() {
-		return ComponentAccessor.getAvatarManager();
-	}
+    public AvatarManager getAvatarManager() {
+        return ComponentAccessor.getAvatarManager();
+    }
 
-	public IssueTypeSchemeManager getIssueTypeSchemeManager() {
-		return ComponentAccessor.getIssueTypeSchemeManager();
-	}
+    public IssueTypeSchemeManager getIssueTypeSchemeManager() {
+        return ComponentAccessor.getIssueTypeSchemeManager();
+    }
 
-	public IssueService getIssueService() {
-		return ComponentAccessor.getIssueService();
-	}
+    public IssueService getIssueService() {
+        return ComponentAccessor.getIssueService();
+    }
 
-	public IssueManager getIssueManager() {
-		return ComponentAccessor.getIssueManager();
-	}
+    public IssueManager getIssueManager() {
+        return ComponentAccessor.getIssueManager();
+    }
 
-	public Collection<IssueType> getIssueTypes() {
-		return getConstantsManager().getAllIssueTypeObjects();
-	}
+    public Collection<IssueType> getIssueTypes() {
+        return getConstantsManager().getAllIssueTypeObjects();
+    }
 
-	public JiraAuthenticationContext getAuthContext() {
-		return ComponentAccessor.getJiraAuthenticationContext();
-	}
+    public JiraAuthenticationContext getAuthContext() {
+        return ComponentAccessor.getJiraAuthenticationContext();
+    }
 
-	public IssuePropertyService getPropertyService() {
-		return ComponentAccessor.getComponentOfType(IssuePropertyService.class);
-	}
+    public IssuePropertyService getPropertyService() {
+        return ComponentAccessor.getComponentOfType(IssuePropertyService.class);
+    }
 
-	public WorkflowManager getWorkflowManager() {
-		return ComponentAccessor.getWorkflowManager();
-	}
+    public WorkflowManager getWorkflowManager() {
+        return ComponentAccessor.getWorkflowManager();
+    }
 
-	public WorkflowSchemeManager getWorkflowSchemeManager() {
-		return ComponentAccessor.getWorkflowSchemeManager();
-	}
+    public WorkflowSchemeManager getWorkflowSchemeManager() {
+        return ComponentAccessor.getWorkflowSchemeManager();
+    }
 
-	public JsonEntityPropertyManager getJsonEntityPropertyManager() {
-		return ComponentAccessor.getComponentOfType(JsonEntityPropertyManager.class);
-	}
+    public JsonEntityPropertyManager getJsonEntityPropertyManager() {
+        return ComponentAccessor.getComponentOfType(JsonEntityPropertyManager.class);
+    }
 
-	public CommentManager getCommentManager() {
-		return ComponentAccessor.getCommentManager();
-	}
+    public CommentManager getCommentManager() {
+        return ComponentAccessor.getCommentManager();
+    }
 
-	public UserManager getUserManager() {
-		return ComponentAccessor.getUserManager();
-	}
+    public UserManager getUserManager() {
+        return ComponentAccessor.getUserManager();
+    }
 
-	public UserUtil getUserUtil() {
-		return ComponentAccessor.getUserUtil();
-	}
+    public UserUtil getUserUtil() {
+        return ComponentAccessor.getUserUtil();
+    }
 
-	public ApplicationUser userToApplicationUser(final User user) {
-		return ApplicationUsers.from(user);
-	}
+    public ApplicationUser userToApplicationUser(final User user) {
+        return ApplicationUsers.from(user);
+    }
 
-	public FieldScreenManager getFieldScreenManager() {
-		return ComponentAccessor.getFieldScreenManager();
-	}
+    public FieldScreenManager getFieldScreenManager() {
+        return ComponentAccessor.getFieldScreenManager();
+    }
 
-	public FieldScreenSchemeManager getFieldScreenSchemeManager() {
-		return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
-	}
+    public FieldScreenSchemeManager getFieldScreenSchemeManager() {
+        return ComponentAccessor.getComponentOfType(FieldScreenSchemeManager.class);
+    }
 
-	public FieldManager getFieldManager() {
-		return ComponentAccessor.getFieldManager();
-	}
+    public FieldManager getFieldManager() {
+        return ComponentAccessor.getFieldManager();
+    }
 
-	public CustomFieldManager getCustomFieldManager() {
-		return ComponentAccessor.getCustomFieldManager();
-	}
+    public CustomFieldManager getCustomFieldManager() {
+        return ComponentAccessor.getCustomFieldManager();
+    }
 
-	public FieldLayoutManager getFieldLayoutManager() {
-		return ComponentAccessor.getFieldLayoutManager();
-	}
+    public FieldLayoutManager getFieldLayoutManager() {
+        return ComponentAccessor.getFieldLayoutManager();
+    }
 
-	public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
-		return ComponentAccessor.getIssueTypeScreenSchemeManager();
-	}
+    public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
+        return ComponentAccessor.getIssueTypeScreenSchemeManager();
+    }
 
-	public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
-				.getProjectObj(jiraProjectId);
-		if (atlassianJiraProject == null) {
-			throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
-		}
-		final String jiraProjectKey = atlassianJiraProject.getKey();
-		final String jiraProjectName = atlassianJiraProject.getName();
-		final JiraProject bdsJiraProject = new JiraProject();
-		bdsJiraProject.setProjectId(jiraProjectId);
-		bdsJiraProject.setProjectKey(jiraProjectKey);
-		bdsJiraProject.setProjectName(jiraProjectName);
-		bdsJiraProject.setAssigneeUserId(getAssigneeUserId(atlassianJiraProject));
+    public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
+        final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
+                .getProjectObj(jiraProjectId);
+        if (atlassianJiraProject == null) {
+            throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+        }
+        final String jiraProjectKey = atlassianJiraProject.getKey();
+        final String jiraProjectName = atlassianJiraProject.getName();
+        final JiraProject bdsJiraProject = new JiraProject();
+        bdsJiraProject.setProjectId(jiraProjectId);
+        bdsJiraProject.setProjectKey(jiraProjectKey);
+        bdsJiraProject.setProjectName(jiraProjectName);
+        bdsJiraProject.setAssigneeUserId(getAssigneeUserId(atlassianJiraProject));
 
-		return bdsJiraProject;
-	}
+        return bdsJiraProject;
+    }
 
-	private String getAssigneeUserId(final Project jiraProject) {
-		final Long assigneeType = jiraProject.getAssigneeType();
-		if (assigneeType == null) {
-			return jiraProject.getProjectLead().getKey();
-		} else if (assigneeType.equals(AssigneeTypes.UNASSIGNED)) {
-			return null;
-		}
-		// There other AssigneeTypes, but we use Project Lead for all of
-		// them
-		return jiraProject.getProjectLead().getKey();
-	}
+    private String getAssigneeUserId(final Project jiraProject) {
+        final Long assigneeType = jiraProject.getAssigneeType();
+        if (assigneeType == null) {
+            return jiraProject.getProjectLead().getKey();
+        } else if (assigneeType.equals(AssigneeTypes.UNASSIGNED)) {
+            return null;
+        }
+        // There other AssigneeTypes, but we use Project Lead for all of
+        // them
+        return jiraProject.getProjectLead().getKey();
+    }
 
-	public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
-		final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
-				IconType.ISSUE_TYPE_ICON_TYPE);
-		return avatarTemplate;
-	}
+    public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
+        final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
+                IconType.ISSUE_TYPE_ICON_TYPE);
+        return avatarTemplate;
+    }
 
-	public InputStream getResourceAsStream(final String resource) {
-		return ClassLoaderUtils.getResourceAsStream(resource, getClass());
-	}
+    public InputStream getResourceAsStream(final String resource) {
+        return ClassLoaderUtils.getResourceAsStream(resource, getClass());
+    }
 
-	public String getPluginVersion() {
-		return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
-				.getPluginInformation().getVersion();
-	}
+    public String getPluginVersion() {
+        return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
+                .getPluginInformation().getVersion();
+    }
 
 }

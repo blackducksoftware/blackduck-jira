@@ -35,153 +35,153 @@ import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
 
 public class HubJiraServletTest {
 
-	@Test
-	public void testDoGetUserNull() throws Exception {
-		final String redirectUrl = "http://testRedirect";
-		final StringBuffer requestUrl = new StringBuffer();
-		requestUrl.append(redirectUrl);
+    @Test
+    public void testDoGetUserNull() throws Exception {
+        final String redirectUrl = "http://testRedirect";
+        final StringBuffer requestUrl = new StringBuffer();
+        requestUrl.append(redirectUrl);
 
-		final UserManagerUIMock managerMock = new UserManagerUIMock();
+        final UserManagerUIMock managerMock = new UserManagerUIMock();
 
-		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
-		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+        final TemplateRendererMock rendererMock = new TemplateRendererMock();
 
-		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
-		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
 
-		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-		requestMock.setRequestURL(requestUrl);
+        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+        requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
-				pluginSettingsFactory);
+        final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+                pluginSettingsFactory);
 
-		servlet.doGet(requestMock, responseMock);
+        servlet.doGet(requestMock, responseMock);
 
-		assertEquals(redirectUrl, responseMock.getRedirectedLocation());
-	}
+        assertEquals(redirectUrl, responseMock.getRedirectedLocation());
+    }
 
-	@Test
-	public void testDoGetUserNotAdmin() throws Exception {
-		final String userName = "TestUser";
-		final String redirectUrl = "http://testRedirect";
-		final StringBuffer requestUrl = new StringBuffer();
-		requestUrl.append(redirectUrl);
+    @Test
+    public void testDoGetUserNotAdmin() throws Exception {
+        final String userName = "TestUser";
+        final String redirectUrl = "http://testRedirect";
+        final StringBuffer requestUrl = new StringBuffer();
+        requestUrl.append(redirectUrl);
 
-		final UserManagerUIMock managerMock = new UserManagerUIMock();
-		managerMock.setRemoteUsername(userName);
+        final UserManagerUIMock managerMock = new UserManagerUIMock();
+        managerMock.setRemoteUsername(userName);
 
-		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
-		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+        final TemplateRendererMock rendererMock = new TemplateRendererMock();
 
-		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
-		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
 
-		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-		requestMock.setRequestURL(requestUrl);
+        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+        requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
-				pluginSettingsFactory);
+        final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+                pluginSettingsFactory);
 
-		servlet.doGet(requestMock, responseMock);
+        servlet.doGet(requestMock, responseMock);
 
-		assertEquals(redirectUrl, responseMock.getRedirectedLocation());
-	}
+        assertEquals(redirectUrl, responseMock.getRedirectedLocation());
+    }
 
-	@Test
-	public void testDoGetUserNotAdminNotInGroup() throws Exception {
-		final String userName = "TestUser";
-		final String redirectUrl = "http://testRedirect";
-		final StringBuffer requestUrl = new StringBuffer();
-		requestUrl.append(redirectUrl);
+    @Test
+    public void testDoGetUserNotAdminNotInGroup() throws Exception {
+        final String userName = "TestUser";
+        final String redirectUrl = "http://testRedirect";
+        final StringBuffer requestUrl = new StringBuffer();
+        requestUrl.append(redirectUrl);
 
-		final UserManagerUIMock managerMock = new UserManagerUIMock();
-		managerMock.setRemoteUsername(userName);
-		managerMock.addGroup("Group3");
+        final UserManagerUIMock managerMock = new UserManagerUIMock();
+        managerMock.setRemoteUsername(userName);
+        managerMock.addGroup("Group3");
 
-		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
-		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+        final TemplateRendererMock rendererMock = new TemplateRendererMock();
 
-		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
-		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-		pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+        pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
 
-		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-		requestMock.setRequestURL(requestUrl);
+        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+        requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
-				pluginSettingsFactory);
+        final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+                pluginSettingsFactory);
 
-		servlet.doGet(requestMock, responseMock);
+        servlet.doGet(requestMock, responseMock);
 
-		assertEquals(redirectUrl, responseMock.getRedirectedLocation());
-	}
+        assertEquals(redirectUrl, responseMock.getRedirectedLocation());
+    }
 
-	@Test
-	public void testDoGetUserNotAdminInGroup() throws Exception {
-		final String userName = "TestUser";
-		final String redirectUrl = "http://testRedirect";
-		final StringBuffer requestUrl = new StringBuffer();
-		requestUrl.append(redirectUrl);
+    @Test
+    public void testDoGetUserNotAdminInGroup() throws Exception {
+        final String userName = "TestUser";
+        final String redirectUrl = "http://testRedirect";
+        final StringBuffer requestUrl = new StringBuffer();
+        requestUrl.append(redirectUrl);
 
-		final UserManagerUIMock managerMock = new UserManagerUIMock();
-		managerMock.setRemoteUsername(userName);
-		managerMock.addGroup("Group1");
+        final UserManagerUIMock managerMock = new UserManagerUIMock();
+        managerMock.setRemoteUsername(userName);
+        managerMock.addGroup("Group1");
 
-		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
-		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+        final TemplateRendererMock rendererMock = new TemplateRendererMock();
 
-		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
-		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-		pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+        pluginSettingsFactory.createGlobalSettings().put(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
 
-		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-		requestMock.setRequestURL(requestUrl);
+        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+        requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
-				pluginSettingsFactory);
+        final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+                pluginSettingsFactory);
 
-		servlet.doGet(requestMock, responseMock);
+        servlet.doGet(requestMock, responseMock);
 
-		assertEquals("text/html;charset=utf-8", responseMock.getContentType());
-		assertEquals("hub-jira.vm", rendererMock.getRenderedString());
-	}
+        assertEquals("text/html;charset=utf-8", responseMock.getContentType());
+        assertEquals("hub-jira.vm", rendererMock.getRenderedString());
+    }
 
-	@Test
-	public void testDoGetUserAdmin() throws Exception {
-		final String userName = "TestUser";
-		final String redirectUrl = "http://testRedirect";
-		final StringBuffer requestUrl = new StringBuffer();
-		requestUrl.append(redirectUrl);
+    @Test
+    public void testDoGetUserAdmin() throws Exception {
+        final String userName = "TestUser";
+        final String redirectUrl = "http://testRedirect";
+        final StringBuffer requestUrl = new StringBuffer();
+        requestUrl.append(redirectUrl);
 
-		final UserManagerUIMock managerMock = new UserManagerUIMock();
-		managerMock.setRemoteUsername(userName);
-		managerMock.setIsSystemAdmin(true);
+        final UserManagerUIMock managerMock = new UserManagerUIMock();
+        managerMock.setRemoteUsername(userName);
+        managerMock.setIsSystemAdmin(true);
 
-		final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
+        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
 
-		final TemplateRendererMock rendererMock = new TemplateRendererMock();
+        final TemplateRendererMock rendererMock = new TemplateRendererMock();
 
-		final HttpServletResponseMock responseMock = new HttpServletResponseMock();
+        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
 
-		final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
 
-		final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-		requestMock.setRequestURL(requestUrl);
+        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
+        requestMock.setRequestURL(requestUrl);
 
-		final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
-				pluginSettingsFactory);
+        final HubJiraServlet servlet = new HubJiraServlet(managerMock, loginProviderMock, rendererMock,
+                pluginSettingsFactory);
 
-		servlet.doGet(requestMock, responseMock);
+        servlet.doGet(requestMock, responseMock);
 
-		assertEquals("text/html;charset=utf-8", responseMock.getContentType());
-		assertEquals("hub-jira.vm", rendererMock.getRenderedString());
-	}
+        assertEquals("text/html;charset=utf-8", responseMock.getContentType());
+        assertEquals("hub-jira.vm", rendererMock.getRenderedString());
+    }
 }

@@ -38,143 +38,143 @@ import com.atlassian.jira.web.bean.BulkEditBean;
 
 public class CustomFieldTypeMock implements CustomFieldType {
 
-	@Override
-	public String availableForBulkEdit(final BulkEditBean arg0) {
+    @Override
+    public String availableForBulkEdit(final BulkEditBean arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void createValue(final CustomField arg0, final Issue arg1, final Object arg2) {
+    @Override
+    public void createValue(final CustomField arg0, final Issue arg1, final Object arg2) {
 
-	}
+    }
 
-	@Override
-	public String getChangelogString(final CustomField arg0, final Object arg1) {
+    @Override
+    public String getChangelogString(final CustomField arg0, final Object arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getChangelogValue(final CustomField arg0, final Object arg1) {
+    @Override
+    public String getChangelogValue(final CustomField arg0, final Object arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List getConfigurationItemTypes() {
+    @Override
+    public List getConfigurationItemTypes() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getDefaultValue(final FieldConfig arg0) {
+    @Override
+    public Object getDefaultValue(final FieldConfig arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
+    @Override
+    public String getDescription() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public CustomFieldTypeModuleDescriptor getDescriptor() {
+    @Override
+    public CustomFieldTypeModuleDescriptor getDescriptor() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getKey() {
+    @Override
+    public String getKey() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public List getRelatedIndexers(final CustomField arg0) {
+    @Override
+    public List getRelatedIndexers(final CustomField arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getSingularObjectFromString(final String arg0) throws FieldValidationException {
+    @Override
+    public Object getSingularObjectFromString(final String arg0) throws FieldValidationException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public String getStringFromSingularObject(final Object arg0) {
+    @Override
+    public String getStringFromSingularObject(final Object arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getStringValueFromCustomFieldParams(final CustomFieldParams arg0) {
+    @Override
+    public Object getStringValueFromCustomFieldParams(final CustomFieldParams arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getValueFromCustomFieldParams(final CustomFieldParams arg0) throws FieldValidationException {
+    @Override
+    public Object getValueFromCustomFieldParams(final CustomFieldParams arg0) throws FieldValidationException {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Object getValueFromIssue(final CustomField arg0, final Issue arg1) {
+    @Override
+    public Object getValueFromIssue(final CustomField arg0, final Issue arg1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public Map getVelocityParameters(final Issue arg0, final CustomField arg1, final FieldLayoutItem arg2) {
+    @Override
+    public Map getVelocityParameters(final Issue arg0, final CustomField arg1, final FieldLayoutItem arg2) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void init(final CustomFieldTypeModuleDescriptor arg0) {
+    @Override
+    public void init(final CustomFieldTypeModuleDescriptor arg0) {
 
-	}
+    }
 
-	@Override
-	public boolean isRenderable() {
+    @Override
+    public boolean isRenderable() {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public Set remove(final CustomField arg0) {
+    @Override
+    public Set remove(final CustomField arg0) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public void setDefaultValue(final FieldConfig arg0, final Object arg1) {
+    @Override
+    public void setDefaultValue(final FieldConfig arg0, final Object arg1) {
 
-	}
+    }
 
-	@Override
-	public void updateValue(final CustomField arg0, final Issue arg1, final Object arg2) {
+    @Override
+    public void updateValue(final CustomField arg0, final Issue arg1, final Object arg2) {
 
-	}
+    }
 
-	@Override
-	public void validateFromParams(final CustomFieldParams arg0, final ErrorCollection arg1, final FieldConfig arg2) {
+    @Override
+    public void validateFromParams(final CustomFieldParams arg0, final ErrorCollection arg1, final FieldConfig arg2) {
 
-	}
+    }
 
-	@Override
-	public boolean valuesEqual(final Object arg0, final Object arg1) {
+    @Override
+    public boolean valuesEqual(final Object arg0, final Object arg1) {
 
-		return false;
-	}
+        return false;
+    }
 
 }

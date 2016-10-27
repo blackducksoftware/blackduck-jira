@@ -46,73 +46,73 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubProjectMappingsTest {
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+    }
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+    }
 
-	@Test
-	public void test() throws NotificationServiceException {
-		final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+    @Test
+    public void test() throws NotificationServiceException {
+        final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
-		final Collection<IssueType> issueTypes = new ArrayList<>();
-		final IssueType issueType = Mockito.mock(IssueType.class);
-		Mockito.when(issueType.getName()).thenReturn("Issue");
-		Mockito.when(issueType.getId()).thenReturn("issueTypeId");
-		issueTypes.add(issueType);
+        final Collection<IssueType> issueTypes = new ArrayList<>();
+        final IssueType issueType = Mockito.mock(IssueType.class);
+        Mockito.when(issueType.getName()).thenReturn("Issue");
+        Mockito.when(issueType.getId()).thenReturn("issueTypeId");
+        issueTypes.add(issueType);
 
-		final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
-		Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
+        final ProjectManager jiraProjectManager = Mockito.mock(ProjectManager.class);
+        Mockito.when(jiraServices.getJiraProjectManager()).thenReturn(jiraProjectManager);
 
-		// ticketGenInfo.getJiraIssueTypeName()
+        // ticketGenInfo.getJiraIssueTypeName()
 
-		for (int i = 0; i < 10; i++) {
-			final Project mockAtlassianJiraProject = Mockito.mock(Project.class);
-			Mockito.when(mockAtlassianJiraProject.getKey()).thenReturn("projectKey" + i);
-			Mockito.when(mockAtlassianJiraProject.getName()).thenReturn("projectName" + i);
+        for (int i = 0; i < 10; i++) {
+            final Project mockAtlassianJiraProject = Mockito.mock(Project.class);
+            Mockito.when(mockAtlassianJiraProject.getKey()).thenReturn("projectKey" + i);
+            Mockito.when(mockAtlassianJiraProject.getName()).thenReturn("projectName" + i);
 
-			Mockito.when(mockAtlassianJiraProject.getIssueTypes()).thenReturn(issueTypes);
+            Mockito.when(mockAtlassianJiraProject.getIssueTypes()).thenReturn(issueTypes);
 
-			Mockito.when(jiraProjectManager.getProjectObj((long) i)).thenReturn(mockAtlassianJiraProject);
+            Mockito.when(jiraProjectManager.getProjectObj((long) i)).thenReturn(mockAtlassianJiraProject);
 
-			final JiraProject jiraProject = new JiraProject();
-			jiraProject.setAssigneeUserId("assigneeUserId" + i);
-			jiraProject.setProjectError("");
-			jiraProject.setProjectId((long) i);
-			jiraProject.setProjectKey("projectKey" + i);
-			jiraProject.setProjectName("projectName" + i);
-			Mockito.when(jiraServices.getJiraProject(i)).thenReturn(jiraProject);
-		}
+            final JiraProject jiraProject = new JiraProject();
+            jiraProject.setAssigneeUserId("assigneeUserId" + i);
+            jiraProject.setProjectError("");
+            jiraProject.setProjectId((long) i);
+            jiraProject.setProjectKey("projectKey" + i);
+            jiraProject.setProjectName("projectName" + i);
+            Mockito.when(jiraServices.getJiraProject(i)).thenReturn(jiraProject);
+        }
 
-		final Set<HubProjectMapping> underlyingMappings = new HashSet<>();
-		for (int i = 0; i < 10; i++) {
-			final HubProjectMapping mapping = new HubProjectMapping();
-			final HubProject hubProject = new HubProject();
-			hubProject.setProjectName("projectName" + i);
-			hubProject.setProjectUrl("projectUrl" + i);
-			mapping.setHubProject(hubProject);
-			final JiraProject jiraProject = new JiraProject();
-			// jiraProject.setAssigneeUserId("assigneeUserId" + i);
-			jiraProject.setProjectError("");
-			jiraProject.setProjectId((long) i);
-			jiraProject.setProjectKey("projectKey" + i);
-			jiraProject.setProjectName("projectName" + i);
-			mapping.setJiraProject(jiraProject);
-			underlyingMappings.add(mapping);
-		}
+        final Set<HubProjectMapping> underlyingMappings = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            final HubProjectMapping mapping = new HubProjectMapping();
+            final HubProject hubProject = new HubProject();
+            hubProject.setProjectName("projectName" + i);
+            hubProject.setProjectUrl("projectUrl" + i);
+            mapping.setHubProject(hubProject);
+            final JiraProject jiraProject = new JiraProject();
+            // jiraProject.setAssigneeUserId("assigneeUserId" + i);
+            jiraProject.setProjectError("");
+            jiraProject.setProjectId((long) i);
+            jiraProject.setProjectKey("projectKey" + i);
+            jiraProject.setProjectName("projectName" + i);
+            mapping.setJiraProject(jiraProject);
+            underlyingMappings.add(mapping);
+        }
 
-		final HubProjectMappings mappings = new HubProjectMappings(jiraServices, underlyingMappings);
+        final HubProjectMappings mappings = new HubProjectMappings(jiraServices, underlyingMappings);
 
-		final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectName7");
-		assertEquals(1, mappedJiraProjects.size());
-		final JiraProject mappedJiraProject = mappedJiraProjects.get(0);
+        final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectName7");
+        assertEquals(1, mappedJiraProjects.size());
+        final JiraProject mappedJiraProject = mappedJiraProjects.get(0);
 
-		System.out.println(mappedJiraProject);
-		assertEquals(Long.valueOf(7L), mappedJiraProject.getProjectId());
-		assertEquals("assigneeUserId7", mappedJiraProject.getAssigneeUserId());
-	}
+        System.out.println(mappedJiraProject);
+        assertEquals(Long.valueOf(7L), mappedJiraProject.getProjectId());
+        assertEquals("assigneeUserId7", mappedJiraProject.getAssigneeUserId());
+    }
 
 }

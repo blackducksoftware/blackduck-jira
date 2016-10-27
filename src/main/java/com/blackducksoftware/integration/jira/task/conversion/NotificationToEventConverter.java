@@ -36,55 +36,59 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
-	private final JiraServices jiraServices;
-	private final JiraContext jiraContext;
-	private final JiraSettingsService jiraSettingsService;
-	private final HubProjectMappings mappings;
-	private final String issueTypeId;
+    private final JiraServices jiraServices;
 
-	public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
-			final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-			final String issueTypeName) throws ConfigurationException {
-		this.jiraServices = jiraServices;
-		this.jiraContext = jiraContext;
-		this.jiraSettingsService = jiraSettingsService;
-		this.mappings = mappings;
-		this.issueTypeId = lookUpIssueTypeId(issueTypeName);
-	}
+    private final JiraContext jiraContext;
 
-	public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
+    private final JiraSettingsService jiraSettingsService;
 
-	public JiraSettingsService getJiraSettingsService() {
-		return jiraSettingsService;
-	}
+    private final HubProjectMappings mappings;
 
-	public HubProjectMappings getMappings() {
-		return mappings;
-	}
+    private final String issueTypeId;
 
-	protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
-		return jiraServices.getJiraProject(jiraProjectId);
-	}
+    public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
+            final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+            final String issueTypeName) throws ConfigurationException {
+        this.jiraServices = jiraServices;
+        this.jiraContext = jiraContext;
+        this.jiraSettingsService = jiraSettingsService;
+        this.mappings = mappings;
+        this.issueTypeId = lookUpIssueTypeId(issueTypeName);
+    }
 
-	protected JiraContext getJiraContext() {
-		return jiraContext;
-	}
+    public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
 
-	private String lookUpIssueTypeId(final String targetIssueTypeName) throws ConfigurationException {
-		final Collection<IssueType> issueTypes = jiraServices.getConstantsManager().getAllIssueTypeObjects();
-		for (final IssueType issueType : issueTypes) {
-			if (issueType == null) {
-				continue;
-			}
-			if (issueType.getName().equals(targetIssueTypeName)) {
-				return issueType.getId();
-			}
-		}
-		throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
-	}
+    public JiraSettingsService getJiraSettingsService() {
+        return jiraSettingsService;
+    }
 
-	protected String getIssueTypeId() {
-		return issueTypeId;
-	}
+    public HubProjectMappings getMappings() {
+        return mappings;
+    }
+
+    protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
+        return jiraServices.getJiraProject(jiraProjectId);
+    }
+
+    protected JiraContext getJiraContext() {
+        return jiraContext;
+    }
+
+    private String lookUpIssueTypeId(final String targetIssueTypeName) throws ConfigurationException {
+        final Collection<IssueType> issueTypes = jiraServices.getConstantsManager().getAllIssueTypeObjects();
+        for (final IssueType issueType : issueTypes) {
+            if (issueType == null) {
+                continue;
+            }
+            if (issueType.getName().equals(targetIssueTypeName)) {
+                return issueType.getId();
+            }
+        }
+        throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
+    }
+
+    protected String getIssueTypeId() {
+        return issueTypeId;
+    }
 
 }

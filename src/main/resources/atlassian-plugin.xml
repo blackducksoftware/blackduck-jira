@@ -23,7 +23,7 @@
 				com.blackducksoftware.integration.phone.home.*;version="0.0",
 				com.blackducksoftware.integration.hub;version="0.0",
 				com.blackducksoftware.integration.hub.exception;version="0.0",
-				com.blackducksoftware.integration.hub.logging;version="0.0",
+				com.blackducksoftware.integration.hub.builder;version="0.0",
 				com.blackducksoftware.integration.hub.*;version="0.0",
 				com.blackducksoftware.integration.hub*;version="0.0",
 				org.springframework.osgi.service.exporter.support;resolution:=optional,

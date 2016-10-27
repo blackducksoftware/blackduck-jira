@@ -23,17 +23,25 @@ package com.blackducksoftware.integration.jira.config;
 
 public class JiraConfigErrors {
 
-	public static final String HUB_SERVER_MISCONFIGURATION = "There was a problem with the Hub Server configuration. ";
-	public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
-	public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
-	public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
-	public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any Jira Projects.";
-	public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Hub Projects for this User. This Hub user may not be assigned to any projects.";
-	public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
-	public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
+    public static final String HUB_SERVER_MISCONFIGURATION = "There was a problem with the Hub Server configuration. ";
 
-	public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
-	public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
+    public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
 
-	public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only Jira system admins can update the list of Jira groups that can access the Hub Jira configuration.";
+    public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
+
+    public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
+
+    public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any Jira Projects.";
+
+    public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Hub Projects for this User. This Hub user may not be assigned to any projects.";
+
+    public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
+
+    public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
+
+    public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
+
+    public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
+
+    public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only Jira system admins can update the list of Jira groups that can access the Hub Jira configuration.";
 }

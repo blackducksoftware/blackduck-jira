@@ -38,110 +38,115 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
 
-	private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
-	/* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
-	public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
-	private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
-	private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
+    private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
 
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    /* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
 
-	private final PluginScheduler pluginScheduler; // provided by SAL
-	private final PluginSettingsFactory pluginSettingsFactory;
+    public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
 
-	@Inject
-	public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
-		logger.debug("HubMonitor ctor called.");
-		this.pluginScheduler = pluginScheduler;
-		this.pluginSettingsFactory = pluginSettingsFactory;
-	}
+    private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
 
-	@Override
-	public void onStart() {
-		logger.debug("HubMonitor onStart() called.");
-		reschedule(0L);
-	}
+    private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
 
-	public void changeInterval() {
-		logger.debug("HubMonitor changeInterval() called.");
-		reschedule(0L);
-	}
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	@Override
-	public void reschedule(final long intervalIgnored) {
-		logger.debug("HubMonitor reschedule() called.");
+    private final PluginScheduler pluginScheduler; // provided by SAL
 
-		final long actualInterval = getIntervalMillisec();
+    private final PluginSettingsFactory pluginSettingsFactory;
 
-		try {
-			pluginScheduler.unscheduleJob(V1_JOB_NAME);
-			logger.debug("Unscheduled job " + V1_JOB_NAME);
-		} catch (final Exception e) {
-			logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
-		}
-		try {
-			pluginScheduler.unscheduleJob(JOB_NAME);
-			logger.debug("Unscheduled job " + JOB_NAME);
-		} catch (final Exception e) {
-			logger.debug("Job " + JOB_NAME + " wasn't scheduled");
-		}
-		pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
-				JiraTask.class, // class of the job
-				new HashMap<String, Object>() {
-			{
-				put(KEY_INSTANCE, HubMonitor.this);
-				put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
-			}
-		}, // data that needs to be passed to the job
-				new Date(), // the time the job is to start
-				actualInterval); // interval between repeats, in milliseconds
-		logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
-	}
+    @Inject
+    public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
+        logger.debug("HubMonitor ctor called.");
+        this.pluginScheduler = pluginScheduler;
+        this.pluginSettingsFactory = pluginSettingsFactory;
+    }
 
-	public String getName() {
-		logger.debug("HubMonitor.getName() called");
-		if (pluginScheduler != null) {
-			return "hubMonitor with pluginScheduler:" + pluginScheduler.toString();
-		}
+    @Override
+    public void onStart() {
+        logger.debug("HubMonitor onStart() called.");
+        reschedule(0L);
+    }
 
-		return "hubMonitor";
-	}
+    public void changeInterval() {
+        logger.debug("HubMonitor changeInterval() called.");
+        reschedule(0L);
+    }
 
-	private long getIntervalMillisec() {
-		final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-		if (settings == null) {
-			logger.error("Unable to get plugin settings");
-			return DEFAULT_INTERVAL_MILLISEC;
-		}
-		final String intervalString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-		if (intervalString == null) {
-			logger.error("Unable to get interval from plugin settings");
-			return DEFAULT_INTERVAL_MILLISEC;
-		}
-		int intervalMinutes;
-		try {
-			intervalMinutes = Integer.parseInt(intervalString);
-		} catch (final NumberFormatException e) {
-			logger.error("Unable to convert interval string '" + intervalString + "' to an integer");
-			return DEFAULT_INTERVAL_MILLISEC;
-		}
-		if (intervalMinutes < 1) {
-			logger.warn("Invalid interval string; setting interval to 1 minute");
-			intervalMinutes = 1;
-		}
-		logger.info("Interval in minutes: " + intervalMinutes);
-		// Lop off 30 seconds to give the task room to run. Otherwise, the
-		// runtime
-		// of the task pushes the next scheduled runtime out beyond the targeted
-		// once-a-minute opportunity to run
-		final long intervalSeconds = (intervalMinutes * 60) - 30;
-		final long intervalMillisec = intervalSeconds * 1000;
-		return intervalMillisec;
-	}
+    @Override
+    public void reschedule(final long intervalIgnored) {
+        logger.debug("HubMonitor reschedule() called.");
 
-	@Override
-	public void destroy() throws Exception {
-		logger.info("destroy() called; Unscheduling " + JOB_NAME);
-		pluginScheduler.unscheduleJob(JOB_NAME);
-	}
+        final long actualInterval = getIntervalMillisec();
+
+        try {
+            pluginScheduler.unscheduleJob(V1_JOB_NAME);
+            logger.debug("Unscheduled job " + V1_JOB_NAME);
+        } catch (final Exception e) {
+            logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
+        }
+        try {
+            pluginScheduler.unscheduleJob(JOB_NAME);
+            logger.debug("Unscheduled job " + JOB_NAME);
+        } catch (final Exception e) {
+            logger.debug("Job " + JOB_NAME + " wasn't scheduled");
+        }
+        pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
+                JiraTask.class, // class of the job
+                new HashMap<String, Object>() {
+                    {
+                        put(KEY_INSTANCE, HubMonitor.this);
+                        put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
+                    }
+                }, // data that needs to be passed to the job
+                new Date(), // the time the job is to start
+                actualInterval); // interval between repeats, in milliseconds
+        logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
+    }
+
+    public String getName() {
+        logger.debug("HubMonitor.getName() called");
+        if (pluginScheduler != null) {
+            return "hubMonitor with pluginScheduler:" + pluginScheduler.toString();
+        }
+
+        return "hubMonitor";
+    }
+
+    private long getIntervalMillisec() {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        if (settings == null) {
+            logger.error("Unable to get plugin settings");
+            return DEFAULT_INTERVAL_MILLISEC;
+        }
+        final String intervalString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        if (intervalString == null) {
+            logger.error("Unable to get interval from plugin settings");
+            return DEFAULT_INTERVAL_MILLISEC;
+        }
+        int intervalMinutes;
+        try {
+            intervalMinutes = Integer.parseInt(intervalString);
+        } catch (final NumberFormatException e) {
+            logger.error("Unable to convert interval string '" + intervalString + "' to an integer");
+            return DEFAULT_INTERVAL_MILLISEC;
+        }
+        if (intervalMinutes < 1) {
+            logger.warn("Invalid interval string; setting interval to 1 minute");
+            intervalMinutes = 1;
+        }
+        logger.info("Interval in minutes: " + intervalMinutes);
+        // Lop off 30 seconds to give the task room to run. Otherwise, the
+        // runtime
+        // of the task pushes the next scheduled runtime out beyond the targeted
+        // once-a-minute opportunity to run
+        final long intervalSeconds = (intervalMinutes * 60) - 30;
+        final long intervalMillisec = intervalSeconds * 1000;
+        return intervalMillisec;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        logger.info("destroy() called; Unscheduling " + JOB_NAME);
+        pluginScheduler.unscheduleJob(JOB_NAME);
+    }
 }

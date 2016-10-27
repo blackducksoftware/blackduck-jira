@@ -43,145 +43,144 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldConfigurationSetup {
 
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final JiraSettingsService settingService;
 
-	private final JiraSettingsService settingService;
+    private final JiraServices jiraServices;
 
-	private final JiraServices jiraServices;
+    public final List<String> requiredDefaultFields = new ArrayList<>();
 
-	public final List<String> requiredDefaultFields = new ArrayList<>();
+    public HubFieldConfigurationSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
+        this.settingService = settingService;
+        this.jiraServices = jiraServices;
+        requiredDefaultFields.add("summary");
+        requiredDefaultFields.add("issuetype");
+    }
 
-	public HubFieldConfigurationSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
-		this.settingService = settingService;
-		this.jiraServices = jiraServices;
-		requiredDefaultFields.add("summary");
-		requiredDefaultFields.add("issuetype");
-	}
+    public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
+            final FieldLayout fieldConfiguration) {
 
-	public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
-			final FieldLayout fieldConfiguration) {
+        boolean changesToStore = false;
+        FieldLayoutScheme fieldConfigurationScheme = null;
 
-		boolean changesToStore = false;
-		FieldLayoutScheme fieldConfigurationScheme = null;
+        // Check to see if it already exists
+        final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
+        if (fieldLayoutSchemes != null) {
+            for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
+                if (HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme
+                        .getName())) {
+                    logger.debug(
+                            "Field Configuration Scheme " + HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME
+                                    + " already exists");
+                    fieldConfigurationScheme = existingFieldConfigurationScheme;
+                    break;
+                }
+            }
+        }
 
-		// Check to see if it already exists
-		final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
-		if (fieldLayoutSchemes != null) {
-			for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
-				if (HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme
-						.getName())) {
-					logger.debug(
-"Field Configuration Scheme " + HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME
-							+ " already exists");
-					fieldConfigurationScheme = existingFieldConfigurationScheme;
-					break;
-				}
-			}
-		}
+        if (fieldConfigurationScheme == null) {
+            fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
+                    .createFieldLayoutScheme(
+                            HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME,
+                            HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME);
+            changesToStore = true;
+        }
 
-		if (fieldConfigurationScheme == null) {
-			fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
-.createFieldLayoutScheme(
-					HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME,
-					HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME);
-			changesToStore = true;
-		}
+        for (final IssueType issueType : issueTypes) {
 
-		for (final IssueType issueType : issueTypes) {
+            boolean issueTypeAlreadyAssociated = false;
+            final Collection<FieldLayoutSchemeEntity> entities = fieldConfigurationScheme.getEntities();
+            for (final FieldLayoutSchemeEntity entity : entities) {
+                if (entity.getIssueTypeObject() == null) {
+                    continue;
+                }
+                if (entity.getIssueTypeObject().getName().equals(issueType.getName())) {
+                    logger.debug("IssueType " + issueType.getName()
+                            + " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
+                    logger.debug("\tTarget field configuration ID is: " + fieldConfiguration.getId());
+                    if ((entity.getFieldLayoutId() != null)
+                            && (entity.getFieldLayoutId().equals(fieldConfiguration.getId()))) {
+                        issueTypeAlreadyAssociated = true;
+                        break;
+                    } else {
+                        logger.info("\tRemoving incorrect association for IssueType " + issueType.getName());
+                        fieldConfigurationScheme.removeEntity(issueType.getId());
+                    }
+                }
+            }
 
-			boolean issueTypeAlreadyAssociated = false;
-			final Collection<FieldLayoutSchemeEntity> entities = fieldConfigurationScheme.getEntities();
-			for (final FieldLayoutSchemeEntity entity : entities) {
-				if (entity.getIssueTypeObject() == null) {
-					continue;
-				}
-				if (entity.getIssueTypeObject().getName().equals(issueType.getName())) {
-					logger.debug("IssueType " + issueType.getName()
-							+ " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
-					logger.debug("\tTarget field configuration ID is: " + fieldConfiguration.getId());
-					if ((entity.getFieldLayoutId() != null)
-							&& (entity.getFieldLayoutId().equals(fieldConfiguration.getId()))) {
-						issueTypeAlreadyAssociated = true;
-						break;
-					} else {
-						logger.info("\tRemoving incorrect association for IssueType " + issueType.getName());
-						fieldConfigurationScheme.removeEntity(issueType.getId());
-					}
-				}
-			}
+            if (!issueTypeAlreadyAssociated) {
+                logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration "
+                        + fieldConfiguration.getName());
+                final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
+                        jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
+                issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
+                issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
+                issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
+                fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
+                changesToStore = true;
+            }
+        }
 
-			if (!issueTypeAlreadyAssociated) {
-				logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration "
-						+ fieldConfiguration.getName());
-				final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
-						jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
-				issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
-				issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
-				issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
-				fieldConfigurationScheme.addEntity(issueTypeToFieldConfiguration);
-				changesToStore = true;
-			}
-		}
+        if (changesToStore) {
+            fieldConfigurationScheme.store();
+        }
 
-		if (changesToStore) {
-			fieldConfigurationScheme.store();
-		}
+        return fieldConfigurationScheme;
+    }
 
-		return fieldConfigurationScheme;
-	}
+    public EditableFieldLayout addHubFieldConfigurationToJira() {
+        EditableFieldLayout hubFieldLayout = null;
+        try {
 
-	public EditableFieldLayout addHubFieldConfigurationToJira() {
-		EditableFieldLayout hubFieldLayout = null;
-		try {
+            final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
+                    .getEditableFieldLayouts();
+            if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
+                for (final EditableFieldLayout layout : fieldLayouts) {
+                    if (layout.getName().equals(HubJiraConstants.HUB_FIELD_CONFIGURATION)) {
+                        hubFieldLayout = layout;
+                        break;
+                    }
+                }
+            }
+            boolean fieldConfigurationNeedsUpdate = false;
+            if (hubFieldLayout == null) {
+                final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager()
+                        .getEditableDefaultFieldLayout();
 
-			final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
-					.getEditableFieldLayouts();
-			if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
-				for (final EditableFieldLayout layout : fieldLayouts) {
-					if (layout.getName().equals(HubJiraConstants.HUB_FIELD_CONFIGURATION)) {
-						hubFieldLayout = layout;
-						break;
-					}
-				}
-			}
-			boolean fieldConfigurationNeedsUpdate = false;
-			if (hubFieldLayout == null) {
-				final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager()
-						.getEditableDefaultFieldLayout();
+                // Creates a copy of the default field layout
+                hubFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
 
-				// Creates a copy of the default field layout
-				hubFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
+                hubFieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
+                fieldConfigurationNeedsUpdate = true;
+            }
+            final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
+            if (fields != null && !fields.isEmpty()) {
+                for (final FieldLayoutItem field : fields) {
+                    String fieldName = field.getOrderableField().getName();
+                    fieldName = fieldName.replace(" ", "");
+                    fieldName = fieldName.toLowerCase();
+                    if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
+                        hubFieldLayout.makeOptional(field);
+                        fieldConfigurationNeedsUpdate = true;
+                    }
+                }
+            }
+            if (fieldConfigurationNeedsUpdate) {
+                // Persists our field configuration,
+                // creates it if it doesnt exist,
+                // updates it if it does exist
+                jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
+            }
+        } catch (final Exception e) {
+            logger.error(e);
+            settingService.addHubError(e, "addHubFieldConfigurationToJira");
+        }
+        return hubFieldLayout;
+    }
 
-				hubFieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
-				fieldConfigurationNeedsUpdate = true;
-			}
-			final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
-			if (fields != null && !fields.isEmpty()) {
-				for (final FieldLayoutItem field : fields) {
-					String fieldName = field.getOrderableField().getName();
-					fieldName = fieldName.replace(" ", "");
-					fieldName = fieldName.toLowerCase();
-					if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
-						hubFieldLayout.makeOptional(field);
-						fieldConfigurationNeedsUpdate = true;
-					}
-				}
-			}
-			if (fieldConfigurationNeedsUpdate) {
-				// Persists our field configuration,
-				// creates it if it doesnt exist,
-				// updates it if it does exist
-				jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
-			}
-		} catch (final Exception e) {
-			logger.error(e);
-			settingService.addHubError(e, "addHubFieldConfigurationToJira");
-		}
-		return hubFieldLayout;
-	}
-
-	public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {
-		return new EditableFieldLayoutImpl(null, fields);
-	}
+    public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {
+        return new EditableFieldLayoutImpl(null, fields);
+    }
 }

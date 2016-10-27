@@ -37,104 +37,103 @@ import com.atlassian.jira.project.Project;
 
 public class FieldConfigSchemeMock implements FieldConfigScheme {
 
-	public FieldConfigSchemeMock() {
-	}
+    public FieldConfigSchemeMock() {
+    }
 
-	@Override
-	public Collection<String> getAssociatedIssueTypeIds() {
-		return null;
-	}
+    @Override
+    public Collection<String> getAssociatedIssueTypeIds() {
+        return null;
+    }
 
-	@Override
-	public Collection<IssueType> getAssociatedIssueTypeObjects() {
-		return null;
-	}
+    @Override
+    public Collection<IssueType> getAssociatedIssueTypeObjects() {
+        return null;
+    }
 
+    @Override
+    public List<Long> getAssociatedProjectIds() {
+        return null;
+    }
 
-	@Override
-	public List<Long> getAssociatedProjectIds() {
-		return null;
-	}
+    @Override
+    public List<Project> getAssociatedProjectObjects() {
+        return null;
+    }
 
-	@Override
-	public List<Project> getAssociatedProjectObjects() {
-		return null;
-	}
+    @Override
+    public Map<String, FieldConfig> getConfigs() {
+        return null;
+    }
 
-	@Override
-	public Map<String, FieldConfig> getConfigs() {
-		return null;
-	}
+    @Override
+    public MultiMap getConfigsByConfig() {
+        return null;
+    }
 
-	@Override
-	public MultiMap getConfigsByConfig() {
-		return null;
-	}
+    @Override
+    public List<JiraContextNode> getContexts() {
+        return null;
+    }
 
-	@Override
-	public List<JiraContextNode> getContexts() {
-		return null;
-	}
+    @Override
+    public String getDescription() {
+        return null;
+    }
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public ConfigurableField getField() {
+        return null;
+    }
 
-	@Override
-	public ConfigurableField getField() {
-		return null;
-	}
+    @Override
+    public Long getId() {
+        return null;
+    }
 
-	@Override
-	public Long getId() {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return null;
+    }
 
-	@Override
-	public String getName() {
-		return null;
-	}
+    @Override
+    public FieldConfig getOneAndOnlyConfig() {
+        return null;
+    }
 
-	@Override
-	public FieldConfig getOneAndOnlyConfig() {
-		return null;
-	}
+    @Override
+    public boolean isAllIssueTypes() {
+        return false;
+    }
 
-	@Override
-	public boolean isAllIssueTypes() {
-		return false;
-	}
+    @Override
+    public boolean isAllProjects() {
+        return false;
+    }
 
-	@Override
-	public boolean isAllProjects() {
-		return false;
-	}
+    @Override
+    public boolean isBasicMode() {
+        return false;
+    }
 
-	@Override
-	public boolean isBasicMode() {
-		return false;
-	}
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return false;
-	}
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
 
-	@Override
-	public boolean isGlobal() {
-		return false;
-	}
+    @Override
+    public boolean isInContext(final IssueContext arg0) {
+        return false;
+    }
 
-	@Override
-	public boolean isInContext(final IssueContext arg0) {
-		return false;
-	}
-
-	@Override
-	public Collection<IssueType> getAssociatedIssueTypes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Collection<IssueType> getAssociatedIssueTypes() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }
