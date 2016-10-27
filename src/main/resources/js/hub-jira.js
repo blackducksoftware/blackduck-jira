@@ -175,6 +175,31 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/getOptions/",
+		    dataType: "json",
+		    success: function(options) {
+		      console.log("Options: changeIssueStateEnabled: " + options.changeIssueStateEnabled);
+		      var changeIssueStateEnabledBoolean = options.changeIssueStateEnabled;
+		      console.log("changeIssueStateEnabledBoolean: " + changeIssueStateEnabledBoolean);
+		      console.log('AJS.$("#changeIssueStateEnabled")[0]: ' + AJS.$("#changeIssueStateEnabled")[0]);
+		      console.log('Before: AJS.$("#changeIssueStateEnabled")[0].checked: ' + AJS.$("#changeIssueStateEnabled")[0].checked);
+		      AJS.$("#changeIssueStateEnabled")[0].checked = changeIssueStateEnabledBoolean;
+		      AJS.$("#changeIssueStateEnabled")[0].checked = changeIssueStateEnabledBoolean;
+		      console.log('New AJS.$("#changeIssueStateEnabled")[0].checked: ' + AJS.$("#changeIssueStateEnabled")[0].checked);
+		      
+		      //handleError(errorMessageFieldId, config.errorMessage, false);
+		      //handleError('hubProjectMappingsError', config.hubProjectMappingError, false);
+		    },
+		    error: function(response){
+		    	console.log("Options: error");
+		    	//handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Options: complete");
+		    	 //AJS.$('#projectMappingSpinner').remove();
+		    }
+		  });
+	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
 		    success: function(creationError) {

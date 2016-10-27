@@ -260,10 +260,11 @@ public class HubJiraConfigController {
         return Response.ok(obj).build();
     }
     
-    @Path("/changeIssueStateEnabled")
+    @Path("/getOptions")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChangeStateEnabled(@Context final HttpServletRequest request) {
+    public Response getOptions(@Context final HttpServletRequest request) {
+        logger.debug("getOptions");
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         final Response response = checkUserPermissions(request, settings);
         if (response != null) {
@@ -272,8 +273,11 @@ public class HubJiraConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                boolean changeStateEnabled = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
-                return Boolean.valueOf(changeStateEnabled);
+                boolean changeIssueStateEnabled = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
+                OptionsSerializable options = new OptionsSerializable();
+                options.setChangeIssueStateEnabled(changeIssueStateEnabled);
+                logger.debug("getOptions: returning options: " + options);
+                return options;
             }
         });
 
@@ -443,6 +447,23 @@ public class HubJiraConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putOptions(final OptionsSerializable options, @Context final HttpServletRequest request) {
         logger.debug("putOptions() called with options: " + options);
+        
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+        
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, 
+                        options.getChangeIssueStateEnabled().toString());
+                logger.debug("Saved changeIssueStateEnabled value (read back): " + getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS));
+                return null;
+            }
+        });
+        // TODO error handling?
         return Response.noContent().build();
     }
 
