@@ -431,7 +431,6 @@ public class HubJiraConfigController {
                 setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
                         config.getHubProjectMappingsJson());
                 setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, "false"); // TODO unHardCode
                 updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                 return null;
             }
