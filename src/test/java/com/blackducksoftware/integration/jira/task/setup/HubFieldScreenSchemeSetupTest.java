@@ -63,7 +63,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
 
-        final HubFieldScreenSchemeSetupJira7 fieldConfigSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldConfigSetup.addHubFieldConfigurationToJira(null);
 
@@ -77,7 +77,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
 
-        final HubFieldScreenSchemeSetupJira7 fieldConfigSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldConfigSetup.addHubFieldConfigurationToJira(new ArrayList<IssueType>());
 
@@ -102,7 +102,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getHubIssueTypes();
 
-        HubFieldScreenSchemeSetupJira7 fieldConfigSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
@@ -184,7 +184,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getHubIssueTypes();
 
-        HubFieldScreenSchemeSetupJira7 fieldConfigSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
@@ -244,7 +244,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getHubIssueTypes();
 
-        HubFieldScreenSchemeSetupJira7 fieldConfigSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
@@ -324,7 +324,7 @@ public class HubFieldScreenSchemeSetupTest {
         assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
     }
 
-    private void mockCreationMethods(final HubFieldScreenSchemeSetupJira7 fieldConfigSetup) {
+    private void mockCreationMethods(final HubFieldScreenSchemeSetup fieldConfigSetup) {
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
                 .thenAnswer(new Answer<FieldScreen>() {
                     @Override

@@ -316,7 +316,7 @@ public class JiraTaskSetupTest {
                 fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
                 fieldManager, fieldScreenManager, fieldScreenSchemeManager);
 
-        HubFieldScreenSchemeSetupJira7 fieldScreenSchemeSetup = new HubFieldScreenSchemeSetupJira7(settingService,
+        HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
 
@@ -379,7 +379,7 @@ public class JiraTaskSetupTest {
         return fieldScreen;
     }
 
-    private void mockCreationMethods(final JiraTask jiraTask, final AbstractHubFieldScreenSchemeSetup fieldConfigSetup)
+    private void mockCreationMethods(final JiraTask jiraTask, final HubFieldScreenSchemeSetup fieldConfigSetup)
             throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
         buildInfoUtil.setVersion("7.1.5");
@@ -631,7 +631,7 @@ public class JiraTaskSetupTest {
 
         private JiraServices jiraServices;
 
-        private HubFieldScreenSchemeSetupJira7 HubFieldScreenSchemeSetup;
+        private HubFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
 
         private JiraTask jiraTask;
 
@@ -871,12 +871,12 @@ public class JiraTaskSetupTest {
             return this;
         }
 
-        private HubFieldScreenSchemeSetupJira7 getHubFieldScreenSchemeSetup() {
+        private HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup() {
             return HubFieldScreenSchemeSetup;
         }
 
         private JiraEnvironment setHubFieldScreenSchemeSetup(
-                final HubFieldScreenSchemeSetupJira7 hubFieldScreenSchemeSetup) {
+                final HubFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
             HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
             return this;
         }

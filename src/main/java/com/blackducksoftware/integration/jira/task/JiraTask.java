@@ -49,10 +49,9 @@ import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.jira.task.setup.AbstractHubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetupJira7;
+import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
 
@@ -97,7 +96,7 @@ public class JiraTask implements PluginJob {
 
         final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
         
-        final boolean changeIssueStateIfExists = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true); // TODO get this from config
+        final boolean changeIssueStateIfExists = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
         logger.debug("changeIssueStateIfExists: " + changeIssueStateIfExists);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
@@ -175,7 +174,7 @@ public class JiraTask implements PluginJob {
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-        final AbstractHubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
+        final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
                 jiraSettingsService,
                 jiraServices, jiraVersion);
 
@@ -235,10 +234,10 @@ public class JiraTask implements PluginJob {
         return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
     }
 
-    public AbstractHubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
+    public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
             final JiraSettingsService jiraSettingsService,
             final JiraServices jiraServices, final JiraVersion jiraVersion) {
-        return new HubFieldScreenSchemeSetupJira7(jiraSettingsService, jiraServices);
+        return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
     }
 
     private HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,

@@ -55,7 +55,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public abstract class AbstractHubFieldScreenSchemeSetup {
+public class HubFieldScreenSchemeSetup {
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -65,7 +65,7 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
 
     private final Map<String, CustomField> customFields = new HashMap<>();
 
-    public AbstractHubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
+    public HubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
         this.settingService = settingService;
         this.jiraServices = jiraServices;
     }
@@ -106,11 +106,17 @@ public abstract class AbstractHubFieldScreenSchemeSetup {
         return fieldScreenSchemes;
     }
 
-    protected abstract List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes);
+    private List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
+        final List<IssueType> issueTypes = new ArrayList<>();
+        issueTypes.addAll(hubIssueTypes);
+        return issueTypes;
+    }
 
-    protected abstract IssueType getIssueTypeObject(final IssueType hubIssueType);
+    private IssueType getIssueTypeObject(final IssueType hubIssueType) {
+        return hubIssueType;
+    }
 
-    protected List<IssueType> getAsscociatedIssueTypeObjects(final CustomField customField) {
+    private List<IssueType> getAsscociatedIssueTypeObjects(final CustomField customField) {
         final List<IssueType> genericValues = new ArrayList<>();
         genericValues.addAll(customField.getAssociatedIssueTypes());
         return genericValues;
