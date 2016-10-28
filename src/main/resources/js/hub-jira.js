@@ -494,7 +494,7 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 	    type: "PUT",
 	    dataType: "json",
 	    contentType: "application/json",
-	    data: '{ "hubJiraGroups": "' + hubJiraGroups)
+	    data: '{ "hubJiraGroups": "' + hubJiraGroups
 	    + '"}',
 	    processData: false,
 	    success: function() {
