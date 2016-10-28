@@ -174,7 +174,7 @@
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
-		      	<div id="changeIssueStateEnabledError" class="error hidden"></div>
+		      	<div id="optionsError" class="error hidden"></div>
 		      </div>
       		</div>
       	</fieldSet>

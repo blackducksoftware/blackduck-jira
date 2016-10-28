@@ -178,25 +178,15 @@ function populateForm() {
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/getOptions/",
 		    dataType: "json",
 		    success: function(options) {
-		      console.log("Options: changeIssueStateEnabled: " + options.changeIssueStateEnabled);
-		      var changeIssueStateEnabledBoolean = options.changeIssueStateEnabled;
-		      console.log("changeIssueStateEnabledBoolean: " + changeIssueStateEnabledBoolean);
-		      console.log('AJS.$("#changeIssueStateEnabled")[0]: ' + AJS.$("#changeIssueStateEnabled")[0]);
-		      console.log('Before: AJS.$("#changeIssueStateEnabled")[0].checked: ' + AJS.$("#changeIssueStateEnabled")[0].checked);
-		      AJS.$("#changeIssueStateEnabled")[0].checked = changeIssueStateEnabledBoolean;
-		      AJS.$("#changeIssueStateEnabled")[0].checked = changeIssueStateEnabledBoolean;
-		      console.log('New AJS.$("#changeIssueStateEnabled")[0].checked: ' + AJS.$("#changeIssueStateEnabled")[0].checked);
+		      AJS.$("#changeIssueStateEnabled")[0].checked = options.changeIssueStateEnabled;
 		      
-		      //handleError(errorMessageFieldId, config.errorMessage, false);
-		      //handleError('hubProjectMappingsError', config.hubProjectMappingError, false);
+		      handleError(errorMessageFieldId, null, false);
 		    },
 		    error: function(response){
-		    	console.log("Options: error");
-		    	//handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+		    	console.log("Options: error getting options");
+		    	handleDataRetrievalError(response, "optionsError", "There was a problem retrieving the Options.", "Get Options Error");
 		    },
 		    complete: function(jqXHR, textStatus){
-		    	console.log("Options: complete");
-		    	 //AJS.$('#projectMappingSpinner').remove();
 		    }
 		  });
 	  AJS.$.ajax({
@@ -601,33 +591,22 @@ function putConfig(restUrl, successMessage, failureMessage) {
 		    processData: false,
 		    success: function() {
 		    	console.log("Saving options: success");
-		    	//hideError(errorMessageFieldId);
-		    	//hideError('intervalBetweenChecksError');
-		    	//hideError('hubProjectMappingsError');
-		    	//hideError('policyRulesError');
-		    	
-			    //showStatusMessage(successStatus, 'Success!', successMessage);
+		    	hideError('optionsError');
 		    },
 		    error: function(response){
 		    	console.log("Saving options: error");
 		    	console.log("response.responseText: " + response.responseText);
 		    	try {
 			    	var config = JSON.parse(response.responseText);
-			    	//handleError(errorMessageFieldId, config.errorMessage, true);
-			    	//handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true);
-			    	//handleError('hubProjectMappingsError', config.hubProjectMappingError, true);
-			    	//handleError('policyRulesError', config.policyRulesError, true);
-			    	
-				    //showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+			    	handleError('optionsError', null, true);
 		    	} catch(err) {
-		    		console.log("Saving options: exception");
+		    		console.log("Saving options: exception handling error: " + err);
 		    		// in case the response is not our error object
-		    		//alert(response.responseText);
+		    		alert(response.responseText);
 		    	}
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	console.log("Saving options: complete");
-		    	 //stopProgressSpinner('saveSpinner');
 		    }
 		  });
 }
