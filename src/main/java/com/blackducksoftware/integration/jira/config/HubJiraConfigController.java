@@ -462,7 +462,6 @@ public class HubJiraConfigController {
                 return null;
             }
         });
-        // TODO error handling?
         return Response.noContent().build();
     }
 
