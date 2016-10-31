@@ -38,6 +38,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -46,6 +47,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
@@ -283,4 +285,7 @@ public class JiraServicesMock extends JiraServices {
         this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
     }
 
+    public boolean isBdsIssuesExist(JiraContext jiraContext, String projectName) throws SearchException{
+        return false;
+    }
 }

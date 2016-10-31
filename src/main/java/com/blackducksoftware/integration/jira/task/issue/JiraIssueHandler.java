@@ -245,7 +245,11 @@ public class JiraIssueHandler {
 
     private void fixIssueAssignment(final HubEvent notificationEvent, final IssueResult result) {
         final MutableIssue issue = result.getIssue();
-        logger.debug("Created issue " + issue.getKey() + "; Assignee: " + issue.getAssignee().getName());
+        if (issue.getAssignee() == null) {
+            logger.debug("Created issue " + issue.getKey() + "; Assignee: null");
+        } else {
+            logger.debug("Created issue " + issue.getKey() + "; Assignee: " + issue.getAssignee().getName());
+        }
         if ((notificationEvent.getIssueAssigneeId() == null) && (issue.getAssigneeId() != null)) {
             logger.debug("Issue needs to be UNassigned");
             assignIssue(issue, notificationEvent);
@@ -472,7 +476,7 @@ public class JiraIssueHandler {
                 printIssueInfo(updatedIssue);
             }
         } else {
-            logger.info("Could not find an existing issue to close for this override.");
+            logger.info("Could not find an existing issue to close for this event.");
             logger.debug("Hub Project Name : " + event.getNotif().getProjectVersion().getProjectName());
             logger.debug("Hub Project Version : " + event.getNotif().getProjectVersion().getProjectVersionName());
             logger.debug("Hub Component Name : " + event.getNotif().getComponentName());

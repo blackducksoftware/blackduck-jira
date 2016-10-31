@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -38,6 +39,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.config.ConstantsManager;
@@ -56,6 +58,8 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEnt
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.DelegatingApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
@@ -63,6 +67,7 @@ import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
@@ -121,12 +126,14 @@ public class JiraTaskSetupTest {
     public void testServerSetupIssueTypesAlreadyCreated() throws JiraException, ConfigurationException {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
-
+        ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
+        JiraContext jiraContext = new JiraContext(jiraUser);
         jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
-                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), JIRA_USER);
+                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext, true);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
-        assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
+        assertFalse(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
 
         assertTrue(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size() == 5);
@@ -172,8 +179,11 @@ public class JiraTaskSetupTest {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
+        ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
+        JiraContext jiraContext = new JiraContext(jiraUser);
         jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
-                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), JIRA_USER);
+                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext, true);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());

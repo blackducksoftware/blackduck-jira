@@ -30,6 +30,7 @@ import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
@@ -44,6 +45,8 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.project.AssigneeTypes;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -55,7 +58,10 @@ import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
+import com.atlassian.query.Query;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 
 public class JiraServices {
@@ -192,4 +198,22 @@ public class JiraServices {
                 .getPluginInformation().getVersion();
     }
 
+    public SearchService getSearchService() {
+        return ComponentAccessor.getComponentOfType(SearchService.class);
+    }
+    
+    public boolean isBdsIssuesExist(JiraContext jiraContext, String projectName) throws SearchException{
+        Query policyQuery = JqlQueryBuilder.newClauseBuilder().defaultAnd().project(projectName).issueType(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE).buildQuery();
+        Query violationQuery = JqlQueryBuilder.newClauseBuilder().defaultAnd().project(projectName).issueType(HubJiraConstants.HUB_VULNERABILITY_ISSUE).buildQuery();
+        long policyCount=0;
+        long vulnerabilityCount=0;
+        policyCount = getSearchService().searchCount(jiraContext.getJiraUser(), policyQuery);
+        if (policyCount == 0) {
+            vulnerabilityCount = getSearchService().searchCount(jiraContext.getJiraUser(), violationQuery);
+        }
+        if ((policyCount + vulnerabilityCount) > 0) {
+            return true;
+        }
+        return false;
+    }
 }

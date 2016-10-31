@@ -79,7 +79,7 @@ public class HubJiraTask {
 
     private final String policyRulesJson;
 
-    private final String jiraUser;
+    private final JiraContext jiraContext;
 
     private final Date runDate;
 
@@ -97,7 +97,7 @@ public class HubJiraTask {
 
     public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
             final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-            final String jiraUser, final JiraSettingsService jiraSettingsService,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup, final boolean changeIssueStateIfExists) {
 
         this.serverConfig = serverConfig;
@@ -106,7 +106,7 @@ public class HubJiraTask {
         this.lastRunDateString = lastRunDateString;
         this.projectMappingJson = projectMappingJson;
         this.policyRulesJson = policyRulesJson;
-        this.jiraUser = jiraUser;
+        this.jiraContext = jiraContext;
         this.runDate = new Date();
 
         dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
@@ -145,8 +145,6 @@ public class HubJiraTask {
         try {
             final RestConnection restConnection = initRestConnection();
             final HubIntRestService hub = initHubRestService(restConnection);
-
-            final JiraContext jiraContext = initJiraContext(jiraUser);
 
             if (jiraContext == null) {
                 logger.info("Missing information to generate tickets.");
@@ -214,22 +212,12 @@ public class HubJiraTask {
         }
     }
 
-    private JiraContext initJiraContext(final String jiraUser) {
-        final UserManager jiraUserManager = jiraServices.getUserManager();
-        final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
-        if (jiraSysAdmin == null) {
-            logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
-            return null;
-        }
-
-        final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
-        return jiraContext;
-    }
+    
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
             throws URISyntaxException {
-        logger.debug("Jira user: " + this.jiraUser);
+        logger.debug("Jira user: " + this.jiraContext.getJiraUser().getName());
 
         final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 

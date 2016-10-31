@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.workflow.AssignableWorkflowScheme;
@@ -40,6 +41,7 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.FactoryException;
@@ -52,10 +54,18 @@ public abstract class AbstractHubWorkflowSetup {
     private final JiraSettingsService settingService;
 
     private final JiraServices jiraServices;
+    
+    private final JiraContext jiraContext;
+    
+    private final boolean changeIssueStateEnabled;
 
-    public AbstractHubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
+    public AbstractHubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices,
+            final JiraContext jiraContext,
+            final boolean changeIssueStateEnabled) {
         this.settingService = settingService;
         this.jiraServices = jiraServices;
+        this.jiraContext = jiraContext;
+        this.changeIssueStateEnabled = changeIssueStateEnabled;
     }
 
     public JiraSettingsService getSettingService() {
@@ -106,6 +116,21 @@ public abstract class AbstractHubWorkflowSetup {
 
     public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow hubWorkflow, final Project project,
             final List<IssueType> issueTypes) {
+        
+        logger.debug("Checking for existing Black Duck issues on project " + project.getName());
+        boolean bdsIssuesExistOnThisProject=false;
+        try {
+            if (jiraServices.isBdsIssuesExist(jiraContext, project.getName())) {
+                logger.debug("Black Duck Issues exist on project " + project.getName());
+                bdsIssuesExistOnThisProject = true;
+            } else {
+                logger.debug("No Black Duck Issues exist on project " + project.getName());
+            }
+        } catch (SearchException e1) {
+            logger.error("Error searching for existing Black Duck issues: " + e1.getMessage());
+            settingService.addHubError(e1, null, null, project.getName(), null, "addWorkflowToProjectsWorkflowScheme");
+            return;
+        }
         try {
             final AssignableWorkflowScheme projectWorkflowScheme = jiraServices.getWorkflowSchemeManager()
                     .getWorkflowSchemeObj(project);
@@ -122,21 +147,27 @@ public abstract class AbstractHubWorkflowSetup {
                 // Projects Workflow scheme
                 if (issueTypes != null && !issueTypes.isEmpty()) {
                     for (final IssueType issueType : issueTypes) {
-                        final String workflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId());
-
-                        if (StringUtils.isBlank(workflowName)) {
-                            projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
-                            logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
-                                    + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
-                            needsToBeUpdated = true;
-                        } else {
-                            if (!workflowName.equals(hubWorkflow.getName())) {
+                        final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId()); 
+                        String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
+                        logger.debug("Configured workflow: " + configuredWorkflowName);
+                        logger.debug("Actual workflow: " + actualWorkflowName);
+                        if (changeIssueStateEnabled && !bdsIssuesExistOnThisProject) {
+                            if (StringUtils.isBlank(actualWorkflowName)) {
                                 projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
                                 logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
-                                        + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName()
-                                        + "'");
+                                        + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
                                 needsToBeUpdated = true;
+                            } else {
+                                if (!actualWorkflowName.equals(hubWorkflow.getName())) {
+                                    logger.info("Black Duck Issue type " + issueType.getName() + " has apparently been manually re-assigned to workflow " 
+                                            + actualWorkflowName + "; leaving that assignment in place");
+                                } else {
+                                    logger.debug("Black Duck Issue type " + issueType.getName() + " has already been assigned to workflow " 
+                                            + actualWorkflowName + "; leaving that assignment in place");
+                                }
                             }
+                        } else {
+                            logger.debug("Changing of issue state is disabled, Black Duck issue types will NOT be mapped to the Black Duck workflow.");
                         }
                     }
                 }

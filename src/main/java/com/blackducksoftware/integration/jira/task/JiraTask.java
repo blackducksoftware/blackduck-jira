@@ -29,20 +29,34 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.atlassian.query.Query;
+import com.atlassian.query.QueryImpl;
+import com.atlassian.query.clause.Clause;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
@@ -64,8 +78,10 @@ import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
  */
 public class JiraTask implements PluginJob {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
+    private final JiraServices jiraServices;
+    
     public JiraTask() {
+        jiraServices = new JiraServices();
     }
 
     @Override
@@ -96,15 +112,17 @@ public class JiraTask implements PluginJob {
 
         final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
         
-        final boolean changeIssueStateIfExists = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
-        logger.debug("changeIssueStateIfExists: " + changeIssueStateIfExists);
+        final boolean changeIssueStateEnabled = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
+        logger.debug("changeIssueStateIfExists: " + changeIssueStateEnabled);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+        
+        JiraContext jiraContext = initJiraContext(jiraUserName);
 
         final DateTime beforeSetup = new DateTime();
-        // Do Jira setup here
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(new JiraServices(), jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraUserName);
+            jiraSetup(jiraServices, jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraContext,
+                    changeIssueStateEnabled);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return;
@@ -129,6 +147,8 @@ public class JiraTask implements PluginJob {
         hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
         hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
 
+        
+        
         HubServerConfig serverConfig = null;
         try {
             logger.debug("Building Hub configuration");
@@ -147,8 +167,8 @@ public class JiraTask implements PluginJob {
         }
 
         final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
-                lastRunDateString, projectMappingJson, policyRulesJson, jiraUserName, jiraSettingsService,
-                ticketInfoFromSetup, changeIssueStateIfExists);
+                lastRunDateString, projectMappingJson, policyRulesJson, jiraContext, jiraSettingsService,
+                ticketInfoFromSetup, changeIssueStateEnabled);
         final String runDateString = processor.execute();
         if (runDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -156,13 +176,16 @@ public class JiraTask implements PluginJob {
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-            final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final String jiraUserName)
+            final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup,
+            final JiraContext jiraContext,
+            final boolean changeIssueStateEnabled)
             throws ConfigurationException, JiraException {
+        
         //////////////////////// Create Issue Types, workflow, etc ////////////
         final JiraVersion jiraVersion = getJiraVersion();
         HubIssueTypeSetup issueTypeSetup;
         try {
-            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraUserName);
+            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraUser().getName());
         } catch (final ConfigurationException e) {
             logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
             return;
@@ -194,7 +217,7 @@ public class JiraTask implements PluginJob {
                 .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
         final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
-                jiraVersion);
+                jiraVersion, jiraContext, changeIssueStateEnabled);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
         ////////////////////////////////////////////////////////////////////////
 
@@ -246,8 +269,9 @@ public class JiraTask implements PluginJob {
     }
 
     private AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final JiraVersion jiraVersion) {
-        return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices);
+            final JiraServices jiraServices, final JiraVersion jiraVersion, final JiraContext jiraContext,
+            final boolean changeIssueStateEnabled) {
+        return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices, jiraContext, changeIssueStateEnabled);
     }
 
     private Object getValue(final PluginSettings settings, final String key) {
@@ -256,5 +280,17 @@ public class JiraTask implements PluginJob {
 
     private String getStringValue(final PluginSettings settings, final String key) {
         return (String) getValue(settings, key);
+    }
+    
+    private JiraContext initJiraContext(final String jiraUser) {
+        final UserManager jiraUserManager = jiraServices.getUserManager();
+        final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
+        if (jiraSysAdmin == null) {
+            logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
+            return null;
+        }
+
+        final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
+        return jiraContext;
     }
 }

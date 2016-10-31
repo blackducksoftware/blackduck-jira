@@ -24,13 +24,16 @@ package com.blackducksoftware.integration.jira.task.setup;
 import java.util.Collection;
 
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubWorkflowSetupJira7 extends AbstractHubWorkflowSetup {
 
-    public HubWorkflowSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices) {
-        super(settingService, jiraServices);
+    public HubWorkflowSetupJira7(final JiraSettingsService settingService, final JiraServices jiraServices,
+            final JiraContext jiraContext,
+            final boolean changeIssueStateEnabled) {
+        super(settingService, jiraServices, jiraContext, changeIssueStateEnabled);
     }
 
     @Override
