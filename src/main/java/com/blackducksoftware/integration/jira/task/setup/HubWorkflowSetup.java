@@ -24,6 +24,7 @@ package com.blackducksoftware.integration.jira.task.setup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -47,7 +48,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
-public abstract class AbstractHubWorkflowSetup {
+public class HubWorkflowSetup {
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -59,7 +60,7 @@ public abstract class AbstractHubWorkflowSetup {
     
     private final boolean changeIssueStateEnabled;
 
-    public AbstractHubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices,
+    public HubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices,
             final JiraContext jiraContext,
             final boolean changeIssueStateEnabled) {
         this.settingService = settingService;
@@ -187,6 +188,12 @@ public abstract class AbstractHubWorkflowSetup {
         }
     }
 
-    protected abstract ApplicationUser getJiraSystemAdmin();
+    private ApplicationUser getJiraSystemAdmin() {
+        final Collection jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
+        if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
+            return null;
+        }
+        return (ApplicationUser) jiraSysAdmins.iterator().next();
+    }
 
 }

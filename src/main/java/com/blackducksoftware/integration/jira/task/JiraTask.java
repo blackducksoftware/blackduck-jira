@@ -63,11 +63,11 @@ import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.jira.task.setup.AbstractHubWorkflowSetup;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetupJira7;
+import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -216,7 +216,7 @@ public class JiraTask implements PluginJob {
         final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
                 .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-        final AbstractHubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
+        final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
                 jiraVersion, jiraContext, changeIssueStateEnabled);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
         ////////////////////////////////////////////////////////////////////////
@@ -268,10 +268,10 @@ public class JiraTask implements PluginJob {
         return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
     }
 
-    private AbstractHubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
+    private HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
             final JiraServices jiraServices, final JiraVersion jiraVersion, final JiraContext jiraContext,
             final boolean changeIssueStateEnabled) {
-        return new HubWorkflowSetupJira7(jiraSettingsService, jiraServices, jiraContext, changeIssueStateEnabled);
+        return new HubWorkflowSetup(jiraSettingsService, jiraServices, jiraContext, changeIssueStateEnabled);
     }
 
     private Object getValue(final PluginSettings settings, final String key) {
