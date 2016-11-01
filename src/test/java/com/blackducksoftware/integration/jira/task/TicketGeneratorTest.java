@@ -105,7 +105,6 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
-import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 /**
  *
@@ -269,9 +268,6 @@ public class TicketGeneratorTest {
         WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
         JiraWorkflow bdsWorkflow = Mockito.mock(JiraWorkflow.class);
         Mockito.when(bdsWorkflow.getName()).thenReturn(HubJiraConstants.HUB_JIRA_WORKFLOW);
-        WorkflowDescriptor wfDescriptor = Mockito.mock(WorkflowDescriptor.class);
-        Mockito.when(wfDescriptor.getId()).thenReturn(123);
-        Mockito.when(bdsWorkflow.getDescriptor()).thenReturn(wfDescriptor);
         Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(bdsWorkflow);
         Mockito.when(jiraServices.getWorkflowManager()).thenReturn(workflowManager);
 
@@ -692,9 +688,6 @@ public class TicketGeneratorTest {
         final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
         Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
         Mockito.when(jiraWorkflow.getName()).thenReturn(HubJiraConstants.HUB_JIRA_WORKFLOW);
-        WorkflowDescriptor wfDescriptor = Mockito.mock(WorkflowDescriptor.class);
-        Mockito.when(jiraWorkflow.getDescriptor()).thenReturn(wfDescriptor);
-        Mockito.when(wfDescriptor.getId()).thenReturn(123);
         final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
         Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
         final List<ActionDescriptor> actions = new ArrayList<>();
