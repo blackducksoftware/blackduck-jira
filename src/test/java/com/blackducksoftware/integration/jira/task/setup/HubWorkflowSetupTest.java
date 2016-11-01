@@ -341,12 +341,12 @@ public class HubWorkflowSetupTest {
 
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
 
-        assertFalse(workflowSchemeManager.getAttemptedWorkflowUpdate());
+        assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
 
         final Map<String, String> mappings = hubWorkflow.getMappings();
 
         final String workflowNameMapped = mappings.get(issueTypeName);
-        assertEquals("FakeWorkflow", workflowNameMapped);
+        assertEquals("TestWorkflow", workflowNameMapped);
         assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
     }
 

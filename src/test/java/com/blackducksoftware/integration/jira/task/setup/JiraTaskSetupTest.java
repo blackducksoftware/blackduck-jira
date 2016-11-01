@@ -133,7 +133,7 @@ public class JiraTaskSetupTest {
                 jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
-        assertFalse(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
+        assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
 
         assertTrue(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size() == 5);

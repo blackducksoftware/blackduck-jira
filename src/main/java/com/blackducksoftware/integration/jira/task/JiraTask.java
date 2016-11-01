@@ -203,7 +203,7 @@ public class JiraTask implements PluginJob {
         final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
                 jiraVersion, jiraContext);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
-        logger.debug("Black Duck workflow Name: " + workflow.getName() + "; ID: " + workflow.getDescriptor().getId()); 
+        logger.debug("Black Duck workflow Name: " + workflow.getName()); 
         ////////////////////////////////////////////////////////////////////////
 
         /////////////////////// Associate with projects ///////////////////////

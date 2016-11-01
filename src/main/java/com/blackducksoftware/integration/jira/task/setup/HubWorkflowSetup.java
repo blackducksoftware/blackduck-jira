@@ -134,19 +134,11 @@ public class HubWorkflowSetup {
                         String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
                         logger.debug("Configured workflow: " + configuredWorkflowName);
                         logger.debug("Actual workflow: " + actualWorkflowName);
-                        if (StringUtils.isBlank(actualWorkflowName)) {
+                        if ((StringUtils.isBlank(actualWorkflowName)) || (!actualWorkflowName.equals(hubWorkflow.getName()))) {
                             projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
                             logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
                                     + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
                             needsToBeUpdated = true;
-                        } else {
-                            if (!actualWorkflowName.equals(hubWorkflow.getName())) {
-                                logger.info("Black Duck Issue type " + issueType.getName() + " has apparently been manually re-assigned to workflow " 
-                                        + actualWorkflowName + "; leaving that assignment in place");
-                            } else {
-                                logger.debug("Black Duck Issue type " + issueType.getName() + " has already been assigned to workflow " 
-                                        + actualWorkflowName + "; leaving that assignment in place");
-                            }
                         }
                     }
                 }
