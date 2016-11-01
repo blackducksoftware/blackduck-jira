@@ -139,7 +139,7 @@ public class PolicyViolationNotificationConverterTest {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
 
         final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
-                jiraContext, jiraSettingsService, true);
+                jiraContext, jiraSettingsService);
         final List<HubEvent> events = converter.generateEvents(notification);
 
         return events;

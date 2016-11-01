@@ -48,11 +48,10 @@ public class JiraNotificationProcessor {
     public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubIntRestService hubIntRestService,
-            final VulnerableBomComponentRestService vulnerableBomComponentRestService,
-            final boolean changeIssueStateIfExists)
+            final VulnerableBomComponentRestService vulnerableBomComponentRestService)
             throws ConfigurationException {
         converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService,
-                hubIntRestService, vulnerableBomComponentRestService, changeIssueStateIfExists);
+                hubIntRestService, vulnerableBomComponentRestService);
     }
 
     public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)

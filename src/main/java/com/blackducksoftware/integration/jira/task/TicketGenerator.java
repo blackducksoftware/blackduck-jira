@@ -62,8 +62,6 @@ public class TicketGenerator {
     private final JiraServices jiraServices;
 
     private final JiraSettingsService jiraSettingsService;
-    
-    private final boolean changeIssueStateIfExists;
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
@@ -71,14 +69,13 @@ public class TicketGenerator {
             final VulnerableBomComponentRestService vulnerableBomComponentRestService,
             final NotificationDataService notificationDataService, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final TicketInfoFromSetup ticketInfoFromSetup, final boolean changeIssueStateIfExists) {
+            final TicketInfoFromSetup ticketInfoFromSetup) {
         this.hubIntRestService = hubIntRestService;
         this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
         this.notificationDataService = notificationDataService;
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
-        this.changeIssueStateIfExists = changeIssueStateIfExists;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
     }
 
@@ -101,7 +98,7 @@ public class TicketGenerator {
             }
 
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
-                    jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService, changeIssueStateIfExists);
+                    jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
 
             final List<HubEvent> events = processor.generateEvents(notifs);
             if ((events == null) || (events.size() == 0)) {

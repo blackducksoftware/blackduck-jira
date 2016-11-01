@@ -294,31 +294,33 @@ public class HubIssueTypeSetup {
         return origIssueTypes;
     }
 
-    public void associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
+    /**
+     * Returns true if this setup had already been done.
+     */
+    public boolean associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
             final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes,
             final FieldLayout fieldConfiguration) {
-
+        boolean wasAlreadySetUp = true;
         final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
-        if (projectFieldConfigurationScheme == null) {
-
-        } else {
-
-        }
         if (projectFieldConfigurationScheme == null) {
             logger.debug("Project " + project.getName() + ": Field Configuration Scheme: <null> (Default)");
             logger.debug("\tReplacing the project's Field Configuration Scheme with "
                     + bdsFieldConfigurationScheme.getName());
             jiraServices.getFieldLayoutManager().addSchemeAssociation(project, bdsFieldConfigurationScheme.getId());
+            wasAlreadySetUp = false;
         } else {
             logger.debug("Project " + project.getName() + ": Field Configuration Scheme: "
                     + projectFieldConfigurationScheme.getName());
-            modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
+            wasAlreadySetUp = modifyProjectFieldConfigurationScheme(issueTypes, fieldConfiguration, projectFieldConfigurationScheme);
         }
+        return wasAlreadySetUp;
     }
 
-    private void modifyProjectFieldConfigurationScheme(final List<IssueType> issueTypes,
+    /**
+     * Returns true if this setup had already been done.
+     */
+    private boolean modifyProjectFieldConfigurationScheme(final List<IssueType> issueTypes,
             final FieldLayout fieldConfiguration, final FieldConfigurationScheme projectFieldConfigurationScheme) {
-
         logger.debug("Modifying the project's Field Configuration Scheme");
         boolean changesMade = false;
         final FieldLayoutScheme fieldLayoutScheme = getFieldLayoutScheme(projectFieldConfigurationScheme);
@@ -358,9 +360,11 @@ public class HubIssueTypeSetup {
         if (changesMade) {
             logger.debug("Storing Field Configuration Scheme " + fieldLayoutScheme.getName());
             fieldLayoutScheme.store();
+            return false;
         } else {
             logger.debug("Field Configuration Scheme " + fieldLayoutScheme.getName()
-                    + " already had Black Duck IssueType associates");
+                    + " already had Black Duck IssueType associated");
+            return true;
         }
     }
 

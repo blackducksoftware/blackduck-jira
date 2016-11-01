@@ -44,10 +44,9 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
     public static final String PROJECT_LINK = "project";
 
     public PolicyViolationNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final boolean changeIssueStateIfExists)
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
             throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
     }
 
     @Override
@@ -56,19 +55,13 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         final List<HubEvent> events = new ArrayList<>();
         
         HubEventAction action = HubEventAction.OPEN;
-        String commentForExistingIssue = null;
-        if (!isChangeIssueStateIfExists()) {
-            action = HubEventAction.ADD_COMMENT;
-            commentForExistingIssue = HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
-        }
-
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            final HubEvent event = new PolicyEvent(action, isChangeIssueStateIfExists(), getJiraContext().getJiraUser().getName(),
+            final HubEvent event = new PolicyEvent(action, getJiraContext().getJiraUser().getName(),
                     getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
-                    null, commentForExistingIssue,
+                    null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
                     HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
             events.add(event);
         }

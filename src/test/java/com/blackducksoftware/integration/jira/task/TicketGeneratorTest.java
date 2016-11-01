@@ -105,6 +105,7 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
+import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 /**
  *
@@ -218,6 +219,7 @@ public class TicketGeneratorTest {
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+        
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
         List<MetaLink> links = new ArrayList<>();
@@ -232,7 +234,7 @@ public class TicketGeneratorTest {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null, true);
+                settingsService, null);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         notificationItems.addAll(mockNewVulnerabilityNotificationItems(createDuplicateNotification));
@@ -263,6 +265,15 @@ public class TicketGeneratorTest {
         } else {
             oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices, jiraContext, true, user);
         }
+        
+        WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
+        JiraWorkflow bdsWorkflow = Mockito.mock(JiraWorkflow.class);
+        Mockito.when(bdsWorkflow.getName()).thenReturn(HubJiraConstants.HUB_JIRA_WORKFLOW);
+        WorkflowDescriptor wfDescriptor = Mockito.mock(WorkflowDescriptor.class);
+        Mockito.when(wfDescriptor.getId()).thenReturn(123);
+        Mockito.when(bdsWorkflow.getDescriptor()).thenReturn(wfDescriptor);
+        Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(bdsWorkflow);
+        Mockito.when(jiraServices.getWorkflowManager()).thenReturn(workflowManager);
 
         final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
 
@@ -313,13 +324,14 @@ public class TicketGeneratorTest {
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+        
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
         
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null, true);
+                settingsService, null);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         if (openIssue) {
@@ -356,7 +368,7 @@ public class TicketGeneratorTest {
         } else {
             oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices, jiraContext, true, user);
         }
-
+        
         final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
 
         final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
@@ -652,6 +664,7 @@ public class TicketGeneratorTest {
         Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
         final IssueImpl oldIssue = Mockito.mock(IssueImpl.class);
         Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
+        Mockito.when(oldIssue.getKey()).thenReturn("TEST-1"); // TODO need more here?
         final Status oldIssueStatus = Mockito.mock(Status.class);
         final Resolution oldIssueResolution = Mockito.mock(Resolution.class);
         String state;
@@ -677,6 +690,11 @@ public class TicketGeneratorTest {
         final WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
         Mockito.when(jiraServices.getWorkflowManager()).thenReturn(workflowManager);
         final JiraWorkflow jiraWorkflow = Mockito.mock(JiraWorkflow.class);
+        Mockito.when(workflowManager.getWorkflow(oldIssue)).thenReturn(jiraWorkflow);
+        Mockito.when(jiraWorkflow.getName()).thenReturn(HubJiraConstants.HUB_JIRA_WORKFLOW);
+        WorkflowDescriptor wfDescriptor = Mockito.mock(WorkflowDescriptor.class);
+        Mockito.when(jiraWorkflow.getDescriptor()).thenReturn(wfDescriptor);
+        Mockito.when(wfDescriptor.getId()).thenReturn(123);
         final StepDescriptor stepDescriptor = Mockito.mock(StepDescriptor.class);
         Mockito.when(jiraWorkflow.getLinkedStep(oldIssueStatus)).thenReturn(stepDescriptor);
         final List<ActionDescriptor> actions = new ArrayList<>();

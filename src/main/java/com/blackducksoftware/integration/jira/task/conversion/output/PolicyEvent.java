@@ -47,7 +47,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     
     private final String resolveComment;
 
-    public PolicyEvent(final HubEventAction action, final boolean changeIssueStateIfExists, final String jiraUserName, final String jiraUserId,
+    public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
 
             final String issueAssigneeId,
             final String jiraIssueTypeId,
@@ -56,7 +56,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
             final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
             final String resolveComment) {
 
-        super(action, changeIssueStateIfExists, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
+        super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
                 notificationContentItem);
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
@@ -188,8 +188,12 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     }
     
     @Override
-    public String getCommentForExistingIssue() {
+    public String getCommentIfExists() {
         return commentForExistingIssue;
+    }
+    
+    public String getCommentInLieuOfStateChange() {
+        return getCommentIfExists();
     }
 
     @Override

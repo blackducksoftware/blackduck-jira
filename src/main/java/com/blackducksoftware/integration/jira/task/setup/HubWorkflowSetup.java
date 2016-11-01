@@ -152,23 +152,19 @@ public class HubWorkflowSetup {
                         String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
                         logger.debug("Configured workflow: " + configuredWorkflowName);
                         logger.debug("Actual workflow: " + actualWorkflowName);
-                        if (changeIssueStateEnabled && !bdsIssuesExistOnThisProject) {
-                            if (StringUtils.isBlank(actualWorkflowName)) {
-                                projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
-                                logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
-                                        + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
-                                needsToBeUpdated = true;
-                            } else {
-                                if (!actualWorkflowName.equals(hubWorkflow.getName())) {
-                                    logger.info("Black Duck Issue type " + issueType.getName() + " has apparently been manually re-assigned to workflow " 
-                                            + actualWorkflowName + "; leaving that assignment in place");
-                                } else {
-                                    logger.debug("Black Duck Issue type " + issueType.getName() + " has already been assigned to workflow " 
-                                            + actualWorkflowName + "; leaving that assignment in place");
-                                }
-                            }
+                        if (StringUtils.isBlank(actualWorkflowName)) {
+                            projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
+                            logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+                                    + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
+                            needsToBeUpdated = true;
                         } else {
-                            logger.debug("Changing of issue state is disabled, Black Duck issue types will NOT be mapped to the Black Duck workflow.");
+                            if (!actualWorkflowName.equals(hubWorkflow.getName())) {
+                                logger.info("Black Duck Issue type " + issueType.getName() + " has apparently been manually re-assigned to workflow " 
+                                        + actualWorkflowName + "; leaving that assignment in place");
+                            } else {
+                                logger.debug("Black Duck Issue type " + issueType.getName() + " has already been assigned to workflow " 
+                                        + actualWorkflowName + "; leaving that assignment in place");
+                            }
                         }
                     }
                 }

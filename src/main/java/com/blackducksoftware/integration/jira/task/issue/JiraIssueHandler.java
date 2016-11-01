@@ -381,28 +381,40 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final HubEvent notificationEvent) {
-        logger.debug("changeIssueStateIfExists: " + notificationEvent.isChangeIssueStateIfExists());
         switch (notificationEvent.getAction()) {
+        // TODO check for null return values?
         case OPEN:
-            openIssue(notificationEvent);
+            final ExistenceAwareIssue openedIssue = openIssue(notificationEvent);
+            if (openedIssue != null) {
+                if (openedIssue.issueStateChangeBlocked) {
+                    addComment(notificationEvent.getCommentInLieuOfStateChange(), openedIssue.getIssue());
+                }
+            }
             break;
         case RESOLVE:
-            closeIssue(notificationEvent);
+            final ExistenceAwareIssue resolvedIssue = closeIssue(notificationEvent);
+            if (resolvedIssue != null) {
+                if (resolvedIssue.issueStateChangeBlocked) {
+                    addComment(notificationEvent.getCommentInLieuOfStateChange(), resolvedIssue.getIssue());
+                }
+            }
             break;
         case ADD_COMMENT:
-            final ExistenceAwareIssue issue = openIssue(notificationEvent);
-            if (issue != null) {
-                if (!issue.isExisted()) {
-                    addComment(notificationEvent.getComment(), issue.getIssue());
+            final ExistenceAwareIssue issueToCommentOn = openIssue(notificationEvent);
+            if (issueToCommentOn != null) {
+                if (!issueToCommentOn.isExisted()) {
+                    addComment(notificationEvent.getComment(), issueToCommentOn.getIssue());
+                } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
+                    addComment(notificationEvent.getCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
                 } else {
-                    addComment(notificationEvent.getCommentForExistingIssue(), issue.getIssue());
+                    addComment(notificationEvent.getCommentIfExists(), issueToCommentOn.getIssue());
                 }
             }
             break;
         case ADD_COMMENT_IF_EXISTS:
             final Issue existingIssue = findIssue(notificationEvent);
             if (existingIssue != null) {
-                addComment(notificationEvent.getCommentForExistingIssue(), existingIssue);
+                addComment(notificationEvent.getCommentInLieuOfStateChange(), existingIssue);
             }
             break;
         }
@@ -437,11 +449,15 @@ public class JiraIssueHandler {
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(notificationEvent, issue.getId(), notificationUniqueKey, properties);
                 }
-                return new ExistenceAwareIssue(issue, false);
+                return new ExistenceAwareIssue(issue, false, false);
             } else {
                 // Issue already exists
-                if (notificationEvent.isChangeIssueStateIfExists() &&
-                        oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+                if (!issueUsesBdsWorkflow(oldIssue)) {
+                    logger.debug("This is not the BDS workflow; plugin will not change issue's state");
+                    return new ExistenceAwareIssue(oldIssue, true, true);
+                }
+                
+                if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
                     final Issue transitionedIssue = transitionIssue(notificationEvent, oldIssue,
                             HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
                             HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
@@ -452,21 +468,34 @@ public class JiraIssueHandler {
                         printIssueInfo(oldIssue);
                     }
                 } else {
-                    logger.info("This issue already exists.");
+                    logger.info("This issue already exists and is not resolved.");
                     printIssueInfo(oldIssue);
                 }
-                return new ExistenceAwareIssue(oldIssue, true);
+                return new ExistenceAwareIssue(oldIssue, true, false);
             }
         }
         return null;
     }
 
-    private void closeIssue(final HubEvent event) {
-        if (!event.isChangeIssueStateIfExists()) {
-            return;
+    private boolean issueUsesBdsWorkflow(final Issue oldIssue) {
+        JiraWorkflow issueWorkflow = jiraServices.getWorkflowManager().getWorkflow(oldIssue);
+        logger.debug("Issue " + oldIssue.getKey() + " uses workflow " + issueWorkflow.getName());
+        boolean isBdsWorkflow;
+        if (HubJiraConstants.HUB_JIRA_WORKFLOW.equals(issueWorkflow.getName())) {
+            isBdsWorkflow = true;
+        } else {
+            isBdsWorkflow = false;
         }
+        return isBdsWorkflow;
+    }
+
+    private ExistenceAwareIssue closeIssue(final HubEvent event) {
         final Issue oldIssue = findIssue(event);
         if (oldIssue != null) {
+            if (!issueUsesBdsWorkflow(oldIssue)) {
+                logger.debug("This is not the BDS workflow; plugin will not change issue's state");
+                return new ExistenceAwareIssue(oldIssue, true, true);
+            }
             final Issue updatedIssue = transitionIssue(event, oldIssue,
                     HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE,
                     HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraUser());
@@ -475,6 +504,7 @@ public class JiraIssueHandler {
                 logger.info("Closed the issue based on an override.");
                 printIssueInfo(updatedIssue);
             }
+            return new ExistenceAwareIssue(oldIssue, true, false);
         } else {
             logger.info("Could not find an existing issue to close for this event.");
             logger.debug("Hub Project Name : " + event.getNotif().getProjectVersion().getProjectName());
@@ -485,6 +515,7 @@ public class JiraIssueHandler {
                 final PolicyEvent notificationResultRule = (PolicyEvent) event;
                 logger.debug("Hub Rule Name : " + notificationResultRule.getPolicyRule().getName());
             }
+            return null;
         }
     }
 
@@ -502,16 +533,21 @@ public class JiraIssueHandler {
     private class ExistenceAwareIssue {
         private final Issue issue;
         private final boolean existed;
-        public ExistenceAwareIssue(Issue issue, boolean existed) {
+        private final boolean issueStateChangeBlocked;
+        public ExistenceAwareIssue(Issue issue, boolean existed, boolean issueStateChangeBlocked) {
             super();
             this.issue = issue;
             this.existed = existed;
+            this.issueStateChangeBlocked = issueStateChangeBlocked;
         }
         private Issue getIssue() {
             return issue;
         }
         private boolean isExisted() {
             return existed;
+        }
+        public boolean isIssueStateChangeBlocked() {
+            return issueStateChangeBlocked;
         }
     }
 

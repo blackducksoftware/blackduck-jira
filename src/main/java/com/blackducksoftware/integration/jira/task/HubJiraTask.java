@@ -235,7 +235,7 @@ public class HubJiraTask {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup, changeIssueStateIfExists);
+                jiraSettingsService, ticketInfoFromSetup);
         return ticketGenerator;
     }
 

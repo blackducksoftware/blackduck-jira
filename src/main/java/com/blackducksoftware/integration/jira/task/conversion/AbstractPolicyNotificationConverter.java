@@ -44,10 +44,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     public static final String PROJECT_LINK = "project";
 
     public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final boolean changeIssueStateIfExists,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final String issueTypeName)
             throws ConfigurationException {
-        super(jiraServices, jiraContext, jiraSettingsService, changeIssueStateIfExists, mappings, issueTypeName);
+        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName);
     }
 
     @Override

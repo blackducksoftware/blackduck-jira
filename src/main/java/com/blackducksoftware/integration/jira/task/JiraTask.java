@@ -219,6 +219,7 @@ public class JiraTask implements PluginJob {
         final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
                 jiraVersion, jiraContext, changeIssueStateEnabled);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+        logger.debug("Black Duck workflow Name: " + workflow.getName() + "; ID: " + workflow.getDescriptor().getId()); 
         ////////////////////////////////////////////////////////////////////////
 
         /////////////////////// Associate with projects ///////////////////////
@@ -238,9 +239,13 @@ public class JiraTask implements PluginJob {
                         issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
                         issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
                                 screenSchemesByIssueType);
-                        issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
+                        boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
                                 jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
-                        workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+                        if (wasAlreadySetUp) {
+                            logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
+                        } else {
+                            workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+                        }
                     }
                 }
             }
