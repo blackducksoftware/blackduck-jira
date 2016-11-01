@@ -29,31 +29,20 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import com.atlassian.jira.bc.issue.search.SearchService;
-import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.issue.search.SearchException;
-import com.atlassian.jira.issue.search.SearchResults;
-import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.atlassian.query.Query;
-import com.atlassian.query.QueryImpl;
-import com.atlassian.query.clause.Clause;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -67,7 +56,6 @@ import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and
@@ -112,8 +100,6 @@ public class JiraTask implements PluginJob {
 
         final String jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
         
-        final boolean changeIssueStateEnabled = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
-        logger.debug("changeIssueStateIfExists: " + changeIssueStateEnabled);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         
         JiraContext jiraContext = initJiraContext(jiraUserName);
@@ -121,8 +107,7 @@ public class JiraTask implements PluginJob {
         final DateTime beforeSetup = new DateTime();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(jiraServices, jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraContext,
-                    changeIssueStateEnabled);
+            jiraSetup(jiraServices, jiraSettingsService, projectMappingJson, ticketInfoFromSetup, jiraContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return;
@@ -168,7 +153,7 @@ public class JiraTask implements PluginJob {
 
         final HubJiraTask processor = new HubJiraTask(serverConfig, intervalString, installDateString,
                 lastRunDateString, projectMappingJson, policyRulesJson, jiraContext, jiraSettingsService,
-                ticketInfoFromSetup, changeIssueStateEnabled);
+                ticketInfoFromSetup);
         final String runDateString = processor.execute();
         if (runDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -177,8 +162,7 @@ public class JiraTask implements PluginJob {
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
             final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup,
-            final JiraContext jiraContext,
-            final boolean changeIssueStateEnabled)
+            final JiraContext jiraContext)
             throws ConfigurationException, JiraException {
         
         //////////////////////// Create Issue Types, workflow, etc ////////////
@@ -217,7 +201,7 @@ public class JiraTask implements PluginJob {
                 .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
         final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
-                jiraVersion, jiraContext, changeIssueStateEnabled);
+                jiraVersion, jiraContext);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
         logger.debug("Black Duck workflow Name: " + workflow.getName() + "; ID: " + workflow.getDescriptor().getId()); 
         ////////////////////////////////////////////////////////////////////////
@@ -274,9 +258,8 @@ public class JiraTask implements PluginJob {
     }
 
     private HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final JiraVersion jiraVersion, final JiraContext jiraContext,
-            final boolean changeIssueStateEnabled) {
-        return new HubWorkflowSetup(jiraSettingsService, jiraServices, jiraContext, changeIssueStateEnabled);
+            final JiraServices jiraServices, final JiraVersion jiraVersion, final JiraContext jiraContext) {
+        return new HubWorkflowSetup(jiraSettingsService, jiraServices, jiraContext);
     }
 
     private Object getValue(final PluginSettings settings, final String key) {

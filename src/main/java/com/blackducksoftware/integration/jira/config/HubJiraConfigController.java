@@ -259,30 +259,6 @@ public class HubJiraConfigController {
 
         return Response.ok(obj).build();
     }
-    
-    @Path("/getOptions")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getOptions(@Context final HttpServletRequest request) {
-        logger.debug("getOptions");
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                boolean changeIssueStateEnabled = HubJiraConfigKeys.getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, true);
-                OptionsSerializable options = new OptionsSerializable();
-                options.setChangeIssueStateEnabled(changeIssueStateEnabled);
-                logger.debug("getOptions: returning options: " + options);
-                return options;
-            }
-        });
-
-        return Response.ok(obj).build();
-    }
 
     @Path("/jiraProjects")
     @GET
@@ -398,7 +374,6 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
-        logger.debug("put() called");
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         final String username = userManager.getRemoteUsername(request);
         final Response response = checkUserPermissions(request, settings);
@@ -438,30 +413,6 @@ public class HubJiraConfigController {
         if (config.hasErrors()) {
             return Response.ok(config).status(Status.BAD_REQUEST).build();
         }
-        return Response.noContent().build();
-    }
-    
-    @Path("/saveOptions")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response putOptions(final OptionsSerializable options, @Context final HttpServletRequest request) {
-        logger.debug("putOptions() called with options: " + options);
-        
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS, 
-                        options.getChangeIssueStateEnabled().toString());
-                logger.debug("Saved changeIssueStateEnabled value (read back): " + getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_CHANGE_ISSUE_STATE_IF_EXISTS));
-                return null;
-            }
-        });
         return Response.noContent().build();
     }
 

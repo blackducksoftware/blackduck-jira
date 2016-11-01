@@ -130,7 +130,7 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
         JiraContext jiraContext = new JiraContext(jiraUser);
         jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
-                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext, true);
+                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertFalse(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
@@ -183,7 +183,7 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
         JiraContext jiraContext = new JiraContext(jiraUser);
         jiraEnv.getJiraTask().jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(),
-                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext, true);
+                jiraEnv.getMappingJson(), new TicketInfoFromSetup(), jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());

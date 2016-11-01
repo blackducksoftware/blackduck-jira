@@ -284,8 +284,4 @@ public class JiraServicesMock extends JiraServices {
     public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
         this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
     }
-
-    public boolean isBdsIssuesExist(JiraContext jiraContext, String projectName) throws SearchException{
-        return false;
-    }
 }

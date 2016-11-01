@@ -57,16 +57,12 @@ public class HubWorkflowSetup {
     private final JiraServices jiraServices;
     
     private final JiraContext jiraContext;
-    
-    private final boolean changeIssueStateEnabled;
 
     public HubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices,
-            final JiraContext jiraContext,
-            final boolean changeIssueStateEnabled) {
+            final JiraContext jiraContext) {
         this.settingService = settingService;
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
-        this.changeIssueStateEnabled = changeIssueStateEnabled;
     }
 
     public JiraSettingsService getSettingService() {
@@ -118,20 +114,6 @@ public class HubWorkflowSetup {
     public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow hubWorkflow, final Project project,
             final List<IssueType> issueTypes) {
         
-        logger.debug("Checking for existing Black Duck issues on project " + project.getName());
-        boolean bdsIssuesExistOnThisProject=false;
-        try {
-            if (jiraServices.isBdsIssuesExist(jiraContext, project.getName())) {
-                logger.debug("Black Duck Issues exist on project " + project.getName());
-                bdsIssuesExistOnThisProject = true;
-            } else {
-                logger.debug("No Black Duck Issues exist on project " + project.getName());
-            }
-        } catch (SearchException e1) {
-            logger.error("Error searching for existing Black Duck issues: " + e1.getMessage());
-            settingService.addHubError(e1, null, null, project.getName(), null, "addWorkflowToProjectsWorkflowScheme");
-            return;
-        }
         try {
             final AssignableWorkflowScheme projectWorkflowScheme = jiraServices.getWorkflowSchemeManager()
                     .getWorkflowSchemeObj(project);

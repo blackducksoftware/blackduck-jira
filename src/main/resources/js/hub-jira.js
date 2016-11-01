@@ -175,21 +175,6 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/getOptions/",
-		    dataType: "json",
-		    success: function(options) {
-		      AJS.$("#changeIssueStateEnabled")[0].checked = options.changeIssueStateEnabled;
-		      
-		      handleError(errorMessageFieldId, null, false);
-		    },
-		    error: function(response){
-		    	console.log("Options: error getting options");
-		    	handleDataRetrievalError(response, "optionsError", "There was a problem retrieving the Options.", "Get Options Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    }
-		  });
-	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
 		    success: function(creationError) {
@@ -571,44 +556,6 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	 stopProgressSpinner('saveSpinner');
 	    }
 	  });
-	  
-	  // Put Options
-	  console.log("Saving options");
-	  var putOptionsUrl = restUrl + "saveOptions";
-	  console.log("putOptionsUrl: " + putOptionsUrl);
-	  
-	  var changeIssueStateEnabled = AJS.$("#changeIssueStateEnabled")[0].checked;
-	  console.log("changeIssueStateEnabled: " + changeIssueStateEnabled);
-	  
-	  AJS.$.ajax({
-		  
-		  url: putOptionsUrl,
-		    type: "PUT",
-		    dataType: "json",
-		    contentType: "application/json",
-		    data: '{ "changeIssueStateEnabled": ' + changeIssueStateEnabled
-		    + '}',
-		    processData: false,
-		    success: function() {
-		    	console.log("Saving options: success");
-		    	hideError('optionsError');
-		    },
-		    error: function(response){
-		    	console.log("Saving options: error");
-		    	console.log("response.responseText: " + response.responseText);
-		    	try {
-			    	var config = JSON.parse(response.responseText);
-			    	handleError('optionsError', null, true);
-		    	} catch(err) {
-		    		console.log("Saving options: exception handling error: " + err);
-		    		// in case the response is not our error object
-		    		alert(response.responseText);
-		    	}
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	console.log("Saving options: complete");
-		    }
-		  });
 }
 
 function getJsonArrayFromMapping(){

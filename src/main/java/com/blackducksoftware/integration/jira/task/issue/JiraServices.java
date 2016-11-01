@@ -197,23 +197,4 @@ public class JiraServices {
         return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
                 .getPluginInformation().getVersion();
     }
-
-    public SearchService getSearchService() {
-        return ComponentAccessor.getComponentOfType(SearchService.class);
-    }
-    
-    public boolean isBdsIssuesExist(JiraContext jiraContext, String projectName) throws SearchException{
-        Query policyQuery = JqlQueryBuilder.newClauseBuilder().defaultAnd().project(projectName).issueType(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE).buildQuery();
-        Query violationQuery = JqlQueryBuilder.newClauseBuilder().defaultAnd().project(projectName).issueType(HubJiraConstants.HUB_VULNERABILITY_ISSUE).buildQuery();
-        long policyCount=0;
-        long vulnerabilityCount=0;
-        policyCount = getSearchService().searchCount(jiraContext.getJiraUser(), policyQuery);
-        if (policyCount == 0) {
-            vulnerabilityCount = getSearchService().searchCount(jiraContext.getJiraUser(), violationQuery);
-        }
-        if ((policyCount + vulnerabilityCount) > 0) {
-            return true;
-        }
-        return false;
-    }
 }

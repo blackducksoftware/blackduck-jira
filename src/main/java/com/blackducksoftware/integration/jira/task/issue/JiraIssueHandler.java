@@ -382,7 +382,6 @@ public class JiraIssueHandler {
 
     public void handleEvent(final HubEvent notificationEvent) {
         switch (notificationEvent.getAction()) {
-        // TODO check for null return values?
         case OPEN:
             final ExistenceAwareIssue openedIssue = openIssue(notificationEvent);
             if (openedIssue != null) {
