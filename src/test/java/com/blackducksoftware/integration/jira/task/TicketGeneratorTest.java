@@ -660,7 +660,7 @@ public class TicketGeneratorTest {
         Mockito.when(getOldIssueResult.isValid()).thenReturn(true);
         final IssueImpl oldIssue = Mockito.mock(IssueImpl.class);
         Mockito.when(getOldIssueResult.getIssue()).thenReturn(oldIssue);
-        Mockito.when(oldIssue.getKey()).thenReturn("TEST-1"); // TODO need more here?
+        Mockito.when(oldIssue.getKey()).thenReturn("TEST-1");
         final Status oldIssueStatus = Mockito.mock(Status.class);
         final Resolution oldIssueResolution = Mockito.mock(Resolution.class);
         String state;

@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.workflow.AssignableWorkflowScheme;
@@ -42,7 +41,6 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.FactoryException;
@@ -55,14 +53,10 @@ public class HubWorkflowSetup {
     private final JiraSettingsService settingService;
 
     private final JiraServices jiraServices;
-    
-    private final JiraContext jiraContext;
 
-    public HubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices,
-            final JiraContext jiraContext) {
+    public HubWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
         this.settingService = settingService;
         this.jiraServices = jiraServices;
-        this.jiraContext = jiraContext;
     }
 
     public JiraSettingsService getSettingService() {
@@ -117,29 +111,13 @@ public class HubWorkflowSetup {
         try {
             final AssignableWorkflowScheme projectWorkflowScheme = jiraServices.getWorkflowSchemeManager()
                     .getWorkflowSchemeObj(project);
-
             if (projectWorkflowScheme != null) {
                 final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder = projectWorkflowScheme.builder();
-                // FIXME should check if the workflow scheme is the default, we
-                // dont
-                // want to modify the default scheme right??
-
                 boolean needsToBeUpdated = false;
-                // IMPORTANT we assume our custom issue types are already in
-                // this
-                // Projects Workflow scheme
                 if (issueTypes != null && !issueTypes.isEmpty()) {
                     for (final IssueType issueType : issueTypes) {
-                        final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId()); 
-                        String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
-                        logger.debug("Configured workflow: " + configuredWorkflowName);
-                        logger.debug("Actual workflow: " + actualWorkflowName);
-                        if ((StringUtils.isBlank(actualWorkflowName)) || (!actualWorkflowName.equals(hubWorkflow.getName()))) {
-                            projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
-                            logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
-                                    + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
-                            needsToBeUpdated = true;
-                        }
+                        needsToBeUpdated = mapIssueTypeToBdsWorkflow(project, hubWorkflow, projectWorkflowScheme, projectWorkflowSchemeBuilder,
+                                issueType, needsToBeUpdated);
                     }
                 }
                 if (needsToBeUpdated) {
@@ -158,8 +136,24 @@ public class HubWorkflowSetup {
         }
     }
 
+    private boolean mapIssueTypeToBdsWorkflow(final Project project, final JiraWorkflow hubWorkflow,
+            final AssignableWorkflowScheme projectWorkflowScheme, final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder,
+            final IssueType issueType, boolean needsToBeUpdated) {
+        final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId()); 
+        String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
+        logger.debug("Configured workflow: " + configuredWorkflowName);
+        logger.debug("Actual workflow: " + actualWorkflowName);
+        if ((StringUtils.isBlank(actualWorkflowName)) || (!actualWorkflowName.equals(hubWorkflow.getName()))) {
+            projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
+            logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+                    + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
+            needsToBeUpdated = true;
+        }
+        return needsToBeUpdated;
+    }
+
     private ApplicationUser getJiraSystemAdmin() {
-        final Collection jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
+        final Collection<ApplicationUser> jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
         if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
             return null;
         }

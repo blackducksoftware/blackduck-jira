@@ -73,8 +73,7 @@ public class HubWorkflowSetupTest {
         final String jiraUserName = "FakeUser";
         final ApplicationUserMock user = new ApplicationUserMock();
         user.setName(jiraUserName);
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         assertNull(workflowSetup.addHubWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
@@ -107,8 +106,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
 
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         assertEquals(workflowExisitng, workflowSetup.addHubWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
@@ -135,9 +133,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
 
@@ -168,9 +164,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -215,9 +209,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -271,9 +263,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -329,9 +319,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -392,9 +380,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-
-        JiraContext jiraContext = new JiraContext(user);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services, jiraContext);
+        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
