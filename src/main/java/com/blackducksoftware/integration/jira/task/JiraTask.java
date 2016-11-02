@@ -103,6 +103,10 @@ public class JiraTask implements PluginJob {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         
         JiraContext jiraContext = initJiraContext(jiraUserName);
+        if (jiraContext == null) {
+            logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
+            return;
+        }
 
         final DateTime beforeSetup = new DateTime();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();

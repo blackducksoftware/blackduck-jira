@@ -35,7 +35,7 @@
 		      <div style="display: inline-block; width: 100%;">
 		   	   		<div class="buttonContainer">
 			       		<div id="adminSaveSpinner" style="display: inline-block;"></div>
-			  	   		<input onclick="updateAdminConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAdminConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
 			  	   </div>
 			  </div>
 	      </div>
@@ -69,10 +69,10 @@
 			  		<thead>
 			  			<tr>
 			  				<td class="mappingTableCell"/>
-			  				<td class="mappingTableCell error hidden" id="jiraProjectListError">
+			  				<td class="mappingTableCell error" id="jiraProjectListError">
 						    </td>
 						    <td class="mappingTableCell"/>
-						    <td class="mappingTableCell error hidden" id="hubProjectListError">
+						    <td class="mappingTableCell error" id="hubProjectListError">
 						    </td>
 						    <td class="mappingTableCell"/>
 			  			</tr>
@@ -113,7 +113,7 @@
 				</table>
 			</div>
 			<div class="buttonContainer">
-				<input onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button">
+				<input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button">
 			</div>
 		</fieldset>
       
@@ -168,7 +168,7 @@
 	   <div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  	   </div>
 	   </div>
 	  
