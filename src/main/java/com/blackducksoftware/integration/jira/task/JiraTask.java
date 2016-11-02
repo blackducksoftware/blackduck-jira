@@ -158,6 +158,7 @@ public class JiraTask implements PluginJob {
         if (runDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
         }
+        logger.info("hub-jira periodic task has completed");
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
