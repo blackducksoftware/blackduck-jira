@@ -880,10 +880,10 @@ function onMappingInputChange(inputField){
     }
 }
 
-function handleError(fieldId, configField, hideError, clearOldMessage) {
+function handleError(fieldId, configField, hideErrorValue, clearOldMessage) {
 	if(configField){
 		showError(fieldId, configField, clearOldMessage);
-    } else if(hideError){
+    } else if(hideErrorValue){
     	hideError(fieldId);
     } else{
     	showError(fieldId, "", true);
