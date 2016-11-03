@@ -674,7 +674,7 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            final RestConnection restConnection = new CredentialsRestConnection(serverConfig);
+            final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
             restConnection.setTimeout(serverConfig.getTimeout());
             restConnection.setProxyProperties(serverConfig.getProxyInfo());
             restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
