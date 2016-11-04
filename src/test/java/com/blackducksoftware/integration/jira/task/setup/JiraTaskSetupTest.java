@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -60,14 +61,12 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
@@ -120,7 +119,7 @@ public class JiraTaskSetupTest {
 
     private static final String JIRA_USER = "Jira User";
 
-    // TODO @Test
+    @Test
     public void testServerSetupIssueTypesAlreadyCreated() throws Exception {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
@@ -128,20 +127,9 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
         JiraContext jiraContext = new JiraContext(jiraUser);
 
-        //////////////////////
-        // TODO make same fixes here as made in the other test
-        //////////////////////
-
-        //////////////////////////
-        final PluginSettings settings = Mockito.mock(PluginSettings.class);
-        Mockito.when(settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS)).thenReturn("3");
-        // TODO need more when's here
-        PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
-        ///////////////////////////
-
-        JiraTaskTimed task = new JiraTaskTimed(jiraEnv.getPluginSettingsMock(), jiraEnv.getJiraSettingsService(), jiraEnv.getJiraServices(),
-                configDetails);
-        task.call();
+        JiraTaskTimed task = jiraEnv.getJiraTask();
+        TicketInfoFromSetup x = new TicketInfoFromSetup();
+        task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), x, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
@@ -185,7 +173,7 @@ public class JiraTaskSetupTest {
         assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
     }
 
-    // TODO @Test
+    @Test
     public void testServerSetupIssueTypesNotAlreadyCreated() throws Exception {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
@@ -195,12 +183,12 @@ public class JiraTaskSetupTest {
         JiraContext jiraContext = new JiraContext(jiraUser);
 
         JiraTaskTimed task = jiraEnv.getJiraTask();
-        task.call();
+        TicketInfoFromSetup x = new TicketInfoFromSetup();
+        task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), x, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(2, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
-        System.out.println(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         assertTrue(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size() == 5);
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
@@ -248,9 +236,6 @@ public class JiraTaskSetupTest {
         final Collection<FieldLayoutSchemeEntity> entitiesAdded = jiraEnv.getFieldLayoutSchemeMock().getEntitiesAdded();
         assertEquals(4, entitiesAdded.size());
         for (final FieldLayoutSchemeEntity entityAdded : entitiesAdded) {
-            System.out.println(entityAdded.getIssueTypeId());
-            System.out.println(entityAdded.getFieldLayoutScheme().getName());
-
             assertTrue(entityAdded.getIssueTypeId().startsWith("mockIssueTypeId"));
             assertEquals("Field Layout Scheme", entityAdded.getFieldLayoutScheme().getName());
         }
@@ -340,20 +325,7 @@ public class JiraTaskSetupTest {
         HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-
-        //////////////////////////
-        // TODO
-        // final PluginSettings settings = Mockito.mock(PluginSettings.class);
-        // Mockito.when(settingsMock.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS)).thenReturn("3");
-        // Mockito.when(settingsMock.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER)).thenReturn(JIRA_USER);
-        settingsMock.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, JIRA_USER);
-        settingsMock.put(HubConfigKeys.CONFIG_HUB_URL, "http://hub.blackducksoftware.com");
-        //////////////////////////
-
-        // TODO need more when's here
         PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settingsMock);
-        ///////////////////////////
-
         JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices,
                 configDetails);
         jiraTask = Mockito.spy(jiraTask);
@@ -428,7 +400,6 @@ public class JiraTaskSetupTest {
                 .thenAnswer(new Answer<FieldScreen>() {
                     @Override
                     public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                        System.out.println("returning a FieldScreenMock");
                         return new FieldScreenMock();
                     }
                 });
@@ -437,7 +408,6 @@ public class JiraTaskSetupTest {
                 .thenAnswer(new Answer<FieldScreenScheme>() {
                     @Override
                     public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                        System.out.println("returning a FieldScreenSchemeMock");
                         return new FieldScreenSchemeMock();
                     }
                 });
@@ -446,7 +416,6 @@ public class JiraTaskSetupTest {
                 Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
                     @Override
                     public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                        System.out.println("returning a FieldScreenSchemeItemMock");
                         return new FieldScreenSchemeItemMock();
                     }
                 });

@@ -150,7 +150,6 @@ public class FieldScreenMock implements FieldScreen {
 
     @Override
     public void setId(final Long arg0) {
-        System.out.println("FieldScreenMock.setId() called");
     }
 
     @Override

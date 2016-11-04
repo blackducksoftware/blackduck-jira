@@ -183,7 +183,6 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public void store() {
-        System.out.println("FieldScreenTabMock.store() called.");
     }
 
 }

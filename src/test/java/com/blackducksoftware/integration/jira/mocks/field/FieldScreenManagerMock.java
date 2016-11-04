@@ -56,7 +56,6 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
     @Override
     public void createFieldScreen(final FieldScreen arg0) {
-        System.out.println("FieldScreenManagerMock.createFieldScreen() called");
     }
 
     @Override
@@ -66,7 +65,6 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
     @Override
     public void createFieldScreenTab(final FieldScreenTab tab) {
-        System.out.println("# field screen layout items on tab " + tab.getName() + ": " + tab.getFieldScreenLayoutItems().size());
         createdTabs.add(tab);
     }
 
