@@ -34,6 +34,8 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
     private final List<FieldScreenTab> updatedTabs = new ArrayList<>();
 
+    private final List<FieldScreenTab> createdTabs = new ArrayList<>();
+
     private final List<FieldScreen> updatedScreens = new ArrayList<>();
 
     private FieldScreen defaultScreen;
@@ -54,7 +56,7 @@ public class FieldScreenManagerMock implements FieldScreenManager {
 
     @Override
     public void createFieldScreen(final FieldScreen arg0) {
-
+        System.out.println("FieldScreenManagerMock.createFieldScreen() called");
     }
 
     @Override
@@ -63,8 +65,9 @@ public class FieldScreenManagerMock implements FieldScreenManager {
     }
 
     @Override
-    public void createFieldScreenTab(final FieldScreenTab arg0) {
-
+    public void createFieldScreenTab(final FieldScreenTab tab) {
+        System.out.println("# field screen layout items on tab " + tab.getName() + ": " + tab.getFieldScreenLayoutItems().size());
+        createdTabs.add(tab);
     }
 
     public void setDefaultFieldScreen(final FieldScreen defaultScreen) {
@@ -82,7 +85,7 @@ public class FieldScreenManagerMock implements FieldScreenManager {
     @Override
     public List<FieldScreenLayoutItem> getFieldScreenLayoutItems(final FieldScreenTab arg0) {
 
-        return null;
+        return new ArrayList<FieldScreenLayoutItem>();
     }
 
     @Override
@@ -100,7 +103,7 @@ public class FieldScreenManagerMock implements FieldScreenManager {
     @Override
     public List<FieldScreenTab> getFieldScreenTabs(final FieldScreen arg0) {
 
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

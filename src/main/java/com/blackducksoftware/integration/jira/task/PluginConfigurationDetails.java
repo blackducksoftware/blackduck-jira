@@ -30,26 +30,39 @@ import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 
 public class PluginConfigurationDetails {
     private final String hubUrl;
+
     private final String hubUsername;
+
     private final String hubPasswordEncrypted;
+
     private final String hubPasswordLength;
+
     private final String hubTimeoutString;
 
     private final String hubProxyHost;
+
     private final String hubProxyPort;
+
     private final String hubProxyNoHost;
+
     private final String hubProxyUser;
+
     private final String hubProxyPassEncrypted;
+
     private final String hubProxyPassLength;
 
     private final String intervalString;
+
     private final String projectMappingJson;
+
     private final String policyRulesJson;
+
     private final String installDateString;
+
     private final String lastRunDateString;
 
     private final String jiraUserName;
-    
+
     public PluginConfigurationDetails(final PluginSettings settings) {
         hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -74,109 +87,79 @@ public class PluginConfigurationDetails {
 
         jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
     }
-    
-    
-    
+
     public String getHubUrl() {
         return hubUrl;
     }
-
-
 
     public String getHubUsername() {
         return hubUsername;
     }
 
-
-
     public String getHubPasswordEncrypted() {
         return hubPasswordEncrypted;
     }
-
-
 
     public String getHubPasswordLength() {
         return hubPasswordLength;
     }
 
-
-
     public String getHubTimeoutString() {
         return hubTimeoutString;
     }
-
-
 
     public String getHubProxyHost() {
         return hubProxyHost;
     }
 
-
-
     public String getHubProxyPort() {
         return hubProxyPort;
     }
-
-
 
     public String getHubProxyNoHost() {
         return hubProxyNoHost;
     }
 
-
-
     public String getHubProxyUser() {
         return hubProxyUser;
     }
-
-
 
     public String getHubProxyPassEncrypted() {
         return hubProxyPassEncrypted;
     }
 
-
-
     public String getHubProxyPassLength() {
         return hubProxyPassLength;
     }
-
-
 
     public String getIntervalString() {
         return intervalString;
     }
 
-
+    public int getIntervalMinutes() {
+        return NumberUtils.toInt(intervalString);
+    }
 
     public String getProjectMappingJson() {
         return projectMappingJson;
     }
 
-
-
     public String getPolicyRulesJson() {
         return policyRulesJson;
     }
-
-
 
     public String getInstallDateString() {
         return installDateString;
     }
 
-
-
     public String getLastRunDateString() {
         return lastRunDateString;
     }
 
-
-
     public String getJiraUserName() {
         return jiraUserName;
     }
-    
+
     public HubServerConfigBuilder createHubServerConfigBuilder() {
         final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
         hubConfigBuilder.setHubUrl(hubUrl);
@@ -191,11 +174,9 @@ public class PluginConfigurationDetails {
         hubConfigBuilder.setProxyUsername(hubProxyUser);
         hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
         hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
-        
+
         return hubConfigBuilder;
     }
-
-
 
     private Object getValue(final PluginSettings settings, final String key) {
         return settings.get(key);

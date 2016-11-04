@@ -22,6 +22,8 @@
 package com.blackducksoftware.integration.jira.common;
 
 public class HubJiraConstants {
+    public final static int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
+
     private final static String HUB_JIRA_GROUP = "hub-jira";
 
     public final static String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
@@ -76,11 +78,11 @@ public class HubJiraConstants {
     public final static String HUB_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Hub Policy Violation Cleared event on this project / component / rule";
 
     public final static String HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT = "This Policy Violation was detected again by the Hub.";
-    
+
     public final static String HUB_POLICY_VIOLATION_CLEARED_COMMENT = "This Policy Violation was cleared in the Hub.";
-    
+
     public final static String HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in the Hub.";
-    
+
     public final static String HUB_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
 
     public final static String HUB_VULNERABILITY_RESOLVE = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";

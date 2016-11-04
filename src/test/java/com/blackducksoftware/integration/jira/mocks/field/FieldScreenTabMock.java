@@ -51,7 +51,7 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public void addFieldScreenLayoutItem(final String arg0, final int arg1) {
-
+        System.out.println("FieldScreenTabMock.addFieldScreenLayoutItem(String, int) called.");
     }
 
     @Override
@@ -183,7 +183,7 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public void store() {
-
+        System.out.println("FieldScreenTabMock.store() called.");
     }
 
 }
