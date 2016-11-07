@@ -371,7 +371,7 @@ public class HubIssueTypeSetup {
     private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
         final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager()
                 .getMutableFieldLayoutScheme(fieldConfigurationScheme.getId());
-        logger.info("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName()
+        logger.debug("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName()
                 + " ==> FieldLayoutScheme: " + fls.getName());
         return fls;
     }

@@ -35,7 +35,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,7 +76,6 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyExpression;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.policy.PolicyValue;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
-import com.blackducksoftware.integration.hub.api.project.version.ComplexLicense;
 import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionItem;
 import com.blackducksoftware.integration.hub.api.project.version.SourceEnum;
 import com.blackducksoftware.integration.hub.api.version.DistributionEnum;
@@ -121,7 +119,7 @@ public class TicketGeneratorTest {
             + "Vulnerabilities added: CVE-2016-0001 (NVD)\n" + "Vulnerabilities updated: None\n"
             + "Vulnerabilities deleted: None\n";
 
-    private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" 
+    private static final String VULNERABILITY_ISSUE_DESCRIPTION = "This issue tracks vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'. For details, see the comments below, or the project's vulnerabilities view in the Hub:\n"
             + VULNERABLE_COMPONENTS_URL;
 
     private static final String VULNERABILITY_ISSUE_SUMMARY = "Black Duck vulnerability status changes on Hub Project '4Drew' / '2Drew', component 'TestNG' / '2.0.0'";
@@ -218,16 +216,17 @@ public class TicketGeneratorTest {
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-        
+
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
         List<MetaLink> links = new ArrayList<>();
         MetaLink metaLink = new MetaLink("vulnerable-components", VULNERABLE_COMPONENTS_URL);
         links.add(metaLink);
         final MetaInformation meta = new MetaInformation(null, "", links);
+
         ProjectVersionItem projectVersionItem = new ProjectVersionItem(meta, DistributionEnum.EXTERNAL,
-            null, PROJECT_VERSION_NAME, PhaseEnum.DEVELOPMENT, "releaseComments",
-            new DateTime(), SourceEnum.KB, PROJECT_VERSION_NAME);
+                null, PROJECT_VERSION_NAME, PhaseEnum.DEVELOPMENT, "releaseComments",
+                new Date(), SourceEnum.KB, PROJECT_VERSION_NAME);
         Mockito.when(hubIntRestService.getProjectVersion(PROJECT_VERSION_URL)).thenReturn(projectVersionItem);
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
@@ -264,7 +263,7 @@ public class TicketGeneratorTest {
         } else {
             oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices, jiraContext, true, user);
         }
-        
+
         WorkflowManager workflowManager = Mockito.mock(WorkflowManager.class);
         JiraWorkflow bdsWorkflow = Mockito.mock(JiraWorkflow.class);
         Mockito.when(bdsWorkflow.getName()).thenReturn(HubJiraConstants.HUB_JIRA_WORKFLOW);
@@ -320,10 +319,10 @@ public class TicketGeneratorTest {
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-        
+
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
-        
+
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
@@ -364,7 +363,7 @@ public class TicketGeneratorTest {
         } else {
             oldIssue = mockIssueExists(issueService, atlassianJiraProject, jiraServices, jiraContext, true, user);
         }
-        
+
         final TransitionValidationResult transitionValidationResult = mockTransition(issueService, oldIssue);
 
         final Set<HubProjectMapping> hubProjectMappings = mockProjectMappings();
