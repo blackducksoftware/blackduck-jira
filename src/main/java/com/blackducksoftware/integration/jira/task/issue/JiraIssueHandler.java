@@ -277,7 +277,7 @@ public class JiraIssueHandler {
             if (fieldValue == null) {
                 continue;
             }
-            logger.debug("Field value: " + fieldValue);
+            logger.debug("New target field value: " + fieldValue);
 
             issueInputParameters.addCustomFieldValue(targetField.getId(), fieldValue);
         }
