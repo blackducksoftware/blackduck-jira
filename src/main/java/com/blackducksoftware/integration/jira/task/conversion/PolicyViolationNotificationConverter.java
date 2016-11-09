@@ -23,7 +23,6 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
@@ -34,7 +33,6 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -61,8 +59,6 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
 
-        Map<PluginField, String> pluginFieldToOtherFieldCopyMap = buildPluginFieldToOtherFieldCopyMap(fieldCopyConfig.getProjectFieldCopyMappings());
-
         HubEventAction action = HubEventAction.OPEN;
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
@@ -71,7 +67,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, pluginFieldToOtherFieldCopyMap);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings());
             events.add(event);
         }
 

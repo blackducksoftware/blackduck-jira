@@ -9,14 +9,14 @@ public class ProjectFieldCopyMapping {
 
     private final PluginField pluginField;
 
-    private final String jiraFieldName;
+    private final String targetFieldName;
 
-    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String jiraFieldName) {
+    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String targetFieldName) {
         super();
         this.jiraProjectName = jiraProjectName;
         this.hubProjectName = hubProjectName;
         this.pluginField = pluginField;
-        this.jiraFieldName = jiraFieldName;
+        this.targetFieldName = targetFieldName;
     }
 
     public String getJiraProjectName() {
@@ -31,8 +31,8 @@ public class ProjectFieldCopyMapping {
         return pluginField;
     }
 
-    public String getJiraFieldName() {
-        return jiraFieldName;
+    public String getTargetFieldName() {
+        return targetFieldName;
     }
 
 }

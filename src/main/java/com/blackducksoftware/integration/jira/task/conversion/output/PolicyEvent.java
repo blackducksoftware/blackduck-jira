@@ -22,7 +22,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -32,7 +32,7 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Not
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyContentItem;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginField;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -57,10 +57,10 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
             final PolicyContentItem notificationContentItem,
             final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
             final String resolveComment,
-            final Map<PluginField, String> pluginFieldToOtherFieldCopyMap) {
+            final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
 
         super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-                pluginFieldToOtherFieldCopyMap, notificationContentItem);
+                projectFieldCopyMappings, notificationContentItem);
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
         this.comment = comment;

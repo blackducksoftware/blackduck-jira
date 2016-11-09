@@ -23,7 +23,6 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +36,6 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -64,8 +62,6 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
 
-        Map<PluginField, String> pluginFieldToOtherFieldCopyMap = buildPluginFieldToOtherFieldCopyMap(fieldCopyConfig.getProjectFieldCopyMappings());
-
         HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
@@ -75,7 +71,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, pluginFieldToOtherFieldCopyMap);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings());
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }

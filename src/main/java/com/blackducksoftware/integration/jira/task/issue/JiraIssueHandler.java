@@ -23,8 +23,8 @@ package com.blackducksoftware.integration.jira.task.issue;
 
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -54,6 +54,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
@@ -252,16 +253,16 @@ public class JiraIssueHandler {
     }
 
     private void setOtherFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
-        Map<PluginField, String> copyFieldMap = notificationEvent.getPluginFieldToOtherFieldCopyMap();
-        if (copyFieldMap == null) {
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
+        if (projectFieldCopyMappings == null) {
             return;
         }
-        for (PluginField pluginField : copyFieldMap.keySet()) {
+        for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
 
             // TODO: Need to expand this to work for non-custom fields too
 
-            String targetFieldName = copyFieldMap.get(pluginField);
-            logger.debug("Setting field " + targetFieldName + " from field " + pluginField.getName());
+            String targetFieldName = fieldCopyMapping.getTargetFieldName();
+            logger.debug("Setting field " + targetFieldName + " from field " + fieldCopyMapping.getPluginField().getName());
 
             // TODO does this work if the customer has localized field names?
 
@@ -272,7 +273,7 @@ public class JiraIssueHandler {
                 continue;
             }
 
-            String fieldValue = getPluginFieldValue(notificationEvent, pluginField);
+            String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getPluginField());
             if (fieldValue == null) {
                 continue;
             }
