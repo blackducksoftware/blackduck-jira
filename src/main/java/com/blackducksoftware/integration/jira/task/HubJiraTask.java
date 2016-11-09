@@ -294,7 +294,7 @@ public class HubJiraTask {
     private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Component Again");
         projectFieldCopyMappings.add(mapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
 

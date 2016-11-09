@@ -39,6 +39,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
@@ -53,6 +54,7 @@ import com.atlassian.jira.entity.property.EntityPropertyService.PropertyInput;
 import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
 import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueInputParameters;
@@ -60,6 +62,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.customfields.CustomFieldType;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.status.Status;
@@ -68,6 +71,7 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
+import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -103,6 +107,7 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
@@ -168,7 +173,7 @@ public class TicketGeneratorTest {
     @Test
     public void testCreateNewVulnerabilityJiraIssue()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testVulnerabilityNotifications(false, true, false, VULNERABILITY_ISSUE_SUMMARY,
                 VULNERABILITY_ISSUE_DESCRIPTION);
     }
@@ -176,35 +181,35 @@ public class TicketGeneratorTest {
     @Test
     public void testDeDupeVulnerability()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testVulnerabilityNotifications(false, true, true, VULNERABILITY_ISSUE_SUMMARY, VULNERABILITY_ISSUE_DESCRIPTION);
     }
 
     @Test
     public void testCreateNewPolicyViolationJiraIssue()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testRuleNotifications(false, true, false);
     }
 
     @Test
     public void testDuplicatePolicyViolationIssueAvoidance()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testRuleNotifications(false, true, true);
     }
 
     @Test
     public void testClosePolicyViolationJiraIssue()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testRuleNotifications(true, false, false);
     }
 
     @Test
     public void testReOpenPolicyViolationJiraIssue()
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
         testRuleNotifications(true, true, false);
     }
 
@@ -212,13 +217,19 @@ public class TicketGeneratorTest {
             final boolean createDuplicateNotification, final String expectedIssueSummary,
             final String expectedIssueDescription)
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
 
         // Setup
 
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+        CustomFieldManager customFieldManager = new CustomFieldManagerMock();
+        final CustomFieldType fieldType = customFieldManager
+                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
+        customFieldManager.createCustomField("testCustomField", "", fieldType,
+                null, null, null);
+        Mockito.when(jiraServices.getCustomFieldManager()).thenReturn(customFieldManager);
 
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
@@ -320,13 +331,20 @@ public class TicketGeneratorTest {
     private void testRuleNotifications(final boolean jiraIssueExistsAsClosed, final boolean openIssue,
             final boolean createDuplicateNotification)
             throws NotificationServiceException, ParseException, IOException, URISyntaxException,
-            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException {
+            ResourceDoesNotExistException, BDRestException, UnexpectedHubResponseException, MissingUUIDException, GenericEntityException {
 
         // Setup
 
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
+
+        CustomFieldManager customFieldManager = new CustomFieldManagerMock();
+        final CustomFieldType fieldType = customFieldManager
+                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
+        customFieldManager.createCustomField("testCustomField", "", fieldType,
+                null, null, null);
+        Mockito.when(jiraServices.getCustomFieldManager()).thenReturn(customFieldManager);
 
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);

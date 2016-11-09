@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.task.issue;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
@@ -43,6 +44,7 @@ import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
@@ -195,7 +197,8 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
                 + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        setFieldValues(notificationEvent, issueInputParameters);
+        setPluginFieldValues(notificationEvent, issueInputParameters);
+        setOtherFieldValues(notificationEvent, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService()
                 .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
@@ -217,7 +220,7 @@ public class JiraIssueHandler {
         return null;
     }
 
-    private void setFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
+    private void setPluginFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
@@ -246,6 +249,65 @@ public class JiraIssueHandler {
                 issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
             }
         }
+    }
+
+    private void setOtherFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
+        Map<PluginField, String> copyFieldMap = notificationEvent.getPluginFieldToOtherFieldCopyMap();
+        if (copyFieldMap == null) {
+            return;
+        }
+        for (PluginField pluginField : copyFieldMap.keySet()) {
+
+            // TODO: Need to expand this to work for non-custom fields too
+
+            String targetFieldName = copyFieldMap.get(pluginField);
+            logger.debug("Setting field " + targetFieldName + " from field " + pluginField.getName());
+
+            // TODO does this work if the customer has localized field names?
+
+            CustomField targetField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(targetFieldName);
+            logger.debug("\ttargetField: " + targetField);
+            if (targetField == null) {
+                logger.error("Custom field " + targetFieldName + " not found; won't be set");
+                continue;
+            }
+
+            String fieldValue = getPluginFieldValue(notificationEvent, pluginField);
+            if (fieldValue == null) {
+                continue;
+            }
+            logger.debug("Field value: " + fieldValue);
+
+            issueInputParameters.addCustomFieldValue(targetField.getId(), fieldValue);
+        }
+    }
+
+    private String getPluginFieldValue(final HubEvent notificationEvent, PluginField pluginField) {
+        String fieldValue = null;
+        switch (pluginField) {
+        case HUB_CUSTOM_FIELD_COMPONENT:
+            fieldValue = notificationEvent.getNotif().getComponentName();
+            break;
+        case HUB_CUSTOM_FIELD_COMPONENT_VERSION:
+            fieldValue = notificationEvent.getNotif().getComponentVersion();
+            break;
+
+        case HUB_CUSTOM_FIELD_POLICY_RULE:
+            final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
+            fieldValue = policyNotif.getPolicyRule().getName();
+            break;
+
+        case HUB_CUSTOM_FIELD_PROJECT:
+            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectName();
+            break;
+
+        case HUB_CUSTOM_FIELD_PROJECT_VERSION:
+            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectVersionName();
+            break;
+        default:
+            logger.error("Unrecognized plugin field: " + pluginField);
+        }
+        return fieldValue;
     }
 
     private void fixIssueAssignment(final HubEvent notificationEvent, final IssueResult result) {
@@ -326,7 +388,7 @@ public class JiraIssueHandler {
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
-                logger.info("Found Step descriptor : " + descriptor.getName());
+                logger.debug("Found Step descriptor : " + descriptor.getName());
                 transitionAction = descriptor;
                 break;
             }
