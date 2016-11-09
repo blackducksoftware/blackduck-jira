@@ -52,6 +52,7 @@ import com.atlassian.jira.issue.operation.ScreenableIssueOperation;
 import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -63,7 +64,7 @@ public class HubFieldScreenSchemeSetup {
 
     private final JiraServices jiraServices;
 
-    private final Map<String, CustomField> customFields = new HashMap<>();
+    private final Map<PluginField, CustomField> customFields = new HashMap<>();
 
     public HubFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
         this.settingService = settingService;
@@ -78,7 +79,7 @@ public class HubFieldScreenSchemeSetup {
         return jiraServices;
     }
 
-    public Map<String, CustomField> getCustomFields() {
+    public Map<PluginField, CustomField> getCustomFields() {
         return customFields;
     }
 
@@ -137,11 +138,11 @@ public class HubFieldScreenSchemeSetup {
     }
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> commonIssueTypeList,
-            final String fieldName) {
+            final PluginField pluginField) {
         try {
-            CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(fieldName);
+            CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
-                customField = createCustomField(commonIssueTypeList, fieldName);
+                customField = createCustomField(commonIssueTypeList, pluginField.getName());
             }
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
                 final List<IssueType> associatatedIssueTypeList = getAsscociatedIssueTypeObjects(customField);
@@ -155,10 +156,10 @@ public class HubFieldScreenSchemeSetup {
                 if (needToUpdateCustomField) {
                     // not sure how else to best update the custom field
                     jiraServices.getCustomFieldManager().removeCustomField(customField);
-                    customField = createCustomField(associatatedIssueTypeList, fieldName);
+                    customField = createCustomField(associatatedIssueTypeList, pluginField.getName());
                 }
             }
-            customFields.put(fieldName, customField);
+            customFields.put(pluginField, customField);
             final OrderableField myField = jiraServices.getFieldManager().getOrderableField(customField.getId());
             return myField;
         } catch (final Exception e) {
@@ -170,14 +171,13 @@ public class HubFieldScreenSchemeSetup {
 
     private List<OrderableField> createCommonFields(final List<IssueType> commonIssueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
         customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
-                HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT));
+                PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
         customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
-                HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT));
         customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
-                HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT));
-        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
-                HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
         return customFields;
     }
 
@@ -187,7 +187,7 @@ public class HubFieldScreenSchemeSetup {
         final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
         policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
         customFields.add(getOrderedFieldFromCustomField(policyViolationIssueTypeObjectList,
-                HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE));
+                PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
         customFields.addAll(createCommonFields(commonIssueTypeList));
         return customFields;
     }

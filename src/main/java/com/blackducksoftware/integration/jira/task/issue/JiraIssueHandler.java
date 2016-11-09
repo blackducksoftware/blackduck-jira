@@ -194,6 +194,29 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
                 + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
+        setFieldValues(notificationEvent, issueInputParameters);
+
+        final CreateValidationResult validationResult = jiraServices.getIssueService()
+                .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
+        logger.debug("createIssue(): Project: " + notificationEvent.getJiraProjectName() + ": "
+                + notificationEvent.getIssueSummary());
+        if (!validationResult.isValid()) {
+            handleErrorCollection("createIssue", notificationEvent, validationResult.getErrorCollection());
+        } else {
+            final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
+                    validationResult);
+            final ErrorCollection errors = result.getErrorCollection();
+            if (errors.hasAnyErrors()) {
+                handleErrorCollection("createIssue", notificationEvent, errors);
+            } else {
+                fixIssueAssignment(notificationEvent, result);
+                return result.getIssue();
+            }
+        }
+        return null;
+    }
+
+    private void setFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
@@ -222,25 +245,6 @@ public class JiraIssueHandler {
                 issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
             }
         }
-
-        final CreateValidationResult validationResult = jiraServices.getIssueService()
-                .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
-        logger.debug("createIssue(): Project: " + notificationEvent.getJiraProjectName() + ": "
-                + notificationEvent.getIssueSummary());
-        if (!validationResult.isValid()) {
-            handleErrorCollection("createIssue", notificationEvent, validationResult.getErrorCollection());
-        } else {
-            final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
-                    validationResult);
-            final ErrorCollection errors = result.getErrorCollection();
-            if (errors.hasAnyErrors()) {
-                handleErrorCollection("createIssue", notificationEvent, errors);
-            } else {
-                fixIssueAssignment(notificationEvent, result);
-                return result.getIssue();
-            }
-        }
-        return null;
     }
 
     private void fixIssueAssignment(final HubEvent notificationEvent, final IssueResult result) {
