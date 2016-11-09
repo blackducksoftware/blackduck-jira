@@ -100,6 +100,9 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
@@ -229,10 +232,15 @@ public class TicketGeneratorTest {
                 new Date(), SourceEnum.KB, PROJECT_VERSION_NAME);
         Mockito.when(hubIntRestService.getProjectVersion(PROJECT_VERSION_URL)).thenReturn(projectVersionItem);
 
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null);
+                settingsService, null, fieldCopyConfig);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         notificationItems.addAll(mockNewVulnerabilityNotificationItems(createDuplicateNotification));
@@ -323,10 +331,16 @@ public class TicketGeneratorTest {
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
 
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                settingsService, null);
+                settingsService, null, fieldCopyConfig);
 
         final SortedSet<NotificationContentItem> notificationItems = new TreeSet<>();
         if (openIssue) {

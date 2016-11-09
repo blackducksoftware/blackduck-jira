@@ -27,14 +27,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -51,9 +51,12 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
 import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
@@ -125,8 +128,12 @@ public class HubJiraTask {
      */
     public String execute() {
 
-        final HubJiraConfigSerializable config = validateInput();
+        final HubJiraConfigSerializable config = deSerializeConfig();
         if (config == null) {
+            return null;
+        }
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
+        if (fieldCopyConfig == null) {
             return null;
         }
 
@@ -152,7 +159,7 @@ public class HubJiraTask {
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
-                    linksOfRulesToMonitor, ticketInfoFromSetup);
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
             final HubSupportHelper hubSupport = new HubSupportHelper();
@@ -209,10 +216,9 @@ public class HubJiraTask {
         }
     }
 
-    
-
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-            final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
+            final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
         logger.debug("Jira user: " + this.jiraContext.getJiraUser().getName());
 
@@ -232,7 +238,7 @@ public class HubJiraTask {
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
                 vulnerableBomComponentRestService, notificationDataService,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup);
+                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
         return ticketGenerator;
     }
 
@@ -253,7 +259,7 @@ public class HubJiraTask {
         return restConnection;
     }
 
-    private HubJiraConfigSerializable validateInput() {
+    private HubJiraConfigSerializable deSerializeConfig() {
         if (projectMappingJson == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
@@ -282,6 +288,17 @@ public class HubJiraTask {
             logger.debug(rule.toString());
         }
         return config;
+    }
+
+    // TODO mocked for now
+    private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        projectFieldCopyMappings.add(mapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+
+        return fieldCopyConfig;
     }
 
     private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {

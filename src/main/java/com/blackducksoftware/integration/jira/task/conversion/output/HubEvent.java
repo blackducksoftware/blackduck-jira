@@ -22,12 +22,14 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.PluginField;
 
 /**
  * An event is one of the following: Policy violation by a specific component on
@@ -58,9 +60,12 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
     private final T notif;
 
+    private final Map<PluginField, String> pluginFieldToOtherFieldCopyMap;
+
     public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
             final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
-            final String jiraProjectName, final T notif) {
+            final String jiraProjectName, final Map<PluginField, String> pluginFieldToOtherFieldCopyMap,
+            final T notif) {
         this.action = action;
         this.jiraUserName = jiraUserName;
         this.jiraUserId = jiraUserId;
@@ -68,6 +73,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
         this.jiraIssueTypeId = jiraIssueTypeId;
         this.jiraProjectId = jiraProjectId;
         this.jiraProjectName = jiraProjectName;
+        this.pluginFieldToOtherFieldCopyMap = pluginFieldToOtherFieldCopyMap;
         this.notif = notif;
     }
 
@@ -110,17 +116,21 @@ public abstract class HubEvent<T extends NotificationContentItem> {
     public String getComment() {
         return null;
     }
-    
+
     public String getCommentIfExists() {
         return null;
     }
-    
+
     public String getCommentInLieuOfStateChange() {
         return null;
     }
 
     public String getResolveComment() {
         return null;
+    }
+
+    public Map<PluginField, String> getPluginFieldToOtherFieldCopyMap() {
+        return pluginFieldToOtherFieldCopyMap;
     }
 
     public abstract String getUniquePropertyKey() throws URISyntaxException;

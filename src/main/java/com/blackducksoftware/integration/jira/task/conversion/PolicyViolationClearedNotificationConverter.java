@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -36,7 +37,9 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -46,18 +49,23 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public static final String PROJECT_LINK = "project";
+    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+    public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
         super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        this.fieldCopyConfig = fieldCopyConfig;
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
-        
+
+        Map<PluginField, String> pluginFieldToOtherFieldCopyMap = buildPluginFieldToOtherFieldCopyMap(fieldCopyConfig.getProjectFieldCopyMappings());
+
         HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
@@ -67,7 +75,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, pluginFieldToOtherFieldCopyMap);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }

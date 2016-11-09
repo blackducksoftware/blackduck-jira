@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -31,6 +32,7 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Not
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyContentItem;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -40,11 +42,11 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     private final PolicyContentItem notificationContentItem;
 
     private final PolicyRule policyRule;
-    
+
     private final String comment;
 
     private final String commentForExistingIssue;
-    
+
     private final String resolveComment;
 
     public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
@@ -54,10 +56,11 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
             final Long jiraProjectId, final String jiraProjectName,
             final PolicyContentItem notificationContentItem,
             final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
-            final String resolveComment) {
+            final String resolveComment,
+            final Map<PluginField, String> pluginFieldToOtherFieldCopyMap) {
 
         super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-                notificationContentItem);
+                pluginFieldToOtherFieldCopyMap, notificationContentItem);
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
         this.comment = comment;
@@ -181,17 +184,17 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
                 issue.getId(), getPolicyRule().getName());
         return properties;
     }
-    
+
     @Override
     public String getComment() {
         return comment;
     }
-    
+
     @Override
     public String getCommentIfExists() {
         return commentForExistingIssue;
     }
-    
+
     public String getCommentInLieuOfStateChange() {
         return getCommentIfExists();
     }

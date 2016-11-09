@@ -36,6 +36,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -45,12 +46,14 @@ public class JiraNotificationProcessor {
 
     private final ConverterLookupTable converterTable;
 
-    public JiraNotificationProcessor(final HubProjectMappings mapping, final JiraServices jiraServices,
+    public JiraNotificationProcessor(final HubProjectMappings mapping,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubIntRestService hubIntRestService,
             final VulnerableBomComponentRestService vulnerableBomComponentRestService)
             throws ConfigurationException {
-        converterTable = new ConverterLookupTable(mapping, jiraServices, jiraContext, jiraSettingsService,
+        converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
                 hubIntRestService, vulnerableBomComponentRestService);
     }
 

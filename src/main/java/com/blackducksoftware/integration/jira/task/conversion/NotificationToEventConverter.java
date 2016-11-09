@@ -22,7 +22,10 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
@@ -30,7 +33,9 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
@@ -41,7 +46,7 @@ public abstract class NotificationToEventConverter {
     private final JiraContext jiraContext;
 
     private final JiraSettingsService jiraSettingsService;
-    
+
     private final HubProjectMappings mappings;
 
     private final String issueTypeId;
@@ -92,4 +97,14 @@ public abstract class NotificationToEventConverter {
         return issueTypeId;
     }
 
+    protected Map<PluginField, String> buildPluginFieldToOtherFieldCopyMap(Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
+        Map<PluginField, String> pluginFieldToOtherFieldCopyMap;
+        pluginFieldToOtherFieldCopyMap = new HashMap<>();
+        for (ProjectFieldCopyMapping mapping : projectFieldCopyMappings) {
+            // TODO rats! this being a map limits us to one destination per source, which would be awkward to enforce in
+            // the UI
+            pluginFieldToOtherFieldCopyMap.put(mapping.getPluginField(), mapping.getJiraFieldName());
+        }
+        return pluginFieldToOtherFieldCopyMap;
+    }
 }

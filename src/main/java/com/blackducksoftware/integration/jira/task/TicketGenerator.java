@@ -36,6 +36,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
@@ -65,11 +66,14 @@ public class TicketGenerator {
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
+    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+
     public TicketGenerator(final HubIntRestService hubIntRestService,
             final VulnerableBomComponentRestService vulnerableBomComponentRestService,
             final NotificationDataService notificationDataService, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final TicketInfoFromSetup ticketInfoFromSetup) {
+            final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.hubIntRestService = hubIntRestService;
         this.vulnerableBomComponentRestService = vulnerableBomComponentRestService;
         this.notificationDataService = notificationDataService;
@@ -77,6 +81,7 @@ public class TicketGenerator {
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.fieldCopyConfig = fieldCopyConfig;
     }
 
     public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
@@ -97,7 +102,7 @@ public class TicketGenerator {
                 return;
             }
 
-            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, jiraServices,
+            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
                     jiraContext, jiraSettingsService, hubIntRestService, vulnerableBomComponentRestService);
 
             final List<HubEvent> events = processor.generateEvents(notifs);

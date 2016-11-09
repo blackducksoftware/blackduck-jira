@@ -46,7 +46,10 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -138,7 +141,13 @@ public class PolicyViolationNotificationConverterTest {
 
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
 
-        final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, jiraServices,
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+
+        final NotificationToEventConverter converter = new PolicyViolationNotificationConverter(mappings, fieldCopyConfig, jiraServices,
                 jiraContext, jiraSettingsService);
         final List<HubEvent> events = converter.generateEvents(notification);
 

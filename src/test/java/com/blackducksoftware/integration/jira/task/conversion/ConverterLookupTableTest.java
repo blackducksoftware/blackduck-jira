@@ -28,6 +28,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -43,7 +45,10 @@ import com.blackducksoftware.integration.hub.dataservices.notification.items.Pol
 import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTableTest {
@@ -63,7 +68,14 @@ public class ConverterLookupTableTest {
         final VulnerableBomComponentRestService vulnerableBomComponentRestService = Mockito
                 .mock(VulnerableBomComponentRestService.class);
         final JiraServices jiraServices = mockJiraServices();
-        final ConverterLookupTable table = new ConverterLookupTable(null, jiraServices, null, null, hubIntRestService,
+
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+
+        final ConverterLookupTable table = new ConverterLookupTable(null, fieldCopyConfig, jiraServices, null, null, hubIntRestService,
                 vulnerableBomComponentRestService);
 
         try {

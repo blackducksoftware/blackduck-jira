@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
@@ -33,7 +34,9 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -41,18 +44,24 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
-    public static final String PROJECT_LINK = "project";
 
-    public PolicyOverrideNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+
+    public PolicyOverrideNotificationConverter(final HubProjectMappings mappings,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
             throws ConfigurationException {
         super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        this.fieldCopyConfig = fieldCopyConfig;
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
         final List<HubEvent> events = new ArrayList<>();
+
+        Map<PluginField, String> pluginFieldToOtherFieldCopyMap = buildPluginFieldToOtherFieldCopyMap(fieldCopyConfig.getProjectFieldCopyMappings());
 
         HubEventAction action = HubEventAction.RESOLVE;
         final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
@@ -63,11 +72,12 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, pluginFieldToOtherFieldCopyMap);
 
             events.add(event);
         }
 
         return events;
     }
+
 }

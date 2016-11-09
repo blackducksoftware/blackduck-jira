@@ -35,27 +35,30 @@ import com.blackducksoftware.integration.hub.exception.NotificationServiceExcept
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTable {
     private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
-    public ConverterLookupTable(final HubProjectMappings mappings, final JiraServices jiraServices,
+    public ConverterLookupTable(final HubProjectMappings mappings,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubIntRestService hubIntRestService,
             final VulnerableBomComponentRestService vulnerableBomComponentRestService)
             throws ConfigurationException {
 
         final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
                 vulnerableBomComponentRestService);
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
         final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
         final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-                mappings, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
 
         lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
