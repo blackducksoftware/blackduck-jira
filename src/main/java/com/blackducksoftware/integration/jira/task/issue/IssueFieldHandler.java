@@ -178,7 +178,7 @@ public class IssueFieldHandler {
     }
 
     // TODO TEMP
-    private void printFields(ApplicationUser user, Issue issue) {
+    void printFields(ApplicationUser user, Issue issue) {
         try {
             Set<NavigableField> navFields = jiraServices.getFieldManager().getAllAvailableNavigableFields();
             for (NavigableField field : navFields) {

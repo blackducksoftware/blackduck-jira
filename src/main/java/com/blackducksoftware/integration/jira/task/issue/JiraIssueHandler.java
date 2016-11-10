@@ -215,6 +215,8 @@ public class JiraIssueHandler {
             } else {
                 fixIssueAssignment(notificationEvent, result);
                 issueFieldHandler.addLabels(result.getIssue(), labels);
+                // TODO: remove:
+                issueFieldHandler.printFields(jiraContext.getJiraUser(), result.getIssue());
                 return result.getIssue();
             }
         }
