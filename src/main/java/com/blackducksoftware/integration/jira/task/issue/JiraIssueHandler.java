@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.jira.task.issue;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -44,7 +43,6 @@ import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
@@ -52,9 +50,7 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
@@ -74,12 +70,15 @@ public class JiraIssueHandler {
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
+    private final IssueFieldHandler issueFieldHandler;
+
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraContext, ticketInfoFromSetup);
     }
 
     private void addIssueProperty(final HubEvent notificationEvent, final Long issueId, final String key,
@@ -198,8 +197,8 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
                 + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        setPluginFieldValues(notificationEvent, issueInputParameters);
-        setOtherFieldValues(notificationEvent, issueInputParameters);
+        issueFieldHandler.setPluginFieldValues(notificationEvent, issueInputParameters);
+        List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService()
                 .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
@@ -215,100 +214,11 @@ public class JiraIssueHandler {
                 handleErrorCollection("createIssue", notificationEvent, errors);
             } else {
                 fixIssueAssignment(notificationEvent, result);
+                issueFieldHandler.addLabels(result.getIssue(), labels);
                 return result.getIssue();
             }
         }
         return null;
-    }
-
-    private void setPluginFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
-        if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
-                && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
-            final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectName());
-
-            final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectVersionFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectVersionName());
-
-            final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotif().getComponentName());
-
-            final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentVersionFieldId,
-                    notificationEvent.getNotif().getComponentVersion());
-
-            if (notificationEvent.getClass().equals(PolicyEvent.class)) {
-                final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
-                final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
-                        .get(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
-                issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
-            }
-        }
-    }
-
-    private void setOtherFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
-        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
-        if (projectFieldCopyMappings == null) {
-            return;
-        }
-        for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
-
-            // TODO: Need to expand this to work for non-custom fields too
-
-            String targetFieldName = fieldCopyMapping.getTargetFieldName();
-            logger.debug("Setting field " + targetFieldName + " from field " + fieldCopyMapping.getPluginField().getName());
-
-            // TODO does this work if the customer has localized field names?
-
-            CustomField targetField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(targetFieldName);
-            logger.debug("\ttargetField: " + targetField);
-            if (targetField == null) {
-                logger.error("Custom field " + targetFieldName + " not found; won't be set");
-                continue;
-            }
-
-            String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getPluginField());
-            if (fieldValue == null) {
-                continue;
-            }
-            logger.debug("New target field value: " + fieldValue);
-
-            issueInputParameters.addCustomFieldValue(targetField.getId(), fieldValue);
-        }
-    }
-
-    private String getPluginFieldValue(final HubEvent notificationEvent, PluginField pluginField) {
-        String fieldValue = null;
-        switch (pluginField) {
-        case HUB_CUSTOM_FIELD_COMPONENT:
-            fieldValue = notificationEvent.getNotif().getComponentName();
-            break;
-        case HUB_CUSTOM_FIELD_COMPONENT_VERSION:
-            fieldValue = notificationEvent.getNotif().getComponentVersion();
-            break;
-
-        case HUB_CUSTOM_FIELD_POLICY_RULE:
-            final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
-            fieldValue = policyNotif.getPolicyRule().getName();
-            break;
-
-        case HUB_CUSTOM_FIELD_PROJECT:
-            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectName();
-            break;
-
-        case HUB_CUSTOM_FIELD_PROJECT_VERSION:
-            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectVersionName();
-            break;
-        default:
-            logger.error("Unrecognized plugin field: " + pluginField);
-        }
-        return fieldValue;
     }
 
     private void fixIssueAssignment(final HubEvent notificationEvent, final IssueResult result) {

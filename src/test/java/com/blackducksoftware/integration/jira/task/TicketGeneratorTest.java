@@ -62,7 +62,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.issue.customfields.CustomFieldType;
+import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.status.Status;
@@ -71,7 +71,6 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
-import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -108,6 +107,7 @@ import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldManagerMock;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.StepDescriptor;
@@ -224,12 +224,8 @@ public class TicketGeneratorTest {
         final NotificationDataService notificationDataService = Mockito.mock(NotificationDataService.class);
         final JiraContext jiraContext = Mockito.mock(JiraContext.class);
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-        CustomFieldManager customFieldManager = new CustomFieldManagerMock();
-        final CustomFieldType fieldType = customFieldManager
-                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
-        customFieldManager.createCustomField("testCustomField", "", fieldType,
-                null, null, null);
-        Mockito.when(jiraServices.getCustomFieldManager()).thenReturn(customFieldManager);
+        FieldManager fieldManager = new FieldManagerMock();
+        Mockito.when(jiraServices.getFieldManager()).thenReturn(fieldManager);
 
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
@@ -340,11 +336,8 @@ public class TicketGeneratorTest {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
         CustomFieldManager customFieldManager = new CustomFieldManagerMock();
-        final CustomFieldType fieldType = customFieldManager
-                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
-        customFieldManager.createCustomField("testCustomField", "", fieldType,
-                null, null, null);
-        Mockito.when(jiraServices.getCustomFieldManager()).thenReturn(customFieldManager);
+        FieldManager fieldManager = new FieldManagerMock();
+        Mockito.when(jiraServices.getFieldManager()).thenReturn(fieldManager);
 
         final JiraSettingsService settingsService = Mockito.mock(JiraSettingsService.class);
         final HubIntRestService hubIntRestService = Mockito.mock(HubIntRestService.class);
