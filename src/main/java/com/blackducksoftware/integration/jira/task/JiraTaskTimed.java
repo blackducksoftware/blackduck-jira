@@ -190,16 +190,18 @@ public class JiraTaskTimed implements Callable<String> {
                         // from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
                                 .getProjectObj(projectMapping.getJiraProject().getProjectId());
-                        // add issuetypes to this project
-                        issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-                        issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
-                                screenSchemesByIssueType);
-                        boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
-                                jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
-                        if (wasAlreadySetUp) {
-                            logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
-                        } else {
-                            workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+                        if (jiraProject != null) {
+                            // add issuetypes to this project
+                            issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
+                            issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
+                                    screenSchemesByIssueType);
+                            boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
+                                    jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
+                            if (wasAlreadySetUp) {
+                                logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
+                            } else {
+                                workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
+                            }
                         }
                     }
                 }
