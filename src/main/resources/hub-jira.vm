@@ -196,6 +196,13 @@
 			</div>
 			-->
 		</div>
+		
+		<div style="display: inline-block; width: 100%;">
+	   	   <div class="buttonContainer">
+	       		<div id="saveSpinner" style="display: inline-block;"></div>
+	  	   		<input id="fieldCopySaveButton" onclick="updatefieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   </div>
+	   </div>
 	</div>
       	
       	
