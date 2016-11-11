@@ -7,6 +7,7 @@
   </head>
   <body>
     <form id="hub-jira" class="">
+    
       <div id="aui-hub-message-field" class="aui-message hidden">
       	<p class="title">
         	<span id="aui-hub-message-title" class="aui-icon"></span>
@@ -17,6 +18,27 @@
       
       <div id="error-message-field" class="error hidden">
       </div>
+      
+<ul class="tab">
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
+</ul>
+
+<div id="Admin" class="tabcontent">
+  <h3>Admin</h3>
+  <p>Admin stuff.</p>
+</div>
+
+<div id="Basic" class="tabcontent">
+  <h3>Basic</h3>
+  <p>Basic stuff.</p> 
+</div>
+
+<div id="Advanced" class="tabcontent">
+  <h3>Advanced</h3>
+  <p>Advanced stuff.</p>
+</div>
       	
       	<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("hub.integration.jira.admin.label")</legend>
