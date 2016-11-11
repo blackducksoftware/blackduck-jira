@@ -3,13 +3,16 @@ package com.blackducksoftware.integration.jira.config;
 import com.blackducksoftware.integration.jira.common.PluginField;
 
 public class ProjectFieldCopyMapping {
-    private final String jiraProjectName;
+    private String jiraProjectName;
 
-    private final String hubProjectName;
+    private String hubProjectName;
 
-    private final PluginField pluginField;
+    private PluginField pluginField;
 
-    private final String targetFieldId;
+    private String targetFieldId;
+
+    public ProjectFieldCopyMapping() {
+    }
 
     public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String targetFieldId) {
         super();
@@ -33,6 +36,22 @@ public class ProjectFieldCopyMapping {
 
     public String getTargetFieldId() {
         return targetFieldId;
+    }
+
+    public void setJiraProjectName(String jiraProjectName) {
+        this.jiraProjectName = jiraProjectName;
+    }
+
+    public void setHubProjectName(String hubProjectName) {
+        this.hubProjectName = hubProjectName;
+    }
+
+    public void setPluginField(PluginField pluginField) {
+        this.pluginField = pluginField;
+    }
+
+    public void setTargetFieldId(String targetFieldId) {
+        this.targetFieldId = targetFieldId;
     }
 
     @Override

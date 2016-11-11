@@ -129,9 +129,13 @@ function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 	
-	function updateAdminConfig() {
+function updateAdminConfig() {
 		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
 	}
+
+function updateFieldCopyConfig() {
+	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/fieldCopy', 'Save successful.', 'The field copy configuration is not valid.');
+}
 
 function populateForm() {
 	AJS.$.ajax({
@@ -565,6 +569,46 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 	    }
 	  });
 }
+
+function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
+
+		  AJS.$.ajax({
+		    url: restUrl,
+		    type: "PUT",
+		    dataType: "json",
+		    contentType: "application/json",
+		    data: '{ "projectFieldCopyMappings": ' 
+		    	+ '[ ' 
+		    	+ '{ ' 
+		    		+ '"jiraProjectName": "jiraProjectName1", ' 
+		    		+ '"hubProjectName": "hubProjectName1", '
+		    		+ '"pluginField": "HUB_CUSTOM_FIELD_COMPONENT", '
+		    		+ '"targetFieldId": "targetFieldId1" ' 
+		    	+ '} ' 
+		    	+ '] '
+		    	+ '}',
+		    processData: false,
+		    success: function() {
+		    	hideError('hubJiraGroupsError');
+		    	
+			    showStatusMessage(successStatus, 'Success!', successMessage);
+		    },
+		    error: function(response){
+		    	try {
+			    	var admin = JSON.parse(response.responseText);
+			    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, true);
+			    	
+				    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+		    	} catch(err) {
+		    		// in case the response is not our error object
+		    		alert(response.responseText);
+		    	}
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 stopProgressSpinner('adminSaveSpinner');
+		    }
+		  });
+	}
 
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
