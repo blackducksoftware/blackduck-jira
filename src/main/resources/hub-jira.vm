@@ -19,28 +19,14 @@
       <div id="error-message-field" class="error hidden">
       </div>
       
-<ul class="tab">
-  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
-  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
-  <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
-</ul>
+	<ul class="tab">
+  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
+  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
+  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
+	</ul>
 
-<div id="Admin" class="tabcontent">
-  <h3>Admin</h3>
-  <p>Admin stuff.</p>
-</div>
-
-<div id="Basic" class="tabcontent">
-  <h3>Basic</h3>
-  <p>Basic stuff.</p> 
-</div>
-
-<div id="Advanced" class="tabcontent">
-  <h3>Advanced</h3>
-  <p>Advanced stuff.</p>
-</div>
-      	
-      	<fieldset class="fieldSection">
+	<div id="Admin" class="tabcontent">
+	<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("hub.integration.jira.admin.label")</legend>
       	 <div id="adminArea">
 		      <div class="field-group">
@@ -62,8 +48,10 @@
 			  </div>
 	      </div>
       	</fieldset>
-      	
-      	<fieldset class="fieldSection">
+	</div>
+
+	<div id="Basic" class="tabcontent">
+  		<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
@@ -193,6 +181,16 @@
 	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  	   </div>
 	   </div>
+	</div>
+
+	<div id="Advanced" class="tabcontent">
+  		<h3>Advanced</h3>
+  		<p>Advanced stuff.</p>
+	</div>
+      	
+      	
+      	
+      	
 	  
 	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
