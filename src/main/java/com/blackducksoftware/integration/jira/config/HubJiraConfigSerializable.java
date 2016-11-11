@@ -43,7 +43,7 @@ import com.google.gson.reflect.TypeToken;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubJiraConfigSerializable implements Serializable {
+public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
 
     private static final long serialVersionUID = -3736258315416679501L;
 
@@ -80,6 +80,7 @@ public class HubJiraConfigSerializable implements Serializable {
     @XmlElement
     private String policyRulesError;
 
+    @Override
     public boolean hasErrors() {
         boolean hasErrors = false;
         if (StringUtils.isNotBlank(getErrorMessage())) {
@@ -181,10 +182,10 @@ public class HubJiraConfigSerializable implements Serializable {
         return gson.toJson(this);
     }
 
-    public static HubJiraConfigSerializable fromJson(final String jsonString) {
+    public static ErrorTracking fromJson(final String jsonString) {
         if (StringUtils.isNotBlank(jsonString)) {
             final Gson gson = new GsonBuilder().create();
-            final HubJiraConfigSerializable config = gson.fromJson(jsonString, HubJiraConfigSerializable.class);
+            final ErrorTracking config = gson.fromJson(jsonString, HubJiraConfigSerializable.class);
             return config;
         }
         return null;
@@ -231,10 +232,12 @@ public class HubJiraConfigSerializable implements Serializable {
         this.policyRulesError = policyRulesError;
     }
 
+    @Override
     public String getErrorMessage() {
         return errorMessage;
     }
 
+    @Override
     public void setErrorMessage(final String errorMessage) {
         this.errorMessage = errorMessage;
     }

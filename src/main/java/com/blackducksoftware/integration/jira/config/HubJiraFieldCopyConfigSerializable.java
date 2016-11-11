@@ -18,7 +18,7 @@ import com.google.gson.reflect.TypeToken;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubJiraFieldCopyConfigSerializable implements Serializable {
+public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTracking {
     private static final long serialVersionUID = 2893090613500813058L;
 
     @XmlElement
@@ -67,6 +67,23 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable {
             if (other.projectFieldCopyMappings != null) return false;
         } else if (!projectFieldCopyMappings.equals(other.projectFieldCopyMappings)) return false;
         return true;
+    }
+
+    @Override
+    public boolean hasErrors() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public String getErrorMessage() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setErrorMessage(String errorMessage) {
+        // TODO Auto-generated method stub
     }
 
 }

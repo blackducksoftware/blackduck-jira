@@ -508,6 +508,25 @@ public class HubJiraConfigController {
         for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
         }
+
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                // TODO validation??
+                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
+                        fieldCopyConfig.getJson());
+                return null;
+            }
+        });
+        if (fieldCopyConfig.hasErrors()) {
+            return Response.ok(fieldCopyConfig).status(Status.BAD_REQUEST).build();
+        }
         return Response.noContent().build();
     }
 
@@ -641,7 +660,7 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    public HubIntRestService getHubRestService(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    public HubIntRestService getHubRestService(final PluginSettings settings, final ErrorTracking config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -702,7 +721,7 @@ public class HubJiraConfigController {
     }
 
     private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
-            final HubJiraConfigSerializable config) {
+            final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
         if (hubRestService != null) {
             List<ProjectItem> hubProjectItems = null;
