@@ -135,10 +135,6 @@
 					<tr>
 						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')
 						</th>
-					<!--	<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForCreation.label')
-						</th>
-						<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForClosure.label')
-						</th> -->
 					</tr>
 				</thead>
 				<tbody>
@@ -148,27 +144,11 @@
 							<div id="policyRuleTicketCreation" class="ticketCriteriaSection">
 							</div>
 				  		</td>
-				  	<!--	<td>
-				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
-					  			Coming Soon...
-							</div>
-				  		</td>
-				  		<td>
-				  			<div id="vulnerabilityTicketClosure" class="ticketCriteriaSection">
-					  			Coming Soon...
-							</div>
-				  		</td> -->
 	      			</tr>
 	      			<tr>
 	      				<td>
 					      	<div id="policyRulesError" class="error hidden"></div>
 					    </td>
-					<!--    <td>
-					      	<div id="" class="error hidden"></div>
-					    </td>
-					    <td>
-					      	<div id="" class="error hidden"></div>
-					    </td> -->
 	      			</tr>
       			</tbody>
       		</table>	
@@ -184,8 +164,43 @@
 	</div>
 
 	<div id="Advanced" class="tabcontent">
-  		<h3>Advanced</h3>
-  		<p>Advanced stuff.</p>
+  		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("hub.integration.jira.fieldCopy.label")</legend>
+  		<div id="fieldCopyArea">
+  		
+  		<table width="100%">
+			  		<thead>
+			  			<tr>
+			  				<td class="mappingTableCell"/>
+			  				<td class="mappingTableCell">
+			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
+						    </td>
+						    <td class="mappingTableCell"/>
+			  			</tr>
+			  		</thead>
+			  		<tbody id="fieldCopyJiraProjectContainer">
+					  	  <tr class="" name="fieldCopyJiraProjectChoice" id="fieldCopyJiraProjectChoice">
+						    <td class="fieldCopyJiraProjectCell" id="fieldCopyJiraProjectCell">
+						    </td>
+						    <td class="fieldCopyJiraProjectCell">
+						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+								<datalist id="jiraProjects">
+								</datalist>
+								<div id="jiraProjectError">
+						    	</div>
+						    </td>
+						    <td class="mappingTableCell" width="25px"> = </td>
+						  </tr>
+				  </tbody>
+				</table>
+  		
+  		<!--
+  			<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+			<datalist id="jiraProjects">
+			</datalist>
+			<div id="jiraProjectError">
+			</div>
+			-->
+		</div>
 	</div>
       	
       	

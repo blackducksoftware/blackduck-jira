@@ -2,7 +2,7 @@
 	display: none !important;
 }
 
-/* Style the list */
+/* Style the tab list */
 ul.tab {
     list-style-type: none;
     margin: 0;
@@ -26,7 +26,7 @@ ul.tab li a {
     font-size: 17px;
 }
 
-/* Change background color of links on hover */
+/* Change background color of tab links on hover */
 ul.tab li a:hover {background-color: #ddd;}
 
 /* Create an active/current tablink class */
