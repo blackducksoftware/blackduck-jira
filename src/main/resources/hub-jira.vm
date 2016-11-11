@@ -167,7 +167,8 @@
   		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("hub.integration.jira.fieldCopy.label")</legend>
   		<div id="fieldCopyArea">
   		
-  		<table width="100%">
+  		<fieldset class="fieldSection">
+  			<table width="100%">
 			  		<thead>
 			  			<tr>
 			  				<td class="fieldCopyJiraProjectCell">
@@ -186,24 +187,17 @@
 						    </td>
 						  </tr>
 				  </tbody>
-				</table>
-  		
-  		<!--
-  			<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
-			<datalist id="jiraProjects">
-			</datalist>
-			<div id="jiraProjectError">
-			</div>
-			-->
-		</div>
+			</table>
+		</fieldset>
+	</div>
 		
-		<div style="display: inline-block; width: 100%;">
+	<div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
 	  	   		<input id="fieldCopySaveButton" onclick="updatefieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  	   </div>
-	   </div>
 	</div>
+</div>
       	
       	
       	
