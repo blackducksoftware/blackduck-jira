@@ -170,25 +170,20 @@
   		<table width="100%">
 			  		<thead>
 			  			<tr>
-			  				<td class="mappingTableCell"/>
-			  				<td class="mappingTableCell">
+			  				<td class="fieldCopyJiraProjectCell">
 			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
 						    </td>
-						    <td class="mappingTableCell"/>
 			  			</tr>
 			  		</thead>
 			  		<tbody id="fieldCopyJiraProjectContainer">
 					  	  <tr class="" name="fieldCopyJiraProjectChoice" id="fieldCopyJiraProjectChoice">
 						    <td class="fieldCopyJiraProjectCell" id="fieldCopyJiraProjectCell">
-						    </td>
-						    <td class="fieldCopyJiraProjectCell">
 						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
 								<div id="jiraProjectError">
 						    	</div>
 						    </td>
-						    <td class="mappingTableCell" width="25px"> = </td>
 						  </tr>
 				  </tbody>
 				</table>
