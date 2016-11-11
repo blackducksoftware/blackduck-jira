@@ -115,7 +115,7 @@ public class JiraTaskTimed implements Callable<String> {
         final HubJiraTask processor = new HubJiraTask(serverConfig, configDetails.getIntervalString(),
                 configDetails.getInstallDateString(),
                 configDetails.getLastRunDateString(), configDetails.getProjectMappingJson(), configDetails.getPolicyRulesJson(),
-                jiraContext, jiraSettingsService,
+                configDetails.getFieldCopyMappingJson(), jiraContext, jiraSettingsService,
                 ticketInfoFromSetup);
         final String runDateString = processor.execute();
         if (runDateString != null) {

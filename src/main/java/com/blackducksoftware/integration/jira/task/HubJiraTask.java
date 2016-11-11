@@ -27,9 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -51,12 +49,10 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
 import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
@@ -96,9 +92,11 @@ public class HubJiraTask {
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
+    private final String fieldCopyMappingJson;
+
     public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
             final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final String fieldCopyMappingJson, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
 
         this.serverConfig = serverConfig;
@@ -119,6 +117,7 @@ public class HubJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.fieldCopyMappingJson = fieldCopyMappingJson;
     }
 
     /**
@@ -290,13 +289,16 @@ public class HubJiraTask {
         return config;
     }
 
-    // TODO mocked for now
     private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
-        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001", PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, "customfield_10007");
-        projectFieldCopyMappings.add(mapping);
-        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+        fieldCopyConfig.setJson(fieldCopyMappingJson);
+
+        // TODO remove old stuff:
+        // Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        // ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001",
+        // PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, "customfield_10007");
+        // projectFieldCopyMappings.add(mapping);
+        // fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
 
         return fieldCopyConfig;
     }
