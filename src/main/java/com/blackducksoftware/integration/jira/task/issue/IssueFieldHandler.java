@@ -93,6 +93,11 @@ public class IssueFieldHandler {
         List<String> labels = new ArrayList<>();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
         if (projectFieldCopyMappings == null) {
+            logger.debug("projectFieldCopyMappings is null");
+            return labels;
+        }
+        if (projectFieldCopyMappings.size() == 0) {
+            logger.debug("projectFieldCopyMappings is null");
             return labels;
         }
         for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {

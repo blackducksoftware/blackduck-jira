@@ -11,10 +11,12 @@ public class ProjectFieldCopyMapping {
 
     private String targetFieldId;
 
+    private String targetFieldName;
+
     public ProjectFieldCopyMapping() {
     }
 
-    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String targetFieldId) {
+    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String targetFieldId, String targetFieldName) {
         super();
         this.jiraProjectName = jiraProjectName;
         this.hubProjectName = hubProjectName;
@@ -38,6 +40,10 @@ public class ProjectFieldCopyMapping {
         return targetFieldId;
     }
 
+    public String getTargetFieldName() {
+        return targetFieldName;
+    }
+
     public void setJiraProjectName(String jiraProjectName) {
         this.jiraProjectName = jiraProjectName;
     }
@@ -54,10 +60,13 @@ public class ProjectFieldCopyMapping {
         this.targetFieldId = targetFieldId;
     }
 
+    public void setTargetFieldName(String targetFieldName) {
+        this.targetFieldName = targetFieldName;
+    }
+
     @Override
     public String toString() {
         return "ProjectFieldCopyMapping [jiraProjectName=" + jiraProjectName + ", hubProjectName=" + hubProjectName + ", pluginField=" + pluginField
-                + ", targetFieldId=" + targetFieldId + "]";
+                + ", targetFieldId=" + targetFieldId + ", targetFieldName=" + targetFieldName + "]";
     }
-
 }

@@ -132,9 +132,6 @@ public class HubJiraTask {
             return null;
         }
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
-        if (fieldCopyConfig == null) {
-            return null;
-        }
 
         final Date startDate;
         try {
@@ -292,14 +289,6 @@ public class HubJiraTask {
     private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         fieldCopyConfig.setJson(fieldCopyMappingJson);
-
-        // TODO remove old stuff:
-        // Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        // ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping("Test", "SB001",
-        // PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, "customfield_10007");
-        // projectFieldCopyMappings.add(mapping);
-        // fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
-
         return fieldCopyConfig;
     }
 

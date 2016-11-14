@@ -194,6 +194,21 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/sourceFields/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInSourceFields(config.sourceFields);
+		     
+		      handleError(sourceFieldListErrorId, config.sourceFieldsError, false, false);
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      
+		      gotSourceFields = true;
+		    },
+		    error: function(response){
+		    	handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
+		    }
+		  });
+	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubPolicies/",
 		    dataType: "json",
 		    success: function(config) {
@@ -583,8 +598,16 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 		    		+ '"jiraProjectName": "Test", ' 
 		    		+ '"hubProjectName": "SB001", '
 		    		+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT_VERSION", '
-		    		+ '"targetFieldId": "customfield_10007" ' 
-		    	+ '} ' 
+		    		+ '"targetFieldId": "customfield_10001", ' 
+		    		+ '"targetFieldName": "Custom Project Version" ' 
+		    	+ '}, ' 
+		    	+ '{ ' 
+	    			+ '"jiraProjectName": "Test", ' 
+	    			+ '"hubProjectName": "SB001", '
+	    			+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT", '
+	    			+ '"targetFieldId": "customfield_10000", ' 
+		    		+ '"targetFieldName": "Custom Project" ' 
+	    		+ '} '
 		    	+ '] '
 		    	+ '}',
 		    processData: false,

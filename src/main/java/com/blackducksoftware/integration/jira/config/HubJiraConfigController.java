@@ -314,6 +314,36 @@ public class HubJiraConfigController {
         return Response.ok(obj).build();
     }
 
+    @Path("/sourceFields")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSourceFields(@Context final HttpServletRequest request) {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+
+        final Object obj = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+
+                final HubIntRestService restService = getHubRestService(settings, config);
+
+                final List<HubProject> hubProjects = getHubProjects(restService, config);
+                config.setHubProjects(hubProjects);
+
+                if (hubProjects.size() == 0) {
+                    config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
+                }
+                return config;
+            }
+        });
+
+        return Response.ok(obj).build();
+    }
+
     @Path("/hubPolicies")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

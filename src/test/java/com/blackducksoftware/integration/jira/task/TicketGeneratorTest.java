@@ -241,7 +241,8 @@ public class TicketGeneratorTest {
 
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "EnvironmentId",
+                "Environment");
         projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
         final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
@@ -344,7 +345,8 @@ public class TicketGeneratorTest {
 
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "Environment");
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "EnvironmentId",
+                "Environment");
         projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
 

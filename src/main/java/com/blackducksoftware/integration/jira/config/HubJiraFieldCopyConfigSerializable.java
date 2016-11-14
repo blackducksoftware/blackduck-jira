@@ -3,6 +3,9 @@ package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -38,6 +41,8 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
             final Type mappingType = new TypeToken<Set<ProjectFieldCopyMapping>>() {
             }.getType();
             this.projectFieldCopyMappings = gson.fromJson(projectFieldCopyMappingsJson, mappingType);
+        } else {
+            this.projectFieldCopyMappings = new HashSet<>();
         }
     }
 
@@ -47,6 +52,16 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
             return gson.toJson(projectFieldCopyMappings);
         }
         return null;
+    }
+
+    public List<String> getSourceFields() {
+        List<String> sourceFields = new ArrayList<>();
+        if (projectFieldCopyMappings != null) {
+            for (ProjectFieldCopyMapping mapping : projectFieldCopyMappings) {
+                sourceFields.add(mapping.getPluginField().getName());
+            }
+        }
+        return sourceFields;
     }
 
     @Override
