@@ -37,8 +37,11 @@ var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 var hubMappingStatus = "mappingStatus";
 
+var fieldCopyMappingElement = "fieldCopyMappingElement";
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
+
+var sourceFieldListId = "sourceFields";
 
 var jiraProjectListErrorId = "jiraProjectListError";
 var hubProjectListErrorId = "hubProjectListError";
@@ -196,12 +199,8 @@ function populateForm() {
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/sourceFields/",
 		    dataType: "json",
-		    success: function(config) {
-		      fillInSourceFields(config.sourceFields);
-		     
-		      handleError(sourceFieldListErrorId, config.sourceFieldsError, false, false);
-		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      
+		    success: function(sourceFieldNames) {
+		      fillInSourceFields(sourceFieldNames);
 		      gotSourceFields = true;
 		    },
 		    error: function(response){
@@ -855,7 +854,7 @@ function fillInJiraProjects(jiraProjects){
 
 function fillInHubProjects(hubProjects){
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
-	
+	console.log("mappingElement: " + mappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
@@ -865,6 +864,21 @@ function fillInHubProjects(hubProjects){
 			    projectKey: hubProjects[h].projectUrl
 			});
 			hubProjectList.append(newOption);
+		}
+	}
+}
+
+function fillInSourceFields(sourceFields){
+	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+	console.log("mappingElement: " + mappingElement);
+	var sourceFieldList = mappingElement.find("datalist[id='"+ sourceFieldListId +"']");
+	if(sourceFields != null && sourceFields.length > 0){
+		for (sourceFieldIndex = 0; sourceFieldIndex < sourceFields.length; sourceFieldIndex++) {
+			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
+			var newOption = AJS.$('<option>', {
+			    value: sourceFields[sourceFieldIndex]
+			});
+			sourceFieldList.append(newOption);
 		}
 	}
 }

@@ -213,7 +213,7 @@
 			  			</tr>
 			  		</thead>
 			  		<tbody id="hubProjectMappingContainer">
-					  	  <tr class="hidden" name="fieldCopyMappingElement" id="fieldCopyMappingElement">
+					  	  <tr class="NOThidden" name="fieldCopyMappingElement" id="fieldCopyMappingElement">
 						    <td class="fieldCopyMappingTableCell" id="fieldCopyMappingStatus">
 						    </td>
 						    <td class="fieldCopyMappingTableCell">

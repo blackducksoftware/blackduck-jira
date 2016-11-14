@@ -83,6 +83,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -327,17 +328,13 @@ public class HubJiraConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-                final HubIntRestService restService = getHubRestService(settings, config);
-
-                final List<HubProject> hubProjects = getHubProjects(restService, config);
-                config.setHubProjects(hubProjects);
-
-                if (hubProjects.size() == 0) {
-                    config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
-                }
-                return config;
+                final List<String> sourceFields = new ArrayList<>();
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName());
+                return sourceFields;
             }
         });
 
