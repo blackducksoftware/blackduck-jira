@@ -329,12 +329,38 @@ public class HubJiraConfigController {
             @Override
             public Object doInTransaction() {
                 final List<String> sourceFields = new ArrayList<>();
+                logger.debug("Adding source fields");
                 sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT.getName());
                 sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName());
                 sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
                 sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName());
                 sourceFields.add(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName());
                 return sourceFields;
+            }
+
+        });
+
+        return Response.ok(obj).build();
+    }
+
+    @Path("/targetFields")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTargetFields(@Context final HttpServletRequest request) {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+
+        final Object obj = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                final TargetFields targetFields = new TargetFields();
+                targetFields.add("customfield_10001", "Custom Project Version");
+                targetFields.add("customfield_10000", "Custom Project");
+                logger.debug("targetFields: " + targetFields);
+                return targetFields;
             }
         });
 

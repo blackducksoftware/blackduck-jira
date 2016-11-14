@@ -42,6 +42,7 @@ var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
 
 var sourceFieldListId = "sourceFields";
+var targetFieldListId = "targetFields";
 
 var jiraProjectListErrorId = "jiraProjectListError";
 var hubProjectListErrorId = "hubProjectListError";
@@ -77,6 +78,8 @@ var mappingElementCounter = 0;
 var gotJiraProjects = false;
 var gotHubProjects = false;
 var gotProjectMappings = false;
+var gotSourceFields = false;
+var gotTargetFields = false;
 
 var jiraProjectMap = new Map();
 var hubProjectMap = new Map();
@@ -205,6 +208,17 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/targetFields/",
+		    dataType: "json",
+		    success: function(targetFields) {
+		      fillInTargetFields(targetFields);
+		      gotTargetFields = true;
+		    },
+		    error: function(response){
+		    	handleDataRetrievalError(response, targetFieldListErrorId, "There was a problem retrieving the target fields.", "Target Field Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -854,7 +868,7 @@ function fillInJiraProjects(jiraProjects){
 
 function fillInHubProjects(hubProjects){
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
-	console.log("mappingElement: " + mappingElement);
+	console.log("hubProjectMappingElement: " + mappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
@@ -870,15 +884,33 @@ function fillInHubProjects(hubProjects){
 
 function fillInSourceFields(sourceFields){
 	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
-	console.log("mappingElement: " + mappingElement);
+	console.log("fieldCopyMappingElement: " + mappingElement);
 	var sourceFieldList = mappingElement.find("datalist[id='"+ sourceFieldListId +"']");
-	if(sourceFields != null && sourceFields.length > 0){
+	if (sourceFields != null && sourceFields.length > 0){
 		for (sourceFieldIndex = 0; sourceFieldIndex < sourceFields.length; sourceFieldIndex++) {
+			console.log("Adding source field: " + sourceFields[sourceFieldIndex]);
 			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
 			var newOption = AJS.$('<option>', {
 			    value: sourceFields[sourceFieldIndex]
 			});
 			sourceFieldList.append(newOption);
+		}
+	}
+}
+
+function fillInTargetFields(targetFields){
+	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+	console.log("fieldCopyMappingElement: " + mappingElement);
+	var targetFieldList = mappingElement.find("datalist[id='"+ targetFieldListId +"']");
+	if (targetFields != null ) {
+		for (var targetFieldId in targetFields.idToNameMapping) {
+			console.log("Adding target field: Field ID: " + targetFieldId + "; Name: " + targetFields.idToNameMapping[targetFieldId]);
+			//hubProjectMap.set(hubProjects[targetFieldIndex].projectUrl, hubProjects[targetFieldIndex]);
+			var newOption = AJS.$('<option>', {
+			    value: targetFields.idToNameMapping[targetFieldId],
+			    id: targetFieldId 
+			});
+			targetFieldList.append(newOption);
 		}
 	}
 }
