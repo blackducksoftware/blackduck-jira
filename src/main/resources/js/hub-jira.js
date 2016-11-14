@@ -140,6 +140,7 @@ function updateAdminConfig() {
 	}
 
 function updateFieldCopyConfig() {
+	console.log("updateFieldCopyConfig()");
 	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/fieldCopy', 'Save successful.', 'The field copy configuration is not valid.');
 }
 
@@ -599,6 +600,8 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 }
 
 function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
+	console.log("putFieldCopyConfig()");
+	var jsonFieldCopyMappingArray = getJsonArrayFromFieldCopyMapping();
 
 		  AJS.$.ajax({
 		    url: restUrl,
@@ -606,23 +609,8 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 		    dataType: "json",
 		    contentType: "application/json",
 		    data: '{ "projectFieldCopyMappings": ' 
-		    	+ '[ ' 
-		    	+ '{ ' 
-		    		+ '"jiraProjectName": "Test", ' 
-		    		+ '"hubProjectName": "SB001", '
-		    		+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT_VERSION", '
-		    		+ '"targetFieldId": "customfield_10001", ' 
-		    		+ '"targetFieldName": "Custom Project Version" ' 
-		    	+ '}, ' 
-		    	+ '{ ' 
-	    			+ '"jiraProjectName": "Test", ' 
-	    			+ '"hubProjectName": "SB001", '
-	    			+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT", '
-	    			+ '"targetFieldId": "customfield_10000", ' 
-		    		+ '"targetFieldName": "Custom Project" ' 
-	    		+ '} '
-		    	+ '] '
-		    	+ '}',
+		    	+ jsonFieldCopyMappingArray
+		    	+ ' }',
 		    processData: false,
 		    success: function() {
 		    	hideError('hubJiraGroupsError');
@@ -726,6 +714,45 @@ function getJsonArrayFromMapping(){
 			+ '","' 
 			+  hubProjectKey + '":"' + currentHubProjectValue
 			+ '"}}';
+	}
+	jsonArray += "]";
+	return jsonArray;
+}
+
+function getJsonArrayFromFieldCopyMapping(){
+	var jsonArray = "[";
+	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
+	for (i = 1; i < mappingElements.length; i++) {
+		if(i > 1){
+			jsonArray += ","
+		}
+		var mappingElement = mappingElements[i];
+		var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+		
+		var currentSourceFieldDisplayName = currentSourceField.val();
+		var currentSourceFieldId = currentSourceField.attr('id');
+		
+		var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+		
+		var currentTargetFieldDisplayName = currentTargetField.val();
+		var currentTargetFieldId = currentTargetField.attr('id');
+		var currentTargetFieldError = currentTargetField.attr('fieldError');
+		
+		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId) || currentTargetFieldError) {
+			addFieldCopyMappingErrorStatus(mappingElement);
+		} else {
+			removeFieldCopyMappingErrorStatus(mappingElement);
+		}
+
+		// TODO un hard code this stuff
+		jsonArray += '{ ' 
+			+ '"jiraProjectName": "Test", ' 
+			+ '"hubProjectName": "SB001", '
+			+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT", '
+			+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
+    		+ '"targetFieldName": "' + currentTargetFieldDisplayName + '", ' 
+		+ '} ';
 	}
 	jsonArray += "]";
 	return jsonArray;
@@ -882,23 +909,25 @@ function fillInHubProjects(hubProjects){
 	}
 }
 
-function fillInSourceFields(sourceFields){
+function fillInSourceFields(sourceFields) {
 	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
 	console.log("fieldCopyMappingElement: " + mappingElement);
 	var sourceFieldList = mappingElement.find("datalist[id='"+ sourceFieldListId +"']");
-	if (sourceFields != null && sourceFields.length > 0){
-		for (sourceFieldIndex = 0; sourceFieldIndex < sourceFields.length; sourceFieldIndex++) {
-			console.log("Adding source field: " + sourceFields[sourceFieldIndex]);
+	if (sourceFields != null){
+		for (var sourceFieldId in sourceFields.idToNameMapping) {
+			console.log("Adding source field: Field ID: " + sourceFieldId + "; Name: " + sourceFields.idToNameMapping[sourceFieldId]);
 			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
 			var newOption = AJS.$('<option>', {
-			    value: sourceFields[sourceFieldIndex]
+			    value: sourceFields.idToNameMapping[sourceFieldId],
+			    id: sourceFieldId,
+			    fieldError: ""
 			});
 			sourceFieldList.append(newOption);
 		}
 	}
 }
 
-function fillInTargetFields(targetFields){
+function fillInTargetFields(targetFields) {
 	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
 	console.log("fieldCopyMappingElement: " + mappingElement);
 	var targetFieldList = mappingElement.find("datalist[id='"+ targetFieldListId +"']");
@@ -908,7 +937,8 @@ function fillInTargetFields(targetFields){
 			//hubProjectMap.set(hubProjects[targetFieldIndex].projectUrl, hubProjects[targetFieldIndex]);
 			var newOption = AJS.$('<option>', {
 			    value: targetFields.idToNameMapping[targetFieldId],
-			    id: targetFieldId 
+			    id: targetFieldId,
+			    fieldError: ""
 			});
 			targetFieldList.append(newOption);
 		}
@@ -1011,6 +1041,53 @@ function onMappingInputChange(inputField){
     	   field.attr("projectKey", projectKey);
     	   
 			var projectError = option.attr("projectError");
+			
+			var fieldParent = field.parent();
+			var fieldError = fieldParent.children("#"+jiraProjectErrorId);
+			if(projectError){
+			fieldError.text(projectError);
+				if(!fieldError.hasClass('error')){
+					fieldError.addClass('error');
+				}
+				if(!field.hasClass('error')){
+		   			field.addClass('error');
+		   		}
+			} else{
+				fieldError.text("");
+				if(field.hasClass('error')){
+					field.removeClass('error');
+				}
+			}
+			
+    	   break;
+    	}
+    }
+    if(!optionFound){
+  	   field.attr("projectKey", "");
+  	   if(!field.hasClass('error')){
+  		   field.addClass('error');
+  	   }
+    }
+}
+
+function onFieldCopyMappingInputChange(inputField){
+	var field = AJS.$(inputField);
+	var datalist = inputField.list;
+	var options = datalist.options;
+	
+	var optionFound = false;
+    for (var i=0;i<options.length;i++){
+       if (options[i].value == inputField.value) { 
+    	   optionFound = true;
+    	   var option = AJS.$(options[i]);
+    	   
+    	   // TODO: put "id" attr on both source and target
+    	   var id = option.attr("id");
+    	   field.val(option.val());
+    	   field.attr("id", id);
+    	   
+    	   // TODO this name doesn't match, and should be on both now?
+			var projectError = option.attr("fieldError");
 			
 			var fieldParent = field.parent();
 			var fieldError = fieldParent.children("#"+jiraProjectErrorId);
@@ -1148,6 +1225,13 @@ function addMappingErrorStatus(mappingElement){
 
 function removeMappingErrorStatus(mappingElement){
 	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+	if(mappingStatus.children().length > 0){
+		AJS.$(mappingStatus).empty();
+	}
+}
+
+function removeFieldCopyMappingErrorStatus(mappingElement){
+	var mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
 	if(mappingStatus.children().length > 0){
 		AJS.$(mappingStatus).empty();
 	}

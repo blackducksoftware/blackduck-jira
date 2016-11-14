@@ -328,13 +328,13 @@ public class HubJiraConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final List<String> sourceFields = new ArrayList<>();
+                final Fields sourceFields = new Fields();
                 logger.debug("Adding source fields");
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName());
+                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName());
                 return sourceFields;
             }
 
@@ -356,7 +356,7 @@ public class HubJiraConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final TargetFields targetFields = new TargetFields();
+                final Fields targetFields = new Fields();
                 targetFields.add("customfield_10001", "Custom Project Version");
                 targetFields.add("customfield_10000", "Custom Project");
                 logger.debug("targetFields: " + targetFields);

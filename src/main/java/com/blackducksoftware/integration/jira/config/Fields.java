@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlElement;
 import org.apache.commons.lang3.StringUtils;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TargetFields implements Serializable, ErrorTracking {
+public class Fields implements Serializable, ErrorTracking {
     private static final long serialVersionUID = -9069924658532720147L;
 
     @XmlElement
