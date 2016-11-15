@@ -753,10 +753,9 @@ function getJsonArrayFromFieldCopyMapping(){
 			removeFieldCopyMappingErrorStatus(mappingElement);
 		}
 
-		// TODO un hard code this stuff
 		jsonArray += '{ ' 
-			+ '"jiraProjectName": "Test", ' 
-			+ '"hubProjectName": "SB001", '
+			+ '"jiraProjectName": "*", ' 
+			+ '"hubProjectName": "*", '
 			+ '"sourceFieldId": "' + currentSourceFieldId + '", '
 			+ '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
 			+ '"targetFieldId": "' + currentTargetFieldId + '", ' 

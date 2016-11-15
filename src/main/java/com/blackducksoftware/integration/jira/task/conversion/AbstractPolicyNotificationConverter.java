@@ -41,8 +41,6 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public static final String PROJECT_LINK = "project";
-
     public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final String issueTypeName)

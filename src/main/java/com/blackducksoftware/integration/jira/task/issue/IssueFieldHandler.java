@@ -36,6 +36,8 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 
 public class IssueFieldHandler {
+    private static final String FIELD_COPY_MAPPING_WILDCARD = "*";
+
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
@@ -101,6 +103,14 @@ public class IssueFieldHandler {
             return labels;
         }
         for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
+            logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
+            if ((!notificationEvent.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
+                    && (!FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
+                logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName()
+                        + "; skipping it");
+                continue;
+            }
+            logger.debug("This field copy mapping is for this JIRA project (or all JIRA projects); using it");
 
             String targetFieldId = fieldCopyMapping.getTargetFieldId();
             logger.debug("Setting field with ID " + targetFieldId + " from field " + fieldCopyMapping.getSourceFieldName());
