@@ -757,8 +757,8 @@ function getJsonArrayFromFieldCopyMapping(){
 		jsonArray += '{ ' 
 			+ '"jiraProjectName": "Test", ' 
 			+ '"hubProjectName": "SB001", '
-			+ '"sourceFieldId": "HUB_CUSTOM_FIELD_PROJECT", '
-			+ '"sourceFieldName": "BDS Hub Project", '
+			+ '"sourceFieldId": "' + currentSourceFieldId + '", '
+			+ '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
 			+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
     		+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
 		+ '} ';
