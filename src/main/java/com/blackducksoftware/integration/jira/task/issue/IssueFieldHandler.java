@@ -27,6 +27,7 @@ import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.NavigableField;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
@@ -36,7 +37,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
 
 public class IssueFieldHandler {
-    private static final String FIELD_COPY_MAPPING_WILDCARD = "*";
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -105,7 +105,7 @@ public class IssueFieldHandler {
         for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
             if ((!notificationEvent.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
-                    && (!FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
+                    && (!HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
                 logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName()
                         + "; skipping it");
                 continue;
@@ -192,7 +192,6 @@ public class IssueFieldHandler {
         }
     }
 
-    // TODO TEMP
     void printFields(ApplicationUser user, Issue issue) {
         try {
             Set<NavigableField> navFields = jiraServices.getFieldManager().getAllAvailableNavigableFields();
