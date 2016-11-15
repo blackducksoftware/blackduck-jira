@@ -730,7 +730,7 @@ function getJsonArrayFromFieldCopyMapping(){
 	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
 	console.log("mappingElements.length: " + mappingElements.length);
 	for (i = 0; i < mappingElements.length; i++) {
-		if(i > 1){
+		if(i > 0){
 			jsonArray += ","
 		}
 		var mappingElement = mappingElements[i];
@@ -748,7 +748,7 @@ function getJsonArrayFromFieldCopyMapping(){
 		
 		// TODO should test currentTargetFieldError too:
 		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId)) {
-			addFieldCopyMappingErrorStatus(mappingElement);
+			addMappingErrorStatus(mappingElement);
 		} else {
 			removeFieldCopyMappingErrorStatus(mappingElement);
 		}
