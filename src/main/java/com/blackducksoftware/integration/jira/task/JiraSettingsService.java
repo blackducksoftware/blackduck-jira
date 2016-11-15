@@ -39,6 +39,10 @@ public class JiraSettingsService {
             .appendLiteral('/').appendDayOfMonth(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
             .appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
 
+    public static final DateTimeFormatter OLD_ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendDayOfMonth(2)
+            .appendLiteral('/').appendMonthOfYear(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
+            .appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
+
     private final PluginSettings settings;
 
     public JiraSettingsService(final PluginSettings settings) {

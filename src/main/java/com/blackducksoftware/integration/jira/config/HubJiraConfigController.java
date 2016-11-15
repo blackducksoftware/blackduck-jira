@@ -53,6 +53,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.IllegalFieldValueException;
 
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
@@ -797,8 +798,14 @@ public class HubJiraConfigController {
                 final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
                 while (s.hasNext()) {
                     final Entry<String, String> ticketError = s.next();
-                    final DateTime errorTime = DateTime.parse(ticketError.getValue(),
-                            JiraSettingsService.ERROR_TIME_FORMAT);
+                    DateTime errorTime = null;
+                    try {
+                        errorTime = DateTime.parse(ticketError.getValue(),
+                                JiraSettingsService.ERROR_TIME_FORMAT);
+                    } catch (IllegalFieldValueException e) {
+                        errorTime = DateTime.parse(ticketError.getValue(),
+                                JiraSettingsService.OLD_ERROR_TIME_FORMAT);
+                    }
                     if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
                         s.remove();
                     }
