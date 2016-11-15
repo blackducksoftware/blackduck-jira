@@ -424,6 +424,37 @@ public class HubJiraConfigController {
         return Response.ok(obj).build();
     }
 
+    @Path("/fieldCopyMappings")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFieldCopyMappings(@Context final HttpServletRequest request) {
+        logger.debug("Get /fieldCopyMappings");
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+        final Object obj = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+
+                final HubJiraFieldCopyConfigSerializable config = new HubJiraFieldCopyConfigSerializable();
+
+                final String hubFieldCopyMappingsJson = getStringValue(settings,
+                        HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+
+                logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
+                config.setJson(hubFieldCopyMappingsJson);
+                logger.debug("HubJiraFieldCopyConfigSerializable.getJson(): " + config.getJson());
+                // TODO: checkMappingErrors(config);
+                return config;
+            }
+        });
+        HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) obj;
+        logger.debug("returnValue: " + returnValue);
+        return Response.ok(obj).build();
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {

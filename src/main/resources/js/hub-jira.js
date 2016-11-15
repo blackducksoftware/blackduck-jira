@@ -83,6 +83,7 @@ var gotHubProjects = false;
 var gotProjectMappings = false;
 var gotSourceFields = false;
 var gotTargetFields = false;
+var gotFieldCopyMappings = false;
 
 var jiraProjectMap = new Map();
 var hubProjectMap = new Map();
@@ -257,6 +258,31 @@ function populateForm() {
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	 AJS.$('#projectMappingSpinner').remove();
+		    }
+		  });
+	  console.log("Getting field copy mappings");
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/fieldCopyMappings/",
+		    dataType: "json",
+		    success: function(config) {
+		    	console.log("Success getting field copy mappings");
+		      fillInFieldCopyMappings(config.projectFieldCopyMappings);
+
+		      // TODO:
+		      //handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      //handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+		      
+		      gotFieldCopyMappings = true;
+		    },
+		    error: function(response){
+		    	console.log("Error getting field copy mappings");
+		    	handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Finished getting field copy mappings");
+		    	 // TODO:
+		    	//AJS.$('#fieldCopyMappingSpinner').remove();
+		    	
 		    }
 		  });
 	  AJS.$.ajax({
@@ -495,6 +521,7 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 }
 
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
+	// TODO: there are more now:
 	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
 	
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
@@ -967,6 +994,20 @@ function fillInMappings(storedMappings){
 	}
 }
 
+function fillInFieldCopyMappings(storedMappings){
+	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
+	// On loading the page, there should only be one original mapping element
+	if(storedMappings != null && storedMappings.length > 0){
+		for (i = 0; i < storedMappings.length; i++) {
+			var newMappingElement = addNewFieldCopyMappingElement(fieldCopyMappingElement);
+			fillInFieldCopyMapping(newMappingElement, storedMappings[i]);
+		}
+	} else{
+		addNewFieldCopyMappingElement(hubProjectMappingElement);
+	}
+}
+
 function fillInMapping(mappingElement, storedMapping){
 	var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
 	
@@ -986,6 +1027,24 @@ function fillInMapping(mappingElement, storedMapping){
 	
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
+}
+
+function fillInFieldCopyMapping(mappingElement, storedMapping){
+	var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+	
+	var storedSourceFieldId = storedMapping.sourceFieldId;
+	var storedSourceFieldName = storedMapping.sourceFieldName;
+	
+	currentSourceField.val(storedSourceFieldName);
+	currentSourceField.attr("id", storedSourceFieldId);
+	
+	var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+	
+	var storedTargetFieldId = storedMapping.targetFieldId;
+	var storedTargetFieldName = storedMapping.targetFieldName;
+	
+	currentTargetField.val(storedTargetFieldName);
+	currentTargetField.attr("id", storedTargetFieldId);
 }
 
 function addNewMappingElement(fieldId){

@@ -1,16 +1,34 @@
 package com.blackducksoftware.integration.jira.config;
 
-public class ProjectFieldCopyMapping {
+import java.io.Serializable;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class ProjectFieldCopyMapping implements Serializable {
+
+    private static final long serialVersionUID = -8343238734203251050L;
+
+    @XmlElement
     private String jiraProjectName;
 
+    @XmlElement
     private String hubProjectName;
 
+    @XmlElement
     private String sourceFieldId;
 
+    @XmlElement
     private String sourceFieldName;
 
+    @XmlElement
     private String targetFieldId;
 
+    @XmlElement
     private String targetFieldName;
 
     public ProjectFieldCopyMapping() {
