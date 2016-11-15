@@ -145,7 +145,7 @@ function updateAdminConfig() {
 
 function updateFieldCopyConfig() {
 	console.log("updateFieldCopyConfig()");
-	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/fieldCopy', 'Save successful.', 'The field copy configuration is not valid.');
+	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
 }
 
 function populateForm() {
@@ -756,9 +756,11 @@ function getJsonArrayFromFieldCopyMapping(){
 	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
 	console.log("mappingElements.length: " + mappingElements.length);
+	var needAComma = false;
 	for (i = 0; i < mappingElements.length; i++) {
-		if(i > 0){
-			jsonArray += ","
+		if(needAComma){
+			jsonArray += ",";
+			needAComma = false;
 		}
 		var mappingElement = mappingElements[i];
 		var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
@@ -773,21 +775,23 @@ function getJsonArrayFromFieldCopyMapping(){
 		// TODO this is not working:
 		var currentTargetFieldError = currentTargetField.attr('fieldError');
 		
-		// TODO should test currentTargetFieldError too:
+		// TODO should test currentTargetFieldError too?:
 		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId)) {
+			console.log("Skipping empty field copy mapping row");
 			addMappingErrorStatus(mappingElement);
 		} else {
+			console.log("Adding field copy mapping row to data for server");
 			removeFieldCopyMappingErrorStatus(mappingElement);
+			jsonArray += '{ ' 
+				+ '"jiraProjectName": "*", ' 
+				+ '"hubProjectName": "*", '
+				+ '"sourceFieldId": "' + currentSourceFieldId + '", '
+				+ '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
+				+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
+				+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
+				+ '} ';
+			needAComma = true;
 		}
-
-		jsonArray += '{ ' 
-			+ '"jiraProjectName": "*", ' 
-			+ '"hubProjectName": "*", '
-			+ '"sourceFieldId": "' + currentSourceFieldId + '", '
-			+ '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
-			+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
-    		+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
-		+ '} ';
 	}
 	jsonArray += "]";
 	return jsonArray;
@@ -1376,6 +1380,12 @@ function stopProgressSpinner(spinnerId){
 
 function isNullOrWhitespace(input) {
     if (input == null){ 
+    	return true;
+    }
+    if (input == undefined) {
+    	return true;
+    }
+    if (input == "undefined") {
     	return true;
     }
     input = String(input);

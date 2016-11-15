@@ -582,12 +582,13 @@ public class HubJiraConfigController {
         return Response.noContent().build();
     }
 
-    @Path("/fieldCopy")
+    @Path("/updateFieldCopyMappings")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateFieldCopyConfiguration(final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             @Context final HttpServletRequest request) {
 
+        logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
         logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
         for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
