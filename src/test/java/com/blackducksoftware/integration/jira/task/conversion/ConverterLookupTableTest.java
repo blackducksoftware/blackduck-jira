@@ -71,7 +71,8 @@ public class ConverterLookupTableTest {
 
         HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test", PluginField.HUB_CUSTOM_FIELD_COMPONENT, "EnvironmentId",
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping("Test", "Test",
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName(), "EnvironmentId",
                 "Environment");
         projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);

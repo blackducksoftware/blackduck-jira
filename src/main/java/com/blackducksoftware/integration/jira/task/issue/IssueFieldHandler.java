@@ -103,7 +103,7 @@ public class IssueFieldHandler {
         for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
 
             String targetFieldId = fieldCopyMapping.getTargetFieldId();
-            logger.debug("Setting field with ID " + targetFieldId + " from field " + fieldCopyMapping.getPluginField().getName());
+            logger.debug("Setting field with ID " + targetFieldId + " from field " + fieldCopyMapping.getSourceFieldName());
 
             Field targetField = jiraServices.getFieldManager().getField(targetFieldId);
             logger.debug("\ttargetField: " + targetField);
@@ -112,7 +112,7 @@ public class IssueFieldHandler {
                 continue;
             }
 
-            String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getPluginField());
+            String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getSourceFieldId());
             if (fieldValue == null) {
                 continue;
             }
@@ -194,31 +194,23 @@ public class IssueFieldHandler {
         }
     }
 
-    private String getPluginFieldValue(final HubEvent notificationEvent, PluginField pluginField) {
+    private String getPluginFieldValue(final HubEvent notificationEvent, String pluginFieldId) {
         String fieldValue = null;
-        switch (pluginField) {
-        case HUB_CUSTOM_FIELD_COMPONENT:
+        if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getComponentName();
-            break;
-        case HUB_CUSTOM_FIELD_COMPONENT_VERSION:
+        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getComponentVersion();
-            break;
-
-        case HUB_CUSTOM_FIELD_POLICY_RULE:
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
             final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
             fieldValue = policyNotif.getPolicyRule().getName();
-            break;
-
-        case HUB_CUSTOM_FIELD_PROJECT:
+        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectName();
-            break;
-
-        case HUB_CUSTOM_FIELD_PROJECT_VERSION:
+        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectVersionName();
-            break;
-        default:
-            logger.error("Unrecognized plugin field: " + pluginField);
+        } else {
+            logger.error("Unrecognized plugin field ID: " + pluginFieldId);
         }
+
         return fieldValue;
     }
 }

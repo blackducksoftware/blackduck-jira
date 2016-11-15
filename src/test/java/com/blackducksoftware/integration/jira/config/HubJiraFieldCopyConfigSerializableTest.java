@@ -41,7 +41,8 @@ public class HubJiraFieldCopyConfigSerializableTest {
         ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping();
         mapping.setHubProjectName(HUB_PROJECT_NAME);
         mapping.setJiraProjectName("jiraProjectName");
-        mapping.setPluginField(PluginField.HUB_CUSTOM_FIELD_COMPONENT);
+        mapping.setSourceFieldId(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId());
+        mapping.setSourceFieldName(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
         mapping.setTargetFieldId(TARGET_FIELD_ID);
         mappings.add(mapping);
         config.setProjectFieldCopyMappings(mappings);

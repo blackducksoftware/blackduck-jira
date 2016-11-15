@@ -39,6 +39,8 @@ var hubMappingStatus = "mappingStatus";
 
 var fieldCopyMappingContainer = "fieldCopyMappingContainer";
 var fieldCopyMappingElement = "fieldCopyMappingElement";
+var fieldCopyMappingStatus = "fieldCopyMappingStatus";
+
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
 
@@ -603,6 +605,7 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 	console.log("putFieldCopyConfig()");
 	var jsonFieldCopyMappingArray = getJsonArrayFromFieldCopyMapping();
+	console.log("jsonFieldCopyMappingArray: " + jsonFieldCopyMappingArray);
 
 		  AJS.$.ajax({
 		    url: restUrl,
@@ -725,7 +728,8 @@ function getJsonArrayFromFieldCopyMapping(){
 	var jsonArray = "[";
 	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
-	for (i = 1; i < mappingElements.length; i++) {
+	console.log("mappingElements.length: " + mappingElements.length);
+	for (i = 0; i < mappingElements.length; i++) {
 		if(i > 1){
 			jsonArray += ","
 		}
@@ -739,9 +743,11 @@ function getJsonArrayFromFieldCopyMapping(){
 		
 		var currentTargetFieldDisplayName = currentTargetField.val();
 		var currentTargetFieldId = currentTargetField.attr('id');
+		// TODO this is not working:
 		var currentTargetFieldError = currentTargetField.attr('fieldError');
 		
-		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId) || currentTargetFieldError) {
+		// TODO should test currentTargetFieldError too:
+		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId)) {
 			addFieldCopyMappingErrorStatus(mappingElement);
 		} else {
 			removeFieldCopyMappingErrorStatus(mappingElement);
@@ -751,9 +757,10 @@ function getJsonArrayFromFieldCopyMapping(){
 		jsonArray += '{ ' 
 			+ '"jiraProjectName": "Test", ' 
 			+ '"hubProjectName": "SB001", '
-			+ '"pluginField": "HUB_CUSTOM_FIELD_PROJECT", '
+			+ '"sourceFieldId": "HUB_CUSTOM_FIELD_PROJECT", '
+			+ '"sourceFieldName": "BDS Hub Project", '
 			+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
-    		+ '"targetFieldName": "' + currentTargetFieldDisplayName + '", ' 
+    		+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
 		+ '} ';
 	}
 	jsonArray += "]";

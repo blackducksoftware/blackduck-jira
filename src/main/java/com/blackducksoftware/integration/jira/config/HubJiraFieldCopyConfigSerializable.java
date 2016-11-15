@@ -58,7 +58,7 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
         List<String> sourceFields = new ArrayList<>();
         if (projectFieldCopyMappings != null) {
             for (ProjectFieldCopyMapping mapping : projectFieldCopyMappings) {
-                sourceFields.add(mapping.getPluginField().getName());
+                sourceFields.add(mapping.getSourceFieldName());
             }
         }
         return sourceFields;

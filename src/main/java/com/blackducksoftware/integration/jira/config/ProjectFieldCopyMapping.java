@@ -1,13 +1,13 @@
 package com.blackducksoftware.integration.jira.config;
 
-import com.blackducksoftware.integration.jira.common.PluginField;
-
 public class ProjectFieldCopyMapping {
     private String jiraProjectName;
 
     private String hubProjectName;
 
-    private PluginField pluginField;
+    private String sourceFieldId;
+
+    private String sourceFieldName;
 
     private String targetFieldId;
 
@@ -16,11 +16,13 @@ public class ProjectFieldCopyMapping {
     public ProjectFieldCopyMapping() {
     }
 
-    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, PluginField pluginField, String targetFieldId, String targetFieldName) {
+    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, String sourceFieldId, String sourceFieldName, String targetFieldId,
+            String targetFieldName) {
         super();
         this.jiraProjectName = jiraProjectName;
         this.hubProjectName = hubProjectName;
-        this.pluginField = pluginField;
+        this.sourceFieldId = sourceFieldId;
+        this.sourceFieldName = sourceFieldName;
         this.targetFieldId = targetFieldId;
     }
 
@@ -32,8 +34,12 @@ public class ProjectFieldCopyMapping {
         return hubProjectName;
     }
 
-    public PluginField getPluginField() {
-        return pluginField;
+    public String getSourceFieldId() {
+        return sourceFieldId;
+    }
+
+    public String getSourceFieldName() {
+        return sourceFieldName;
     }
 
     public String getTargetFieldId() {
@@ -52,8 +58,12 @@ public class ProjectFieldCopyMapping {
         this.hubProjectName = hubProjectName;
     }
 
-    public void setPluginField(PluginField pluginField) {
-        this.pluginField = pluginField;
+    public void setSourceFieldId(String sourceFieldId) {
+        this.sourceFieldId = sourceFieldId;
+    }
+
+    public void setSourceFieldName(String sourceFieldName) {
+        this.sourceFieldName = sourceFieldName;
     }
 
     public void setTargetFieldId(String targetFieldId) {
@@ -66,7 +76,7 @@ public class ProjectFieldCopyMapping {
 
     @Override
     public String toString() {
-        return "ProjectFieldCopyMapping [jiraProjectName=" + jiraProjectName + ", hubProjectName=" + hubProjectName + ", pluginField=" + pluginField
-                + ", targetFieldId=" + targetFieldId + ", targetFieldName=" + targetFieldName + "]";
+        return "ProjectFieldCopyMapping [jiraProjectName=" + jiraProjectName + ", hubProjectName=" + hubProjectName + ", sourceFieldId=" + sourceFieldId
+                + ", sourceFieldName=" + sourceFieldName + ", targetFieldId=" + targetFieldId + ", targetFieldName=" + targetFieldName + "]";
     }
 }
