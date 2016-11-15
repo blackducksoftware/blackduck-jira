@@ -1074,6 +1074,12 @@ function removeMappingElement(childElement){
 	}
 }
 
+function removeFieldCopyMappingElement(childElement){
+	if(AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='"+ fieldCopyMappingElement + "']").length > 1){
+		AJS.$(childElement).closest("tr[name*='"+ fieldCopyMappingElement + "']").remove();
+	}
+}
+
 function onMappingInputChange(inputField){
 	var field = AJS.$(inputField);
 	var datalist = inputField.list;
