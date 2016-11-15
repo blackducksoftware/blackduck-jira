@@ -1027,6 +1027,47 @@ function addNewMappingElement(fieldId){
 	return elementToAdd;
 }
 
+function addNewFieldCopyMappingElement(fieldId){
+	var elementToAdd = AJS.$("#" + fieldId).clone();
+	mappingElementCounter = mappingElementCounter + 1;
+	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
+	elementToAdd.appendTo("#" + fieldCopyMappingContainer);
+	
+	removeClassFromField(elementToAdd, hiddenClass);
+	
+	removeMappingErrorStatus(elementToAdd);
+	
+	var currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
+	
+	currentSourceField.val("");
+	currentSourceField.attr("id", "");
+	if(currentSourceField.hasClass('fieldError')){
+		currentSourceField.removeClass('fieldError');
+	}
+	var currentSourceFieldParent = currentSourceField.parent();
+	
+	// TODO:
+	//var currentSourceFieldError = currentSourceFieldParent.children("#"+jiraProjectErrorId);
+	//currentSourceFieldError.text("");
+	//if(currentSourceFieldError.hasClass('fieldError')){
+	//	currentSourceFieldError.removeClass('fieldError');
+	//}
+	
+	var currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
+	
+	currentTargetField.val("");
+	currentTargetField.attr("id", "");
+	//if(currentTargetField.hasClass('error')){
+	//	currentTargetField.removeClass('error');
+	//}
+	
+	var mappingArea = AJS.$('#fieldCopyMappingArea')[0];
+	if(mappingArea){
+		AJS.$('#fieldCopyMappingArea').scrollTop(fieldCopyMappingArea.scrollHeight);
+	}
+	return elementToAdd;
+}
+
 function removeMappingElement(childElement){
 	if(AJS.$("#" + hubProjectMappingContainer).find("tr[name*='"+ hubProjectMappingElement + "']").length > 1){
 		AJS.$(childElement).closest("tr[name*='"+ hubProjectMappingElement + "']").remove();
