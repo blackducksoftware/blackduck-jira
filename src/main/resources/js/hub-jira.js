@@ -756,12 +756,8 @@ function getJsonArrayFromFieldCopyMapping(){
 	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
 	console.log("mappingElements.length: " + mappingElements.length);
-	var needAComma = false;
+	var numRowsAdded = 0;
 	for (i = 0; i < mappingElements.length; i++) {
-		if(needAComma){
-			jsonArray += ",";
-			needAComma = false;
-		}
 		var mappingElement = mappingElements[i];
 		var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
 		
@@ -782,6 +778,9 @@ function getJsonArrayFromFieldCopyMapping(){
 		} else {
 			console.log("Adding field copy mapping row to data for server");
 			removeFieldCopyMappingErrorStatus(mappingElement);
+			if (numRowsAdded > 0){
+				jsonArray += ",";
+			}
 			jsonArray += '{ ' 
 				+ '"jiraProjectName": "*", ' 
 				+ '"hubProjectName": "*", '
@@ -790,7 +789,7 @@ function getJsonArrayFromFieldCopyMapping(){
 				+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
 				+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
 				+ '} ';
-			needAComma = true;
+			numRowsAdded++;
 		}
 	}
 	jsonArray += "]";
