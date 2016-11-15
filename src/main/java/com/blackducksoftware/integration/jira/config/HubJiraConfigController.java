@@ -557,7 +557,7 @@ public class HubJiraConfigController {
     public Response updateFieldCopyConfiguration(final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             @Context final HttpServletRequest request) {
 
-        logger.debug("fieldCopyConfig.getProjectFieldCopyMappings().size(): " + fieldCopyConfig.getProjectFieldCopyMappings().size());
+        logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
         for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
         }

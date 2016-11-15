@@ -101,4 +101,9 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public String toString() {
+        return "HubJiraFieldCopyConfigSerializable [projectFieldCopyMappings=" + projectFieldCopyMappings + "]";
+    }
+
 }

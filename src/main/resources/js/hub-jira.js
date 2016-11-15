@@ -37,6 +37,7 @@ var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 var hubMappingStatus = "mappingStatus";
 
+var fieldCopyMappingContainer = "fieldCopyMappingContainer";
 var fieldCopyMappingElement = "fieldCopyMappingElement";
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
@@ -720,6 +721,7 @@ function getJsonArrayFromMapping(){
 }
 
 function getJsonArrayFromFieldCopyMapping(){
+	console.log("getJsonArrayFromFieldCopyMapping()");
 	var jsonArray = "[";
 	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
