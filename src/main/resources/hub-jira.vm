@@ -198,7 +198,7 @@
 			  				<td class="mappingTableCell"/>
 			  				<td class="mappingTableCell"/>
 						    <td class="mappingTableCell"/>
-						    <td class="mappingTableCell"/>
+						    <td class="mappingTableCell error hidden" id="fieldCopyTargetFieldError"/>
 						    <td class="mappingTableCell"/>
 			  			</tr>
 			  			<tr>

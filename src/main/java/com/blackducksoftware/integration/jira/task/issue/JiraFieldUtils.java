@@ -27,6 +27,7 @@ import com.blackducksoftware.integration.jira.config.Fields;
 import com.blackducksoftware.integration.jira.config.IdToNameMapping;
 
 public class JiraFieldUtils {
+
     public static void printFields(HubJiraLogger logger, FieldManager fieldManager, ApplicationUser user, Issue issue) {
         try {
             Set<NavigableField> navFields = fieldManager.getAllAvailableNavigableFields();
@@ -57,7 +58,8 @@ public class JiraFieldUtils {
         }
         for (NavigableField field : navFields) {
             if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
-                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
+                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " +
+                        field.getNameKey());
                 if (!isBdsCustomField(field)) {
                     targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
                 } else {

@@ -220,6 +220,9 @@ function populateForm() {
 		    dataType: "json",
 		    success: function(targetFields) {
 		      fillInTargetFields(targetFields);
+		      
+		      handleError("fieldCopyTargetFieldError", targetFields.errorMessage, true, false);
+		      
 		      gotTargetFields = true;
 		    },
 		    error: function(response){
