@@ -271,9 +271,7 @@ function populateForm() {
 		    	console.log("Success getting field copy mappings");
 		      fillInFieldCopyMappings(config.projectFieldCopyMappings);
 
-		      // TODO:
-		      //handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      //handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+		      handleError("fieldCopyMappingError", config.errorMessage, true, false);
 		      
 		      gotFieldCopyMappings = true;
 		    },
@@ -1012,7 +1010,7 @@ function fillInFieldCopyMappings(storedMappings){
 			fillInFieldCopyMapping(newMappingElement, storedMappings[i]);
 		}
 	} else{
-		addNewFieldCopyMappingElement(hubProjectMappingElement);
+		addNewFieldCopyMappingElement(fieldCopyMappingElement);
 	}
 }
 
