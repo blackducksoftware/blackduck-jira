@@ -22,7 +22,9 @@ import com.atlassian.jira.bc.project.component.ProjectComponent;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.customfields.CustomFieldUtils;
 import com.atlassian.jira.issue.fields.Field;
+import com.atlassian.jira.issue.fields.FieldException;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.NavigableField;
 import com.atlassian.jira.project.version.Version;
@@ -32,6 +34,8 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.config.Fields;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
@@ -47,7 +51,6 @@ public class IssueFieldHandler {
     private final JiraContext jiraContext;
 
     public IssueFieldHandler(JiraServices jiraServices, JiraContext jiraContext, TicketInfoFromSetup ticketInfoFromSetup) {
-        super();
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
@@ -201,6 +204,33 @@ public class IssueFieldHandler {
         } catch (Exception e) {
             logger.debug("Error getting fields: " + e.getMessage());
         }
+    }
+
+    // TODO: Call this from hubJiraConfigController.getTargetFields() to build target field list
+    public static Fields getTargetFields(HubJiraLogger logger, FieldManager fieldManager) throws JiraException {
+        final Fields targetFields = new Fields();
+        // TODO un hard code
+        targetFields.add("components", "Component/s");
+        targetFields.add("versions", "Affects Version/s");
+
+        Set<NavigableField> navFields;
+        try {
+            navFields = fieldManager.getAllAvailableNavigableFields();
+        } catch (FieldException e) {
+            String msg = "Error getting JIRA fields: " + e.getMessage();
+            logger.error(msg, e);
+            throw new JiraException(msg, e);
+        }
+        for (NavigableField field : navFields) {
+            if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
+                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
+                targetFields.add(field.getId(), field.getName());
+            } else {
+                logger.debug("Field with ID " + field.getId() + " is not a custom field");
+            }
+        }
+        logger.debug("targetFields: " + targetFields);
+        return targetFields;
     }
 
     private String getPluginFieldValue(final HubEvent notificationEvent, String pluginFieldId) {

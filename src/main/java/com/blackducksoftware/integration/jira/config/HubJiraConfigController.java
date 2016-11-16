@@ -56,6 +56,7 @@ import org.joda.time.Days;
 
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
+import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -85,8 +86,10 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.issue.IssueFieldHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -107,6 +110,8 @@ public class HubJiraConfigController {
 
     private final GroupPickerSearchService groupPickerSearchService;
 
+    private final FieldManager fieldManager;
+
     private final Gson gson = new GsonBuilder().create();
 
     private final JsonParser jsonParser = new JsonParser();
@@ -114,13 +119,15 @@ public class HubJiraConfigController {
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
             final HubMonitor hubMonitor,
-            final GroupPickerSearchService groupPickerSearchService) {
+            final GroupPickerSearchService groupPickerSearchService,
+            final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
         this.projectManager = projectManager;
         this.hubMonitor = hubMonitor;
         this.groupPickerSearchService = groupPickerSearchService;
+        this.fieldManager = fieldManager;
     }
 
     private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
@@ -356,12 +363,21 @@ public class HubJiraConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final Fields targetFields = new Fields();
+                Fields targetFields;
+                try {
+                    targetFields = IssueFieldHandler.getTargetFields(logger, fieldManager);
+                } catch (JiraException e) {
+                    targetFields = new Fields();
+                    targetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
+                    return targetFields;
+                }
+
+                // final Fields targetFields = new Fields();
                 // TODO un hard code
-                targetFields.add("components", "Component/s");
-                targetFields.add("versions", "Affects Version/s");
-                targetFields.add("customfield_10001", "Custom Project Version");
-                targetFields.add("customfield_10000", "Custom Project");
+                // targetFields.add("components", "Component/s");
+                // targetFields.add("versions", "Affects Version/s");
+                // targetFields.add("customfield_10001", "Custom Project Version");
+                // targetFields.add("customfield_10000", "Custom Project");
                 logger.debug("targetFields: " + targetFields);
                 return targetFields;
             }
