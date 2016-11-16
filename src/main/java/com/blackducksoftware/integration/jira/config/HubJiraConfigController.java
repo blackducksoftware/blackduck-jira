@@ -371,13 +371,6 @@ public class HubJiraConfigController {
                     targetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
                     return targetFields;
                 }
-
-                // final Fields targetFields = new Fields();
-                // TODO un hard code
-                // targetFields.add("components", "Component/s");
-                // targetFields.add("versions", "Affects Version/s");
-                // targetFields.add("customfield_10001", "Custom Project Version");
-                // targetFields.add("customfield_10000", "Custom Project");
                 logger.debug("targetFields: " + targetFields);
                 return targetFields;
             }

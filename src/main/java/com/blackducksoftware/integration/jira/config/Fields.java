@@ -12,8 +12,8 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,7 +26,7 @@ public class Fields implements Serializable, ErrorTracking {
     private static final long serialVersionUID = -9069924658532720147L;
 
     @XmlElement
-    private Map<String, String> idToNameMapping = new HashMap<>();
+    private Map<String, String> idToNameMapping = new TreeMap<>();
 
     @XmlElement
     private String errorMessage;
