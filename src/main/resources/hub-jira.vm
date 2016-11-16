@@ -169,6 +169,7 @@
   		
   		<fieldset class="fieldSection">
   		<!-- project pulldown -->
+  		<!--
   			<table width="100%">
 			  		<thead>
 			  			<tr>
@@ -189,7 +190,7 @@
 						  </tr>
 				  </tbody>
 			</table>
-			
+			-->
 			<!-- field copy mappings -->
 			<table width="100%">
 			  		<thead>
