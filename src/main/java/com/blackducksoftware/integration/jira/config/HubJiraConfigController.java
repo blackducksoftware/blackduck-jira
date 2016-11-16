@@ -28,6 +28,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -344,6 +345,8 @@ public class HubJiraConfigController {
                 sourceFields.add(
                         new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName()));
                 sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName()));
+                Collections.sort(sourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                logger.debug("sourceFields: " + sourceFields);
                 return sourceFields;
             }
 
@@ -373,6 +376,7 @@ public class HubJiraConfigController {
                     targetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
                     return targetFields;
                 }
+                Collections.sort(targetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                 logger.debug("targetFields: " + targetFields);
                 return targetFields;
             }
