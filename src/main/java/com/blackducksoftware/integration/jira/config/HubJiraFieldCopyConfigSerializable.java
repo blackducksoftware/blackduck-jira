@@ -25,6 +25,9 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
     private static final long serialVersionUID = 2893090613500813058L;
 
     @XmlElement
+    private String errorMessage;
+
+    @XmlElement
     private Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
 
     public Set<ProjectFieldCopyMapping> getProjectFieldCopyMappings() {
@@ -68,6 +71,7 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
         result = prime * result + ((projectFieldCopyMappings == null) ? 0 : projectFieldCopyMappings.hashCode());
         return result;
     }
@@ -78,6 +82,9 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         HubJiraFieldCopyConfigSerializable other = (HubJiraFieldCopyConfigSerializable) obj;
+        if (errorMessage == null) {
+            if (other.errorMessage != null) return false;
+        } else if (!errorMessage.equals(other.errorMessage)) return false;
         if (projectFieldCopyMappings == null) {
             if (other.projectFieldCopyMappings != null) return false;
         } else if (!projectFieldCopyMappings.equals(other.projectFieldCopyMappings)) return false;
@@ -86,19 +93,21 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
 
     @Override
     public boolean hasErrors() {
-        // TODO Auto-generated method stub
-        return false;
+        boolean hasErrors = false;
+        if (StringUtils.isNotBlank(getErrorMessage())) {
+            hasErrors = true;
+        }
+        return hasErrors;
     }
 
     @Override
     public String getErrorMessage() {
-        // TODO Auto-generated method stub
-        return null;
+        return errorMessage;
     }
 
     @Override
     public void setErrorMessage(String errorMessage) {
-        // TODO Auto-generated method stub
+        this.errorMessage = errorMessage;
     }
 
     @Override

@@ -464,7 +464,6 @@ public class HubJiraConfigController {
                 logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
                 config.setJson(hubFieldCopyMappingsJson);
                 logger.debug("HubJiraFieldCopyConfigSerializable.getJson(): " + config.getJson());
-                // TODO: checkMappingErrors(config);
                 return config;
             }
         });
@@ -621,7 +620,6 @@ public class HubJiraConfigController {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                // TODO validation??
                 setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
                         fieldCopyConfig.getJson());
                 return null;
