@@ -12,8 +12,8 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,7 +26,7 @@ public class Fields implements Serializable, ErrorTracking {
     private static final long serialVersionUID = -9069924658532720147L;
 
     @XmlElement
-    private Map<String, String> idToNameMapping = new TreeMap<>();
+    private List<IdToNameMapping> idToNameMappings = new ArrayList<>();
 
     @XmlElement
     private String errorMessage;
@@ -49,20 +49,20 @@ public class Fields implements Serializable, ErrorTracking {
         this.errorMessage = errorMessage;
     }
 
-    public Map<String, String> getIdToNameMapping() {
-        return idToNameMapping;
+    public List<IdToNameMapping> getIdToNameMappings() {
+        return idToNameMappings;
     }
 
-    public void setIdToNameMapping(Map<String, String> idToNameMapping) {
-        this.idToNameMapping = idToNameMapping;
+    public void setIdToNameMappings(List<IdToNameMapping> idToNameMappings) {
+        this.idToNameMappings = idToNameMappings;
     }
 
-    public void add(String id, String name) {
-        this.idToNameMapping.put(id, name);
+    public void add(IdToNameMapping idToNameMapping) {
+        this.idToNameMappings.add(idToNameMapping);
     }
 
     @Override
     public String toString() {
-        return "TargetFields [idToNameMapping=" + idToNameMapping + ", errorMessage=" + errorMessage + "]";
+        return "Fields [idToNameMappings=" + idToNameMappings + ", errorMessage=" + errorMessage + "]";
     }
 }

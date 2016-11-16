@@ -951,13 +951,14 @@ function fillInSourceFields(sourceFields) {
 	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
 	console.log("fieldCopyMappingElement: " + mappingElement);
 	var sourceFieldList = mappingElement.find("datalist[id='"+ sourceFieldListId +"']");
-	if (sourceFields != null){
-		for (var sourceFieldId in sourceFields.idToNameMapping) {
-			console.log("Adding source field: Field ID: " + sourceFieldId + "; Name: " + sourceFields.idToNameMapping[sourceFieldId]);
+	if ((sourceFields != null) && (sourceFields.idToNameMappings != null)) {
+		for (var i = 0; i < sourceFields.idToNameMappings.length; i++) {
+			var sourceFieldIdToNameMapping = sourceFields.idToNameMappings[i];
+			console.log("Adding source field: Field ID: " + sourceFieldIdToNameMapping.id + "; Name: " + sourceFieldIdToNameMapping.name);
 			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
 			var newOption = AJS.$('<option>', {
-			    value: sourceFields.idToNameMapping[sourceFieldId],
-			    id: sourceFieldId,
+			    value: sourceFieldIdToNameMapping.name,
+			    id: sourceFieldIdToNameMapping.id,
 			    fieldError: ""
 			});
 			sourceFieldList.append(newOption);
@@ -969,13 +970,14 @@ function fillInTargetFields(targetFields) {
 	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
 	console.log("fieldCopyMappingElement: " + mappingElement);
 	var targetFieldList = mappingElement.find("datalist[id='"+ targetFieldListId +"']");
-	if (targetFields != null ) {
-		for (var targetFieldId in targetFields.idToNameMapping) {
-			console.log("Adding target field: Field ID: " + targetFieldId + "; Name: " + targetFields.idToNameMapping[targetFieldId]);
+	if ((targetFields != null) && (targetFields.idToNameMappings != null)) {
+		for (var i = 0; i < targetFields.idToNameMappings.length; i++) {
+			var targetFieldIdToNameMapping = targetFields.idToNameMappings[i];
+			console.log("Adding target field: Field ID: " + targetFieldIdToNameMapping.id + "; Name: " + targetFieldIdToNameMapping.name);
 			//hubProjectMap.set(hubProjects[targetFieldIndex].projectUrl, hubProjects[targetFieldIndex]);
 			var newOption = AJS.$('<option>', {
-			    value: targetFields.idToNameMapping[targetFieldId],
-			    id: targetFieldId,
+			    value: targetFieldIdToNameMapping.name,
+			    id: targetFieldIdToNameMapping.id,
 			    fieldError: ""
 			});
 			targetFieldList.append(newOption);

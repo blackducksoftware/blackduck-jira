@@ -36,6 +36,7 @@ import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.config.Fields;
+import com.blackducksoftware.integration.jira.config.IdToNameMapping;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
@@ -210,8 +211,8 @@ public class IssueFieldHandler {
     public static Fields getTargetFields(HubJiraLogger logger, FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
         // TODO un hard code
-        targetFields.add("components", "Component/s");
-        targetFields.add("versions", "Affects Version/s");
+        targetFields.add(new IdToNameMapping("components", "Component/s"));
+        targetFields.add(new IdToNameMapping("versions", "Affects Version/s"));
 
         Set<NavigableField> navFields;
         try {
@@ -224,7 +225,7 @@ public class IssueFieldHandler {
         for (NavigableField field : navFields) {
             if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
                 logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
-                targetFields.add(field.getId(), field.getName());
+                targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
             } else {
                 logger.debug("Field with ID " + field.getId() + " is not a custom field");
             }

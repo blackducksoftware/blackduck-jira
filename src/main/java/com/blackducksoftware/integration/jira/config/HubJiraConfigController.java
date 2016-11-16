@@ -337,11 +337,13 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 final Fields sourceFields = new Fields();
                 logger.debug("Adding source fields");
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName());
-                sourceFields.add(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName());
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT.getName()));
+                sourceFields
+                        .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName()));
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName()));
+                sourceFields.add(
+                        new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName()));
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName()));
                 return sourceFields;
             }
 
