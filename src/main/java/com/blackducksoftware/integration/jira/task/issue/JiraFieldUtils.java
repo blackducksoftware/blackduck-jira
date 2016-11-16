@@ -40,13 +40,13 @@ public class JiraFieldUtils {
 
     public static Fields getTargetFields(HubJiraLogger logger, FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
-        addSystemFields(logger, fieldManager, targetFields);
-        addCustomFields(logger, fieldManager, targetFields);
+        addEligibleSystemFields(logger, fieldManager, targetFields);
+        addNonBdsCustomFields(logger, fieldManager, targetFields);
         logger.debug("targetFields: " + targetFields);
         return targetFields;
     }
 
-    private static void addCustomFields(HubJiraLogger logger, FieldManager fieldManager, final Fields targetFields) throws JiraException {
+    private static void addNonBdsCustomFields(HubJiraLogger logger, FieldManager fieldManager, final Fields targetFields) throws JiraException {
         Set<NavigableField> navFields;
         try {
             navFields = fieldManager.getAllAvailableNavigableFields();
@@ -58,14 +58,29 @@ public class JiraFieldUtils {
         for (NavigableField field : navFields) {
             if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
                 logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
-                targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
+                if (!isBdsCustomField(field)) {
+                    targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
+                } else {
+                    logger.debug("This is a BDS field; omitting it");
+                }
             } else {
                 logger.debug("Field with ID " + field.getId() + " is not a custom field");
             }
         }
     }
 
-    private static void addSystemFields(HubJiraLogger logger, FieldManager fieldManager, final Fields targetFields) {
+    private static boolean isBdsCustomField(Field field) {
+        if ((HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName())) ||
+                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName())) ||
+                (HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName())) ||
+                (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName())) ||
+                (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName()))) {
+            return true;
+        }
+        return false;
+    }
+
+    private static void addEligibleSystemFields(HubJiraLogger logger, FieldManager fieldManager, final Fields targetFields) {
         Field componentsField = fieldManager.getField(HubJiraConstants.COMPONENTS_FIELD_ID);
         if (componentsField == null) {
             logger.error("Error getting components field (field id: " + HubJiraConstants.COMPONENTS_FIELD_ID + ") for field copy target field list");
