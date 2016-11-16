@@ -90,7 +90,7 @@ import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.issue.IssueFieldHandler;
+import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -370,7 +370,7 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 Fields targetFields;
                 try {
-                    targetFields = IssueFieldHandler.getTargetFields(logger, fieldManager);
+                    targetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
                 } catch (JiraException e) {
                     targetFields = new Fields();
                     targetFields.setErrorMessage("Error getting target field list: " + e.getMessage());

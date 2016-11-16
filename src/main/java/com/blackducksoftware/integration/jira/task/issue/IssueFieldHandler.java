@@ -19,24 +19,16 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.bc.project.component.ProjectComponent;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.customfields.CustomFieldUtils;
 import com.atlassian.jira.issue.fields.Field;
-import com.atlassian.jira.issue.fields.FieldException;
 import com.atlassian.jira.issue.fields.FieldManager;
-import com.atlassian.jira.issue.fields.NavigableField;
 import com.atlassian.jira.project.version.Version;
-import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.config.Fields;
-import com.blackducksoftware.integration.jira.config.IdToNameMapping;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
@@ -151,9 +143,9 @@ public class IssueFieldHandler {
      * to an issue during creation).
      */
     private String setSystemField(HubEvent notificationEvent, IssueInputParameters issueInputParameters, Field targetField, String targetFieldValue) {
-        if (targetField.getId().equals("versions")) {
+        if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(notificationEvent, issueInputParameters, targetFieldValue);
-        } else if (targetField.getId().equals("components")) {
+        } else if (targetField.getId().equals(HubJiraConstants.COMPONENTS_FIELD_ID)) {
             setComponent(notificationEvent, issueInputParameters, targetFieldValue);
         } else if (targetField.getId().equals("labels")) {
             logger.debug("Recording label to add after issue is created: " + targetFieldValue);
@@ -194,44 +186,6 @@ public class IssueFieldHandler {
         } else {
             logger.error("No version matching '" + targetFieldValue + "' found on project");
         }
-    }
-
-    void printFields(ApplicationUser user, Issue issue) {
-        try {
-            Set<NavigableField> navFields = jiraServices.getFieldManager().getAllAvailableNavigableFields();
-            for (NavigableField field : navFields) {
-                logger.debug("NavigableField: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
-            }
-        } catch (Exception e) {
-            logger.debug("Error getting fields: " + e.getMessage());
-        }
-    }
-
-    // TODO: Call this from hubJiraConfigController.getTargetFields() to build target field list
-    public static Fields getTargetFields(HubJiraLogger logger, FieldManager fieldManager) throws JiraException {
-        final Fields targetFields = new Fields();
-        // TODO un hard code
-        targetFields.add(new IdToNameMapping("components", "Component/s"));
-        targetFields.add(new IdToNameMapping("versions", "Affects Version/s"));
-
-        Set<NavigableField> navFields;
-        try {
-            navFields = fieldManager.getAllAvailableNavigableFields();
-        } catch (FieldException e) {
-            String msg = "Error getting JIRA fields: " + e.getMessage();
-            logger.error(msg, e);
-            throw new JiraException(msg, e);
-        }
-        for (NavigableField field : navFields) {
-            if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
-                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
-                targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
-            } else {
-                logger.debug("Field with ID " + field.getId() + " is not a custom field");
-            }
-        }
-        logger.debug("targetFields: " + targetFields);
-        return targetFields;
     }
 
     private String getPluginFieldValue(final HubEvent notificationEvent, String pluginFieldId) {

@@ -114,4 +114,8 @@ public class HubJiraConstants {
     public static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
 
     public static final String FIELD_COPY_MAPPING_WILDCARD = "*";
+
+    public static final String VERSIONS_FIELD_ID = "versions";
+
+    public static final String COMPONENTS_FIELD_ID = "components";
 }
