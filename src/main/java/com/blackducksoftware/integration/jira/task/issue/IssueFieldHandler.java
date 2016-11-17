@@ -195,8 +195,12 @@ public class IssueFieldHandler {
         } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getComponentVersion();
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
-            final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
-            fieldValue = policyNotif.getPolicyRule().getName();
+            if (notificationEvent instanceof PolicyEvent) {
+                final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
+                fieldValue = policyNotif.getPolicyRule().getName();
+            } else {
+                logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
+            }
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectName();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {

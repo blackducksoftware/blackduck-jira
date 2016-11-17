@@ -135,7 +135,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     @Override
     public String getIssueSummary() {
         final StringBuilder issueSummary = new StringBuilder();
-        issueSummary.append("Black Duck Policy Violation detected on Hub Project '");
+        issueSummary.append("Black Duck policy violation detected on Hub project '");
         issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectName());
         issueSummary.append("' / '");
         issueSummary.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
@@ -153,7 +153,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     @Override
     public String getIssueDescription() {
         final StringBuilder issueDescription = new StringBuilder();
-        issueDescription.append("The Black Duck Hub has detected a Policy Violation on Hub Project '");
+        issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project '");
         issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectName());
         issueDescription.append("' / '");
         issueDescription.append(getNotificationContentItem().getProjectVersion().getProjectVersionName());
