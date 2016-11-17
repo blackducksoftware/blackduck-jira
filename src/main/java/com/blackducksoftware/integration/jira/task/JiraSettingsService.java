@@ -35,7 +35,11 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 
 public class JiraSettingsService {
 
-    public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendDayOfMonth(2)
+    public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendMonthOfYear(2)
+            .appendLiteral('/').appendDayOfMonth(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
+            .appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
+
+    public static final DateTimeFormatter OLD_ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendDayOfMonth(2)
             .appendLiteral('/').appendMonthOfYear(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
             .appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
 
@@ -65,7 +69,7 @@ public class JiraSettingsService {
         final Object errorMapObject = settings.get(HubJiraConstants.HUB_JIRA_ERROR);
         final HashMap<String, String> errorMap;
         if (errorMapObject == null) {
-            errorMap = new HashMap<String, String>();
+            errorMap = new HashMap<>();
         } else {
             errorMap = (HashMap<String, String>) errorMapObject;
         }
