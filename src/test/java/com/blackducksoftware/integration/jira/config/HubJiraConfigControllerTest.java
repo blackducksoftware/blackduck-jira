@@ -809,6 +809,9 @@ public class HubJiraConfigControllerTest {
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
         controller = Mockito.spy(controller);
+        RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
+        Mockito.doReturn(restConnectionMock)
+                .when(controller).getRestConnection(Mockito.any(PluginSettings.class), Mockito.any(HubJiraConfigSerializable.class));
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
@@ -818,7 +821,9 @@ public class HubJiraConfigControllerTest {
 
         final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
+        Mockito.doReturn(hubVersionRestService).when(controller).getHubVersionRestService(Mockito.any(RestConnection.class));
         Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
+        Mockito.doReturn(true).when(hubVersionRestService).isConsumerVersionLessThanOrEqualToServerVersion(Mockito.anyString());
 
         Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
