@@ -70,6 +70,7 @@ import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.HubVersionRestService;
 import com.blackducksoftware.integration.hub.api.item.HubItemFilterUtil;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
@@ -310,7 +311,13 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
-                final HubIntRestService restService = getHubRestService(settings, config);
+                final RestConnection restConnection = getRestConnection(settings, config);
+                if (config.hasErrors()) {
+                    final List<HubProject> hubProjects = new ArrayList<>(0);
+                    config.setHubProjects(hubProjects);
+                    return config;
+                }
+                final HubIntRestService restService = getHubRestService(restConnection, config);
 
                 final List<HubProject> hubProjects = getHubProjects(restService, config);
                 config.setHubProjects(hubProjects);
@@ -404,16 +411,27 @@ public class HubJiraConfigController {
 
                 final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
-                final HubIntRestService restService = getHubRestService(settings, config);
+                final RestConnection restConnection = getRestConnection(settings, config);
+                if (config.hasErrors()) {
+                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                    config.setPolicyRules(policyRules);
+                    return config;
+                }
+                final HubIntRestService restService = getHubRestService(restConnection, config);
 
                 if (StringUtils.isNotBlank(policyRulesJson)) {
                     config.setPolicyRulesJson(policyRulesJson);
                 }
-                setHubPolicyRules(restService, config);
+                HubVersionRestService hubVersionRestService = getHubVersionRestService(restConnection);
+                setHubPolicyRules(hubVersionRestService, config);
                 return config;
             }
         });
         return Response.ok(obj).build();
+    }
+
+    HubVersionRestService getHubVersionRestService(final RestConnection restConnection) {
+        return new HubVersionRestService(restConnection, gson, jsonParser);
     }
 
     @Path("/mappings")
@@ -488,7 +506,14 @@ public class HubJiraConfigController {
 
                 final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
-                final HubIntRestService restService = getHubRestService(settings, config);
+                final RestConnection restConnection = getRestConnection(settings, config);
+                if (config.hasErrors()) {
+                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                    config.setPolicyRules(policyRules);
+                    config.setJiraProjects(jiraProjects);
+                    return config;
+                }
+                final HubIntRestService restService = getHubRestService(restConnection, config);
                 final List<HubProject> hubProjects = getHubProjects(restService, config);
                 config.setHubProjects(hubProjects);
                 config.setJiraProjects(jiraProjects);
@@ -762,7 +787,19 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    public HubIntRestService getHubRestService(final PluginSettings settings, final ErrorTracking config) {
+    HubIntRestService getHubRestService(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+
+        HubIntRestService hubRestService = null;
+        try {
+            hubRestService = new HubIntRestService(restConnection);
+        } catch (IllegalArgumentException | URISyntaxException e) {
+            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+            return null;
+        }
+        return hubRestService;
+    }
+
+    RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -787,7 +824,7 @@ public class HubJiraConfigController {
         final String encHubProxyPassword = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
         final String hubProxyPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        HubIntRestService hubRestService = null;
+        RestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
             configBuilder.setHubUrl(hubUrl);
@@ -808,18 +845,17 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
+            restConnection = new CredentialsRestConnection(logger, serverConfig);
             restConnection.setTimeout(serverConfig.getTimeout());
             restConnection.setProxyProperties(serverConfig.getProxyInfo());
             restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
                     serverConfig.getGlobalCredentials().getDecryptedPassword());
 
-            hubRestService = new HubIntRestService(restConnection);
         } catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
             config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
-        return hubRestService;
+        return restConnection;
     }
 
     private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
@@ -848,7 +884,7 @@ public class HubJiraConfigController {
         return hubProjects;
     }
 
-    private void setHubPolicyRules(final HubIntRestService restService, final HubJiraConfigSerializable config) {
+    private void setHubPolicyRules(final HubVersionRestService restService, final HubJiraConfigSerializable config) {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (restService != null) {

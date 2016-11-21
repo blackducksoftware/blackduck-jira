@@ -36,7 +36,7 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.HubVersionRestService;
 import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
@@ -158,9 +158,11 @@ public class HubJiraTask {
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
-            final HubSupportHelper hubSupport = new HubSupportHelper();
+            final Gson gson = new GsonBuilder().create();
+            final JsonParser jsonParser = new JsonParser();
+            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection, gson, jsonParser);
             try {
-                final String hubVersion = hubSupport.getHubVersion(hub);
+                final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
                 String hubHostName = null;
                 try {
