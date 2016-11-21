@@ -1540,7 +1540,7 @@ public class HubJiraConfigControllerTest {
         settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
         settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
