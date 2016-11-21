@@ -234,7 +234,7 @@ public class HubJiraConfigController {
                         displayTicketErrors.add(ticketCreationError);
                     }
                     creationError.setHubJiraTicketErrors(displayTicketErrors);
-                    System.err.println("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
+                    logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
                 }
                 return creationError;
             }
