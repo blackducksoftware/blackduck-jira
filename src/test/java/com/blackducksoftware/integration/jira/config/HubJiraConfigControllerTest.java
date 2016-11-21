@@ -1064,7 +1064,6 @@ public class HubJiraConfigControllerTest {
 
         final List<ProjectItem> emptyHubProjects = new ArrayList<>();
         Mockito.doReturn(emptyHubProjects).when(restServiceMock).getProjectMatches(Mockito.anyString());
-        // Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
 
         Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
