@@ -600,29 +600,15 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "2.5.0", false);
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
-        RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
-        Mockito.doReturn(restConnectionMock).when(policyServiceMock).getRestConnection();
-
-        final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
-        Mockito.doReturn(false).when(hubVersionRestService).isConsumerVersionLessThanOrEqualToServerVersion(Mockito.anyString());
-        Mockito.doReturn(hubVersionRestService).when(controller).getHubVersionRestService(restConnectionMock);
-        Mockito.doReturn(restConnectionMock)
-                .when(controller).getRestConnection(Mockito.any(PluginSettings.class), Mockito.any(HubJiraConfigSerializable.class));
 
         final List<PolicyRule> emptyPolicyRules = new ArrayList<>();
 
         Mockito.doReturn(emptyPolicyRules).when(policyServiceMock).getAllPolicyRules();
 
         Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
-
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-        Mockito.doReturn("2.5.0").when(hubVersionRestService).getHubVersion();
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.getHubPolicies(requestMock);
         assertNotNull(response);
