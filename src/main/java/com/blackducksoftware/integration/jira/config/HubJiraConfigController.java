@@ -406,6 +406,12 @@ public class HubJiraConfigController {
                 final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
                 final RestConnection restConnection = getRestConnection(settings, config);
+                if (config.hasErrors()) {
+                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                    config.setPolicyRules(policyRules);
+                    config.setJiraProjects(jiraProjects);
+                    return config;
+                }
                 final HubIntRestService restService = getHubRestService(restConnection, config);
                 final List<HubProject> hubProjects = getHubProjects(restService, config);
                 config.setHubProjects(hubProjects);
