@@ -341,6 +341,12 @@ public class HubJiraConfigController {
                 final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
                 final RestConnection restConnection = getRestConnection(settings, config);
+                if (config.hasErrors()) {
+                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                    config.setPolicyRules(policyRules);
+                    config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR);
+                    return config;
+                }
                 final HubIntRestService restService = getHubRestService(restConnection, config);
 
                 if (StringUtils.isNotBlank(policyRulesJson)) {

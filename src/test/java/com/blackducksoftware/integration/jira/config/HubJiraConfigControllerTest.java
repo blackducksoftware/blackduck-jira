@@ -27,6 +27,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +53,8 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
 import com.blackducksoftware.integration.hub.api.project.version.SourceEnum;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
+import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.exception.ResourceDoesNotExistException;
 import com.blackducksoftware.integration.hub.meta.MetaAllowEnum;
 import com.blackducksoftware.integration.hub.meta.MetaInformation;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -555,8 +559,9 @@ public class HubJiraConfigControllerTest {
 
         final GroupPickerSearchServiceMock groupPickerSearchServiceMock = new GroupPickerSearchServiceMock();
 
-        final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+        HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
+        controller = spyControllerRealRestConnection(controller, "3.1.0", true);
 
         final Response response = controller.getHubPolicies(requestMock);
         assertNotNull(response);
@@ -808,25 +813,7 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
-        controller = Mockito.spy(controller);
-        RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
-        Mockito.doReturn(restConnectionMock)
-                .when(controller).getRestConnection(Mockito.any(PluginSettings.class), Mockito.any(HubJiraConfigSerializable.class));
-
-        final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
-
-        Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
-
-        Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
-
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-        final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
-        Mockito.doReturn(hubVersionRestService).when(controller).getHubVersionRestService(Mockito.any(RestConnection.class));
-        Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-        Mockito.doReturn(true).when(hubVersionRestService).isConsumerVersionLessThanOrEqualToServerVersion(Mockito.anyString());
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final Response response = controller.getHubPolicies(requestMock);
         assertNotNull(response);
@@ -845,6 +832,46 @@ public class HubJiraConfigControllerTest {
         assertNull(config.getPolicyRulesError());
         assertNull(config.getHubProjectMappingError());
         assertTrue(!config.hasErrors());
+    }
+
+    private HubJiraConfigController spyControllerMockRestConnection(HubJiraConfigController controller, String hubVersion,
+            boolean consumerVersionLessThanOrEqualToServerVersion)
+            throws IOException, BDRestException, URISyntaxException, ResourceDoesNotExistException {
+        controller = Mockito.spy(controller);
+        RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
+        Mockito.doReturn(restConnectionMock)
+                .when(controller).getRestConnection(Mockito.any(PluginSettings.class), Mockito.any(HubJiraConfigSerializable.class));
+
+        mockCommonServices(controller, hubVersion, consumerVersionLessThanOrEqualToServerVersion);
+        return controller;
+    }
+
+    private HubJiraConfigController spyControllerRealRestConnection(HubJiraConfigController controller, String hubVersion,
+            boolean consumerVersionLessThanOrEqualToServerVersion)
+            throws IOException, BDRestException, URISyntaxException, ResourceDoesNotExistException {
+        controller = Mockito.spy(controller);
+
+        mockCommonServices(controller, hubVersion, consumerVersionLessThanOrEqualToServerVersion);
+        return controller;
+    }
+
+    private void mockCommonServices(HubJiraConfigController controller, String hubVersion, boolean consumerVersionLessThanOrEqualToServerVersion)
+            throws IOException, BDRestException, URISyntaxException, ResourceDoesNotExistException {
+        final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
+
+        Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
+
+        Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
+
+        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+        final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
+        Mockito.doReturn(hubVersionRestService).when(controller).getHubVersionRestService(Mockito.any(RestConnection.class));
+        Mockito.doReturn(hubVersion).when(hubVersionRestService).getHubVersion();
+        Mockito.doReturn(consumerVersionLessThanOrEqualToServerVersion).when(hubVersionRestService)
+                .isConsumerVersionLessThanOrEqualToServerVersion(Mockito.anyString());
+
+        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
+                Mockito.any(HubJiraConfigSerializable.class));
     }
 
     @Test
@@ -1151,7 +1178,7 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
 
@@ -2663,7 +2690,7 @@ public class HubJiraConfigControllerTest {
     }
 
     @Test
-    public void testResetSalKeys() {
+    public void testResetSalKeys() throws IOException, BDRestException, URISyntaxException, ResourceDoesNotExistException {
         final UserManagerUIMock managerMock = new UserManagerUIMock();
         managerMock.setRemoteUsername("User");
         managerMock.setIsSystemAdmin(true);
@@ -2674,9 +2701,9 @@ public class HubJiraConfigControllerTest {
 
         final GroupPickerSearchServiceMock groupPickerSearchServiceMock = new GroupPickerSearchServiceMock();
 
-        final HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
+        HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
-
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
         final PluginSettings settings = settingsFactory.createGlobalSettings();
 
         final Date runDate = new Date();
