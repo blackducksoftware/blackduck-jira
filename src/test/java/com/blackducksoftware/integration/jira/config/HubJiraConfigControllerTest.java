@@ -1680,6 +1680,7 @@ public class HubJiraConfigControllerTest {
 
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, hubMonitor, groupPickerSearchServiceMock);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setIntervalBetweenChecks(intervalBetweenChecks);
@@ -1696,8 +1697,6 @@ public class HubJiraConfigControllerTest {
         settings.put(HubConfigKeys.CONFIG_HUB_PASS, PasswordEncrypter.encrypt("Test"));
         settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
         settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
-
-        controller = Mockito.spy(controller);
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
