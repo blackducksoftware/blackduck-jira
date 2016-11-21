@@ -578,7 +578,7 @@ public class HubJiraConfigControllerTest {
         assertEquals(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION,
                 config.getErrorMessage());
         assertNull(config.getIntervalBetweenChecksError());
-        assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+        assertNull(config.getPolicyRulesError());
         assertNull(config.getHubProjectMappingError());
         assertTrue(config.hasErrors());
     }
