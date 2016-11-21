@@ -509,15 +509,9 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerRealRestConnection(controller, "3.1.0", true);
 
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
-        Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-        Mockito.doReturn(true).when(hubVersionRestService).isConsumerVersionLessThanOrEqualToServerVersion(Mockito.anyString());
-        RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
-        Mockito.doReturn(hubVersionRestService).when(controller).getHubVersionRestService(restConnectionMock);
-        Mockito.doReturn(restConnectionMock)
-                .when(controller).getRestConnection(Mockito.any(PluginSettings.class), Mockito.any(HubJiraConfigSerializable.class));
         final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
         Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
@@ -536,7 +530,7 @@ public class HubJiraConfigControllerTest {
 
         assertEquals(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING, config.getErrorMessage());
         assertNull(config.getIntervalBetweenChecksError());
-        assertEquals(JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR, config.getPolicyRulesError());
+        assertNull(config.getPolicyRulesError());
         assertNull(config.getHubProjectMappingError());
         assertTrue(config.hasErrors());
     }
@@ -1615,7 +1609,7 @@ public class HubJiraConfigControllerTest {
         settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "4");
         settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
