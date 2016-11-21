@@ -33,12 +33,10 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.api.HubVersionRestService;
 import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
 import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
@@ -155,9 +153,11 @@ public class HubJiraTask {
                     linksOfRulesToMonitor, ticketInfoFromSetup);
 
             // Phone-Home
-            final HubSupportHelper hubSupport = new HubSupportHelper();
+            final Gson gson = new GsonBuilder().create();
+            final JsonParser jsonParser = new JsonParser();
+            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection, gson, jsonParser);
             try {
-                final String hubVersion = hubSupport.getHubVersion(hub);
+                final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
                 String hubHostName = null;
                 try {
@@ -208,8 +208,6 @@ public class HubJiraTask {
             return null;
         }
     }
-
-    
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
