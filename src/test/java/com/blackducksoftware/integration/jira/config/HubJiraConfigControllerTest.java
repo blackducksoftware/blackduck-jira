@@ -2046,7 +2046,7 @@ public class HubJiraConfigControllerTest {
         newMapping.setJiraProject(jiraProject);
         mappings.add(newMapping);
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final PolicyRestService policyServiceMock = Mockito.mock(PolicyRestService.class);
 
