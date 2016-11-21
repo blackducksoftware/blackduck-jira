@@ -1124,7 +1124,7 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, null, groupPickerSearchServiceMock);
 
-        controller = Mockito.spy(controller);
+        controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
         final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
 
