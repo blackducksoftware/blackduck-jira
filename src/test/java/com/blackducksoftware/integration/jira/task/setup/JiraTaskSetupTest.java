@@ -183,8 +183,8 @@ public class JiraTaskSetupTest {
         JiraContext jiraContext = new JiraContext(jiraUser);
 
         JiraTaskTimed task = jiraEnv.getJiraTask();
-        TicketInfoFromSetup x = new TicketInfoFromSetup();
-        task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), x, jiraContext);
+        TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
+        task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), ticketInfoFromSetup, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
@@ -194,7 +194,7 @@ public class JiraTaskSetupTest {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
         }
-        assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedTabs().size() == 2);
+        assertEquals(2, jiraEnv.getFieldScreenManagerMock().getUpdatedTabs().size());
 
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
@@ -222,7 +222,7 @@ public class JiraTaskSetupTest {
         assertNull(jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR));
 
         final List<Avatar> avatarTemplatesUsed = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
-        assertEquals(1, avatarTemplatesUsed.size());
+        assertEquals(2, avatarTemplatesUsed.size());
         assertEquals(jiraEnv.getAvatarTemplate(), avatarTemplatesUsed.get(0));
 
         final List<IssueTypeScreenSchemeEntity> addedIssueTypeScreenSchemeEntities = jiraEnv
@@ -337,11 +337,11 @@ public class JiraTaskSetupTest {
         final Avatar avatarTemplate = Mockito.mock(Avatar.class);
         Mockito.when(avatarTemplate.getId()).thenReturn(123L);
         Mockito.when(avatarTemplate.getContentType()).thenReturn("image/png");
-        Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME);
+        Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY);
         Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
 
         Mockito.when(
-                jiraServices.createIssueTypeAvatarTemplate(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME,
+                jiraServices.createIssueTypeAvatarTemplate(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY,
                         "image/png", "Jira User"))
                 .thenReturn(avatarTemplate);
 

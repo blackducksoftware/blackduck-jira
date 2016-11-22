@@ -87,9 +87,13 @@ public class HubJiraConstants {
 
     public final static String HUB_VULNERABILITY_RESOLVE = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";
 
-    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
+    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY = "180_vulnerability_duck.png";
 
-    public static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
+    public static final String BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
+
+    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY = "180_violation_duck.png";
+
+    public static final String BLACKDUCK_AVATAR_IMAGE_PATH_POLICY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY;
 
     public static final String ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR = "=";
 
