@@ -12,11 +12,13 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.user.ApplicationUser;
@@ -73,8 +75,10 @@ public class HubAvatars {
             logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
             return null;
         }
+
+        InputStream is = ClassLoaderUtils.getResourceAsStream(avatarImagePath, this.getClass());
         final Avatar duckyAvatar = jiraServices.getAvatarManager().create(avatarTemplate,
-                getClass().getResourceAsStream(avatarImagePath), null);
+                is, null);
 
         if (duckyAvatar == null) {
             throw new DataAccessException("AvatarManager().create() returned null");
