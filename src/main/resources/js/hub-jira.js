@@ -300,8 +300,20 @@ function populateForm() {
 		    	handleDataRetrievalError(response, "ticketCreationLoadingError", "There was a problem retrieving the Ticket Creation Errors.", "Ticket Creation Error");
 		    }
 	  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/pluginInfo/",
+		    dataType: "json",
+		    success: function(pluginInfo) {
+		    	console.log("pluginVersion: " + pluginInfo.pluginVersion);
+		    	fillInPluginVersion(pluginInfo.pluginVersion);
+		    },
+		    error: function(response) {
+		    	console.log("Error getting pluginInfo");
+		    	console.log("Response text: " + response.responseText);
+		    	fillInPluginVersion("(error)");
+		    }
+	  });
 }
-
 
 function resetSalKeys(){
 	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/reset';
@@ -946,6 +958,12 @@ function fillInHubProjects(hubProjects){
 			hubProjectList.append(newOption);
 		}
 	}
+}
+
+function fillInPluginVersion(pluginVersion) {
+	console.log("fillInPluginVersion(): pluginVersion: " + pluginVersion);
+	var pluginVersionElement = AJS.$("#" + "pluginVersion");
+	pluginVersionElement[0].innerHtml = pluginVersion;
 }
 
 function fillInSourceFields(sourceFields) {

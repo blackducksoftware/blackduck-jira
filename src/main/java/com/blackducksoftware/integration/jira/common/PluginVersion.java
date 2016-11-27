@@ -18,7 +18,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 public class PluginVersion {
-    private static final String VERSION_UNKNOWN = "<unknown>";
+    private static final String VERSION_UNKNOWN = "(unknown)";
 
     private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PluginVersion.class.getName()));
 

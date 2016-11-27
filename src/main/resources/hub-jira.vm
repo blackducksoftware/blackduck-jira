@@ -293,7 +293,7 @@
 	      	  <table id="pluginInfoTable" style="width : 40%;">
 	      	  		<tr id="pluginInfoRow" name="pluginInfoRow">
 	      	  			<td>Hub Jira Plugin Version:</td>
-	      	  			<td>TBD</td>
+	      	  			<td><div id="pluginVersion">(not set)</div></td>
 	      	  		</tr>
 	      	  </table>
       	  </div>

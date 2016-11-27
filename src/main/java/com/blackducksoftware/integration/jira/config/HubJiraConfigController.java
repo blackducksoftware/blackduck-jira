@@ -88,6 +88,7 @@ import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PluginField;
+import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
@@ -326,6 +327,30 @@ public class HubJiraConfigController {
                     config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
                 }
                 return config;
+            }
+        });
+        return Response.ok(obj).build();
+    }
+
+    @Path("/pluginInfo")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPluginVersion(@Context final HttpServletRequest request) {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+        final Object obj = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                PluginInfoSerializable pluginInfo = new PluginInfoSerializable();
+
+                logger.debug("Getting plugin version string");
+                String pluginVersion = PluginVersion.getVersion();
+                logger.debug("pluginVersion: " + pluginVersion);
+                pluginInfo.setPluginVersion(pluginVersion);
+                return pluginInfo;
             }
         });
         return Response.ok(obj).build();
