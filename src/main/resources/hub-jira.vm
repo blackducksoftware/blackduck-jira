@@ -285,6 +285,19 @@
 			  </div>
       	  </div>
       </fieldSet>
+      
+      <!-- Plugin Version -->
+      <fieldset class="fieldSection" id="pluginInfoFieldSet">
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'pluginInfo');"> </i> $i18n.getText('hub.integration.jira.pluginInfo.label') </legend>
+      	  <div id="pluginInfo">
+	      	  <table id="pluginInfoTable" style="width : 40%;">
+	      	  		<tr id="pluginInfoRow" name="pluginInfoRow">
+	      	  			<td>Hub Jira Plugin Version:</td>
+	      	  			<td>TBD</td>
+	      	  		</tr>
+	      	  </table>
+      	  </div>
+      </fieldSet>
     </form>
   </body>
 </html>
