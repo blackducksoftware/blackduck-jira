@@ -962,8 +962,10 @@ function fillInHubProjects(hubProjects){
 
 function fillInPluginVersion(pluginVersion) {
 	console.log("fillInPluginVersion(): pluginVersion: " + pluginVersion);
-	var pluginVersionElement = AJS.$("#" + "pluginVersion");
-	pluginVersionElement[0].innerHTML = pluginVersion;
+	var pluginVersionElements = AJS.$("#" + "pluginVersion");
+	for (i=0; i < pluginVersionElements.length; i++) {
+		pluginVersionElements[i].innerHTML = pluginVersion;
+	}
 }
 
 function fillInSourceFields(sourceFields) {
