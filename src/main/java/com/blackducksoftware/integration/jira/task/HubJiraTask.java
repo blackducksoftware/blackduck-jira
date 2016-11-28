@@ -196,12 +196,7 @@ public class HubJiraTask {
                 ruleUrls.add(ruleUrl);
             }
         }
-        if (ruleUrls.size() > 0) {
-            return ruleUrls;
-        } else {
-            logger.error("No valid rule URLs found in configuration");
-            return null;
-        }
+        return ruleUrls;
     }
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
