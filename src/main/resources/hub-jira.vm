@@ -249,11 +249,7 @@
 	  	   </div>
 	</div>
 </div>
-      	
-      	
-      	
-      	
-	  
+
 	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
       	  <div id="ticketCreationErrors">
@@ -287,17 +283,10 @@
       </fieldSet>
       
       <!-- Plugin Version -->
-      <fieldset class="fieldSection" id="pluginInfoFieldSet">
-      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'pluginInfo');"> </i> $i18n.getText('hub.integration.jira.pluginInfo.label') </legend>
-      	  <div id="pluginInfo">
-	      	  <table id="pluginInfoTable" style="width : 40%;">
-	      	  		<tr id="pluginInfoRow" name="pluginInfoRow">
-	      	  			<td>Hub Jira Plugin Version:</td>
-	      	  			<td><div id="pluginVersion">(not set)</div></td>
-	      	  		</tr>
-	      	  </table>
-      	  </div>
-      </fieldSet>
+      <footer>
+	  <br/>
+      <div id="pluginInfo" class="plugin-info">Hub Jira Plugin Version: <span id="pluginVersion">(not set)</span></div>
+      </footer>
     </form>
   </body>
 </html>

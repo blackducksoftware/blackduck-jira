@@ -2,6 +2,18 @@
 	display: none !important;
 }
 
+.plugin-info {
+	width: 100%;
+	color: #707070;
+	text-align: center;
+	white-space: nowrap;
+	display: inline-block;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	line-height: 1.66666666666667;
+	padding: 0;
+}
+
 /* Style the tab list */
 ul.tab {
     list-style-type: none;
