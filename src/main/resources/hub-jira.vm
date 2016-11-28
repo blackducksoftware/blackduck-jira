@@ -285,7 +285,7 @@
       <!-- Plugin Version -->
       <footer>
 	  <br/>
-      <div id="pluginInfo" class="plugin-info">Hub Jira Plugin Version: <span id="pluginVersion">(not set)</span></div>
+      <div id="pluginInfo" class="plugin-info">Black Duck Hub Jira Plugin v<span id="pluginVersion">(not set)</span></div>
       </footer>
     </form>
   </body>
