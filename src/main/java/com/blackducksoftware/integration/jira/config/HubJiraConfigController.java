@@ -88,9 +88,6 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -107,10 +104,6 @@ public class HubJiraConfigController {
     private final HubMonitor hubMonitor;
 
     private final GroupPickerSearchService groupPickerSearchService;
-
-    private final Gson gson = new GsonBuilder().create();
-
-    private final JsonParser jsonParser = new JsonParser();
 
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
@@ -360,7 +353,7 @@ public class HubJiraConfigController {
     }
 
     HubVersionRestService getHubVersionRestService(final RestConnection restConnection) {
-        return new HubVersionRestService(restConnection, gson, jsonParser);
+        return new HubVersionRestService(restConnection);
     }
 
     @Path("/mappings")
@@ -821,7 +814,7 @@ public class HubJiraConfigController {
     }
 
     public PolicyRestService getPolicyService(final RestConnection restConnection) {
-        return new PolicyRestService(restConnection, gson, jsonParser);
+        return new PolicyRestService(restConnection);
     }
 
     private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
