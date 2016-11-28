@@ -36,9 +36,9 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
+import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.api.HubVersionRestService;
 import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -59,9 +59,6 @@ import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
 import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 public class HubJiraTask {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -158,9 +155,7 @@ public class HubJiraTask {
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
-            final Gson gson = new GsonBuilder().create();
-            final JsonParser jsonParser = new JsonParser();
-            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection, gson, jsonParser);
+            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection);
             try {
                 final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
@@ -206,12 +201,7 @@ public class HubJiraTask {
                 ruleUrls.add(ruleUrl);
             }
         }
-        if (ruleUrls.size() > 0) {
-            return ruleUrls;
-        } else {
-            logger.error("No valid rule URLs found in configuration");
-            return null;
-        }
+        return ruleUrls;
     }
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
@@ -222,14 +212,12 @@ public class HubJiraTask {
 
         final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
-        final DataServicesFactory dataServicesFactory = new DataServicesFactory(restConnection);
+        final HubServicesFactory dataServicesFactory = new HubServicesFactory(restConnection);
 
         final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
                 logger, policyFilter);
-        final Gson gson = new GsonBuilder().create();
-        final JsonParser jsonParser = new JsonParser();
         final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
-                restConnection, gson, jsonParser);
+                restConnection);
 
         final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
 
