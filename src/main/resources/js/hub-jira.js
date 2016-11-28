@@ -280,10 +280,7 @@ function populateForm() {
 		    	handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
 		    },
 		    complete: function(jqXHR, textStatus){
-		    	console.log("Finished getting field copy mappings");
-		    	 // TODO:
-		    	//AJS.$('#fieldCopyMappingSpinner').remove();
-		    	
+		    	console.log("Finished getting field copy mappings");	
 		    }
 		  });
 	  AJS.$.ajax({
@@ -534,7 +531,6 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 }
 
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
-	// TODO: there are more now:
 	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
 	
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
@@ -781,10 +777,8 @@ function getJsonArrayFromFieldCopyMapping(){
 		
 		var currentTargetFieldDisplayName = currentTargetField.val();
 		var currentTargetFieldId = currentTargetField.attr('id');
-		// TODO this is not working:
 		var currentTargetFieldError = currentTargetField.attr('fieldError');
 		
-		// TODO should test currentTargetFieldError too?:
 		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId)) {
 			console.log("Skipping empty field copy mapping row");
 			addMappingErrorStatus(mappingElement);
@@ -1130,21 +1124,9 @@ function addNewFieldCopyMappingElement(fieldId){
 		currentSourceField.removeClass('fieldError');
 	}
 	var currentSourceFieldParent = currentSourceField.parent();
-	
-	// TODO:
-	//var currentSourceFieldError = currentSourceFieldParent.children("#"+jiraProjectErrorId);
-	//currentSourceFieldError.text("");
-	//if(currentSourceFieldError.hasClass('fieldError')){
-	//	currentSourceFieldError.removeClass('fieldError');
-	//}
-	
 	var currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
-	
 	currentTargetField.val("");
 	currentTargetField.attr("id", "");
-	//if(currentTargetField.hasClass('error')){
-	//	currentTargetField.removeClass('error');
-	//}
 	
 	var mappingArea = AJS.$('#fieldCopyMappingArea')[0];
 	if(mappingArea){
@@ -1220,13 +1202,10 @@ function onFieldCopyMappingInputChange(inputField){
        if (options[i].value == inputField.value) { 
     	   optionFound = true;
     	   var option = AJS.$(options[i]);
-    	   
-    	   // TODO: put "id" attr on both source and target
     	   var id = option.attr("id");
     	   field.val(option.val());
     	   field.attr("id", id);
-    	   
-    	   // TODO this name doesn't match, and should be on both now?
+
 			var projectError = option.attr("fieldError");
 			
 			var fieldParent = field.parent();
