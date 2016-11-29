@@ -44,6 +44,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.atlassian.jira.project.Project;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.HubIntRestService;
@@ -51,6 +52,7 @@ import com.blackducksoftware.integration.hub.api.HubVersionRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
+import com.blackducksoftware.integration.hub.api.project.ProjectRestService;
 import com.blackducksoftware.integration.hub.api.project.version.SourceEnum;
 import com.blackducksoftware.integration.hub.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -806,6 +808,11 @@ public class HubJiraConfigControllerTest {
 
         Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
+
+        final ProjectRestService projectRestServiceMock = Mockito.mock(ProjectRestService.class);
+        Mockito.doReturn(getHubProjects()).when(projectRestServiceMock).getAllProjects();
+        Mockito.doReturn(projectRestServiceMock).when(controller).getProjectRestService(Mockito.any(RestConnection.class),
+                Mockito.any(HubJiraConfigSerializable.class));
     }
 
     @Test
@@ -1060,12 +1067,10 @@ public class HubJiraConfigControllerTest {
 
         controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
         final List<ProjectItem> emptyHubProjects = new ArrayList<>();
-        Mockito.doReturn(emptyHubProjects).when(restServiceMock).getProjectMatches(Mockito.anyString());
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
+        final ProjectRestService projectRestServiceMock = Mockito.mock(ProjectRestService.class);
+        Mockito.doReturn(emptyHubProjects).when(projectRestServiceMock).getAllProjects();
+        Mockito.doReturn(projectRestServiceMock).when(controller).getProjectRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.getHubProjects(requestMock);
@@ -1113,13 +1118,6 @@ public class HubJiraConfigControllerTest {
 
         controller = spyControllerMockRestConnection(controller, "3.1.0", true);
 
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
-
         final Response response = controller.getHubProjects(requestMock);
         assertNotNull(response);
         final Object configObject = response.getEntity();
@@ -1165,11 +1163,13 @@ public class HubJiraConfigControllerTest {
 
         controller = Mockito.spy(controller);
 
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
+        final HubIntRestService hubIntRestServiceMock = Mockito.mock(HubIntRestService.class);
+        Mockito.doReturn(hubIntRestServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
+                Mockito.any(HubJiraConfigSerializable.class));
 
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
+        final ProjectRestService projectRestServiceMock = Mockito.mock(ProjectRestService.class);
+        Mockito.doReturn(getHubProjects()).when(projectRestServiceMock).getAllProjects();
+        Mockito.doReturn(projectRestServiceMock).when(controller).getProjectRestService(Mockito.any(RestConnection.class),
                 Mockito.any(HubJiraConfigSerializable.class));
 
         RestConnection restConnectionMock = Mockito.mock(RestConnection.class);
@@ -1409,6 +1409,7 @@ public class HubJiraConfigControllerTest {
         final TransactionTemplateMock transactionManager = new TransactionTemplateMock();
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
+        projectManagerMock.setProjectObjects(new ArrayList<Project>());
 
         final GroupPickerSearchServiceMock groupPickerSearchServiceMock = new GroupPickerSearchServiceMock();
 
@@ -1418,6 +1419,10 @@ public class HubJiraConfigControllerTest {
         HubJiraConfigController controller = new HubJiraConfigController(managerMock, settingsFactory,
                 transactionManager, projectManagerMock, hubMonitor, groupPickerSearchServiceMock);
         controller = spyControllerMockRestConnection(controller, "3.1.0", true);
+        final ProjectRestService projectRestServiceMock = Mockito.mock(ProjectRestService.class);
+        Mockito.doReturn(new ArrayList<ProjectItem>()).when(projectRestServiceMock).getAllProjects();
+        Mockito.doReturn(projectRestServiceMock).when(controller).getProjectRestService(Mockito.any(RestConnection.class),
+                Mockito.any(HubJiraConfigSerializable.class));
 
         HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
@@ -1475,15 +1480,8 @@ public class HubJiraConfigControllerTest {
         Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
         Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
-
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
         Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.put(config, requestMock);
         assertNotNull(response);
@@ -1550,15 +1548,8 @@ public class HubJiraConfigControllerTest {
         Mockito.doReturn(getHubPolicies()).when(policyServiceMock).getAllPolicyRules();
 
         Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
-
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
         Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.put(config, requestMock);
         assertNotNull(response);
@@ -1632,14 +1623,8 @@ public class HubJiraConfigControllerTest {
 
         Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
         Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.put(config, requestMock);
         assertNotNull(response);
@@ -1771,14 +1756,8 @@ public class HubJiraConfigControllerTest {
 
         Mockito.doReturn(policyServiceMock).when(controller).getPolicyService(Mockito.any(RestConnection.class));
 
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
         final HubVersionRestService hubVersionRestService = Mockito.mock(HubVersionRestService.class);
         Mockito.doReturn("3.1.0").when(hubVersionRestService).getHubVersion();
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.put(config, requestMock);
         assertNotNull(response);
@@ -1850,12 +1829,6 @@ public class HubJiraConfigControllerTest {
         settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "300");
 
         controller = spyControllerMockRestConnection(controller, "3.1.0", true);
-
-        final HubIntRestService restServiceMock = Mockito.mock(HubIntRestService.class);
-        Mockito.doReturn(getHubProjects()).when(restServiceMock).getProjectMatches(Mockito.anyString());
-
-        Mockito.doReturn(restServiceMock).when(controller).getHubRestService(Mockito.any(RestConnection.class),
-                Mockito.any(HubJiraConfigSerializable.class));
 
         final Response response = controller.put(config, requestMock);
         assertNotNull(response);

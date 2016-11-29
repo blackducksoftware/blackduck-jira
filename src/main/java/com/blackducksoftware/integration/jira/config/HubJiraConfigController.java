@@ -73,6 +73,7 @@ import com.blackducksoftware.integration.hub.api.item.HubItemFilterUtil;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
+import com.blackducksoftware.integration.hub.api.project.ProjectRestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
@@ -301,7 +302,7 @@ public class HubJiraConfigController {
                     config.setHubProjects(hubProjects);
                     return config; // TODO should I do this elsewhere???
                 }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
+                final ProjectRestService restService = getProjectRestService(restConnection, config);
 
                 final List<HubProject> hubProjects = getHubProjects(restService, config);
                 config.setHubProjects(hubProjects);
@@ -339,8 +340,6 @@ public class HubJiraConfigController {
                     config.setPolicyRules(policyRules);
                     return config;
                 }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
-
                 if (StringUtils.isNotBlank(policyRulesJson)) {
                     config.setPolicyRulesJson(policyRulesJson);
                 }
@@ -396,7 +395,8 @@ public class HubJiraConfigController {
             @Override
             public Object doInTransaction() {
 
-                final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+                List<Project> jiraProjectObjects = projectManager.getProjectObjects();
+                final List<JiraProject> jiraProjects = getJiraProjects(jiraProjectObjects);
 
                 final RestConnection restConnection = getRestConnection(settings, config);
                 if (config.hasErrors()) {
@@ -405,7 +405,7 @@ public class HubJiraConfigController {
                     config.setJiraProjects(jiraProjects);
                     return config;
                 }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
+                final ProjectRestService restService = getProjectRestService(restConnection, config);
                 final List<HubProject> hubProjects = getHubProjects(restService, config);
                 config.setHubProjects(hubProjects);
                 config.setJiraProjects(jiraProjects);
@@ -659,6 +659,18 @@ public class HubJiraConfigController {
         return hubRestService;
     }
 
+    ProjectRestService getProjectRestService(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+
+        ProjectRestService projectRestService = null;
+        try {
+            projectRestService = new ProjectRestService(restConnection);
+        } catch (IllegalArgumentException e) {
+            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+            return null;
+        }
+        return projectRestService;
+    }
+
     RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -718,13 +730,13 @@ public class HubJiraConfigController {
         return restConnection;
     }
 
-    private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
+    private List<HubProject> getHubProjects(final ProjectRestService projectRestService,
             final HubJiraConfigSerializable config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        if (hubRestService != null) {
+        if (projectRestService != null) {
             List<ProjectItem> hubProjectItems = null;
             try {
-                hubProjectItems = hubRestService.getProjectMatches(null);
+                hubProjectItems = projectRestService.getAllProjects();
             } catch (IOException | BDRestException | URISyntaxException e) {
                 config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
             }
