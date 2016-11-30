@@ -68,7 +68,13 @@ public class HubJiraServlet extends HttpServlet {
         }
 
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String hubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String oldHubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String hubJiraGroupsString;
+        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
+            hubJiraGroupsString = oldHubJiraGroupsString;
+        } else {
+            hubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        }
 
         if (StringUtils.isNotBlank(hubJiraGroupsString)) {
             final String[] hubJiraGroups = hubJiraGroupsString.split(",");
