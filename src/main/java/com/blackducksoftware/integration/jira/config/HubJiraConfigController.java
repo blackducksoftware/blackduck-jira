@@ -135,7 +135,13 @@ public class HubJiraConfigController {
         if (userManager.isSystemAdmin(username)) {
             return null;
         }
-        final String hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String hubJiraGroupsString;
+        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
+            hubJiraGroupsString = oldHubJiraGroupsString;
+        } else {
+            hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        }
         if (StringUtils.isNotBlank(hubJiraGroupsString)) {
             final String[] hubJiraGroups = hubJiraGroupsString.split(",");
             boolean userIsInGroups = false;
@@ -162,7 +168,15 @@ public class HubJiraConfigController {
         }
         final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String hubJiraGroupsString;
+        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
+            hubJiraGroupsString = oldHubJiraGroupsString;
+            setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
+            setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
+        } else {
+            hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        }
         if (!userIsSysAdmin) {
             if (StringUtils.isBlank(hubJiraGroupsString)) {
                 return Response.status(Status.UNAUTHORIZED).build();

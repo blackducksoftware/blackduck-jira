@@ -41,5 +41,9 @@ public class HubJiraConfigKeys {
 
     public final static String HUB_CONFIG_JIRA_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
 
+    @Deprecated
     public final static String HUB_CONFIG_JIRA_GROUPS = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubJiraGroups";
+
+    public final static String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
+
 }
