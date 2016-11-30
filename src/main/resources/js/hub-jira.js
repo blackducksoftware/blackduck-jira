@@ -549,6 +549,14 @@ function putConfig(restUrl, successMessage, failureMessage) {
 		    	handleError('policyRulesError', config.policyRulesError, true, true);
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+			    
+			    console.log("errorMessage: " + config.errorMessage);
+	            console.log("hubProjectMappingError: " + config.hubProjectMappingError);
+	            console.log("hubProjectsError: " + config.hubProjectsError);
+	            console.log("intervalBetweenChecksError: " + config.intervalBetweenChecksError);
+	            console.log("jiraProjectsError: " + config.jiraProjectsError);
+	            console.log("policyRulesError: " + config.policyRulesError);
+	            
 	    	} catch(err) {
 	    		// in case the response is not our error object
 	    		alert(response.responseText);

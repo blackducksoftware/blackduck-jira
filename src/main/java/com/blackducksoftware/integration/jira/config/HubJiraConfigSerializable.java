@@ -44,7 +44,6 @@ import com.google.gson.reflect.TypeToken;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HubJiraConfigSerializable implements Serializable {
-
     private static final long serialVersionUID = -3736258315416679501L;
 
     @XmlElement
@@ -101,6 +100,50 @@ public class HubJiraConfigSerializable implements Serializable {
             hasErrors = true;
         }
         return hasErrors;
+    }
+
+    public String getConsolidatedErrorMessage() {
+        if (!hasErrors()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotBlank(getErrorMessage())) {
+            if (sb.length() > 0) {
+                sb.append("; ErrorMessage: " + getErrorMessage());
+            }
+            sb.append(getErrorMessage());
+        }
+        if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+            if (sb.length() > 0) {
+                sb.append("; IntervalBetweenChecksError: " + getIntervalBetweenChecksError());
+            }
+            sb.append(getIntervalBetweenChecksError());
+        }
+        if (StringUtils.isNotBlank(getJiraProjectsError())) {
+            if (sb.length() > 0) {
+                sb.append("; JiraProjectsError: " + getJiraProjectsError());
+            }
+            sb.append(getJiraProjectsError());
+        }
+        if (StringUtils.isNotBlank(getHubProjectsError())) {
+            if (sb.length() > 0) {
+                sb.append("; HubProjectsError: " + getHubProjectsError());
+            }
+            sb.append(getHubProjectsError());
+        }
+        if (StringUtils.isNotBlank(getHubProjectMappingError())) {
+            if (sb.length() > 0) {
+                sb.append("; HubProjectMappingError: " + getHubProjectMappingError());
+            }
+            sb.append(getHubProjectMappingError());
+        }
+        if (StringUtils.isNotBlank(getPolicyRulesError())) {
+            if (sb.length() > 0) {
+                sb.append("; PolicyRulesError: " + getPolicyRulesError());
+            }
+            sb.append(getPolicyRulesError());
+        }
+        return sb.toString();
     }
 
     public String getIntervalBetweenChecks() {
