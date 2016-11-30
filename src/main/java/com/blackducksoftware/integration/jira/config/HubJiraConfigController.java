@@ -146,7 +146,7 @@ public class HubJiraConfigController {
             final String[] hubJiraGroups = hubJiraGroupsString.split(",");
             boolean userIsInGroups = false;
             for (final String hubJiraGroup : hubJiraGroups) {
-                if (userManager.isUserInGroup(username, hubJiraGroup)) {
+                if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
                     userIsInGroups = true;
                     break;
                 }
@@ -184,7 +184,7 @@ public class HubJiraConfigController {
                 final String[] hubJiraGroups = hubJiraGroupsString.split(",");
                 boolean userIsInGroups = false;
                 for (final String hubJiraGroup : hubJiraGroups) {
-                    if (userManager.isUserInGroup(username, hubJiraGroup)) {
+                    if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
                         userIsInGroups = true;
                         break;
                     }
@@ -645,7 +645,7 @@ public class HubJiraConfigController {
                     responseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
                     return responseObject;
                 } else {
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, adminConfig.getHubJiraGroups());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
                 }
                 return null;
             }
