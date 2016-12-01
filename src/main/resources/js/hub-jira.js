@@ -550,12 +550,12 @@ function putConfig(restUrl, successMessage, failureMessage) {
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 			    
-			    console.log("errorMessage: " + config.errorMessage);
-	            console.log("hubProjectMappingError: " + config.hubProjectMappingError);
-	            console.log("hubProjectsError: " + config.hubProjectsError);
-	            console.log("intervalBetweenChecksError: " + config.intervalBetweenChecksError);
-	            console.log("jiraProjectsError: " + config.jiraProjectsError);
-	            console.log("policyRulesError: " + config.policyRulesError);
+			    console.log("errorMessage: " + config.errorMessage); // x
+	            console.log("hubProjectMappingError: " + config.hubProjectMappingError); // x
+	            console.log("hubProjectsError: " + config.hubProjectsError); // <================
+	            console.log("intervalBetweenChecksError: " + config.intervalBetweenChecksError); // x
+	            console.log("jiraProjectsError: " + config.jiraProjectsError); // <================
+	            console.log("policyRulesError: " + config.policyRulesError); // x
 	            
 	    	} catch(err) {
 	    		// in case the response is not our error object

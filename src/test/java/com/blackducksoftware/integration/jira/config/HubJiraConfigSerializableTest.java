@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -265,6 +266,64 @@ public class HubJiraConfigSerializableTest {
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());
+    }
+
+    @Test
+    public void testMessagesAllThree() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingError("hubProjectMappingError");
+        config.setJiraProjectsError("jiraProjectsError");
+        config.setHubProjectsError("hubProjectsError");
+        config.enhanceMappingErrorMessage();
+        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Hub Project Error: hubProjectsError",
+                config.getHubProjectMappingError());
+    }
+
+    @Test
+    public void testMessagesNulls() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingError(null);
+        config.setJiraProjectsError(null);
+        config.setHubProjectsError(null);
+        config.enhanceMappingErrorMessage();
+        assertNull(config.getHubProjectMappingError());
+    }
+
+    @Test
+    public void testMessagesEmpties() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingError("");
+        config.setJiraProjectsError("");
+        config.setHubProjectsError("");
+        config.enhanceMappingErrorMessage();
+        assertEquals("", config.getHubProjectMappingError());
+    }
+
+    @Test
+    public void testMessagesHubOnly() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectsError("HubProjectsError");
+        config.enhanceMappingErrorMessage();
+        assertEquals("Hub Project Error: HubProjectsError",
+                config.getHubProjectMappingError());
+    }
+
+    @Test
+    public void testMessagesJiraOnly() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setJiraProjectsError("JiraProjectsError");
+        config.enhanceMappingErrorMessage();
+        assertEquals("JIRA Project Error: JiraProjectsError",
+                config.getHubProjectMappingError());
+    }
+
+    @Test
+    public void testMessagesMappingOnly() {
+        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingError("mappingError");
+        config.enhanceMappingErrorMessage();
+        assertEquals("mappingError",
+                config.getHubProjectMappingError());
     }
 
 }

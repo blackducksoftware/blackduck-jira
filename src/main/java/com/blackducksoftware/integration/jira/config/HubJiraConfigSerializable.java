@@ -102,6 +102,32 @@ public class HubJiraConfigSerializable implements Serializable {
         return hasErrors;
     }
 
+    public void enhanceMappingErrorMessage() {
+        StringBuilder sb = new StringBuilder();
+        addMsg(sb, null, getHubProjectMappingError());
+        addMsg(sb, "JIRA Project Error", getJiraProjectsError());
+        addMsg(sb, "Hub Project Error", getHubProjectsError());
+        String msg = sb.toString();
+        if (!StringUtils.isBlank(msg)) {
+            setHubProjectMappingError(msg);
+        }
+
+    }
+
+    private void addMsg(StringBuilder sb, String label, String msg) {
+        if (StringUtils.isBlank(msg)) {
+            return;
+        }
+        if (sb.length() > 0) {
+            sb.append("; ");
+        }
+        if (!StringUtils.isBlank(label)) {
+            sb.append(label);
+            sb.append(": ");
+        }
+        sb.append(msg);
+    }
+
     public String getConsolidatedErrorMessage() {
         if (!hasErrors()) {
             return "";

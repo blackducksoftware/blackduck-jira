@@ -431,6 +431,7 @@ public class HubJiraConfigController {
         });
         if (config.hasErrors()) {
             logger.error("There are one or more errors in the configuration: " + config.getConsolidatedErrorMessage());
+            config.enhanceMappingErrorMessage();
             return Response.ok(config).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
