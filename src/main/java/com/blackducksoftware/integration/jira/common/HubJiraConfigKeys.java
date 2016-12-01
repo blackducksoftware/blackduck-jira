@@ -44,6 +44,6 @@ public class HubJiraConfigKeys {
     @Deprecated
     public final static String HUB_CONFIG_JIRA_GROUPS = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubJiraGroups";
 
-    public final static String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubgroups";
+    public final static String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
 
 }
