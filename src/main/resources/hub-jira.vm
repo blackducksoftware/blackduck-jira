@@ -20,9 +20,9 @@
       </div>
       
 	<ul class="tab">
-  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
-  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
-  		<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
+  		<li><a href="javascript:void(0)" id="AdminTabButton" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
+  		<li><a href="javascript:void(0)" id="BasicTabButton" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
+  		<li><a href="javascript:void(0)" id="AdvancedTabButton" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
 	</ul>
 
 	<div id="Admin" class="tabcontent">
