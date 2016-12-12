@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -36,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +58,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.IllegalFieldValueException;
 
+import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.jira.issue.fields.FieldManager;
@@ -97,6 +100,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
 
 @Path("/")
 public class HubJiraConfigController {
+
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final UserManager userManager;
@@ -113,6 +117,8 @@ public class HubJiraConfigController {
 
     private final FieldManager fieldManager;
 
+    private final Properties i18nProperties;
+
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
             final HubMonitor hubMonitor,
@@ -125,6 +131,34 @@ public class HubJiraConfigController {
         this.hubMonitor = hubMonitor;
         this.groupPickerSearchService = groupPickerSearchService;
         this.fieldManager = fieldManager;
+
+        i18nProperties = new Properties();
+        populateI18nProperties();
+    }
+
+    private void populateI18nProperties() {
+        try (final InputStream stream = ClassLoaderUtils.getResourceAsStream(HubJiraConstants.PROPERTY_FILENAME, this.getClass())) {
+            if (stream != null) {
+                i18nProperties.load(stream);
+            } else {
+                logger.warn("Error opening property file: " + HubJiraConstants.PROPERTY_FILENAME);
+            }
+        } catch (IOException e) {
+            logger.warn("Error reading property file: " + HubJiraConstants.PROPERTY_FILENAME);
+        }
+        logger.debug("i18nProperties: " + i18nProperties);
+    }
+
+    private String getI18nProperty(String key) {
+        if (i18nProperties == null) {
+            return key;
+        }
+        String value = i18nProperties.getProperty(key);
+        if (value == null) {
+            return key;
+        }
+        logger.debug("TODO TEMP: returning value for: " + key + "=" + value);
+        return value;
     }
 
     private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
@@ -378,13 +412,18 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 final Fields sourceFields = new Fields();
                 logger.debug("Adding source fields");
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT.getName()));
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
+                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getDisplayNameProperty())));
                 sourceFields
-                        .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getName()));
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName()));
+                        .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
+                                getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getDisplayNameProperty())));
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
+                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getDisplayNameProperty())));
                 sourceFields.add(
-                        new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getName()));
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName()));
+                        new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(),
+                                getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getDisplayNameProperty())));
+                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(),
+                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getDisplayNameProperty())));
                 Collections.sort(sourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                 logger.debug("sourceFields: " + sourceFields);
                 return sourceFields;

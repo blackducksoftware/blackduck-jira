@@ -122,4 +122,20 @@ public class HubJiraConstants {
     public static final String VERSIONS_FIELD_ID = "versions";
 
     public static final String COMPONENTS_FIELD_ID = "components";
+
+    // i18n.properties file location
+
+    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n.properties";
+
+    // JIRA Custom Field display name labels
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.label";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.label";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.label";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.version.label";
+
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
 }
