@@ -166,8 +166,8 @@
 	<div id="Advanced" class="tabcontent">
   		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("hub.integration.jira.fieldCopy.label")</legend>
   		<div id="fieldCopyArea">
-  		
   		<fieldset class="fieldSection">
+  		<label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.fieldMappings.label")</label>
   		<!-- project pulldown -->
   		<!--
   			<table width="100%">
@@ -224,7 +224,7 @@
 								<div id="sourceFieldError">
 						    	</div>
 						    </td>
-						    <td class="mappingTableCell" width="25px"><div class="largeIcon fa fa-arrow-right"  title="$i18n.getText('hub.integration.jira.rightArrow.label')"></div></td>
+						    <td class="mappingTableCell" width="25px"> = </td>
 						    <td class="mappingTableCell">
 						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.targetFieldName.label')">
 								<datalist id="targetFields">
