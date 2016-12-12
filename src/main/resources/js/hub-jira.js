@@ -186,7 +186,7 @@ function populateForm() {
 		      gotJiraProjects = true;
 		    },
 		    error: function(response){
-		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the Jira Projects.", "Jira Project Error");
+		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -322,7 +322,7 @@ function resetSalKeys(){
 	    data: '{}',
 	    processData: false,
 	    success: function() {
-	    	alert('Hub Jira keys reset!');
+	    	alert('Hub JIRA keys reset!');
 	    },
 	    error: function(response){
 	    	alert(response.responseText);

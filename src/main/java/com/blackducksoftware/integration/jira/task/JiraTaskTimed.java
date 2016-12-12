@@ -76,7 +76,7 @@ public class JiraTaskTimed implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        logger.info("Running the Hub Jira periodic timed task.");
+        logger.info("Running the Hub JIRA periodic timed task.");
 
         JiraContext jiraContext = initJiraContext(configDetails.getJiraUserName());
         if (jiraContext == null) {
@@ -93,7 +93,7 @@ public class JiraTaskTimed implements Callable<String> {
         }
         final DateTime afterSetup = new DateTime();
         final Period diff = new Period(beforeSetup, afterSetup);
-        logger.info("Hub Jira setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
+        logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
                 + "ms.");
         final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
         HubServerConfig serverConfig = null;
@@ -103,13 +103,13 @@ public class JiraTaskTimed implements Callable<String> {
             logger.debug("Finished building Hub configuration");
         } catch (final IllegalStateException e) {
             logger.error(
-                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly: "
+                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
                             + e.getMessage());
             return "error";
         }
         if (hubConfigBuilder.buildResults().hasErrors()) {
             logger.error(
-                    "At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub Jira plugin) is not (yet) configured correctly.");
+                    "At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly.");
             return "error";
         }
         final HubJiraTask processor = new HubJiraTask(serverConfig, configDetails.getIntervalString(),
@@ -238,7 +238,7 @@ public class JiraTaskTimed implements Callable<String> {
         final UserManager jiraUserManager = jiraServices.getUserManager();
         final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
         if (jiraSysAdmin == null) {
-            logger.error("Could not find the Jira System admin that saved the Hub Jira config.");
+            logger.error("Could not find the JIRA System admin that saved the Hub JIRA config.");
             return null;
         }
 

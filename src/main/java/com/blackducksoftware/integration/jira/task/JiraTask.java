@@ -53,7 +53,7 @@ public class JiraTask implements PluginJob {
 
     @Override
     public void execute(final Map<String, Object> jobDataMap) {
-        logger.info("Running the Hub Jira task.");
+        logger.info("Running the Hub JIRA task.");
         logger.info("hub-jira plugin version: " + PluginVersion.getVersion());
         final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
         PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);

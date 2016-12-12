@@ -77,7 +77,7 @@ public class HubWorkflowSetup {
                         jiraServices.getWorkflowManager());
                 final ApplicationUser jiraAppUser = getJiraSystemAdmin();
                 if (jiraAppUser == null) {
-                    logger.error("Could not find any Jira System Admins to create the workflow.");
+                    logger.error("Could not find any JIRA System Admins to create the workflow.");
                     return null;
                 }
                 jiraServices.getWorkflowManager().createWorkflow(jiraAppUser, hubWorkflow);
@@ -85,7 +85,7 @@ public class HubWorkflowSetup {
             }
             return hubWorkflow;
         } catch (final Exception e) {
-            logger.error("Failed to add the Hub Jira worflow.", e);
+            logger.error("Failed to add the Hub JIRA worflow.", e);
             settingService.addHubError(e, "addHubWorkflow");
         }
         return null;
@@ -96,8 +96,8 @@ public class HubWorkflowSetup {
         final InputStream inputStream = ClassLoaderUtils
                 .getResourceAsStream(HubJiraConstants.HUB_JIRA_WORKFLOW_RESOURCE, this.getClass());
         if (inputStream == null) {
-            logger.error("Could not find the Hub Jira workflow resource.");
-            settingService.addHubError("Could not find the Hub Jira workflow resource.", "addHubWorkflow");
+            logger.error("Could not find the Hub JIRA workflow resource.");
+            settingService.addHubError("Could not find the Hub JIRA workflow resource.", "addHubWorkflow");
             return null;
         }
         final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
@@ -107,7 +107,7 @@ public class HubWorkflowSetup {
 
     public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow hubWorkflow, final Project project,
             final List<IssueType> issueTypes) {
-        
+
         try {
             final AssignableWorkflowScheme projectWorkflowScheme = jiraServices.getWorkflowSchemeManager()
                     .getWorkflowSchemeObj(project);
@@ -124,14 +124,14 @@ public class HubWorkflowSetup {
                     jiraServices.getWorkflowSchemeManager().updateWorkflowScheme(projectWorkflowSchemeBuilder.build());
                 }
             } else {
-                final String errorMessage = "Could not find the workflow scheme for the Jira project : "
+                final String errorMessage = "Could not find the workflow scheme for the JIRA project : "
                         + project.getName();
                 logger.error(errorMessage);
                 settingService.addHubError(errorMessage, null, null, project.getName(), null,
                         "addWorkflowToProjectsWorkflowScheme");
             }
         } catch (final Exception e) {
-            logger.error("Failed to add the Hub Jira worflow to the Hub scheme.", e);
+            logger.error("Failed to add the Hub JIRA worflow to the Hub scheme.", e);
             settingService.addHubError(e, null, null, project.getName(), null, "addWorkflowToProjectsWorkflowScheme");
         }
     }
@@ -139,13 +139,13 @@ public class HubWorkflowSetup {
     private boolean mapIssueTypeToBdsWorkflow(final Project project, final JiraWorkflow hubWorkflow,
             final AssignableWorkflowScheme projectWorkflowScheme, final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder,
             final IssueType issueType, boolean needsToBeUpdated) {
-        final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId()); 
+        final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId());
         String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
         logger.debug("Configured workflow: " + configuredWorkflowName);
         logger.debug("Actual workflow: " + actualWorkflowName);
         if ((StringUtils.isBlank(actualWorkflowName)) || (!actualWorkflowName.equals(hubWorkflow.getName()))) {
             projectWorkflowSchemeBuilder.setMapping(issueType.getId(), hubWorkflow.getName());
-            logger.debug("Updating Jira Project : " + project.getName() + ", Issue Type : "
+            logger.debug("Updating JIRA Project : " + project.getName() + ", Issue Type : "
                     + issueType.getName() + ", to the Hub workflow '" + hubWorkflow.getName() + "'");
             needsToBeUpdated = true;
         }

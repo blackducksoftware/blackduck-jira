@@ -85,12 +85,12 @@ public class JiraSettingsService {
             suffixBuilder.append(" / ");
         }
         if (StringUtils.isNotBlank(jiraProject)) {
-            suffixBuilder.append("Jira Project : ");
+            suffixBuilder.append("JIRA Project : ");
             suffixBuilder.append(jiraProject);
             suffixBuilder.append(" / ");
         }
         if (StringUtils.isNotBlank(jiraUser)) {
-            suffixBuilder.append("Jira User : ");
+            suffixBuilder.append("JIRA User : ");
             suffixBuilder.append(jiraUser);
             suffixBuilder.append(" / ");
         }

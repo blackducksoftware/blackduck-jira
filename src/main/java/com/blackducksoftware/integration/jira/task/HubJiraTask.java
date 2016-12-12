@@ -180,7 +180,7 @@ public class HubJiraTask {
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
                     config.getHubProjectMappings());
 
-            // Generate Jira Issues based on recent notifications
+            // Generate JIRA Issues based on recent notifications
             ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
@@ -208,7 +208,7 @@ public class HubJiraTask {
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
-        logger.debug("Jira user: " + this.jiraContext.getJiraUser().getName());
+        logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
 
         final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
 
