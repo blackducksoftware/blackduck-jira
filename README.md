@@ -1,5 +1,5 @@
 ## Overview ##
-Hub plugin for Atlassian Jira.  This plugin provides the ability to create Jira issues based on Policy violations in the Hub, and close them based on violation overrides.  Tickets will only be created for the Hub projects that are mapped to Jira projects and only for the violations that are selected.
+Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA issues based on Policy violations in the Hub, and close them based on violation overrides.  Tickets will only be created for the Hub projects that are mapped to JIRA projects and only for the violations that are selected.
 
 ## Build ##
 

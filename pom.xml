@@ -13,8 +13,8 @@
   <packaging>atlassian-plugin</packaging>
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
-  <name>Hub Jira Plugin</name>
-  <description>Hub Jira Integration</description>
+  <name>Hub JIRA Plugin</name>
+  <description>Hub JIRA Integration</description>
 
   <properties>
     <!-- 
