@@ -385,50 +385,56 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String username = userManager.getRemoteUsername(request);
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-
-                List<Project> jiraProjectObjects = projectManager.getProjectObjects();
-                final List<JiraProject> jiraProjects = getJiraProjects(jiraProjectObjects);
-
-                final RestConnection restConnection = getRestConnection(settings, config);
-                if (config.hasErrors()) {
-                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                    config.setPolicyRules(policyRules);
-                    config.setJiraProjects(jiraProjects);
-                    return config;
-                }
-                final ProjectRestService restService = getProjectRestService(restConnection, config);
-                final List<HubProject> hubProjects = getHubProjects(restService, config);
-                config.setHubProjects(hubProjects);
-                config.setJiraProjects(jiraProjects);
-                checkIntervalErrors(config);
-                checkMappingErrors(config);
-                if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
-                    final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-                    dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
-                            dateFormatter.format(new Date()));
-                }
-                final String previousInterval = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
-                        config.getIntervalBetweenChecks());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
-                        config.getHubProjectMappingsJson());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
-                updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
-                return null;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final String username = userManager.getRemoteUsername(request);
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+
+                    List<Project> jiraProjectObjects = projectManager.getProjectObjects();
+                    final List<JiraProject> jiraProjects = getJiraProjects(jiraProjectObjects);
+
+                    final RestConnection restConnection = getRestConnection(settings, config);
+                    if (config.hasErrors()) {
+                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                        config.setPolicyRules(policyRules);
+                        config.setJiraProjects(jiraProjects);
+                        return config;
+                    }
+                    final ProjectRestService restService = getProjectRestService(restConnection, config);
+                    final List<HubProject> hubProjects = getHubProjects(restService, config);
+                    config.setHubProjects(hubProjects);
+                    config.setJiraProjects(jiraProjects);
+                    checkIntervalErrors(config);
+                    checkMappingErrors(config);
+                    if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
+                                dateFormatter.format(new Date()));
+                    }
+                    final String previousInterval = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
+                            config.getIntervalBetweenChecks());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
+                            config.getHubProjectMappingsJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
+                    updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            String msg = "Exception during save: " + e.getMessage();
+            logger.error(msg, e);
+            config.setErrorMessage(msg);
+        }
         if (config.hasErrors()) {
             logger.error("There are one or more errors in the configuration: " + config.getConsolidatedErrorMessage());
             config.enhanceMappingErrorMessage();
@@ -490,31 +496,39 @@ public class HubJiraConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateHubAdminConfiguration(final HubAdminConfigSerializable adminConfig,
             @Context final HttpServletRequest request) {
-        final String username = userManager.getRemoteUsername(request);
-        if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        }
-        final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
-
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-
-                final HubAdminConfigSerializable responseObject = new HubAdminConfigSerializable();
-
-                if (!userIsSysAdmin) {
-                    responseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
-                    return responseObject;
-                } else {
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, adminConfig.getHubJiraGroups());
-                }
-                return null;
+        final Object responseObject;
+        try {
+            final String username = userManager.getRemoteUsername(request);
+            if (username == null) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
-        });
+            final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
 
-        if (obj != null) {
-            return Response.ok(obj).status(Status.BAD_REQUEST).build();
+            responseObject = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+                    final HubAdminConfigSerializable txResponseObject = new HubAdminConfigSerializable();
+
+                    if (!userIsSysAdmin) {
+                        txResponseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
+                        return txResponseObject;
+                    }
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, adminConfig.getHubJiraGroups());
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            String msg = "Exception during admin save: " + e.getMessage();
+            logger.error(msg, e);
+            final HubAdminConfigSerializable errorResponseObject = new HubAdminConfigSerializable();
+            errorResponseObject.setHubJiraGroupsError(msg);
+            return Response.ok(errorResponseObject).status(Status.BAD_REQUEST).build();
+        }
+
+        if (responseObject != null) {
+            return Response.ok(responseObject).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }
@@ -523,33 +537,40 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final Object responseString;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+
+            responseString = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    try {
+                        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+                        final Date runDate = new Date();
+
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
+                        setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
+                    } catch (final Exception e) {
+                        return e.getMessage();
+                    }
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            String msg = "Exception during reset: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(msg).status(Status.BAD_REQUEST).build();
         }
 
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                try {
-                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                    final Date runDate = new Date();
-
-                    final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-                    dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
-                    setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
-                } catch (final Exception e) {
-                    return e.getMessage();
-                }
-                return null;
-            }
-        });
-
-        if (obj != null) {
-            return Response.ok(obj).status(Status.BAD_REQUEST).build();
+        if (responseString != null) {
+            return Response.ok(responseString).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }
