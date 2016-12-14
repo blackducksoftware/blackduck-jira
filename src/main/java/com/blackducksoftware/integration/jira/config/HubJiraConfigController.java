@@ -717,6 +717,10 @@ public class HubJiraConfigController {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
+                if (!isValid(fieldCopyConfig)) {
+                    return null;
+                }
+
                 setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
                         fieldCopyConfig.getJson());
                 return null;
@@ -726,6 +730,34 @@ public class HubJiraConfigController {
             return Response.ok(fieldCopyConfig).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
+    }
+
+    private boolean isValid(final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        if (fieldCopyConfig.getProjectFieldCopyMappings().size() == 0) {
+            fieldCopyConfig.setErrorMessage(JiraConfigErrors.NO_VALID_FIELD_CONFIGURATIONS);
+            return false;
+        }
+
+        for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+            if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldId())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldId())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldName())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldName())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Path("/reset")

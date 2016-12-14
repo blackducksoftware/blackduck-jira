@@ -44,4 +44,10 @@ public class JiraConfigErrors {
     public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 
     public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only JIRA system admins can update the list of JIRA groups that can access the Hub JIRA configuration.";
+
+    public static final String NO_VALID_FIELD_CONFIGURATIONS = "At least one valid field configuration is required in order to save.";
+
+    public static final String FIELD_CONFIGURATION_INVALID_SOURCE_FIELD = "The Hub Field in one of the field mappings is invalid.";
+
+    public static final String FIELD_CONFIGURATION_INVALID_TARGET_FIELD = "The JIRA Field in one of the field mappings is invalid.";
 }
