@@ -35,6 +35,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.project.type.ProjectTypeKey;
+import com.atlassian.jira.task.context.Context;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
@@ -344,6 +345,12 @@ public class ProjectManagerMock implements ProjectManager {
     public Project updateProjectType(final ApplicationUser arg0, final Project arg1, final ProjectTypeKey arg2) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void removeProjectIssues(Project arg0, Context arg1) throws RemoveException {
+        // TODO Auto-generated method stub
+
     }
 
 }

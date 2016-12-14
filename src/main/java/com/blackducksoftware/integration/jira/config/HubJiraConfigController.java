@@ -565,49 +565,55 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String username = userManager.getRemoteUsername(request);
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-
-                final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
-                final RestConnection restConnection = getRestConnection(settings, config);
-                if (config.hasErrors()) {
-                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                    config.setPolicyRules(policyRules);
-                    config.setJiraProjects(jiraProjects);
-                    return config;
-                }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
-                final List<HubProject> hubProjects = getHubProjects(restService, config);
-                config.setHubProjects(hubProjects);
-                config.setJiraProjects(jiraProjects);
-                checkIntervalErrors(config);
-                checkMappingErrors(config);
-                if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
-                    final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-                    dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
-                            dateFormatter.format(new Date()));
-                }
-                final String previousInterval = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
-                        config.getIntervalBetweenChecks());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
-                        config.getHubProjectMappingsJson());
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
-                updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
-                return null;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final String username = userManager.getRemoteUsername(request);
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+
+                    final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+
+                    final RestConnection restConnection = getRestConnection(settings, config);
+                    if (config.hasErrors()) {
+                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                        config.setPolicyRules(policyRules);
+                        config.setJiraProjects(jiraProjects);
+                        return config;
+                    }
+                    final HubIntRestService restService = getHubRestService(restConnection, config);
+                    final List<HubProject> hubProjects = getHubProjects(restService, config);
+                    config.setHubProjects(hubProjects);
+                    config.setJiraProjects(jiraProjects);
+                    checkIntervalErrors(config);
+                    checkMappingErrors(config);
+                    if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
+                                dateFormatter.format(new Date()));
+                    }
+                    final String previousInterval = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
+                            config.getIntervalBetweenChecks());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
+                            config.getHubProjectMappingsJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
+                    updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
+                    return null;
+                }
+            });
+        } catch (final Exception e) {
+            String msg = "Exception during save: " + e.getMessage();
+            logger.error(msg, e);
+            config.setErrorMessage(msg);
+        }
         if (config.hasErrors()) {
             return Response.ok(config).status(Status.BAD_REQUEST).build();
         }
@@ -667,31 +673,39 @@ public class HubJiraConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateHubAdminConfiguration(final HubAdminConfigSerializable adminConfig,
             @Context final HttpServletRequest request) {
-        final String username = userManager.getRemoteUsername(request);
-        if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        }
-        final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
-
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-
-                final HubAdminConfigSerializable responseObject = new HubAdminConfigSerializable();
-
-                if (!userIsSysAdmin) {
-                    responseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
-                    return responseObject;
-                } else {
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
-                }
-                return null;
+        final Object responseObject;
+        try {
+            final String username = userManager.getRemoteUsername(request);
+            if (username == null) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
-        });
+            final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
 
-        if (obj != null) {
-            return Response.ok(obj).status(Status.BAD_REQUEST).build();
+            responseObject = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+                    final HubAdminConfigSerializable txResponseObject = new HubAdminConfigSerializable();
+
+                    if (!userIsSysAdmin) {
+                        txResponseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
+                        return txResponseObject;
+                    } else {
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
+                    }
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            String msg = "Exception during admin save: " + e.getMessage();
+            logger.error(msg, e);
+            final HubAdminConfigSerializable errorResponseObject = new HubAdminConfigSerializable();
+            errorResponseObject.setHubJiraGroupsError(msg);
+            return Response.ok(errorResponseObject).status(Status.BAD_REQUEST).build();
+        }
+        if (responseObject != null) {
+            return Response.ok(responseObject).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }
@@ -701,31 +715,36 @@ public class HubJiraConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateFieldCopyConfiguration(final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             @Context final HttpServletRequest request) {
+        try {
+            logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
+            logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
+            for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+                logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
+            }
 
-        logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
-        logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
-        for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
-            logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
-        }
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
 
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    if (!isValid(fieldCopyConfig)) {
+                        return null;
+                    }
 
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                if (!isValid(fieldCopyConfig)) {
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
+                            fieldCopyConfig.getJson());
                     return null;
                 }
-
-                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
-                        fieldCopyConfig.getJson());
-                return null;
-            }
-        });
+            });
+        } catch (Exception e) {
+            String msg = "Exception during admin save: " + e.getMessage();
+            logger.error(msg, e);
+            fieldCopyConfig.setErrorMessage(msg);
+        }
         if (fieldCopyConfig.hasErrors()) {
             return Response.ok(fieldCopyConfig).status(Status.BAD_REQUEST).build();
         }
@@ -764,33 +783,39 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                try {
-                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                    final Date runDate = new Date();
-
-                    final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-                    dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
-                    setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
-                } catch (final Exception e) {
-                    return e.getMessage();
-                }
-                return null;
+        final Object responseString;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
 
-        if (obj != null) {
-            return Response.ok(obj).status(Status.BAD_REQUEST).build();
+            responseString = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    try {
+                        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+                        final Date runDate = new Date();
+
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
+                        setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
+                    } catch (final Exception e) {
+                        return e.getMessage();
+                    }
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            String msg = "Exception during reset: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(msg).status(Status.BAD_REQUEST).build();
+        }
+        if (responseString != null) {
+            return Response.ok(responseString).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }
@@ -804,7 +829,7 @@ public class HubJiraConfigController {
                 hubMonitor.changeInterval();
             }
         } catch (final IllegalArgumentException e) {
-            // the new interval was not an integer
+            logger.error("The specified interval is not an integer.");
         }
     }
 
