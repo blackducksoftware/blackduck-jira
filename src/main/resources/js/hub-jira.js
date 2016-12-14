@@ -112,8 +112,10 @@ function initTabs() {
     // evt.currentTarget.className += " active";
 }
 
-function openTab(evt, cityName) {
-	console.log("Opening: " + cityName);
+function openTab(evt, tabId) {
+	console.log("Opening: " + tabId);
+	
+	resetStatusMessage();
 	
     // Declare all variables
     var i, tabcontent, tablinks;
@@ -131,7 +133,7 @@ function openTab(evt, cityName) {
     }
 
     // Show the current tab, and add an "active" class to the link that opened the tab
-    document.getElementById(cityName).style.display = "block";
+    document.getElementById(tabId).style.display = "block";
     evt.currentTarget.className += " active";
 }
 
