@@ -781,7 +781,7 @@ function getJsonArrayFromFieldCopyMapping(){
 		var currentTargetFieldId = currentTargetField.attr('id');
 		var currentTargetFieldError = currentTargetField.attr('fieldError');
 		
-		if (isNullOrWhitespace(currentSourceFieldId) || isNullOrWhitespace(currentTargetFieldId)) {
+		if (isNullOrWhitespace(currentSourceFieldId) && isNullOrWhitespace(currentTargetFieldId)) {
 			console.log("Skipping empty field copy mapping row");
 			addMappingErrorStatus(mappingElement);
 		} else {
