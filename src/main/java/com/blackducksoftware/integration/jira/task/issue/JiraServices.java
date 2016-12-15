@@ -56,7 +56,7 @@ import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 
 public class JiraServices {
@@ -149,11 +149,11 @@ public class JiraServices {
         return ComponentAccessor.getIssueTypeScreenSchemeManager();
     }
 
-    public JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
+    public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
         final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
                 .getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
-            throw new NotificationServiceException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+            throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
         }
         final String jiraProjectKey = atlassianJiraProject.getKey();
         final String jiraProjectName = atlassianJiraProject.getName();

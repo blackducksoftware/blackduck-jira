@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubProjectMappings {
@@ -57,7 +57,7 @@ public class HubProjectMappings {
             final JiraProject jiraProject;
             try {
                 jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
-            } catch (final NotificationServiceException e) {
+            } catch (final HubIntegrationException e) {
                 logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID "
                         + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
                 continue;
