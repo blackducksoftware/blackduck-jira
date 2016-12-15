@@ -180,4 +180,9 @@ public class HubJiraLogger extends IntLogger {
             }
         }
     }
+
+    @Override
+    public void alwaysLog(String txt) {
+        logMessageInfo(txt);
+    }
 }
