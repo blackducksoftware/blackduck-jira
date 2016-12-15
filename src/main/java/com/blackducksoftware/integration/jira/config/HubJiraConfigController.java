@@ -806,7 +806,7 @@ public class HubJiraConfigController {
                             if (description == null) {
                                 description = "";
                             }
-                            newRule.setDescription(description.trim());
+                            newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.getName().trim());
                             newRule.setPolicyUrl(rule.getMeta().getHref());
                             newRule.setEnabled(rule.getEnabled());
@@ -836,6 +836,19 @@ public class HubJiraConfigController {
                     concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
         }
 
+    }
+
+    private String cleanDescription(String origString) {
+        return removeCharsFromString(origString.trim(), "\n\r\t");
+    }
+
+    private String removeCharsFromString(String origString, String charsToRemoveString) {
+        String cleanerString = origString;
+        char[] charsToRemove = charsToRemoveString.toCharArray();
+        for (char c : charsToRemove) {
+            cleanerString = cleanerString.replace(c, ' ');
+        }
+        return cleanerString;
     }
 
     private String concatErrorMessage(final String originalMessage, final String newMessage) {
