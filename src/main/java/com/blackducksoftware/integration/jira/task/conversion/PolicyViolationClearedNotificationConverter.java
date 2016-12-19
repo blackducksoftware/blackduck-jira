@@ -26,10 +26,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -49,17 +50,21 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
+    private final MetaService metaService;
+
     public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final MetaService metaService) throws ConfigurationException {
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService);
         this.fieldCopyConfig = fieldCopyConfig;
+        this.metaService = metaService;
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, HubIntegrationException {
         final List<HubEvent> events = new ArrayList<>();
 
         HubEventAction action = HubEventAction.RESOLVE;
@@ -71,7 +76,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings());
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings(), metaService);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }

@@ -27,11 +27,14 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.HubUrlParser;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -57,10 +60,10 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
             final PolicyContentItem notificationContentItem,
             final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
             final String resolveComment,
-            final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
+            final Set<ProjectFieldCopyMapping> projectFieldCopyMappings, final MetaService metaService) {
 
         super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-                projectFieldCopyMappings, notificationContentItem);
+                projectFieldCopyMappings, notificationContentItem, metaService);
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
         this.comment = comment;
@@ -77,7 +80,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     }
 
     @Override
-    public String getUniquePropertyKey() throws URISyntaxException {
+    public String getUniquePropertyKey() throws HubIntegrationException, URISyntaxException {
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
@@ -91,22 +94,23 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(getNotificationContentItem().getProjectVersion().getRelativeUrl()));
+
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getNotificationContentItem().getProjectVersion().getUrl())));
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(getNotificationContentItem().getComponentRelativeUrl()));
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getNotificationContentItem().getComponentUrl())));
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(getNotificationContentItem().getComponentVersionRelativeUrl()));
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getNotificationContentItem().getComponentVersionUrl())));
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(getPolicyRule().getMeta().getRelativeHref()));
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getMetaService().getHref(getPolicyRule()))));
 
         final String key = keyBuilder.toString();
         logger.debug("property key: " + key);
@@ -175,6 +179,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
         return gson.fromJson(json, PolicyViolationIssueProperties.class);
     }
 
+    // TODO: This class shouldn't know about JIRA issues; just pass in the ID, not the whole Issue
     @Override
     public IssueProperties createIssueProperties(final Issue issue) {
         final IssueProperties properties = new PolicyViolationIssueProperties(

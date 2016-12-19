@@ -26,8 +26,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -43,9 +44,9 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
     public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final String issueTypeName)
+            final String issueTypeName, final MetaService metaService)
             throws ConfigurationException {
-        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName);
+        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService);
     }
 
     @Override
@@ -82,5 +83,5 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException;
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, HubIntegrationException;
 }

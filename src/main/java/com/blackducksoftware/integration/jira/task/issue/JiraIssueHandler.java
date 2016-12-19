@@ -47,6 +47,7 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -134,7 +135,7 @@ public class JiraIssueHandler {
         String notificationUniqueKey = null;
         try {
             notificationUniqueKey = notificationEvent.getUniquePropertyKey();
-        } catch (final URISyntaxException e) {
+        } catch (final URISyntaxException | HubIntegrationException e) {
             logger.error(e);
             jiraSettingsService.addHubError(e, notificationEvent.getNotif().getProjectVersion().getProjectName(),
                     notificationEvent.getNotif().getProjectVersion().getProjectVersionName(),

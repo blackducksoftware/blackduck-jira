@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.jira.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,20 +69,21 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.HubVersionRestService;
-import com.blackducksoftware.integration.hub.api.item.HubItemFilterUtil;
-import com.blackducksoftware.integration.hub.api.policy.PolicyRestService;
+import com.blackducksoftware.integration.hub.api.item.HubItemFilter;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRequestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectItem;
+import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.capabilities.HubCapabilitiesEnum;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -118,6 +118,10 @@ public class HubJiraConfigController {
     private final FieldManager fieldManager;
 
     private final Properties i18nProperties;
+
+    private HubServicesFactory hubServicesFactory;
+
+    private MetaService metaService;
 
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
@@ -157,7 +161,6 @@ public class HubJiraConfigController {
         if (value == null) {
             return key;
         }
-        logger.debug("TODO TEMP: returning value for: " + key + "=" + value);
         return value;
     }
 
@@ -196,60 +199,68 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHubJiraAdminConfiguration(@Context final HttpServletRequest request) {
-        final String username = userManager.getRemoteUsername(request);
-        if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        }
-        final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
-        final String hubJiraGroupsString;
-        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
-            hubJiraGroupsString = oldHubJiraGroupsString;
-            setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
-            setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
-        } else {
-            hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
-        }
-        if (!userIsSysAdmin) {
-            if (StringUtils.isBlank(hubJiraGroupsString)) {
+        final Object adminConfig;
+        try {
+            final String username = userManager.getRemoteUsername(request);
+            if (username == null) {
                 return Response.status(Status.UNAUTHORIZED).build();
-            } else {
-                final String[] hubJiraGroups = hubJiraGroupsString.split(",");
-                boolean userIsInGroups = false;
-                for (final String hubJiraGroup : hubJiraGroups) {
-                    if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
-                        userIsInGroups = true;
-                        break;
-                    }
-                }
-                if (!userIsInGroups) {
-                    return Response.status(Status.UNAUTHORIZED).build();
-                }
             }
-        }
-
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final HubAdminConfigSerializable adminConfig = new HubAdminConfigSerializable();
-                adminConfig.setHubJiraGroups(hubJiraGroupsString);
-                if (userIsSysAdmin) {
-                    final List<String> jiraGroups = new ArrayList<>();
-
-                    final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
-                    if (jiraGroupCollection != null && !jiraGroupCollection.isEmpty()) {
-                        for (final Group group : jiraGroupCollection) {
-                            jiraGroups.add(group.getName());
+            final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+            final String hubJiraGroupsString;
+            if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
+                hubJiraGroupsString = oldHubJiraGroupsString;
+                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
+                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
+            } else {
+                hubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+            }
+            if (!userIsSysAdmin) {
+                if (StringUtils.isBlank(hubJiraGroupsString)) {
+                    return Response.status(Status.UNAUTHORIZED).build();
+                } else {
+                    final String[] hubJiraGroups = hubJiraGroupsString.split(",");
+                    boolean userIsInGroups = false;
+                    for (final String hubJiraGroup : hubJiraGroups) {
+                        if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
+                            userIsInGroups = true;
+                            break;
                         }
                     }
-                    adminConfig.setJiraGroups(jiraGroups);
+                    if (!userIsInGroups) {
+                        return Response.status(Status.UNAUTHORIZED).build();
+                    }
                 }
-                return adminConfig;
             }
-        });
 
-        return Response.ok(obj).build();
+            adminConfig = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubAdminConfigSerializable txAdminConfig = new HubAdminConfigSerializable();
+                    txAdminConfig.setHubJiraGroups(hubJiraGroupsString);
+                    if (userIsSysAdmin) {
+                        final List<String> jiraGroups = new ArrayList<>();
+
+                        final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
+                        if (jiraGroupCollection != null && !jiraGroupCollection.isEmpty()) {
+                            for (final Group group : jiraGroupCollection) {
+                                jiraGroups.add(group.getName());
+                            }
+                        }
+                        txAdminConfig.setJiraGroups(jiraGroups);
+                    }
+                    return txAdminConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubAdminConfigSerializable errorAdminConfig = new HubAdminConfigSerializable();
+            String msg = "Error getting admin config: " + e.getMessage();
+            logger.error(msg, e);
+            errorAdminConfig.setHubJiraGroupsError(msg);
+            return Response.ok(errorAdminConfig).build();
+        }
+        return Response.ok(adminConfig).build();
     }
 
     @Path("/hubJiraTicketErrors")
@@ -290,276 +301,358 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterval(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-                final String intervalBetweenChecks = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-
-                config.setIntervalBetweenChecks(intervalBetweenChecks);
-
-                checkIntervalErrors(config);
-                return config;
+        // TODO try typing these objects
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-        return Response.ok(obj).build();
+                    final String intervalBetweenChecks = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+
+                    txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
+
+                    checkIntervalErrors(txConfig);
+                    return txConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting interval config: " + e.getMessage();
+            logger.error(msg, e);
+            errorAdminConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorAdminConfig).build();
+        }
+        return Response.ok(config).build();
     }
 
     @Path("/jiraProjects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJiraProjects(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-                config.setJiraProjects(jiraProjects);
-
-                if (jiraProjects.size() == 0) {
-                    config.setJiraProjectsError(JiraConfigErrors.NO_JIRA_PROJECTS_FOUND);
-                }
-                return config;
+        final Object projectsConfig;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
-        return Response.ok(obj).build();
+            projectsConfig = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+
+                    final HubJiraConfigSerializable txProjectsConfig = new HubJiraConfigSerializable();
+                    txProjectsConfig.setJiraProjects(jiraProjects);
+
+                    if (jiraProjects.size() == 0) {
+                        txProjectsConfig.setJiraProjectsError(JiraConfigErrors.NO_JIRA_PROJECTS_FOUND);
+                    }
+                    return txProjectsConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting JIRA projects config: " + e.getMessage();
+            logger.error(msg, e);
+            errorAdminConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorAdminConfig).build();
+        }
+        return Response.ok(projectsConfig).build();
     }
 
     @Path("/hubProjects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHubProjects(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final Object projectsConfig;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            projectsConfig = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
 
-                final RestConnection restConnection = getRestConnection(settings, config);
-                if (config.hasErrors()) {
-                    final List<HubProject> hubProjects = new ArrayList<>(0);
+                    final RestConnection restConnection = getRestConnection(settings, config);
+                    if (config.hasErrors()) {
+                        final List<HubProject> hubProjects = new ArrayList<>(0);
+                        config.setHubProjects(hubProjects);
+                        return config;
+                    }
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
+                    if (hubServicesFactory == null) {
+                        return config;
+                    }
+
+                    final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
+
+                    if (hubProjects.size() == 0) {
+                        config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
+                    }
                     return config;
                 }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
-
-                final List<HubProject> hubProjects = getHubProjects(restService, config);
-                config.setHubProjects(hubProjects);
-
-                if (hubProjects.size() == 0) {
-                    config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
-                }
-                return config;
-            }
-        });
-        return Response.ok(obj).build();
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting Hub projects config: " + e.getMessage();
+            logger.error(msg, e);
+            errorAdminConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorAdminConfig).build();
+        }
+        return Response.ok(projectsConfig).build();
     }
 
     @Path("/pluginInfo")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPluginVersion(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                PluginInfoSerializable pluginInfo = new PluginInfoSerializable();
-
-                logger.debug("Getting plugin version string");
-                String pluginVersion = PluginVersion.getVersion();
-                logger.debug("pluginVersion: " + pluginVersion);
-                pluginInfo.setPluginVersion(pluginVersion);
-                return pluginInfo;
+        final Object pluginInfo;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
-        return Response.ok(obj).build();
+            pluginInfo = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
+
+                    logger.debug("Getting plugin version string");
+                    String pluginVersion = PluginVersion.getVersion();
+                    logger.debug("pluginVersion: " + pluginVersion);
+                    txPluginInfo.setPluginVersion(pluginVersion);
+                    return txPluginInfo;
+                }
+            });
+        } catch (Exception e) {
+            final PluginInfoSerializable errorPluginInfo = new PluginInfoSerializable();
+            String msg = "Error getting Plugin info: " + e.getMessage();
+            logger.error(msg, e);
+            errorPluginInfo.setPluginVersion("<unknown>");
+            return Response.ok(errorPluginInfo).build();
+        }
+        return Response.ok(pluginInfo).build();
     }
 
     @Path("/sourceFields")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSourceFields(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final Fields sourceFields = new Fields();
-                logger.debug("Adding source fields");
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
-                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getDisplayNameProperty())));
-                sourceFields
-                        .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
-                                getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getDisplayNameProperty())));
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
-                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getDisplayNameProperty())));
-                sourceFields.add(
-                        new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(),
-                                getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getDisplayNameProperty())));
-                sourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(),
-                        getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getDisplayNameProperty())));
-                Collections.sort(sourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
-                logger.debug("sourceFields: " + sourceFields);
-                return sourceFields;
+        final Object sourceFields;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
 
-        });
+            sourceFields = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final Fields txSourceFields = new Fields();
+                    logger.debug("Adding source fields");
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getDisplayNameProperty())));
+                    txSourceFields
+                            .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
+                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getDisplayNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getDisplayNameProperty())));
+                    txSourceFields.add(
+                            new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(),
+                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getDisplayNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getDisplayNameProperty())));
+                    Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                    logger.debug("sourceFields: " + txSourceFields);
+                    return txSourceFields;
+                }
 
-        return Response.ok(obj).build();
+            });
+        } catch (Exception e) {
+            final Fields errorSourceFields = new Fields();
+            String msg = "Error getting source fields: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorSourceFields).build();
+            // TODO need an error field on fields?
+        }
+        return Response.ok(sourceFields).build();
     }
 
     @Path("/targetFields")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTargetFields(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final Object targetFields;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+
+            targetFields = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    Fields txTargetFields;
+                    try {
+                        txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
+                    } catch (JiraException e) {
+                        txTargetFields = new Fields();
+                        txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
+                        return txTargetFields;
+                    }
+                    Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                    logger.debug("targetFields: " + txTargetFields);
+                    return txTargetFields;
+                }
+            });
+        } catch (Exception e) {
+            final Fields errorTargetFields = new Fields();
+            String msg = "Error getting target fields: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorTargetFields).build();
+            // TODO need an error field on fields?
         }
 
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                Fields targetFields;
-                try {
-                    targetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
-                } catch (JiraException e) {
-                    targetFields = new Fields();
-                    targetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
-                    return targetFields;
-                }
-                Collections.sort(targetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
-                logger.debug("targetFields: " + targetFields);
-                return targetFields;
-            }
-        });
-
-        return Response.ok(obj).build();
+        return Response.ok(targetFields).build();
     }
 
     @Path("/hubPolicies")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHubPolicies(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-
-                final String policyRulesJson = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-                final RestConnection restConnection = getRestConnection(settings, config);
-                if (config.hasErrors()) {
-                    final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                    config.setPolicyRules(policyRules);
-                    return config;
-                }
-                final HubIntRestService restService = getHubRestService(restConnection, config);
-
-                if (StringUtils.isNotBlank(policyRulesJson)) {
-                    config.setPolicyRulesJson(policyRulesJson);
-                }
-                HubVersionRestService hubVersionRestService = getHubVersionRestService(restConnection);
-                setHubPolicyRules(hubVersionRestService, config);
-                return config;
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
-        return Response.ok(obj).build();
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+
+                    final String policyRulesJson = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
+
+                    final RestConnection restConnection = getRestConnection(settings, txConfig);
+                    if (txConfig.hasErrors()) {
+                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
+                        txConfig.setPolicyRules(policyRules);
+                        return txConfig;
+                    }
+
+                    if (StringUtils.isNotBlank(policyRulesJson)) {
+                        txConfig.setPolicyRulesJson(policyRulesJson);
+                    }
+
+                    setHubPolicyRules(getHubServicesFactory(restConnection, txConfig), txConfig);
+                    return txConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting policies: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+
+        return Response.ok(config).build();
     }
 
-    HubVersionRestService getHubVersionRestService(final RestConnection restConnection) {
-        return new HubVersionRestService(restConnection);
+    // TODO why not instantiate in ctor?
+    HubVersionRequestService getHubVersionRequestService(final RestConnection restConnection) {
+        return new HubVersionRequestService(restConnection);
     }
 
     @Path("/mappings")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMappings(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-
-                final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-
-                final String hubProjectMappingsJson = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-
-                config.setHubProjectMappingsJson(hubProjectMappingsJson);
-
-                checkMappingErrors(config);
-                return config;
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
-        return Response.ok(obj).build();
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
+
+                    final String hubProjectMappingsJson = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+                    txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
+
+                    checkMappingErrors(txConfig);
+                    return txConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting project mappings: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
     }
 
     @Path("/fieldCopyMappings")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFieldCopyMappings(@Context final HttpServletRequest request) {
-        logger.debug("Get /fieldCopyMappings");
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
-        }
-        final Object obj = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-
-                final HubJiraFieldCopyConfigSerializable config = new HubJiraFieldCopyConfigSerializable();
-
-                final String hubFieldCopyMappingsJson = getStringValue(settings,
-                        HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
-
-                logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
-                config.setJson(hubFieldCopyMappingsJson);
-                logger.debug("HubJiraFieldCopyConfigSerializable.getJson(): " + config.getJson());
-                return config;
+        Object config = null;
+        try {
+            logger.debug("Get /fieldCopyMappings");
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
             }
-        });
-        HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) obj;
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+
+                    final HubJiraFieldCopyConfigSerializable txConfig = new HubJiraFieldCopyConfigSerializable();
+
+                    final String hubFieldCopyMappingsJson = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+
+                    logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
+                    txConfig.setJson(hubFieldCopyMappingsJson);
+                    logger.debug("HubJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
+                    return txConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting field mappings: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+
+        HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
         logger.debug("returnValue: " + returnValue);
-        return Response.ok(obj).build();
+        return Response.ok(config).build();
     }
 
     @PUT
@@ -585,8 +678,8 @@ public class HubJiraConfigController {
                         config.setJiraProjects(jiraProjects);
                         return config;
                     }
-                    final HubIntRestService restService = getHubRestService(restConnection, config);
-                    final List<HubProject> hubProjects = getHubProjects(restService, config);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
+                    final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
                     checkIntervalErrors(config);
@@ -915,16 +1008,17 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    HubIntRestService getHubRestService(final RestConnection restConnection, final HubJiraConfigSerializable config) {
-
-        HubIntRestService hubRestService = null;
-        try {
-            hubRestService = new HubIntRestService(restConnection);
-        } catch (IllegalArgumentException | URISyntaxException e) {
-            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
-            return null;
+    // TODO revisit this; why not init hubServicesFactory in ctor
+    HubServicesFactory getHubServicesFactory(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+        if (hubServicesFactory == null) {
+            try {
+                hubServicesFactory = new HubServicesFactory(restConnection);
+            } catch (HubIntegrationException e) {
+                config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+                return null;
+            }
         }
-        return hubRestService;
+        return hubServicesFactory;
     }
 
     RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
@@ -952,7 +1046,7 @@ public class HubJiraConfigController {
         final String encHubProxyPassword = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
         final String hubProxyPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        RestConnection restConnection = null;
+        CredentialsRestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
             configBuilder.setHubUrl(hubUrl);
@@ -967,67 +1061,88 @@ public class HubJiraConfigController {
             configBuilder.setProxyPassword(encHubProxyPassword);
             configBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPasswordLength));
 
-            final HubServerConfig serverConfig = configBuilder.build();
-            if (configBuilder.buildResults().hasErrors()) {
+            final HubServerConfig serverConfig;
+            try {
+                serverConfig = configBuilder.build();
+            } catch (IllegalStateException e) {
+                logger.error("Error in Hub server configuration: " + e.getMessage());
                 config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
                 return null;
             }
 
             restConnection = new CredentialsRestConnection(logger, serverConfig);
-            restConnection.setTimeout(serverConfig.getTimeout());
-            restConnection.setProxyProperties(serverConfig.getProxyInfo());
-            restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
-                    serverConfig.getGlobalCredentials().getDecryptedPassword());
+            restConnection.connect();
 
-        } catch (IllegalArgumentException | URISyntaxException | BDRestException | EncryptionException e) {
+        } catch (IllegalArgumentException | HubIntegrationException e) {
             config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
         return restConnection;
     }
 
-    private List<HubProject> getHubProjects(final HubIntRestService hubRestService,
+    private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        if (hubRestService != null) {
-            List<ProjectItem> hubProjectItems = null;
-            try {
-                hubProjectItems = hubRestService.getProjectMatches(null);
-            } catch (IOException | BDRestException | URISyntaxException e) {
-                config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
-            }
+        ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        List<ProjectItem> hubProjectItems = null;
+        try {
+            hubProjectItems = projectRequestService.getAllProjects();
+        } catch (HubIntegrationException e) {
+            config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
+            return hubProjects;
+        }
 
-            final HubItemFilterUtil<ProjectItem> filter = new HubItemFilterUtil<>();
-            hubProjectItems = filter.getAccessibleItems(hubProjectItems);
+        final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
+        MetaService metaService;
+        metaService = getMetaService(hubServicesFactory);
+        try {
+            hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
+        } catch (HubIntegrationException e1) {
+            config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
+            return hubProjects;
+        }
 
-            if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
-                for (final ProjectItem project : hubProjectItems) {
-                    final HubProject newHubProject = new HubProject();
-                    newHubProject.setProjectName(project.getName());
-                    newHubProject.setProjectUrl(project.getMeta().getHref());
-                    hubProjects.add(newHubProject);
+        if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
+            for (final ProjectItem project : hubProjectItems) {
+                final HubProject newHubProject = new HubProject();
+                newHubProject.setProjectName(project.getName());
+                try {
+                    newHubProject.setProjectUrl(metaService.getHref(project));
+                } catch (HubIntegrationException e) {
+                    config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
+                    continue;
                 }
+                hubProjects.add(newHubProject);
             }
         }
         return hubProjects;
     }
 
-    private void setHubPolicyRules(final HubVersionRestService restService, final HubJiraConfigSerializable config) {
+    // TODO revisit this; why not initialize metaService in ctor? would be safer (= never null)
+    private MetaService getMetaService(final HubServicesFactory hubServicesFactory) {
+        if (metaService == null) {
+            metaService = hubServicesFactory.createMetaService(logger);
+        }
+        return metaService;
+    }
+
+    private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
-        if (restService != null) {
+        if (hubServicesFactory != null) {
             final HubSupportHelper supportHelper = new HubSupportHelper();
             try {
+                HubVersionRequestService restService = hubServicesFactory.createHubVersionRequestService();
                 supportHelper.checkHubSupport(restService, null);
 
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-                    final PolicyRestService policyService = getPolicyService(restService.getRestConnection());
+                    final PolicyRequestService policyService = getPolicyService(restService.getRestConnection());
 
                     List<PolicyRule> policyRules = null;
                     try {
                         policyRules = policyService.getAllPolicyRules();
-                    } catch (IOException | URISyntaxException | BDRestException e) {
+                    } catch (HubIntegrationException e) {
                         config.setPolicyRulesError(e.getMessage());
                     }
 
@@ -1041,7 +1156,14 @@ public class HubJiraConfigController {
                             }
                             newRule.setDescription(description.trim());
                             newRule.setName(rule.getName().trim());
-                            newRule.setPolicyUrl(rule.getMeta().getHref());
+
+                            try {
+                                newRule.setPolicyUrl(getMetaService(hubServicesFactory).getHref(rule));
+                            } catch (HubIntegrationException e) {
+                                logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
+                                config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
+                                continue;
+                            }
                             newRule.setEnabled(rule.getEnabled());
                             newPolicyRules.add(newRule);
                         }
@@ -1059,7 +1181,7 @@ public class HubJiraConfigController {
                 } else {
                     config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
                 }
-            } catch (IOException | URISyntaxException e) {
+            } catch (Exception e) {
                 config.setPolicyRulesError(e.getMessage());
             }
         }
@@ -1081,8 +1203,8 @@ public class HubJiraConfigController {
         return errorMsg;
     }
 
-    public PolicyRestService getPolicyService(final RestConnection restConnection) {
-        return new PolicyRestService(restConnection);
+    public PolicyRequestService getPolicyService(final RestConnection restConnection) {
+        return new PolicyRequestService(restConnection);
     }
 
     private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {

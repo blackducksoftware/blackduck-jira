@@ -34,17 +34,14 @@ import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.api.HubServicesFactory;
-import com.blackducksoftware.integration.hub.api.HubVersionRestService;
-import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
-import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -141,6 +138,7 @@ public class HubJiraTask {
 
         try {
             final RestConnection restConnection = initRestConnection();
+            final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
             final HubIntRestService hub = initHubRestService(restConnection);
 
             if (jiraContext == null) {
@@ -151,17 +149,19 @@ public class HubJiraTask {
 
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection, hubServicesFactory,
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
-            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection);
+            // TODO use factory?
+            final HubVersionRequestService hubSupport = new HubVersionRequestService(restConnection);
+            final HubRegistrationRequestService regService = new HubRegistrationRequestService(restConnection);
             try {
                 final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
                 String hubHostName = null;
                 try {
-                    regId = hub.getRegistrationId();
+                    regId = regService.getRegistrationId();
                 } catch (final Exception e) {
                     logger.debug("Could not get the Hub registration Id.");
                 }
@@ -204,25 +204,13 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection, HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
 
-        final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
-
-        final HubServicesFactory dataServicesFactory = new HubServicesFactory(restConnection);
-
-        final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
-                logger, policyFilter);
-        final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
-                restConnection);
-
-        final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
-
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
-                vulnerableBomComponentRestService, notificationDataService,
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
                 jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
         return ticketGenerator;
@@ -233,12 +221,9 @@ public class HubJiraTask {
         return hub;
     }
 
-    private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
+    private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {
 
         final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
-        restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
-                serverConfig.getGlobalCredentials().getDecryptedPassword());
-        restConnection.setProxyProperties(serverConfig.getProxyInfo());
 
         logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
         restConnection.setTimeout(serverConfig.getTimeout());

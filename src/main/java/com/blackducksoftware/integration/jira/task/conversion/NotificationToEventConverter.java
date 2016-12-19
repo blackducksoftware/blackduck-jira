@@ -25,8 +25,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -46,15 +47,18 @@ public abstract class NotificationToEventConverter {
 
     private final String issueTypeId;
 
+    private final MetaService metaService;
+
     public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
             final HubProjectMappings mappings,
-            final String issueTypeName) throws ConfigurationException {
+            final String issueTypeName, final MetaService metaService) throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.mappings = mappings;
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
+        this.metaService = metaService;
     }
 
     public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
@@ -67,7 +71,7 @@ public abstract class NotificationToEventConverter {
         return mappings;
     }
 
-    protected JiraProject getJiraProject(final long jiraProjectId) throws NotificationServiceException {
+    protected JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
         return jiraServices.getJiraProject(jiraProjectId);
     }
 
@@ -91,4 +95,9 @@ public abstract class NotificationToEventConverter {
     protected String getIssueTypeId() {
         return issueTypeId;
     }
+
+    protected MetaService getMetaService() {
+        return metaService;
+    }
+
 }

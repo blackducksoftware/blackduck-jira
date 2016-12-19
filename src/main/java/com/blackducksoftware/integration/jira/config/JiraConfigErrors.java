@@ -39,6 +39,8 @@ public class JiraConfigErrors {
 
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
 
+    public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";
+
     public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 
     public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";

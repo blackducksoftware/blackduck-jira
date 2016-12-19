@@ -107,11 +107,6 @@ public class JiraTaskTimed implements Callable<String> {
                             + e.getMessage());
             return "error";
         }
-        if (hubConfigBuilder.buildResults().hasErrors()) {
-            logger.error(
-                    "At least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly.");
-            return "error";
-        }
         final HubJiraTask processor = new HubJiraTask(serverConfig, configDetails.getIntervalString(),
                 configDetails.getInstallDateString(),
                 configDetails.getLastRunDateString(), configDetails.getProjectMappingJson(), configDetails.getPolicyRulesJson(),

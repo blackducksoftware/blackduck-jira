@@ -24,10 +24,11 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -48,15 +49,15 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
     public PolicyViolationNotificationConverter(final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService)
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final MetaService metaService)
             throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService);
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+            final JiraProject jiraProject) throws UnexpectedHubResponseException, HubIntegrationException {
         final List<HubEvent> events = new ArrayList<>();
 
         HubEventAction action = HubEventAction.OPEN;
@@ -67,7 +68,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings());
+                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings(), getMetaService());
             events.add(event);
         }
 

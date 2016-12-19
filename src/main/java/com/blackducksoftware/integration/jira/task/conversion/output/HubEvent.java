@@ -27,7 +27,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 
@@ -62,10 +64,13 @@ public abstract class HubEvent<T extends NotificationContentItem> {
 
     private final Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
 
+    // TODO it seems unfortunate that this class now needs a hub service
+    final MetaService metaService;
+
     public HubEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
             final String issueAssigneeId, final String jiraIssueTypeId, final Long jiraProjectId,
             final String jiraProjectName, final Set<ProjectFieldCopyMapping> projectFieldCopyMappings,
-            final T notif) {
+            final T notif, final MetaService metaService) {
         this.action = action;
         this.jiraUserName = jiraUserName;
         this.jiraUserId = jiraUserId;
@@ -75,6 +80,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
         this.jiraProjectName = jiraProjectName;
         this.projectFieldCopyMappings = projectFieldCopyMappings;
         this.notif = notif;
+        this.metaService = metaService;
     }
 
     public HubEventAction getAction() {
@@ -133,7 +139,7 @@ public abstract class HubEvent<T extends NotificationContentItem> {
         return projectFieldCopyMappings;
     }
 
-    public abstract String getUniquePropertyKey() throws URISyntaxException;
+    public abstract String getUniquePropertyKey() throws HubIntegrationException, URISyntaxException;
 
     public abstract String getIssueSummary();
 
@@ -152,5 +158,9 @@ public abstract class HubEvent<T extends NotificationContentItem> {
         }
         logger.debug("Hash string for '" + origString + "': " + hashString);
         return hashString;
+    }
+
+    protected MetaService getMetaService() {
+        return metaService;
     }
 }

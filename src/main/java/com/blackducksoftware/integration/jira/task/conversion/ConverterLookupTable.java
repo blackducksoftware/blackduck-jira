@@ -24,14 +24,16 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyOverrideContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.VulnerabilityContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import org.apache.log4j.Logger;
+
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
@@ -40,25 +42,27 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class ConverterLookupTable {
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
     private final Map<Class<? extends NotificationContentItem>, NotificationToEventConverter> lookupTable = new HashMap<>();
 
     public ConverterLookupTable(final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final HubIntRestService hubIntRestService,
-            final VulnerableBomComponentRestService vulnerableBomComponentRestService)
+            final HubServicesFactory hubServicesFactory)
             throws ConfigurationException {
 
         final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubIntRestService,
-                vulnerableBomComponentRestService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+                hubServicesFactory, hubServicesFactory.createMetaService(logger));
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+
         final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
         final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService);
+                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
 
         lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
@@ -67,11 +71,11 @@ public class ConverterLookupTable {
     }
 
     public NotificationToEventConverter getConverter(final NotificationContentItem notif)
-            throws NotificationServiceException {
+            throws HubIntegrationException {
         final Class<? extends NotificationContentItem> c = notif.getClass();
         final NotificationToEventConverter converter = lookupTable.get(c);
         if (converter == null) {
-            throw new NotificationServiceException("Notification type unknown for notification: " + notif);
+            throw new HubIntegrationException("Notification type unknown for notification: " + notif);
         }
         return converter;
     }
