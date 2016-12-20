@@ -151,9 +151,8 @@ public class HubJiraTask {
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
-            // TODO use factory?
-            final HubVersionRequestService hubSupport = new HubVersionRequestService(restConnection);
-            final HubRegistrationRequestService regService = new HubRegistrationRequestService(restConnection);
+            final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
+            final HubRegistrationRequestService regService = hubServicesFactory.createHubRegistrationRequestService();
             try {
                 final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
@@ -217,9 +216,6 @@ public class HubJiraTask {
     private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {
 
         final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
-
-        logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
-        restConnection.setTimeout(serverConfig.getTimeout());
         return restConnection;
     }
 
