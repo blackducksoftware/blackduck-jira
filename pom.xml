@@ -70,7 +70,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>5.1.1</version>
+      <version>5.2.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -113,7 +113,7 @@
       <version>1.7.21</version>
       <scope>provided</scope>
     </dependency>
-    <!-- dependency>
+    <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-atlassian-config</artifactId>
       <version>1.1.0</version>
@@ -137,7 +137,7 @@
         </exclusion>
 
       </exclusions>
-    </dependency -->
+    </dependency>
 
     <dependency>
       <groupId>com.atlassian.jira</groupId>
