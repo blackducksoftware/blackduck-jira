@@ -47,6 +47,7 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -70,12 +71,15 @@ public class JiraIssueHandler {
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
+    private final IssueFieldHandler issueFieldHandler;
+
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraContext, ticketInfoFromSetup);
     }
 
     private void addIssueProperty(final HubEvent notificationEvent, final Long issueId, final String key,
@@ -131,7 +135,7 @@ public class JiraIssueHandler {
         String notificationUniqueKey = null;
         try {
             notificationUniqueKey = notificationEvent.getUniquePropertyKey();
-        } catch (final URISyntaxException e) {
+        } catch (final URISyntaxException | HubIntegrationException e) {
             logger.error(e);
             jiraSettingsService.addHubError(e, notificationEvent.getNotif().getProjectVersion().getProjectName(),
                     notificationEvent.getNotif().getProjectVersion().getProjectVersionName(),
@@ -194,34 +198,8 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
                 + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
-                && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
-            final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectName());
-
-            final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectVersionFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectVersionName());
-
-            final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotif().getComponentName());
-
-            final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentVersionFieldId,
-                    notificationEvent.getNotif().getComponentVersion());
-
-            if (notificationEvent.getClass().equals(PolicyEvent.class)) {
-                final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
-                final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
-                        .get(HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
-                issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
-            }
-        }
+        issueFieldHandler.setPluginFieldValues(notificationEvent, issueInputParameters);
+        List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService()
                 .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
@@ -237,6 +215,9 @@ public class JiraIssueHandler {
                 handleErrorCollection("createIssue", notificationEvent, errors);
             } else {
                 fixIssueAssignment(notificationEvent, result);
+                issueFieldHandler.addLabels(result.getIssue(), labels);
+                // JiraFieldUtils.printFields(logger, jiraServices.getFieldManager(), jiraContext.getJiraUser(),
+                // result.getIssue());
                 return result.getIssue();
             }
         }
@@ -321,7 +302,7 @@ public class JiraIssueHandler {
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
-                logger.info("Found Step descriptor : " + descriptor.getName());
+                logger.debug("Found Step descriptor : " + descriptor.getName());
                 transitionAction = descriptor;
                 break;
             }
@@ -455,7 +436,7 @@ public class JiraIssueHandler {
                     logger.debug("This is not the BDS workflow; plugin will not change issue's state");
                     return new ExistenceAwareIssue(oldIssue, true, true);
                 }
-                
+
                 if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
                     final Issue transitionedIssue = transitionIssue(notificationEvent, oldIssue,
                             HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
@@ -528,23 +509,29 @@ public class JiraIssueHandler {
         logger.debug("For Project : " + issue.getProjectObject().getName());
         logger.debug("For Project Id : " + issue.getProjectObject().getId());
     }
-    
+
     private class ExistenceAwareIssue {
         private final Issue issue;
+
         private final boolean existed;
+
         private final boolean issueStateChangeBlocked;
+
         public ExistenceAwareIssue(Issue issue, boolean existed, boolean issueStateChangeBlocked) {
             super();
             this.issue = issue;
             this.existed = existed;
             this.issueStateChangeBlocked = issueStateChangeBlocked;
         }
+
         private Issue getIssue() {
             return issue;
         }
+
         private boolean isExisted() {
             return existed;
         }
+
         public boolean isIssueStateChangeBlocked() {
             return issueStateChangeBlocked;
         }

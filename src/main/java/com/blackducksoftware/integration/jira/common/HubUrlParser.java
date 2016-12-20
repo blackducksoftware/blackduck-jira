@@ -21,20 +21,27 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.common;
 
-import java.util.Map;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-import com.atlassian.jira.issue.fields.CustomField;
+import org.apache.commons.lang3.StringUtils;
 
-public class TicketInfoFromSetup {
+public class HubUrlParser {
 
-    private Map<PluginField, CustomField> customFields;
-
-    public void setCustomFields(final Map<PluginField, CustomField> customFields) {
-        this.customFields = customFields;
+    public static String getBaseUrl(final String url) throws URISyntaxException {
+        final URI uri = new URI(url);
+        final String derivedUrlPrefix = StringUtils.join(uri.getScheme(), "://", uri.getAuthority(), "/");
+        return derivedUrlPrefix;
     }
 
-    public Map<PluginField, CustomField> getCustomFields() {
-        return customFields;
+    public static String getRelativeUrl(final String url) throws URISyntaxException {
+        if (url == null) {
+            return null;
+        }
+        final String baseUrl = getBaseUrl(url);
+        final URI baseUri = new URI(baseUrl);
+        final URI origUri = new URI(url);
+        final URI relativeUri = baseUri.relativize(origUri);
+        return relativeUri.toString();
     }
-
 }

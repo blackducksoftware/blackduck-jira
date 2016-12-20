@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -55,7 +55,7 @@ public class HubProjectMappingsTest {
     }
 
     @Test
-    public void test() throws NotificationServiceException {
+    public void test() throws HubIntegrationException {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
         final Collection<IssueType> issueTypes = new ArrayList<>();

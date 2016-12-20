@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.mocks.field;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,8 +46,11 @@ public class FieldManagerMock implements FieldManager {
 
     @Override
     public Set<NavigableField> getAllAvailableNavigableFields() throws FieldException {
+        Set<NavigableField> navFields = new HashSet<>();
 
-        return null;
+        final List<CustomField> customFields = CustomFieldManagerMock.getCustomFields();
+        navFields.addAll(customFields);
+        return navFields;
     }
 
     @Override

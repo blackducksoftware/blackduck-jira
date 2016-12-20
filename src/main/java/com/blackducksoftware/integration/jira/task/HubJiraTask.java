@@ -34,17 +34,13 @@ import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.HubIntRestService;
-import com.blackducksoftware.integration.hub.api.HubServicesFactory;
-import com.blackducksoftware.integration.hub.api.HubVersionRestService;
-import com.blackducksoftware.integration.hub.api.vulnerableBomComponent.VulnerableBomComponentRestService;
-import com.blackducksoftware.integration.hub.dataservices.notification.NotificationDataService;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyNotificationFilter;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -52,6 +48,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
 import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
@@ -88,9 +85,11 @@ public class HubJiraTask {
 
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
+    private final String fieldCopyMappingJson;
+
     public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
             final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final String fieldCopyMappingJson, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
 
         this.serverConfig = serverConfig;
@@ -111,6 +110,7 @@ public class HubJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.fieldCopyMappingJson = fieldCopyMappingJson;
     }
 
     /**
@@ -120,10 +120,11 @@ public class HubJiraTask {
      */
     public String execute() {
 
-        final HubJiraConfigSerializable config = validateInput();
+        final HubJiraConfigSerializable config = deSerializeConfig();
         if (config == null) {
             return null;
         }
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
         final Date startDate;
         try {
@@ -136,7 +137,7 @@ public class HubJiraTask {
 
         try {
             final RestConnection restConnection = initRestConnection();
-            final HubIntRestService hub = initHubRestService(restConnection);
+            final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
 
             if (jiraContext == null) {
                 logger.info("Missing information to generate tickets.");
@@ -146,17 +147,18 @@ public class HubJiraTask {
 
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
 
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection,
-                    linksOfRulesToMonitor, ticketInfoFromSetup);
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection, hubServicesFactory,
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
-            final HubVersionRestService hubSupport = new HubVersionRestService(restConnection);
+            final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
+            final HubRegistrationRequestService regService = hubServicesFactory.createHubRegistrationRequestService();
             try {
                 final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
                 String hubHostName = null;
                 try {
-                    regId = hub.getRegistrationId();
+                    regId = regService.getRegistrationId();
                 } catch (final Exception e) {
                     logger.debug("Could not get the Hub registration Id.");
                 }
@@ -175,7 +177,7 @@ public class HubJiraTask {
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
                     config.getHubProjectMappings());
 
-            // Generate Jira Issues based on recent notifications
+            // Generate JIRA Issues based on recent notifications
             ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
@@ -199,47 +201,25 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection,
-            final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup)
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection, HubServicesFactory hubServicesFactory,
+            final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
-        logger.debug("Jira user: " + this.jiraContext.getJiraUser().getName());
+        logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
 
-        final PolicyNotificationFilter policyFilter = new PolicyNotificationFilter(linksOfRulesToMonitor);
-
-        final HubServicesFactory dataServicesFactory = new HubServicesFactory(restConnection);
-
-        final NotificationDataService notificationDataService = dataServicesFactory.createNotificationDataService(
-                logger, policyFilter);
-        final VulnerableBomComponentRestService vulnerableBomComponentRestService = new VulnerableBomComponentRestService(
-                restConnection);
-
-        final HubIntRestService hubIntRestService = new HubIntRestService(restConnection);
-
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubIntRestService,
-                vulnerableBomComponentRestService, notificationDataService,
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup);
+                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
         return ticketGenerator;
     }
 
-    private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
-        final HubIntRestService hub = new HubIntRestService(restConnection);
-        return hub;
-    }
-
-    private RestConnection initRestConnection() throws EncryptionException, URISyntaxException, BDRestException {
+    private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {
 
         final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
-        restConnection.setCookies(serverConfig.getGlobalCredentials().getUsername(),
-                serverConfig.getGlobalCredentials().getDecryptedPassword());
-        restConnection.setProxyProperties(serverConfig.getProxyInfo());
-
-        logger.debug("Setting Hub timeout to: " + serverConfig.getTimeout());
-        restConnection.setTimeout(serverConfig.getTimeout());
         return restConnection;
     }
 
-    private HubJiraConfigSerializable validateInput() {
+    private HubJiraConfigSerializable deSerializeConfig() {
         if (projectMappingJson == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
@@ -268,6 +248,12 @@ public class HubJiraTask {
             logger.debug(rule.toString());
         }
         return config;
+    }
+
+    private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
+        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        fieldCopyConfig.setJson(fieldCopyMappingJson);
+        return fieldCopyConfig;
     }
 
     private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {

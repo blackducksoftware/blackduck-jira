@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
@@ -42,7 +42,7 @@ public class ConverterTestUtils {
 
     public static final long JIRA_PROJECT_ID_BASE = 153L;
 
-    static JiraServices mockJiraServices() throws NotificationServiceException {
+    static JiraServices mockJiraServices() throws HubIntegrationException {
 
         final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         final Collection<IssueType> issueTypes = new ArrayList<>();

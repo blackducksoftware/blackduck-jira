@@ -37,8 +37,15 @@ var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 var hubMappingStatus = "mappingStatus";
 
+var fieldCopyMappingContainer = "fieldCopyMappingContainer";
+var fieldCopyMappingElement = "fieldCopyMappingElement";
+var fieldCopyMappingStatus = "fieldCopyMappingStatus";
+
 var jiraProjectListId = "jiraProjects";
 var hubProjectListId = "hubProjects";
+
+var sourceFieldListId = "sourceFields";
+var targetFieldListId = "targetFields";
 
 var jiraProjectListErrorId = "jiraProjectListError";
 var hubProjectListErrorId = "hubProjectListError";
@@ -74,17 +81,74 @@ var mappingElementCounter = 0;
 var gotJiraProjects = false;
 var gotHubProjects = false;
 var gotProjectMappings = false;
+var gotSourceFields = false;
+var gotTargetFields = false;
+var gotFieldCopyMappings = false;
 
 var jiraProjectMap = new Map();
 var hubProjectMap = new Map();
+
+function initTabs() {
+	console.log("Initializing tabs");
+	
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the link that opened the tab
+    document.getElementById("Admin").style.display = "block";
+    
+    // evt.currentTarget.className += " active";
+}
+
+function openTab(evt, tabId) {
+	console.log("Opening: " + tabId);
+	
+	resetStatusMessage();
+	
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the link that opened the tab
+    document.getElementById(tabId).style.display = "block";
+    evt.currentTarget.className += " active";
+}
 
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 	
-	function updateAdminConfig() {
+function updateAdminConfig() {
 		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
 	}
+
+function updateFieldCopyConfig() {
+	console.log("updateFieldCopyConfig()");
+	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
+}
 
 function populateForm() {
 	AJS.$.ajax({
@@ -124,7 +188,7 @@ function populateForm() {
 		      gotJiraProjects = true;
 		    },
 		    error: function(response){
-		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the Jira Projects.", "Jira Project Error");
+		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -140,6 +204,31 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/sourceFields/",
+		    dataType: "json",
+		    success: function(sourceFieldNames) {
+		      fillInSourceFields(sourceFieldNames);
+		      gotSourceFields = true;
+		    },
+		    error: function(response){
+		    	handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
+		    }
+		  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/targetFields/",
+		    dataType: "json",
+		    success: function(targetFields) {
+		      fillInTargetFields(targetFields);
+		      
+		      handleError("fieldCopyTargetFieldError", targetFields.errorMessage, true, false);
+		      
+		      gotTargetFields = true;
+		    },
+		    error: function(response){
+		    	handleDataRetrievalError(response, targetFieldListErrorId, "There was a problem retrieving the target fields.", "Target Field Error");
 		    }
 		  });
 	  AJS.$.ajax({
@@ -176,6 +265,26 @@ function populateForm() {
 		    	 AJS.$('#projectMappingSpinner').remove();
 		    }
 		  });
+	  console.log("Getting field copy mappings");
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/fieldCopyMappings/",
+		    dataType: "json",
+		    success: function(config) {
+		    	console.log("Success getting field copy mappings");
+		      fillInFieldCopyMappings(config.projectFieldCopyMappings);
+
+		      handleError("fieldCopyMappingError", config.errorMessage, true, false);
+		      
+		      gotFieldCopyMappings = true;
+		    },
+		    error: function(response){
+		    	console.log("Error getting field copy mappings");
+		    	handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Finished getting field copy mappings");	
+		    }
+		  });
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
@@ -190,8 +299,20 @@ function populateForm() {
 		    	handleDataRetrievalError(response, "ticketCreationLoadingError", "There was a problem retrieving the Ticket Creation Errors.", "Ticket Creation Error");
 		    }
 	  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/pluginInfo/",
+		    dataType: "json",
+		    success: function(pluginInfo) {
+		    	console.log("pluginVersion: " + pluginInfo.pluginVersion);
+		    	fillInPluginVersion(pluginInfo.pluginVersion);
+		    },
+		    error: function(response) {
+		    	console.log("Error getting pluginInfo");
+		    	console.log("Response text: " + response.responseText);
+		    	fillInPluginVersion("(error)");
+		    }
+	  });
 }
-
 
 function resetSalKeys(){
 	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/reset';
@@ -203,7 +324,7 @@ function resetSalKeys(){
 	    data: '{}',
 	    processData: false,
 	    success: function() {
-	    	alert('Hub Jira keys reset!');
+	    	alert('Hub JIRA keys reset!');
 	    },
 	    error: function(response){
 	    	alert(response.responseText);
@@ -519,6 +640,42 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 	  });
 }
 
+function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
+	console.log("putFieldCopyConfig()");
+	var jsonFieldCopyMappingArray = getJsonArrayFromFieldCopyMapping();
+	console.log("jsonFieldCopyMappingArray: " + jsonFieldCopyMappingArray);
+
+		  AJS.$.ajax({
+		    url: restUrl,
+		    type: "PUT",
+		    dataType: "json",
+		    contentType: "application/json",
+		    data: '{ "projectFieldCopyMappings": ' 
+		    	+ jsonFieldCopyMappingArray
+		    	+ ' }',
+		    processData: false,
+		    success: function() {
+		    	hideError('hubJiraGroupsError');
+		    	
+			    showStatusMessage(successStatus, 'Success!', successMessage);
+		    },
+		    error: function(response){
+		    	try {
+			    	var admin = JSON.parse(response.responseText);
+			    	handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, true);
+			    	
+				    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+		    	} catch(err) {
+		    		// in case the response is not our error object
+		    		alert(response.responseText);
+		    	}
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 stopProgressSpinner('adminSaveSpinner');
+		    }
+		  });
+	}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
@@ -607,6 +764,50 @@ function getJsonArrayFromMapping(){
 			+ '","' 
 			+  hubProjectKey + '":"' + currentHubProjectValue
 			+ '"}}';
+	}
+	jsonArray += "]";
+	return jsonArray;
+}
+
+function getJsonArrayFromFieldCopyMapping(){
+	console.log("getJsonArrayFromFieldCopyMapping()");
+	var jsonArray = "[";
+	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
+	console.log("mappingElements.length: " + mappingElements.length);
+	var numRowsAdded = 0;
+	for (i = 0; i < mappingElements.length; i++) {
+		var mappingElement = mappingElements[i];
+		var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+		
+		var currentSourceFieldDisplayName = currentSourceField.val();
+		var currentSourceFieldId = currentSourceField.attr('id');
+		
+		var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+		
+		var currentTargetFieldDisplayName = currentTargetField.val();
+		var currentTargetFieldId = currentTargetField.attr('id');
+		var currentTargetFieldError = currentTargetField.attr('fieldError');
+		
+		if (isNullOrWhitespace(currentSourceFieldId) && isNullOrWhitespace(currentTargetFieldId)) {
+			console.log("Skipping empty field copy mapping row");
+			addMappingErrorStatus(mappingElement);
+		} else {
+			console.log("Adding field copy mapping row to data for server");
+			removeFieldCopyMappingErrorStatus(mappingElement);
+			if (numRowsAdded > 0){
+				jsonArray += ",";
+			}
+			jsonArray += '{ ' 
+				+ '"jiraProjectName": "*", ' 
+				+ '"hubProjectName": "*", '
+				+ '"sourceFieldId": "' + currentSourceFieldId + '", '
+				+ '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
+				+ '"targetFieldId": "' + currentTargetFieldId + '", ' 
+				+ '"targetFieldName": "' + currentTargetFieldDisplayName + '" ' 
+				+ '} ';
+			numRowsAdded++;
+		}
 	}
 	jsonArray += "]";
 	return jsonArray;
@@ -749,7 +950,7 @@ function fillInJiraProjects(jiraProjects){
 
 function fillInHubProjects(hubProjects){
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
-	
+	console.log("hubProjectMappingElement: " + mappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
@@ -759,6 +960,52 @@ function fillInHubProjects(hubProjects){
 			    projectKey: hubProjects[h].projectUrl
 			});
 			hubProjectList.append(newOption);
+		}
+	}
+}
+
+function fillInPluginVersion(pluginVersion) {
+	console.log("fillInPluginVersion(): pluginVersion: " + pluginVersion);
+	var pluginVersionElements = AJS.$("#" + "pluginVersion");
+	for (i=0; i < pluginVersionElements.length; i++) {
+		pluginVersionElements[i].innerHTML = pluginVersion;
+	}
+}
+
+function fillInSourceFields(sourceFields) {
+	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+	console.log("fieldCopyMappingElement: " + mappingElement);
+	var sourceFieldList = mappingElement.find("datalist[id='"+ sourceFieldListId +"']");
+	if ((sourceFields != null) && (sourceFields.idToNameMappings != null)) {
+		for (var i = 0; i < sourceFields.idToNameMappings.length; i++) {
+			var sourceFieldIdToNameMapping = sourceFields.idToNameMappings[i];
+			console.log("Adding source field: Field ID: " + sourceFieldIdToNameMapping.id + "; Name: " + sourceFieldIdToNameMapping.name);
+			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
+			var newOption = AJS.$('<option>', {
+			    value: sourceFieldIdToNameMapping.name,
+			    id: sourceFieldIdToNameMapping.id,
+			    fieldError: ""
+			});
+			sourceFieldList.append(newOption);
+		}
+	}
+}
+
+function fillInTargetFields(targetFields) {
+	var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+	console.log("fieldCopyMappingElement: " + mappingElement);
+	var targetFieldList = mappingElement.find("datalist[id='"+ targetFieldListId +"']");
+	if ((targetFields != null) && (targetFields.idToNameMappings != null)) {
+		for (var i = 0; i < targetFields.idToNameMappings.length; i++) {
+			var targetFieldIdToNameMapping = targetFields.idToNameMappings[i];
+			console.log("Adding target field: Field ID: " + targetFieldIdToNameMapping.id + "; Name: " + targetFieldIdToNameMapping.name);
+			//hubProjectMap.set(hubProjects[targetFieldIndex].projectUrl, hubProjects[targetFieldIndex]);
+			var newOption = AJS.$('<option>', {
+			    value: targetFieldIdToNameMapping.name,
+			    id: targetFieldIdToNameMapping.id,
+			    fieldError: ""
+			});
+			targetFieldList.append(newOption);
 		}
 	}
 }
@@ -774,6 +1021,20 @@ function fillInMappings(storedMappings){
 		}
 	} else{
 		addNewMappingElement(hubProjectMappingElement);
+	}
+}
+
+function fillInFieldCopyMappings(storedMappings){
+	var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ fieldCopyMappingElement + "']");
+	// On loading the page, there should only be one original mapping element
+	if(storedMappings != null && storedMappings.length > 0){
+		for (i = 0; i < storedMappings.length; i++) {
+			var newMappingElement = addNewFieldCopyMappingElement(fieldCopyMappingElement);
+			fillInFieldCopyMapping(newMappingElement, storedMappings[i]);
+		}
+	} else{
+		addNewFieldCopyMappingElement(fieldCopyMappingElement);
 	}
 }
 
@@ -796,6 +1057,24 @@ function fillInMapping(mappingElement, storedMapping){
 	
 	currentHubProject.val(storedHubProjectDisplayName);
 	currentHubProject.attr("projectKey", storedHubProjectValue);
+}
+
+function fillInFieldCopyMapping(mappingElement, storedMapping){
+	var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+	
+	var storedSourceFieldId = storedMapping.sourceFieldId;
+	var storedSourceFieldName = storedMapping.sourceFieldName;
+	
+	currentSourceField.val(storedSourceFieldName);
+	currentSourceField.attr("id", storedSourceFieldId);
+	
+	var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+	
+	var storedTargetFieldId = storedMapping.targetFieldId;
+	var storedTargetFieldName = storedMapping.targetFieldName;
+	
+	currentTargetField.val(storedTargetFieldName);
+	currentTargetField.attr("id", storedTargetFieldId);
 }
 
 function addNewMappingElement(fieldId){
@@ -837,9 +1116,44 @@ function addNewMappingElement(fieldId){
 	return elementToAdd;
 }
 
+function addNewFieldCopyMappingElement(fieldId){
+	var elementToAdd = AJS.$("#" + fieldId).clone();
+	mappingElementCounter = mappingElementCounter + 1;
+	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
+	elementToAdd.appendTo("#" + fieldCopyMappingContainer);
+	
+	removeClassFromField(elementToAdd, hiddenClass);
+	
+	removeMappingErrorStatus(elementToAdd);
+	
+	var currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
+	
+	currentSourceField.val("");
+	currentSourceField.attr("id", "");
+	if(currentSourceField.hasClass('fieldError')){
+		currentSourceField.removeClass('fieldError');
+	}
+	var currentSourceFieldParent = currentSourceField.parent();
+	var currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
+	currentTargetField.val("");
+	currentTargetField.attr("id", "");
+	
+	var mappingArea = AJS.$('#fieldCopyMappingArea')[0];
+	if(mappingArea){
+		AJS.$('#fieldCopyMappingArea').scrollTop(fieldCopyMappingArea.scrollHeight);
+	}
+	return elementToAdd;
+}
+
 function removeMappingElement(childElement){
 	if(AJS.$("#" + hubProjectMappingContainer).find("tr[name*='"+ hubProjectMappingElement + "']").length > 1){
 		AJS.$(childElement).closest("tr[name*='"+ hubProjectMappingElement + "']").remove();
+	}
+}
+
+function removeFieldCopyMappingElement(childElement){
+	if(AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='"+ fieldCopyMappingElement + "']").length > 1){
+		AJS.$(childElement).closest("tr[name*='"+ fieldCopyMappingElement + "']").remove();
 	}
 }
 
@@ -859,6 +1173,50 @@ function onMappingInputChange(inputField){
     	   field.attr("projectKey", projectKey);
     	   
 			var projectError = option.attr("projectError");
+			
+			var fieldParent = field.parent();
+			var fieldError = fieldParent.children("#"+jiraProjectErrorId);
+			if(projectError){
+			fieldError.text(projectError);
+				if(!fieldError.hasClass('error')){
+					fieldError.addClass('error');
+				}
+				if(!field.hasClass('error')){
+		   			field.addClass('error');
+		   		}
+			} else{
+				fieldError.text("");
+				if(field.hasClass('error')){
+					field.removeClass('error');
+				}
+			}
+			
+    	   break;
+    	}
+    }
+    if(!optionFound){
+  	   field.attr("projectKey", "");
+  	   if(!field.hasClass('error')){
+  		   field.addClass('error');
+  	   }
+    }
+}
+
+function onFieldCopyMappingInputChange(inputField){
+	var field = AJS.$(inputField);
+	var datalist = inputField.list;
+	var options = datalist.options;
+	
+	var optionFound = false;
+    for (var i=0;i<options.length;i++){
+       if (options[i].value == inputField.value) { 
+    	   optionFound = true;
+    	   var option = AJS.$(options[i]);
+    	   var id = option.attr("id");
+    	   field.val(option.val());
+    	   field.attr("id", id);
+
+			var projectError = option.attr("fieldError");
 			
 			var fieldParent = field.parent();
 			var fieldError = fieldParent.children("#"+jiraProjectErrorId);
@@ -1001,6 +1359,13 @@ function removeMappingErrorStatus(mappingElement){
 	}
 }
 
+function removeFieldCopyMappingErrorStatus(mappingElement){
+	var mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
+	if(mappingStatus.children().length > 0){
+		AJS.$(mappingStatus).empty();
+	}
+}
+
 function startProgressSpinner(spinnerId){
 	 var spinner = AJS.$('#' + spinnerId);
 	 
@@ -1028,11 +1393,22 @@ function isNullOrWhitespace(input) {
     if (input == null){ 
     	return true;
     }
+    if (input == undefined) {
+    	return true;
+    }
+    if (input == "undefined") {
+    	return true;
+    }
     input = String(input);
     return input.trim().length < 1;
 }
 
 (function ($) {
 	populateForm();
+	
+    $(document).ready(function() {
+        console.log("DOM loaded")
+        initTabs();
+    });
 	
 })(AJS.$ || jQuery);

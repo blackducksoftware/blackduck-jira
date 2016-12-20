@@ -63,6 +63,8 @@ public class PluginConfigurationDetails {
 
     private final String jiraUserName;
 
+    private final String fieldCopyMappingJson;
+
     public PluginConfigurationDetails(final PluginSettings settings) {
         hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -86,6 +88,8 @@ public class PluginConfigurationDetails {
         lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
         jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+
+        fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
     }
 
     public String getHubUrl() {
@@ -158,6 +162,10 @@ public class PluginConfigurationDetails {
 
     public String getJiraUserName() {
         return jiraUserName;
+    }
+
+    public String getFieldCopyMappingJson() {
+        return fieldCopyMappingJson;
     }
 
     public HubServerConfigBuilder createHubServerConfigBuilder() {

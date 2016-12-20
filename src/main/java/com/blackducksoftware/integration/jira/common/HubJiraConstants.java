@@ -87,9 +87,13 @@ public class HubJiraConstants {
 
     public final static String HUB_VULNERABILITY_RESOLVE = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";
 
-    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME = "Ducky-200.png";
+    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY = "180 - duck_vulnerability.png";
 
-    public static final String BLACKDUCK_AVATAR_IMAGE_PATH = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME;
+    public static final String BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
+
+    public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY = "180 - duck_policy.png";
+
+    public static final String BLACKDUCK_AVATAR_IMAGE_PATH_POLICY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY;
 
     public static final String ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR = "=";
 
@@ -112,4 +116,26 @@ public class HubJiraConstants {
     public static final String ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME = "hr";
 
     public static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
+
+    public static final String FIELD_COPY_MAPPING_WILDCARD = "*";
+
+    public static final String VERSIONS_FIELD_ID = "versions";
+
+    public static final String COMPONENTS_FIELD_ID = "components";
+
+    // i18n.properties file location
+
+    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n.properties";
+
+    // JIRA Custom Field display name labels
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.label";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.label";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.label";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.version.label";
+
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
 }

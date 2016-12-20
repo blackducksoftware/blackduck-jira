@@ -7,6 +7,7 @@
   </head>
   <body>
     <form id="hub-jira" class="">
+    
       <div id="aui-hub-message-field" class="aui-message hidden">
       	<p class="title">
         	<span id="aui-hub-message-title" class="aui-icon"></span>
@@ -17,8 +18,15 @@
       
       <div id="error-message-field" class="error hidden">
       </div>
-      	
-      	<fieldset class="fieldSection">
+      
+	<ul class="tab">
+  		<li><a href="javascript:void(0)" id="AdminTabButton" class="tablinks" onclick="openTab(event, 'Admin')">Admin</a></li>
+  		<li><a href="javascript:void(0)" id="BasicTabButton" class="tablinks" onclick="openTab(event, 'Basic')">Basic</a></li>
+  		<li><a href="javascript:void(0)" id="AdvancedTabButton" class="tablinks" onclick="openTab(event, 'Advanced')">Advanced</a></li>
+	</ul>
+
+	<div id="Admin" class="tabcontent">
+	<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("hub.integration.jira.admin.label")</legend>
       	 <div id="adminArea">
 		      <div class="field-group">
@@ -40,8 +48,10 @@
 			  </div>
 	      </div>
       	</fieldset>
-      	
-      	<fieldset class="fieldSection">
+	</div>
+
+	<div id="Basic" class="tabcontent">
+  		<fieldset class="fieldSection">
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
@@ -125,10 +135,6 @@
 					<tr>
 						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')
 						</th>
-					<!--	<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForCreation.label')
-						</th>
-						<th class="label">$i18n.getText('hub.integration.jira.vulnerabilityStatusForClosure.label')
-						</th> -->
 					</tr>
 				</thead>
 				<tbody>
@@ -138,27 +144,11 @@
 							<div id="policyRuleTicketCreation" class="ticketCriteriaSection">
 							</div>
 				  		</td>
-				  	<!--	<td>
-				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
-					  			Coming Soon...
-							</div>
-				  		</td>
-				  		<td>
-				  			<div id="vulnerabilityTicketClosure" class="ticketCriteriaSection">
-					  			Coming Soon...
-							</div>
-				  		</td> -->
 	      			</tr>
 	      			<tr>
 	      				<td>
 					      	<div id="policyRulesError" class="error hidden"></div>
 					    </td>
-					<!--    <td>
-					      	<div id="" class="error hidden"></div>
-					    </td>
-					    <td>
-					      	<div id="" class="error hidden"></div>
-					    </td> -->
 	      			</tr>
       			</tbody>
       		</table>	
@@ -171,7 +161,95 @@
 	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
 	  	   </div>
 	   </div>
-	  
+	</div>
+
+	<div id="Advanced" class="tabcontent">
+  		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("hub.integration.jira.fieldCopy.label")</legend>
+  		<div id="fieldCopyArea">
+  		<fieldset class="fieldSection">
+  		<label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.fieldMappings.label")</label>
+  		<!-- project pulldown -->
+  		<!--
+  			<table width="100%">
+			  		<thead>
+			  			<tr>
+			  				<td class="fieldCopyJiraProjectCell">
+			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
+						    </td>
+			  			</tr>
+			  		</thead>
+			  		<tbody id="fieldCopyJiraProjectContainer">
+					  	  <tr class="" name="fieldCopyJiraProjectChoice" id="fieldCopyJiraProjectChoice">
+						    <td class="fieldCopyJiraProjectCell" id="fieldCopyJiraProjectCell">
+						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+								<datalist id="jiraProjects">
+								</datalist>
+								<div id="jiraProjectError">
+						    	</div>
+						    </td>
+						  </tr>
+				  </tbody>
+			</table>
+			-->
+			<!-- field copy mappings -->
+			<table width="100%">
+			  		<thead>
+			  			<tr>
+			  				<td class="mappingTableCell"/>
+			  				<td class="mappingTableCell"/>
+						    <td class="mappingTableCell error hidden" id="fieldCopyMappingError"/>
+						    <td class="mappingTableCell error hidden" id="fieldCopyTargetFieldError"/>
+						    <td class="mappingTableCell"/>
+			  			</tr>
+			  			<tr>
+			  				<td class="mappingTableCell"/>
+			  				<td class="mappingTableCell">
+			  					$i18n.getText('hub.integration.jira.sourceFieldName.label')
+						    </td>
+						    <td class="mappingTableCell"/>
+						    <td class="mappingTableCell">
+						    	$i18n.getText('hub.integration.jira.targetFieldName.label')
+						    </td>
+						    <td class="mappingTableCell"/>
+			  			</tr>
+			  		</thead>
+			  		<tbody id="fieldCopyMappingContainer">
+					  	  <tr class="hidden" name="fieldCopyMappingElement" id="fieldCopyMappingElement">
+						    <td class="mappingTableCell" id="fieldCopyMappingStatus">
+						    </td>
+						    <td class="mappingTableCell">
+						    	<input class="longInput textStyle" type="text" name="sourceField" list="sourceFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.sourceFieldName.label')">
+								<datalist id="sourceFields">
+								</datalist>
+								<div id="sourceFieldError">
+						    	</div>
+						    </td>
+						    <td class="mappingTableCell" width="25px"> = </td>
+						    <td class="mappingTableCell">
+						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.targetFieldName.label')">
+								<datalist id="targetFields">
+								</datalist>
+						    </td>
+						    <td class="mappingTableCell" width="100px">
+						    	<div class="largeIcon fa fa-trash-o" onclick="removeFieldCopyMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeFieldCopyMapping.label')"></div>
+						  	</td>
+						  </tr>
+				  </tbody>
+				</table>
+			<div class="buttonContainer">
+				<input id="fieldCopyAddMappingButton" onclick="addNewFieldCopyMappingElement('fieldCopyMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addFieldCopyMapping.label')" class="aui-button">
+			</div>
+		</fieldset>
+	</div>
+		
+	<div style="display: inline-block; width: 100%;">
+	   	   <div class="buttonContainer">
+	       		<div id="saveSpinner" style="display: inline-block;"></div>
+	  	   		<input id="fieldCopySaveButton" onclick="updateFieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   </div>
+	</div>
+</div>
+
 	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
       	  <div id="ticketCreationErrors">
@@ -203,6 +281,12 @@
 			  </div>
       	  </div>
       </fieldSet>
+      
+      <!-- Plugin Version -->
+      <footer>
+	  <br/>
+      <div id="pluginInfo" class="plugin-info">Black Duck Hub JIRA Plugin v<span id="pluginVersion">(not set)</span></div>
+      </footer>
     </form>
   </body>
 </html>

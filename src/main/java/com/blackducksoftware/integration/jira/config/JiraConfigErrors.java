@@ -31,7 +31,7 @@ public class JiraConfigErrors {
 
     public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
 
-    public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any Jira Projects.";
+    public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any JIRA Projects.";
 
     public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Hub Projects for this User. This Hub user may not be assigned to any projects.";
 
@@ -39,9 +39,17 @@ public class JiraConfigErrors {
 
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
 
+    public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";
+
     public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 
     public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 
-    public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only Jira system admins can update the list of Jira groups that can access the Hub Jira configuration.";
+    public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only JIRA system admins can update the list of JIRA groups that can access the Hub JIRA configuration.";
+
+    public static final String NO_VALID_FIELD_CONFIGURATIONS = "At least one valid field configuration is required in order to save.";
+
+    public static final String FIELD_CONFIGURATION_INVALID_SOURCE_FIELD = "The Hub Field in one of the field mappings is invalid.";
+
+    public static final String FIELD_CONFIGURATION_INVALID_TARGET_FIELD = "The JIRA Field in one of the field mappings is invalid.";
 }

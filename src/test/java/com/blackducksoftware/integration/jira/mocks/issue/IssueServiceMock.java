@@ -159,4 +159,16 @@ public class IssueServiceMock implements IssueService {
         return null;
     }
 
+    @Override
+    public AsynchronousTaskResult clone(ApplicationUser arg0, CloneValidationResult arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public CloneValidationResult validateClone(ApplicationUser arg0, Issue arg1, String arg2, boolean arg3, boolean arg4, boolean arg5) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

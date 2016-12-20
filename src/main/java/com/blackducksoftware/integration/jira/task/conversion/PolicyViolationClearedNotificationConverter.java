@@ -26,17 +26,18 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservices.notification.items.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.exception.NotificationServiceException;
-import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -46,18 +47,25 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public static final String PROJECT_LINK = "project";
+    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService) throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+    private final MetaService metaService;
+
+    public PolicyViolationClearedNotificationConverter(final HubProjectMappings mappings,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final JiraServices jiraServices,
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final MetaService metaService) throws ConfigurationException {
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService);
+        this.fieldCopyConfig = fieldCopyConfig;
+        this.metaService = metaService;
     }
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws UnexpectedHubResponseException, NotificationServiceException {
+            final JiraProject jiraProject) throws HubIntegrationException {
         final List<HubEvent> events = new ArrayList<>();
-        
+
         HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
@@ -67,7 +75,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings(), metaService);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }
