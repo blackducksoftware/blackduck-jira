@@ -119,8 +119,6 @@ public class HubJiraConfigController {
 
     private final Properties i18nProperties;
 
-    private HubServicesFactory hubServicesFactory;
-
     private MetaService metaService;
 
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
@@ -1008,16 +1006,15 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    // TODO revisit this; why not init hubServicesFactory in ctor
     HubServicesFactory getHubServicesFactory(final RestConnection restConnection, final HubJiraConfigSerializable config) {
-        if (hubServicesFactory == null) {
-            try {
-                hubServicesFactory = new HubServicesFactory(restConnection);
-            } catch (HubIntegrationException e) {
-                config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
-                return null;
-            }
+        final HubServicesFactory hubServicesFactory;
+        try {
+            hubServicesFactory = new HubServicesFactory(restConnection);
+        } catch (HubIntegrationException e) {
+            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+            return null;
         }
+
         return hubServicesFactory;
     }
 

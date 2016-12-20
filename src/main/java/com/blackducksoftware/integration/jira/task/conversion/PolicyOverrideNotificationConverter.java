@@ -29,7 +29,6 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -59,7 +58,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 
     @Override
     protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws UnexpectedHubResponseException, HubIntegrationException {
+            final JiraProject jiraProject) throws HubIntegrationException {
         final List<HubEvent> events = new ArrayList<>();
 
         HubEventAction action = HubEventAction.RESOLVE;

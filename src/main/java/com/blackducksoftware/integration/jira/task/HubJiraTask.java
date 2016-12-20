@@ -34,7 +34,6 @@ import org.json.JSONException;
 import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.hub.HubIntRestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -139,7 +138,6 @@ public class HubJiraTask {
         try {
             final RestConnection restConnection = initRestConnection();
             final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-            final HubIntRestService hub = initHubRestService(restConnection);
 
             if (jiraContext == null) {
                 logger.info("Missing information to generate tickets.");
@@ -214,11 +212,6 @@ public class HubJiraTask {
                 jiraServices, jiraContext,
                 jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
         return ticketGenerator;
-    }
-
-    private HubIntRestService initHubRestService(final RestConnection restConnection) throws URISyntaxException {
-        final HubIntRestService hub = new HubIntRestService(restConnection);
-        return hub;
     }
 
     private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {

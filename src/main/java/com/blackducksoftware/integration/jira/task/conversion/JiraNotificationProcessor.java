@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -67,7 +66,7 @@ public class JiraNotificationProcessor {
             List<HubEvent> notifEvents;
             try {
                 notifEvents = generateEvents(notif);
-            } catch (final UnexpectedHubResponseException e) {
+            } catch (final Exception e) {
                 throw new HubIntegrationException("Error converting notifications to issues", e);
             }
             if (notifEvents != null) {
@@ -78,7 +77,7 @@ public class JiraNotificationProcessor {
     }
 
     private List<HubEvent> generateEvents(final NotificationContentItem notif)
-            throws UnexpectedHubResponseException, HubIntegrationException {
+            throws HubIntegrationException {
         final NotificationToEventConverter converter = converterTable.getConverter(notif);
         final List<HubEvent> events = converter.generateEvents(notif);
         return events;
