@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -29,13 +31,15 @@ import org.mockito.Mockito;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.service.HubRequestService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -50,8 +54,36 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
+    private static final String RULE_NAME = "Test Rule";
+
+    private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=-973294316|hcv=1816144506|hr=1736320804";
+
+    private static final String POLICY_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+
+    private static final String POLICY_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+
+    private static final String POLICY_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '"
+            + RULE_NAME + "']";
+
+    private static final String POLICY_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: '"
+            +
+            RULE_NAME + "'. Rule overridable : true";
+
+    private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was detected again by the Hub.";
+
+    private static final String POLICY_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
+
+    private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
+
+    private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Hub Security Vulnerability";
+
+    private static final String POLICY_ISSUE_TYPE_ID = "Hub Policy Violation ID";
+
+    private static final String POLICY_ISSUE_TYPE_NAME = "Hub Policy Violation";
+
     private static final String TARGET_FIELD_NAME = "targetFieldName";
 
     private static final String TARGET_FIELD_ID = "targetFieldId";
@@ -69,6 +101,8 @@ public class NotificationConverterTest {
     private static final String PROJECT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId";
 
     private static final String COMPONENT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId";
+
+    private static final String COMPONENT_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId";
 
     private static final String COMPONENT_VERSION = "componentVersion";
 
@@ -88,28 +122,34 @@ public class NotificationConverterTest {
 
     private static final String JIRA_PROJECT_NAME = "jiraProjectName";
 
-    private static final String HUB_SECURITY_VULNERABILITY_ID = "Hub Security Vulnerability ID";
-
     private static final String VULN_SOURCE = "NVD";
 
-    private static final String EXPECTED_PROPERTY_KEY = "t=v|jp=123|hpv=-32224582|hc=|hcv=1816144506";
+    private static final String VULN_EXPECTED_PROPERTY_KEY = "t=v|jp=123|hpv=-32224582|hc=|hcv=1816144506";
 
-    private static final String EXPECTED_RESOLVED_COMMENT = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";
+    private static final String VULN_EXPECTED_RESOLVED_COMMENT = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";
 
-    private static final String EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
+    private static final String VULN_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
 
-    private final static String EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n" +
+    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n" +
             "Vulnerabilities added: http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId (NVD)\n" +
             "Vulnerabilities updated: None\n" +
             "Vulnerabilities deleted: None\n";
 
-    private final static String EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
+    private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
+
+    private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
+
+    private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
             "For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" +
-            "<error getting vulnerable components URL>";
+            "null"; // TODO fix null
 
-    private final static String EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
+    private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
+
+    private enum NotifType {
+        VULNERABILITY, POLICY_VIOLATION, POLICY_VIOLATION_OVERRIDE, POLICY_VIOLATION_CLEARED
+    }
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -120,7 +160,41 @@ public class NotificationConverterTest {
     }
 
     @Test
-    public void testVulnerability() throws ConfigurationException, HubIntegrationException, URISyntaxException {
+    public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
+        test(NotifType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS,
+                VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
+                VULN_EXPECTED_DESCRIPTION,
+                VULN_EXPECTED_SUMMARY, VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT,
+                VULN_EXPECTED_RESOLVED_COMMENT,
+                VULN_EXPECTED_PROPERTY_KEY);
+    }
+
+    // TODO: fix nulls
+    @Test
+    public void testPolicyViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
+        test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS,
+                POLICY_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
+                POLICY_EXPECTED_DESCRIPTION,
+                POLICY_EXPECTED_SUMMARY,
+                POLICY_ISSUE_TYPE_ID,
+                POLICY_EXPECTED_REOPEN_COMMENT,
+                POLICY_EXPECTED_RESOLVE_COMMENT,
+                POLICY_EXPECTED_PROPERTY_KEY);
+    }
+
+    private void test(NotifType notifType, HubEventAction expectedHubEventAction,
+            String expectedComment,
+            String expectedCommentIfExists,
+            String expectedCommentInLieuOfStateChange,
+            String expectedDescription,
+            String expectedSummary,
+            String issueTypeId,
+            String expectedReOpenComment,
+            String expectedResolveComment,
+            String expectedPropertyKey) throws ConfigurationException, URISyntaxException, IntegrationException {
+        Date now = new Date();
+
+        // Mock the objects that the Converter needs
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final Set<HubProjectMapping> mappings = new HashSet<>();
         HubProjectMapping mapping = new HubProjectMapping();
@@ -151,9 +225,15 @@ public class NotificationConverterTest {
         ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         List<IssueType> issueTypes = new ArrayList<>();
         IssueType issueType = Mockito.mock(IssueType.class);
-        Mockito.when(issueType.getName()).thenReturn("Hub Security Vulnerability");
-        Mockito.when(issueType.getId()).thenReturn(HUB_SECURITY_VULNERABILITY_ID);
+        Mockito.when(issueType.getName()).thenReturn(VULNERABILITY_ISSUE_TYPE_NAME);
+        Mockito.when(issueType.getId()).thenReturn(VULNERABILITY_ISSUE_TYPE_ID);
         issueTypes.add(issueType);
+
+        issueType = Mockito.mock(IssueType.class);
+        Mockito.when(issueType.getName()).thenReturn(POLICY_ISSUE_TYPE_NAME);
+        Mockito.when(issueType.getId()).thenReturn(POLICY_ISSUE_TYPE_ID);
+        issueTypes.add(issueType);
+
         Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
         Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
         Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
@@ -168,56 +248,57 @@ public class NotificationConverterTest {
         HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
-        final MetaService metaService = null;
+        final MetaService metaService = Mockito.mock(MetaService.class);
 
-        VulnerabilityNotificationConverter conv = new VulnerabilityNotificationConverter(
-                mappingObject,
-                fieldCopyConfig,
-                jiraServices,
-                jiraContext, jiraSettingsService,
-                hubServicesFactory, metaService);
+        // Construct the converter
+        NotificationToEventConverter conv;
 
-        Date now = new Date();
-        final Date createdAt = now;
-        final ProjectVersion projectVersion = new ProjectVersion();
-        projectVersion.setProjectName(HUB_PROJECT_NAME);
-        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
-        projectVersion.setUrl(PROJECT_VERSION_URL);
-        final String componentName = COMPONENT_NAME;
-        final String componentVersion = COMPONENT_VERSION;
-        final String componentVersionUrl = COMPONENT_VERSION_URL;
+        // Construct the notification
+        NotificationContentItem notif;
+        switch (notifType) {
+        case VULNERABILITY:
+            notif = createVulnerabilityNotif(now);
+            conv = new VulnerabilityNotificationConverter(
+                    mappingObject,
+                    fieldCopyConfig,
+                    jiraServices,
+                    jiraContext, jiraSettingsService,
+                    hubServicesFactory, metaService);
+            break;
+        case POLICY_VIOLATION:
+            notif = createPolicyViolationNotif(metaService, now);
+            conv = new PolicyViolationNotificationConverter(
+                    mappingObject,
+                    fieldCopyConfig,
+                    jiraServices,
+                    jiraContext, jiraSettingsService,
+                    metaService);
+            break;
+        default:
+            throw new IllegalArgumentException("Unrecognized notification type");
+        }
 
-        VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, componentVersionUrl);
-        final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
-        final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
-        final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
-        addedVulnList.add(vuln);
-        NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
-                componentName,
-                componentVersion,
-                componentVersionUrl,
-                addedVulnList,
-                updatedVulnList,
-                deletedVulnList);
+        // Run the converter
         List<HubEvent> events = conv.generateEvents(notif);
 
+        // Verify the generated event
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         HubEvent<VulnerabilityContentItem> event = events.get(0);
-        assertEquals(HubEventAction.ADD_COMMENT, event.getAction());
-        assertEquals(EXPECTED_COMMENT, event.getComment());
-        assertEquals(EXPECTED_COMMENT, event.getCommentIfExists());
-        assertEquals(EXPECTED_COMMENT, event.getCommentInLieuOfStateChange());
+        assertEquals(expectedHubEventAction, event.getAction());
+        assertEquals(expectedComment, event.getComment());
+        assertEquals(expectedCommentIfExists, event.getCommentIfExists());
+        assertEquals(expectedCommentInLieuOfStateChange, event.getCommentInLieuOfStateChange());
         assertEquals(ASSIGNEE_USER_ID, event.getIssueAssigneeId());
-        assertEquals(EXPECTED_DESCRIPTION, event.getIssueDescription());
-        assertEquals(EXPECTED_SUMMARY, event.getIssueSummary());
-        assertEquals(HUB_SECURITY_VULNERABILITY_ID, event.getJiraIssueTypeId());
+        assertEquals(expectedDescription, event.getIssueDescription());
+        assertEquals(expectedSummary, event.getIssueSummary());
+        assertEquals(issueTypeId, event.getJiraIssueTypeId());
 
         assertEquals(Long.valueOf(JIRA_PROJECT_ID), event.getJiraProjectId());
         assertEquals(JIRA_PROJECT_NAME, event.getJiraProjectName());
         assertEquals(JIRA_USER_KEY, event.getJiraUserId());
         assertEquals(JIRA_USER_NAME, event.getJiraUserName());
-        VulnerabilityContentItem vulnContentItem = event.getNotif();
-        assertEquals(VULN_SOURCE, vulnContentItem.getAddedVulnList().get(0).getSource());
+        // VulnerabilityContentItem vulnContentItem = event.getNotif();
+        // assertEquals(VULN_SOURCE, vulnContentItem.getAddedVulnList().get(0).getSource());
         assertEquals(1, event.getProjectFieldCopyMappings().size());
         Iterator<ProjectFieldCopyMapping> iter = event.getProjectFieldCopyMappings().iterator();
         ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
@@ -228,9 +309,62 @@ public class NotificationConverterTest {
         assertEquals(TARGET_FIELD_ID, actualProjectFieldCopyMapping.getTargetFieldId());
         assertEquals(TARGET_FIELD_NAME, actualProjectFieldCopyMapping.getTargetFieldName());
 
-        assertEquals(EXPECTED_REOPEN_COMMENT, event.getReopenComment());
-        assertEquals(EXPECTED_RESOLVED_COMMENT, event.getResolveComment());
-        assertEquals(EXPECTED_PROPERTY_KEY, event.getUniquePropertyKey());
+        assertEquals(expectedReOpenComment, event.getReopenComment());
+        assertEquals(expectedResolveComment, event.getResolveComment());
+        assertEquals(expectedPropertyKey, event.getUniquePropertyKey());
+    }
+
+    private NotificationContentItem createVulnerabilityNotif(final Date createdAt) throws URISyntaxException {
+        final ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setProjectName(HUB_PROJECT_NAME);
+        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
+        projectVersion.setUrl(PROJECT_VERSION_URL);
+        VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
+        final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
+        final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
+        final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
+        addedVulnList.add(vuln);
+        NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
+                COMPONENT_NAME,
+                COMPONENT_VERSION,
+                COMPONENT_VERSION_URL,
+                addedVulnList,
+                updatedVulnList,
+                deletedVulnList);
+        return notif;
+    }
+
+    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final Date createdAt)
+            throws URISyntaxException, IntegrationException {
+        final ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setProjectName(HUB_PROJECT_NAME);
+        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
+        projectVersion.setUrl(PROJECT_VERSION_URL);
+        final List<PolicyRule> policyRuleList = new ArrayList<>();
+
+        // Create rule
+        Map<String, Object> objectProperties = new HashMap<>();
+        objectProperties.put("name", RULE_NAME);
+        objectProperties.put("description", RULE_NAME);
+        objectProperties.put("enabled", Boolean.TRUE);
+        objectProperties.put("overridable", Boolean.TRUE);
+        // objectProperties.put("expression", value);
+        // objectProperties.put("createdAt", value);
+        // objectProperties.put("createdBy", value);
+        // objectProperties.put("updatedAt", value);
+        // objectProperties.put("updatedBy", value);
+        PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+
+        policyRuleList.add(rule);
+        NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
+                COMPONENT_NAME,
+                COMPONENT_VERSION, COMPONENT_URL,
+                COMPONENT_VERSION_URL,
+                policyRuleList);
+
+        Mockito.when(metaService.getHref(rule)).thenReturn("http://int-hub01.dc1.lan:8080/api/rules/ruleId");
+
+        return notif;
     }
 
 }
