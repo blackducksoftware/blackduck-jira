@@ -40,6 +40,7 @@ import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionI
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -71,6 +72,18 @@ public class NotificationConverterTest {
     private static final String RULE_NAME = "Test Rule";
 
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=-973294316|hcv=1816144506|hr=1736320804";
+
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was cleared in the Hub.";
+
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was cleared in the Hub.";
+
+    private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: 'Test Rule'. Rule overridable : true";
+
+    private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
+
+    private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+
+    private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Violation Cleared event on this project / component / rule";
 
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was overridden in the Hub.";
 
@@ -171,7 +184,7 @@ public class NotificationConverterTest {
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
 
     private enum NotifType {
-        VULNERABILITY, POLICY_VIOLATION, POLICY_OVERRIDE, POLICY_VIOLATION_CLEARED
+        VULNERABILITY, POLICY_VIOLATION, POLICY_VIOLATION_OVERRIDE, POLICY_VIOLATION_CLEARED
     }
 
     @BeforeClass
@@ -206,13 +219,25 @@ public class NotificationConverterTest {
 
     @Test
     public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotifType.POLICY_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS,
+        test(NotifType.POLICY_VIOLATION_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS,
                 POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
                 POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
                 POLICY_OVERRIDE_EXPECTED_SUMMARY,
                 POLICY_ISSUE_TYPE_ID,
                 POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT,
                 POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT,
+                POLICY_EXPECTED_PROPERTY_KEY);
+    }
+
+    @Test
+    public void testPolicyCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
+        test(NotifType.POLICY_VIOLATION_CLEARED, HubEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS,
+                POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
+                POLICY_CLEARED_EXPECTED_DESCRIPTION,
+                POLICY_CLEARED_EXPECTED_SUMMARY,
+                POLICY_ISSUE_TYPE_ID,
+                POLICY_CLEARED_EXPECTED_REOPEN_COMMENT,
+                POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT,
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
@@ -313,9 +338,18 @@ public class NotificationConverterTest {
                     jiraContext, jiraSettingsService,
                     metaService);
             break;
-        case POLICY_OVERRIDE:
+        case POLICY_VIOLATION_OVERRIDE:
             notif = createPolicyOverrideNotif(metaService, now);
             conv = new PolicyOverrideNotificationConverter(
+                    mappingObject,
+                    fieldCopyConfig,
+                    jiraServices,
+                    jiraContext, jiraSettingsService,
+                    metaService);
+            break;
+        case POLICY_VIOLATION_CLEARED:
+            notif = createPolicyClearedNotif(metaService, now);
+            conv = new PolicyViolationClearedNotificationConverter(
                     mappingObject,
                     fieldCopyConfig,
                     jiraServices,
@@ -364,10 +398,7 @@ public class NotificationConverterTest {
 
     private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, ProjectVersionItem projectReleaseItem,
             final Date createdAt) throws URISyntaxException, HubIntegrationException {
-        final ProjectVersion projectVersion = new ProjectVersion();
-        projectVersion.setProjectName(HUB_PROJECT_NAME);
-        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
-        projectVersion.setUrl(PROJECT_VERSION_URL);
+        final ProjectVersion projectVersion = createProjectVersion();
         VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
@@ -380,7 +411,6 @@ public class NotificationConverterTest {
                 addedVulnList,
                 updatedVulnList,
                 deletedVulnList);
-
         Mockito.when(metaService.getLink(projectReleaseItem, VULNERABLE_COMPONENTS_LINK_NAME)).thenReturn(RULE_URL);
 
         return notif;
@@ -388,22 +418,38 @@ public class NotificationConverterTest {
 
     private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final Date createdAt)
             throws URISyntaxException, IntegrationException {
+        final ProjectVersion projectVersion = createProjectVersion();
+        final List<PolicyRule> policyRuleList = new ArrayList<>();
+        PolicyRule rule = createRule();
+        policyRuleList.add(rule);
+        NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
+                COMPONENT_NAME,
+                COMPONENT_VERSION, COMPONENT_URL,
+                COMPONENT_VERSION_URL,
+                policyRuleList);
+        Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
+
+        return notif;
+    }
+
+    private ProjectVersion createProjectVersion() {
         final ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setProjectName(HUB_PROJECT_NAME);
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
         projectVersion.setUrl(PROJECT_VERSION_URL);
+        return projectVersion;
+    }
+
+    private NotificationContentItem createPolicyClearedNotif(final MetaService metaService, final Date createdAt)
+            throws URISyntaxException, IntegrationException {
+        final ProjectVersion projectVersion = createProjectVersion();
         final List<PolicyRule> policyRuleList = new ArrayList<>();
 
         // Create rule
-        Map<String, Object> objectProperties = new HashMap<>();
-        objectProperties.put("name", RULE_NAME);
-        objectProperties.put("description", RULE_NAME);
-        objectProperties.put("enabled", Boolean.TRUE);
-        objectProperties.put("overridable", Boolean.TRUE);
-        PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+        PolicyRule rule = createRule();
 
         policyRuleList.add(rule);
-        NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
+        NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
                 COMPONENT_VERSION, COMPONENT_URL,
                 COMPONENT_VERSION_URL,
@@ -414,21 +460,22 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt)
-            throws URISyntaxException, IntegrationException {
-        final ProjectVersion projectVersion = new ProjectVersion();
-        projectVersion.setProjectName(HUB_PROJECT_NAME);
-        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
-        projectVersion.setUrl(PROJECT_VERSION_URL);
-        final List<PolicyRule> policyRuleList = new ArrayList<>();
-
-        // Create rule
+    private PolicyRule createRule() throws IntegrationException {
         Map<String, Object> objectProperties = new HashMap<>();
         objectProperties.put("name", RULE_NAME);
         objectProperties.put("description", RULE_NAME);
         objectProperties.put("enabled", Boolean.TRUE);
         objectProperties.put("overridable", Boolean.TRUE);
         PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+        return rule;
+    }
+
+    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt)
+            throws URISyntaxException, IntegrationException {
+        final ProjectVersion projectVersion = createProjectVersion();
+        final List<PolicyRule> policyRuleList = new ArrayList<>();
+
+        PolicyRule rule = createRule();
 
         policyRuleList.add(rule);
         NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
