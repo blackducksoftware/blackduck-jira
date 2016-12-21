@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +51,17 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class VulnerabilityConversionTest {
+public class NotificationConverterTest {
+    private static final String TARGET_FIELD_NAME = "targetFieldName";
+
+    private static final String TARGET_FIELD_ID = "targetFieldId";
+
+    private static final String SOURCE_FIELD_NAME = "sourceFieldName";
+
+    private static final String SOURCE_FIELD_ID = "sourceFieldId";
+
+    private static final String WILDCARD_STRING = "*";
+
     private static final String HUB_PROJECT_URL = "hubProjectUrl";
 
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
@@ -109,7 +120,7 @@ public class VulnerabilityConversionTest {
     }
 
     @Test
-    public void test() throws ConfigurationException, HubIntegrationException, URISyntaxException {
+    public void testVulnerability() throws ConfigurationException, HubIntegrationException, URISyntaxException {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final Set<HubProjectMapping> mappings = new HashSet<>();
         HubProjectMapping mapping = new HubProjectMapping();
@@ -127,6 +138,14 @@ public class VulnerabilityConversionTest {
                 mappings);
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
+        projectFieldCopyMapping.setHubProjectName(WILDCARD_STRING);
+        projectFieldCopyMapping.setJiraProjectName(WILDCARD_STRING);
+        projectFieldCopyMapping.setSourceFieldId(SOURCE_FIELD_ID);
+        projectFieldCopyMapping.setSourceFieldName(SOURCE_FIELD_NAME);
+        projectFieldCopyMapping.setTargetFieldId(TARGET_FIELD_ID);
+        projectFieldCopyMapping.setTargetFieldName(TARGET_FIELD_NAME);
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
 
         ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
@@ -137,7 +156,7 @@ public class VulnerabilityConversionTest {
         issueTypes.add(issueType);
         Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
         Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
-        Mockito.when(jiraServices.getJiraProject(123L)).thenReturn(jiraProject);
+        Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
 
         ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
@@ -199,7 +218,16 @@ public class VulnerabilityConversionTest {
         assertEquals(JIRA_USER_NAME, event.getJiraUserName());
         VulnerabilityContentItem vulnContentItem = event.getNotif();
         assertEquals(VULN_SOURCE, vulnContentItem.getAddedVulnList().get(0).getSource());
-        assertEquals(0, event.getProjectFieldCopyMappings().size());
+        assertEquals(1, event.getProjectFieldCopyMappings().size());
+        Iterator<ProjectFieldCopyMapping> iter = event.getProjectFieldCopyMappings().iterator();
+        ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
+        assertEquals(WILDCARD_STRING, actualProjectFieldCopyMapping.getHubProjectName());
+        assertEquals(WILDCARD_STRING, actualProjectFieldCopyMapping.getJiraProjectName());
+        assertEquals(SOURCE_FIELD_ID, actualProjectFieldCopyMapping.getSourceFieldId());
+        assertEquals(SOURCE_FIELD_NAME, actualProjectFieldCopyMapping.getSourceFieldName());
+        assertEquals(TARGET_FIELD_ID, actualProjectFieldCopyMapping.getTargetFieldId());
+        assertEquals(TARGET_FIELD_NAME, actualProjectFieldCopyMapping.getTargetFieldName());
+
         assertEquals(EXPECTED_REOPEN_COMMENT, event.getReopenComment());
         assertEquals(EXPECTED_RESOLVED_COMMENT, event.getResolveComment());
         assertEquals(EXPECTED_PROPERTY_KEY, event.getUniquePropertyKey());
