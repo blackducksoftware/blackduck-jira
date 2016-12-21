@@ -314,10 +314,8 @@ public class NotificationConverterTest {
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         final MetaService metaService = Mockito.mock(MetaService.class);
 
-        // Construct the converter
+        // Construct the notification and the converter
         NotificationToEventConverter conv;
-
-        // Construct the notification
         NotificationContentItem notif;
         switch (notifType) {
         case VULNERABILITY:
@@ -379,8 +377,6 @@ public class NotificationConverterTest {
         assertEquals(JIRA_PROJECT_NAME, event.getJiraProjectName());
         assertEquals(JIRA_USER_KEY, event.getJiraUserId());
         assertEquals(JIRA_USER_NAME, event.getJiraUserName());
-        // VulnerabilityContentItem vulnContentItem = event.getNotif();
-        // assertEquals(VULN_SOURCE, vulnContentItem.getAddedVulnList().get(0).getSource());
         assertEquals(1, event.getProjectFieldCopyMappings().size());
         Iterator<ProjectFieldCopyMapping> iter = event.getProjectFieldCopyMappings().iterator();
         ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
