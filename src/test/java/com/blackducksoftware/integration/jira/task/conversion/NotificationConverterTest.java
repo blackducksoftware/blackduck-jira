@@ -39,6 +39,7 @@ import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionItem;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -59,6 +60,10 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
+    private static final String OVERRIDER_LAST_NAME = "lastName";
+
+    private static final String OVERRIDER_FIRST_NAME = "firstName";
+
     private static final String RULE_URL = "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
 
     private static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
@@ -67,20 +72,32 @@ public class NotificationConverterTest {
 
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=-973294316|hcv=1816144506|hr=1736320804";
 
-    private static final String POLICY_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was overridden in the Hub.";
 
-    private static final String POLICY_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was overridden in the Hub.";
 
-    private static final String POLICY_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '"
+    private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: 'Test Rule'. Rule overridable : true";
+
+    private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
+
+    private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+
+    private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+
+    private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
+
+    private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
+
+    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '"
             + RULE_NAME + "']";
 
-    private static final String POLICY_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: '"
+    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: '"
             +
             RULE_NAME + "'. Rule overridable : true";
 
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was detected again by the Hub.";
 
-    private static final String POLICY_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
+    private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
 
     private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
 
@@ -154,7 +171,7 @@ public class NotificationConverterTest {
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
 
     private enum NotifType {
-        VULNERABILITY, POLICY_VIOLATION, POLICY_VIOLATION_OVERRIDE, POLICY_VIOLATION_CLEARED
+        VULNERABILITY, POLICY_VIOLATION, POLICY_OVERRIDE, POLICY_VIOLATION_CLEARED
     }
 
     @BeforeClass
@@ -178,12 +195,24 @@ public class NotificationConverterTest {
     @Test
     public void testPolicyViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS,
-                POLICY_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
-                POLICY_EXPECTED_DESCRIPTION,
-                POLICY_EXPECTED_SUMMARY,
+                POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
+                POLICY_VIOLATION_EXPECTED_DESCRIPTION,
+                POLICY_VIOLATION_EXPECTED_SUMMARY,
                 POLICY_ISSUE_TYPE_ID,
-                POLICY_EXPECTED_REOPEN_COMMENT,
-                POLICY_EXPECTED_RESOLVE_COMMENT,
+                POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT,
+                POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT,
+                POLICY_EXPECTED_PROPERTY_KEY);
+    }
+
+    @Test
+    public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
+        test(NotifType.POLICY_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS,
+                POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
+                POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
+                POLICY_OVERRIDE_EXPECTED_SUMMARY,
+                POLICY_ISSUE_TYPE_ID,
+                POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT,
+                POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT,
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
@@ -284,6 +313,15 @@ public class NotificationConverterTest {
                     jiraContext, jiraSettingsService,
                     metaService);
             break;
+        case POLICY_OVERRIDE:
+            notif = createPolicyOverrideNotif(metaService, now);
+            conv = new PolicyOverrideNotificationConverter(
+                    mappingObject,
+                    fieldCopyConfig,
+                    jiraServices,
+                    jiraContext, jiraSettingsService,
+                    metaService);
+            break;
         default:
             throw new IllegalArgumentException("Unrecognized notification type");
         }
@@ -376,4 +414,31 @@ public class NotificationConverterTest {
         return notif;
     }
 
+    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt)
+            throws URISyntaxException, IntegrationException {
+        final ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setProjectName(HUB_PROJECT_NAME);
+        projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
+        projectVersion.setUrl(PROJECT_VERSION_URL);
+        final List<PolicyRule> policyRuleList = new ArrayList<>();
+
+        // Create rule
+        Map<String, Object> objectProperties = new HashMap<>();
+        objectProperties.put("name", RULE_NAME);
+        objectProperties.put("description", RULE_NAME);
+        objectProperties.put("enabled", Boolean.TRUE);
+        objectProperties.put("overridable", Boolean.TRUE);
+        PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+
+        policyRuleList.add(rule);
+        NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
+                COMPONENT_NAME,
+                COMPONENT_VERSION, COMPONENT_URL,
+                COMPONENT_VERSION_URL,
+                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME);
+
+        Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
+
+        return notif;
+    }
 }
