@@ -36,10 +36,12 @@ import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
+import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionItem;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.service.HubRequestService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -142,7 +144,7 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
             "For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" +
-            "null"; // TODO fix null
+            "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
@@ -169,7 +171,6 @@ public class NotificationConverterTest {
                 VULN_EXPECTED_PROPERTY_KEY);
     }
 
-    // TODO: fix nulls
     @Test
     public void testPolicyViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS,
@@ -246,6 +247,11 @@ public class NotificationConverterTest {
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
         HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
+        ProjectVersionItem projectVersionItem = Mockito.mock(ProjectVersionItem.class);
+        Mockito.when(projectVersionItem.getVersionName()).thenReturn(PROJECT_VERSION_NAME);
+
+        Mockito.when(hubRequestService.getItem("http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId", ProjectVersionItem.class))
+                .thenReturn(projectVersionItem);
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         final MetaService metaService = Mockito.mock(MetaService.class);
@@ -257,7 +263,7 @@ public class NotificationConverterTest {
         NotificationContentItem notif;
         switch (notifType) {
         case VULNERABILITY:
-            notif = createVulnerabilityNotif(now);
+            notif = createVulnerabilityNotif(metaService, projectVersionItem, now);
             conv = new VulnerabilityNotificationConverter(
                     mappingObject,
                     fieldCopyConfig,
@@ -314,7 +320,8 @@ public class NotificationConverterTest {
         assertEquals(expectedPropertyKey, event.getUniquePropertyKey());
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final Date createdAt) throws URISyntaxException {
+    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, ProjectVersionItem projectReleaseItem,
+            final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setProjectName(HUB_PROJECT_NAME);
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
@@ -331,6 +338,9 @@ public class NotificationConverterTest {
                 addedVulnList,
                 updatedVulnList,
                 deletedVulnList);
+
+        Mockito.when(metaService.getLink(projectReleaseItem, "vulnerable-components")).thenReturn("http://int-hub01.dc1.lan:8080/api/rules/ruleId");
+
         return notif;
     }
 
