@@ -257,29 +257,14 @@ public class NotificationConverterTest {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final Set<HubProjectMapping> mappings = new HashSet<>();
         HubProjectMapping mapping = new HubProjectMapping();
-        HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        hubProject.setProjectUrl(HUB_PROJECT_URL);
+        HubProject hubProject = createHubProject();
         mapping.setHubProject(hubProject);
-        JiraProject jiraProject = new JiraProject();
-        jiraProject.setProjectName(JIRA_PROJECT_NAME);
-        jiraProject.setProjectId(JIRA_PROJECT_ID);
-        jiraProject.setAssigneeUserId(ASSIGNEE_USER_ID);
+        JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
         mappings.add(mapping);
         final HubProjectMappings mappingObject = new HubProjectMappings(jiraServices,
                 mappings);
-        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
-        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
-        projectFieldCopyMapping.setHubProjectName(WILDCARD_STRING);
-        projectFieldCopyMapping.setJiraProjectName(WILDCARD_STRING);
-        projectFieldCopyMapping.setSourceFieldId(SOURCE_FIELD_ID);
-        projectFieldCopyMapping.setSourceFieldName(SOURCE_FIELD_NAME);
-        projectFieldCopyMapping.setTargetFieldId(TARGET_FIELD_ID);
-        projectFieldCopyMapping.setTargetFieldName(TARGET_FIELD_NAME);
-        projectFieldCopyMappings.add(projectFieldCopyMapping);
-        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = createFieldCopyMappings();
 
         ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         List<IssueType> issueTypes = new ArrayList<>();
@@ -362,6 +347,43 @@ public class NotificationConverterTest {
         List<HubEvent> events = conv.generateEvents(notif);
 
         // Verify the generated event
+        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
+                expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment, expectedPropertyKey);
+    }
+
+    private HubProject createHubProject() {
+        HubProject hubProject = new HubProject();
+        hubProject.setProjectName(HUB_PROJECT_NAME);
+        hubProject.setProjectUrl(HUB_PROJECT_URL);
+        return hubProject;
+    }
+
+    private JiraProject createJiraProject() {
+        JiraProject jiraProject = new JiraProject();
+        jiraProject.setProjectName(JIRA_PROJECT_NAME);
+        jiraProject.setProjectId(JIRA_PROJECT_ID);
+        jiraProject.setAssigneeUserId(ASSIGNEE_USER_ID);
+        return jiraProject;
+    }
+
+    private HubJiraFieldCopyConfigSerializable createFieldCopyMappings() {
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
+        projectFieldCopyMapping.setHubProjectName(WILDCARD_STRING);
+        projectFieldCopyMapping.setJiraProjectName(WILDCARD_STRING);
+        projectFieldCopyMapping.setSourceFieldId(SOURCE_FIELD_ID);
+        projectFieldCopyMapping.setSourceFieldName(SOURCE_FIELD_NAME);
+        projectFieldCopyMapping.setTargetFieldId(TARGET_FIELD_ID);
+        projectFieldCopyMapping.setTargetFieldName(TARGET_FIELD_NAME);
+        projectFieldCopyMappings.add(projectFieldCopyMapping);
+        fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
+        return fieldCopyConfig;
+    }
+
+    private void verifyGeneratedEvents(List<HubEvent> events, String issueTypeId, HubEventAction expectedHubEventAction, String expectedComment,
+            String expectedCommentIfExists, String expectedCommentInLieuOfStateChange, String expectedDescription, String expectedSummary,
+            String expectedReOpenComment, String expectedResolveComment, String expectedPropertyKey) throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         HubEvent<VulnerabilityContentItem> event = events.get(0);
         assertEquals(expectedHubEventAction, event.getAction());
