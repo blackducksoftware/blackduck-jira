@@ -55,8 +55,8 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
@@ -344,7 +344,7 @@ public class NotificationConverterTest {
         }
 
         // Run the converter
-        List<HubEvent> events = conv.generateEvents(notif);
+        List<JiraEvent> events = conv.generateEvents(notif);
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
@@ -381,11 +381,12 @@ public class NotificationConverterTest {
         return fieldCopyConfig;
     }
 
-    private void verifyGeneratedEvents(List<HubEvent> events, String issueTypeId, HubEventAction expectedHubEventAction, String expectedComment,
+    private void verifyGeneratedEvents(List<JiraEvent> events, String issueTypeId, HubEventAction expectedHubEventAction, String expectedComment,
             String expectedCommentIfExists, String expectedCommentInLieuOfStateChange, String expectedDescription, String expectedSummary,
             String expectedReOpenComment, String expectedResolveComment, String expectedPropertyKey) throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
-        HubEvent<VulnerabilityContentItem> event = events.get(0);
+        JiraEvent event = events.get(0);
+        // HubEvent<VulnerabilityContentItem> event = events.get(0);
         assertEquals(expectedHubEventAction, event.getAction());
         assertEquals(expectedComment, event.getComment());
         assertEquals(expectedCommentIfExists, event.getCommentIfExists());
