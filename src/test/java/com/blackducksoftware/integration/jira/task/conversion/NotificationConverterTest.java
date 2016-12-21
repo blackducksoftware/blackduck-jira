@@ -59,6 +59,10 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
+    private static final String RULE_URL = "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
+
+    private static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
+
     private static final String RULE_NAME = "Test Rule";
 
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=-973294316|hcv=1816144506|hr=1736320804";
@@ -144,7 +148,7 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
             "For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" +
-            "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
+            RULE_URL;
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
@@ -250,7 +254,7 @@ public class NotificationConverterTest {
         ProjectVersionItem projectVersionItem = Mockito.mock(ProjectVersionItem.class);
         Mockito.when(projectVersionItem.getVersionName()).thenReturn(PROJECT_VERSION_NAME);
 
-        Mockito.when(hubRequestService.getItem("http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId", ProjectVersionItem.class))
+        Mockito.when(hubRequestService.getItem(PROJECT_VERSION_URL, ProjectVersionItem.class))
                 .thenReturn(projectVersionItem);
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
@@ -339,7 +343,7 @@ public class NotificationConverterTest {
                 updatedVulnList,
                 deletedVulnList);
 
-        Mockito.when(metaService.getLink(projectReleaseItem, "vulnerable-components")).thenReturn("http://int-hub01.dc1.lan:8080/api/rules/ruleId");
+        Mockito.when(metaService.getLink(projectReleaseItem, VULNERABLE_COMPONENTS_LINK_NAME)).thenReturn(RULE_URL);
 
         return notif;
     }
@@ -358,11 +362,6 @@ public class NotificationConverterTest {
         objectProperties.put("description", RULE_NAME);
         objectProperties.put("enabled", Boolean.TRUE);
         objectProperties.put("overridable", Boolean.TRUE);
-        // objectProperties.put("expression", value);
-        // objectProperties.put("createdAt", value);
-        // objectProperties.put("createdBy", value);
-        // objectProperties.put("updatedAt", value);
-        // objectProperties.put("updatedBy", value);
         PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
 
         policyRuleList.add(rule);
@@ -372,7 +371,7 @@ public class NotificationConverterTest {
                 COMPONENT_VERSION_URL,
                 policyRuleList);
 
-        Mockito.when(metaService.getHref(rule)).thenReturn("http://int-hub01.dc1.lan:8080/api/rules/ruleId");
+        Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
         return notif;
     }
