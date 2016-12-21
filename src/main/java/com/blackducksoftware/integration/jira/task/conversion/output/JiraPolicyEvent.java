@@ -27,11 +27,11 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
+import com.blackducksoftware.integration.hub.notification.processor.event.PolicyEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubUrlParser;
@@ -39,7 +39,7 @@ import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class PolicyEvent extends HubEvent<NotificationContentItem> {
+public class JiraPolicyEvent extends PolicyEvent implements JiraEvent {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final PolicyContentItem notificationContentItem;
@@ -52,18 +52,18 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
     private final String resolveComment;
 
-    public PolicyEvent(final HubEventAction action, final String jiraUserName, final String jiraUserId,
+    private final JiraInfo jiraInfo;
 
-            final String issueAssigneeId,
-            final String jiraIssueTypeId,
-            final Long jiraProjectId, final String jiraProjectName,
+    private final HubEventAction action;
+
+    public JiraPolicyEvent(final HubEventAction action, final JiraInfo jiraInfo,
             final PolicyContentItem notificationContentItem,
             final PolicyRule policyRule, final String comment, final String commentForExistingIssue,
             final String resolveComment,
-            final Set<ProjectFieldCopyMapping> projectFieldCopyMappings, final MetaService metaService) {
-
-        super(action, jiraUserName, jiraUserId, issueAssigneeId, jiraIssueTypeId, jiraProjectId, jiraProjectName,
-                projectFieldCopyMappings, notificationContentItem, metaService);
+            final String policyRuleUrl) {
+        super(NotificationCategoryEnum.POLICY_VIOLATION, notificationContentItem, policyRule, policyRuleUrl);
+        this.action = action;
+        this.jiraInfo = jiraInfo;
         this.notificationContentItem = notificationContentItem;
         this.policyRule = policyRule;
         this.comment = comment;
@@ -75,6 +75,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
         return notificationContentItem;
     }
 
+    @Override
     public PolicyRule getPolicyRule() {
         return policyRule;
     }
@@ -89,7 +90,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(getJiraProjectId().toString());
+        keyBuilder.append(jiraInfo.getJiraProjectId().toString());
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
@@ -110,7 +111,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getMetaService().getHref(getPolicyRule()))));
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(getPolicyRuleURL())));
 
         final String key = keyBuilder.toString();
         logger.debug("property key: " + key);
@@ -125,13 +126,13 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
         builder.append(", policyRule=");
         builder.append(policyRule);
         builder.append(", getJiraUserName()=");
-        builder.append(getJiraUserName());
+        builder.append(jiraInfo.getJiraUserName());
         builder.append(", getJiraIssueTypeId()=");
-        builder.append(getJiraIssueTypeId());
+        builder.append(jiraInfo.getJiraIssueTypeId());
         builder.append(", getJiraProjectId()=");
-        builder.append(getJiraProjectId());
+        builder.append(jiraInfo.getJiraProjectId());
         builder.append(", getJiraProjectName()=");
-        builder.append(getJiraProjectName());
+        builder.append(jiraInfo.getJiraProjectName());
         builder.append("]");
         return builder.toString();
     }
@@ -191,6 +192,11 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     }
 
     @Override
+    public HubEventAction getAction() {
+        return action;
+    }
+
+    @Override
     public String getComment() {
         return comment;
     }
@@ -200,6 +206,7 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
         return commentForExistingIssue;
     }
 
+    @Override
     public String getCommentInLieuOfStateChange() {
         return getCommentIfExists();
     }
@@ -212,5 +219,40 @@ public class PolicyEvent extends HubEvent<NotificationContentItem> {
     @Override
     public String getResolveComment() {
         return resolveComment;
+    }
+
+    @Override
+    public String getJiraUserName() {
+        return jiraInfo.getJiraUserName();
+    }
+
+    @Override
+    public String getJiraUserId() {
+        return jiraInfo.getJiraUserId();
+    }
+
+    @Override
+    public String getIssueAssigneeId() {
+        return jiraInfo.getIssueAssigneeId();
+    }
+
+    @Override
+    public String getJiraIssueTypeId() {
+        return jiraInfo.getJiraIssueTypeId();
+    }
+
+    @Override
+    public Long getJiraProjectId() {
+        return jiraInfo.getJiraProjectId();
+    }
+
+    @Override
+    public String getJiraProjectName() {
+        return jiraInfo.getJiraProjectName();
+    }
+
+    @Override
+    public Set<ProjectFieldCopyMapping> getProjectFieldCopyMappings() {
+        return jiraInfo.getProjectFieldCopyMappings();
     }
 }

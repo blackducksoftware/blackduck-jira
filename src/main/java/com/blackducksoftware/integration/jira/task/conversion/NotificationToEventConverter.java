@@ -33,7 +33,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
@@ -61,7 +61,7 @@ public abstract class NotificationToEventConverter {
         this.metaService = metaService;
     }
 
-    public abstract List<HubEvent> generateEvents(NotificationContentItem notif);
+    public abstract List<JiraEvent> generateEvents(NotificationContentItem notif);
 
     public JiraSettingsService getJiraSettingsService() {
         return jiraSettingsService;

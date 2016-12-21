@@ -35,7 +35,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
@@ -49,8 +49,8 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    public List<HubEvent> generateEvents(final NotificationContentItem notif) {
-        final List<HubEvent> notifEvents = new ArrayList<>();
+    public List<JiraEvent> generateEvents(final NotificationContentItem notif) {
+        final List<JiraEvent> notifEvents = new ArrayList<>();
 
         logger.debug("policyNotif: " + notif);
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
@@ -64,7 +64,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
             for (final JiraProject jiraProject : mappingJiraProjects) {
                 logger.debug("JIRA Project: " + jiraProject);
                 try {
-                    final List<HubEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
+                    final List<JiraEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
                     if (projectEvents != null) {
                         notifEvents.addAll(projectEvents);
                     }
@@ -81,6 +81,6 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return notifEvents;
     }
 
-    protected abstract List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+    protected abstract List<JiraEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException;
 }

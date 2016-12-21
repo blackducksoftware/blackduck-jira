@@ -39,9 +39,10 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraPolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -62,20 +63,23 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
     }
 
     @Override
-    protected List<HubEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+    protected List<JiraEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException {
-        final List<HubEvent> events = new ArrayList<>();
+        final List<JiraEvent> events = new ArrayList<>();
 
-        HubEventAction action = HubEventAction.RESOLVE;
+        final HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            final HubEvent event = new PolicyEvent(action, getJiraContext().getJiraUser().getName(),
+            final JiraInfo jiraInfo = new JiraInfo(getJiraContext().getJiraUser().getName(),
                     getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
+                    fieldCopyConfig.getProjectFieldCopyMappings());
+
+            final JiraEvent event = new JiraPolicyEvent(action, jiraInfo,
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, fieldCopyConfig.getProjectFieldCopyMappings(), metaService);
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, metaService.getHref(rule));
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }

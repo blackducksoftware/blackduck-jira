@@ -1,14 +1,24 @@
-/*
- * Copyright (C) 2016 Black Duck Software Inc.
+/*******************************************************************************
+ * Copyright (C) 2016 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
- * All rights reserved.
- * 
- * This software is the confidential and proprietary information of
- * Black Duck Software ("Confidential Information"). You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Black Duck Software.
- */
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.ArrayList;
@@ -30,8 +40,8 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
-import com.blackducksoftware.integration.jira.task.conversion.output.PolicyEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraPolicyEvent;
 
 public class IssueFieldHandler {
 
@@ -50,36 +60,36 @@ public class IssueFieldHandler {
     }
 
     public void addLabels(MutableIssue issue, List<String> labels) {
-        for (String label : labels) {
+        for (final String label : labels) {
             logger.debug("Adding label: " + label);
             jiraServices.getLabelManager().addLabel(jiraContext.getJiraUser(), issue.getId(), label, false);
         }
     }
 
-    public void setPluginFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
+    public void setPluginFieldValues(final JiraEvent notificationEvent, IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
             issueInputParameters.addCustomFieldValue(projectFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectName());
+                    notificationEvent.getNotificationContent().getProjectVersion().getProjectName());
 
             final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
             issueInputParameters.addCustomFieldValue(projectVersionFieldId,
-                    notificationEvent.getNotif().getProjectVersion().getProjectVersionName());
+                    notificationEvent.getNotificationContent().getProjectVersion().getProjectVersionName());
 
             final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotif().getComponentName());
+            issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotificationContent().getComponentName());
 
             final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
             issueInputParameters.addCustomFieldValue(componentVersionFieldId,
-                    notificationEvent.getNotif().getComponentVersion());
+                    notificationEvent.getNotificationContent().getComponentVersion());
 
-            if (notificationEvent.getClass().equals(PolicyEvent.class)) {
-                final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
+            if (notificationEvent.getClass().equals(JiraPolicyEvent.class)) {
+                final JiraPolicyEvent policyNotif = (JiraPolicyEvent) notificationEvent;
                 final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
                         .get(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
                 issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
@@ -87,9 +97,9 @@ public class IssueFieldHandler {
         }
     }
 
-    public List<String> setOtherFieldValues(final HubEvent notificationEvent, IssueInputParameters issueInputParameters) {
-        List<String> labels = new ArrayList<>();
-        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
+    public List<String> setOtherFieldValues(final JiraEvent notificationEvent, IssueInputParameters issueInputParameters) {
+        final List<String> labels = new ArrayList<>();
+        final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
         if (projectFieldCopyMappings == null) {
             logger.debug("projectFieldCopyMappings is null");
             return labels;
@@ -98,7 +108,7 @@ public class IssueFieldHandler {
             logger.debug("projectFieldCopyMappings is null");
             return labels;
         }
-        for (ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
+        for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
             if ((!notificationEvent.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
                     && (!HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
@@ -108,17 +118,17 @@ public class IssueFieldHandler {
             }
             logger.debug("This field copy mapping is for this JIRA project (or all JIRA projects); using it");
 
-            String targetFieldId = fieldCopyMapping.getTargetFieldId();
+            final String targetFieldId = fieldCopyMapping.getTargetFieldId();
             logger.debug("Setting field with ID " + targetFieldId + " from field " + fieldCopyMapping.getSourceFieldName());
 
-            Field targetField = jiraServices.getFieldManager().getField(targetFieldId);
+            final Field targetField = jiraServices.getFieldManager().getField(targetFieldId);
             logger.debug("\ttargetField: " + targetField);
             if (targetField == null) {
                 logger.error("Custom field with ID " + targetFieldId + " not found; won't be set");
                 continue;
             }
 
-            String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getSourceFieldId());
+            final String fieldValue = getPluginFieldValue(notificationEvent, fieldCopyMapping.getSourceFieldId());
             if (fieldValue == null) {
                 continue;
             }
@@ -129,7 +139,7 @@ public class IssueFieldHandler {
                 issueInputParameters.addCustomFieldValue(targetField.getId(), fieldValue);
             } else {
                 logger.debug("Setting standard field " + targetField.getName() + " to " + fieldValue);
-                String label = setSystemField(notificationEvent, issueInputParameters, targetField, fieldValue);
+                final String label = setSystemField(notificationEvent, issueInputParameters, targetField, fieldValue);
                 if (label != null) {
                     labels.add(label);
                 }
@@ -142,7 +152,8 @@ public class IssueFieldHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied
      * to an issue during creation).
      */
-    private String setSystemField(HubEvent notificationEvent, IssueInputParameters issueInputParameters, Field targetField, String targetFieldValue) {
+    private String setSystemField(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, Field targetField,
+            String targetFieldValue) {
         if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(notificationEvent, issueInputParameters, targetFieldValue);
         } else if (targetField.getId().equals(HubJiraConstants.COMPONENTS_FIELD_ID)) {
@@ -156,10 +167,11 @@ public class IssueFieldHandler {
         return null;
     }
 
-    private void setComponent(HubEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
+    private void setComponent(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long compId = null;
-        Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId()).getComponents();
-        for (ProjectComponent component : components) {
+        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId())
+                .getComponents();
+        for (final ProjectComponent component : components) {
             if (targetFieldValue.equals(component.getName())) {
                 compId = component.getId();
                 break;
@@ -172,10 +184,10 @@ public class IssueFieldHandler {
         }
     }
 
-    private void setAffectedVersion(HubEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
+    private void setAffectedVersion(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long versionId = null;
-        Collection<Version> versions = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId()).getVersions();
-        for (Version version : versions) {
+        final Collection<Version> versions = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId()).getVersions();
+        for (final Version version : versions) {
             if (targetFieldValue.equals(version.getName())) {
                 versionId = version.getId();
                 break;
@@ -188,23 +200,23 @@ public class IssueFieldHandler {
         }
     }
 
-    private String getPluginFieldValue(final HubEvent notificationEvent, String pluginFieldId) {
+    private String getPluginFieldValue(final JiraEvent notificationEvent, String pluginFieldId) {
         String fieldValue = null;
         if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotif().getComponentName();
+            fieldValue = notificationEvent.getNotificationContent().getComponentName();
         } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotif().getComponentVersion();
+            fieldValue = notificationEvent.getNotificationContent().getComponentVersion();
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
-            if (notificationEvent instanceof PolicyEvent) {
-                final PolicyEvent policyNotif = (PolicyEvent) notificationEvent;
+            if (notificationEvent instanceof JiraPolicyEvent) {
+                final JiraPolicyEvent policyNotif = (JiraPolicyEvent) notificationEvent;
                 fieldValue = policyNotif.getPolicyRule().getName();
             } else {
                 logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
             }
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectName();
+            fieldValue = notificationEvent.getNotificationContent().getProjectVersion().getProjectName();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotif().getProjectVersion().getProjectVersionName();
+            fieldValue = notificationEvent.getNotificationContent().getProjectVersion().getProjectVersionName();
         } else {
             logger.error("Unrecognized plugin field ID: " + pluginFieldId);
         }

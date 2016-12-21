@@ -37,7 +37,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -99,7 +99,7 @@ public class TicketGenerator {
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
                     jiraContext, jiraSettingsService, hubServicesFactory);
 
-            final List<HubEvent> events = processor.generateEvents(notifs);
+            final List<JiraEvent> events = processor.generateEvents(notifs);
             if ((events == null) || (events.size() == 0)) {
                 logger.info("There are no events to handle");
                 return;
@@ -108,7 +108,7 @@ public class TicketGenerator {
             final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
                     ticketInfoFromSetup);
 
-            for (final HubEvent event : events) {
+            for (final JiraEvent event : events) {
                 try {
                     issueHandler.handleEvent(event);
                 } catch (final Exception e) {

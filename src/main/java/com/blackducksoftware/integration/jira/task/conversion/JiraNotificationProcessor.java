@@ -36,7 +36,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraNotificationProcessor {
@@ -54,16 +54,16 @@ public class JiraNotificationProcessor {
                 hubServicesFactory);
     }
 
-    public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
+    public List<JiraEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
             throws HubIntegrationException {
-        final List<HubEvent> allEvents = new ArrayList<>();
+        final List<JiraEvent> allEvents = new ArrayList<>();
 
         logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
                 + " notifications");
         for (final NotificationContentItem notif : notifications) {
             logger.debug("Notification: " + notif);
 
-            List<HubEvent> notifEvents;
+            List<JiraEvent> notifEvents;
             try {
                 notifEvents = generateEvents(notif);
             } catch (final Exception e) {
@@ -76,10 +76,10 @@ public class JiraNotificationProcessor {
         return allEvents;
     }
 
-    private List<HubEvent> generateEvents(final NotificationContentItem notif)
+    private List<JiraEvent> generateEvents(final NotificationContentItem notif)
             throws HubIntegrationException {
         final NotificationToEventConverter converter = converterTable.getConverter(notif);
-        final List<HubEvent> events = converter.generateEvents(notif);
+        final List<JiraEvent> events = converter.generateEvents(notif);
         return events;
     }
 
