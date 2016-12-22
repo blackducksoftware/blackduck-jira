@@ -379,14 +379,9 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+                    config.setHubProjects(new ArrayList<>(0));
 
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<HubProject> hubProjects = new ArrayList<>(0);
-                        config.setHubProjects(hubProjects);
-                        return config;
-                    }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
                     if (hubServicesFactory == null) {
                         return config;
                     }
@@ -547,18 +542,17 @@ public class HubJiraConfigController {
 
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-                    final RestConnection restConnection = getRestConnection(settings, txConfig);
-                    if (txConfig.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        txConfig.setPolicyRules(policyRules);
-                        return txConfig;
-                    }
-
                     if (StringUtils.isNotBlank(policyRulesJson)) {
                         txConfig.setPolicyRulesJson(policyRulesJson);
+                    } else {
+                        txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    setHubPolicyRules(getHubServicesFactory(restConnection, txConfig), txConfig);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, txConfig);
+                    if (hubServicesFactory == null) {
+                        return txConfig;
+                    }
+                    setHubPolicyRules(hubServicesFactory, txConfig);
                     return txConfig;
                 }
             });
@@ -659,17 +653,13 @@ public class HubJiraConfigController {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
+                    config.setPolicyRules(new ArrayList<>(0));
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        config.setPolicyRules(policyRules);
-                        config.setJiraProjects(jiraProjects);
+                    config.setJiraProjects(jiraProjects);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
+                    if (hubServicesFactory == null) {
                         return config;
                     }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
@@ -1001,7 +991,12 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    HubServicesFactory getHubServicesFactory(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+    HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+        final RestConnection restConnection = getRestConnection(settings, config);
+        if (config.hasErrors()) {
+            return null;
+        }
+
         final HubServicesFactory hubServicesFactory;
         try {
             hubServicesFactory = new HubServicesFactory(restConnection);
