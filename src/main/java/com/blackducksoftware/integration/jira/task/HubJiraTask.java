@@ -36,6 +36,7 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
@@ -58,6 +59,8 @@ import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderEx
 
 public class HubJiraTask {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
+    private final PluginConfigurationDetails configDetails;
 
     private final HubServerConfig serverConfig;
 
@@ -87,17 +90,17 @@ public class HubJiraTask {
 
     private final String fieldCopyMappingJson;
 
-    public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
-            final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-            final String fieldCopyMappingJson, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+    public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
+        this.configDetails = configDetails;
+        // TODO eliminate either the above line, or the below lines that reference configDetails
+        this.serverConfig = configDetails.createHubServerConfigBuilder().build();
+        this.intervalString = configDetails.getIntervalString();
+        this.installDateString = configDetails.getInstallDateString();
+        this.lastRunDateString = configDetails.getLastRunDateString();
+        this.projectMappingJson = configDetails.getProjectMappingJson();
+        this.policyRulesJson = configDetails.getPolicyRulesJson();
 
-        this.serverConfig = serverConfig;
-        this.intervalString = intervalString;
-        this.installDateString = installDateString;
-        this.lastRunDateString = lastRunDateString;
-        this.projectMappingJson = projectMappingJson;
-        this.policyRulesJson = policyRulesJson;
         this.jiraContext = jiraContext;
         this.runDate = new Date();
 
@@ -110,7 +113,7 @@ public class HubJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
-        this.fieldCopyMappingJson = fieldCopyMappingJson;
+        this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
     }
 
     /**
@@ -119,6 +122,18 @@ public class HubJiraTask {
      * @return this execution's run date/time string on success, null otherwise
      */
     public String execute() {
+        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
+        HubServerConfig serverConfig = null;
+        try {
+            logger.debug("Building Hub configuration");
+            serverConfig = hubConfigBuilder.build();
+            logger.debug("Finished building Hub configuration");
+        } catch (final IllegalStateException e) {
+            logger.error(
+                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
+                            + e.getMessage());
+            return "error";
+        }
 
         final HubJiraConfigSerializable config = deSerializeConfig();
         if (config == null) {
