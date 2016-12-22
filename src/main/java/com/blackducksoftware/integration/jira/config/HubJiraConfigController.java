@@ -991,7 +991,7 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    private HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final RestConnection restConnection = getRestConnection(settings, config);
         if (config.hasErrors()) {
             return null;
@@ -1008,7 +1008,7 @@ public class HubJiraConfigController {
         return hubServicesFactory;
     }
 
-    RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    private RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
