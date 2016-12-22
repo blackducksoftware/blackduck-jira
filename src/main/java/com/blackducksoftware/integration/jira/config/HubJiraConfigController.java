@@ -119,8 +119,6 @@ public class HubJiraConfigController {
 
     private final Properties i18nProperties;
 
-    private MetaService metaService;
-
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
             final HubMonitor hubMonitor,
@@ -572,11 +570,6 @@ public class HubJiraConfigController {
         }
 
         return Response.ok(config).build();
-    }
-
-    // TODO why not instantiate in ctor?
-    HubVersionRequestService getHubVersionRequestService(final RestConnection restConnection) {
-        return new HubVersionRequestService(restConnection);
     }
 
     @Path("/mappings")
@@ -1092,8 +1085,7 @@ public class HubJiraConfigController {
         }
 
         final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
-        MetaService metaService;
-        metaService = getMetaService(hubServicesFactory);
+        MetaService metaService = hubServicesFactory.createMetaService(logger);
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
         } catch (HubIntegrationException e1) {
@@ -1117,26 +1109,18 @@ public class HubJiraConfigController {
         return hubProjects;
     }
 
-    // TODO revisit this; why not initialize metaService in ctor? would be safer (= never null)
-    private MetaService getMetaService(final HubServicesFactory hubServicesFactory) {
-        if (metaService == null) {
-            metaService = hubServicesFactory.createMetaService(logger);
-        }
-        return metaService;
-    }
-
     private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
             final HubSupportHelper supportHelper = new HubSupportHelper();
             try {
-                HubVersionRequestService restService = hubServicesFactory.createHubVersionRequestService();
-                supportHelper.checkHubSupport(restService, null);
+                HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+                supportHelper.checkHubSupport(hubVersionRequestService, null);
 
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-                    final PolicyRequestService policyService = getPolicyService(restService.getRestConnection());
+                    final PolicyRequestService policyService = hubServicesFactory.createPolicyRequestService();
 
                     List<PolicyRule> policyRules = null;
                     try {
@@ -1156,8 +1140,9 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.getName().trim());
 
+                            MetaService metaService = hubServicesFactory.createMetaService(logger);
                             try {
-                                newRule.setPolicyUrl(getMetaService(hubServicesFactory).getHref(rule));
+                                newRule.setPolicyUrl(metaService.getHref(rule));
                             } catch (HubIntegrationException e) {
                                 logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
@@ -1213,10 +1198,6 @@ public class HubJiraConfigController {
         }
         errorMsg += newMessage;
         return errorMsg;
-    }
-
-    public PolicyRequestService getPolicyService(final RestConnection restConnection) {
-        return new PolicyRequestService(restConnection);
     }
 
     private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
