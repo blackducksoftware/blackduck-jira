@@ -64,16 +64,6 @@ public class HubJiraTask {
 
     private final HubServerConfig serverConfig;
 
-    private final String intervalString;
-
-    private final String installDateString;
-
-    private final String lastRunDateString;
-
-    private final String projectMappingJson;
-
-    private final String policyRulesJson;
-
     private final JiraContext jiraContext;
 
     private final Date runDate;
@@ -93,13 +83,7 @@ public class HubJiraTask {
     public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
         this.configDetails = configDetails;
-        // TODO eliminate either the above line, or the below lines that reference configDetails
         this.serverConfig = configDetails.createHubServerConfigBuilder().build();
-        this.intervalString = configDetails.getIntervalString();
-        this.installDateString = configDetails.getInstallDateString();
-        this.lastRunDateString = configDetails.getLastRunDateString();
-        this.projectMappingJson = configDetails.getProjectMappingJson();
-        this.policyRulesJson = configDetails.getPolicyRulesJson();
 
         this.jiraContext = jiraContext;
         this.runDate = new Date();
@@ -108,8 +92,8 @@ public class HubJiraTask {
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         this.runDateString = dateFormatter.format(runDate);
 
-        logger.debug("Install date: " + installDateString);
-        logger.debug("Last run date: " + lastRunDateString);
+        logger.debug("Install date: " + configDetails.getInstallDateString());
+        logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
@@ -143,7 +127,7 @@ public class HubJiraTask {
 
         final Date startDate;
         try {
-            startDate = deriveStartDate(installDateString, lastRunDateString);
+            startDate = deriveStartDate(configDetails.getInstallDateString(), configDetails.getLastRunDateString());
         } catch (final ParseException e) {
             logger.info(
                     "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
@@ -151,18 +135,15 @@ public class HubJiraTask {
         }
 
         try {
-            final RestConnection restConnection = initRestConnection();
-            final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-
-            if (jiraContext == null) {
-                logger.info("Missing information to generate tickets.");
-
+            final HubServicesFactory hubServicesFactory;
+            try {
+                hubServicesFactory = createHubServicesFactory();
+            } catch (HubIntegrationException e) {
+                logger.info("Missing information to generate tickets: " + e.getMessage());
                 return null;
             }
-
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection, hubServicesFactory,
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
@@ -202,6 +183,12 @@ public class HubJiraTask {
         return runDateString;
     }
 
+    private HubServicesFactory createHubServicesFactory() throws HubIntegrationException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
+        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
+        return hubServicesFactory;
+    }
+
     private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
         final List<String> ruleUrls = new ArrayList<>();
         final List<PolicyRuleSerializable> rules = config.getPolicyRules();
@@ -216,7 +203,7 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection, HubServicesFactory hubServicesFactory,
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
@@ -228,32 +215,26 @@ public class HubJiraTask {
         return ticketGenerator;
     }
 
-    private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {
-
-        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
-        return restConnection;
-    }
-
     private HubJiraConfigSerializable deSerializeConfig() {
-        if (projectMappingJson == null) {
+        if (configDetails.getProjectMappingJson() == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
         }
 
-        if (policyRulesJson == null) {
+        if (configDetails.getPolicyRulesJson() == null) {
             logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
             return null;
         }
 
-        logger.debug("Last run date: " + lastRunDateString);
+        logger.debug("Last run date: " + configDetails.getLastRunDateString());
         logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
                 + serverConfig.getGlobalCredentials().getUsername());
-        logger.debug("Interval: " + intervalString);
+        logger.debug("Interval: " + configDetails.getIntervalString());
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-        config.setHubProjectMappingsJson(projectMappingJson);
-        config.setPolicyRulesJson(policyRulesJson);
+        config.setHubProjectMappingsJson(configDetails.getProjectMappingJson());
+        config.setPolicyRulesJson(configDetails.getPolicyRulesJson());
         logger.debug("Mappings:");
         for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
             logger.debug(mapping.toString());
