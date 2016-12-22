@@ -119,8 +119,6 @@ public class HubJiraConfigController {
 
     private final Properties i18nProperties;
 
-    private MetaService metaService;
-
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
             final HubMonitor hubMonitor,
@@ -299,7 +297,6 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterval(@Context final HttpServletRequest request) {
-        // TODO try typing these objects
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -381,14 +378,9 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+                    config.setHubProjects(new ArrayList<>(0));
 
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<HubProject> hubProjects = new ArrayList<>(0);
-                        config.setHubProjects(hubProjects);
-                        return config;
-                    }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
                     if (hubServicesFactory == null) {
                         return config;
                     }
@@ -484,8 +476,8 @@ public class HubJiraConfigController {
             final Fields errorSourceFields = new Fields();
             String msg = "Error getting source fields: " + e.getMessage();
             logger.error(msg, e);
+            errorSourceFields.setErrorMessage(msg);
             return Response.ok(errorSourceFields).build();
-            // TODO need an error field on fields?
         }
         return Response.ok(sourceFields).build();
     }
@@ -522,8 +514,8 @@ public class HubJiraConfigController {
             final Fields errorTargetFields = new Fields();
             String msg = "Error getting target fields: " + e.getMessage();
             logger.error(msg, e);
+            errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
-            // TODO need an error field on fields?
         }
 
         return Response.ok(targetFields).build();
@@ -549,18 +541,17 @@ public class HubJiraConfigController {
 
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-                    final RestConnection restConnection = getRestConnection(settings, txConfig);
-                    if (txConfig.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        txConfig.setPolicyRules(policyRules);
-                        return txConfig;
-                    }
-
                     if (StringUtils.isNotBlank(policyRulesJson)) {
                         txConfig.setPolicyRulesJson(policyRulesJson);
+                    } else {
+                        txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    setHubPolicyRules(getHubServicesFactory(restConnection, txConfig), txConfig);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, txConfig);
+                    if (hubServicesFactory == null) {
+                        return txConfig;
+                    }
+                    setHubPolicyRules(hubServicesFactory, txConfig);
                     return txConfig;
                 }
             });
@@ -572,11 +563,6 @@ public class HubJiraConfigController {
         }
 
         return Response.ok(config).build();
-    }
-
-    // TODO why not instantiate in ctor?
-    HubVersionRequestService getHubVersionRequestService(final RestConnection restConnection) {
-        return new HubVersionRequestService(restConnection);
     }
 
     @Path("/mappings")
@@ -666,17 +652,13 @@ public class HubJiraConfigController {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
+                    config.setPolicyRules(new ArrayList<>(0));
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        config.setPolicyRules(policyRules);
-                        config.setJiraProjects(jiraProjects);
+                    config.setJiraProjects(jiraProjects);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
+                    if (hubServicesFactory == null) {
                         return config;
                     }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
@@ -1008,7 +990,12 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    HubServicesFactory getHubServicesFactory(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+    private HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+        final RestConnection restConnection = getRestConnection(settings, config);
+        if (config.hasErrors()) {
+            return null;
+        }
+
         final HubServicesFactory hubServicesFactory;
         try {
             hubServicesFactory = new HubServicesFactory(restConnection);
@@ -1020,7 +1007,7 @@ public class HubJiraConfigController {
         return hubServicesFactory;
     }
 
-    RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    private RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -1092,8 +1079,7 @@ public class HubJiraConfigController {
         }
 
         final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
-        MetaService metaService;
-        metaService = getMetaService(hubServicesFactory);
+        MetaService metaService = hubServicesFactory.createMetaService(logger);
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
         } catch (HubIntegrationException e1) {
@@ -1117,26 +1103,18 @@ public class HubJiraConfigController {
         return hubProjects;
     }
 
-    // TODO revisit this; why not initialize metaService in ctor? would be safer (= never null)
-    private MetaService getMetaService(final HubServicesFactory hubServicesFactory) {
-        if (metaService == null) {
-            metaService = hubServicesFactory.createMetaService(logger);
-        }
-        return metaService;
-    }
-
     private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
             final HubSupportHelper supportHelper = new HubSupportHelper();
             try {
-                HubVersionRequestService restService = hubServicesFactory.createHubVersionRequestService();
-                supportHelper.checkHubSupport(restService, null);
+                HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+                supportHelper.checkHubSupport(hubVersionRequestService, null);
 
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-                    final PolicyRequestService policyService = getPolicyService(restService.getRestConnection());
+                    final PolicyRequestService policyService = hubServicesFactory.createPolicyRequestService();
 
                     List<PolicyRule> policyRules = null;
                     try {
@@ -1156,8 +1134,9 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.getName().trim());
 
+                            MetaService metaService = hubServicesFactory.createMetaService(logger);
                             try {
-                                newRule.setPolicyUrl(getMetaService(hubServicesFactory).getHref(rule));
+                                newRule.setPolicyUrl(metaService.getHref(rule));
                             } catch (HubIntegrationException e) {
                                 logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
@@ -1213,10 +1192,6 @@ public class HubJiraConfigController {
         }
         errorMsg += newMessage;
         return errorMsg;
-    }
-
-    public PolicyRequestService getPolicyService(final RestConnection restConnection) {
-        return new PolicyRequestService(restConnection);
     }
 
     private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {

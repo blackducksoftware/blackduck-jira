@@ -38,8 +38,6 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -95,22 +93,7 @@ public class JiraTaskTimed implements Callable<String> {
         final Period diff = new Period(beforeSetup, afterSetup);
         logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
                 + "ms.");
-        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
-        HubServerConfig serverConfig = null;
-        try {
-            logger.debug("Building Hub configuration");
-            serverConfig = hubConfigBuilder.build();
-            logger.debug("Finished building Hub configuration");
-        } catch (final IllegalStateException e) {
-            logger.error(
-                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
-                            + e.getMessage());
-            return "error";
-        }
-        final HubJiraTask processor = new HubJiraTask(serverConfig, configDetails.getIntervalString(),
-                configDetails.getInstallDateString(),
-                configDetails.getLastRunDateString(), configDetails.getProjectMappingJson(), configDetails.getPolicyRulesJson(),
-                configDetails.getFieldCopyMappingJson(), jiraContext, jiraSettingsService,
+        final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService,
                 ticketInfoFromSetup);
         final String runDateString = processor.execute();
         if (runDateString != null) {
