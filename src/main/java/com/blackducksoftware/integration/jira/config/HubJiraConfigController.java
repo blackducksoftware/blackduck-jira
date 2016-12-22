@@ -297,7 +297,6 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterval(@Context final HttpServletRequest request) {
-        // TODO try typing these objects
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -477,8 +476,8 @@ public class HubJiraConfigController {
             final Fields errorSourceFields = new Fields();
             String msg = "Error getting source fields: " + e.getMessage();
             logger.error(msg, e);
+            errorSourceFields.setErrorMessage(msg);
             return Response.ok(errorSourceFields).build();
-            // TODO need an error field on fields?
         }
         return Response.ok(sourceFields).build();
     }
@@ -515,8 +514,8 @@ public class HubJiraConfigController {
             final Fields errorTargetFields = new Fields();
             String msg = "Error getting target fields: " + e.getMessage();
             logger.error(msg, e);
+            errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
-            // TODO need an error field on fields?
         }
 
         return Response.ok(targetFields).build();

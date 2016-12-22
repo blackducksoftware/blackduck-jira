@@ -75,8 +75,7 @@ public class HubIssueTypeSetup {
             jiraUser = jiraServices.getUserManager().getUserByName(jiraUserName);
         } else {
             logger.debug("Getting user from AuthContext");
-            // TODO replace deprecated method call
-            jiraUser = jiraServices.getAuthContext().getUser();
+            jiraUser = jiraServices.getAuthContext().getLoggedInUser();
         }
         if (jiraUser == null) {
             logger.error("User is null");
