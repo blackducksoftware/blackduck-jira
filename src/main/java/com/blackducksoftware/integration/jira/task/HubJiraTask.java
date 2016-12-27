@@ -60,7 +60,7 @@ import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderEx
 public class HubJiraTask {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final PluginConfigurationDetails configDetails;
+    private final PluginConfigurationDetails pluginConfigDetails;
 
     private final HubServerConfig serverConfig;
 
@@ -82,7 +82,7 @@ public class HubJiraTask {
 
     public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
-        this.configDetails = configDetails;
+        this.pluginConfigDetails = configDetails;
         this.serverConfig = configDetails.createHubServerConfigBuilder().build();
 
         this.jiraContext = jiraContext;
@@ -108,7 +108,7 @@ public class HubJiraTask {
      * @return this execution's run date/time string on success, null otherwise
      */
     public String execute() {
-        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
+        final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
         HubServerConfig serverConfig = null;
         try {
             logger.debug("Building Hub configuration");
@@ -129,7 +129,7 @@ public class HubJiraTask {
 
         final Date startDate;
         try {
-            startDate = deriveStartDate(configDetails.getInstallDateString(), configDetails.getLastRunDateString());
+            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
         } catch (final ParseException e) {
             logger.info(
                     "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
@@ -213,30 +213,30 @@ public class HubJiraTask {
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
+                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues());
         return ticketGenerator;
     }
 
     private HubJiraConfigSerializable deSerializeConfig() {
-        if (configDetails.getProjectMappingJson() == null) {
+        if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
         }
 
-        if (configDetails.getPolicyRulesJson() == null) {
+        if (pluginConfigDetails.getPolicyRulesJson() == null) {
             logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
             return null;
         }
 
-        logger.debug("Last run date: " + configDetails.getLastRunDateString());
+        logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
         logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
                 + serverConfig.getGlobalCredentials().getUsername());
-        logger.debug("Interval: " + configDetails.getIntervalString());
+        logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-        config.setHubProjectMappingsJson(configDetails.getProjectMappingJson());
-        config.setPolicyRulesJson(configDetails.getPolicyRulesJson());
+        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
+        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
         logger.debug("Mappings:");
         for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
             logger.debug(mapping.toString());

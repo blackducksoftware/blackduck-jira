@@ -48,10 +48,11 @@ public class JiraNotificationProcessor {
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final HubServicesFactory hubServicesFactory)
+            final HubServicesFactory hubServicesFactory,
+            final boolean createVulnerabilityIssues)
             throws ConfigurationException {
         converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory);
+                hubServicesFactory, createVulnerabilityIssues);
     }
 
     public List<HubEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)

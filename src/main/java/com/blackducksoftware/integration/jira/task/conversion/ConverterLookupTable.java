@@ -50,7 +50,7 @@ public class ConverterLookupTable {
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final HubServicesFactory hubServicesFactory)
+            final HubServicesFactory hubServicesFactory, final boolean createVulnerabilityIssues)
             throws ConfigurationException {
 
         final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
@@ -67,7 +67,12 @@ public class ConverterLookupTable {
         lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
         lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
-        lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        if (createVulnerabilityIssues) {
+            logger.debug("Adding vulnerabilityNotificationConverter to converter table");
+            lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        } else {
+            logger.debug("Omitting vulnerabilityNotificationConverter from converter table");
+        }
     }
 
     public NotificationToEventConverter getConverter(final NotificationContentItem notif)
@@ -75,7 +80,7 @@ public class ConverterLookupTable {
         final Class<? extends NotificationContentItem> c = notif.getClass();
         final NotificationToEventConverter converter = lookupTable.get(c);
         if (converter == null) {
-            throw new HubIntegrationException("Notification type unknown for notification: " + notif);
+            throw new HubIntegrationException("No converter configured for the Notification type of this notification: " + notif);
         }
         return converter;
     }

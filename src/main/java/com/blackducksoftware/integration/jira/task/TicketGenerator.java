@@ -65,11 +65,14 @@ public class TicketGenerator {
 
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
+    private final boolean createVulnerabilityIssues;
+
     public TicketGenerator(final HubServicesFactory hubServicesFactory,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final boolean createVulnerabilityIssues) {
         this.hubServicesFactory = hubServicesFactory;
         this.notificationDataService = hubServicesFactory.createNotificationDataService(logger);
         this.jiraServices = jiraServices;
@@ -77,6 +80,7 @@ public class TicketGenerator {
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
+        this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
     public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
@@ -97,7 +101,7 @@ public class TicketGenerator {
                 return;
             }
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
-                    jiraContext, jiraSettingsService, hubServicesFactory);
+                    jiraContext, jiraSettingsService, hubServicesFactory, createVulnerabilityIssues);
 
             final List<HubEvent> events = processor.generateEvents(notifs);
             if ((events == null) || (events.size() == 0)) {
