@@ -569,6 +569,7 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
+        logger.debug("GET createVulnerabilityTicketsChoice");
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -579,6 +580,7 @@ public class HubJiraConfigController {
             config = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
+                    logger.debug("GET createVulnerabilityTicketsChoice transaction");
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
                     final String createVulnIssuesChoiceString = getStringValue(settings,
                             HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
@@ -718,6 +720,7 @@ public class HubJiraConfigController {
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
                     Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
+                    logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
                     return null;
                 }

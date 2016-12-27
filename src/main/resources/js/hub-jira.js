@@ -884,12 +884,12 @@ function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
 	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
 	if (createVulnerabilityIssues) {
 		console.log("Setting createVulnerabilityIssuesChoice to Yes");
-		createVulnerabilityIssuesYesElement[0].checked = "true";
-		createVulnerabilityIssuesNoElement[0].checked = "false";
+		createVulnerabilityIssuesYesElement[0].checked = true;
+		createVulnerabilityIssuesNoElement[0].checked = false;
 	} else {
 		console.log("Setting createVulnerabilityIssuesChoice to No");
-		createVulnerabilityIssuesYesElement[0].checked = "false";
-		createVulnerabilityIssuesNoElement[0].checked = "true";
+		createVulnerabilityIssuesYesElement[0].checked = false;
+		createVulnerabilityIssuesNoElement[0].checked = true;
 	}
 }
 
