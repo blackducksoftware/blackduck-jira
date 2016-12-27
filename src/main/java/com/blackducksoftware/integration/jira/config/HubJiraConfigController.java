@@ -319,11 +319,11 @@ public class HubJiraConfigController {
                 }
             });
         } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             String msg = "Error getting interval config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(config).build();
     }
@@ -354,11 +354,11 @@ public class HubJiraConfigController {
                 }
             });
         } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             String msg = "Error getting JIRA projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
     }
@@ -395,11 +395,11 @@ public class HubJiraConfigController {
                 }
             });
         } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             String msg = "Error getting Hub projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
     }
@@ -565,6 +565,43 @@ public class HubJiraConfigController {
         return Response.ok(config).build();
     }
 
+    @Path("/createVulnerabilityTicketsChoice")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
+                    final String createVulnIssuesChoiceString = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+                    logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
+                    boolean choice = true;
+                    if ("false".equalsIgnoreCase(createVulnIssuesChoiceString)) {
+                        choice = false;
+                    }
+                    logger.debug("choice: " + choice);
+                    txConfig.setCreateVulnerabilityIssues(choice);
+                    return txConfig;
+                }
+            });
+        } catch (Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setCreateVulnerabilityIssuesError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
     @Path("/mappings")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -679,6 +716,9 @@ public class HubJiraConfigController {
                             config.getHubProjectMappingsJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
+                    logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
+                    Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
                     return null;
                 }
             });

@@ -37,6 +37,8 @@ public class HubJiraConfigKeys {
 
     public final static String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
 
+    public final static String HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE = HUB_CONFIG_JIRA_KEY_PREFIX + ".createVulnIssuesChoice";
+
     public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
 
     public final static String HUB_CONFIG_JIRA_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";

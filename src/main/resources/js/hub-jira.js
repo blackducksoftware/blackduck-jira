@@ -248,6 +248,24 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
+		    dataType: "json",
+		    success: function(config) {
+		    	console.log("success: createVulnerabilityTicketsChoice");
+		      setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
+
+//		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
+		    },
+		    error: function(response){
+		    	console.log("error: createVulnerabilityTicketsChoice");
+		    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("complete: createVulnerabilityTicketsChoice");
+		    }
+		  });
+	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
 		    dataType: "json",
 		    success: function(config) {
@@ -676,9 +694,21 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 		  });
 	}
 
+function getCreateVulnerabilityIssuesChoice() {
+	var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+	
+	if (createVulnerabilityIssuesYesElement[0].checked) {
+		return "true";
+	} else {
+		return "false";
+	}
+}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
+	var createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -687,6 +717,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
 	    + '", "hubProjectMappings": ' + jsonMappingArray
 	    + ', "policyRules": ' + policyRuleArray
+	    + ', "createVulnerabilityIssues": ' + createVulnerabilityIssues
 	    + '}',
 	    processData: false,
 	    success: function() {
@@ -846,6 +877,20 @@ function updateValue(fieldId, configField) {
 	if(configField){
 		 AJS.$("#" + fieldId).val(decodeURI(configField));
     }
+}
+
+function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
+	var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+	if (createVulnerabilityIssues) {
+		console.log("Setting createVulnerabilityIssuesChoice to Yes");
+		createVulnerabilityIssuesYesElement[0].checked = "true";
+		createVulnerabilityIssuesNoElement[0].checked = "false";
+	} else {
+		console.log("Setting createVulnerabilityIssuesChoice to No");
+		createVulnerabilityIssuesYesElement[0].checked = "false";
+		createVulnerabilityIssuesNoElement[0].checked = "true";
+	}
 }
 
 function addPolicyViolationRules(policyRules){

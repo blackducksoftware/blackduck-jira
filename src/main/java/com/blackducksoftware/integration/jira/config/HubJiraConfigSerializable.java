@@ -78,7 +78,13 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private List<PolicyRuleSerializable> policyRules;
 
     @XmlElement
+    private boolean createVulnerabilityIssues;
+
+    @XmlElement
     private String policyRulesError;
+
+    @XmlElement
+    private String createVulnerabilityIssuesError;
 
     @Override
     public boolean hasErrors() {
@@ -277,6 +283,14 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         this.policyRules = policyRules;
     }
 
+    public boolean isCreateVulnerabilityIssues() {
+        return createVulnerabilityIssues;
+    }
+
+    public void setCreateVulnerabilityIssues(boolean createVulnerabilityIssues) {
+        this.createVulnerabilityIssues = createVulnerabilityIssues;
+    }
+
     public void setPolicyRulesJson(final String policyRulesJson) {
         if (StringUtils.isNotBlank(policyRulesJson)) {
             final Gson gson = new GsonBuilder().create();
@@ -300,6 +314,14 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
 
     public void setPolicyRulesError(final String policyRulesError) {
         this.policyRulesError = policyRulesError;
+    }
+
+    public String getCreateVulnerabilityIssuesError() {
+        return createVulnerabilityIssuesError;
+    }
+
+    public void setCreateVulnerabilityIssuesError(String createVulnerabilityIssuesError) {
+        this.createVulnerabilityIssuesError = createVulnerabilityIssuesError;
     }
 
     @Override

@@ -156,7 +156,7 @@
 					      	<div id="policyRulesError" class="error hidden"></div>
 					    </td>
 					    <td>
-					      	<div id="" class="error hidden"></div>
+					      	<div id="createVulnerabilityIssuesChoiceError" class="error hidden"></div>
 					    </td>
 	      			</tr>
       			</tbody>
