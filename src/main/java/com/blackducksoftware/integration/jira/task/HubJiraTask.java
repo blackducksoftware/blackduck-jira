@@ -98,6 +98,8 @@ public class HubJiraTask {
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
+
+        logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
     }
 
     /**

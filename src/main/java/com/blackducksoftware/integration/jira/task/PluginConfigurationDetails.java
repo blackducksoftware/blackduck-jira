@@ -65,6 +65,8 @@ public class PluginConfigurationDetails {
 
     private final String fieldCopyMappingJson;
 
+    private final boolean createVulnerabilityIssues;
+
     public PluginConfigurationDetails(final PluginSettings settings) {
         hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
@@ -90,6 +92,7 @@ public class PluginConfigurationDetails {
         jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
 
         fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+        createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
     }
 
     public String getHubUrl() {
@@ -168,6 +171,10 @@ public class PluginConfigurationDetails {
         return fieldCopyMappingJson;
     }
 
+    public boolean isCreateVulnerabilityIssues() {
+        return createVulnerabilityIssues;
+    }
+
     public HubServerConfigBuilder createHubServerConfigBuilder() {
         final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
         hubConfigBuilder.setHubUrl(hubUrl);
@@ -192,5 +199,13 @@ public class PluginConfigurationDetails {
 
     private String getStringValue(final PluginSettings settings, final String key) {
         return (String) getValue(settings, key);
+    }
+
+    private boolean getBooleanValue(final PluginSettings settings, final String key) {
+        String valueString = (String) getValue(settings, key);
+        if ("true".equalsIgnoreCase(valueString)) {
+            return true;
+        }
+        return false;
     }
 }
