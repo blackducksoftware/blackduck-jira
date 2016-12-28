@@ -30,14 +30,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -53,9 +48,6 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.IllegalFieldValueException;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.crowd.embedded.api.Group;
@@ -273,17 +265,10 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
-                final Map<String, String> ticketErrors = expireOldErrors(settings);
+                final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
                 if (ticketErrors != null) {
-                    final Set<TicketCreationError> displayTicketErrors = new HashSet<>();
-                    for (final Entry<String, String> error : ticketErrors.entrySet()) {
-                        final String errorKey = error.getKey();
-                        final TicketCreationError ticketCreationError = new TicketCreationError();
-                        ticketCreationError.setStackTrace(errorKey);
-                        ticketCreationError.setTimeStamp(error.getValue());
-                        displayTicketErrors.add(ticketCreationError);
-                    }
-                    creationError.setHubJiraTicketErrors(displayTicketErrors);
+                    Collections.sort(ticketErrors);
+                    creationError.setHubJiraTicketErrors(ticketErrors);
                     logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
                 }
                 return creationError;
@@ -753,30 +738,38 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
 
                 final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
-                final HashMap<String, String> ticketErrors;
+
+                List<TicketCreationError> ticketErrors = null;
                 if (errorObject != null) {
-                    ticketErrors = (HashMap<String, String>) errorObject;
+                    String errorString = (String) errorObject;
+                    try {
+                        ticketErrors = TicketCreationError.fromJson(errorString);
+                    } catch (Exception e) {
+                        ticketErrors = new ArrayList<>();
+                    }
                 } else {
-                    ticketErrors = new HashMap<>();
+                    ticketErrors = new ArrayList<>();
                 }
+
                 if (errorsToDelete.getHubJiraTicketErrors() != null
                         && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
                     for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
                         try {
                             final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
-                            final String val = ticketErrors.remove(errorMessage);
-                            if (val == null) {
-                                final TicketCreationErrorSerializable serializableError = new TicketCreationErrorSerializable();
-                                serializableError.setConfigError(
-                                        "Could not find the Error selected for removal in the persisted list.");
-                                return serializableError;
+                            Iterator<TicketCreationError> iterator = ticketErrors.iterator();
+                            while (iterator.hasNext()) {
+                                TicketCreationError error = iterator.next();
+                                if (errorMessage.equals(error.getStackTrace())) {
+                                    iterator.remove();
+                                    break;
+                                }
                             }
                         } catch (final UnsupportedEncodingException e) {
 
                         }
                     }
                 }
-                setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+                setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
                 return null;
             }
         });
@@ -1237,32 +1230,4 @@ public class HubJiraConfigController {
         return errorMsg;
     }
 
-    private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
-        final Object errorObject = getValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR);
-        if (errorObject != null) {
-            final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
-
-            if (ticketErrors != null && !ticketErrors.isEmpty()) {
-                final DateTime currentTime = DateTime.now();
-                final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
-                while (s.hasNext()) {
-                    final Entry<String, String> ticketError = s.next();
-                    DateTime errorTime = null;
-                    try {
-                        errorTime = DateTime.parse(ticketError.getValue(),
-                                JiraSettingsService.ERROR_TIME_FORMAT);
-                    } catch (IllegalFieldValueException e) {
-                        errorTime = DateTime.parse(ticketError.getValue(),
-                                JiraSettingsService.OLD_ERROR_TIME_FORMAT);
-                    }
-                    if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
-                        s.remove();
-                    }
-                }
-                setValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
-                return ticketErrors;
-            }
-        }
-        return null;
-    }
 }

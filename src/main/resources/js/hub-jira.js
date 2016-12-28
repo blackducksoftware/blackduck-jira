@@ -310,6 +310,7 @@ function populateForm() {
 		    	updateTicketCreationErrors(creationError.hubJiraTicketErrors);
 		    },
 		    error: function(response){
+		    	console.log("Error getting the ticket creation errors : " + response.responseText);
 		    	var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
 		    	if(fieldSet.hasClass('hidden')){
 		    		fieldSet.removeClass('hidden');
