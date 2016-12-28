@@ -34,14 +34,13 @@ import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.version.Version;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraPolicyEvent;
 
 public class IssueFieldHandler {
 
@@ -66,12 +65,13 @@ public class IssueFieldHandler {
         }
     }
 
-    public void setPluginFieldValues(final JiraEvent notificationEvent, IssueInputParameters issueInputParameters) {
+    public void setPluginFieldValues(final NotificationEvent notificationEvent, IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
             issueInputParameters.addCustomFieldValue(projectFieldId,
+                    notificationEvent.getDataSet().get(key));
                     notificationEvent.getNotificationContent().getProjectVersion().getProjectName());
 
             final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
@@ -97,7 +97,7 @@ public class IssueFieldHandler {
         }
     }
 
-    public List<String> setOtherFieldValues(final JiraEvent notificationEvent, IssueInputParameters issueInputParameters) {
+    public List<String> setOtherFieldValues(final NotificationEvent notificationEvent, IssueInputParameters issueInputParameters) {
         final List<String> labels = new ArrayList<>();
         final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
         if (projectFieldCopyMappings == null) {
@@ -152,7 +152,7 @@ public class IssueFieldHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied
      * to an issue during creation).
      */
-    private String setSystemField(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, Field targetField,
+    private String setSystemField(NotificationEvent notificationEvent, IssueInputParameters issueInputParameters, Field targetField,
             String targetFieldValue) {
         if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(notificationEvent, issueInputParameters, targetFieldValue);
@@ -167,7 +167,7 @@ public class IssueFieldHandler {
         return null;
     }
 
-    private void setComponent(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
+    private void setComponent(NotificationEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long compId = null;
         final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId())
                 .getComponents();
@@ -184,7 +184,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private void setAffectedVersion(JiraEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
+    private void setAffectedVersion(NotificationEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long versionId = null;
         final Collection<Version> versions = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId()).getVersions();
         for (final Version version : versions) {
@@ -200,7 +200,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private String getPluginFieldValue(final JiraEvent notificationEvent, String pluginFieldId) {
+    private String getPluginFieldValue(final NotificationEvent notificationEvent, String pluginFieldId) {
         String fieldValue = null;
         if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
             fieldValue = notificationEvent.getNotificationContent().getComponentName();

@@ -12,6 +12,8 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 public class EventDataSetKeys {
+    public static final String ACTION = "action";
+
     public static final String JIRA_ISSUE_RESOLVE_COMMENT = "jiraIssueResolveComment";
 
     public static final String JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE = "jiraIssueCommentForExistingIssue";
@@ -30,5 +32,15 @@ public class EventDataSetKeys {
 
     public static final String JIRA_USER_NAME = "jiraUserName";
 
-    public static final String ACTION = "action";
+    // Hub
+
+    public static final String HUB_PROJECT_NAME = "hubProjectName";
+
+    public static final String HUB_PROJECT_VERSION = "hubProjectVersion";
+
+    public static final String HUB_COMPONENT_NAME = "hubComponentName";
+
+    public static final String HUB_COMPONENT_VERSION = "hubComponentVersion";
+
+    public static final String HUB_RULE_NAME = "hubRuleName";
 }
