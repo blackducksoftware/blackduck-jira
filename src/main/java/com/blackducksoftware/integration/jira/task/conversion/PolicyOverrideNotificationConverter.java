@@ -64,6 +64,8 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
 
             Map<String, Object> dataSet = createDataSet(notif, action, getJiraContext(), jiraProject,
+                    getIssueSummary(notification, rule),
+                    getIssueDescription(notification, rule),
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT,
                     HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE,
                     rule.getName());

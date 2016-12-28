@@ -46,6 +46,7 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -54,6 +55,8 @@ import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.EventDataSetKeys;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -154,7 +157,7 @@ public class JiraIssueHandler {
                 return null;
             }
             final EntityProperty property = props.get(0);
-            final IssueProperties propertyValue = notificationEvent.createIssuePropertiesFromJson(property.getValue());
+            final IssueProperties propertyValue = createIssuePropertiesFromJson(notificationEvent.getCategoryType(), property.getValue());
             logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
             final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
                     propertyValue.getJiraIssueId());
@@ -168,11 +171,30 @@ public class JiraIssueHandler {
         return null;
     }
 
+    private IssueProperties createIssuePropertiesFromJson(NotificationCategoryEnum type, String json) {
+        final Gson gson = new GsonBuilder().create();
+        switch (type) {
+        case POLICY_VIOLATION:
+        case POLICY_VIOLATION_CLEARED:
+        case POLICY_VIOLATION_OVERRIDE:
+            return gson.fromJson(json, PolicyViolationIssueProperties.class);
+
+        case HIGH_VULNERABILITY:
+        case MEDIUM_VULNERABILITY:
+        case LOW_VULNERABILITY:
+        case VULNERABILITY:
+            return gson.fromJson(json, VulnerabilityIssueProperties.class);
+
+        default:
+            throw new IllegalArgumentException("Unrecognized notification type: " + type.toString());
+        }
+    }
+
     private Issue createIssue(final NotificationEvent notificationEvent) {
 
         IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
-        issueInputParameters.setProjectId(notificationEvent.getJiraProjectId())
-                .setIssueTypeId(notificationEvent.getJiraIssueTypeId()).setSummary(notificationEvent.getIssueSummary())
+        issueInputParameters.setProjectId(notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_ID))
+                .setIssueTypeId(notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID)).setSummary(notificationEvent.getIssueSummary())
                 .setReporterId(notificationEvent.getJiraUserName())
                 .setDescription(notificationEvent.getIssueDescription());
 

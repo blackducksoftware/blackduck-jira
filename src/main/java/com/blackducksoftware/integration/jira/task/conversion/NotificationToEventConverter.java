@@ -116,6 +116,8 @@ public abstract class NotificationToEventConverter {
     protected Map<String, Object> createDataSet(final NotificationContentItem notif,
             final HubEventAction action,
             JiraContext jiraContext, JiraProject jiraProject,
+            String issueSummary,
+            String issueDescription,
             String issueComment,
             String issueCommentForExistingIssue,
             String issueResolveComment,
@@ -128,6 +130,7 @@ public abstract class NotificationToEventConverter {
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, getIssueTypeId());
 
         dataSet.put(EventDataSetKeys.JIRA_PROJECT_NAME, jiraProject.getProjectName());
+        dataSet.put(EventDataSetKeys.JIRA_PROJECT_ID, jiraProject.getProjectId());
         dataSet.put(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS, getFieldCopyConfig().getProjectFieldCopyMappings());
 
         dataSet.put(EventDataSetKeys.HUB_PROJECT_NAME, notif.getProjectVersion().getProjectName());
@@ -135,11 +138,14 @@ public abstract class NotificationToEventConverter {
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_NAME, notif.getComponentName());
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION, notif.getComponentVersion());
 
-        dataSet.put(EventDataSetKeys.HUB_RULE_NAME, hubRuleName);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_SUMMARY, issueSummary);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, issueDescription);
 
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, issueComment);
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, issueCommentForExistingIssue);
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, issueResolveComment);
+
+        dataSet.put(EventDataSetKeys.HUB_RULE_NAME, hubRuleName);
 
         return dataSet;
     }

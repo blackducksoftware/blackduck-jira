@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -88,6 +89,41 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException;
+
+    protected String getIssueDescription(final NotificationContentItem notif, PolicyRule rule) {
+        final StringBuilder issueDescription = new StringBuilder();
+        issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project '");
+        issueDescription.append(notif.getProjectVersion().getProjectName());
+        issueDescription.append("' / '");
+        issueDescription.append(notif.getProjectVersion().getProjectVersionName());
+        issueDescription.append("', component '");
+        issueDescription.append(notif.getComponentName());
+        issueDescription.append("' / '");
+        issueDescription.append(notif.getComponentVersion());
+        issueDescription.append("'.");
+        issueDescription.append(" The rule violated is: '");
+        issueDescription.append(rule.getName());
+        issueDescription.append("'. Rule overridable : ");
+        issueDescription.append(rule.getOverridable());
+        return issueDescription.toString();
+    }
+
+    protected String getIssueSummary(final NotificationContentItem notif, PolicyRule rule) {
+        final StringBuilder issueSummary = new StringBuilder();
+        issueSummary.append("Black Duck policy violation detected on Hub project '");
+        issueSummary.append(notif.getProjectVersion().getProjectName());
+        issueSummary.append("' / '");
+        issueSummary.append(notif.getProjectVersion().getProjectVersionName());
+        issueSummary.append("', component '");
+        issueSummary.append(notif.getComponentName());
+        issueSummary.append("' / '");
+        issueSummary.append(notif.getComponentVersion());
+        issueSummary.append("'");
+        issueSummary.append(" [Rule: '");
+        issueSummary.append(rule.getName());
+        issueSummary.append("']");
+        return issueSummary.toString();
+    }
 
     protected String getUniquePropertyKeyForPolicyIssue(PolicyContentItem notificationContentItem, Long jiraProjectId,
             String policyRuleURL)
