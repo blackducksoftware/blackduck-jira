@@ -21,7 +21,6 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +38,8 @@ import com.blackducksoftware.integration.jira.common.HubUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
@@ -48,9 +47,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
     public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final String issueTypeName, final MetaService metaService)
+            final String issueTypeName, final MetaService metaService,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws ConfigurationException {
-        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService);
+        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService, fieldCopyConfig);
     }
 
     @Override
@@ -89,9 +89,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException;
 
-    public String getUniquePropertyKey(final JiraInfo jiraInfo, PolicyContentItem notificationContentItem,
+    protected String getUniquePropertyKeyForPolicyIssue(PolicyContentItem notificationContentItem, Long jiraProjectId,
             String policyRuleURL)
-            throws HubIntegrationException, URISyntaxException {
+            throws HubIntegrationException {
+
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
@@ -100,12 +101,11 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(jiraInfo.getJiraProjectId().toString());
+        keyBuilder.append(jiraProjectId.toString());
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-
         keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(notificationContentItem.getProjectVersion().getUrl())));
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
@@ -124,18 +124,8 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(policyRuleURL)));
 
         final String key = keyBuilder.toString();
+
         logger.debug("property key: " + key);
         return key;
-    }
-
-    private String hashString(final String origString) {
-        String hashString;
-        if (origString == null) {
-            hashString = "";
-        } else {
-            hashString = String.valueOf(origString.hashCode());
-        }
-        logger.debug("Hash string for '" + origString + "': " + hashString);
-        return hashString;
     }
 }

@@ -26,6 +26,8 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+
 public class HubUrlParser {
 
     public static String getBaseUrl(final String url) throws URISyntaxException {
@@ -34,14 +36,18 @@ public class HubUrlParser {
         return derivedUrlPrefix;
     }
 
-    public static String getRelativeUrl(final String url) throws URISyntaxException {
+    public static String getRelativeUrl(final String url) throws HubIntegrationException {
         if (url == null) {
             return null;
         }
-        final String baseUrl = getBaseUrl(url);
-        final URI baseUri = new URI(baseUrl);
-        final URI origUri = new URI(url);
-        final URI relativeUri = baseUri.relativize(origUri);
-        return relativeUri.toString();
+        try {
+            final String baseUrl = getBaseUrl(url);
+            final URI baseUri = new URI(baseUrl);
+            final URI origUri = new URI(url);
+            final URI relativeUri = baseUri.relativize(origUri);
+            return relativeUri.toString();
+        } catch (URISyntaxException e) {
+            throw new HubIntegrationException("Invalid URI syntax exception on " + url + ": " + e.getMessage());
+        }
     }
 }

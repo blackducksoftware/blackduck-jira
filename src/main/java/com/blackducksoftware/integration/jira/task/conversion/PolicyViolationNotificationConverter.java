@@ -23,12 +23,14 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -38,20 +40,17 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverter extends AbstractPolicyNotificationConverter {
-
-    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public PolicyViolationNotificationConverter(final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final MetaService metaService)
             throws ConfigurationException {
-        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService);
-        this.fieldCopyConfig = fieldCopyConfig;
+        super(mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService,
+                fieldCopyConfig);
     }
 
     @Override
@@ -62,14 +61,12 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         final HubEventAction action = HubEventAction.OPEN;
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            final JiraInfo jiraInfo = new JiraInfo(getJiraContext().getJiraUser().getName(),
-                    getJiraContext().getJiraUser().getKey(), jiraProject.getAssigneeUserId(),
-                    getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
-                    fieldCopyConfig.getProjectFieldCopyMappings());
-            final NotificationEvent event = new JiraPolicyEvent(action, jiraInfo,
-                    notification, rule,
-                    null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
-                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE, getMetaService().getHref(rule));
+            Map<String, Object> dataSet = createDataSet(action, getJiraContext(), jiraProject,
+                    null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT, HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+
+            String key = getUniquePropertyKeyForPolicyIssue(notification, jiraProject.getProjectId(),
+                    getMetaService().getHref(rule));
+            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, dataSet);
             events.add(event);
         }
 

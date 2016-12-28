@@ -22,21 +22,30 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
     private final JiraServices jiraServices;
 
     private final JiraContext jiraContext;
@@ -49,16 +58,20 @@ public abstract class NotificationToEventConverter {
 
     private final MetaService metaService;
 
+    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+
     public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
             final HubProjectMappings mappings,
-            final String issueTypeName, final MetaService metaService) throws ConfigurationException {
+            final String issueTypeName, final MetaService metaService,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.mappings = mappings;
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.metaService = metaService;
+        this.fieldCopyConfig = fieldCopyConfig;
     }
 
     public abstract List<NotificationEvent> generateEvents(NotificationContentItem notif);
@@ -100,4 +113,39 @@ public abstract class NotificationToEventConverter {
         return metaService;
     }
 
+    protected Map<String, Object> createDataSet(final HubEventAction action,
+            JiraContext jiraContext, JiraProject jiraProject,
+            String issueComment,
+            String issueCommentForExistingIssue,
+            String issueResolveComment) {
+        Map<String, Object> dataSet = new HashMap<>();
+        dataSet.put(EventDataSetKeys.ACTION, action);
+        dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraContext.getJiraUser().getUsername());
+        dataSet.put(EventDataSetKeys.JIRA_USER_KEY, jiraContext.getJiraUser().getKey());
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID, jiraProject.getAssigneeUserId());
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, getIssueTypeId());
+
+        dataSet.put(EventDataSetKeys.JIRA_PROJECT_NAME, jiraProject.getProjectName());
+        dataSet.put(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS, getFieldCopyConfig().getProjectFieldCopyMappings());
+
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, issueComment);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, issueCommentForExistingIssue);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, issueResolveComment);
+        return dataSet;
+    }
+
+    protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
+        return fieldCopyConfig;
+    }
+
+    protected String hashString(final String origString) {
+        String hashString;
+        if (origString == null) {
+            hashString = "";
+        } else {
+            hashString = String.valueOf(origString.hashCode());
+        }
+        logger.debug("Hash string for '" + origString + "': " + hashString);
+        return hashString;
+    }
 }

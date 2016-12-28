@@ -12,5 +12,23 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 public class EventDataSetKeys {
+    public static final String JIRA_ISSUE_RESOLVE_COMMENT = "jiraIssueResolveComment";
 
+    public static final String JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE = "jiraIssueCommentForExistingIssue";
+
+    public static final String JIRA_ISSUE_COMMENT = "jiraIssueComment";
+
+    public static final String JIRA_FIELD_COPY_MAPPINGS = "jiraFieldCopyMappings";
+
+    public static final String JIRA_PROJECT_NAME = "jiraProjectName";
+
+    public static final String JIRA_ISSUE_TYPE_ID = "jiraIssueTypeId";
+
+    public static final String JIRA_ISSUE_ASSIGNEE_USER_ID = "jiraIssueAssigneeUserId";
+
+    public static final String JIRA_USER_KEY = "jiraUserKey";
+
+    public static final String JIRA_USER_NAME = "jiraUserName";
+
+    public static final String ACTION = "action";
 }
