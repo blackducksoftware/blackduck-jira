@@ -21,6 +21,7 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +29,18 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.HubUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
@@ -49,8 +54,8 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    public List<JiraEvent> generateEvents(final NotificationContentItem notif) {
-        final List<JiraEvent> notifEvents = new ArrayList<>();
+    public List<NotificationEvent> generateEvents(final NotificationContentItem notif) {
+        final List<NotificationEvent> notifEvents = new ArrayList<>();
 
         logger.debug("policyNotif: " + notif);
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
@@ -64,7 +69,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
             for (final JiraProject jiraProject : mappingJiraProjects) {
                 logger.debug("JIRA Project: " + jiraProject);
                 try {
-                    final List<JiraEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
+                    final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
                     if (projectEvents != null) {
                         notifEvents.addAll(projectEvents);
                     }
@@ -81,6 +86,56 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return notifEvents;
     }
 
-    protected abstract List<JiraEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+    protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException;
+
+    public String getUniquePropertyKey(final JiraInfo jiraInfo, PolicyContentItem notificationContentItem,
+            String policyRuleURL)
+            throws HubIntegrationException, URISyntaxException {
+        final StringBuilder keyBuilder = new StringBuilder();
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(jiraInfo.getJiraProjectId().toString());
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(notificationContentItem.getProjectVersion().getUrl())));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(notificationContentItem.getComponentUrl())));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(notificationContentItem.getComponentVersionUrl())));
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(policyRuleURL)));
+
+        final String key = keyBuilder.toString();
+        logger.debug("property key: " + key);
+        return key;
+    }
+
+    private String hashString(final String origString) {
+        String hashString;
+        if (origString == null) {
+            hashString = "";
+        } else {
+            hashString = String.valueOf(origString.hashCode());
+        }
+        logger.debug("Hash string for '" + origString + "': " + hashString);
+        return hashString;
+    }
 }

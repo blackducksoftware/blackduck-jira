@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -36,7 +37,6 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraNotificationProcessor {
@@ -54,16 +54,16 @@ public class JiraNotificationProcessor {
                 hubServicesFactory);
     }
 
-    public List<JiraEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
+    public List<NotificationEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
             throws HubIntegrationException {
-        final List<JiraEvent> allEvents = new ArrayList<>();
+        final List<NotificationEvent> allEvents = new ArrayList<>();
 
         logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
                 + " notifications");
         for (final NotificationContentItem notif : notifications) {
             logger.debug("Notification: " + notif);
 
-            List<JiraEvent> notifEvents;
+            List<NotificationEvent> notifEvents;
             try {
                 notifEvents = generateEvents(notif);
             } catch (final Exception e) {
@@ -76,10 +76,10 @@ public class JiraNotificationProcessor {
         return allEvents;
     }
 
-    private List<JiraEvent> generateEvents(final NotificationContentItem notif)
+    private List<NotificationEvent> generateEvents(final NotificationContentItem notif)
             throws HubIntegrationException {
         final NotificationToEventConverter converter = converterTable.getConverter(notif);
-        final List<JiraEvent> events = converter.generateEvents(notif);
+        final List<NotificationEvent> events = converter.generateEvents(notif);
         return events;
     }
 

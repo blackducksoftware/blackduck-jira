@@ -29,6 +29,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -37,9 +38,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraPolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -58,9 +57,9 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
     }
 
     @Override
-    protected List<JiraEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+    protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException {
-        final List<JiraEvent> events = new ArrayList<>();
+        final List<NotificationEvent> events = new ArrayList<>();
 
         final HubEventAction action = HubEventAction.RESOLVE;
         final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
@@ -70,7 +69,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     fieldCopyConfig.getProjectFieldCopyMappings());
 
-            final JiraEvent event = new JiraPolicyEvent(action,
+            final NotificationEvent event = new NotificationEvent(action,
                     jiraInfo,
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT,

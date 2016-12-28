@@ -28,12 +28,12 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
@@ -61,7 +61,7 @@ public abstract class NotificationToEventConverter {
         this.metaService = metaService;
     }
 
-    public abstract List<JiraEvent> generateEvents(NotificationContentItem notif);
+    public abstract List<NotificationEvent> generateEvents(NotificationContentItem notif);
 
     public JiraSettingsService getJiraSettingsService() {
         return jiraSettingsService;

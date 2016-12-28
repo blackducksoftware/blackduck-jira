@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -40,9 +41,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraInfo;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraPolicyEvent;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -63,9 +62,9 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
     }
 
     @Override
-    protected List<JiraEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
+    protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException {
-        final List<JiraEvent> events = new ArrayList<>();
+        final List<NotificationEvent> events = new ArrayList<>();
 
         final HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
@@ -76,7 +75,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     getIssueTypeId(), jiraProject.getProjectId(), jiraProject.getProjectName(),
                     fieldCopyConfig.getProjectFieldCopyMappings());
 
-            final JiraEvent event = new JiraPolicyEvent(action, jiraInfo,
+            final NotificationEvent event = new JiraPolicyEvent(action, jiraInfo,
                     notification, rule,
                     null, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
                     HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE, metaService.getHref(rule));
