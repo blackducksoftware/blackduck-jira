@@ -80,6 +80,10 @@ public class JiraNotificationProcessor {
     private List<HubEvent> generateEvents(final NotificationContentItem notif)
             throws HubIntegrationException {
         final NotificationToEventConverter converter = converterTable.getConverter(notif);
+        if (converter == null) {
+            logger.debug("There is no converter for this type of event: " + notif);
+            return new ArrayList<HubEvent>(0);
+        }
         final List<HubEvent> events = converter.generateEvents(notif);
         return events;
     }

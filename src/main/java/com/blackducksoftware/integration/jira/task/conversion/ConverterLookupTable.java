@@ -53,9 +53,7 @@ public class ConverterLookupTable {
             final HubServicesFactory hubServicesFactory, final boolean createVulnerabilityIssues)
             throws ConfigurationException {
 
-        final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory, hubServicesFactory.createMetaService(logger));
+        logger.debug("ConverterLookupTable()");
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
                 mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
 
@@ -68,10 +66,13 @@ public class ConverterLookupTable {
         lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
         lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
         if (createVulnerabilityIssues) {
-            logger.debug("Adding vulnerabilityNotificationConverter to converter table");
+            logger.info("Adding vulnerabilityNotificationConverter to converter table");
+            final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
+                    mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+                    hubServicesFactory, hubServicesFactory.createMetaService(logger));
             lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
         } else {
-            logger.debug("Omitting vulnerabilityNotificationConverter from converter table");
+            logger.info("Omitting vulnerabilityNotificationConverter from converter table");
         }
     }
 
@@ -80,7 +81,7 @@ public class ConverterLookupTable {
         final Class<? extends NotificationContentItem> c = notif.getClass();
         final NotificationToEventConverter converter = lookupTable.get(c);
         if (converter == null) {
-            throw new HubIntegrationException("No converter configured for the Notification type of this notification: " + notif);
+            logger.info("No converter configured for the Notification type of this notification: " + notif);
         }
         return converter;
     }
