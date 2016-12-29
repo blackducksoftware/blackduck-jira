@@ -142,7 +142,7 @@ public class HubJiraTask {
             final HubServicesFactory hubServicesFactory;
             try {
                 hubServicesFactory = createHubServicesFactory();
-            } catch (HubIntegrationException e) {
+            } catch (final HubIntegrationException e) {
                 logger.info("Missing information to generate tickets: " + e.getMessage());
                 return null;
             }
@@ -207,7 +207,7 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, HubServicesFactory hubServicesFactory,
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
@@ -215,7 +215,8 @@ public class HubJiraTask {
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues());
+                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
+                linksOfRulesToMonitor);
         return ticketGenerator;
     }
 
@@ -251,7 +252,7 @@ public class HubJiraTask {
     }
 
     private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
-        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         fieldCopyConfig.setJson(fieldCopyMappingJson);
         return fieldCopyConfig;
     }

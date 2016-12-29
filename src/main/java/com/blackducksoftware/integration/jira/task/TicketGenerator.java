@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -74,9 +75,18 @@ public class TicketGenerator {
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            final boolean createVulnerabilityIssues) {
+            final boolean createVulnerabilityIssues,
+            final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
-        this.notificationDataService = hubServicesFactory.createNotificationDataService(logger);
+        final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
+        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.getRestConnection(),
+                hubServicesFactory.createNotificationRequestService(logger),
+                hubServicesFactory.createProjectVersionRequestService(logger),
+                hubServicesFactory.createPolicyRequestService(),
+                hubServicesFactory.createVersionBomPolicyRequestService(),
+                hubServicesFactory.createHubRequestService(),
+                policyNotificationFilter,
+                hubServicesFactory.createMetaService(logger));
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
