@@ -391,20 +391,21 @@ public class NotificationConverterTest {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         final NotificationEvent event = events.get(0);
         // HubEvent<VulnerabilityContentItem> event = events.get(0);
-        assertEquals(expectedHubEventAction, event.getDataSet().get(EventDataSetKeys.ACTION));
-        assertEquals(expectedComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT));
-        assertEquals(expectedCommentIfExists, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE));
-        assertEquals(expectedCommentInLieuOfStateChange, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE));
-        assertEquals(ASSIGNEE_USER_ID, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID));
-        assertEquals(expectedDescription, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION));
-        assertEquals(expectedSummary, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_SUMMARY));
-        assertEquals(issueTypeId, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID));
+        final Map<String, Object> dataSet = event.getDataSet();
+        assertEquals(expectedHubEventAction, dataSet.get(EventDataSetKeys.ACTION));
+        assertEquals(expectedComment, dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT));
+        assertEquals(expectedCommentIfExists, dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE));
+        assertEquals(expectedCommentInLieuOfStateChange, dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE));
+        assertEquals(ASSIGNEE_USER_ID, dataSet.get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID));
+        assertEquals(expectedDescription, dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION));
+        assertEquals(expectedSummary, dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY));
+        assertEquals(issueTypeId, dataSet.get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID));
 
-        assertEquals(Long.valueOf(JIRA_PROJECT_ID), event.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_ID));
-        assertEquals(JIRA_PROJECT_NAME, event.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_NAME));
-        assertEquals(JIRA_USER_KEY, event.getDataSet().get(EventDataSetKeys.JIRA_USER_KEY));
-        assertEquals(JIRA_USER_NAME, event.getDataSet().get(EventDataSetKeys.JIRA_USER_NAME));
-        final Set<ProjectFieldCopyMapping> fieldMappings = (Set<ProjectFieldCopyMapping>) event.getDataSet().get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
+        assertEquals(Long.valueOf(JIRA_PROJECT_ID), dataSet.get(EventDataSetKeys.JIRA_PROJECT_ID));
+        assertEquals(JIRA_PROJECT_NAME, dataSet.get(EventDataSetKeys.JIRA_PROJECT_NAME));
+        assertEquals(JIRA_USER_KEY, dataSet.get(EventDataSetKeys.JIRA_USER_KEY));
+        assertEquals(JIRA_USER_NAME, dataSet.get(EventDataSetKeys.JIRA_USER_NAME));
+        final Set<ProjectFieldCopyMapping> fieldMappings = (Set<ProjectFieldCopyMapping>) dataSet.get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
         assertEquals(1, fieldMappings.size());
         final Iterator<ProjectFieldCopyMapping> iter = fieldMappings.iterator();
         final ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
@@ -415,9 +416,9 @@ public class NotificationConverterTest {
         assertEquals(TARGET_FIELD_ID, actualProjectFieldCopyMapping.getTargetFieldId());
         assertEquals(TARGET_FIELD_NAME, actualProjectFieldCopyMapping.getTargetFieldName());
 
-        assertEquals(expectedReOpenComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT));
-        assertEquals(expectedResolveComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT));
-        final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) event.getDataSet()
+        assertEquals(expectedReOpenComment, dataSet.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT));
+        assertEquals(expectedResolveComment, dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT));
+        final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) dataSet
                 .get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
         assertEquals(expectedPropertyKey, issuePropertiesGenerator.createIssueProperties(Long.valueOf(VULNERABILITY_ISSUE_TYPE_ID)));
     }

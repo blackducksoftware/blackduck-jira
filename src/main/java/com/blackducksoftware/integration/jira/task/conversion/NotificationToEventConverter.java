@@ -129,7 +129,7 @@ public abstract class NotificationToEventConverter {
             final String hubRuleName) {
         final Map<String, Object> dataSet = new HashMap<>();
         dataSet.put(EventDataSetKeys.ACTION, action);
-        dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraContext.getJiraUser().getUsername());
+        dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraContext.getJiraUser().getName());
         dataSet.put(EventDataSetKeys.JIRA_USER_KEY, jiraContext.getJiraUser().getKey());
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID, jiraProject.getAssigneeUserId());
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, getIssueTypeId());
