@@ -137,17 +137,17 @@ public class HubJiraConfigController {
             } else {
                 logger.warn("Error opening property file: " + HubJiraConstants.PROPERTY_FILENAME);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.warn("Error reading property file: " + HubJiraConstants.PROPERTY_FILENAME);
         }
         logger.debug("i18nProperties: " + i18nProperties);
     }
 
-    private String getI18nProperty(String key) {
+    private String getI18nProperty(final String key) {
         if (i18nProperties == null) {
             return key;
         }
-        String value = i18nProperties.getProperty(key);
+        final String value = i18nProperties.getProperty(key);
         if (value == null) {
             return key;
         }
@@ -243,9 +243,9 @@ public class HubJiraConfigController {
                     return txAdminConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubAdminConfigSerializable errorAdminConfig = new HubAdminConfigSerializable();
-            String msg = "Error getting admin config: " + e.getMessage();
+            final String msg = "Error getting admin config: " + e.getMessage();
             logger.error(msg, e);
             errorAdminConfig.setHubJiraGroupsError(msg);
             return Response.ok(errorAdminConfig).build();
@@ -305,9 +305,9 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting interval config: " + e.getMessage();
+            final String msg = "Error getting interval config: " + e.getMessage();
             logger.error(msg, e);
             errorConfig.setIntervalBetweenChecksError(msg);
             return Response.ok(errorConfig).build();
@@ -340,9 +340,9 @@ public class HubJiraConfigController {
                     return txProjectsConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting JIRA projects config: " + e.getMessage();
+            final String msg = "Error getting JIRA projects config: " + e.getMessage();
             logger.error(msg, e);
             errorConfig.setIntervalBetweenChecksError(msg);
             return Response.ok(errorConfig).build();
@@ -381,9 +381,9 @@ public class HubJiraConfigController {
                     return config;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting Hub projects config: " + e.getMessage();
+            final String msg = "Error getting Hub projects config: " + e.getMessage();
             logger.error(msg, e);
             errorConfig.setIntervalBetweenChecksError(msg);
             return Response.ok(errorConfig).build();
@@ -405,18 +405,18 @@ public class HubJiraConfigController {
             pluginInfo = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
+                    final PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
 
                     logger.debug("Getting plugin version string");
-                    String pluginVersion = PluginVersion.getVersion();
+                    final String pluginVersion = PluginVersion.getVersion();
                     logger.debug("pluginVersion: " + pluginVersion);
                     txPluginInfo.setPluginVersion(pluginVersion);
                     return txPluginInfo;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final PluginInfoSerializable errorPluginInfo = new PluginInfoSerializable();
-            String msg = "Error getting Plugin info: " + e.getMessage();
+            final String msg = "Error getting Plugin info: " + e.getMessage();
             logger.error(msg, e);
             errorPluginInfo.setPluginVersion("<unknown>");
             return Response.ok(errorPluginInfo).build();
@@ -459,9 +459,9 @@ public class HubJiraConfigController {
                 }
 
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final Fields errorSourceFields = new Fields();
-            String msg = "Error getting source fields: " + e.getMessage();
+            final String msg = "Error getting source fields: " + e.getMessage();
             logger.error(msg, e);
             errorSourceFields.setErrorMessage(msg);
             return Response.ok(errorSourceFields).build();
@@ -487,7 +487,7 @@ public class HubJiraConfigController {
                     Fields txTargetFields;
                     try {
                         txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
-                    } catch (JiraException e) {
+                    } catch (final JiraException e) {
                         txTargetFields = new Fields();
                         txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
                         return txTargetFields;
@@ -497,9 +497,9 @@ public class HubJiraConfigController {
                     return txTargetFields;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final Fields errorTargetFields = new Fields();
-            String msg = "Error getting target fields: " + e.getMessage();
+            final String msg = "Error getting target fields: " + e.getMessage();
             logger.error(msg, e);
             errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
@@ -542,9 +542,9 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting policies: " + e.getMessage();
+            final String msg = "Error getting policies: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
@@ -581,9 +581,9 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
+            final String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
             logger.error(msg, e);
             errorConfig.setCreateVulnerabilityIssuesError(msg);
             return Response.ok(errorConfig).build();
@@ -617,9 +617,9 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting project mappings: " + e.getMessage();
+            final String msg = "Error getting project mappings: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
@@ -653,14 +653,14 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting field mappings: " + e.getMessage();
+            final String msg = "Error getting field mappings: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
 
-        HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
+        final HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
         logger.debug("returnValue: " + returnValue);
         return Response.ok(config).build();
     }
@@ -678,7 +678,6 @@ public class HubJiraConfigController {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    config.setPolicyRules(new ArrayList<>(0));
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
                     config.setJiraProjects(jiraProjects);
                     final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
@@ -706,14 +705,14 @@ public class HubJiraConfigController {
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
-                    Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
+                    final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
                     return null;
                 }
             });
         } catch (final Exception e) {
-            String msg = "Exception during save: " + e.getMessage();
+            final String msg = "Exception during save: " + e.getMessage();
             logger.error(msg, e);
             config.setErrorMessage(msg);
         }
@@ -743,10 +742,10 @@ public class HubJiraConfigController {
 
                 List<TicketCreationError> ticketErrors = null;
                 if (errorObject != null) {
-                    String errorString = (String) errorObject;
+                    final String errorString = (String) errorObject;
                     try {
                         ticketErrors = TicketCreationError.fromJson(errorString);
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         ticketErrors = new ArrayList<>();
                     }
                 } else {
@@ -758,9 +757,9 @@ public class HubJiraConfigController {
                     for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
                         try {
                             final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
-                            Iterator<TicketCreationError> iterator = ticketErrors.iterator();
+                            final Iterator<TicketCreationError> iterator = ticketErrors.iterator();
                             while (iterator.hasNext()) {
-                                TicketCreationError error = iterator.next();
+                                final TicketCreationError error = iterator.next();
                                 if (errorMessage.equals(error.getStackTrace())) {
                                     iterator.remove();
                                     break;
@@ -810,8 +809,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during admin save: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during admin save: " + e.getMessage();
             logger.error(msg, e);
             final HubAdminConfigSerializable errorResponseObject = new HubAdminConfigSerializable();
             errorResponseObject.setHubJiraGroupsError(msg);
@@ -831,7 +830,7 @@ public class HubJiraConfigController {
         try {
             logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
             logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
-            for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+            for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
                 logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
             }
 
@@ -853,8 +852,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during admin save: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during admin save: " + e.getMessage();
             logger.error(msg, e);
             fieldCopyConfig.setErrorMessage(msg);
         }
@@ -870,7 +869,7 @@ public class HubJiraConfigController {
             return false;
         }
 
-        for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+        for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldId())) {
                 fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
                 return false;
@@ -922,8 +921,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during reset: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during reset: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(msg).status(Status.BAD_REQUEST).build();
         }
@@ -1037,7 +1036,7 @@ public class HubJiraConfigController {
         final HubServicesFactory hubServicesFactory;
         try {
             hubServicesFactory = new HubServicesFactory(restConnection);
-        } catch (HubIntegrationException e) {
+        } catch (final HubIntegrationException e) {
             config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
@@ -1088,7 +1087,7 @@ public class HubJiraConfigController {
             final HubServerConfig serverConfig;
             try {
                 serverConfig = configBuilder.build();
-            } catch (IllegalStateException e) {
+            } catch (final IllegalStateException e) {
                 logger.error("Error in Hub server configuration: " + e.getMessage());
                 config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
                 return null;
@@ -1107,20 +1106,20 @@ public class HubJiraConfigController {
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         List<ProjectItem> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();
-        } catch (HubIntegrationException e) {
+        } catch (final HubIntegrationException e) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
             return hubProjects;
         }
 
         final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
-        MetaService metaService = hubServicesFactory.createMetaService(logger);
+        final MetaService metaService = hubServicesFactory.createMetaService(logger);
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
-        } catch (HubIntegrationException e1) {
+        } catch (final HubIntegrationException e1) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
             return hubProjects;
         }
@@ -1131,7 +1130,7 @@ public class HubJiraConfigController {
                 newHubProject.setProjectName(project.getName());
                 try {
                     newHubProject.setProjectUrl(metaService.getHref(project));
-                } catch (HubIntegrationException e) {
+                } catch (final HubIntegrationException e) {
                     config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
                     continue;
                 }
@@ -1147,7 +1146,7 @@ public class HubJiraConfigController {
         if (hubServicesFactory != null) {
             final HubSupportHelper supportHelper = new HubSupportHelper();
             try {
-                HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+                final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
                 supportHelper.checkHubSupport(hubVersionRequestService, null);
 
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
@@ -1157,7 +1156,7 @@ public class HubJiraConfigController {
                     List<PolicyRule> policyRules = null;
                     try {
                         policyRules = policyService.getAllPolicyRules();
-                    } catch (HubIntegrationException e) {
+                    } catch (final HubIntegrationException e) {
                         config.setPolicyRulesError(e.getMessage());
                     }
 
@@ -1172,10 +1171,10 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.getName().trim());
 
-                            MetaService metaService = hubServicesFactory.createMetaService(logger);
+                            final MetaService metaService = hubServicesFactory.createMetaService(logger);
                             try {
                                 newRule.setPolicyUrl(metaService.getHref(rule));
-                            } catch (HubIntegrationException e) {
+                            } catch (final HubIntegrationException e) {
                                 logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
                                 continue;
@@ -1197,7 +1196,7 @@ public class HubJiraConfigController {
                 } else {
                     config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 config.setPolicyRulesError(e.getMessage());
             }
         }
@@ -1209,14 +1208,14 @@ public class HubJiraConfigController {
 
     }
 
-    private String cleanDescription(String origString) {
+    private String cleanDescription(final String origString) {
         return removeCharsFromString(origString.trim(), "\n\r\t");
     }
 
-    private String removeCharsFromString(String origString, String charsToRemoveString) {
+    private String removeCharsFromString(final String origString, final String charsToRemoveString) {
         String cleanerString = origString;
-        char[] charsToRemove = charsToRemoveString.toCharArray();
-        for (char c : charsToRemove) {
+        final char[] charsToRemove = charsToRemoveString.toCharArray();
+        for (final char c : charsToRemove) {
             cleanerString = cleanerString.replace(c, ' ');
         }
         return cleanerString;
