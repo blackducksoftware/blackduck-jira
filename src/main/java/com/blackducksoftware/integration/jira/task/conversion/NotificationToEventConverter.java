@@ -41,6 +41,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
@@ -113,16 +114,20 @@ public abstract class NotificationToEventConverter {
         return metaService;
     }
 
+    // TODO this cries out for a class with a builder
     protected Map<String, Object> createDataSet(final NotificationContentItem notif,
             final HubEventAction action,
-            JiraContext jiraContext, JiraProject jiraProject,
-            String issueSummary,
-            String issueDescription,
-            String issueComment,
-            String issueCommentForExistingIssue,
-            String issueResolveComment,
-            String hubRuleName) {
-        Map<String, Object> dataSet = new HashMap<>();
+            final JiraContext jiraContext, final JiraProject jiraProject,
+            final String issueSummary,
+            final String issueDescription,
+            final String issueComment,
+            final String issueReOpenComment,
+            final String issueCommentForExistingIssue,
+            final String issueResolveComment,
+            final String issueCommentInLieuOfStateChange,
+            final IssuePropertiesGenerator issuePropertiesGenerator,
+            final String hubRuleName) {
+        final Map<String, Object> dataSet = new HashMap<>();
         dataSet.put(EventDataSetKeys.ACTION, action);
         dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraContext.getJiraUser().getUsername());
         dataSet.put(EventDataSetKeys.JIRA_USER_KEY, jiraContext.getJiraUser().getKey());
@@ -142,9 +147,11 @@ public abstract class NotificationToEventConverter {
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, issueDescription);
 
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, issueComment);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT, issueReOpenComment);
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, issueCommentForExistingIssue);
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, issueResolveComment);
-
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE, issueCommentInLieuOfStateChange);
+        dataSet.put(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR, issuePropertiesGenerator);
         dataSet.put(EventDataSetKeys.HUB_RULE_NAME, hubRuleName);
 
         return dataSet;

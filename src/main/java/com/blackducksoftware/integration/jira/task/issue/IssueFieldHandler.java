@@ -41,6 +41,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.conversion.EventDataSetKeys;
 
 public class IssueFieldHandler {
 
@@ -71,35 +72,37 @@ public class IssueFieldHandler {
             final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
             issueInputParameters.addCustomFieldValue(projectFieldId,
-                    notificationEvent.getDataSet().get(key));
-                    notificationEvent.getNotificationContent().getProjectVersion().getProjectName());
+                    (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_PROJECT_NAME));
 
             final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
             issueInputParameters.addCustomFieldValue(projectVersionFieldId,
-                    notificationEvent.getNotificationContent().getProjectVersion().getProjectVersionName());
+                    (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_PROJECT_VERSION));
 
             final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentFieldId, notificationEvent.getNotificationContent().getComponentName());
+            issueInputParameters.addCustomFieldValue(componentFieldId,
+                    (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_NAME));
 
             final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
                     .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
             issueInputParameters.addCustomFieldValue(componentVersionFieldId,
-                    notificationEvent.getNotificationContent().getComponentVersion());
+                    (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_VERSION));
 
-            if (notificationEvent.getClass().equals(JiraPolicyEvent.class)) {
-                final JiraPolicyEvent policyNotif = (JiraPolicyEvent) notificationEvent;
+            if (notificationEvent.isPolicyEvent()) {
+
                 final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
                         .get(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
-                issueInputParameters.addCustomFieldValue(policyRuleFieldId, policyNotif.getPolicyRule().getName());
+                issueInputParameters.addCustomFieldValue(policyRuleFieldId,
+                        (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_RULE_NAME));
             }
         }
     }
 
     public List<String> setOtherFieldValues(final NotificationEvent notificationEvent, IssueInputParameters issueInputParameters) {
         final List<String> labels = new ArrayList<>();
-        final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = notificationEvent.getProjectFieldCopyMappings();
+        final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = (Set<ProjectFieldCopyMapping>) notificationEvent.getDataSet()
+                .get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
         if (projectFieldCopyMappings == null) {
             logger.debug("projectFieldCopyMappings is null");
             return labels;
@@ -110,7 +113,7 @@ public class IssueFieldHandler {
         }
         for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
-            if ((!notificationEvent.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
+            if ((!notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_NAME).equals(fieldCopyMapping.getJiraProjectName()))
                     && (!HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
                 logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName()
                         + "; skipping it");
@@ -169,7 +172,8 @@ public class IssueFieldHandler {
 
     private void setComponent(NotificationEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long compId = null;
-        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId())
+        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager()
+                .getProjectObj((Long) notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_ID))
                 .getComponents();
         for (final ProjectComponent component : components) {
             if (targetFieldValue.equals(component.getName())) {
@@ -186,7 +190,8 @@ public class IssueFieldHandler {
 
     private void setAffectedVersion(NotificationEvent notificationEvent, IssueInputParameters issueInputParameters, String targetFieldValue) {
         Long versionId = null;
-        final Collection<Version> versions = jiraServices.getJiraProjectManager().getProjectObj(notificationEvent.getJiraProjectId()).getVersions();
+        final Collection<Version> versions = jiraServices.getJiraProjectManager()
+                .getProjectObj((Long) notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_ID)).getVersions();
         for (final Version version : versions) {
             if (targetFieldValue.equals(version.getName())) {
                 versionId = version.getId();
@@ -203,20 +208,20 @@ public class IssueFieldHandler {
     private String getPluginFieldValue(final NotificationEvent notificationEvent, String pluginFieldId) {
         String fieldValue = null;
         if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotificationContent().getComponentName();
+            fieldValue = (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_NAME);
         } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotificationContent().getComponentVersion();
+            fieldValue = (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_VERSION);
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
-            if (notificationEvent instanceof JiraPolicyEvent) {
-                final JiraPolicyEvent policyNotif = (JiraPolicyEvent) notificationEvent;
-                fieldValue = policyNotif.getPolicyRule().getName();
+            if (notificationEvent.isPolicyEvent()) {
+                fieldValue = (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_RULE_NAME);
             } else {
                 logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
             }
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotificationContent().getProjectVersion().getProjectName();
+            fieldValue = (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_PROJECT_NAME);
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = notificationEvent.getNotificationContent().getProjectVersion().getProjectVersionName();
+            // TODO maybe pull the dataSet values out once into variables?
+            fieldValue = (String) notificationEvent.getDataSet().get(EventDataSetKeys.HUB_PROJECT_VERSION);
         } else {
             logger.error("Unrecognized plugin field ID: " + pluginFieldId);
         }

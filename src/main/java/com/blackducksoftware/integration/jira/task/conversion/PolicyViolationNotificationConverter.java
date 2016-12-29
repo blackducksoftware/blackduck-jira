@@ -40,6 +40,8 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -61,14 +63,21 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         final HubEventAction action = HubEventAction.OPEN;
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            Map<String, Object> dataSet = createDataSet(notification,
+            final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
+                    notification, rule.getName());
+            final Map<String, Object> dataSet = createDataSet(notification,
                     action, getJiraContext(), jiraProject,
                     getIssueSummary(notification, rule),
                     getIssueDescription(notification, rule),
-                    null, HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT, HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE,
+                    null,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT,
+                    issuePropertiesGenerator,
                     rule.getName());
 
-            String key = getUniquePropertyKeyForPolicyIssue(notification, jiraProject.getProjectId(),
+            final String key = getUniquePropertyKeyForPolicyIssue(notification, jiraProject.getProjectId(),
                     getMetaService().getHref(rule));
             final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, dataSet);
             events.add(event);

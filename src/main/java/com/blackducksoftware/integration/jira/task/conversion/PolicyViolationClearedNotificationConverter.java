@@ -22,7 +22,6 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +43,8 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -67,21 +68,20 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
-            Map<String, Object> dataSet = new HashMap<>();
-            dataSet.put(EventDataSetKeys.ACTION, action);
-            dataSet.put(EventDataSetKeys.JIRA_USER_NAME, getJiraContext().getJiraUser().getName());
-            dataSet.put(EventDataSetKeys.JIRA_USER_KEY, getJiraContext().getJiraUser().getKey());
-            dataSet.put(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID, jiraProject.getAssigneeUserId());
-            dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, getIssueTypeId());
+            final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
+                    notification, rule.getName());
+            final Map<String, Object> dataSet = createDataSet(notif, action, getJiraContext(), jiraProject,
+                    getIssueSummary(notification, rule),
+                    getIssueDescription(notification, rule),
+                    null,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE,
+                    HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT,
+                    issuePropertiesGenerator,
+                    rule.getName());
 
-            dataSet.put(EventDataSetKeys.JIRA_PROJECT_NAME, jiraProject.getProjectName());
-            dataSet.put(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS, getFieldCopyConfig().getProjectFieldCopyMappings());
-
-            dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, null);
-            dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
-            dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
-
-            String key = getUniquePropertyKeyForPolicyIssue(notification, jiraProject.getProjectId(),
+            final String key = getUniquePropertyKeyForPolicyIssue(notification, jiraProject.getProjectId(),
                     getMetaService().getHref(rule));
             final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, dataSet);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);

@@ -20,7 +20,11 @@ public class EventDataSetKeys {
 
     public static final String JIRA_ISSUE_RESOLVE_COMMENT = "jiraIssueResolveComment";
 
+    public static final String JIRA_ISSUE_REOPEN_COMMENT = "jiraIssueReOpenComment";
+
     public static final String JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE = "jiraIssueCommentForExistingIssue";
+
+    public static final String JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE = "jiraIssueCommentInLieuOfStateChange";
 
     public static final String JIRA_ISSUE_COMMENT = "jiraIssueComment";
 
@@ -37,6 +41,8 @@ public class EventDataSetKeys {
     public static final String JIRA_USER_KEY = "jiraUserKey";
 
     public static final String JIRA_USER_NAME = "jiraUserName";
+
+    public static final String JIRA_ISSUE_PROPERTIES_GENERATOR = "jiraIssuePropertiesGenerator";
 
     // Hub
 
