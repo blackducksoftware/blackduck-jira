@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.hub.dataservice.notification.item.Polic
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubRequestService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -56,7 +57,7 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEvent;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
@@ -241,33 +242,33 @@ public class NotificationConverterTest {
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
-    private void test(NotifType notifType, HubEventAction expectedHubEventAction,
-            String expectedComment,
-            String expectedCommentIfExists,
-            String expectedCommentInLieuOfStateChange,
-            String expectedDescription,
-            String expectedSummary,
-            String issueTypeId,
-            String expectedReOpenComment,
-            String expectedResolveComment,
-            String expectedPropertyKey) throws ConfigurationException, URISyntaxException, IntegrationException {
-        Date now = new Date();
+    private void test(final NotifType notifType, final HubEventAction expectedHubEventAction,
+            final String expectedComment,
+            final String expectedCommentIfExists,
+            final String expectedCommentInLieuOfStateChange,
+            final String expectedDescription,
+            final String expectedSummary,
+            final String issueTypeId,
+            final String expectedReOpenComment,
+            final String expectedResolveComment,
+            final String expectedPropertyKey) throws ConfigurationException, URISyntaxException, IntegrationException {
+        final Date now = new Date();
 
         // Mock the objects that the Converter needs
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
         final Set<HubProjectMapping> mappings = new HashSet<>();
-        HubProjectMapping mapping = new HubProjectMapping();
-        HubProject hubProject = createHubProject();
+        final HubProjectMapping mapping = new HubProjectMapping();
+        final HubProject hubProject = createHubProject();
         mapping.setHubProject(hubProject);
-        JiraProject jiraProject = createJiraProject();
+        final JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
         mappings.add(mapping);
         final HubProjectMappings mappingObject = new HubProjectMappings(jiraServices,
                 mappings);
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = createFieldCopyMappings();
 
-        ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
-        List<IssueType> issueTypes = new ArrayList<>();
+        final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
+        final List<IssueType> issueTypes = new ArrayList<>();
         IssueType issueType = Mockito.mock(IssueType.class);
         Mockito.when(issueType.getName()).thenReturn(VULNERABILITY_ISSUE_TYPE_NAME);
         Mockito.when(issueType.getId()).thenReturn(VULNERABILITY_ISSUE_TYPE_ID);
@@ -282,15 +283,15 @@ public class NotificationConverterTest {
         Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
         Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
 
-        ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
         Mockito.when(jiraUser.getKey()).thenReturn(JIRA_USER_KEY);
         final JiraContext jiraContext = new JiraContext(jiraUser);
         final JiraSettingsService jiraSettingsService = null;
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
-        HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
-        ProjectVersionItem projectVersionItem = Mockito.mock(ProjectVersionItem.class);
+        final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
+        final HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
+        final ProjectVersionItem projectVersionItem = Mockito.mock(ProjectVersionItem.class);
         Mockito.when(projectVersionItem.getVersionName()).thenReturn(PROJECT_VERSION_NAME);
 
         Mockito.when(hubRequestService.getItem(PROJECT_VERSION_URL, ProjectVersionItem.class))
@@ -344,7 +345,7 @@ public class NotificationConverterTest {
         }
 
         // Run the converter
-        List<JiraEvent> events = conv.generateEvents(notif);
+        final List<NotificationEvent> events = conv.generateEvents(notif);
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
@@ -352,14 +353,14 @@ public class NotificationConverterTest {
     }
 
     private HubProject createHubProject() {
-        HubProject hubProject = new HubProject();
+        final HubProject hubProject = new HubProject();
         hubProject.setProjectName(HUB_PROJECT_NAME);
         hubProject.setProjectUrl(HUB_PROJECT_URL);
         return hubProject;
     }
 
     private JiraProject createJiraProject() {
-        JiraProject jiraProject = new JiraProject();
+        final JiraProject jiraProject = new JiraProject();
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         jiraProject.setProjectId(JIRA_PROJECT_ID);
         jiraProject.setAssigneeUserId(ASSIGNEE_USER_ID);
@@ -368,8 +369,8 @@ public class NotificationConverterTest {
 
     private HubJiraFieldCopyConfigSerializable createFieldCopyMappings() {
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
-        Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
-        ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
+        final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
+        final ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
         projectFieldCopyMapping.setHubProjectName(WILDCARD_STRING);
         projectFieldCopyMapping.setJiraProjectName(WILDCARD_STRING);
         projectFieldCopyMapping.setSourceFieldId(SOURCE_FIELD_ID);
@@ -381,28 +382,32 @@ public class NotificationConverterTest {
         return fieldCopyConfig;
     }
 
-    private void verifyGeneratedEvents(List<JiraEvent> events, String issueTypeId, HubEventAction expectedHubEventAction, String expectedComment,
-            String expectedCommentIfExists, String expectedCommentInLieuOfStateChange, String expectedDescription, String expectedSummary,
-            String expectedReOpenComment, String expectedResolveComment, String expectedPropertyKey) throws HubIntegrationException, URISyntaxException {
+    private void verifyGeneratedEvents(final List<NotificationEvent> events, final String issueTypeId, final HubEventAction expectedHubEventAction,
+            final String expectedComment,
+            final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange, final String expectedDescription,
+            final String expectedSummary,
+            final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
+            throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
-        JiraEvent event = events.get(0);
+        final NotificationEvent event = events.get(0);
         // HubEvent<VulnerabilityContentItem> event = events.get(0);
-        assertEquals(expectedHubEventAction, event.getAction());
-        assertEquals(expectedComment, event.getComment());
-        assertEquals(expectedCommentIfExists, event.getCommentIfExists());
-        assertEquals(expectedCommentInLieuOfStateChange, event.getCommentInLieuOfStateChange());
-        assertEquals(ASSIGNEE_USER_ID, event.getIssueAssigneeId());
-        assertEquals(expectedDescription, event.getIssueDescription());
-        assertEquals(expectedSummary, event.getIssueSummary());
-        assertEquals(issueTypeId, event.getJiraIssueTypeId());
+        assertEquals(expectedHubEventAction, event.getDataSet().get(EventDataSetKeys.ACTION));
+        assertEquals(expectedComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT));
+        assertEquals(expectedCommentIfExists, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE));
+        assertEquals(expectedCommentInLieuOfStateChange, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE));
+        assertEquals(ASSIGNEE_USER_ID, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID));
+        assertEquals(expectedDescription, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION));
+        assertEquals(expectedSummary, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_SUMMARY));
+        assertEquals(issueTypeId, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID));
 
-        assertEquals(Long.valueOf(JIRA_PROJECT_ID), event.getJiraProjectId());
-        assertEquals(JIRA_PROJECT_NAME, event.getJiraProjectName());
-        assertEquals(JIRA_USER_KEY, event.getJiraUserId());
-        assertEquals(JIRA_USER_NAME, event.getJiraUserName());
-        assertEquals(1, event.getProjectFieldCopyMappings().size());
-        Iterator<ProjectFieldCopyMapping> iter = event.getProjectFieldCopyMappings().iterator();
-        ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
+        assertEquals(Long.valueOf(JIRA_PROJECT_ID), event.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_ID));
+        assertEquals(JIRA_PROJECT_NAME, event.getDataSet().get(EventDataSetKeys.JIRA_PROJECT_NAME));
+        assertEquals(JIRA_USER_KEY, event.getDataSet().get(EventDataSetKeys.JIRA_USER_KEY));
+        assertEquals(JIRA_USER_NAME, event.getDataSet().get(EventDataSetKeys.JIRA_USER_NAME));
+        final Set<ProjectFieldCopyMapping> fieldMappings = (Set<ProjectFieldCopyMapping>) event.getDataSet().get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
+        assertEquals(1, fieldMappings.size());
+        final Iterator<ProjectFieldCopyMapping> iter = fieldMappings.iterator();
+        final ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
         assertEquals(WILDCARD_STRING, actualProjectFieldCopyMapping.getHubProjectName());
         assertEquals(WILDCARD_STRING, actualProjectFieldCopyMapping.getJiraProjectName());
         assertEquals(SOURCE_FIELD_ID, actualProjectFieldCopyMapping.getSourceFieldId());
@@ -410,20 +415,22 @@ public class NotificationConverterTest {
         assertEquals(TARGET_FIELD_ID, actualProjectFieldCopyMapping.getTargetFieldId());
         assertEquals(TARGET_FIELD_NAME, actualProjectFieldCopyMapping.getTargetFieldName());
 
-        assertEquals(expectedReOpenComment, event.getReopenComment());
-        assertEquals(expectedResolveComment, event.getResolveComment());
-        assertEquals(expectedPropertyKey, event.getUniquePropertyKey());
+        assertEquals(expectedReOpenComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT));
+        assertEquals(expectedResolveComment, event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT));
+        final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) event.getDataSet()
+                .get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
+        assertEquals(expectedPropertyKey, issuePropertiesGenerator.createIssueProperties(Long.valueOf(VULNERABILITY_ISSUE_TYPE_ID)));
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, ProjectVersionItem projectReleaseItem,
+    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionItem projectReleaseItem,
             final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final ProjectVersion projectVersion = createProjectVersion();
-        VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
+        final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
         addedVulnList.add(vuln);
-        NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
+        final NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
                 COMPONENT_VERSION,
                 COMPONENT_VERSION_URL,
@@ -439,9 +446,9 @@ public class NotificationConverterTest {
             throws URISyntaxException, IntegrationException {
         final ProjectVersion projectVersion = createProjectVersion();
         final List<PolicyRule> policyRuleList = new ArrayList<>();
-        PolicyRule rule = createRule();
+        final PolicyRule rule = createRule();
         policyRuleList.add(rule);
-        NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
+        final NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
                 COMPONENT_VERSION, COMPONENT_URL,
                 COMPONENT_VERSION_URL,
@@ -465,10 +472,10 @@ public class NotificationConverterTest {
         final List<PolicyRule> policyRuleList = new ArrayList<>();
 
         // Create rule
-        PolicyRule rule = createRule();
+        final PolicyRule rule = createRule();
 
         policyRuleList.add(rule);
-        NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
+        final NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
                 COMPONENT_VERSION, COMPONENT_URL,
                 COMPONENT_VERSION_URL,
@@ -480,12 +487,12 @@ public class NotificationConverterTest {
     }
 
     private PolicyRule createRule() throws IntegrationException {
-        Map<String, Object> objectProperties = new HashMap<>();
+        final Map<String, Object> objectProperties = new HashMap<>();
         objectProperties.put("name", RULE_NAME);
         objectProperties.put("description", RULE_NAME);
         objectProperties.put("enabled", Boolean.TRUE);
         objectProperties.put("overridable", Boolean.TRUE);
-        PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+        final PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
         return rule;
     }
 
@@ -494,10 +501,10 @@ public class NotificationConverterTest {
         final ProjectVersion projectVersion = createProjectVersion();
         final List<PolicyRule> policyRuleList = new ArrayList<>();
 
-        PolicyRule rule = createRule();
+        final PolicyRule rule = createRule();
 
         policyRuleList.add(rule);
-        NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
+        final NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
                 COMPONENT_VERSION, COMPONENT_URL,
                 COMPONENT_VERSION_URL,
