@@ -462,7 +462,7 @@ public class JiraIssueHandler {
                             jiraContext.getJiraUser());
                     if (transitionedIssue != null) {
                         logger.info("Re-opened the already exisiting issue.");
-                        addComment(notificationEvent.getReopenComment(), oldIssue);
+                        addComment((String) notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT), oldIssue);
                         printIssueInfo(oldIssue);
                     }
                 } else {
@@ -498,20 +498,19 @@ public class JiraIssueHandler {
                     HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE,
                     HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraUser());
             if (updatedIssue != null) {
-                addComment(event.getResolveComment(), updatedIssue);
-                logger.info("Closed the issue based on an override.");
+                addComment((String) event.getDataSet().get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT), updatedIssue);
+                logger.info("Resolved the issue based on an override.");
                 printIssueInfo(updatedIssue);
             }
             return new ExistenceAwareIssue(oldIssue, true, false);
         } else {
             logger.info("Could not find an existing issue to close for this event.");
-            logger.debug("Hub Project Name : " + event.getNotificationContent().getProjectVersion().getProjectName());
-            logger.debug("Hub Project Version : " + event.getNotificationContent().getProjectVersion().getProjectVersionName());
-            logger.debug("Hub Component Name : " + event.getNotificationContent().getComponentName());
-            logger.debug("Hub Component Version : " + event.getNotificationContent().getComponentVersion());
-            if (event instanceof JiraPolicyEvent) {
-                final JiraPolicyEvent notificationResultRule = (JiraPolicyEvent) event;
-                logger.debug("Hub Rule Name : " + notificationResultRule.getPolicyRule().getName());
+            logger.debug("Hub Project Name : " + (String) event.getDataSet().get(EventDataSetKeys.HUB_PROJECT_NAME));
+            logger.debug("Hub Project Version : " + (String) event.getDataSet().get(EventDataSetKeys.HUB_PROJECT_VERSION));
+            logger.debug("Hub Component Name : " + (String) event.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_NAME));
+            logger.debug("Hub Component Version : " + (String) event.getDataSet().get(EventDataSetKeys.HUB_COMPONENT_VERSION));
+            if (event.isPolicyEvent()) {
+                logger.debug("Hub Rule Name : " + (String) event.getDataSet().get(EventDataSetKeys.HUB_RULE_NAME));
             }
             return null;
         }
