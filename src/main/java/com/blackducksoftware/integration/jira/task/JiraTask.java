@@ -56,30 +56,30 @@ public class JiraTask implements PluginJob {
         logger.info("Running the Hub JIRA task.");
         logger.info("hub-jira plugin version: " + PluginVersion.getVersion());
         final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-        PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-        int taskIntervalMinutes = configDetails.getIntervalMinutes();
+        final int taskIntervalMinutes = configDetails.getIntervalMinutes();
         logger.debug("Task interval (minutes): " + taskIntervalMinutes);
         if (taskIntervalMinutes < 1) {
             logger.info("hub-jira periodic task has not been configured, or has a run interval < 1 minute");
             return;
         }
-        int taskTimeoutMinutes = HubJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
+        final int taskTimeoutMinutes = HubJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
 
         logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<String> future = executor.submit(new JiraTaskTimed(settings, jiraSettingsService, new JiraServices(), configDetails));
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        final Future<String> future = executor.submit(new JiraTaskTimed(settings, jiraSettingsService, new JiraServices(), configDetails));
         String result;
         try {
             result = future.get(taskTimeoutMinutes, TimeUnit.MINUTES);
             logger.info("The timed task completed with result: " + result);
-        } catch (ExecutionException e) {
-            logger.error("The timed task threw an error: " + e.getMessage());
-        } catch (TimeoutException e) {
+        } catch (final ExecutionException e) {
+            logger.error("The timed task threw an error: " + e.getMessage(), e);
+        } catch (final TimeoutException e) {
             logger.error("The timed task timed out");
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             logger.error("The timed task was interrupted");
         } finally {
             if (!future.isDone()) {

@@ -70,7 +70,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>5.3.1-SNAPSHOT</version>
+      <version>5.4.3-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -107,12 +107,25 @@
       <version>20070405</version>
       <scope>compile</scope>
     </dependency>
+
+    <!-- These were removed from common-maven-parent -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.5</version>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.7.21</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-atlassian-config</artifactId>
