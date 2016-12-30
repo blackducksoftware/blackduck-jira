@@ -57,11 +57,14 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
+    private static final long JIRA_ISSUE_ID = 456L;
+
     private static final String OVERRIDER_LAST_NAME = "lastName";
 
     private static final String OVERRIDER_FIRST_NAME = "firstName";
@@ -420,7 +423,16 @@ public class NotificationConverterTest {
         assertEquals(expectedResolveComment, dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT));
         final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) dataSet
                 .get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
-        assertEquals(expectedPropertyKey, issuePropertiesGenerator.createIssueProperties(Long.valueOf(VULNERABILITY_ISSUE_TYPE_ID)));
+        // TODO check the property key
+        // assertEquals(expectedPropertyKey, dataSet.get(EventDataSetKeys.)
+        final IssueProperties issueProperties = issuePropertiesGenerator.createIssueProperties(Long.valueOf(JIRA_ISSUE_ID));
+        assertEquals(HUB_PROJECT_NAME, issueProperties.getProjectName());
+        assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
+        assertEquals(COMPONENT_NAME, issueProperties.getComponentName());
+        assertEquals(COMPONENT_VERSION, issueProperties.getComponentVersion());
+        assertEquals(Long.valueOf(456L), issueProperties.getJiraIssueId());
+        // assertEquals(expectedPropertyKey, issuePropertiesGenerator.createIssueProperties(Long.valueOf(1L)));
+
     }
 
     private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionItem projectReleaseItem,
