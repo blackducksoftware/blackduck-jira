@@ -70,7 +70,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>5.4.2-SNAPSHOT</version>
+      <version>5.4.1</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
