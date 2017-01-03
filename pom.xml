@@ -108,12 +108,7 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- These were removed from common-maven-parent -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.5</version>
-    </dependency>
+    <!-- commons-io was removed from common-maven-parent -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
