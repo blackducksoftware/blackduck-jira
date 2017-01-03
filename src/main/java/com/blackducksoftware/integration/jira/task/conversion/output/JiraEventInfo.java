@@ -65,6 +65,10 @@ public class JiraEventInfo {
 
     }
 
+    public JiraEventInfo(final Map<String, Object> dataSet) {
+        // TODO
+    }
+
     public JiraEventInfo setAction(final HubEventAction action) {
         this.action = action;
         return this;
@@ -168,6 +172,90 @@ public class JiraEventInfo {
     public JiraEventInfo setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
         return this;
+    }
+
+    public HubEventAction getAction() {
+        return action;
+    }
+
+    public String getJiraUserName() {
+        return jiraUserName;
+    }
+
+    public String getJiraUserKey() {
+        return jiraUserKey;
+    }
+
+    public String getJiraIssueAssigneeUserId() {
+        return jiraIssueAssigneeUserId;
+    }
+
+    public String getJiraIssueTypeId() {
+        return jiraIssueTypeId;
+    }
+
+    public String getJiraProjectName() {
+        return jiraProjectName;
+    }
+
+    public Long getJiraProjectId() {
+        return jiraProjectId;
+    }
+
+    public Set<ProjectFieldCopyMapping> getJiraFieldCopyMappings() {
+        return jiraFieldCopyMappings;
+    }
+
+    public String getHubProjectName() {
+        return hubProjectName;
+    }
+
+    public String getHubProjectVersion() {
+        return hubProjectVersion;
+    }
+
+    public String getHubComponentName() {
+        return hubComponentName;
+    }
+
+    public String getHubComponentVersion() {
+        return hubComponentVersion;
+    }
+
+    public String getJiraIssueSummary() {
+        return jiraIssueSummary;
+    }
+
+    public String getJiraIssueDescription() {
+        return jiraIssueDescription;
+    }
+
+    public String getJiraIssueComment() {
+        return jiraIssueComment;
+    }
+
+    public String getJiraIssueReOpenComment() {
+        return jiraIssueReOpenComment;
+    }
+
+    public String getJiraIssueCommentForExistingIssue() {
+        return jiraIssueCommentForExistingIssue;
+    }
+
+    public String getJiraIssueResolveComment() {
+        return jiraIssueResolveComment;
+    }
+
+    public String getJiraIssueCommentInLieuOfStateChange() {
+        return jiraIssueCommentInLieuOfStateChange;
+    }
+
+    public IssuePropertiesGenerator getJiraIssuePropertiesGenerator() {
+        return jiraIssuePropertiesGenerator;
+    }
+
+    public String getHubRuleName() {
+        return hubRuleName;
     }
 
     public Map<String, Object> getDataSet() {
