@@ -211,8 +211,8 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): "
                 + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        issueFieldHandler.setPluginFieldValues(notificationEvent, issueInputParameters);
-        final List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, issueInputParameters);
+        issueFieldHandler.setPluginFieldValues(notificationEvent, eventData, issueInputParameters);
+        final List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, eventData, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService()
                 .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
