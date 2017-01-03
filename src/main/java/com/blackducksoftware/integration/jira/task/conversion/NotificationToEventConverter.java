@@ -22,7 +22,6 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +41,7 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter {
@@ -114,7 +114,6 @@ public abstract class NotificationToEventConverter {
         return metaService;
     }
 
-    // TODO this cries out for a class with a builder
     protected Map<String, Object> createDataSet(final NotificationContentItem notif,
             final HubEventAction action,
             final JiraContext jiraContext, final JiraProject jiraProject,
@@ -127,34 +126,31 @@ public abstract class NotificationToEventConverter {
             final String issueCommentInLieuOfStateChange,
             final IssuePropertiesGenerator issuePropertiesGenerator,
             final String hubRuleName) {
-        final Map<String, Object> dataSet = new HashMap<>();
-        dataSet.put(EventDataSetKeys.ACTION, action);
-        dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraContext.getJiraUser().getName());
-        dataSet.put(EventDataSetKeys.JIRA_USER_KEY, jiraContext.getJiraUser().getKey());
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID, jiraProject.getAssigneeUserId());
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, getIssueTypeId());
 
-        dataSet.put(EventDataSetKeys.JIRA_PROJECT_NAME, jiraProject.getProjectName());
-        dataSet.put(EventDataSetKeys.JIRA_PROJECT_ID, jiraProject.getProjectId());
-        dataSet.put(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS, getFieldCopyConfig().getProjectFieldCopyMappings());
+        final JiraEventInfo jiraEventInfo = new JiraEventInfo();
+        jiraEventInfo.setAction(action)
+                .setJiraUserName(jiraContext.getJiraUser().getName())
+                .setJiraUserKey(jiraContext.getJiraUser().getKey())
+                .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
+                .setJiraIssueTypeId(getIssueTypeId())
+                .setJiraProjectName(jiraProject.getProjectName())
+                .setJiraProjectId(jiraProject.getProjectId())
+                .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings())
+                .setHubProjectName(notif.getProjectVersion().getProjectName())
+                .setHubProjectVersion(notif.getProjectVersion().getProjectVersionName())
+                .setHubComponentName(notif.getComponentName())
+                .setHubComponentVersion(notif.getComponentVersion())
+                .setJiraIssueSummary(issueSummary)
+                .setJiraIssueDescription(issueDescription)
+                .setJiraIssueComment(issueComment)
+                .setJiraIssueReOpenComment(issueReOpenComment)
+                .setJiraIssueCommentForExistingIssue(issueCommentForExistingIssue)
+                .setJiraIssueResolveComment(issueResolveComment)
+                .setJiraIssueCommentInLieuOfStateChange(issueCommentInLieuOfStateChange)
+                .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
+                .setHubRuleName(hubRuleName);
 
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_NAME, notif.getProjectVersion().getProjectName());
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION, notif.getProjectVersion().getProjectVersionName());
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_NAME, notif.getComponentName());
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION, notif.getComponentVersion());
-
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_SUMMARY, issueSummary);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, issueDescription);
-
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, issueComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT, issueReOpenComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, issueCommentForExistingIssue);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, issueResolveComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE, issueCommentInLieuOfStateChange);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR, issuePropertiesGenerator);
-        dataSet.put(EventDataSetKeys.HUB_RULE_NAME, hubRuleName);
-
-        return dataSet;
+        return jiraEventInfo.getDataSet();
     }
 
     protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
