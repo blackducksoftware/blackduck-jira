@@ -65,8 +65,33 @@ public class JiraEventInfo {
 
     }
 
+    @SuppressWarnings("unchecked")
     public JiraEventInfo(final Map<String, Object> dataSet) {
-        // TODO
+        action = (HubEventAction) dataSet.get(EventDataSetKeys.ACTION);
+        jiraUserName = (String) dataSet.get(EventDataSetKeys.JIRA_USER_NAME);
+        jiraUserKey = (String) dataSet.get(EventDataSetKeys.JIRA_USER_KEY);
+        jiraIssueAssigneeUserId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID);
+        jiraIssueTypeId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID);
+
+        jiraProjectName = (String) dataSet.get(EventDataSetKeys.JIRA_PROJECT_NAME);
+        jiraProjectId = (Long) dataSet.get(EventDataSetKeys.JIRA_PROJECT_ID);
+        jiraFieldCopyMappings = (Set<ProjectFieldCopyMapping>) dataSet.get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
+
+        hubProjectName = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_NAME);
+        hubProjectVersion = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION);
+        hubComponentName = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_NAME);
+        hubComponentVersion = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION);
+
+        jiraIssueSummary = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
+        jiraIssueDescription = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
+
+        jiraIssueComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
+        jiraIssueReOpenComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
+        jiraIssueCommentForExistingIssue = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
+        jiraIssueResolveComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
+        jiraIssueCommentInLieuOfStateChange = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
+        jiraIssuePropertiesGenerator = (IssuePropertiesGenerator) dataSet.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
+        hubRuleName = (String) dataSet.get(EventDataSetKeys.HUB_RULE_NAME);
     }
 
     public JiraEventInfo setAction(final HubEventAction action) {
