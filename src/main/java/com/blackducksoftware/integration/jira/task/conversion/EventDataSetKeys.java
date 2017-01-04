@@ -2,7 +2,7 @@
  * Copyright (C) 2016 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  * All rights reserved.
- * 
+ *
  * This software is the confidential and proprietary information of
  * Black Duck Software ("Confidential Information"). You shall not
  * disclose such Confidential Information and shall use it only in
@@ -44,6 +44,12 @@ public class EventDataSetKeys {
 
     public static final String JIRA_ISSUE_PROPERTIES_GENERATOR = "jiraIssuePropertiesGenerator";
 
+    // Jira objects
+
+    public static final String JIRA_CONTEXT = "jiraContext";
+
+    public static final String JIRA_PROJECT = "jiraProject";
+
     // Hub
 
     public static final String HUB_PROJECT_NAME = "hubProjectName";
@@ -55,4 +61,6 @@ public class EventDataSetKeys {
     public static final String HUB_COMPONENT_VERSION = "hubComponentVersion";
 
     public static final String HUB_RULE_NAME = "hubRuleName";
+
+    public static final String HUB_RULE_URL = "hubRuleUrl";
 }

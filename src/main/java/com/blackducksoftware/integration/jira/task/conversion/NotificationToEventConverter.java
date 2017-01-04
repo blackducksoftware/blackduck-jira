@@ -22,17 +22,15 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
+import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -44,8 +42,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public abstract class NotificationToEventConverter {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+public abstract class NotificationToEventConverter extends NotificationSubProcessor {
 
     private final JiraServices jiraServices;
 
@@ -57,25 +54,21 @@ public abstract class NotificationToEventConverter {
 
     private final String issueTypeId;
 
-    private final MetaService metaService;
-
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext,
+    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
             final HubProjectMappings mappings,
             final String issueTypeName, final MetaService metaService,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws ConfigurationException {
+        super(cache, metaService);
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.mappings = mappings;
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
-        this.metaService = metaService;
         this.fieldCopyConfig = fieldCopyConfig;
     }
-
-    public abstract List<NotificationEvent> generateEvents(NotificationContentItem notif);
 
     public JiraSettingsService getJiraSettingsService() {
         return jiraSettingsService;
@@ -110,22 +103,21 @@ public abstract class NotificationToEventConverter {
         return issueTypeId;
     }
 
-    protected MetaService getMetaService() {
-        return metaService;
-    }
-
-    protected Map<String, Object> createDataSet(final NotificationContentItem notif,
-            final HubEventAction action,
-            final JiraContext jiraContext, final JiraProject jiraProject,
-            final String issueSummary,
-            final String issueDescription,
-            final String issueComment,
-            final String issueReOpenComment,
-            final String issueCommentForExistingIssue,
-            final String issueResolveComment,
-            final String issueCommentInLieuOfStateChange,
-            final IssuePropertiesGenerator issuePropertiesGenerator,
-            final String hubRuleName) {
+    @Override
+    public Map<String, Object> generateDataSet(Map<String, Object> inputData) {
+        final NotificationContentItem notif = (NotificationContentItem) inputData.get(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT);
+        final HubEventAction action = (HubEventAction) inputData.get(EventDataSetKeys.ACTION);
+        final JiraContext jiraContext = (JiraContext) inputData.get(EventDataSetKeys.JIRA_CONTEXT);
+        final JiraProject jiraProject = (JiraProject) inputData.get(EventDataSetKeys.JIRA_PROJECT);
+        final String issueSummary = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
+        final String issueDescription = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
+        final String issueComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
+        final String issueReOpenComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
+        final String issueCommentForExistingIssue = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
+        final String issueResolveComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
+        final String issueCommentInLieuOfStateChange = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
+        final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) inputData.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
+        final String hubRuleName = (String) inputData.get(EventDataSetKeys.HUB_RULE_NAME);
 
         final JiraEventInfo jiraEventInfo = new JiraEventInfo();
         jiraEventInfo.setAction(action)
@@ -155,16 +147,5 @@ public abstract class NotificationToEventConverter {
 
     protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
         return fieldCopyConfig;
-    }
-
-    protected String hashString(final String origString) {
-        String hashString;
-        if (origString == null) {
-            hashString = "";
-        } else {
-            hashString = String.valueOf(origString.hashCode());
-        }
-        logger.debug("Hash string for '" + origString + "': " + hashString);
-        return hashString;
     }
 }

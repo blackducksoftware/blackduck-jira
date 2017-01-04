@@ -99,7 +99,7 @@ public class TicketGenerator {
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
                     jiraContext, jiraSettingsService, hubServicesFactory);
 
-            final List<NotificationEvent> events = processor.generateEvents(notifs);
+            final List<NotificationEvent> events = processor.process(notifs);
             if ((events == null) || (events.size() == 0)) {
                 logger.info("There are no events to handle");
                 return;

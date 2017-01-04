@@ -21,8 +21,8 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -44,47 +45,46 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
+
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public AbstractPolicyNotificationConverter(final HubProjectMappings mappings, final JiraServices jiraServices,
+    public AbstractPolicyNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final String issueTypeName, final MetaService metaService,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws ConfigurationException {
-        super(jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService, fieldCopyConfig);
+        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService, fieldCopyConfig);
     }
 
     @Override
-    public List<NotificationEvent> generateEvents(final NotificationContentItem notif) {
-        final List<NotificationEvent> notifEvents = new ArrayList<>();
-
-        logger.debug("policyNotif: " + notif);
-        logger.debug("Getting JIRA project(s) mapped to Hub project: " + notif.getProjectVersion().getProjectName());
+    public void process(NotificationContentItem notification) throws HubIntegrationException {
+        logger.debug("policyNotif: " + notification);
+        logger.debug("Getting JIRA project(s) mapped to Hub project: " + notification.getProjectVersion().getProjectName());
         final List<JiraProject> mappingJiraProjects = getMappings()
-                .getJiraProjects(notif.getProjectVersion().getProjectName());
+                .getJiraProjects(notification.getProjectVersion().getProjectName());
         logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
-                + notif.getProjectVersion().getProjectName());
+                + notification.getProjectVersion().getProjectName());
 
         if (!mappingJiraProjects.isEmpty()) {
 
             for (final JiraProject jiraProject : mappingJiraProjects) {
                 logger.debug("JIRA Project: " + jiraProject);
                 try {
-                    final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(notif, jiraProject);
+                    final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(notification, jiraProject);
                     if (projectEvents != null) {
-                        notifEvents.addAll(projectEvents);
+                        for (final NotificationEvent event : projectEvents) {
+                            getCache().addEvent(event);
+                        }
                     }
                 } catch (final Exception e) {
                     logger.error(e);
-                    getJiraSettingsService().addHubError(e, notif.getProjectVersion().getProjectName(),
-                            notif.getProjectVersion().getProjectVersionName(), jiraProject.getProjectName(),
+                    getJiraSettingsService().addHubError(e, notification.getProjectVersion().getProjectName(),
+                            notification.getProjectVersion().getProjectVersionName(), jiraProject.getProjectName(),
                             getJiraContext().getJiraUser().getName(), "transitionIssue");
-                    return null;
                 }
 
             }
         }
-        return notifEvents;
     }
 
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
@@ -125,9 +125,12 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return issueSummary.toString();
     }
 
-    protected String getUniquePropertyKeyForPolicyIssue(PolicyContentItem notificationContentItem, Long jiraProjectId,
-            String policyRuleURL)
+    @Override
+    public String generateEventKey(Map<String, Object> inputData)
             throws HubIntegrationException {
+        final PolicyContentItem notificationContentItem = (PolicyContentItem) inputData.get(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT);
+        final Long jiraProjectId = (Long) inputData.get(EventDataSetKeys.JIRA_PROJECT_ID);
+        final String policyRuleURL = (String) inputData.get(EventDataSetKeys.HUB_RULE_URL);
 
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);

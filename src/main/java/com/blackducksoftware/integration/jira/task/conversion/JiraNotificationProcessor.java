@@ -21,14 +21,19 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.jira.task.conversion;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.ListProcessorCache;
+import com.blackducksoftware.integration.hub.notification.processor.NotificationProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -39,10 +44,10 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class JiraNotificationProcessor {
+public class JiraNotificationProcessor extends NotificationProcessor<List<NotificationEvent>> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final ConverterLookupTable converterTable;
+    // private final ConverterLookupTable converterTable;
 
     public JiraNotificationProcessor(final HubProjectMappings mapping,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
@@ -50,37 +55,61 @@ public class JiraNotificationProcessor {
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubServicesFactory hubServicesFactory)
             throws ConfigurationException {
-        converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory);
+        final ListProcessorCache cache = new ListProcessorCache();
+        getCacheList().add(cache);
+
+        final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(cache,
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+                hubServicesFactory, hubServicesFactory.createMetaService(logger));
+        final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(cache,
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+
+        final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(cache,
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+        final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(cache,
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+
+        getProcessorMap().put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
+        getProcessorMap().put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
+        getProcessorMap().put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
+        getProcessorMap().put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        // converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext,
+        // jiraSettingsService,
+        // hubServicesFactory);
     }
+    //
+    // public List<NotificationEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
+    // throws HubIntegrationException {
+    // final List<NotificationEvent> allEvents = new ArrayList<>();
+    //
+    // logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
+    // + " notifications");
+    // for (final NotificationContentItem notif : notifications) {
+    // logger.debug("Notification: " + notif);
+    //
+    // List<NotificationEvent> notifEvents;
+    // try {
+    // notifEvents = generateEvents(notif);
+    // } catch (final Exception e) {
+    // throw new HubIntegrationException("Error converting notifications to issues", e);
+    // }
+    // if (notifEvents != null) {
+    // allEvents.addAll(notifEvents);
+    // }
+    // }
+    // return allEvents;
+    // }
+    //
+    // private List<NotificationEvent> generateEvents(final NotificationContentItem notif)
+    // throws HubIntegrationException {
+    // final NotificationToEventConverter converter = converterTable.getConverter(notif);
+    // final List<NotificationEvent> events = converter.generateEvents(notif);
+    // return events;
+    // }
 
-    public List<NotificationEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
-            throws HubIntegrationException {
-        final List<NotificationEvent> allEvents = new ArrayList<>();
-
-        logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-                + " notifications");
-        for (final NotificationContentItem notif : notifications) {
-            logger.debug("Notification: " + notif);
-
-            List<NotificationEvent> notifEvents;
-            try {
-                notifEvents = generateEvents(notif);
-            } catch (final Exception e) {
-                throw new HubIntegrationException("Error converting notifications to issues", e);
-            }
-            if (notifEvents != null) {
-                allEvents.addAll(notifEvents);
-            }
-        }
-        return allEvents;
+    @Override
+    public List<NotificationEvent> processEvents(Collection<NotificationEvent> eventCollection) throws HubIntegrationException {
+        final LinkedList<NotificationEvent> list = new LinkedList<>(eventCollection);
+        return list;
     }
-
-    private List<NotificationEvent> generateEvents(final NotificationContentItem notif)
-            throws HubIntegrationException {
-        final NotificationToEventConverter converter = converterTable.getConverter(notif);
-        final List<NotificationEvent> events = converter.generateEvents(notif);
-        return events;
-    }
-
 }

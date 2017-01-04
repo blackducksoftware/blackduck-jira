@@ -2,7 +2,7 @@
  * Copyright (C) 2016 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  * All rights reserved.
- * 
+ *
  * This software is the confidential and proprietary information of
  * Black Duck Software ("Confidential Information"). You shall not
  * disclose such Confidential Information and shall use it only in
@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.hub.dataservice.notification.item.Polic
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.processor.ListProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubRequestService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -306,10 +307,11 @@ public class NotificationConverterTest {
         // Construct the notification and the converter
         NotificationToEventConverter conv;
         NotificationContentItem notif;
+        final ListProcessorCache cache = new ListProcessorCache();
         switch (notifType) {
         case VULNERABILITY:
             notif = createVulnerabilityNotif(metaService, projectVersionItem, now);
-            conv = new VulnerabilityNotificationConverter(
+            conv = new VulnerabilityNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
                     jiraServices,
@@ -318,7 +320,7 @@ public class NotificationConverterTest {
             break;
         case POLICY_VIOLATION:
             notif = createPolicyViolationNotif(metaService, now);
-            conv = new PolicyViolationNotificationConverter(
+            conv = new PolicyViolationNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
                     jiraServices,
@@ -327,7 +329,7 @@ public class NotificationConverterTest {
             break;
         case POLICY_VIOLATION_OVERRIDE:
             notif = createPolicyOverrideNotif(metaService, now);
-            conv = new PolicyOverrideNotificationConverter(
+            conv = new PolicyOverrideNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
                     jiraServices,
@@ -336,7 +338,7 @@ public class NotificationConverterTest {
             break;
         case POLICY_VIOLATION_CLEARED:
             notif = createPolicyClearedNotif(metaService, now);
-            conv = new PolicyViolationClearedNotificationConverter(
+            conv = new PolicyViolationClearedNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
                     jiraServices,
@@ -348,7 +350,8 @@ public class NotificationConverterTest {
         }
 
         // Run the converter
-        final List<NotificationEvent> events = conv.generateEvents(notif);
+        conv.process(notif);
+        final List<NotificationEvent> events = new ArrayList<>(cache.getEvents());
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,

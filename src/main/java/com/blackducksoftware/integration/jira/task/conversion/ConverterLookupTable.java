@@ -27,10 +27,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyOverrideContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyViolationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -53,21 +49,28 @@ public class ConverterLookupTable {
             final HubServicesFactory hubServicesFactory)
             throws ConfigurationException {
 
-        final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory, hubServicesFactory.createMetaService(logger));
-        final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
-
-        final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
-        final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(
-                mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
-
-        lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
-        lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
-        lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
-        lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        // final NotificationToEventConverter vulnerabilityNotificationConverter = new
+        // VulnerabilityNotificationConverter(
+        // mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+        // hubServicesFactory, hubServicesFactory.createMetaService(logger));
+        // final NotificationToEventConverter policyViolationNotificationConverter = new
+        // PolicyViolationNotificationConverter(
+        // mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+        // hubServicesFactory.createMetaService(logger));
+        //
+        // final NotificationToEventConverter policyViolationClearedNotificationConverter = new
+        // PolicyViolationClearedNotificationConverter(
+        // mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+        // hubServicesFactory.createMetaService(logger));
+        // final NotificationToEventConverter policyOverrideNotificationConverter = new
+        // PolicyOverrideNotificationConverter(
+        // mappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+        // hubServicesFactory.createMetaService(logger));
+        //
+        // lookupTable.put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
+        // lookupTable.put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
+        // lookupTable.put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
+        // lookupTable.put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
     }
 
     public NotificationToEventConverter getConverter(final NotificationContentItem notif)
