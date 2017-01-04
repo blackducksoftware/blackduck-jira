@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -59,11 +60,12 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     @Override
     public void process(NotificationContentItem notification) throws HubIntegrationException {
         logger.debug("policyNotif: " + notification);
-        logger.debug("Getting JIRA project(s) mapped to Hub project: " + notification.getProjectVersion().getProjectName());
+        final ProjectVersion projectVersion = notification.getProjectVersion();
+        logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectVersion.getProjectName());
         final List<JiraProject> mappingJiraProjects = getMappings()
-                .getJiraProjects(notification.getProjectVersion().getProjectName());
+                .getJiraProjects(projectVersion.getProjectName());
         logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
-                + notification.getProjectVersion().getProjectName());
+                + projectVersion.getProjectName());
 
         if (!mappingJiraProjects.isEmpty()) {
 
@@ -78,8 +80,8 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
                     }
                 } catch (final Exception e) {
                     logger.error(e);
-                    getJiraSettingsService().addHubError(e, notification.getProjectVersion().getProjectName(),
-                            notification.getProjectVersion().getProjectVersionName(), jiraProject.getProjectName(),
+                    getJiraSettingsService().addHubError(e, projectVersion.getProjectName(),
+                            projectVersion.getProjectVersionName(), jiraProject.getProjectName(),
                             getJiraContext().getJiraUser().getName(), "transitionIssue");
                 }
 
