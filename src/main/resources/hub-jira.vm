@@ -133,8 +133,8 @@
 			<table class="ticketCriteriaTable">
 				<thead>
 					<tr>
-						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')
-						</th>
+						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')</th>
+						<th class="label">$i18n.getText('hub.integration.jira.createVulnerabilityIssues.label')</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -144,10 +144,19 @@
 							<div id="policyRuleTicketCreation" class="ticketCriteriaSection">
 							</div>
 				  		</td>
+				  		<td>
+				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes">$i18n.getText("hub.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No">$i18n.getText("hub.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
+							</div>
+				  		</td>
 	      			</tr>
 	      			<tr>
 	      				<td>
 					      	<div id="policyRulesError" class="error hidden"></div>
+					    </td>
+					    <td>
+					      	<div id="createVulnerabilityIssuesChoiceError" class="error hidden"></div>
 					    </td>
 	      			</tr>
       			</tbody>

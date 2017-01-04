@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,30 +20,25 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.Days;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.config.TicketCreationError;
 
 public class JiraSettingsService {
-
-    public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendMonthOfYear(2)
-            .appendLiteral('/').appendDayOfMonth(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
-            .appendClockhourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
-
-    public static final DateTimeFormatter OLD_ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendDayOfMonth(2)
-            .appendLiteral('/').appendMonthOfYear(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
-            .appendHourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(1).appendHalfdayOfDayText().toFormatter();
 
     private final PluginSettings settings;
 
@@ -66,13 +63,11 @@ public class JiraSettingsService {
 
     public void addHubError(final String errorMessage, final String hubProject, final String hubProjectVersion,
             final String jiraProject, final String jiraUser, final String methodAttempt) {
-        final Object errorMapObject = settings.get(HubJiraConstants.HUB_JIRA_ERROR);
-        final HashMap<String, String> errorMap;
-        if (errorMapObject == null) {
-            errorMap = new HashMap<>();
-        } else {
-            errorMap = (HashMap<String, String>) errorMapObject;
+        List<TicketCreationError> ticketErrors = expireOldErrors(settings);
+        if (ticketErrors == null) {
+            ticketErrors = new ArrayList<>();
         }
+
         final StringBuilder suffixBuilder = new StringBuilder();
         if (StringUtils.isNotBlank(hubProject)) {
             suffixBuilder.append("Hub Project : ");
@@ -102,7 +97,46 @@ public class JiraSettingsService {
         finalErrorBuilder.append("\n");
         finalErrorBuilder.append(suffixBuilder.toString());
 
-        errorMap.put(finalErrorBuilder.toString(), DateTime.now().toString(ERROR_TIME_FORMAT));
-        settings.put(HubJiraConstants.HUB_JIRA_ERROR, errorMap);
+        TicketCreationError error = new TicketCreationError();
+        error.setStackTrace(finalErrorBuilder.toString());
+        error.setTimeStamp(DateTime.now().toString(TicketCreationError.ERROR_TIME_FORMAT));
+
+        ticketErrors.add(error);
+
+        final int maxErrorSize = 20;
+        if (ticketErrors.size() > maxErrorSize) {
+            Collections.sort(ticketErrors);
+            ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
+        }
+        settings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
+
+    public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
+        final Object errorObject = pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+        if (errorObject != null) {
+            List<TicketCreationError> ticketErrors = null;
+            String ticketErrorsString = (String) errorObject;
+            try {
+                ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
+            } catch (Exception e) {
+                ticketErrors = new ArrayList<>();
+            }
+            if (ticketErrors != null && !ticketErrors.isEmpty()) {
+                Collections.sort(ticketErrors);
+                final DateTime currentTime = DateTime.now();
+                final Iterator<TicketCreationError> expirationIterator = ticketErrors.iterator();
+                while (expirationIterator.hasNext()) {
+                    final TicketCreationError ticketError = expirationIterator.next();
+                    DateTime errorTime = ticketError.getTimeStampDateTime();
+                    if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+                        expirationIterator.remove();
+                    }
+                }
+                pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+                return ticketErrors;
+            }
+        }
+        return null;
+    }
+
 }

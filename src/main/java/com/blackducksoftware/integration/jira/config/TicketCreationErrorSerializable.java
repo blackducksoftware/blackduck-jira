@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,11 +20,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,7 +36,7 @@ public class TicketCreationErrorSerializable implements Serializable {
     private static final long serialVersionUID = -5335895094076488435L;
 
     @XmlElement
-    private Set<TicketCreationError> hubJiraTicketErrors;
+    private List<TicketCreationError> hubJiraTicketErrors;
 
     @XmlElement
     private String configError;
@@ -42,11 +44,11 @@ public class TicketCreationErrorSerializable implements Serializable {
     public TicketCreationErrorSerializable() {
     }
 
-    public Set<TicketCreationError> getHubJiraTicketErrors() {
+    public List<TicketCreationError> getHubJiraTicketErrors() {
         return hubJiraTicketErrors;
     }
 
-    public void setHubJiraTicketErrors(final Set<TicketCreationError> hubJiraTicketErrors) {
+    public void setHubJiraTicketErrors(final List<TicketCreationError> hubJiraTicketErrors) {
         this.hubJiraTicketErrors = hubJiraTicketErrors;
     }
 

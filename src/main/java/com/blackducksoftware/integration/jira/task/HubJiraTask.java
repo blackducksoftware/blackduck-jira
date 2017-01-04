@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
@@ -59,17 +62,9 @@ import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderEx
 public class HubJiraTask {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
+    private final PluginConfigurationDetails pluginConfigDetails;
+
     private final HubServerConfig serverConfig;
-
-    private final String intervalString;
-
-    private final String installDateString;
-
-    private final String lastRunDateString;
-
-    private final String projectMappingJson;
-
-    private final String policyRulesJson;
 
     private final JiraContext jiraContext;
 
@@ -87,17 +82,11 @@ public class HubJiraTask {
 
     private final String fieldCopyMappingJson;
 
-    public HubJiraTask(final HubServerConfig serverConfig, final String intervalString, final String installDateString,
-            final String lastRunDateString, final String projectMappingJson, final String policyRulesJson,
-            final String fieldCopyMappingJson, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+    public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
+        this.pluginConfigDetails = configDetails;
+        this.serverConfig = configDetails.createHubServerConfigBuilder().build();
 
-        this.serverConfig = serverConfig;
-        this.intervalString = intervalString;
-        this.installDateString = installDateString;
-        this.lastRunDateString = lastRunDateString;
-        this.projectMappingJson = projectMappingJson;
-        this.policyRulesJson = policyRulesJson;
         this.jiraContext = jiraContext;
         this.runDate = new Date();
 
@@ -105,12 +94,14 @@ public class HubJiraTask {
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         this.runDateString = dateFormatter.format(runDate);
 
-        logger.debug("Install date: " + installDateString);
-        logger.debug("Last run date: " + lastRunDateString);
+        logger.debug("Install date: " + configDetails.getInstallDateString());
+        logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
-        this.fieldCopyMappingJson = fieldCopyMappingJson;
+        this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
+
+        logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
     }
 
     /**
@@ -119,6 +110,18 @@ public class HubJiraTask {
      * @return this execution's run date/time string on success, null otherwise
      */
     public String execute() {
+        final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
+        HubServerConfig serverConfig = null;
+        try {
+            logger.debug("Building Hub configuration");
+            serverConfig = hubConfigBuilder.build();
+            logger.debug("Finished building Hub configuration");
+        } catch (final IllegalStateException e) {
+            logger.error(
+                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
+                            + e.getMessage());
+            return "error";
+        }
 
         final HubJiraConfigSerializable config = deSerializeConfig();
         if (config == null) {
@@ -128,7 +131,7 @@ public class HubJiraTask {
 
         final Date startDate;
         try {
-            startDate = deriveStartDate(installDateString, lastRunDateString);
+            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
         } catch (final ParseException e) {
             logger.info(
                     "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
@@ -136,18 +139,15 @@ public class HubJiraTask {
         }
 
         try {
-            final RestConnection restConnection = initRestConnection();
-            final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-
-            if (jiraContext == null) {
-                logger.info("Missing information to generate tickets.");
-
+            final HubServicesFactory hubServicesFactory;
+            try {
+                hubServicesFactory = createHubServicesFactory();
+            } catch (final HubIntegrationException e) {
+                logger.info("Missing information to generate tickets: " + e.getMessage());
                 return null;
             }
-
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, restConnection, hubServicesFactory,
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
@@ -187,6 +187,12 @@ public class HubJiraTask {
         return runDateString;
     }
 
+    private HubServicesFactory createHubServicesFactory() throws HubIntegrationException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
+        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
+        return hubServicesFactory;
+    }
+
     private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
         final List<String> ruleUrls = new ArrayList<>();
         final List<PolicyRuleSerializable> rules = config.getPolicyRules();
@@ -201,7 +207,7 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final RestConnection restConnection, HubServicesFactory hubServicesFactory,
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
@@ -209,36 +215,31 @@ public class HubJiraTask {
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
-                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig);
+                jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
+                linksOfRulesToMonitor);
         return ticketGenerator;
     }
 
-    private RestConnection initRestConnection() throws IllegalArgumentException, HubIntegrationException {
-
-        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
-        return restConnection;
-    }
-
     private HubJiraConfigSerializable deSerializeConfig() {
-        if (projectMappingJson == null) {
+        if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
         }
 
-        if (policyRulesJson == null) {
+        if (pluginConfigDetails.getPolicyRulesJson() == null) {
             logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
             return null;
         }
 
-        logger.debug("Last run date: " + lastRunDateString);
+        logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
         logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
                 + serverConfig.getGlobalCredentials().getUsername());
-        logger.debug("Interval: " + intervalString);
+        logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-        config.setHubProjectMappingsJson(projectMappingJson);
-        config.setPolicyRulesJson(policyRulesJson);
+        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
+        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
         logger.debug("Mappings:");
         for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
             logger.debug(mapping.toString());
@@ -251,7 +252,7 @@ public class HubJiraTask {
     }
 
     private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
-        HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         fieldCopyConfig.setJson(fieldCopyMappingJson);
         return fieldCopyConfig;
     }

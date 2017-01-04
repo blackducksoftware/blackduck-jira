@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/*
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 var statusMessageFieldId = "aui-hub-message-field";
 var statusMessageTitleId = "aui-hub-message-title";
 var statusMessageTitleTextId = "aui-hub-message-title-text";
@@ -248,6 +250,24 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
+		    dataType: "json",
+		    success: function(config) {
+		    	console.log("success: createVulnerabilityTicketsChoice");
+		      setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
+
+//		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
+		    },
+		    error: function(response){
+		    	console.log("error: createVulnerabilityTicketsChoice");
+		    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("complete: createVulnerabilityTicketsChoice");
+		    }
+		  });
+	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
 		    dataType: "json",
 		    success: function(config) {
@@ -292,6 +312,7 @@ function populateForm() {
 		    	updateTicketCreationErrors(creationError.hubJiraTicketErrors);
 		    },
 		    error: function(response){
+		    	console.log("Error getting the ticket creation errors : " + response.responseText);
 		    	var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
 		    	if(fieldSet.hasClass('hidden')){
 		    		fieldSet.removeClass('hidden');
@@ -676,9 +697,21 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 		  });
 	}
 
+function getCreateVulnerabilityIssuesChoice() {
+	var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+	
+	if (createVulnerabilityIssuesYesElement[0].checked) {
+		return "true";
+	} else {
+		return "false";
+	}
+}
+
 function putConfig(restUrl, successMessage, failureMessage) {
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
+	var createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
 	  AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -687,6 +720,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
 	    + '", "hubProjectMappings": ' + jsonMappingArray
 	    + ', "policyRules": ' + policyRuleArray
+	    + ', "createVulnerabilityIssues": ' + createVulnerabilityIssues
 	    + '}',
 	    processData: false,
 	    success: function() {
@@ -846,6 +880,20 @@ function updateValue(fieldId, configField) {
 	if(configField){
 		 AJS.$("#" + fieldId).val(decodeURI(configField));
     }
+}
+
+function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
+	var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+	if (createVulnerabilityIssues) {
+		console.log("Setting createVulnerabilityIssuesChoice to Yes");
+		createVulnerabilityIssuesYesElement[0].checked = true;
+		createVulnerabilityIssuesNoElement[0].checked = false;
+	} else {
+		console.log("Setting createVulnerabilityIssuesChoice to No");
+		createVulnerabilityIssuesYesElement[0].checked = false;
+		createVulnerabilityIssuesNoElement[0].checked = true;
+	}
 }
 
 function addPolicyViolationRules(policyRules){

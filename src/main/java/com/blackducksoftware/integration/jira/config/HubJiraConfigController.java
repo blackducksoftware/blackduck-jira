@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.config;
 
 import java.io.IOException;
@@ -30,14 +32,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -53,9 +50,6 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.IllegalFieldValueException;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.crowd.embedded.api.Group;
@@ -119,8 +113,6 @@ public class HubJiraConfigController {
 
     private final Properties i18nProperties;
 
-    private MetaService metaService;
-
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
             final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
             final HubMonitor hubMonitor,
@@ -145,17 +137,17 @@ public class HubJiraConfigController {
             } else {
                 logger.warn("Error opening property file: " + HubJiraConstants.PROPERTY_FILENAME);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.warn("Error reading property file: " + HubJiraConstants.PROPERTY_FILENAME);
         }
         logger.debug("i18nProperties: " + i18nProperties);
     }
 
-    private String getI18nProperty(String key) {
+    private String getI18nProperty(final String key) {
         if (i18nProperties == null) {
             return key;
         }
-        String value = i18nProperties.getProperty(key);
+        final String value = i18nProperties.getProperty(key);
         if (value == null) {
             return key;
         }
@@ -251,9 +243,9 @@ public class HubJiraConfigController {
                     return txAdminConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubAdminConfigSerializable errorAdminConfig = new HubAdminConfigSerializable();
-            String msg = "Error getting admin config: " + e.getMessage();
+            final String msg = "Error getting admin config: " + e.getMessage();
             logger.error(msg, e);
             errorAdminConfig.setHubJiraGroupsError(msg);
             return Response.ok(errorAdminConfig).build();
@@ -275,17 +267,10 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
                 final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
-                final Map<String, String> ticketErrors = expireOldErrors(settings);
+                final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
                 if (ticketErrors != null) {
-                    final Set<TicketCreationError> displayTicketErrors = new HashSet<>();
-                    for (final Entry<String, String> error : ticketErrors.entrySet()) {
-                        final String errorKey = error.getKey();
-                        final TicketCreationError ticketCreationError = new TicketCreationError();
-                        ticketCreationError.setStackTrace(errorKey);
-                        ticketCreationError.setTimeStamp(error.getValue());
-                        displayTicketErrors.add(ticketCreationError);
-                    }
-                    creationError.setHubJiraTicketErrors(displayTicketErrors);
+                    Collections.sort(ticketErrors);
+                    creationError.setHubJiraTicketErrors(ticketErrors);
                     logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
                 }
                 return creationError;
@@ -299,7 +284,6 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterval(@Context final HttpServletRequest request) {
-        // TODO try typing these objects
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -321,12 +305,12 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting interval config: " + e.getMessage();
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting interval config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(config).build();
     }
@@ -356,12 +340,12 @@ public class HubJiraConfigController {
                     return txProjectsConfig;
                 }
             });
-        } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting JIRA projects config: " + e.getMessage();
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting JIRA projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
     }
@@ -381,14 +365,9 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+                    config.setHubProjects(new ArrayList<>(0));
 
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<HubProject> hubProjects = new ArrayList<>(0);
-                        config.setHubProjects(hubProjects);
-                        return config;
-                    }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
                     if (hubServicesFactory == null) {
                         return config;
                     }
@@ -402,12 +381,12 @@ public class HubJiraConfigController {
                     return config;
                 }
             });
-        } catch (Exception e) {
-            final HubJiraConfigSerializable errorAdminConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting Hub projects config: " + e.getMessage();
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting Hub projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorAdminConfig.setIntervalBetweenChecksError(msg);
-            return Response.ok(errorAdminConfig).build();
+            errorConfig.setIntervalBetweenChecksError(msg);
+            return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
     }
@@ -426,18 +405,18 @@ public class HubJiraConfigController {
             pluginInfo = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
+                    final PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
 
                     logger.debug("Getting plugin version string");
-                    String pluginVersion = PluginVersion.getVersion();
+                    final String pluginVersion = PluginVersion.getVersion();
                     logger.debug("pluginVersion: " + pluginVersion);
                     txPluginInfo.setPluginVersion(pluginVersion);
                     return txPluginInfo;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final PluginInfoSerializable errorPluginInfo = new PluginInfoSerializable();
-            String msg = "Error getting Plugin info: " + e.getMessage();
+            final String msg = "Error getting Plugin info: " + e.getMessage();
             logger.error(msg, e);
             errorPluginInfo.setPluginVersion("<unknown>");
             return Response.ok(errorPluginInfo).build();
@@ -480,12 +459,12 @@ public class HubJiraConfigController {
                 }
 
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final Fields errorSourceFields = new Fields();
-            String msg = "Error getting source fields: " + e.getMessage();
+            final String msg = "Error getting source fields: " + e.getMessage();
             logger.error(msg, e);
+            errorSourceFields.setErrorMessage(msg);
             return Response.ok(errorSourceFields).build();
-            // TODO need an error field on fields?
         }
         return Response.ok(sourceFields).build();
     }
@@ -508,7 +487,7 @@ public class HubJiraConfigController {
                     Fields txTargetFields;
                     try {
                         txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
-                    } catch (JiraException e) {
+                    } catch (final JiraException e) {
                         txTargetFields = new Fields();
                         txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
                         return txTargetFields;
@@ -518,12 +497,12 @@ public class HubJiraConfigController {
                     return txTargetFields;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final Fields errorTargetFields = new Fields();
-            String msg = "Error getting target fields: " + e.getMessage();
+            final String msg = "Error getting target fields: " + e.getMessage();
             logger.error(msg, e);
+            errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
-            // TODO need an error field on fields?
         }
 
         return Response.ok(targetFields).build();
@@ -549,24 +528,23 @@ public class HubJiraConfigController {
 
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-                    final RestConnection restConnection = getRestConnection(settings, txConfig);
-                    if (txConfig.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        txConfig.setPolicyRules(policyRules);
-                        return txConfig;
-                    }
-
                     if (StringUtils.isNotBlank(policyRulesJson)) {
                         txConfig.setPolicyRulesJson(policyRulesJson);
+                    } else {
+                        txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    setHubPolicyRules(getHubServicesFactory(restConnection, txConfig), txConfig);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, txConfig);
+                    if (hubServicesFactory == null) {
+                        return txConfig;
+                    }
+                    setHubPolicyRules(hubServicesFactory, txConfig);
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting policies: " + e.getMessage();
+            final String msg = "Error getting policies: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
@@ -574,9 +552,43 @@ public class HubJiraConfigController {
         return Response.ok(config).build();
     }
 
-    // TODO why not instantiate in ctor?
-    HubVersionRequestService getHubVersionRequestService(final RestConnection restConnection) {
-        return new HubVersionRequestService(restConnection);
+    @Path("/createVulnerabilityTicketsChoice")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
+        logger.debug("GET createVulnerabilityTicketsChoice");
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    logger.debug("GET createVulnerabilityTicketsChoice transaction");
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
+                    final String createVulnIssuesChoiceString = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+                    logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
+                    boolean choice = true;
+                    if ("false".equalsIgnoreCase(createVulnIssuesChoiceString)) {
+                        choice = false;
+                    }
+                    logger.debug("choice: " + choice);
+                    txConfig.setCreateVulnerabilityIssues(choice);
+                    return txConfig;
+                }
+            });
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setCreateVulnerabilityIssuesError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
     }
 
     @Path("/mappings")
@@ -605,9 +617,9 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting project mappings: " + e.getMessage();
+            final String msg = "Error getting project mappings: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
@@ -641,14 +653,14 @@ public class HubJiraConfigController {
                     return txConfig;
                 }
             });
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
-            String msg = "Error getting field mappings: " + e.getMessage();
+            final String msg = "Error getting field mappings: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
 
-        HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
+        final HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
         logger.debug("returnValue: " + returnValue);
         return Response.ok(config).build();
     }
@@ -666,17 +678,12 @@ public class HubJiraConfigController {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-
-                    final RestConnection restConnection = getRestConnection(settings, config);
-                    if (config.hasErrors()) {
-                        final List<PolicyRuleSerializable> policyRules = new ArrayList<>(0);
-                        config.setPolicyRules(policyRules);
-                        config.setJiraProjects(jiraProjects);
+                    config.setJiraProjects(jiraProjects);
+                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
+                    if (hubServicesFactory == null) {
                         return config;
                     }
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(restConnection, config);
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
@@ -697,11 +704,15 @@ public class HubJiraConfigController {
                             config.getHubProjectMappingsJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
+                    logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
+                    final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
+                    logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
                     return null;
                 }
             });
         } catch (final Exception e) {
-            String msg = "Exception during save: " + e.getMessage();
+            final String msg = "Exception during save: " + e.getMessage();
             logger.error(msg, e);
             config.setErrorMessage(msg);
         }
@@ -728,30 +739,38 @@ public class HubJiraConfigController {
             public Object doInTransaction() {
 
                 final Object errorObject = getValue(settings, HubJiraConstants.HUB_JIRA_ERROR);
-                final HashMap<String, String> ticketErrors;
+
+                List<TicketCreationError> ticketErrors = null;
                 if (errorObject != null) {
-                    ticketErrors = (HashMap<String, String>) errorObject;
+                    final String errorString = (String) errorObject;
+                    try {
+                        ticketErrors = TicketCreationError.fromJson(errorString);
+                    } catch (final Exception e) {
+                        ticketErrors = new ArrayList<>();
+                    }
                 } else {
-                    ticketErrors = new HashMap<>();
+                    ticketErrors = new ArrayList<>();
                 }
+
                 if (errorsToDelete.getHubJiraTicketErrors() != null
                         && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
                     for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
                         try {
                             final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
-                            final String val = ticketErrors.remove(errorMessage);
-                            if (val == null) {
-                                final TicketCreationErrorSerializable serializableError = new TicketCreationErrorSerializable();
-                                serializableError.setConfigError(
-                                        "Could not find the Error selected for removal in the persisted list.");
-                                return serializableError;
+                            final Iterator<TicketCreationError> iterator = ticketErrors.iterator();
+                            while (iterator.hasNext()) {
+                                final TicketCreationError error = iterator.next();
+                                if (errorMessage.equals(error.getStackTrace())) {
+                                    iterator.remove();
+                                    break;
+                                }
                             }
                         } catch (final UnsupportedEncodingException e) {
 
                         }
                     }
                 }
-                setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
+                setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
                 return null;
             }
         });
@@ -790,8 +809,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during admin save: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during admin save: " + e.getMessage();
             logger.error(msg, e);
             final HubAdminConfigSerializable errorResponseObject = new HubAdminConfigSerializable();
             errorResponseObject.setHubJiraGroupsError(msg);
@@ -811,7 +830,7 @@ public class HubJiraConfigController {
         try {
             logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
             logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
-            for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+            for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
                 logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
             }
 
@@ -833,8 +852,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during admin save: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during admin save: " + e.getMessage();
             logger.error(msg, e);
             fieldCopyConfig.setErrorMessage(msg);
         }
@@ -850,7 +869,7 @@ public class HubJiraConfigController {
             return false;
         }
 
-        for (ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+        for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldId())) {
                 fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
                 return false;
@@ -902,8 +921,8 @@ public class HubJiraConfigController {
                     return null;
                 }
             });
-        } catch (Exception e) {
-            String msg = "Exception during reset: " + e.getMessage();
+        } catch (final Exception e) {
+            final String msg = "Exception during reset: " + e.getMessage();
             logger.error(msg, e);
             return Response.ok(msg).status(Status.BAD_REQUEST).build();
         }
@@ -1008,11 +1027,16 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    HubServicesFactory getHubServicesFactory(final RestConnection restConnection, final HubJiraConfigSerializable config) {
+    private HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+        final RestConnection restConnection = getRestConnection(settings, config);
+        if (config.hasErrors()) {
+            return null;
+        }
+
         final HubServicesFactory hubServicesFactory;
         try {
             hubServicesFactory = new HubServicesFactory(restConnection);
-        } catch (HubIntegrationException e) {
+        } catch (final HubIntegrationException e) {
             config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
@@ -1020,7 +1044,7 @@ public class HubJiraConfigController {
         return hubServicesFactory;
     }
 
-    RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    private RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -1063,7 +1087,7 @@ public class HubJiraConfigController {
             final HubServerConfig serverConfig;
             try {
                 serverConfig = configBuilder.build();
-            } catch (IllegalStateException e) {
+            } catch (final IllegalStateException e) {
                 logger.error("Error in Hub server configuration: " + e.getMessage());
                 config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
                 return null;
@@ -1082,21 +1106,20 @@ public class HubJiraConfigController {
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         List<ProjectItem> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();
-        } catch (HubIntegrationException e) {
+        } catch (final HubIntegrationException e) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
             return hubProjects;
         }
 
         final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
-        MetaService metaService;
-        metaService = getMetaService(hubServicesFactory);
+        final MetaService metaService = hubServicesFactory.createMetaService(logger);
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
-        } catch (HubIntegrationException e1) {
+        } catch (final HubIntegrationException e1) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
             return hubProjects;
         }
@@ -1107,7 +1130,7 @@ public class HubJiraConfigController {
                 newHubProject.setProjectName(project.getName());
                 try {
                     newHubProject.setProjectUrl(metaService.getHref(project));
-                } catch (HubIntegrationException e) {
+                } catch (final HubIntegrationException e) {
                     config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
                     continue;
                 }
@@ -1117,31 +1140,23 @@ public class HubJiraConfigController {
         return hubProjects;
     }
 
-    // TODO revisit this; why not initialize metaService in ctor? would be safer (= never null)
-    private MetaService getMetaService(final HubServicesFactory hubServicesFactory) {
-        if (metaService == null) {
-            metaService = hubServicesFactory.createMetaService(logger);
-        }
-        return metaService;
-    }
-
     private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
             final HubSupportHelper supportHelper = new HubSupportHelper();
             try {
-                HubVersionRequestService restService = hubServicesFactory.createHubVersionRequestService();
-                supportHelper.checkHubSupport(restService, null);
+                final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+                supportHelper.checkHubSupport(hubVersionRequestService, null);
 
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-                    final PolicyRequestService policyService = getPolicyService(restService.getRestConnection());
+                    final PolicyRequestService policyService = hubServicesFactory.createPolicyRequestService();
 
                     List<PolicyRule> policyRules = null;
                     try {
                         policyRules = policyService.getAllPolicyRules();
-                    } catch (HubIntegrationException e) {
+                    } catch (final HubIntegrationException e) {
                         config.setPolicyRulesError(e.getMessage());
                     }
 
@@ -1156,9 +1171,10 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.getName().trim());
 
+                            final MetaService metaService = hubServicesFactory.createMetaService(logger);
                             try {
-                                newRule.setPolicyUrl(getMetaService(hubServicesFactory).getHref(rule));
-                            } catch (HubIntegrationException e) {
+                                newRule.setPolicyUrl(metaService.getHref(rule));
+                            } catch (final HubIntegrationException e) {
                                 logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
                                 continue;
@@ -1180,7 +1196,7 @@ public class HubJiraConfigController {
                 } else {
                     config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 config.setPolicyRulesError(e.getMessage());
             }
         }
@@ -1192,14 +1208,14 @@ public class HubJiraConfigController {
 
     }
 
-    private String cleanDescription(String origString) {
+    private String cleanDescription(final String origString) {
         return removeCharsFromString(origString.trim(), "\n\r\t");
     }
 
-    private String removeCharsFromString(String origString, String charsToRemoveString) {
+    private String removeCharsFromString(final String origString, final String charsToRemoveString) {
         String cleanerString = origString;
-        char[] charsToRemove = charsToRemoveString.toCharArray();
-        for (char c : charsToRemove) {
+        final char[] charsToRemove = charsToRemoveString.toCharArray();
+        for (final char c : charsToRemove) {
             cleanerString = cleanerString.replace(c, ' ');
         }
         return cleanerString;
@@ -1215,36 +1231,4 @@ public class HubJiraConfigController {
         return errorMsg;
     }
 
-    public PolicyRequestService getPolicyService(final RestConnection restConnection) {
-        return new PolicyRequestService(restConnection);
-    }
-
-    private final Map<String, String> expireOldErrors(final PluginSettings pluginSettings) {
-        final Object errorObject = getValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR);
-        if (errorObject != null) {
-            final HashMap<String, String> ticketErrors = (HashMap<String, String>) errorObject;
-
-            if (ticketErrors != null && !ticketErrors.isEmpty()) {
-                final DateTime currentTime = DateTime.now();
-                final Iterator<Entry<String, String>> s = ticketErrors.entrySet().iterator();
-                while (s.hasNext()) {
-                    final Entry<String, String> ticketError = s.next();
-                    DateTime errorTime = null;
-                    try {
-                        errorTime = DateTime.parse(ticketError.getValue(),
-                                JiraSettingsService.ERROR_TIME_FORMAT);
-                    } catch (IllegalFieldValueException e) {
-                        errorTime = DateTime.parse(ticketError.getValue(),
-                                JiraSettingsService.OLD_ERROR_TIME_FORMAT);
-                    }
-                    if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
-                        s.remove();
-                    }
-                }
-                setValue(pluginSettings, HubJiraConstants.HUB_JIRA_ERROR, ticketErrors);
-                return ticketErrors;
-            }
-        }
-        return null;
-    }
 }

@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.HashMap;
@@ -78,7 +80,7 @@ public class ConverterLookupTable {
         final Class<? extends NotificationContentItem> c = notif.getClass();
         final NotificationToEventConverter converter = lookupTable.get(c);
         if (converter == null) {
-            throw new HubIntegrationException("Notification type unknown for notification: " + notif);
+            logger.info("No converter configured for the Notification type of this notification: " + notif);
         }
         return converter;
     }

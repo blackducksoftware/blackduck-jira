@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task.setup;
 
 import java.util.ArrayList;
@@ -75,8 +77,7 @@ public class HubIssueTypeSetup {
             jiraUser = jiraServices.getUserManager().getUserByName(jiraUserName);
         } else {
             logger.debug("Getting user from AuthContext");
-            // TODO replace deprecated method call
-            jiraUser = jiraServices.getAuthContext().getUser();
+            jiraUser = jiraServices.getAuthContext().getLoggedInUser();
         }
         if (jiraUser == null) {
             logger.error("User is null");

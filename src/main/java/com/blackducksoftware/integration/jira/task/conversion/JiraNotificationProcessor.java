@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
@@ -53,14 +55,12 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final HubServicesFactory hubServicesFactory)
+            final HubServicesFactory hubServicesFactory,
+            final boolean createVulnerabilityIssues)
             throws ConfigurationException {
         final ListProcessorCache cache = new ListProcessorCache();
         getCacheList().add(cache);
 
-        final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory, hubServicesFactory.createMetaService(logger));
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(cache,
                 mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
 
@@ -72,7 +72,17 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
         getProcessorMap().put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         getProcessorMap().put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
         getProcessorMap().put(PolicyOverrideContentItem.class, policyOverrideNotificationConverter);
-        getProcessorMap().put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        if (createVulnerabilityIssues) {
+            logger.info("Creation of vulnerability issues has been enabled.");
+            final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(cache,
+                    mapping, fieldCopyConfig,
+                    jiraServices, jiraContext, jiraSettingsService,
+                    hubServicesFactory, hubServicesFactory.createMetaService(logger));
+            getProcessorMap().put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
+        } else {
+            logger.info("Creation of vulnerability issues has been disabled. No vulnerability issues will be created.");
+        }
+
         // converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext,
         // jiraSettingsService,
         // hubServicesFactory);
@@ -108,7 +118,7 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
     // }
 
     @Override
-    public List<NotificationEvent> processEvents(Collection<NotificationEvent> eventCollection) throws HubIntegrationException {
+    public List<NotificationEvent> processEvents(final Collection<NotificationEvent> eventCollection) throws HubIntegrationException {
         final LinkedList<NotificationEvent> list = new LinkedList<>(eventCollection);
         return list;
     }

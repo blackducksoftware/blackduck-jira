@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.task;
 
 import java.util.Date;
@@ -29,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -65,18 +68,31 @@ public class TicketGenerator {
 
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
+    private final boolean createVulnerabilityIssues;
+
     public TicketGenerator(final HubServicesFactory hubServicesFactory,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final boolean createVulnerabilityIssues,
+            final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
-        this.notificationDataService = hubServicesFactory.createNotificationDataService(logger);
+        final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
+        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.getRestConnection(),
+                hubServicesFactory.createNotificationRequestService(logger),
+                hubServicesFactory.createProjectVersionRequestService(logger),
+                hubServicesFactory.createPolicyRequestService(),
+                hubServicesFactory.createVersionBomPolicyRequestService(),
+                hubServicesFactory.createHubRequestService(),
+                policyNotificationFilter,
+                hubServicesFactory.createMetaService(logger));
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
+        this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
     public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
@@ -97,7 +113,7 @@ public class TicketGenerator {
                 return;
             }
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
-                    jiraContext, jiraSettingsService, hubServicesFactory);
+                    jiraContext, jiraSettingsService, hubServicesFactory, createVulnerabilityIssues);
 
             final List<NotificationEvent> events = processor.process(notifs);
             if ((events == null) || (events.size() == 0)) {

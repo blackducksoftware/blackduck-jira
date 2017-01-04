@@ -1,5 +1,7 @@
-/*******************************************************************************
- * Copyright (C) 2016 Black Duck Software, Inc.
+/**
+ * Hub JIRA Plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.jira.common;
 
 public class HubJiraConfigKeys {
@@ -36,6 +38,8 @@ public class HubJiraConfigKeys {
     public final static String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
 
     public final static String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
+
+    public final static String HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE = HUB_CONFIG_JIRA_KEY_PREFIX + ".createVulnIssuesChoice";
 
     public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
 
