@@ -49,8 +49,6 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class JiraNotificationProcessor extends NotificationProcessor<List<NotificationEvent>> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    // private final ConverterLookupTable converterTable;
-
     public JiraNotificationProcessor(final HubProjectMappings mapping,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
@@ -82,40 +80,7 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
         } else {
             logger.info("Creation of vulnerability issues has been disabled. No vulnerability issues will be created.");
         }
-
-        // converterTable = new ConverterLookupTable(mapping, fieldCopyConfig, jiraServices, jiraContext,
-        // jiraSettingsService,
-        // hubServicesFactory);
     }
-    //
-    // public List<NotificationEvent> generateEvents(final SortedSet<NotificationContentItem> notifications)
-    // throws HubIntegrationException {
-    // final List<NotificationEvent> allEvents = new ArrayList<>();
-    //
-    // logger.debug("JiraNotificationFilter.extractJiraReadyNotifications(): Sifting through " + notifications.size()
-    // + " notifications");
-    // for (final NotificationContentItem notif : notifications) {
-    // logger.debug("Notification: " + notif);
-    //
-    // List<NotificationEvent> notifEvents;
-    // try {
-    // notifEvents = generateEvents(notif);
-    // } catch (final Exception e) {
-    // throw new HubIntegrationException("Error converting notifications to issues", e);
-    // }
-    // if (notifEvents != null) {
-    // allEvents.addAll(notifEvents);
-    // }
-    // }
-    // return allEvents;
-    // }
-    //
-    // private List<NotificationEvent> generateEvents(final NotificationContentItem notif)
-    // throws HubIntegrationException {
-    // final NotificationToEventConverter converter = converterTable.getConverter(notif);
-    // final List<NotificationEvent> events = converter.generateEvents(notif);
-    // return events;
-    // }
 
     @Override
     public List<NotificationEvent> processEvents(final Collection<NotificationEvent> eventCollection) throws HubIntegrationException {
