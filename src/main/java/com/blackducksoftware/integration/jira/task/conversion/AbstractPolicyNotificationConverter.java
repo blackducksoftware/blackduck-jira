@@ -30,9 +30,9 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.api.project.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.item.ProjectVersion;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
@@ -60,7 +60,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    public void process(NotificationContentItem notification) throws HubIntegrationException {
+    public void process(final NotificationContentItem notification) throws HubIntegrationException {
         logger.debug("policyNotif: " + notification);
         final ProjectVersion projectVersion = notification.getProjectVersion();
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectVersion.getProjectName());
@@ -94,7 +94,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
             final JiraProject jiraProject) throws HubIntegrationException;
 
-    protected String getIssueDescription(final NotificationContentItem notif, PolicyRule rule) {
+    protected String getIssueDescription(final NotificationContentItem notif, final PolicyRule rule) {
         final StringBuilder issueDescription = new StringBuilder();
         issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project '");
         issueDescription.append(notif.getProjectVersion().getProjectName());
@@ -112,7 +112,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return issueDescription.toString();
     }
 
-    protected String getIssueSummary(final NotificationContentItem notif, PolicyRule rule) {
+    protected String getIssueSummary(final NotificationContentItem notif, final PolicyRule rule) {
         final StringBuilder issueSummary = new StringBuilder();
         issueSummary.append("Black Duck policy violation detected on Hub project '");
         issueSummary.append(notif.getProjectVersion().getProjectName());
@@ -130,7 +130,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    public String generateEventKey(Map<String, Object> inputData)
+    public String generateEventKey(final Map<String, Object> inputData)
             throws HubIntegrationException {
         final PolicyContentItem notificationContentItem = (PolicyContentItem) inputData.get(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT);
         final Long jiraProjectId = (Long) inputData.get(EventDataSetKeys.JIRA_PROJECT_ID);
