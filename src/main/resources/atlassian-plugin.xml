@@ -55,7 +55,7 @@
 				javax.xml.transform,
 				javax.xml.transform.sax,
 				javax.xml.transform.stream,
-				org.apache.commons.io;version="0.0";resolution:=optional,
+				org.apache.commons.io;version="2.5";resolution:=optional,
 				org.apache.commons.lang,
 				org.apache.commons.logging,
 				org.apache.log4j,
