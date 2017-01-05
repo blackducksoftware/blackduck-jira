@@ -30,6 +30,7 @@ import java.util.SortedSet;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
+import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -103,9 +104,16 @@ public class TicketGenerator {
             return;
         }
         try {
-
-            final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
+            final NotificationResults results = notificationDataService.getAllNotifications(startDate,
                     endDate);
+            if (results.isError()) {
+                for (final String errorMessage : results.getErrorMessages()) {
+                    final String fullErrorMessage = "Error retrieving notifications: " + errorMessage;
+                    logger.error(fullErrorMessage);
+                    jiraSettingsService.addHubError(fullErrorMessage, "issueHandler.handleEvent(event)");
+                }
+            }
+            final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             // final List<NotificationItem> notifs =
             // notificationService.fetchNotifications(notificationDateRange);
             if ((notifs == null) || (notifs.size() == 0)) {
