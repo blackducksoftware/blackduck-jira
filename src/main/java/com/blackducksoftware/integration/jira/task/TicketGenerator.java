@@ -107,10 +107,9 @@ public class TicketGenerator {
             final NotificationResults results = notificationDataService.getAllNotifications(startDate,
                     endDate);
             if (results.isError()) {
-                for (final String errorMessage : results.getErrorMessages()) {
-                    final String fullErrorMessage = "Error retrieving notifications: " + errorMessage;
-                    logger.error(fullErrorMessage);
-                    jiraSettingsService.addHubError(fullErrorMessage, "issueHandler.handleEvent(event)");
+                for (final Exception e : results.getExceptions()) {
+                    logger.error("Error retrieving notifications: " + e.getMessage(), e);
+                    jiraSettingsService.addHubError(e, "getAllNotifications");
                 }
             }
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
