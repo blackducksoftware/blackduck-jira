@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyContentItem;
 
 public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator {
     private final String projectName;

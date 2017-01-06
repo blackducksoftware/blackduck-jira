@@ -28,7 +28,7 @@ import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;

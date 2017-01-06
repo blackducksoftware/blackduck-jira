@@ -31,8 +31,8 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyNotificationFilter;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
