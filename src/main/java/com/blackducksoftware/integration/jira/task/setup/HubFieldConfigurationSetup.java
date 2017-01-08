@@ -131,6 +131,7 @@ public class HubFieldConfigurationSetup {
     }
 
     public EditableFieldLayout addHubFieldConfigurationToJira() {
+        logger.debug("addHubFieldConfigurationToJira()");
         EditableFieldLayout hubFieldLayout = null;
         try {
 
@@ -139,6 +140,7 @@ public class HubFieldConfigurationSetup {
             if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
                 for (final EditableFieldLayout layout : fieldLayouts) {
                     if (layout.getName().equals(HubJiraConstants.HUB_FIELD_CONFIGURATION)) {
+                        logger.debug("addHubFieldConfigurationToJira(): found Hub field configuration: " + layout.getName());
                         hubFieldLayout = layout;
                         break;
                     }
@@ -159,9 +161,11 @@ public class HubFieldConfigurationSetup {
             if (fields != null && !fields.isEmpty()) {
                 for (final FieldLayoutItem field : fields) {
                     String fieldName = field.getOrderableField().getName();
+                    logger.debug("addHubFieldConfigurationToJira(): Hub field config: field: " + fieldName);
                     fieldName = fieldName.replace(" ", "");
                     fieldName = fieldName.toLowerCase();
                     if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
+                        logger.debug("addHubFieldConfigurationToJira(): Making field optional");
                         hubFieldLayout.makeOptional(field);
                         fieldConfigurationNeedsUpdate = true;
                     }
@@ -171,10 +175,11 @@ public class HubFieldConfigurationSetup {
                 // Persists our field configuration,
                 // creates it if it doesnt exist,
                 // updates it if it does exist
+                logger.debug("addHubFieldConfigurationToJira(): Updating Hub field configuration");
                 jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
             }
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("Error setting up Hub field configuration: " + e.getMessage(), e);
             settingService.addHubError(e, "addHubFieldConfigurationToJira");
         }
         return hubFieldLayout;

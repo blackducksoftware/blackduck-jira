@@ -100,7 +100,8 @@ public class HubFieldScreenSchemeSetup {
                 }
             }
         } catch (final Exception e) {
-            logger.error(e);
+            final String msg = "Error adding Hub Field Configuration To JIRA: " + e.getMessage();
+            logger.error(msg, e);
             settingService.addHubError(e, "addHubFieldConfigurationToJira");
         }
         return fieldScreenSchemes;
@@ -124,6 +125,7 @@ public class HubFieldScreenSchemeSetup {
 
     private CustomField createCustomField(final List<IssueType> issueTypeList, final String fieldName)
             throws GenericEntityException {
+        logger.debug("createCustomField(): " + fieldName);
         final CustomFieldType fieldType = jiraServices.getCustomFieldManager()
                 .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
         final CustomFieldSearcher fieldSearcher = jiraServices.getCustomFieldManager()
@@ -132,39 +134,51 @@ public class HubFieldScreenSchemeSetup {
         final List<JiraContextNode> contexts = new ArrayList<>();
         contexts.add(GlobalIssueContext.getInstance());
 
-        return jiraServices.getCustomFieldManager().createCustomField(fieldName, "", fieldType, fieldSearcher, contexts,
+        logger.debug("Creating field: " + fieldName);
+        final CustomField newCustomField = jiraServices.getCustomFieldManager().createCustomField(fieldName, "", fieldType, fieldSearcher, contexts,
                 issueTypeList);
+        logger.debug("Created custom field: " + newCustomField);
+        return newCustomField;
     }
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> commonIssueTypeList,
             final String fieldName) {
+        logger.debug("getOrderedFieldFromCustomField(): " + fieldName);
         try {
             CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(fieldName);
             if (customField == null) {
+                logger.debug("Field does not exist: creating it");
                 customField = createCustomField(commonIssueTypeList, fieldName);
             }
+            logger.debug("Custom field exists/created: " + customField.getName());
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
                 final List<IssueType> associatatedIssueTypeList = getAsscociatedIssueTypeObjects(customField);
                 boolean needToUpdateCustomField = false;
                 for (final IssueType issueTypeValue : commonIssueTypeList) {
+                    logger.debug("Checking issue type: " + issueTypeValue.getName());
                     if (!associatatedIssueTypeList.contains(issueTypeValue)) {
+                        logger.debug("This issue type is not in the associated issue type list. Adding it.");
                         needToUpdateCustomField = true;
                         associatatedIssueTypeList.add(issueTypeValue);
                     }
                 }
                 if (needToUpdateCustomField) {
                     // not sure how else to best update the custom field
+                    logger.debug("Removing/recreating custom field: " + customField.getName());
                     jiraServices.getCustomFieldManager().removeCustomField(customField);
                     customField = createCustomField(associatatedIssueTypeList, fieldName);
                 }
             }
+            logger.debug("Adding custom field to Hub custom field list");
             customFields.put(fieldName, customField);
             final OrderableField myField = jiraServices.getFieldManager().getOrderableField(customField.getId());
+            logger.debug("getOrderedFieldFromCustomField(): " + fieldName + ": returning field: " + myField.getName());
             return myField;
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("Error in getOrderedFieldFromCustomField() for field: " + fieldName + ": " + e.getMessage(), e);
             settingService.addHubError(e, "getOrderedFieldFromCustomField");
         }
+        logger.debug("getOrderedFieldFromCustomField(): " + fieldName + ": returning null");
         return null;
     }
 
@@ -238,47 +252,94 @@ public class HubFieldScreenSchemeSetup {
 
     private boolean addHubTabToScreen(final FieldScreen hubScreen, final List<OrderableField> customFields,
             final List<FieldScreenTab> defaultTabs) {
+        logger.debug("addHubTabToScreen(): hubScreen: " + hubScreen.getName());
         FieldScreenTab myTab = null;
         if (hubScreen != null && hubScreen.getTabs() != null && !hubScreen.getTabs().isEmpty()) {
             for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
+                logger.debug("addHubTabToScreen(): screenTab: " + screenTab);
+                if (screenTab != null) {
+                    logger.debug("addHubTabToScreen(): screenTab: " + screenTab.getName());
+                }
                 if (screenTab.getName().equals(HubJiraConstants.HUB_SCREEN_TAB)) {
+                    logger.debug("addHubTabToScreen(): found hub screen tab: " + screenTab.getName());
                     myTab = screenTab;
                     break;
                 }
             }
         }
+        logger.debug("addHubTabToScreen(): checking to see if we found hub screen tab");
         boolean needToUpdateTabAndScreen = false;
         if (myTab == null) {
+            logger.debug("addHubTabToScreen(): did not find hub screen tab; adding it");
             myTab = hubScreen.addTab(HubJiraConstants.HUB_SCREEN_TAB);
             needToUpdateTabAndScreen = true;
         }
+        logger.debug("addHubTabToScreen(): checking to see if custom fields are already on hub screen tab");
         if (customFields != null && !customFields.isEmpty()) {
             for (final OrderableField field : customFields) {
+                if (field == null) {
+                    logger.error("addHubTabToScreen(): this field is null; skipping it");
+                    continue;
+                }
+                logger.debug("addHubTabToScreen(): checking to see if custom field is already on hub screen tab: " + field.getName());
                 final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
                 if (existingField == null) {
+                    logger.debug("addHubTabToScreen(): it is not; adding it");
                     myTab.addFieldScreenLayoutItem(field.getId());
                     needToUpdateTabAndScreen = true;
                 }
             }
         }
+        logger.debug("addHubTabToScreen(): checking to see if we need to add any fields to hub screen tab");
         if (defaultTabs != null && !defaultTabs.isEmpty()) {
             for (final FieldScreenTab tab : defaultTabs) {
                 final List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
                 for (final FieldScreenLayoutItem layoutItem : layoutItems) {
-                    final FieldScreenLayoutItem existingField = myTab
-                            .getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
-                    if (existingField == null) {
-                        myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
-                        needToUpdateTabAndScreen = true;
+                    FieldScreenLayoutItem existingField = null;
+                    if (configIsOk(myTab, layoutItem)) {
+                        logger.debug("addHubTabToScreen(): layoutItem: " + layoutItem.getOrderableField().getName());
+                        existingField = myTab
+                                .getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
+                        if (existingField == null) {
+                            logger.debug("addHubTabToScreen(): this field is not yet on Hub screen tab; adding it");
+                            myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
+                            needToUpdateTabAndScreen = true;
+                        }
                     }
+
                 }
             }
         }
         if (needToUpdateTabAndScreen) {
+            logger.debug("addHubTabToScreen(): applying updates to Hub screen tab");
             jiraServices.getFieldScreenManager().updateFieldScreenTab(myTab);
         }
-
+        logger.debug("addHubTabToScreen(): returning: " + needToUpdateTabAndScreen);
         return needToUpdateTabAndScreen;
+    }
+
+    private boolean configIsOk(final FieldScreenTab myTab, final FieldScreenLayoutItem layoutItem) {
+        boolean isOk = true;
+        String msg;
+        if (myTab == null) {
+            msg = "addHubTabToScreen(): Hub screen tab is null";
+            logger.error(msg);
+            settingService.addHubError(msg, "addHubTabToScreen");
+            isOk = false;
+        }
+        if (layoutItem == null) {
+            msg = "addHubTabToScreen(): layoutItem is null";
+            logger.error(msg);
+            settingService.addHubError(msg, "addHubTabToScreen");
+            return false;
+        }
+        if (layoutItem.getOrderableField() == null) {
+            msg = "addHubTabToScreen(): layoutItem's field is null";
+            logger.error(msg);
+            settingService.addHubError(msg, "addHubTabToScreen");
+            return false;
+        }
+        return isOk;
     }
 
     private FieldScreen createPolicyViolationScreen(final IssueType issueType,
