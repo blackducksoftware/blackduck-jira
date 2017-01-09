@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
@@ -33,8 +34,10 @@ import com.atlassian.jira.plugin.webfragment.contextproviders.AbstractJiraContex
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class HubIssuePanel extends AbstractJiraContextProvider {
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final CustomFieldManager customFieldManager;
 
@@ -46,6 +49,7 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
     public Map<String, String> getContextMap(final ApplicationUser user, final JiraHelper jiraHelper) {
         final Map<String, String> contextMap = new HashMap<>();
         final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
+        logger.debug("getContextMap(): currentIssue: " + currentIssue);
         if (currentIssue != null) {
             final String hubProject = getCustomFieldValue(currentIssue, customFieldManager,
                     HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT);
@@ -78,13 +82,18 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
 
     private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager,
             final String fieldName) {
+        logger.debug("getCustomFieldValue(): fieldName: " + fieldName);
         final CustomField hubCustomField = customFieldManager.getCustomFieldObjectByName(fieldName);
+        logger.debug("getCustomFieldValue(): hubCustomField: " + hubCustomField);
         if (hubCustomField != null) {
             final String hubFieldValue = (String) currentIssue.getCustomFieldValue(hubCustomField);
+            logger.debug("getCustomFieldValue(): hubFieldValue: " + hubFieldValue);
             if (StringUtils.isNotBlank(hubFieldValue)) {
+                logger.debug("getCustomFieldValue(): returning: " + hubFieldValue);
                 return hubFieldValue;
             }
         }
+        logger.debug("getCustomFieldValue(): returning null");
         return null;
     }
 
