@@ -106,15 +106,8 @@ public class TicketGenerator {
         try {
             final NotificationResults results = notificationDataService.getAllNotifications(startDate,
                     endDate);
-            if (results.isError()) {
-                for (final Exception e : results.getExceptions()) {
-                    logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                    jiraSettingsService.addHubError(e, "getAllNotifications");
-                }
-            }
+            reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
-            // final List<NotificationItem> notifs =
-            // notificationService.fetchNotifications(notificationDateRange);
             if ((notifs == null) || (notifs.size() == 0)) {
                 logger.info("There are no notifications to handle");
                 return;
@@ -144,5 +137,14 @@ public class TicketGenerator {
             jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
         }
 
+    }
+
+    private void reportAnyErrors(final NotificationResults results) {
+        if (results.isError()) {
+            for (final Exception e : results.getExceptions()) {
+                logger.error("Error retrieving notifications: " + e.getMessage(), e);
+                jiraSettingsService.addHubError(e, "getAllNotifications");
+            }
+        }
     }
 }

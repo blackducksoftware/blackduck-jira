@@ -47,7 +47,6 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionItem;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -83,6 +82,8 @@ public class NotificationConverterTest {
     private static final String OVERRIDER_FIRST_NAME = "firstName";
 
     private static final String RULE_URL = "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
+
+    private static final String VULNERABLE_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/x/versions/y/vulnerable-components";
 
     private static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
 
@@ -195,7 +196,7 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
             "For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" +
-            RULE_URL;
+            VULNERABLE_COMPONENTS_URL;
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
@@ -307,11 +308,7 @@ public class NotificationConverterTest {
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
         final HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
-        final ProjectVersionItem projectVersionItem = Mockito.mock(ProjectVersionItem.class);
-        Mockito.when(projectVersionItem.getVersionName()).thenReturn(PROJECT_VERSION_NAME);
-
-        Mockito.when(hubRequestService.getItem(PROJECT_VERSION_URL, ProjectVersionItem.class))
-                .thenReturn(projectVersionItem);
+        final ProjectVersion projectVersion = createProjectVersion();
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         final MetaService metaService = Mockito.mock(MetaService.class);
@@ -322,7 +319,7 @@ public class NotificationConverterTest {
         final ListProcessorCache cache = new ListProcessorCache();
         switch (notifType) {
         case VULNERABILITY:
-            notif = createVulnerabilityNotif(metaService, projectVersionItem, now);
+            notif = createVulnerabilityNotif(metaService, projectVersion, now);
             conv = new VulnerabilityNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -331,7 +328,7 @@ public class NotificationConverterTest {
                     hubServicesFactory, metaService);
             break;
         case POLICY_VIOLATION:
-            notif = createPolicyViolationNotif(metaService, now);
+            notif = createPolicyViolationNotif(metaService, projectVersion, now);
             conv = new PolicyViolationNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -450,9 +447,8 @@ public class NotificationConverterTest {
 
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionItem projectReleaseItem,
+    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersion projectVersion,
             final Date createdAt) throws URISyntaxException, HubIntegrationException {
-        final ProjectVersion projectVersion = createProjectVersion();
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
@@ -465,14 +461,14 @@ public class NotificationConverterTest {
                 addedVulnList,
                 updatedVulnList,
                 deletedVulnList);
-        Mockito.when(metaService.getLink(projectReleaseItem, VULNERABLE_COMPONENTS_LINK_NAME)).thenReturn(RULE_URL);
 
         return notif;
     }
 
-    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final Date createdAt)
+    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersion projectVersion,
+            final Date createdAt)
             throws URISyntaxException, IntegrationException {
-        final ProjectVersion projectVersion = createProjectVersion();
+
         final List<PolicyRule> policyRuleList = new ArrayList<>();
         final PolicyRule rule = createRule();
         policyRuleList.add(rule);
@@ -491,6 +487,7 @@ public class NotificationConverterTest {
         projectVersion.setProjectName(HUB_PROJECT_NAME);
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
         projectVersion.setUrl(PROJECT_VERSION_URL);
+        projectVersion.setVulnerableComponentsLink(VULNERABLE_COMPONENTS_URL);
         return projectVersion;
     }
 
