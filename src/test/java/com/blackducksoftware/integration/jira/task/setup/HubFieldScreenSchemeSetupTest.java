@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.setup;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -168,6 +169,23 @@ public class HubFieldScreenSchemeSetupTest {
 
     @Test
     public void testAddHubFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsAndFields() {
+        doBasicTest(false);
+    }
+
+    @Test
+    public void testAddHubFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsWithNullFields() {
+        doBasicTest(true);
+    }
+
+    private void doBasicTest(final boolean includeSomeNullCustomFields) {
+        int expectedPolicyFields = 8;
+        if (!includeSomeNullCustomFields) {
+            expectedPolicyFields++;
+        }
+        int expectedVulnerabilityFields = 7;
+        if (!includeSomeNullCustomFields) {
+            expectedVulnerabilityFields++;
+        }
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -176,7 +194,7 @@ public class HubFieldScreenSchemeSetupTest {
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
 
-        fieldScreenManager.setDefaultFieldScreen(getDefaultFieldScreen());
+        fieldScreenManager.setDefaultFieldScreen(getDefaultFieldScreen(includeSomeNullCustomFields));
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setCustomFieldManager(customFieldManager);
@@ -204,9 +222,9 @@ public class HubFieldScreenSchemeSetupTest {
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
+                assertEquals(expectedPolicyFields, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
+                assertEquals(expectedVulnerabilityFields, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -223,7 +241,11 @@ public class HubFieldScreenSchemeSetupTest {
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        if (includeSomeNullCustomFields) {
+            assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR)).contains("field is null"));
+        } else {
+            assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        }
     }
 
     @Test
@@ -235,7 +257,7 @@ public class HubFieldScreenSchemeSetupTest {
         final FieldManagerMock fieldManager = new FieldManagerMock();
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
-        final FieldScreen defaultScreen = getDefaultFieldScreen();
+        final FieldScreen defaultScreen = getDefaultFieldScreen(false);
         fieldScreenManager.setDefaultFieldScreen(defaultScreen);
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
@@ -352,17 +374,25 @@ public class HubFieldScreenSchemeSetupTest {
                 });
     }
 
-    private FieldScreen getDefaultFieldScreen() {
+    private FieldScreen getDefaultFieldScreen(final boolean includeSomeNullFields) {
         final FieldScreenMock fieldScreen = new FieldScreenMock();
         final FieldScreenTabMock defaultTab1 = new FieldScreenTabMock();
         defaultTab1.setFieldScreen(fieldScreen);
         defaultTab1.addFieldScreenLayoutItem("Default Field 1");
-        defaultTab1.addFieldScreenLayoutItem("Default Field 2");
+        if (includeSomeNullFields) {
+            defaultTab1.addFieldScreenLayoutItem(null);
+        } else {
+            defaultTab1.addFieldScreenLayoutItem("Default Field 2");
+        }
         defaultTab1.addFieldScreenLayoutItem("Default Field 3");
         final FieldScreenTabMock defaultTab2 = new FieldScreenTabMock();
         defaultTab2.setFieldScreen(fieldScreen);
         defaultTab2.addFieldScreenLayoutItem("Default Field 1");
-        defaultTab2.addFieldScreenLayoutItem("Default Field 2");
+        if (includeSomeNullFields) {
+            defaultTab2.addFieldScreenLayoutItem(null);
+        } else {
+            defaultTab2.addFieldScreenLayoutItem("Default Field 2");
+        }
         defaultTab2.addFieldScreenLayoutItem("Default Field 3");
         defaultTab2.addFieldScreenLayoutItem("Default Field 4");
 
