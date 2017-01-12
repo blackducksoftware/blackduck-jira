@@ -195,8 +195,8 @@ public class NotificationConverterTest {
 
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
-            "For details, see the comments below, or the project's vulnerabilities view in the Hub:\n" +
-            VULNERABLE_COMPONENTS_URL;
+            "For details, see the comments below, or [the project's vulnerabilities view in the Hub|" +
+            VULNERABLE_COMPONENTS_URL + "]";
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
