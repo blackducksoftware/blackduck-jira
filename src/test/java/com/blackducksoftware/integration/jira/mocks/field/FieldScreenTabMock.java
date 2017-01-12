@@ -44,9 +44,14 @@ public class FieldScreenTabMock implements FieldScreenTab {
     @Override
     public void addFieldScreenLayoutItem(final String fieldId) {
         final FieldScreenLayoutItemMock layoutItem = new FieldScreenLayoutItemMock();
-        final OrderableFieldMock field = new OrderableFieldMock();
-        field.setId(fieldId);
-        layoutItem.setOrderableField(field);
+        if (fieldId == null) {
+            layoutItem.setOrderableField(null);
+        } else {
+            final OrderableFieldMock field = new OrderableFieldMock();
+            field.setId(fieldId);
+            field.setName(fieldId);
+            layoutItem.setOrderableField(field);
+        }
         layoutItems.add(layoutItem);
 
     }

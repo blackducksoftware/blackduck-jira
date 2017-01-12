@@ -102,7 +102,7 @@ public class HubWorkflowSetup {
             settingService.addHubError("Could not find the Hub JIRA workflow resource.", "addHubWorkflow");
             return null;
         }
-        final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
 
         return WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml);
     }
@@ -159,7 +159,7 @@ public class HubWorkflowSetup {
         if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
             return null;
         }
-        return (ApplicationUser) jiraSysAdmins.iterator().next();
+        return jiraSysAdmins.iterator().next();
     }
 
 }
