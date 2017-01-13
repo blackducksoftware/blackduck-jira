@@ -81,6 +81,8 @@ public class NotificationConverterTest {
 
     private static final String OVERRIDER_FIRST_NAME = "firstName";
 
+    private static final String PROJECT_VERSION_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId/components";
+
     private static final String RULE_URL = "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
 
     private static final String VULNERABLE_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/x/versions/y/vulnerable-components";
@@ -95,7 +97,13 @@ public class NotificationConverterTest {
 
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was cleared in the Hub.";
 
-    private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: 'Test Rule'. Rule overridable : true";
+    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on " +
+            "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
+            + "], component 'componentName' / 'componentVersion'. The rule violated is: '"
+            +
+            RULE_NAME + "'. Rule overridable : true";
+
+    private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
 
     private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
 
@@ -107,7 +115,7 @@ public class NotificationConverterTest {
 
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was overridden in the Hub.";
 
-    private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: 'Test Rule'. Rule overridable : true";
+    private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
 
     private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
 
@@ -121,10 +129,6 @@ public class NotificationConverterTest {
 
     private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '"
             + RULE_NAME + "']";
-
-    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. The rule violated is: '"
-            +
-            RULE_NAME + "'. Rule overridable : true";
 
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was detected again by the Hub.";
 
@@ -153,8 +157,6 @@ public class NotificationConverterTest {
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
 
     private static final String PROJECT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId";
-
-    private static final String PROJECT_VERSION_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId/components";
 
     private static final String COMPONENT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId";
 
