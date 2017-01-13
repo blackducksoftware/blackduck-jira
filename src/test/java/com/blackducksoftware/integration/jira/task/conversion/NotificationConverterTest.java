@@ -154,6 +154,8 @@ public class NotificationConverterTest {
 
     private static final String PROJECT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId";
 
+    private static final String PROJECT_VERSION_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId/components";
+
     private static final String COMPONENT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId";
 
     private static final String COMPONENT_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId";
@@ -194,9 +196,8 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
 
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
-            "Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'. " +
-            "For details, see the comments below, or [the project's vulnerabilities view in the Hub|" +
-            VULNERABLE_COMPONENTS_URL + "]";
+            "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL + "], component 'componentName' / 'componentVersion'. " +
+            "For details, see the comments below, or the project's [vulnerabilities view|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub.";
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
@@ -488,6 +489,7 @@ public class NotificationConverterTest {
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
         projectVersion.setUrl(PROJECT_VERSION_URL);
         projectVersion.setVulnerableComponentsLink(VULNERABLE_COMPONENTS_URL);
+        projectVersion.setComponentsLink(PROJECT_VERSION_COMPONENTS_URL);
         return projectVersion;
     }
 
