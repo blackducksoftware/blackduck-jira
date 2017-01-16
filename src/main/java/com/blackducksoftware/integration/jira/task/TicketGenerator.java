@@ -30,8 +30,9 @@ import java.util.SortedSet;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.item.PolicyNotificationFilter;
+import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -103,11 +104,10 @@ public class TicketGenerator {
             return;
         }
         try {
-
-            final SortedSet<NotificationContentItem> notifs = notificationDataService.getAllNotifications(startDate,
+            final NotificationResults results = notificationDataService.getAllNotifications(startDate,
                     endDate);
-            // final List<NotificationItem> notifs =
-            // notificationService.fetchNotifications(notificationDateRange);
+            reportAnyErrors(results);
+            final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
                 logger.info("There are no notifications to handle");
                 return;
@@ -137,5 +137,14 @@ public class TicketGenerator {
             jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
         }
 
+    }
+
+    private void reportAnyErrors(final NotificationResults results) {
+        if (results.isError()) {
+            for (final Exception e : results.getExceptions()) {
+                logger.error("Error retrieving notifications: " + e.getMessage(), e);
+                jiraSettingsService.addHubError(e, "getAllNotifications");
+            }
+        }
     }
 }
