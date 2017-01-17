@@ -32,8 +32,6 @@ import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.ofbiz.core.entity.GenericValue;
 
-import webwork.action.Action;
-
 import com.atlassian.jira.admin.RenderableProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.ModifiedValue;
@@ -71,6 +69,8 @@ import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.bean.BulkEditBean;
 import com.opensymphony.module.propertyset.PropertySet;
 
+import webwork.action.Action;
+
 public class CustomFieldMock implements CustomField {
 
     private String name;
@@ -80,6 +80,8 @@ public class CustomFieldMock implements CustomField {
     private CustomFieldType fieldType;
 
     private CustomFieldSearcher searcher;
+
+    private List<IssueType> associatedIssueTypes;
 
     public void setName(final String name) {
         this.name = name;
@@ -604,8 +606,10 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public List<IssueType> getAssociatedIssueTypes() {
-        // TODO Auto-generated method stub
-        return null;
+        return associatedIssueTypes;
     }
 
+    public void setAssociatedIssueTypes(final List<IssueType> issueTypes) {
+        associatedIssueTypes = issueTypes;
+    }
 }

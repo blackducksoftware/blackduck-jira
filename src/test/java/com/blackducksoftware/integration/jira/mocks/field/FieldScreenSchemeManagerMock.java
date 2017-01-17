@@ -62,9 +62,9 @@ public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fi
     }
 
     @Override
-    public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screneScheme) {
+    public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screenScheme) {
 
-        return screneScheme.getFieldScreenSchemeItems();
+        return screenScheme.getFieldScreenSchemeItems();
     }
 
     @Override

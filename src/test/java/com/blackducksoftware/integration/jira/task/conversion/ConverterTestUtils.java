@@ -89,7 +89,7 @@ public class ConverterTestUtils {
 
     private static ProjectManager createJiraProjectManager() {
         final ProjectManagerMock projectManager = new ProjectManagerMock();
-        projectManager.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+        projectManager.setProjectObjects(projectManager.getTestProjectObjectsWithTaskIssueType());
         return projectManager;
     }
 }

@@ -41,9 +41,9 @@ import com.atlassian.jira.project.Project;
 
 public class CustomFieldManagerMock implements CustomFieldManager {
 
-    private static final List<CustomField> customFields = new ArrayList<>();
+    private final List<CustomField> customFields = new ArrayList<>();
 
-    public static List<CustomField> getCustomFields() {
+    public List<CustomField> getCustomFields() {
         return customFields;
     }
 

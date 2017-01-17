@@ -58,7 +58,7 @@ public class ProjectManagerMock implements ProjectManager {
         this.jiraProjects = jiraProjects;
     }
 
-    public static List<Project> getTestProjectObjectsNullIssueTypes() throws DataAccessException {
+    public List<Project> getTestProjectObjectsNullIssueTypes() throws DataAccessException {
         final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
         for (final Project project : jiraProjects) {
@@ -68,7 +68,7 @@ public class ProjectManagerMock implements ProjectManager {
         return jiraProjects;
     }
 
-    public static List<Project> getTestProjectObjectsWithoutIssueTypes() throws DataAccessException {
+    public List<Project> getTestProjectObjectsWithoutIssueTypes() throws DataAccessException {
         final List<Project> jiraProjects = new ArrayList<Project>();
 
         final ProjectMock jiraProject1 = new ProjectMock();
@@ -91,7 +91,7 @@ public class ProjectManagerMock implements ProjectManager {
         return jiraProjects;
     }
 
-    public static List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
+    public List<Project> getTestProjectObjectsWithoutTaskIssueType() throws DataAccessException {
         final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
         final IssueTypeMock issueType1 = new IssueTypeMock();
@@ -107,7 +107,7 @@ public class ProjectManagerMock implements ProjectManager {
         return jiraProjects;
     }
 
-    public static List<Project> getTestProjectObjectsWithTaskIssueType() throws DataAccessException {
+    public List<Project> getTestProjectObjectsWithTaskIssueType() throws DataAccessException {
         final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
 
         final IssueTypeMock issueType1 = new IssueTypeMock();
@@ -350,7 +350,7 @@ public class ProjectManagerMock implements ProjectManager {
     }
 
     @Override
-    public void removeProjectIssues(Project arg0, Context arg1) throws RemoveException {
+    public void removeProjectIssues(final Project arg0, final Context arg1) throws RemoveException {
         // TODO Auto-generated method stub
 
     }

@@ -125,12 +125,12 @@ public class JiraTaskSetupTest {
     public void testServerSetupIssueTypesAlreadyCreated() throws Exception {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
-        ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        JiraContext jiraContext = new JiraContext(jiraUser);
+        final JiraContext jiraContext = new JiraContext(jiraUser);
 
-        JiraTaskTimed task = jiraEnv.getJiraTask();
-        TicketInfoFromSetup x = new TicketInfoFromSetup();
+        final JiraTaskTimed task = jiraEnv.getJiraTask();
+        final TicketInfoFromSetup x = new TicketInfoFromSetup();
         task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), x, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
@@ -180,12 +180,12 @@ public class JiraTaskSetupTest {
 
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
-        ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        JiraContext jiraContext = new JiraContext(jiraUser);
+        final JiraContext jiraContext = new JiraContext(jiraUser);
 
-        JiraTaskTimed task = jiraEnv.getJiraTask();
-        TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
+        final JiraTaskTimed task = jiraEnv.getJiraTask();
+        final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         task.jiraSetup(jiraEnv.getJiraServices(), jiraEnv.getJiraSettingsService(), jiraEnv.getMappingJson(), ticketInfoFromSetup, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
@@ -308,7 +308,7 @@ public class JiraTaskSetupTest {
         final UserUtil userUtil = getUserUtil(true);
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
-        final FieldManagerMock fieldManager = new FieldManagerMock();
+        final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
 
@@ -327,7 +327,7 @@ public class JiraTaskSetupTest {
         HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-        PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settingsMock);
+        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settingsMock);
         JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices,
                 configDetails);
         jiraTask = Mockito.spy(jiraTask);
@@ -494,7 +494,7 @@ public class JiraTaskSetupTest {
     private ProjectManagerMock getProjectManagerMock(final boolean hasJiraProjects) {
         final ProjectManagerMock projectManagerMock = new ProjectManagerMock();
         if (hasJiraProjects) {
-            projectManagerMock.setProjectObjects(ProjectManagerMock.getTestProjectObjectsWithTaskIssueType());
+            projectManagerMock.setProjectObjects(projectManagerMock.getTestProjectObjectsWithTaskIssueType());
         }
         return projectManagerMock;
     }

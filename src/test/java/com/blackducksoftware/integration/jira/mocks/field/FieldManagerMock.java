@@ -45,12 +45,17 @@ import com.atlassian.jira.jql.context.QueryContext;
 import com.atlassian.jira.user.ApplicationUser;
 
 public class FieldManagerMock implements FieldManager {
+    private final CustomFieldManagerMock customFieldManagerMock;
+
+    public FieldManagerMock(final CustomFieldManagerMock customFieldManagerMock) {
+        this.customFieldManagerMock = customFieldManagerMock;
+    }
 
     @Override
     public Set<NavigableField> getAllAvailableNavigableFields() throws FieldException {
-        Set<NavigableField> navFields = new HashSet<>();
+        final Set<NavigableField> navFields = new HashSet<>();
 
-        final List<CustomField> customFields = CustomFieldManagerMock.getCustomFields();
+        final List<CustomField> customFields = customFieldManagerMock.getCustomFields();
         navFields.addAll(customFields);
         return navFields;
     }
@@ -105,7 +110,7 @@ public class FieldManagerMock implements FieldManager {
 
     @Override
     public OrderableField getOrderableField(final String fieldName) {
-        final List<CustomField> customFields = CustomFieldManagerMock.getCustomFields();
+        final List<CustomField> customFields = customFieldManagerMock.getCustomFields();
         if (customFields != null && !customFields.isEmpty()) {
             for (final CustomField field : customFields) {
                 if (field.getName().equals(fieldName)) {

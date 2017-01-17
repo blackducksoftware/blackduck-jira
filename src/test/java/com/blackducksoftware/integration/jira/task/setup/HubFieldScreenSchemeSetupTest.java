@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,8 +35,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
@@ -47,6 +51,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
+import com.blackducksoftware.integration.jira.mocks.field.CustomFieldMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenMock;
@@ -58,6 +63,55 @@ import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
+
+    @Test
+    public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
+        final PluginSettingsMock settingsMock = new PluginSettingsMock();
+        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+
+        final JiraServicesMock jiraServices = new JiraServicesMock();
+        final CustomFieldManagerMock customFieldManagerMock = new CustomFieldManagerMock();
+        final FieldManager fieldManager = new FieldManagerMock(customFieldManagerMock);
+        jiraServices.setFieldManager(fieldManager);
+        final FieldScreenManager fieldScreenManager = new FieldScreenManagerMock();
+        jiraServices.setFieldScreenManager(fieldScreenManager);
+        final FieldScreenSchemeManager fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
+        jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
+
+        final HubFieldScreenSchemeSetup fieldConfigSetupOrig = new HubFieldScreenSchemeSetup(settingService,
+                jiraServices);
+        final HubFieldScreenSchemeSetup fieldConfigSetup = Mockito.spy(fieldConfigSetupOrig);
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
+                .thenAnswer(new Answer<FieldScreenScheme>() {
+                    @Override
+                    public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+                        return new FieldScreenSchemeMock();
+                    }
+                });
+        final FieldScreen screen = new FieldScreenMock();
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenReturn(screen);
+        // Mockito.doReturn(screen).when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)));
+
+        // Create a custom field
+        jiraServices.setCustomFieldManager(customFieldManagerMock);
+        final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT,
+                HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT, null,
+                null, null, null);
+        final List<IssueType> hubIssueTypes = getHubIssueTypes();
+        final CustomFieldMock customFieldMock = (CustomFieldMock) customField;
+
+        // Associated only ONE Hub IssueType with it (an incomplete/broken config)
+        final List<IssueType> associatedIssueTypes = new ArrayList<>();
+        associatedIssueTypes.add(hubIssueTypes.get(0));
+        customFieldMock.setAssociatedIssueTypes(associatedIssueTypes);
+
+        // See how this handles the incomplete config
+        fieldConfigSetup.addHubFieldConfigurationToJira(hubIssueTypes);
+
+        assertNotNull(settingsMock);
+        assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                .contains("The custom field BDS Hub Project is missing one or more IssueType associations"));
+    }
 
     @Test
     public void testAddHubFieldConfigurationToJiraFirstTimeCreateNullIssueTypes() {
@@ -93,7 +147,7 @@ public class HubFieldScreenSchemeSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
-        final FieldManagerMock fieldManager = new FieldManagerMock();
+        final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
 
@@ -190,7 +244,7 @@ public class HubFieldScreenSchemeSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
-        final FieldManagerMock fieldManager = new FieldManagerMock();
+        final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
 
@@ -254,7 +308,7 @@ public class HubFieldScreenSchemeSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
-        final FieldManagerMock fieldManager = new FieldManagerMock();
+        final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
         final FieldScreen defaultScreen = getDefaultFieldScreen(false);
@@ -312,7 +366,7 @@ public class HubFieldScreenSchemeSetupTest {
         final FieldScreenSchemeItem schemeItem = scheme.getFieldScreenSchemeItems().iterator().next();
         schemeItem.setFieldScreen(defaultScreen);
 
-        customFieldManager.removeCustomField(CustomFieldManagerMock.getCustomFields().get(0));
+        customFieldManager.removeCustomField(customFieldManager.getCustomFields().get(0));
 
         fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 
@@ -405,19 +459,24 @@ public class HubFieldScreenSchemeSetupTest {
 
     private List<IssueType> getHubIssueTypes() {
         final List<IssueType> issueTypes = new ArrayList<>();
+        addPolicyIssueType(issueTypes);
+        addVulnIssueType(issueTypes);
+        return issueTypes;
+    }
 
-        final IssueTypeMock policyIssueType = new IssueTypeMock();
-        policyIssueType.setName(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-        policyIssueType.setId(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-        policyIssueType.setValue(Mockito.mock(GenericValue.class));
-        issueTypes.add(policyIssueType);
-
+    private void addVulnIssueType(final List<IssueType> issueTypes) {
         final IssueTypeMock securityIssueType = new IssueTypeMock();
         securityIssueType.setName(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
         securityIssueType.setId(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
         securityIssueType.setValue(Mockito.mock(GenericValue.class));
         issueTypes.add(securityIssueType);
+    }
 
-        return issueTypes;
+    private void addPolicyIssueType(final List<IssueType> issueTypes) {
+        final IssueTypeMock policyIssueType = new IssueTypeMock();
+        policyIssueType.setName(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        policyIssueType.setId(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        policyIssueType.setValue(Mockito.mock(GenericValue.class));
+        issueTypes.add(policyIssueType);
     }
 }
