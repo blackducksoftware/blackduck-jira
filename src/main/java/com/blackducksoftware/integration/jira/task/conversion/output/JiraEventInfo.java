@@ -55,6 +55,8 @@ public class JiraEventInfo {
 
     private String hubComponentName;
 
+    private String hubComponentUrl;
+
     private String hubComponentVersion;
 
     private String hubComponentVersionUrl;
@@ -97,6 +99,7 @@ public class JiraEventInfo {
         hubProjectVersion = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION);
         hubProjectVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_URL);
         hubComponentName = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_NAME);
+        hubComponentUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_URL);
         hubComponentVersion = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION);
         hubComponentVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
 
@@ -169,6 +172,11 @@ public class JiraEventInfo {
 
     public JiraEventInfo setHubComponentName(final String hubComponentName) {
         this.hubComponentName = hubComponentName;
+        return this;
+    }
+
+    public JiraEventInfo setHubComponentUrl(final String hubComponentUrl) {
+        this.hubComponentUrl = hubComponentUrl;
         return this;
     }
 
@@ -275,6 +283,10 @@ public class JiraEventInfo {
         return hubComponentName;
     }
 
+    public String getHubComponentUrl() {
+        return hubComponentUrl;
+    }
+
     public String getHubComponentVersion() {
         return hubComponentVersion;
     }
@@ -335,6 +347,7 @@ public class JiraEventInfo {
         dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION, hubProjectVersion);
         dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION_URL, hubProjectVersionUrl);
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_NAME, hubComponentName);
+        dataSet.put(EventDataSetKeys.HUB_COMPONENT_URL, hubComponentUrl);
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION, hubComponentVersion);
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION_URL, hubComponentVersionUrl);
 
