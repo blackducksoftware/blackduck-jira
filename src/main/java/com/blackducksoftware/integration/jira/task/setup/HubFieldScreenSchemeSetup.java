@@ -89,7 +89,7 @@ public class HubFieldScreenSchemeSetup {
         final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
         try {
             if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
-                final List<IssueType> commonIssueTypeList = getIssueTypeObjectList(hubIssueTypes);
+                final List<IssueType> commonIssueTypeList = hubIssueTypes;
                 for (final IssueType issue : hubIssueTypes) {
                     if (issue.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
                         final FieldScreenScheme fss = createPolicyViolationScreenScheme(issue,
@@ -109,20 +109,8 @@ public class HubFieldScreenSchemeSetup {
         return fieldScreenSchemes;
     }
 
-    private List<IssueType> getIssueTypeObjectList(final List<IssueType> hubIssueTypes) {
-        final List<IssueType> issueTypes = new ArrayList<>();
-        issueTypes.addAll(hubIssueTypes);
-        return issueTypes;
-    }
-
     private IssueType getIssueTypeObject(final IssueType hubIssueType) {
         return hubIssueType;
-    }
-
-    private List<IssueType> getAsscociatedIssueTypeObjects(final CustomField customField) {
-        final List<IssueType> genericValues = new ArrayList<>();
-        genericValues.addAll(customField.getAssociatedIssueTypes());
-        return genericValues;
     }
 
     private CustomField createCustomField(final List<IssueType> issueTypeList, final String fieldName)
@@ -148,7 +136,7 @@ public class HubFieldScreenSchemeSetup {
                 customField = createCustomField(commonIssueTypeList, pluginField.getName());
             }
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
-                final List<IssueType> associatatedIssueTypeList = getAsscociatedIssueTypeObjects(customField);
+                final List<IssueType> associatatedIssueTypeList = customField.getAssociatedIssueTypes();
                 boolean needToUpdateCustomField = false;
                 for (final IssueType issueTypeValue : commonIssueTypeList) {
                     if (!associatatedIssueTypeList.contains(issueTypeValue)) {
