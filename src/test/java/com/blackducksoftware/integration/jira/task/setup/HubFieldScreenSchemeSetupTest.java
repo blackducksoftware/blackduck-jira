@@ -218,7 +218,9 @@ public class HubFieldScreenSchemeSetupTest {
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settingsMock);
+        assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
     }
 
     @Test
@@ -296,9 +298,13 @@ public class HubFieldScreenSchemeSetupTest {
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
         if (includeSomeNullCustomFields) {
-            assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR)).contains("field is null"));
+            assertNotNull(settingsMock);
+            assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                    .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
         } else {
-            assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+            assertNotNull(settingsMock);
+            assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                    .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
         }
     }
 
@@ -359,7 +365,9 @@ public class HubFieldScreenSchemeSetupTest {
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settingsMock);
+        assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
 
         // User edits
         final FieldScreenScheme scheme = fieldScreenSchemeManager.getFieldScreenSchemes().iterator().next();
@@ -399,7 +407,9 @@ public class HubFieldScreenSchemeSetupTest {
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 7);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settingsMock);
+        assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
+                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
     }
 
     private void mockCreationMethods(final HubFieldScreenSchemeSetup fieldConfigSetup) {

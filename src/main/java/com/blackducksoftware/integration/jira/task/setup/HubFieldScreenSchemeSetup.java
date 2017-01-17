@@ -158,15 +158,21 @@ public class HubFieldScreenSchemeSetup {
                     }
                 }
                 if (needToUpdateCustomField) {
-                    // We have not found a way to associate new issueTypes with an existing field
-                    // Removing/re-creating (the original approach) seems dangerous
-                    // Instead: Report the problem as an error
+                    // Setup is incomplete, but the only available way to recover
+                    // (by deleting the custom attribute and re-creating it) is too dangerous
                     final String msg = "The custom field " + customField.getName() +
                             " is missing " +
                             "one or more IssueType associations.";
                     logger.error(msg);
                     settingService.addHubError(msg, "getOrderedFieldFromCustomField");
                 }
+            } else {
+                // Setup is incomplete, but the only available way to recover
+                // (by deleting the custom attribute and re-creating it) is too dangerous
+                final String msg = "The custom field " + customField.getName() +
+                        " has no IssueType associations.";
+                logger.error(msg);
+                settingService.addHubError(msg, "getOrderedFieldFromCustomField");
             }
             customFields.put(pluginField, customField);
             final OrderableField myField = jiraServices.getFieldManager().getOrderableField(customField.getId());
