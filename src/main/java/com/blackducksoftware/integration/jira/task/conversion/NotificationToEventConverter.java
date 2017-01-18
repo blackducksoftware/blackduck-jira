@@ -28,20 +28,15 @@ import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
-import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter extends NotificationSubProcessor {
@@ -108,45 +103,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     @Deprecated
     @Override
     public Map<String, Object> generateDataSet(final Map<String, Object> inputData) {
-        final NotificationContentItem notif = (NotificationContentItem) inputData.get(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT);
-        final HubEventAction action = (HubEventAction) inputData.get(EventDataSetKeys.ACTION);
-        final JiraContext jiraContext = (JiraContext) inputData.get(EventDataSetKeys.JIRA_CONTEXT);
-        final JiraProject jiraProject = (JiraProject) inputData.get(EventDataSetKeys.JIRA_PROJECT);
-        final String issueSummary = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
-        final String issueDescription = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
-        final String issueComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
-        final String issueReOpenComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
-        final String issueCommentForExistingIssue = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
-        final String issueResolveComment = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
-        final String issueCommentInLieuOfStateChange = (String) inputData.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
-        final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) inputData.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
-        final String hubRuleName = (String) inputData.get(EventDataSetKeys.HUB_RULE_NAME);
-
-        final JiraEventInfo jiraEventInfo = new JiraEventInfo();
-        jiraEventInfo.setAction(action)
-                .setJiraUserName(jiraContext.getJiraUser().getName())
-                .setJiraUserKey(jiraContext.getJiraUser().getKey())
-                .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
-                .setJiraIssueTypeId(getIssueTypeId())
-                .setJiraProjectName(jiraProject.getProjectName())
-                .setJiraProjectId(jiraProject.getProjectId())
-                .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings())
-                .setHubProjectName(notif.getProjectVersion().getProjectName())
-                .setHubProjectVersion(notif.getProjectVersion().getProjectVersionName())
-                .setHubComponentName(notif.getComponentName())
-                .setHubComponentVersion(notif.getComponentVersion())
-                .setHubComponentVersionUrl(notif.getComponentVersionUrl())
-                .setJiraIssueSummary(issueSummary)
-                .setJiraIssueDescription(issueDescription)
-                .setJiraIssueComment(issueComment)
-                .setJiraIssueReOpenComment(issueReOpenComment)
-                .setJiraIssueCommentForExistingIssue(issueCommentForExistingIssue)
-                .setJiraIssueResolveComment(issueResolveComment)
-                .setJiraIssueCommentInLieuOfStateChange(issueCommentInLieuOfStateChange)
-                .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                .setHubRuleName(hubRuleName);
-
-        return jiraEventInfo.getDataSet();
+        throw new UnsupportedOperationException("generateDataSet() method is not supported");
     }
 
     protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
