@@ -27,10 +27,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -53,18 +54,23 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
+    private final HubServicesFactory hubServicesFactory;
+
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
             final HubProjectMappings mappings,
-            final String issueTypeName, final MetaService metaService,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws ConfigurationException {
-        super(cache, metaService);
+            final String issueTypeName,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final HubServicesFactory hubServicesFactory,
+            final HubJiraLogger logger) throws ConfigurationException {
+        super(cache, hubServicesFactory.createMetaService(logger));
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.mappings = mappings;
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.fieldCopyConfig = fieldCopyConfig;
+        this.hubServicesFactory = hubServicesFactory;
     }
 
     public JiraSettingsService getJiraSettingsService() {
@@ -108,5 +114,9 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
         return fieldCopyConfig;
+    }
+
+    protected HubServicesFactory getHubServicesFactory() {
+        return hubServicesFactory;
     }
 }

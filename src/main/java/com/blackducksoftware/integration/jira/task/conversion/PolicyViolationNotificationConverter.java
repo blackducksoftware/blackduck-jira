@@ -26,7 +26,10 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.blackducksoftware.integration.hub.api.item.MetaService;
+import org.apache.log4j.Logger;
+
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
@@ -34,7 +37,9 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -48,14 +53,16 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssue
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationNotificationConverter extends AbstractPolicyNotificationConverter {
+    private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PolicyViolationNotificationConverter.class.getName()));
 
     public PolicyViolationNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final MetaService metaService)
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final HubServicesFactory hubServicesFactory)
             throws ConfigurationException {
-        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, metaService,
-                fieldCopyConfig);
+        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
+                fieldCopyConfig, hubServicesFactory, logger);
     }
 
     @Override
@@ -68,6 +75,12 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
+
+            ///////////// new stuff; factor out? TODO : efficiency, and vs. or, use the value!
+            final String licensesString = getComponentLicensesString(notification);
+            logger.debug("Component " + notification.getComponentName() +
+                    ": License: " + licensesString);
+            ///////////////////////
 
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
@@ -101,6 +114,23 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         }
 
         return events;
+    }
+
+    // TODO : use string builder, specify and vs. or
+    private String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
+        final ComponentVersion componentVersion = getHubServicesFactory().createHubRequestService().getItem(
+                notification.getComponentVersionUrl(), ComponentVersion.class);
+        String licensesString = "";
+        if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
+            int licenseIndex = 0;
+            for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
+                if (licenseIndex++ > 0) {
+                    licensesString += "; ";
+                }
+                licensesString += license.getName();
+            }
+        }
+        return licensesString;
     }
 
 }

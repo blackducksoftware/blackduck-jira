@@ -328,7 +328,7 @@ public class NotificationConverterTest {
                     fieldCopyConfig,
                     jiraServices,
                     jiraContext, jiraSettingsService,
-                    hubServicesFactory, metaService);
+                    hubServicesFactory);
             break;
         case POLICY_VIOLATION:
             notif = createPolicyViolationNotif(metaService, projectVersion, now);
@@ -337,7 +337,7 @@ public class NotificationConverterTest {
                     fieldCopyConfig,
                     jiraServices,
                     jiraContext, jiraSettingsService,
-                    metaService);
+                    hubServicesFactory);
             break;
         case POLICY_VIOLATION_OVERRIDE:
             notif = createPolicyOverrideNotif(metaService, now);
@@ -346,7 +346,7 @@ public class NotificationConverterTest {
                     fieldCopyConfig,
                     jiraServices,
                     jiraContext, jiraSettingsService,
-                    metaService);
+                    hubServicesFactory);
             break;
         case POLICY_VIOLATION_CLEARED:
             notif = createPolicyClearedNotif(metaService, now);
@@ -355,7 +355,7 @@ public class NotificationConverterTest {
                     fieldCopyConfig,
                     jiraServices,
                     jiraContext, jiraSettingsService,
-                    metaService);
+                    hubServicesFactory);
             break;
         default:
             throw new IllegalArgumentException("Unrecognized notification type");

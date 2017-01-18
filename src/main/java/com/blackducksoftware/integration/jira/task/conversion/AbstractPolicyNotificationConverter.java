@@ -26,15 +26,13 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
-import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -47,15 +45,17 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
-
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final HubJiraLogger logger;
 
     public AbstractPolicyNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final String issueTypeName, final MetaService metaService,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
+            final String issueTypeName,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final HubServicesFactory hubServicesFactory, final HubJiraLogger logger)
             throws ConfigurationException {
-        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, metaService, fieldCopyConfig);
+        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig,
+                hubServicesFactory, logger);
+        this.logger = logger;
     }
 
     @Override

@@ -26,7 +26,8 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.blackducksoftware.integration.hub.api.item.MetaService;
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyOverrideContentItem;
@@ -34,7 +35,9 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -48,15 +51,16 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssue
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
+    private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PolicyOverrideNotificationConverter.class.getName()));
 
     public PolicyOverrideNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final MetaService metaService)
+            final HubServicesFactory hubServicesFactory)
             throws ConfigurationException {
         super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
-                metaService, fieldCopyConfig);
+                fieldCopyConfig, hubServicesFactory, logger);
     }
 
     @Override

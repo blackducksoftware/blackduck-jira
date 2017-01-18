@@ -60,12 +60,13 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
         getCacheList().add(cache);
 
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
+                hubServicesFactory);
 
         final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
         final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory.createMetaService(logger));
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
 
         getProcessorMap().put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         getProcessorMap().put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
@@ -75,7 +76,7 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
             final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(cache,
                     mapping, fieldCopyConfig,
                     jiraServices, jiraContext, jiraSettingsService,
-                    hubServicesFactory, hubServicesFactory.createMetaService(logger));
+                    hubServicesFactory);
             getProcessorMap().put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
         } else {
             logger.info("Creation of vulnerability issues has been disabled. No vulnerability issues will be created.");
