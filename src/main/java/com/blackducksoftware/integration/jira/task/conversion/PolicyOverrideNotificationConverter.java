@@ -24,9 +24,7 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
@@ -45,6 +43,7 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -70,27 +69,35 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
         for (final PolicyRule rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
-            final Map<String, Object> inputData = new HashMap<>();
-            inputData.put(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT, notification);
-            inputData.put(EventDataSetKeys.JIRA_PROJECT_ID, jiraProject.getProjectId());
-            inputData.put(EventDataSetKeys.HUB_RULE_URL, getMetaService().getHref(rule));
 
-            inputData.put(EventDataSetKeys.ACTION, action);
-            inputData.put(EventDataSetKeys.JIRA_CONTEXT, getJiraContext());
-            inputData.put(EventDataSetKeys.JIRA_PROJECT, jiraProject);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_SUMMARY, getIssueSummary(notification, rule));
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, getIssueDescription(notification, rule));
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, null);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT, HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE, HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            inputData.put(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR, issuePropertiesGenerator);
-            inputData.put(EventDataSetKeys.HUB_RULE_NAME, rule.getName());
+            final JiraEventInfo jiraEventInfo = new JiraEventInfo();
+            jiraEventInfo.setAction(action)
+                    .setJiraUserName(getJiraContext().getJiraUser().getName())
+                    .setJiraUserKey(getJiraContext().getJiraUser().getKey())
+                    .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
+                    .setJiraIssueTypeId(getIssueTypeId())
+                    .setJiraProjectName(jiraProject.getProjectName())
+                    .setJiraProjectId(jiraProject.getProjectId())
+                    .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings())
+                    .setHubProjectName(notification.getProjectVersion().getProjectName())
+                    .setHubProjectVersion(notification.getProjectVersion().getProjectVersionName())
+                    .setHubProjectVersionUrl(notification.getProjectVersion().getUrl())
+                    .setHubComponentName(notification.getComponentName())
+                    .setHubComponentUrl(notification.getComponentUrl())
+                    .setHubComponentVersion(notification.getComponentVersion())
+                    .setHubComponentVersionUrl(notification.getComponentVersionUrl())
+                    .setJiraIssueSummary(getIssueSummary(notification, rule))
+                    .setJiraIssueDescription(getIssueDescription(notification, rule))
+                    .setJiraIssueComment(null)
+                    .setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN)
+                    .setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT)
+                    .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE)
+                    .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT)
+                    .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
+                    .setHubRuleName(rule.getName());
 
-            final String key = generateEventKey(inputData);
-            final Map<String, Object> dataSet = generateDataSet(inputData);
-            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, dataSet);
+            final String key = generateEventKey(jiraEventInfo.getDataSet());
+            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, jiraEventInfo.getDataSet());
             events.add(event);
         }
 
