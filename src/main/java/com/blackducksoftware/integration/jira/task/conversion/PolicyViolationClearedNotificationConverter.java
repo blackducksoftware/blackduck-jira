@@ -74,6 +74,10 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
 
+            final String licensesString = getComponentLicensesString(notification);
+            logger.debug("Component " + notification.getComponentName() +
+                    " (version: " + notification.getComponentVersion() + "): License: " + licensesString);
+
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
                     .setJiraUserName(getJiraContext().getJiraUser().getName())

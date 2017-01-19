@@ -28,8 +28,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
@@ -76,11 +74,9 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
 
-            ///////////// new stuff; factor out? TODO : efficiency, and vs. or, use the value!
             final String licensesString = getComponentLicensesString(notification);
             logger.debug("Component " + notification.getComponentName() +
-                    ": License: " + licensesString);
-            ///////////////////////
+                    " (version: " + notification.getComponentVersion() + "): License: " + licensesString);
 
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
@@ -114,23 +110,6 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         }
 
         return events;
-    }
-
-    // TODO : use string builder, specify and vs. or
-    private String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
-        final ComponentVersion componentVersion = getHubServicesFactory().createHubRequestService().getItem(
-                notification.getComponentVersionUrl(), ComponentVersion.class);
-        String licensesString = "";
-        if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
-            int licenseIndex = 0;
-            for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
-                if (licenseIndex++ > 0) {
-                    licensesString += "; ";
-                }
-                licensesString += license.getName();
-            }
-        }
-        return licensesString;
     }
 
 }

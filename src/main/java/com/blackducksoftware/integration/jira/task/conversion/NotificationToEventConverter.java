@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
@@ -119,4 +123,24 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     protected HubServicesFactory getHubServicesFactory() {
         return hubServicesFactory;
     }
+
+    protected String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
+        final ComponentVersion componentVersion = getHubServicesFactory().createHubRequestService().getItem(
+                notification.getComponentVersionUrl(), ComponentVersion.class);
+        String licensesString = "";
+        if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
+            final String licenseJoinString = (componentVersion.getLicense().getType() == ComplexLicenseType.CONJUNCTIVE) ? " AND " : " OR ";
+            int licenseIndex = 0;
+            final StringBuilder sb = new StringBuilder();
+            for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
+                if (licenseIndex++ > 0) {
+                    sb.append(licenseJoinString);
+                }
+                sb.append(license.getName());
+            }
+            licensesString = sb.toString();
+        }
+        return licensesString;
+    }
+
 }
