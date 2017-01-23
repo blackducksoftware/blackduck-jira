@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter extends NotificationSubProcessor {
+    private final HubJiraLogger logger;
 
     private final JiraServices jiraServices;
 
@@ -75,6 +76,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.fieldCopyConfig = fieldCopyConfig;
         this.hubServicesFactory = hubServicesFactory;
+        this.logger = logger;
     }
 
     public JiraSettingsService getJiraSettingsService() {
@@ -124,6 +126,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return hubServicesFactory;
     }
 
+    // TODO these license methods deserve their own class
     protected String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
         final ComponentVersion componentVersion = getHubServicesFactory().createHubRequestService().getItem(
                 notification.getComponentVersionUrl(), ComponentVersion.class);
@@ -133,6 +136,14 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
             for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
+                // logger.debug("********* licence.getLicense(): " + license.getLicense());
+                /////////// TODO factor out
+                final String licenseUrl = license.getLicense();
+                final ComplexLicense fullLicense = getHubServicesFactory().createHubRequestService().getItem(
+                        licenseUrl, ComplexLicense.class);
+                final String licenseTextUrl = getMetaService().getLink(fullLicense, "text");
+                logger.debug("********* link to licence text: " + licenseTextUrl);
+                //////////////////////////////////
                 if (licenseIndex++ > 0) {
                     sb.append(licenseJoinString);
                 }
