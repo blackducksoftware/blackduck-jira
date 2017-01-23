@@ -126,24 +126,16 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return hubServicesFactory;
     }
 
-    // TODO these license methods deserve their own class
     protected String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
-        final ComponentVersion componentVersion = getHubServicesFactory().createHubRequestService().getItem(
-                notification.getComponentVersionUrl(), ComponentVersion.class);
+        final ComponentVersion componentVersion = notification.getComponentVersion();
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
             final String licenseJoinString = (componentVersion.getLicense().getType() == ComplexLicenseType.CONJUNCTIVE) ? " AND " : " OR ";
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
             for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
-                // logger.debug("********* licence.getLicense(): " + license.getLicense());
-                /////////// TODO factor out
-                final String licenseUrl = license.getLicense();
-                final ComplexLicense fullLicense = getHubServicesFactory().createHubRequestService().getItem(
-                        licenseUrl, ComplexLicense.class);
-                final String licenseTextUrl = getMetaService().getLink(fullLicense, "text");
+                final String licenseTextUrl = getLicenseTextUrl(license);
                 logger.debug("********* link to licence text: " + licenseTextUrl);
-                //////////////////////////////////
                 if (licenseIndex++ > 0) {
                     sb.append(licenseJoinString);
                 }
@@ -152,6 +144,14 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
             licensesString = sb.toString();
         }
         return licensesString;
+    }
+
+    private String getLicenseTextUrl(final ComplexLicense license) throws HubIntegrationException {
+        final String licenseUrl = license.getLicense();
+        final ComplexLicense fullLicense = getHubServicesFactory().createHubRequestService().getItem(
+                licenseUrl, ComplexLicense.class);
+        final String licenseTextUrl = getMetaService().getLink(fullLicense, "text");
+        return licenseTextUrl;
     }
 
 }
