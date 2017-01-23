@@ -44,6 +44,7 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
@@ -459,13 +460,20 @@ public class NotificationConverterTest {
         addedVulnList.add(vuln);
         final NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
-                COMPONENT_VERSION,
+                createComponentVersionMock(COMPONENT_VERSION),
                 COMPONENT_VERSION_URL,
                 addedVulnList,
                 updatedVulnList,
                 deletedVulnList);
 
         return notif;
+    }
+
+    private ComponentVersion createComponentVersionMock(final String componentVersion) {
+        ComponentVersion fullComponentVersion;
+        fullComponentVersion = Mockito.mock(ComponentVersion.class);
+        Mockito.when(fullComponentVersion.getVersionName()).thenReturn(componentVersion);
+        return fullComponentVersion;
     }
 
     private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersion projectVersion,
@@ -477,7 +485,7 @@ public class NotificationConverterTest {
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
-                COMPONENT_VERSION, COMPONENT_URL,
+                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
                 policyRuleList);
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
@@ -506,7 +514,7 @@ public class NotificationConverterTest {
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
-                COMPONENT_VERSION, COMPONENT_URL,
+                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
                 policyRuleList);
 
@@ -535,7 +543,7 @@ public class NotificationConverterTest {
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
-                COMPONENT_VERSION, COMPONENT_URL,
+                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
                 policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME);
 

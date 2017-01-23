@@ -41,7 +41,7 @@ public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator 
         this.projectName = notifContentItem.getProjectVersion().getProjectName();
         this.projectVersion = notifContentItem.getProjectVersion().getProjectVersionName();
         this.componentName = notifContentItem.getComponentName();
-        this.componentVersion = notifContentItem.getComponentVersion();
+        this.componentVersion = notifContentItem.getComponentVersion().getVersionName();
         this.ruleName = ruleName;
     }
 

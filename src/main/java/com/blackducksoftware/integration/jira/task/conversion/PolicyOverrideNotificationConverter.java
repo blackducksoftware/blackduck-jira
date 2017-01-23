@@ -76,7 +76,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 
             final String licensesString = getComponentLicensesString(notification);
             logger.debug("Component " + notification.getComponentName() +
-                    " (version: " + notification.getComponentVersion() + "): License: " + licensesString);
+                    " (version: " + notification.getComponentVersion().getVersionName() + "): License: " + licensesString);
 
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
@@ -92,7 +92,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     .setHubProjectVersionUrl(notification.getProjectVersion().getUrl())
                     .setHubComponentName(notification.getComponentName())
                     .setHubComponentUrl(notification.getComponentUrl())
-                    .setHubComponentVersion(notification.getComponentVersion())
+                    .setHubComponentVersion(notification.getComponentVersion().getVersionName())
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
                     .setJiraIssueSummary(getIssueSummary(notification, rule))
                     .setJiraIssueDescription(getIssueDescription(notification, rule))
