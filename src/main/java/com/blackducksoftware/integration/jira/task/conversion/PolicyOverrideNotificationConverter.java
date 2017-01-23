@@ -94,6 +94,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     .setHubComponentUrl(notification.getComponentUrl())
                     .setHubComponentVersion(notification.getComponentVersion().getVersionName())
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
+                    .setHubLicenseNames(licensesString)
                     .setJiraIssueSummary(getIssueSummary(notification, rule))
                     .setJiraIssueDescription(getIssueDescription(notification, rule))
                     .setJiraIssueComment(null)

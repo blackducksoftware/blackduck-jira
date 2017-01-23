@@ -140,4 +140,8 @@ public class HubJiraConstants {
     public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.version.label";
 
     public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
+
+    public static final String LICENSE_NAME_JOINER_OR = " OR ";
+
+    public static final String LICENSE_NAME_JOINER_AND = " AND ";
 }

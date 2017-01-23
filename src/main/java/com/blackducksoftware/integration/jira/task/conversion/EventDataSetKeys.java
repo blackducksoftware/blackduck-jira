@@ -81,4 +81,6 @@ public class EventDataSetKeys {
     public static final String HUB_RULE_NAME = "hubRuleName";
 
     public static final String HUB_RULE_URL = "hubRuleUrl";
+
+    public static final String HUB_LICENSE_NAMES = "hubLicenseNames";
 }

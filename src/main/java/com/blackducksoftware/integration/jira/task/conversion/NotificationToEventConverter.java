@@ -35,6 +35,7 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -45,6 +46,7 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter extends NotificationSubProcessor {
+
     private final HubJiraLogger logger;
 
     private final JiraServices jiraServices;
@@ -130,16 +132,22 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         final ComponentVersion componentVersion = notification.getComponentVersion();
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
-            final String licenseJoinString = (componentVersion.getLicense().getType() == ComplexLicenseType.CONJUNCTIVE) ? " AND " : " OR ";
+            final ComplexLicenseType type = componentVersion.getLicense().getType();
+            final String licenseJoinString = (type == ComplexLicenseType.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
+                    : HubJiraConstants.LICENSE_NAME_JOINER_OR;
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
             for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
                 final String licenseTextUrl = getLicenseTextUrl(license);
-                logger.debug("********* link to licence text: " + licenseTextUrl);
+                logger.debug("Link to licence text: " + licenseTextUrl);
                 if (licenseIndex++ > 0) {
                     sb.append(licenseJoinString);
                 }
+                sb.append("[");
                 sb.append(license.getName());
+                sb.append("|");
+                sb.append(licenseTextUrl);
+                sb.append("]");
             }
             licensesString = sb.toString();
         }

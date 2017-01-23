@@ -114,6 +114,7 @@ public class IssueFieldHandler {
             logger.debug("projectFieldCopyMappings is null");
             return labels;
         }
+
         for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
             if ((!eventData.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
