@@ -386,7 +386,7 @@ public class JiraIssueHandler {
 
     public void handleEvent(final NotificationEvent notificationEvent) {
         final JiraEventInfo eventData = new JiraEventInfo(notificationEvent.getDataSet());
-        logger.debug("********** " + eventData.getHubLicenseNames());
+        logger.debug("Licences: " + eventData.getHubLicenseNames());
 
         switch (eventData.getAction()) {
         case OPEN:
