@@ -908,12 +908,15 @@ public class HubJiraConfigController {
                 public Object doInTransaction() {
                     try {
                         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                        final Date runDate = new Date();
+                        final Date now = new Date();
 
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-
-                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, dateFormatter.format(runDate));
+                        final String oldLastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+                        final String newLastRunDateString = dateFormatter.format(now);
+                        logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString
+                                + "; this will skip over any notifications generated between those times");
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newLastRunDateString);
                         setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
                     } catch (final Exception e) {
                         return e.getMessage();
