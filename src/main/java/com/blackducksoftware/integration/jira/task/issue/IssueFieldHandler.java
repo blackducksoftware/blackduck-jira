@@ -78,36 +78,13 @@ public class IssueFieldHandler {
             final IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
-            final Long projectFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_PROJECT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectFieldId,
-                    eventData.getHubProjectName());
-
-            final Long projectVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(projectVersionFieldId,
-                    eventData.getHubProjectVersion());
-
-            final Long componentFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentFieldId,
-                    eventData.getHubComponentName());
-
-            final Long componentVersionFieldId = ticketInfoFromSetup.getCustomFields()
-                    .get(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION).getIdAsLong();
-            issueInputParameters.addCustomFieldValue(componentVersionFieldId,
-                    eventData.getHubComponentVersion());
-
-            /////////// TODO all of the above should call addIssueInputParameter() too
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters,
-                    eventData.getHubLicenseNames());
-
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getHubProjectName());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getHubProjectVersion());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getHubComponentName());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getHubComponentVersion());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getHubLicenseNames());
             if (notificationEvent.isPolicyEvent()) {
-
-                final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
-                        .get(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE).getIdAsLong();
-                issueInputParameters.addCustomFieldValue(policyRuleFieldId,
-                        eventData.getHubRuleName());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
             }
         }
     }
