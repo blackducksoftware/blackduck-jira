@@ -48,6 +48,8 @@ public class HubJiraConstants {
 
     public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
 
+    public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
+
     // Configuration object names visible only to administrators
     public final static String HUB_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
 
@@ -140,6 +142,10 @@ public class HubJiraConstants {
     public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.version.label";
 
     public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
+
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.license.names.label";
+
+    // String used to join conjunctive and adjunctive licenses together into a string for display
 
     public static final String LICENSE_NAME_JOINER_OR = " OR ";
 

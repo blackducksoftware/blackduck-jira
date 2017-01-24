@@ -82,7 +82,7 @@ public class JiraIssueHandler {
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
-        this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraContext, ticketInfoFromSetup);
+        this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
     }
 
     private void addIssueProperty(final NotificationEvent notificationEvent, final JiraEventInfo eventData,
@@ -251,7 +251,14 @@ public class JiraIssueHandler {
             assignIssue(issue, notificationEvent, eventData);
         } else if ((assigneeId != null)
                 && (issue.getAssigneeId() != assigneeId)) {
-            logger.error("Issue assignment is incorrect");
+            final String errorMessage = "Issue assignment failed";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "fixIssueAssignment");
         } else {
             logger.debug("Issue assignment is correct");
         }
@@ -276,7 +283,14 @@ public class JiraIssueHandler {
                 sb.append(errorMsg);
                 sb.append("; ");
             }
-            logger.error(sb.toString());
+            final String errorMessage = sb.toString();
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "assignIssue");
         }
     }
 

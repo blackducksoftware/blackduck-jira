@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.bc.project.component.ProjectComponent;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.version.Version;
@@ -43,6 +44,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 
 public class IssueFieldHandler {
@@ -51,12 +53,16 @@ public class IssueFieldHandler {
 
     private final JiraServices jiraServices;
 
+    private final JiraSettingsService jiraSettingsService;
+
     private final TicketInfoFromSetup ticketInfoFromSetup;
 
     private final JiraContext jiraContext;
 
-    public IssueFieldHandler(final JiraServices jiraServices, final JiraContext jiraContext, final TicketInfoFromSetup ticketInfoFromSetup) {
+    public IssueFieldHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final JiraContext jiraContext,
+            final TicketInfoFromSetup ticketInfoFromSetup) {
         this.jiraServices = jiraServices;
+        this.jiraSettingsService = jiraSettingsService;
         this.jiraContext = jiraContext;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
     }
@@ -92,6 +98,10 @@ public class IssueFieldHandler {
             issueInputParameters.addCustomFieldValue(componentVersionFieldId,
                     eventData.getHubComponentVersion());
 
+            /////////// TODO all of the above should call addIssueInputParameter() too
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters,
+                    eventData.getHubLicenseNames());
+
             if (notificationEvent.isPolicyEvent()) {
 
                 final Long policyRuleFieldId = ticketInfoFromSetup.getCustomFields()
@@ -100,6 +110,27 @@ public class IssueFieldHandler {
                         eventData.getHubRuleName());
             }
         }
+    }
+
+    private void addIssueInputParameter(final JiraEventInfo eventData, final PluginField pluginField,
+            final IssueInputParameters issueInputParameters, final String fieldValue) {
+
+        final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields()
+                .get(pluginField);
+        if (jiraCustomField == null) {
+            final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "addIssueInputParameter");
+            return;
+        }
+        final Long licenseNamesFieldId = jiraCustomField.getIdAsLong();
+        issueInputParameters.addCustomFieldValue(licenseNamesFieldId,
+                fieldValue);
     }
 
     public List<String> setOtherFieldValues(final NotificationEvent notificationEvent, final JiraEventInfo eventData,
@@ -131,7 +162,14 @@ public class IssueFieldHandler {
             final Field targetField = jiraServices.getFieldManager().getField(targetFieldId);
             logger.debug("\ttargetField: " + targetField);
             if (targetField == null) {
-                logger.error("Custom field with ID " + targetFieldId + " not found; won't be set");
+                final String errorMessage = "Custom field with ID " + targetFieldId + " not found; won't be set";
+                logger.error(errorMessage);
+                jiraSettingsService.addHubError(errorMessage,
+                        eventData.getHubProjectName(),
+                        eventData.getHubProjectVersion(),
+                        eventData.getJiraProjectName(),
+                        eventData.getJiraUserName(),
+                        "setOtherFieldValues");
                 continue;
             }
 
@@ -170,7 +208,14 @@ public class IssueFieldHandler {
             logger.debug("Recording label to add after issue is created: " + targetFieldValue);
             return targetFieldValue;
         } else {
-            logger.error("Unrecognized field id (" + targetField.getId() + "); field cannot be set");
+            final String errorMessage = "Unrecognized field id (" + targetField.getId() + "); field cannot be set";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "setSystemField");
         }
         return null;
     }
@@ -190,7 +235,14 @@ public class IssueFieldHandler {
         if (compId != null) {
             issueInputParameters.setComponentIds(compId);
         } else {
-            logger.error("No component matching '" + targetFieldValue + "' found on project");
+            final String errorMessage = "No component matching '" + targetFieldValue + "' found on project";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "setComponent");
         }
     }
 
@@ -208,7 +260,14 @@ public class IssueFieldHandler {
         if (versionId != null) {
             issueInputParameters.setAffectedVersionIds(versionId);
         } else {
-            logger.error("No version matching '" + targetFieldValue + "' found on project");
+            final String errorMessage = "No version matching '" + targetFieldValue + "' found on project";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "setAffectedVersion");
         }
     }
 
@@ -229,7 +288,14 @@ public class IssueFieldHandler {
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectVersion();
         } else {
-            logger.error("Unrecognized plugin field ID: " + pluginFieldId);
+            final String errorMessage = "Unrecognized plugin field ID: " + pluginFieldId;
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraUserName(),
+                    "getPluginFieldValue");
         }
 
         return fieldValue;
