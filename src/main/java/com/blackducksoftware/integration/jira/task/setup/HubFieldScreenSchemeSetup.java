@@ -89,8 +89,8 @@ public class HubFieldScreenSchemeSetup {
         final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
         try {
             if (hubIssueTypes != null && !hubIssueTypes.isEmpty()) {
-                final List<IssueType> commonIssueTypeList = hubIssueTypes;
-                for (final IssueType issue : hubIssueTypes) {
+                final List<IssueType> commonIssueTypeList = hubIssueTypes; // TODO why do this??
+                for (final IssueType issue : hubIssueTypes) { // TODO s/issue/hubIssueType/
                     if (issue.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
                         final FieldScreenScheme fss = createPolicyViolationScreenScheme(issue,
                                 commonIssueTypeList);
@@ -117,7 +117,7 @@ public class HubFieldScreenSchemeSetup {
             throws GenericEntityException {
         logger.debug("createCustomField(): " + fieldName);
         final CustomFieldType fieldType = jiraServices.getCustomFieldManager()
-                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textfield");
+                .getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textarea"); // TODO textfield or textarea
         final CustomFieldSearcher fieldSearcher = jiraServices.getCustomFieldManager()
                 .getCustomFieldSearcher(CreateCustomField.FIELD_TYPE_PREFIX + "textsearcher");
 
@@ -181,6 +181,8 @@ public class HubFieldScreenSchemeSetup {
                 PluginField.HUB_CUSTOM_FIELD_COMPONENT));
         customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
                 PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
+                PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
         return customFields;
     }
 

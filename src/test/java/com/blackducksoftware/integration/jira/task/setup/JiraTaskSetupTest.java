@@ -137,7 +137,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
 
-        assertTrue(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size() == 5);
+        assertEquals(6, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -147,9 +147,9 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
+                assertEquals(10, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
+                assertEquals(9, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);
@@ -193,7 +193,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(2, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
-        assertTrue(jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size() == 5);
+        assertEquals(6, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -203,9 +203,9 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 9);
+                assertEquals(10, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertTrue(tab.getFieldScreenLayoutItems().size() == 8);
+                assertEquals(9, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);

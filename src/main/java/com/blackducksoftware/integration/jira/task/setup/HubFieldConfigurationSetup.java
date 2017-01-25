@@ -37,6 +37,7 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
+import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -163,6 +164,15 @@ public class HubFieldConfigurationSetup {
                 for (final FieldLayoutItem field : fields) {
                     String fieldName = field.getOrderableField().getName();
                     logger.debug("addHubFieldConfigurationToJira(): Hub field config: field: " + fieldName);
+
+                    ////////// TODO TEMP ////////////////
+                    if (HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(fieldName)) {
+                        logger.debug("************* Setting renderer to " + AtlassianWikiRenderer.RENDERER_TYPE + " on field " + fieldName);
+                        hubFieldLayout.setRendererType(field, AtlassianWikiRenderer.RENDERER_TYPE);
+                        fieldConfigurationNeedsUpdate = true;
+                    }
+                    //////////////////////////////////////
+
                     fieldName = fieldName.replace(" ", "");
                     fieldName = fieldName.toLowerCase();
                     if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
