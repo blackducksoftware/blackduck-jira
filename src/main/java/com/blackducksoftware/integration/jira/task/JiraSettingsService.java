@@ -31,14 +31,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
 
 public class JiraSettingsService {
+    private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));
 
     private final PluginSettings settings;
 
@@ -63,6 +66,7 @@ public class JiraSettingsService {
 
     public void addHubError(final String errorMessage, final String hubProject, final String hubProjectVersion,
             final String jiraProject, final String jiraUser, final String methodAttempt) {
+        logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
         if (ticketErrors == null) {
             ticketErrors = new ArrayList<>();
@@ -97,7 +101,7 @@ public class JiraSettingsService {
         finalErrorBuilder.append("\n");
         finalErrorBuilder.append(suffixBuilder.toString());
 
-        TicketCreationError error = new TicketCreationError();
+        final TicketCreationError error = new TicketCreationError();
         error.setStackTrace(finalErrorBuilder.toString());
         error.setTimeStamp(DateTime.now().toString(TicketCreationError.ERROR_TIME_FORMAT));
 
@@ -108,34 +112,41 @@ public class JiraSettingsService {
             Collections.sort(ticketErrors);
             ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
         }
+        logger.debug("Saving " + ticketErrors.size() + " error messages to settings");
         settings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
 
     public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
+        logger.debug("Pulling error messages from settings");
         final Object errorObject = pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
         if (errorObject != null) {
             List<TicketCreationError> ticketErrors = null;
-            String ticketErrorsString = (String) errorObject;
+            final String ticketErrorsString = (String) errorObject;
             try {
                 ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
-            } catch (Exception e) {
+            } catch (final Exception e) {
+                logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
                 ticketErrors = new ArrayList<>();
             }
             if (ticketErrors != null && !ticketErrors.isEmpty()) {
+                logger.debug("# error messages pulled from settings: " + ticketErrors.size());
                 Collections.sort(ticketErrors);
                 final DateTime currentTime = DateTime.now();
                 final Iterator<TicketCreationError> expirationIterator = ticketErrors.iterator();
                 while (expirationIterator.hasNext()) {
                     final TicketCreationError ticketError = expirationIterator.next();
-                    DateTime errorTime = ticketError.getTimeStampDateTime();
+                    final DateTime errorTime = ticketError.getTimeStampDateTime();
                     if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+                        logger.debug("Removing old error message with timestamp: " + ticketError.getTimeStamp());
                         expirationIterator.remove();
                     }
                 }
+                logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
                 pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
                 return ticketErrors;
             }
         }
+        logger.debug("No error messages found in settings");
         return null;
     }
 
