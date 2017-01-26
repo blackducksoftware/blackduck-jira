@@ -158,7 +158,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         final String licenseUrl = license.getLicense();
         final ComplexLicense fullLicense = getHubServicesFactory().createHubRequestService().getItem(
                 licenseUrl, ComplexLicense.class);
-        final String licenseTextUrl = getMetaService().getLink(fullLicense, "text");
+        final String licenseTextUrl = getMetaService().getFirstLink(fullLicense, "text");
         return licenseTextUrl;
     }
 
