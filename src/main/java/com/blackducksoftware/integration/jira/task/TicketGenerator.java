@@ -30,7 +30,6 @@ import java.util.SortedSet;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.user.UserItem;
-import com.blackducksoftware.integration.hub.api.user.UserRequestService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -73,16 +72,13 @@ public class TicketGenerator {
 
     private final boolean createVulnerabilityIssues;
 
-    private final String hubUsername;
-
     public TicketGenerator(final HubServicesFactory hubServicesFactory,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final boolean createVulnerabilityIssues,
-            final List<String> linksOfRulesToInclude,
-            final String hubUsername) {
+            final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
         this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.getRestConnection(),
@@ -99,10 +95,10 @@ public class TicketGenerator {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
-        this.hubUsername = hubUsername;
     }
 
-    public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
+    public void generateTicketsForRecentNotifications(final UserItem hubUser,
+            final HubProjectMappings hubProjectMappings, final Date startDate,
             final Date endDate) throws HubIntegrationException {
 
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
@@ -110,9 +106,8 @@ public class TicketGenerator {
             return;
         }
         try {
-            final UserItem hubUserItem = getHubUserItem(hubUsername);
             final NotificationResults results = notificationDataService.getUserNotifications(startDate,
-                    endDate, hubUserItem);
+                    endDate, hubUser);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
@@ -144,34 +139,6 @@ public class TicketGenerator {
             jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
         }
 
-    }
-
-    private UserItem getHubUserItem(final String currentUsername) {
-        if (currentUsername == null) {
-            final String msg = "Current username is null";
-            logger.error(msg);
-            jiraSettingsService.addHubError(msg, "getCurrentUser");
-            return null;
-        }
-        final UserRequestService userService = hubServicesFactory.createUserRequestService();
-        List<UserItem> users;
-        try {
-            users = userService.getAllUsers();
-        } catch (final HubIntegrationException e) {
-            final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
-            logger.error(msg);
-            jiraSettingsService.addHubError(msg, "getCurrentUser");
-            return null;
-        }
-        for (final UserItem user : users) {
-            if (currentUsername.equals(user.getUserName())) {
-                return user;
-            }
-        }
-        final String msg = "Current user: " + currentUsername + " not found in list of all users";
-        logger.error(msg);
-        jiraSettingsService.addHubError(msg, "getCurrentUser");
-        return null;
     }
 
     private void reportAnyErrors(final NotificationResults results) {

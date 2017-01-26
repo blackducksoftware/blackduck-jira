@@ -38,6 +38,8 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.api.user.UserItem;
+import com.blackducksoftware.integration.hub.api.user.UserRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
@@ -143,8 +145,7 @@ public class HubJiraTask {
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig,
-                    hubServerConfig.getGlobalCredentials().getUsername());
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
             final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
@@ -167,20 +168,50 @@ public class HubJiraTask {
             } catch (final Exception e) {
                 logger.debug("Unable to phone-home", e);
             }
-
-            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
                     config.getHubProjectMappings());
 
+            logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
+            final UserItem hubUserItem = getHubUserItem(hubServicesFactory,
+                    hubServerConfig.getGlobalCredentials().getUsername());
+
             // Generate JIRA Issues based on recent notifications
-            ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
+            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+            ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addHubError(e, "executeHubJiraTask");
             return null;
         }
         return runDateString;
+    }
+
+    private UserItem getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
+        if (currentUsername == null) {
+            final String msg = "Current username is null";
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        final UserRequestService userService = hubServicesFactory.createUserRequestService();
+        List<UserItem> users;
+        try {
+            users = userService.getAllUsers();
+        } catch (final HubIntegrationException e) {
+            final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        for (final UserItem user : users) {
+            if (currentUsername.equals(user.getUserName())) {
+                return user;
+            }
+        }
+        final String msg = "Current user: " + currentUsername + " not found in list of all users";
+        logger.error(msg);
+        jiraSettingsService.addHubError(msg, "getCurrentUser");
+        return null;
     }
 
     private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws HubIntegrationException {
@@ -205,15 +236,14 @@ public class HubJiraTask {
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            final String hubUsername)
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
                 jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor, hubUsername);
+                linksOfRulesToMonitor);
         return ticketGenerator;
     }
 
