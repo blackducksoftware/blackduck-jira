@@ -64,8 +64,6 @@ public class HubJiraTask {
 
     private final PluginConfigurationDetails pluginConfigDetails;
 
-    private final HubServerConfig serverConfig;
-
     private final JiraContext jiraContext;
 
     private final Date runDate;
@@ -85,15 +83,12 @@ public class HubJiraTask {
     public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
-        this.serverConfig = configDetails.createHubServerConfigBuilder().build();
-
         this.jiraContext = jiraContext;
-        this.runDate = new Date();
 
+        this.runDate = new Date();
         dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         this.runDateString = dateFormatter.format(runDate);
-
         logger.debug("Install date: " + configDetails.getInstallDateString());
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
@@ -111,10 +106,10 @@ public class HubJiraTask {
      */
     public String execute() {
         final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
-        HubServerConfig serverConfig = null;
+        HubServerConfig hubServerConfig = null;
         try {
             logger.debug("Building Hub configuration");
-            serverConfig = hubConfigBuilder.build();
+            hubServerConfig = hubConfigBuilder.build();
             logger.debug("Finished building Hub configuration");
         } catch (final IllegalStateException e) {
             logger.error(
@@ -123,7 +118,7 @@ public class HubJiraTask {
             return "error";
         }
 
-        final HubJiraConfigSerializable config = deSerializeConfig();
+        final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
         if (config == null) {
             return null;
         }
@@ -141,14 +136,15 @@ public class HubJiraTask {
         try {
             final HubServicesFactory hubServicesFactory;
             try {
-                hubServicesFactory = createHubServicesFactory();
+                hubServicesFactory = createHubServicesFactory(hubServerConfig);
             } catch (final HubIntegrationException e) {
                 logger.info("Missing information to generate tickets: " + e.getMessage());
                 return null;
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig,
+                    hubServerConfig.getGlobalCredentials().getUsername());
 
             // Phone-Home
             final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
@@ -163,7 +159,7 @@ public class HubJiraTask {
                     logger.debug("Could not get the Hub registration Id.");
                 }
                 try {
-                    hubHostName = serverConfig.getHubUrl().getHost();
+                    hubHostName = hubServerConfig.getHubUrl().getHost();
                 } catch (final Exception e) {
                     logger.debug("Could not get the Hub Host name.");
                 }
@@ -187,8 +183,8 @@ public class HubJiraTask {
         return runDateString;
     }
 
-    private HubServicesFactory createHubServicesFactory() throws HubIntegrationException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
+    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws HubIntegrationException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
@@ -209,18 +205,19 @@ public class HubJiraTask {
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
+            final String hubUsername)
             throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
                 jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor);
+                linksOfRulesToMonitor, hubUsername);
         return ticketGenerator;
     }
 
-    private HubJiraConfigSerializable deSerializeConfig() {
+    private HubJiraConfigSerializable deSerializeConfig(final HubServerConfig hubServerConfig) {
         if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
@@ -233,8 +230,8 @@ public class HubJiraTask {
         }
 
         logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
-        logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
-                + serverConfig.getGlobalCredentials().getUsername());
+        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / "
+                + hubServerConfig.getGlobalCredentials().getUsername());
         logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
