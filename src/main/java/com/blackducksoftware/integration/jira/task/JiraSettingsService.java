@@ -119,6 +119,11 @@ public class JiraSettingsService {
     public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
         logger.debug("Pulling error messages from settings");
         final Object errorObject = pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+        if (!(errorObject instanceof String)) {
+            logger.warn("The error object in settings is invalid (probably stored by an older version of the plugin); discarding it");
+            pluginSettings.remove(HubJiraConstants.HUB_JIRA_ERROR);
+            return null;
+        }
         if (errorObject != null) {
             List<TicketCreationError> ticketErrors = null;
             final String ticketErrorsString = (String) errorObject;
@@ -126,7 +131,7 @@ public class JiraSettingsService {
                 ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
             } catch (final Exception e) {
                 logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
-                ticketErrors = new ArrayList<>();
+                return null;
             }
             if (ticketErrors != null && !ticketErrors.isEmpty()) {
                 logger.debug("# error messages pulled from settings: " + ticketErrors.size());
