@@ -106,7 +106,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     @Override
-    public Map<String, Object> generateDataSet(Map<String, Object> inputData) {
+    public Map<String, Object> generateDataSet(final Map<String, Object> inputData) {
         final NotificationContentItem notif = (NotificationContentItem) inputData.get(NotificationEvent.DATA_SET_KEY_NOTIFICATION_CONTENT);
         final HubEventAction action = (HubEventAction) inputData.get(EventDataSetKeys.ACTION);
         final JiraContext jiraContext = (JiraContext) inputData.get(EventDataSetKeys.JIRA_CONTEXT);
@@ -133,7 +133,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                 .setHubProjectName(notif.getProjectVersion().getProjectName())
                 .setHubProjectVersion(notif.getProjectVersion().getProjectVersionName())
                 .setHubComponentName(notif.getComponentName())
-                .setHubComponentVersion(notif.getComponentVersion())
+                .setHubComponentVersion(notif.getComponentVersion().getVersionName())
                 .setJiraIssueSummary(issueSummary)
                 .setJiraIssueDescription(issueDescription)
                 .setJiraIssueComment(issueComment)
