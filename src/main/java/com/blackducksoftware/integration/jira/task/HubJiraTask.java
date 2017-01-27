@@ -38,6 +38,8 @@ import org.restlet.resource.ResourceException;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.api.user.UserItem;
+import com.blackducksoftware.integration.hub.api.user.UserRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
@@ -64,8 +66,6 @@ public class HubJiraTask {
 
     private final PluginConfigurationDetails pluginConfigDetails;
 
-    private final HubServerConfig serverConfig;
-
     private final JiraContext jiraContext;
 
     private final Date runDate;
@@ -85,15 +85,12 @@ public class HubJiraTask {
     public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
-        this.serverConfig = configDetails.createHubServerConfigBuilder().build();
-
         this.jiraContext = jiraContext;
-        this.runDate = new Date();
 
+        this.runDate = new Date();
         dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         this.runDateString = dateFormatter.format(runDate);
-
         logger.debug("Install date: " + configDetails.getInstallDateString());
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
@@ -111,10 +108,10 @@ public class HubJiraTask {
      */
     public String execute() {
         final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
-        HubServerConfig serverConfig = null;
+        HubServerConfig hubServerConfig = null;
         try {
             logger.debug("Building Hub configuration");
-            serverConfig = hubConfigBuilder.build();
+            hubServerConfig = hubConfigBuilder.build();
             logger.debug("Finished building Hub configuration");
         } catch (final IllegalStateException e) {
             logger.error(
@@ -123,7 +120,7 @@ public class HubJiraTask {
             return "error";
         }
 
-        final HubJiraConfigSerializable config = deSerializeConfig();
+        final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
         if (config == null) {
             return null;
         }
@@ -141,7 +138,7 @@ public class HubJiraTask {
         try {
             final HubServicesFactory hubServicesFactory;
             try {
-                hubServicesFactory = createHubServicesFactory();
+                hubServicesFactory = createHubServicesFactory(hubServerConfig);
             } catch (final HubIntegrationException e) {
                 logger.info("Missing information to generate tickets: " + e.getMessage());
                 return null;
@@ -163,7 +160,7 @@ public class HubJiraTask {
                     logger.debug("Could not get the Hub registration Id.");
                 }
                 try {
-                    hubHostName = serverConfig.getHubUrl().getHost();
+                    hubHostName = hubServerConfig.getHubUrl().getHost();
                 } catch (final Exception e) {
                     logger.debug("Could not get the Hub Host name.");
                 }
@@ -171,14 +168,16 @@ public class HubJiraTask {
             } catch (final Exception e) {
                 logger.debug("Unable to phone-home", e);
             }
-
-            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
                     config.getHubProjectMappings());
 
+            logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
+            final UserItem hubUserItem = getHubUserItem(hubServicesFactory,
+                    hubServerConfig.getGlobalCredentials().getUsername());
+
             // Generate JIRA Issues based on recent notifications
-            ticketGenerator.generateTicketsForRecentNotifications(hubProjectMappings, startDate, runDate);
+            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+            ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addHubError(e, "executeHubJiraTask");
@@ -187,8 +186,36 @@ public class HubJiraTask {
         return runDateString;
     }
 
-    private HubServicesFactory createHubServicesFactory() throws HubIntegrationException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, serverConfig);
+    private UserItem getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
+        if (currentUsername == null) {
+            final String msg = "Current username is null";
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        final UserRequestService userService = hubServicesFactory.createUserRequestService();
+        List<UserItem> users;
+        try {
+            users = userService.getAllUsers();
+        } catch (final HubIntegrationException e) {
+            final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        for (final UserItem user : users) {
+            if (currentUsername.equals(user.getUserName())) {
+                return user;
+            }
+        }
+        final String msg = "Current user: " + currentUsername + " not found in list of all users";
+        logger.error(msg);
+        jiraSettingsService.addHubError(msg, "getCurrentUser");
+        return null;
+    }
+
+    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws HubIntegrationException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
@@ -220,7 +247,7 @@ public class HubJiraTask {
         return ticketGenerator;
     }
 
-    private HubJiraConfigSerializable deSerializeConfig() {
+    private HubJiraConfigSerializable deSerializeConfig(final HubServerConfig hubServerConfig) {
         if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug(
                     "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
@@ -233,8 +260,8 @@ public class HubJiraTask {
         }
 
         logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
-        logger.debug("Hub url / username: " + serverConfig.getHubUrl().toString() + " / "
-                + serverConfig.getGlobalCredentials().getUsername());
+        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / "
+                + hubServerConfig.getGlobalCredentials().getUsername());
         logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
 
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();

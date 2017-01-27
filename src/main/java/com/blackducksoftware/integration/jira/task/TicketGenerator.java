@@ -29,6 +29,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.user.UserItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -96,7 +97,8 @@ public class TicketGenerator {
         this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
-    public void generateTicketsForRecentNotifications(final HubProjectMappings hubProjectMappings, final Date startDate,
+    public void generateTicketsForRecentNotifications(final UserItem hubUser,
+            final HubProjectMappings hubProjectMappings, final Date startDate,
             final Date endDate) throws HubIntegrationException {
 
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
@@ -104,8 +106,8 @@ public class TicketGenerator {
             return;
         }
         try {
-            final NotificationResults results = notificationDataService.getAllNotifications(startDate,
-                    endDate);
+            final NotificationResults results = notificationDataService.getUserNotifications(startDate,
+                    endDate, hubUser);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
