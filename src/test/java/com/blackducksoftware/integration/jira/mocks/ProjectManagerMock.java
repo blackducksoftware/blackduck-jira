@@ -36,6 +36,7 @@ import com.atlassian.jira.project.DefaultAssigneeException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectCategory;
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.project.UpdateProjectParameters;
 import com.atlassian.jira.project.type.ProjectTypeKey;
 import com.atlassian.jira.task.context.Context;
 import com.atlassian.jira.user.ApplicationUser;
@@ -353,6 +354,12 @@ public class ProjectManagerMock implements ProjectManager {
     public void removeProjectIssues(final Project arg0, final Context arg1) throws RemoveException {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public Project updateProject(final UpdateProjectParameters arg0) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

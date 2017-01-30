@@ -24,11 +24,13 @@
 package com.blackducksoftware.integration.jira.mocks.issue;
 
 import java.util.Map;
+import java.util.Optional;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.TransitionOptions;
@@ -162,13 +164,15 @@ public class IssueServiceMock implements IssueService {
     }
 
     @Override
-    public AsynchronousTaskResult clone(ApplicationUser arg0, CloneValidationResult arg1) {
+    public AsynchronousTaskResult clone(final ApplicationUser arg0, final CloneValidationResult arg1) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public CloneValidationResult validateClone(ApplicationUser arg0, Issue arg1, String arg2, boolean arg3, boolean arg4, boolean arg5) {
+    public CloneValidationResult validateClone(final ApplicationUser arg0, final Issue arg1, final String arg2, final boolean arg3, final boolean arg4,
+            final boolean arg5,
+            final Map<CustomField, Optional<Boolean>> arg6) {
         // TODO Auto-generated method stub
         return null;
     }

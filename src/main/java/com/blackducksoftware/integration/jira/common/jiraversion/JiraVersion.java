@@ -43,7 +43,7 @@ public class JiraVersion {
 
     private final List<JiraCapabilityEnum> capabilities = new ArrayList<>();
 
-    private final String mostRecentJiraVersionSupportedString = "7.1.0";
+    private final String mostRecentJiraVersionSupportedString = "7.2.6";
 
     public JiraVersion() throws ConfigurationException {
         this(new BuildUtilsInfoImpl());
@@ -52,12 +52,12 @@ public class JiraVersion {
     public JiraVersion(final BuildUtilsInfoImpl serverInfoUtils) throws ConfigurationException {
         final int[] versionNumbers = serverInfoUtils.getVersionNumbers();
 
-        if ((versionNumbers[0] > 7) || ((versionNumbers[0] == 7) && (versionNumbers[1] > 1))) {
+        if ((versionNumbers[0] > 7) || ((versionNumbers[0] == 7) && (versionNumbers[1] > 2))) {
             logger.warn("This version of JIRA (" + serverInfoUtils.getVersion()
                     + ") is not supported. Attempting to proceed as if it were JIRA version "
                     + mostRecentJiraVersionSupportedString);
             capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
-        } else if ((versionNumbers[0] == 7) && (versionNumbers[1] == 1)) {
+        } else if ((versionNumbers[0] == 7) && ((versionNumbers[1] == 1) || ((versionNumbers[1] == 2)))) {
             logger.debug("This version of JIRA (" + serverInfoUtils.getVersion() + ") is supported.");
             capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
         } else {
