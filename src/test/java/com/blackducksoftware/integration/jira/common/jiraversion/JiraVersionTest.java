@@ -61,7 +61,7 @@ public class JiraVersionTest {
         final int[] versionNumbers = { 7, 0, 0 };
         JiraVersion jiraVersion;
         try {
-            jiraVersion = getJiraVersion("6.4.0", versionNumbers);
+            jiraVersion = getJiraVersion("7.0", versionNumbers);
             fail("Expected configuration exception");
         } catch (final ConfigurationException e) {
 
@@ -87,6 +87,15 @@ public class JiraVersionTest {
     }
 
     @Test
+    public void testJira7_2_99() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 2, 99 };
+        final JiraVersion jiraVersion = getJiraVersion("7.2.99", versionNumbers);
+
+        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
+        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+    }
+
+    @Test
     public void testJira7_2() throws ConfigurationException {
         final int[] versionNumbers = { 7, 2, 0 };
         final JiraVersion jiraVersion = getJiraVersion("7.2", versionNumbers);
@@ -99,6 +108,15 @@ public class JiraVersionTest {
     public void testJira8_0() throws ConfigurationException {
         final int[] versionNumbers = { 8, 0, 0 };
         final JiraVersion jiraVersion = getJiraVersion("8.0", versionNumbers);
+
+        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
+        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+    }
+
+    @Test
+    public void testJira7_3() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 3, 0 };
+        final JiraVersion jiraVersion = getJiraVersion("7.3.0", versionNumbers);
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
