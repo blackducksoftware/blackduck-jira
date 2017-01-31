@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
@@ -101,7 +102,8 @@ public class NotificationConverterTest {
             "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
             + "], component 'componentName' / 'componentVersion'. The rule violated is: '"
             +
-            RULE_NAME + "'. Rule overridable : true";
+            RULE_NAME + "'. Rule overridable : true" +
+            "\nComponent license(s): ";
 
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
 
@@ -199,7 +201,8 @@ public class NotificationConverterTest {
 
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
             "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL + "], component 'componentName' / 'componentVersion'. " +
-            "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub.";
+            "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub." +
+            "\nComponent license(s): ";
 
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
             "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
@@ -216,7 +219,7 @@ public class NotificationConverterTest {
     public static void tearDownAfterClass() throws Exception {
     }
 
-    // @Test
+    @Test
     public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS,
                 VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
@@ -226,7 +229,7 @@ public class NotificationConverterTest {
                 VULN_EXPECTED_PROPERTY_KEY);
     }
 
-    // @Test
+    @Test
     public void testPolicyViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS,
                 POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
@@ -238,7 +241,7 @@ public class NotificationConverterTest {
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
-    // @Test
+    @Test
     public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.POLICY_VIOLATION_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS,
                 POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
@@ -250,7 +253,7 @@ public class NotificationConverterTest {
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
-    // @Test
+    @Test
     public void testPolicyCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.POLICY_VIOLATION_CLEARED, HubEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS,
                 POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
