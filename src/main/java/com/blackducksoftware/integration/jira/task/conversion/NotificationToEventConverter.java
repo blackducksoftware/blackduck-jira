@@ -128,7 +128,15 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return hubServicesFactory;
     }
 
-    protected String getComponentLicensesString(final NotificationContentItem notification) throws HubIntegrationException {
+    protected String getComponentLicensesStringPlainText(final NotificationContentItem notification) throws HubIntegrationException {
+        return getComponentLicensesString(notification, false);
+    }
+
+    protected String getComponentLicensesStringWithLinksAtlassianFormat(final NotificationContentItem notification) throws HubIntegrationException {
+        return getComponentLicensesString(notification, true);
+    }
+
+    private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws HubIntegrationException {
         final ComponentVersion componentVersion = notification.getComponentVersion();
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
@@ -143,11 +151,15 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                 if (licenseIndex++ > 0) {
                     sb.append(licenseJoinString);
                 }
-                sb.append("[");
+                if (includeLinks) {
+                    sb.append("[");
+                }
                 sb.append(license.getName());
-                sb.append("|");
-                sb.append(licenseTextUrl);
-                sb.append("]");
+                if (includeLinks) {
+                    sb.append("|");
+                    sb.append(licenseTextUrl);
+                    sb.append("]");
+                }
             }
             licensesString = sb.toString();
         }

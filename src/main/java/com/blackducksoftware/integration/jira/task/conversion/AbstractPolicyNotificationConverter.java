@@ -111,6 +111,16 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueDescription.append(rule.getName());
         issueDescription.append("'. Rule overridable : ");
         issueDescription.append(rule.getOverridable());
+
+        final String licenseText;
+        try {
+            licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
+            issueDescription.append("\nLicense(s): ");
+            issueDescription.append(licenseText);
+        } catch (final HubIntegrationException e) {
+            // omit license text
+        }
+
         return issueDescription.toString();
     }
 

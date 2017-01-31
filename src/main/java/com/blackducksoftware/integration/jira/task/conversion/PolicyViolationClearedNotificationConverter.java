@@ -74,7 +74,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
 
-            final String licensesString = getComponentLicensesString(notification);
+            final String licensesString = getComponentLicensesStringPlainText(notification);
             logger.debug("Component " + notification.getComponentName() +
                     " (version: " + notification.getComponentVersion().getVersionName() + "): License: " + licensesString);
 
