@@ -34,3 +34,9 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
 	</div>
 #end
+#if ($bdsHubLicenses)
+	<div>
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
+		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+	</div>
+#end

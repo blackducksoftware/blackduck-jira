@@ -74,6 +74,11 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
             if (hubPolicyRule != null) {
                 contextMap.put("bdsHubPolicyRule", hubPolicyRule);
             }
+            final String hubLicenses = getCustomFieldValue(currentIssue, customFieldManager,
+                    HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES);
+            if (hubLicenses != null) {
+                contextMap.put("bdsHubLicenses", hubLicenses);
+            }
         }
         return contextMap;
     }
