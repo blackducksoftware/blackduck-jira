@@ -37,7 +37,6 @@ import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
@@ -217,7 +216,7 @@ public class NotificationConverterTest {
     public static void tearDownAfterClass() throws Exception {
     }
 
-    @Test
+    // @Test
     public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotifType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS,
                 VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,

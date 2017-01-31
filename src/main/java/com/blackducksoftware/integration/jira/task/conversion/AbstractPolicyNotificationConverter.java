@@ -115,7 +115,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         final String licenseText;
         try {
             licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
-            issueDescription.append("\nLicense(s): ");
+            issueDescription.append("\nComponent license(s): ");
             issueDescription.append(licenseText);
         } catch (final HubIntegrationException e) {
             // omit license text
