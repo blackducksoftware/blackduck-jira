@@ -96,14 +96,26 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
     protected String getIssueDescription(final NotificationContentItem notif, final PolicyRule rule) {
         final StringBuilder issueDescription = new StringBuilder();
-        issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ['");
+        final String componentsLink = notif.getProjectVersion().getComponentsLink();
 
-        issueDescription.append(notif.getProjectVersion().getProjectName());
-        issueDescription.append("' / '");
-        issueDescription.append(notif.getProjectVersion().getProjectVersionName());
-        issueDescription.append("'|");
-        issueDescription.append(notif.getProjectVersion().getComponentsLink());
-        issueDescription.append("], component '");
+        issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
+        if (componentsLink == null) {
+            issueDescription.append("'");
+            issueDescription.append(notif.getProjectVersion().getProjectName());
+            issueDescription.append("' / '");
+            issueDescription.append(notif.getProjectVersion().getProjectVersionName());
+            issueDescription.append("'");
+        } else {
+            issueDescription.append("['");
+            issueDescription.append(notif.getProjectVersion().getProjectName());
+            issueDescription.append("' / '");
+            issueDescription.append(notif.getProjectVersion().getProjectVersionName());
+            issueDescription.append("'|");
+            issueDescription.append(componentsLink);
+            issueDescription.append("]");
+        }
+
+        issueDescription.append(", component '");
         issueDescription.append(notif.getComponentName());
         if (notif.getComponentVersion() != null) {
             issueDescription.append("' / '");
