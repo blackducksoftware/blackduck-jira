@@ -105,8 +105,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueDescription.append(notif.getProjectVersion().getComponentsLink());
         issueDescription.append("], component '");
         issueDescription.append(notif.getComponentName());
-        issueDescription.append("' / '");
-        issueDescription.append(notif.getComponentVersion().getVersionName());
+        if (notif.getComponentVersion() != null) {
+            issueDescription.append("' / '");
+            issueDescription.append(notif.getComponentVersion().getVersionName());
+        }
         issueDescription.append("'.");
         issueDescription.append(" The rule violated is: '");
         issueDescription.append(rule.getName());
@@ -123,8 +125,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueSummary.append(notif.getProjectVersion().getProjectVersionName());
         issueSummary.append("', component '");
         issueSummary.append(notif.getComponentName());
-        issueSummary.append("' / '");
-        issueSummary.append(notif.getComponentVersion().getVersionName());
+        if (notif.getComponentVersion() != null) {
+            issueSummary.append("' / '");
+            issueSummary.append(notif.getComponentVersion().getVersionName());
+        }
         issueSummary.append("'");
         issueSummary.append(" [Rule: '");
         issueSummary.append(rule.getName());

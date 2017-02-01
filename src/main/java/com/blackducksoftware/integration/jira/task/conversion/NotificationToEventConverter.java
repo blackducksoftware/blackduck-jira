@@ -121,6 +121,12 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         final IssuePropertiesGenerator issuePropertiesGenerator = (IssuePropertiesGenerator) inputData.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
         final String hubRuleName = (String) inputData.get(EventDataSetKeys.HUB_RULE_NAME);
 
+        final String componentVersion;
+        if (notif.getComponentVersion() != null) {
+            componentVersion = notif.getComponentVersion().getVersionName();
+        } else {
+            componentVersion = "";
+        }
         final JiraEventInfo jiraEventInfo = new JiraEventInfo();
         jiraEventInfo.setAction(action)
                 .setJiraUserName(jiraContext.getJiraUser().getName())
@@ -133,7 +139,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                 .setHubProjectName(notif.getProjectVersion().getProjectName())
                 .setHubProjectVersion(notif.getProjectVersion().getProjectVersionName())
                 .setHubComponentName(notif.getComponentName())
-                .setHubComponentVersion(notif.getComponentVersion().getVersionName())
+                .setHubComponentVersion(componentVersion)
                 .setJiraIssueSummary(issueSummary)
                 .setJiraIssueDescription(issueDescription)
                 .setJiraIssueComment(issueComment)
