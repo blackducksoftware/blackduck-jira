@@ -119,40 +119,43 @@ public class JiraSettingsService {
     public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
         logger.debug("Pulling error messages from settings");
         final Object errorObject = pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+        if (errorObject == null) {
+            logger.debug("No error messages found in settings");
+            return null;
+        }
         if (!(errorObject instanceof String)) {
             logger.warn("The error object in settings is invalid (probably stored by an older version of the plugin); discarding it");
             pluginSettings.remove(HubJiraConstants.HUB_JIRA_ERROR);
             return null;
         }
-        if (errorObject != null) {
-            List<TicketCreationError> ticketErrors = null;
-            final String ticketErrorsString = (String) errorObject;
-            try {
-                ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
-            } catch (final Exception e) {
-                logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
-                return null;
-            }
-            if (ticketErrors != null && !ticketErrors.isEmpty()) {
-                logger.debug("# error messages pulled from settings: " + ticketErrors.size());
-                Collections.sort(ticketErrors);
-                final DateTime currentTime = DateTime.now();
-                final Iterator<TicketCreationError> expirationIterator = ticketErrors.iterator();
-                while (expirationIterator.hasNext()) {
-                    final TicketCreationError ticketError = expirationIterator.next();
-                    final DateTime errorTime = ticketError.getTimeStampDateTime();
-                    if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
-                        logger.debug("Removing old error message with timestamp: " + ticketError.getTimeStamp());
-                        expirationIterator.remove();
-                    }
-                }
-                logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
-                pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
-                return ticketErrors;
+
+        List<TicketCreationError> ticketErrors = null;
+        final String ticketErrorsString = (String) errorObject;
+        try {
+            ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
+        } catch (final Exception e) {
+            logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
+            pluginSettings.remove(HubJiraConstants.HUB_JIRA_ERROR);
+            return null;
+        }
+        if ((ticketErrors == null) || ticketErrors.isEmpty()) {
+            logger.debug("No error messages found in settings");
+            return null;
+        }
+        logger.debug("# error messages pulled from settings: " + ticketErrors.size());
+        Collections.sort(ticketErrors);
+        final DateTime currentTime = DateTime.now();
+        final Iterator<TicketCreationError> expirationIterator = ticketErrors.iterator();
+        while (expirationIterator.hasNext()) {
+            final TicketCreationError ticketError = expirationIterator.next();
+            final DateTime errorTime = ticketError.getTimeStampDateTime();
+            if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+                logger.debug("Removing old error message with timestamp: " + ticketError.getTimeStamp());
+                expirationIterator.remove();
             }
         }
-        logger.debug("No error messages found in settings");
-        return null;
+        logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
+        pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        return ticketErrors;
     }
-
 }

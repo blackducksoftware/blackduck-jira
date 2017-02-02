@@ -174,7 +174,9 @@ public class HubJiraTask {
             logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
             final UserItem hubUserItem = getHubUserItem(hubServicesFactory,
                     hubServerConfig.getGlobalCredentials().getUsername());
-
+            if (hubUserItem == null) {
+                return null;
+            }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
             ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
