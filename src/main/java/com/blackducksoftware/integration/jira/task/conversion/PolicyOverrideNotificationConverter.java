@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyOverrideContentItem;
@@ -75,8 +76,15 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     notification, rule.getName());
 
             final String licensesString = getComponentLicensesStringPlainText(notification);
+            final ComponentVersion compVer = notification.getComponentVersion();
+            final String compVerName;
+            if (compVer == null) {
+                compVerName = "";
+            } else {
+                compVerName = compVer.getVersionName();
+            }
             logger.debug("Component " + notification.getComponentName() +
-                    " (version: " + notification.getComponentVersion().getVersionName() + "): License: " + licensesString);
+                    " (version: " + compVerName + "): License: " + licensesString);
 
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
@@ -92,7 +100,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     .setHubProjectVersionUrl(notification.getProjectVersion().getUrl())
                     .setHubComponentName(notification.getComponentName())
                     .setHubComponentUrl(notification.getComponentUrl())
-                    .setHubComponentVersion(notification.getComponentVersion().getVersionName())
+                    .setHubComponentVersion(compVerName)
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
                     .setHubLicenseNames(licensesString)
                     .setJiraIssueSummary(getIssueSummary(notification, rule))
