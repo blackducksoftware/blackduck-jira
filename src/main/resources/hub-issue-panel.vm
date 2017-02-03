@@ -19,7 +19,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 #if ($bdsHubProjectVersionNickname)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
-		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
+		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
 #end
 #if ($bdsHubComponent)

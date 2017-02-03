@@ -50,7 +50,7 @@ public class HubJiraConstants {
 
     public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
 
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usasge";
+    public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
 
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
 
