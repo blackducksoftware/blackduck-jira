@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.List;
 import java.util.Map;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -114,9 +115,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         }
         issueDescription.append(", component '");
         issueDescription.append(notif.getComponentName());
-        if (notif.getComponentVersion() != null) {
+        final ComponentVersion compVer = notif.getComponentVersion();
+        if (compVer != null) {
             issueDescription.append("' / '");
-            issueDescription.append(notif.getComponentVersion().getVersionName());
+            issueDescription.append(compVer.getVersionName());
         }
         issueDescription.append("'.");
         issueDescription.append(" The rule violated is: '");
@@ -124,13 +126,15 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueDescription.append("'. Rule overridable : ");
         issueDescription.append(rule.getOverridable());
 
-        final String licenseText;
-        try {
-            licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
-            issueDescription.append("\nComponent license(s): ");
-            issueDescription.append(licenseText);
-        } catch (final HubIntegrationException e) {
-            // omit license text
+        if (compVer != null) {
+            final String licenseText;
+            try {
+                licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
+                issueDescription.append("\nComponent license(s): ");
+                issueDescription.append(licenseText);
+            } catch (final HubIntegrationException e) {
+                // omit license text
+            }
         }
 
         return issueDescription.toString();
