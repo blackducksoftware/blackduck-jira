@@ -64,6 +64,10 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
 
+    private static final int NUM_FIELDS_VULNERABILITY = 9;
+
+    private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 1;
+
     @Test
     public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
@@ -189,7 +193,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 
-        assertEquals(6, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -199,9 +203,9 @@ public class HubFieldScreenSchemeSetupTest {
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(6, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_POLICY, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(5, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_VULNERABILITY, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -234,7 +238,7 @@ public class HubFieldScreenSchemeSetupTest {
     }
 
     private void doBasicTest(final boolean includeSomeNullCustomFields) {
-        int expectedPolicyFields = 9;
+        int expectedPolicyFields = NUM_FIELDS_POLICY + 3;
         if (!includeSomeNullCustomFields) {
             expectedPolicyFields++;
         }
@@ -268,7 +272,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 
-        assertEquals(6, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -335,7 +339,7 @@ public class HubFieldScreenSchemeSetupTest {
         mockCreationMethods(fieldConfigSetup);
 
         fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
-        assertEquals(6, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -345,9 +349,9 @@ public class HubFieldScreenSchemeSetupTest {
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(10, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(9, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
+            } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+                assertEquals(NUM_FIELDS_VULNERABILITY + 4, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -378,7 +382,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addHubFieldConfigurationToJira(issueTypes);
 
-        assertEquals(6, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -388,9 +392,9 @@ public class HubFieldScreenSchemeSetupTest {
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(10, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(9, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
+            } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+                assertEquals(NUM_FIELDS_VULNERABILITY + 4, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);

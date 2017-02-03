@@ -25,7 +25,9 @@ var detailsModuleId = "details-module";
 var customFieldsModuleId = "customfieldmodule";
 
 var hubCustomFields = ["BDS Hub Project", "BDS Hub Project Version", "BDS Hub Component", 
-	"BDS Hub Component Version", "BDS Hub Policy Rule", "BDS Hub Component Licenses"];
+	"BDS Hub Component Version", "BDS Hub Policy Rule", "BDS Hub Component Licenses",
+	"BDS Hub Component Usage", "BDS Hub Component Origin", "BDS Hub Component Origin ID",
+	"BDS Hub Project Version Nickname"];
 
 function hideHubCustomFields(){
 	var detailsModule = AJS.$('#' + detailsModuleId);

@@ -183,6 +183,16 @@ public class HubFieldScreenSchemeSetup {
                 PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
         customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
                 PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
+
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
+                PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
+        customFields.add(getOrderedFieldFromCustomField(commonIssueTypeList,
+                PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+
         return customFields;
     }
 

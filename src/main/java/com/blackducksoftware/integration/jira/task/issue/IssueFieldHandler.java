@@ -83,6 +83,13 @@ public class IssueFieldHandler {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getHubComponentName());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getHubComponentVersion());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getHubLicenseNames());
+
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getHubComponentUsage());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getHubComponentOriginId());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters,
+                    eventData.getHubProjectVersionNickname());
+
             if (notificationEvent.isPolicyEvent()) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
             }
@@ -105,8 +112,8 @@ public class IssueFieldHandler {
                     "addIssueInputParameter");
             return;
         }
-        final Long licenseNamesFieldId = jiraCustomField.getIdAsLong();
-        issueInputParameters.addCustomFieldValue(licenseNamesFieldId,
+        final Long fieldId = jiraCustomField.getIdAsLong();
+        issueInputParameters.addCustomFieldValue(fieldId,
                 fieldValue);
     }
 

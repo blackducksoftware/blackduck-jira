@@ -63,6 +63,14 @@ public class JiraEventInfo {
 
     private String hubLicenseNames;
 
+    private String hubComponentUsage;
+
+    private String hubComponentOrigin;
+
+    private String hubComponentOriginId;
+
+    private String hubProjectVersionNickname;
+
     private String jiraIssueSummary;
 
     private String jiraIssueDescription;
@@ -106,6 +114,11 @@ public class JiraEventInfo {
         hubComponentVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
 
         hubLicenseNames = (String) dataSet.get(EventDataSetKeys.HUB_LICENSE_NAMES);
+
+        hubComponentUsage = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_USAGE);
+        hubComponentOrigin = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN);
+        hubComponentOriginId = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID);
+        hubProjectVersionNickname = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME);
 
         jiraIssueSummary = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
         jiraIssueDescription = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
@@ -244,6 +257,26 @@ public class JiraEventInfo {
         return this;
     }
 
+    public JiraEventInfo setHubComponentUsage(final String hubComponentUsage) {
+        this.hubComponentUsage = hubComponentUsage;
+        return this;
+    }
+
+    public JiraEventInfo setHubComponentOrigin(final String hubComponentOrigin) {
+        this.hubComponentOrigin = hubComponentOrigin;
+        return this;
+    }
+
+    public JiraEventInfo setHubComponentOriginId(final String hubComponentOriginId) {
+        this.hubComponentOriginId = hubComponentOriginId;
+        return this;
+    }
+
+    public JiraEventInfo setHubProjectVersionNickname(final String hubProjectVersionNickname) {
+        this.hubProjectVersionNickname = hubProjectVersionNickname;
+        return this;
+    }
+
     public HubEventAction getAction() {
         return action;
     }
@@ -344,6 +377,22 @@ public class JiraEventInfo {
         return hubLicenseNames;
     }
 
+    public String getHubComponentUsage() {
+        return hubComponentUsage;
+    }
+
+    public String getHubComponentOrigin() {
+        return hubComponentOrigin;
+    }
+
+    public String getHubComponentOriginId() {
+        return hubComponentOriginId;
+    }
+
+    public String getHubProjectVersionNickname() {
+        return hubProjectVersionNickname;
+    }
+
     public Map<String, Object> getDataSet() {
         final Map<String, Object> dataSet = new HashMap<>();
         dataSet.put(EventDataSetKeys.ACTION, action);
@@ -365,6 +414,11 @@ public class JiraEventInfo {
         dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION_URL, hubComponentVersionUrl);
 
         dataSet.put(EventDataSetKeys.HUB_LICENSE_NAMES, hubLicenseNames);
+
+        dataSet.put(EventDataSetKeys.HUB_COMPONENT_USAGE, hubComponentUsage);
+        dataSet.put(EventDataSetKeys.HUB_COMPONENT_ORIGIN, hubComponentOrigin);
+        dataSet.put(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID, hubComponentOriginId);
+        dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME, hubProjectVersionNickname);
 
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_SUMMARY, jiraIssueSummary);
         dataSet.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, jiraIssueDescription);

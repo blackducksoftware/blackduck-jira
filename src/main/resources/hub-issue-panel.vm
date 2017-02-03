@@ -16,6 +16,12 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
 #end
+#if ($bdsHubProjectVersionNickname)
+	<div>
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
+		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
+	</div>
+#end
 #if ($bdsHubComponent)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
@@ -26,6 +32,24 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
 		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
+	</div>
+#end
+#if ($bdsHubComponentUsage)
+	<div>
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
+		<div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
+	</div>
+#end
+#if ($bdsHubComponentOrigin)
+	<div>
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
+		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
+	</div>
+#end
+#if ($bdsHubComponentOriginId)
+	<div>
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
+		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
 	</div>
 #end
 #if ($bdsHubPolicyRule)

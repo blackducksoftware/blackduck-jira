@@ -136,6 +136,22 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return getComponentLicensesString(notification, true);
     }
 
+    protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
+        return "TBD Usage";
+    }
+
+    protected String getComponentOrigin(final NotificationContentItem notification) throws HubIntegrationException {
+        return "TBD Component Origin";
+    }
+
+    protected String getComponentOriginId(final NotificationContentItem notification) throws HubIntegrationException {
+        return "TBD Component Origin ID";
+    }
+
+    protected String getProjectVersionNickname(final NotificationContentItem notification) throws HubIntegrationException {
+        return "TBD Project Version Nickname";
+    }
+
     private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws HubIntegrationException {
         final ComponentVersion componentVersion = notification.getComponentVersion();
         String licensesString = "";
