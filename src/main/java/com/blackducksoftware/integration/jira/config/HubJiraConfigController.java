@@ -1035,15 +1035,7 @@ public class HubJiraConfigController {
         if (config.hasErrors()) {
             return null;
         }
-
-        final HubServicesFactory hubServicesFactory;
-        try {
-            hubServicesFactory = new HubServicesFactory(restConnection);
-        } catch (final HubIntegrationException e) {
-            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
-            return null;
-        }
-
+        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
 

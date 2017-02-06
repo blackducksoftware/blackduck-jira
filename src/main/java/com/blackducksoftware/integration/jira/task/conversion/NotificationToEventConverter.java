@@ -137,6 +137,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
+        final ComponentVersion compVer = notification.getComponentVersion();
         return "TBD Usage";
     }
 
@@ -149,7 +150,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     protected String getProjectVersionNickname(final NotificationContentItem notification) throws HubIntegrationException {
-        return "TBD Project Version Nickname";
+        return notification.getProjectVersion().getNickname();
     }
 
     private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws HubIntegrationException {
