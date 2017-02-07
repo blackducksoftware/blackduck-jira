@@ -24,12 +24,16 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
@@ -63,6 +67,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final HubServicesFactory hubServicesFactory;
 
+    private final BomRequestService bomRequestService;
+
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
             final HubProjectMappings mappings,
@@ -78,6 +84,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.fieldCopyConfig = fieldCopyConfig;
         this.hubServicesFactory = hubServicesFactory;
+        this.bomRequestService = hubServicesFactory.createBomRequestService();
         this.logger = logger;
     }
 
@@ -147,6 +154,20 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     protected String getComponentOriginId(final NotificationContentItem notification) throws HubIntegrationException {
         return "TBD Component Origin ID";
+    }
+
+    protected VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
+            final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
+        final String componentVersionUrl = getMetaService().getHref(componentVersion);
+        final List<VersionBomComponentView> bomComps = bomRequestService.getBom(projectVersion.getComponentsLink());
+        for (final VersionBomComponentView bomComp : bomComps) {
+            if (componentVersionUrl.equals(bomComp.getComponentVersion())) {
+                return bomComp;
+            }
+        }
+        throw new HubIntegrationException(String.format("Component %s / %s not found in the BOM for project %s / %s",
+                componentName, componentVersion.getVersionName(),
+                projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
     }
 
     protected String getProjectVersionNickname(final NotificationContentItem notification) throws HubIntegrationException {
