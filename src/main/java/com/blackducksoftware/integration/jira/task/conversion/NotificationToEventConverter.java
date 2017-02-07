@@ -33,6 +33,7 @@ import com.blackducksoftware.integration.hub.api.component.version.ComplexLicens
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView.UsagesEnum;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -144,8 +145,18 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
-        final ComponentVersion compVer = notification.getComponentVersion();
-        return "TBD Usage";
+        final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
+                notification.getComponentName(), notification.getComponentVersion());
+        final StringBuilder usagesText = new StringBuilder();
+        int usagesIndex = 0;
+        for (final UsagesEnum usage : bomComp.getUsages()) {
+            if (usagesIndex > 0) {
+                usagesText.append(", ");
+            }
+            usagesText.append(usage.toString());
+            usagesIndex++;
+        }
+        return usagesText.toString();
     }
 
     protected String getComponentOrigin(final NotificationContentItem notification) throws HubIntegrationException {
@@ -156,7 +167,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return "TBD Component Origin ID";
     }
 
-    protected VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
+    private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
             final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
         final String componentVersionUrl = getMetaService().getHref(componentVersion);
         final List<VersionBomComponentView> bomComps = bomRequestService.getBom(projectVersion.getComponentsLink());

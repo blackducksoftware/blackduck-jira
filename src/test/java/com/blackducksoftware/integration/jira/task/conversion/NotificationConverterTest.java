@@ -44,10 +44,13 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.item.HubItem;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -73,6 +76,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAct
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
@@ -318,6 +322,13 @@ public class NotificationConverterTest {
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         final MetaService metaService = Mockito.mock(MetaService.class);
+        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn("http://bomurl.com");
+        Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
+
+        final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
+        final List<VersionBomComponentView> bom = new ArrayList<>();
+        Mockito.when(bomRequestService.getBom("http://bomurl.com")).thenReturn(bom);
+        Mockito.when(hubServicesFactory.createBomRequestService()).thenReturn(bomRequestService);
 
         // Construct the notification and the converter
         NotificationToEventConverter conv;
