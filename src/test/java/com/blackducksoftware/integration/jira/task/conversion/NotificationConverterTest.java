@@ -189,7 +189,7 @@ public class NotificationConverterTest {
 
     private static final String VULN_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
 
-    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin-generated comment)\n" +
+    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" +
             "Vulnerabilities added: http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId (NVD)\n" +
             "Vulnerabilities updated: None\n" +
             "Vulnerabilities deleted: None\n";
