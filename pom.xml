@@ -97,7 +97,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>phone-home-api</artifactId>
-      <version>1.1.7</version>
+      <version>1.5.1</version>
     </dependency>
 
     <dependency>
@@ -124,7 +124,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-atlassian-config</artifactId>
-      <version>1.1.0</version>
+      <version>2.0.0</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -268,7 +268,6 @@
             <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
             <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
           </instructions>
-          <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
       </plugin>
       <plugin>
