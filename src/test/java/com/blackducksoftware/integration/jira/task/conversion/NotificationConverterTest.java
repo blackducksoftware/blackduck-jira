@@ -322,12 +322,17 @@ public class NotificationConverterTest {
         Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         final MetaService metaService = Mockito.mock(MetaService.class);
-        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn("http://bomurl.com");
+        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
         Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
 
         final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
         final List<VersionBomComponentView> bom = new ArrayList<>();
-        Mockito.when(bomRequestService.getBom("http://bomurl.com")).thenReturn(bom);
+        final VersionBomComponentView bomComp = Mockito.mock(VersionBomComponentView.class);
+        Mockito.when(bomComp.getComponentName()).thenReturn("componentName");
+        Mockito.when(bomComp.getComponentVersionName()).thenReturn("componentVersion");
+        Mockito.when(bomComp.getComponentVersion()).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
+        bom.add(bomComp);
+        Mockito.when(bomRequestService.getBom(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
         Mockito.when(hubServicesFactory.createBomRequestService()).thenReturn(bomRequestService);
 
         // Construct the notification and the converter
