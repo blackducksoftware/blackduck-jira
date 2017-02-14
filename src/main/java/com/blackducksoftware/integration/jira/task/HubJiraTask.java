@@ -32,8 +32,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.restlet.resource.ResourceException;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
@@ -311,11 +309,11 @@ public class HubJiraTask {
      *            Integrations server.
      */
     public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName)
-            throws IOException, PhoneHomeException, PropertiesLoaderException, ResourceException, JSONException {
+            throws IOException, PhoneHomeException, PropertiesLoaderException {
         final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
         final String pluginVersion = jiraServices.getPluginVersion();
 
-        final PhoneHomeClient phClient = new PhoneHomeClient();
+        final PhoneHomeClient phClient = new PhoneHomeClient(logger);
         phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
                 thirdPartyVersion, pluginVersion);
     }
