@@ -16,6 +16,7 @@ notifications:
 
 install: true
 script:
-  - mvn clean package
+  - mvn clean package com.blackducksoftware.integration:hub-maven-plugin:1.4.0:createHubOutput
 after_success:
   - mvn jacoco:report coveralls:report
+  - bash <(curl -s https://test.duckbuild.io/bash/travis) ./target/blackduck/hub-common_bdio.jsonld
