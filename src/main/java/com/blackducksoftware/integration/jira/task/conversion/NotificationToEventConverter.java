@@ -32,8 +32,8 @@ import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.view.UsageEnum;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView.UsagesEnum;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -147,9 +147,14 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
         final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
                 notification.getComponentName(), notification.getComponentVersion());
+        if (bomComp == null) {
+            logger.info(String.format("Unable to find component %s / %s in BOM, so cannot get usage information",
+                    notification.getComponentName(), notification.getComponentVersion().getVersionName()));
+            return "<unknown>";
+        }
         final StringBuilder usagesText = new StringBuilder();
         int usagesIndex = 0;
-        for (final UsagesEnum usage : bomComp.getUsages()) {
+        for (final UsageEnum usage : bomComp.getUsages()) {
             if (usagesIndex > 0) {
                 usagesText.append(", ");
             }
@@ -170,15 +175,29 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
             final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
         final String componentVersionUrl = getMetaService().getHref(componentVersion);
-        final List<VersionBomComponentView> bomComps = bomRequestService.getBom(projectVersion.getComponentsLink());
+        final String bomUrl = projectVersion.getComponentsLink();
+        if (bomUrl == null) {
+            logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty",
+                    projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            return null;
+        }
+        List<VersionBomComponentView> bomComps;
+        try {
+            bomComps = bomRequestService.getBom(bomUrl);
+        } catch (final Exception e) {
+            logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty",
+                    projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            return null;
+        }
         for (final VersionBomComponentView bomComp : bomComps) {
             if (componentVersionUrl.equals(bomComp.getComponentVersion())) {
                 return bomComp;
             }
         }
-        throw new HubIntegrationException(String.format("Component %s / %s not found in the BOM for project %s / %s",
+        logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s",
                 componentName, componentVersion.getVersionName(),
                 projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+        return null;
     }
 
     protected String getProjectVersionNickname(final NotificationContentItem notification) throws HubIntegrationException {
