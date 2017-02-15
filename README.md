@@ -4,7 +4,7 @@ Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA 
 ## Build ##
 
 [![Build Status](https://travis-ci.org/blackducksoftware/hub-jira.svg?branch=master)](https://travis-ci.org/blackducksoftware/hub-jira)
-[![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/hub-jira/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/hub-jira?branch=master)
+[![Black Duck Security Risk](https://test.duckbuild.io/github/groups/blackducksoftware/locations/hub-jira/public/results/branches/master/badge-risk.svg)](https://test.duckbuild.io/github/groups/blackducksoftware/locations/hub-jira/public/results/branches/master)
 
 ## Where can I get the latest release? ##
 You can download the latest source from GitHub: https://github.com/blackducksoftware/hub-jira. 
