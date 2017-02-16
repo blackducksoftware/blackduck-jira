@@ -139,6 +139,14 @@ function openTab(evt, tabId) {
     evt.currentTarget.className += " active";
 }
 
+function testConnection() {
+	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+}
+
+function updateHubDetails() {
+	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails', 'Save successful.', 'The Hub details are not valid.');
+}
+
 function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
@@ -152,6 +160,60 @@ function updateFieldCopyConfig() {
 	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
 }
 
+function putHubDetails(restUrl, successMessage, failureMessage) {
+	console.log("putHubDetails()");
+	  AJS.$.ajax({
+		    url: restUrl,
+		    type: "PUT",
+		    dataType: "json",
+		    contentType: "application/json",
+		    data: '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
+		    + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
+		    + '", "username": "' + encodeURI(AJS.$("#hubUsername").val())
+		    + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
+		    + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
+		    + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
+		    + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
+		    + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
+		    + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
+		    + '"}',
+		    processData: false,
+		    success: function() {
+		    	hideError('hubServerUrlErrorRow', 'hubServerUrlError');
+		    	hideError('hubTimeoutErrorRow', 'hubTimeoutError');
+		    	hideError('hubUsernameErrorRow', 'hubUsernameError');
+		    	hideError('hubPasswordErrorRow', 'hubPasswordError');
+		    	hideError('proxyHostErrorRow', 'proxyHostError');
+		    	hideError('proxyPortErrorRow', 'proxyPortError');
+			    hideError('proxyUsernameErrorRow', 'proxyUsernameError');
+			    hideError('proxyPasswordErrorRow', 'proxyPasswordError');
+			    hideError('noProxyHostErrorRow', 'noProxyHostError');
+			    hideError('configurationErrorRow', 'configurationError');
+			      
+			    showStatusMessage(successStatus, 'Success!', successMessage);
+		    },
+		    error: function(response){
+		    	console.log("putConfig(): " + response.responseText);
+		    	var config = JSON.parse(response.responseText);
+		    	handleError('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
+			    handleError('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
+			    handleError('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
+			    handleError('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
+			    handleError('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
+			    handleError('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
+			    handleError('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
+			    handleError('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
+			    handleError('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
+			    handleError('configurationErrorRow', 'configurationError', config.testConnectionError);
+			    
+			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 stopProgressSpinner();
+		    }
+		  });
+}
+
 function populateForm() {
 	AJS.$.ajax({
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/admin/",
@@ -163,6 +225,42 @@ function populateForm() {
 	    },
 	    error: function(response){
 	    	handleDataRetrievalError(response, "hubJiraGroupsError", "There was a problem retrieving the Admin configuration.", "Admin Error");
+	    }
+	  });
+	
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubdetails",
+	    dataType: "json",
+	    success: function(config) {
+	      updateValue("hubServerUrl", config.hubUrl);
+	      updateValue("hubTimeout", config.timeout);
+	      updateValue("hubUsername", config.username);
+	      updateValue("hubPassword", config.password);
+	      updateValue("proxyHost", config.hubProxyHost);
+	      updateValue("proxyPort", config.hubProxyPort);
+	      updateValue("proxyUsername", config.hubProxyUser);
+	      updateValue("proxyPassword", config.hubProxyPassword);
+	      updateValue("noProxyHost", config.hubNoProxyHosts);
+	      
+	      checkProxyConfig();
+	      
+	      handleError('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
+	      handleError('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
+	      handleError('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
+	      handleError('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
+	      handleError('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
+	      handleError('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
+	      handleError('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
+	      handleError('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
+	      handleError('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
+			    
+	    }, error: function(response){
+	    	console.log("putConfig(): " + response.responseText);
+	    	alert("There was an error loading the configuration.");
+	    	handleDataRetrievalError(response, 'configurationError', "There was a problem retrieving the configuration.", "Configuration Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	AJS.$('#hubDetailsProgressSpinner').remove();
 	    }
 	  });
 

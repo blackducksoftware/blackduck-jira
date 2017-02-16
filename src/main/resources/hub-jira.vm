@@ -170,7 +170,7 @@
 		  	<i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
 		  </div>
 		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.jira.hub.details.test.label")" class="aui-button aui-button-primary">
-		  <input id="saveConfigButton" onclick="updateConfig(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary">
+		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary">
 	  </div>
 	  <p/>
 	</div>
