@@ -217,7 +217,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 
 function handleErrorHubDetails(fieldRowId, fieldId, configField) {
 	if(configField){
-		showError(fieldRowId, fieldId, configField);
+		showErrorHubDetails(fieldRowId, fieldId, configField);
     } else{
     	hideError(fieldRowId, fieldId);
     }
@@ -1436,6 +1436,11 @@ function handleError(fieldId, configField, hideErrorValue, clearOldMessage) {
     } else{
     	showError(fieldId, "", true);
     }
+}
+
+function showErrorHubDetails(fieldRowId, fieldId, configField) {
+	  AJS.$("#" + fieldId).text(decodeURI(configField));
+	  removeClassFromFieldById(fieldRowId, hiddenClass);
 }
 
 function showError(fieldId, configField, clearOldMessage) {
