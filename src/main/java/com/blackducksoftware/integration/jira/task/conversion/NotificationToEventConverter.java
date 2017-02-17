@@ -165,11 +165,13 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     protected String getComponentOrigin(final NotificationContentItem notification) throws HubIntegrationException {
-        return "TBD Component Origin";
+        // Planned for hub-jira 3.3
+        return "";
     }
 
     protected String getComponentOriginId(final NotificationContentItem notification) throws HubIntegrationException {
-        return "TBD Component Origin ID";
+        // Planned for hub-jira 3.3
+        return "";
     }
 
     private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
