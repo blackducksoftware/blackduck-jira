@@ -55,7 +55,7 @@ import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
-@Path("/")
+@Path("/hubdetails")
 public class HubConfigController {
 
     private final UserManager userManager;
@@ -98,7 +98,7 @@ public class HubConfigController {
         return Response.status(Status.UNAUTHORIZED).build();
     }
 
-    @Path("/hubdetails")
+    @Path("/read")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context final HttpServletRequest request) {
@@ -175,7 +175,7 @@ public class HubConfigController {
         return 0;
     }
 
-    @Path("/hubdetails")
+    @Path("/save")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubServerConfigSerializable config, @Context final HttpServletRequest request) {

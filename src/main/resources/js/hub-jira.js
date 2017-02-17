@@ -140,11 +140,11 @@ function openTab(evt, tabId) {
 }
 
 function testConnection() {
-	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
 }
 
 function updateHubDetails() {
-	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails', 'Save successful.', 'The Hub details are not valid.');
+	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
 }
 
 function updateConfig() {
@@ -229,7 +229,7 @@ function populateForm() {
 	  });
 	
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubdetails",
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubdetails/read",
 	    dataType: "json",
 	    success: function(config) {
 	      updateValue("hubServerUrl", config.hubUrl);
@@ -431,6 +431,18 @@ function populateForm() {
 		    	fillInPluginVersion("(error)");
 		    }
 	  });
+}
+
+function checkProxyConfig(){
+	var proxyHost = AJS.$("#proxyHost").val();
+	var proxyPort = AJS.$("#proxyPort").val();
+	var noProxyHost = AJS.$("#noProxyHost").val();
+	var proxyUsername = AJS.$("#proxyUsername").val();
+	var proxyPassword = AJS.$("#proxyPassword").val();
+	
+	if(!proxyHost && !proxyPort && !noProxyHost && !proxyUsername && !proxyPassword){
+		toggleDisplayById("proxyConfigDisplayIcon",'proxyConfigArea');
+	}
 }
 
 function resetSalKeys(){
