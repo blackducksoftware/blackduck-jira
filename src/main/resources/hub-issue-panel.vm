@@ -22,6 +22,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
 #end
+<hr/>
 #if ($bdsHubComponent)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
@@ -52,6 +53,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
 	</div>
 #end
+<hr/>
 #if ($bdsHubPolicyRule)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
