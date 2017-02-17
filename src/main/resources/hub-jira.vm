@@ -68,42 +68,42 @@
       <fieldset class="fieldSection">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'serverConfigArea');"> </i> $i18n.getText("hub.integration.jira.hub.details.serverConfig.label")</legend>
       	  <div id="serverConfigArea">
-		      <div class="field-group">
-		        <label class="label" for="hubServerUrl">$i18n.getText("hub.integration.jira.hub.details.url.label")<span class="error"> *</span></label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="hubServerUrl">$i18n.getText("hub.integration.jira.hub.details.url.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubServerUrl" name="hubServerUrl" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.url.description')"></span>
 		      </div>
-		      <div id="hubServerUrlErrorRow" class="field-group hidden">
+		      <div id="hubServerUrlErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubServerUrlError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="hubUsername">$i18n.getText("hub.integration.jira.hub.details.username.label")<span class="error"> *</span></label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="hubUsername">$i18n.getText("hub.integration.jira.hub.details.username.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.username.description')"></span>
 		      </div>
-		      <div id="hubUsernameErrorRow" class="field-group hidden">
+		      <div id="hubUsernameErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubUsernameError" class="error "></div>
 		      </div>
 		        
-		      <div class="field-group">
-		        <label class="label" for="hubPassword">$i18n.getText("hub.integration.jira.hub.details.password.label")<span class="error"> *</span></label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="hubPassword">$i18n.getText("hub.integration.jira.hub.details.password.label")<span class="error"> *</span></label>
 		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.password.description')"></span>
 		      </div>
-		       <div id="hubPasswordErrorRow" class="field-group hidden">
+		       <div id="hubPasswordErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubPasswordError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="hubTimeout">$i18n.getText("hub.integration.jira.hub.details.timeout.label")<span class="error"> *</span></label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="hubTimeout">$i18n.getText("hub.integration.jira.hub.details.timeout.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubTimeout" name="hubTimeout" class="longInput textStyle" default="120">
 		         <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.timeout.description')"></span>
 		      </div>
-		       <div id="hubTimeoutErrorRow" class="field-group hidden">
+		       <div id="hubTimeoutErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubTimeoutError" class="error "></div>
 		      </div>
@@ -113,52 +113,52 @@
       <fieldset class="fieldSection">
       	  <legend class="legend"><i id="proxyConfigDisplayIcon" class="fa fa-angle-down" onclick="toggleDisplay(this,'proxyConfigArea');"> </i> $i18n.getText("hub.integration.jira.hub.details.proxyConfig.label")</legend>
       	  <div id="proxyConfigArea">
-		      <div class="field-group">
-		        <label class="label" for="proxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.host.label")</label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="proxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.host.label")</label>
 		        <input type="text" id="proxyHost" name="proxyHost" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.host.description')"></span>
 		      </div>
-		       <div id="proxyHostErrorRow" class="field-group hidden">
+		       <div id="proxyHostErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyHostError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="proxyPort">$i18n.getText("hub.integration.jira.hub.details.proxy.port.label")</label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="proxyPort">$i18n.getText("hub.integration.jira.hub.details.proxy.port.label")</label>
 		        <input type="text" id="proxyPort" name="proxyPort" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.port.description')"></span>
 		      </div>
-		       <div id="proxyPortErrorRow" class="field-group hidden">
+		       <div id="proxyPortErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyPortError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="noProxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.noproxyhost.label")</label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="noProxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.noproxyhost.label")</label>
 		        <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.noproxyhost.description')"></span>
 		      </div>
-		       <div id="noProxyHostErrorRow" class="field-group hidden">
+		       <div id="noProxyHostErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="noProxyHostError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="proxyUsername">$i18n.getText("hub.integration.jira.hub.details.proxy.username.label")</label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="proxyUsername">$i18n.getText("hub.integration.jira.hub.details.proxy.username.label")</label>
 		        <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.username.description')"></span>
 		      </div>
-		       <div id="proxyUsernameErrorRow" class="field-group hidden">
+		       <div id="proxyUsernameErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyUsernameError" class="error "></div>
 		      </div>
 		      
-		      <div class="field-group">
-		        <label class="label" for="proxyPassword">$i18n.getText("hub.integration.jira.hub.details.proxy.password.label")</label>
+		      <div class="hub-details-field-group">
+		        <label class="hubDetailsLabel" for="proxyPassword">$i18n.getText("hub.integration.jira.hub.details.proxy.password.label")</label>
 		        <input type="password" id="proxyPassword" name="proxyPassword" class="longInput password textStyle">
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.password.description')"></span>
 		      </div>
-		      <div id="proxyPasswordErrorRow" class="field-group hidden">
+		      <div id="proxyPasswordErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyPasswordError" class="error "></div>
 		      </div>

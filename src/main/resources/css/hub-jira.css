@@ -95,8 +95,23 @@ ul.tab li a:focus, .active {background-color: #ccc;}
     padding: 0 0 5px 10px;
 }
 
+.hub-details-field-group {
+	clear: both;
+    display: block;
+    margin-bottom: 5px;
+    min-height: 1.6em;
+    padding: 0px 0px 0px 160px;
+}
+
 .longInput {
 	width: 400px;
+	border: 1px solid #ccc;
+	border-radius: 3.01px;
+	box-shadow: inset 0 1px 3px #ccc;
+}
+
+.inputDescription {
+	display: block;
 }
 
 .textStyle {
@@ -117,6 +132,26 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 	font-weight : bold;
 	width : auto !important;
 	text-align : left !important;
+}
+
+.hubDetailsLabel {
+	color : #707070;
+	float : left;
+	margin-left: -160px;
+	font-weight : bold;
+	width : auto !important;
+	text-align : left !important;
+	white-space : nowrap !important;
+}
+
+.hubDetailslabel {
+	color : #707070;
+	float : left;
+	margin-left: -160px;
+	font-weight : bold;
+	width : auto !important;
+	text-align : left !important;
+	white-space : nowrap !important;
 }
 
 .fieldSection {
