@@ -165,6 +165,7 @@
 		  </div>
       </fieldset>
       
+      <div style="display: inline-block; width: 100%;">
       <div class="buttonContainer">
       	  <div id="hubDetailsProgressSpinner" style="display: inline-block;">
 		  	<i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
@@ -172,7 +173,7 @@
 		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.jira.hub.details.test.label")" class="aui-button aui-button-primary">
 		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner();" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary">
 	  </div>
-	  <p/>
+	  </div>
 	</div>
 
 	<div id="Basic" class="tabcontent">
