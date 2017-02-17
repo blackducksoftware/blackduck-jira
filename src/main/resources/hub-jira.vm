@@ -22,7 +22,7 @@
 	<ul class="tab">
   		<li><a href="javascript:void(0)" id="AdminTabButton" class="tablinks" onclick="openTab(event, 'Admin')">Configuration Access</a></li>
   		<li><a href="javascript:void(0)" id="HubTabButton" class="tablinks" onclick="openTab(event, 'Hub')">Hub Server</a></li>
-  		<li><a href="javascript:void(0)" id="BasicTabButton" class="tablinks" onclick="openTab(event, 'Basic')">Add-on Operation</a></li>
+  		<li><a href="javascript:void(0)" id="BasicTabButton" class="tablinks" onclick="openTab(event, 'Basic')">Issue Creation</a></li>
   		<li><a href="javascript:void(0)" id="AdvancedTabButton" class="tablinks" onclick="openTab(event, 'Advanced')">Issue Fields</a></li>
 	</ul>
 
