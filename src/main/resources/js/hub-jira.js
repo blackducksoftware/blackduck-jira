@@ -209,7 +209,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 		    },
 		    complete: function(jqXHR, textStatus){
-		    	 stopProgressSpinner();
+		    	 stopProgressSpinner('hubDetailsProgressSpinner');
 		    }
 		  });
 }
@@ -269,7 +269,7 @@ function populateForm() {
 	    	handleDataRetrievalError(response, 'configurationError', "There was a problem retrieving the configuration.", "Configuration Error");
 	    },
 	    complete: function(jqXHR, textStatus){
-	    	AJS.$('#hubDetailsProgressSpinner').remove();
+	    	stopProgressSpinner('hubDetailsProgressSpinner');
 	    }
 	  });
 
