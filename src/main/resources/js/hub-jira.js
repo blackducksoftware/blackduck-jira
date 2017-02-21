@@ -179,6 +179,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    + '"}',
 		    processData: false,
 		    success: function() {
+		    	handleError(errorMessageFieldId, "", true, true);
 		    	hideError('hubServerUrlErrorRow', 'hubServerUrlError');
 		    	hideError('hubTimeoutErrorRow', 'hubTimeoutError');
 		    	hideError('hubUsernameErrorRow', 'hubUsernameError');
@@ -195,6 +196,8 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    error: function(response){
 		    	console.log("putConfig(): " + response.responseText);
 		    	var config = JSON.parse(response.responseText);
+		    	
+		    	handleError(errorMessageFieldId, config.errorMessage, true, true);
 		    	handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 		    	handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
 		    	handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
@@ -253,6 +256,7 @@ function populateForm() {
 	      
 	      checkProxyConfig();
 	      
+	      handleError(errorMessageFieldId, config.errorMessage, true, true);
 	      handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 	      handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
 	      handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
