@@ -423,7 +423,7 @@ public class JiraIssueHandler {
             break;
         case ADD_COMMENT:
             final ExistenceAwareIssue issueToCommentOn = openIssue(notificationEvent, eventData);
-            if (issueToCommentOn != null) {
+            if (issueToCommentOn.getIssue() != null) {
                 if (!issueToCommentOn.isExisted()) {
                     addComment(eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
                 } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
