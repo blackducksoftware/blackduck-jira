@@ -402,6 +402,25 @@ function populateForm() {
 		    	console.log("Completed get of pluginInfo: " + textStatus);
 		    }
 	  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInMappings(config.hubProjectMappings);
+		      
+		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+		      
+		      gotProjectMappings = true;
+		    },
+		    error: function(response){
+		    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	 AJS.$('#projectMappingSpinner').remove();
+		    	 console.log("Completed get of project mappings: " + textStatus);
+		    }
+		  });
 	  populateFormHubData();
 	  console.log("*populateForm() Finished");
 }
@@ -461,25 +480,7 @@ function populateFormHubData() {
 	    	console.log("Completed get of ticketsChoice: " + textStatus);
 	    }
 	  });
-  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
-	    dataType: "json",
-	    success: function(config) {
-	      fillInMappings(config.hubProjectMappings);
-	      
-	      handleError(errorMessageFieldId, config.errorMessage, true, false);
-	      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
-	      
-	      gotProjectMappings = true;
-	    },
-	    error: function(response){
-	    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
-	    },
-	    complete: function(jqXHR, textStatus){
-	    	 AJS.$('#projectMappingSpinner').remove();
-	    	 console.log("Completed get of project mappings: " + textStatus);
-	    }
-	  });
+  
 }
 
 function checkProxyConfig(){
