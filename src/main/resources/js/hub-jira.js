@@ -237,6 +237,9 @@ function populateForm() {
 	    },
 	    error: function(response){
 	    	handleDataRetrievalError(response, "hubJiraGroupsError", "There was a problem retrieving the Admin configuration.", "Admin Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of groups: " + textStatus);
 	    }
 	  });
 	
@@ -274,6 +277,7 @@ function populateForm() {
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	stopProgressSpinner('hubDetailsProgressSpinner');
+	    	console.log("Completed get of hub details: " + textStatus);
 	    }
 	  });
 
@@ -287,6 +291,9 @@ function populateForm() {
 	    },
 	    error: function(response){
 	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the Interval.", "Interval Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of interval: " + textStatus);
 	    }
 	  });
 	  AJS.$.ajax({
@@ -302,6 +309,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of JIRA projects: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -317,6 +327,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of Hub projects: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -328,6 +341,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of sourceFields: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -342,6 +358,9 @@ function populateForm() {
 		    },
 		    error: function(response){
 		    	handleDataRetrievalError(response, targetFieldListErrorId, "There was a problem retrieving the target fields.", "Target Field Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of targetFields: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -358,24 +377,26 @@ function populateForm() {
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	 AJS.$('#policyRuleSpinner').remove();
+		    	 console.log("Completed get of Hub policies: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
 		    dataType: "json",
 		    success: function(config) {
-		    	console.log("success: createVulnerabilityTicketsChoice");
+		      console.log("success: get of ticketsChoice");
 		      setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
 
 //		      handleError(errorMessageFieldId, config.errorMessage, true, false);
 		      handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
+		      console.log("Finished handling ticketsChoice");
 		    },
 		    error: function(response){
-		    	console.log("error: createVulnerabilityTicketsChoice");
+		    	console.log("error: get of ticketsChoice");
 		    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
 		    },
 		    complete: function(jqXHR, textStatus){
-		    	console.log("complete: createVulnerabilityTicketsChoice");
+		    	console.log("Completed get of ticketsChoice: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -394,6 +415,7 @@ function populateForm() {
 		    },
 		    complete: function(jqXHR, textStatus){
 		    	 AJS.$('#projectMappingSpinner').remove();
+		    	 console.log("Completed get of project mappings: " + textStatus);
 		    }
 		  });
 	  console.log("Getting field copy mappings");
@@ -413,7 +435,7 @@ function populateForm() {
 		    	handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
 		    },
 		    complete: function(jqXHR, textStatus){
-		    	console.log("Finished getting field copy mappings");	
+		    	console.log("Completed get of field copy mappings: " + textStatus);
 		    }
 		  });
 	  AJS.$.ajax({
@@ -429,6 +451,10 @@ function populateForm() {
 		    		fieldSet.removeClass('hidden');
 				}
 		    	handleDataRetrievalError(response, "ticketCreationLoadingError", "There was a problem retrieving the Ticket Creation Errors.", "Ticket Creation Error");
+		    	
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of task errors: " + textStatus);
 		    }
 	  });
 	  AJS.$.ajax({
@@ -442,8 +468,12 @@ function populateForm() {
 		    	console.log("Error getting pluginInfo");
 		    	console.log("Response text: " + response.responseText);
 		    	fillInPluginVersion("(error)");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of pluginInfo: " + textStatus);
 		    }
 	  });
+	  console.log("*populateForm() Finished");
 }
 
 function checkProxyConfig(){
@@ -1023,6 +1053,14 @@ function updateValue(fieldId, configField) {
 function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
 	var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
 	var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+	console.log("createVulnerabilityIssuesYesElement: " + createVulnerabilityIssuesYesElement);
+	console.log("createVulnerabilityIssuesNoElement: " + createVulnerabilityIssuesNoElement);
+	if (createVulnerabilityIssuesYesElement.length == 0) {
+		console.log("*** createVulnerabilityIssuesYesElement is not ready");
+	}
+	if (createVulnerabilityIssuesNoElement.length == 0) {
+		console.log("*** createVulnerabilityIssuesNoElement is not ready");
+	}
 	if (createVulnerabilityIssues) {
 		console.log("Setting createVulnerabilityIssuesChoice to Yes");
 		createVulnerabilityIssuesYesElement[0].checked = true;
@@ -1600,10 +1638,10 @@ function isNullOrWhitespace(input) {
 }
 
 (function ($) {
-	populateForm();
-	
+
     $(document).ready(function() {
-        console.log("DOM loaded")
+    	console.log("DOM loaded");
+    	populateForm();
         initTabs();
     });
 	
