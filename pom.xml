@@ -261,6 +261,7 @@
         <configuration>
           <productVersion>${jira.version}</productVersion>
           <productDataVersion>${jira.version}</productDataVersion>
+          <compressResources>false</compressResources>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>

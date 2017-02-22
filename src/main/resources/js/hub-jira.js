@@ -145,6 +145,7 @@ function testConnection() {
 
 function updateHubDetails() {
 	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
+	populateFormHubData();
 }
 
 function updateConfig() {
@@ -314,24 +315,7 @@ function populateForm() {
 		    	console.log("Completed get of JIRA projects: " + textStatus);
 		    }
 		  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubProjects/",
-		    dataType: "json",
-		    success: function(config) {
-		      fillInHubProjects(config.hubProjects);
-		     
-		      handleError(hubProjectListErrorId, config.hubProjectsError, false, false);
-		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      
-		      gotHubProjects = true;
-		    },
-		    error: function(response){
-		    	handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	console.log("Completed get of Hub projects: " + textStatus);
-		    }
-		  });
+	  
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/sourceFields/",
 		    dataType: "json",
@@ -363,62 +347,7 @@ function populateForm() {
 		    	console.log("Completed get of targetFields: " + textStatus);
 		    }
 		  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubPolicies/",
-		    dataType: "json",
-		    success: function(config) {
-		      addPolicyViolationRules(config.policyRules);
-
-		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      handleError('policyRulesError', config.policyRulesError, true, false);
-		    },
-		    error: function(response){
-		    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Hub Policy Rules.", "Hub Policy Rules Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	 AJS.$('#policyRuleSpinner').remove();
-		    	 console.log("Completed get of Hub policies: " + textStatus);
-		    }
-		  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
-		    dataType: "json",
-		    success: function(config) {
-		      console.log("success: get of ticketsChoice");
-		      setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
-
-//		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
-		      console.log("Finished handling ticketsChoice");
-		    },
-		    error: function(response){
-		    	console.log("error: get of ticketsChoice");
-		    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	console.log("Completed get of ticketsChoice: " + textStatus);
-		    }
-		  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
-		    dataType: "json",
-		    success: function(config) {
-		      fillInMappings(config.hubProjectMappings);
-		      
-		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
-		      
-		      gotProjectMappings = true;
-		    },
-		    error: function(response){
-		    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	 AJS.$('#projectMappingSpinner').remove();
-		    	 console.log("Completed get of project mappings: " + textStatus);
-		    }
-		  });
-	  console.log("Getting field copy mappings");
+	  
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/fieldCopyMappings/",
 		    dataType: "json",
@@ -473,7 +402,84 @@ function populateForm() {
 		    	console.log("Completed get of pluginInfo: " + textStatus);
 		    }
 	  });
+	  populateFormHubData();
 	  console.log("*populateForm() Finished");
+}
+
+function populateFormHubData() {
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubProjects/",
+	    dataType: "json",
+	    success: function(config) {
+	      fillInHubProjects(config.hubProjects);
+	     
+	      handleError(hubProjectListErrorId, config.hubProjectsError, false, false);
+	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      
+	      gotHubProjects = true;
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of Hub projects: " + textStatus);
+	    }
+	  });
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubPolicies/",
+	    dataType: "json",
+	    success: function(config) {
+	      addPolicyViolationRules(config.policyRules);
+
+	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      handleError('policyRulesError', config.policyRulesError, true, false);
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Hub Policy Rules.", "Hub Policy Rules Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 AJS.$('#policyRuleSpinner').remove();
+	    	 console.log("Completed get of Hub policies: " + textStatus);
+	    }
+	  });
+  AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
+	    dataType: "json",
+	    success: function(config) {
+	      console.log("success: get of ticketsChoice");
+	      setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
+
+//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
+	      console.log("Finished handling ticketsChoice");
+	    },
+	    error: function(response){
+	    	console.log("error: get of ticketsChoice");
+	    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of ticketsChoice: " + textStatus);
+	    }
+	  });
+  AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
+	    dataType: "json",
+	    success: function(config) {
+	      fillInMappings(config.hubProjectMappings);
+	      
+	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+	      
+	      gotProjectMappings = true;
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 AJS.$('#projectMappingSpinner').remove();
+	    	 console.log("Completed get of project mappings: " + textStatus);
+	    }
+	  });
 }
 
 function checkProxyConfig(){
@@ -1172,12 +1178,29 @@ function fillInJiraProjects(jiraProjects){
 	}
 }
 
-function fillInHubProjects(hubProjects){
+function clearList(list) {
+	console.log("clearList(): Orig length: " + list.options.length);
+	var i;
+    for (i = list.options.length - 1 ; i >= 0 ; i--)
+    {
+    	console.log("clearList(): Removing item: " + i);
+        list.options[i].remove(i);
+    }
+    console.log("clearList(): New length: " + list.options.length);
+}
+
+function fillInHubProjects(hubProjects) {
+	console.log("fillInHubProjects()");
+	hubProjectMap = new Map();
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
 	console.log("hubProjectMappingElement: " + mappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
+	console.log("fillInHubProjects(): Orig length: " + hubProjectList[0].options.length);
+	clearList(hubProjectList[0]);
+	console.log("fillInHubProjects(): Cleared length: " + hubProjectList[0].options.length);
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
+			console.log("fillInHubProjects(): Adding hub project: " + hubProjects[h].projectName);
 			hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
 			var newOption = AJS.$('<option>', {
 			    value: hubProjects[h].projectName,
@@ -1186,6 +1209,7 @@ function fillInHubProjects(hubProjects){
 			hubProjectList.append(newOption);
 		}
 	}
+	console.log("fillInHubProjects(): Final length: " + hubProjectList[0].options.length);
 }
 
 function fillInPluginVersion(pluginVersion) {
@@ -1204,7 +1228,6 @@ function fillInSourceFields(sourceFields) {
 		for (var i = 0; i < sourceFields.idToNameMappings.length; i++) {
 			var sourceFieldIdToNameMapping = sourceFields.idToNameMappings[i];
 			console.log("Adding source field: Field ID: " + sourceFieldIdToNameMapping.id + "; Name: " + sourceFieldIdToNameMapping.name);
-			//hubProjectMap.set(hubProjects[sourceFieldIndex].projectUrl, hubProjects[sourceFieldIndex]);
 			var newOption = AJS.$('<option>', {
 			    value: sourceFieldIdToNameMapping.name,
 			    id: sourceFieldIdToNameMapping.id,
@@ -1223,7 +1246,6 @@ function fillInTargetFields(targetFields) {
 		for (var i = 0; i < targetFields.idToNameMappings.length; i++) {
 			var targetFieldIdToNameMapping = targetFields.idToNameMappings[i];
 			console.log("Adding target field: Field ID: " + targetFieldIdToNameMapping.id + "; Name: " + targetFieldIdToNameMapping.name);
-			//hubProjectMap.set(hubProjects[targetFieldIndex].projectUrl, hubProjects[targetFieldIndex]);
 			var newOption = AJS.$('<option>', {
 			    value: targetFieldIdToNameMapping.name,
 			    id: targetFieldIdToNameMapping.id,
