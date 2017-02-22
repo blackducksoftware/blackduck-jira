@@ -1078,13 +1078,15 @@ function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
 	}
 }
 
+function removeAllChildren(parent) {
+	for (var i = parent.children.length - 1 ; i >= 0 ; i--) {
+    	parent.children[i].remove();
+    }
+}
+
 function addPolicyViolationRules(policyRules){
 	var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
-	/////////////////////// TODO factor out
-    for (var i = policyRuleContainer[0].children.length - 1 ; i >= 0 ; i--) {
-    	policyRuleContainer[0].children[i].remove();
-    }
-	///////////////////////
+	removeAllChildren(policyRuleContainer[0]);
 	if(policyRules != null && policyRules.length > 0){
 		for (p = 0; p < policyRules.length; p++) {
 			var newPolicy = AJS.$('<div>', {});
@@ -1119,10 +1121,7 @@ function addPolicyViolationRules(policyRules){
 				AJS.$(newDescription).addClass("infoIcon");
 				newPolicy.append(newDescription);
 			}
-			
 			newPolicy.appendTo(policyRuleContainer);
-			
-			
 		}
 	}
 }
