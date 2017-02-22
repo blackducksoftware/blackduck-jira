@@ -1080,6 +1080,11 @@ function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
 
 function addPolicyViolationRules(policyRules){
 	var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+	/////////////////////// TODO factor out
+    for (var i = policyRuleContainer[0].children.length - 1 ; i >= 0 ; i--) {
+    	policyRuleContainer[0].children[i].remove();
+    }
+	///////////////////////
 	if(policyRules != null && policyRules.length > 0){
 		for (p = 0; p < policyRules.length; p++) {
 			var newPolicy = AJS.$('<div>', {});
@@ -1180,8 +1185,7 @@ function fillInJiraProjects(jiraProjects){
 
 function clearList(list) {
 	var i;
-    for (i = list.options.length - 1 ; i >= 0 ; i--)
-    {
+    for (i = list.options.length - 1 ; i >= 0 ; i--) {
         list.options[i].remove(i);
     }
 }
