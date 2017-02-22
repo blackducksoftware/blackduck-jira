@@ -1179,28 +1179,20 @@ function fillInJiraProjects(jiraProjects){
 }
 
 function clearList(list) {
-	console.log("clearList(): Orig length: " + list.options.length);
 	var i;
     for (i = list.options.length - 1 ; i >= 0 ; i--)
     {
-    	console.log("clearList(): Removing item: " + i);
         list.options[i].remove(i);
     }
-    console.log("clearList(): New length: " + list.options.length);
 }
 
 function fillInHubProjects(hubProjects) {
-	console.log("fillInHubProjects()");
 	hubProjectMap = new Map();
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
-	console.log("hubProjectMappingElement: " + mappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
-	console.log("fillInHubProjects(): Orig length: " + hubProjectList[0].options.length);
 	clearList(hubProjectList[0]);
-	console.log("fillInHubProjects(): Cleared length: " + hubProjectList[0].options.length);
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
-			console.log("fillInHubProjects(): Adding hub project: " + hubProjects[h].projectName);
 			hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
 			var newOption = AJS.$('<option>', {
 			    value: hubProjects[h].projectName,
@@ -1209,7 +1201,6 @@ function fillInHubProjects(hubProjects) {
 			hubProjectList.append(newOption);
 		}
 	}
-	console.log("fillInHubProjects(): Final length: " + hubProjectList[0].options.length);
 }
 
 function fillInPluginVersion(pluginVersion) {
