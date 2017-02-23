@@ -148,8 +148,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
                 notification.getComponentName(), notification.getComponentVersion());
         if (bomComp == null) {
-            logger.info(String.format("Unable to find component %s / %s in BOM, so cannot get usage information",
-                    notification.getComponentName(), notification.getComponentVersion().getVersionName()));
+            logger.info(String.format("Unable to find component %s in BOM, so cannot get usage information",
+                    notification.getComponentName()));
             return "<unknown>";
         }
         final StringBuilder usagesText = new StringBuilder();
@@ -177,6 +177,9 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
             final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
         final String componentVersionUrl = getMetaService().getHref(componentVersion);
+        // TODO pass Component into this method instead of componentName. Use Component to get componentName.
+        // TODO if componentVersion is null, don't try to get its URL
+        // TODO but get/use Component's URL instead
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
             logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty",

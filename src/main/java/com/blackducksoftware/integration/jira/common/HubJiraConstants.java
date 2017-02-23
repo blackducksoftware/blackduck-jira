@@ -79,6 +79,8 @@ public class HubJiraConstants {
 
     public final static String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";
 
+    public final static String HUB_WORKFLOW_STATUS_CLOSED = "Closed";
+
     public final static String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
 
     public final static String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";

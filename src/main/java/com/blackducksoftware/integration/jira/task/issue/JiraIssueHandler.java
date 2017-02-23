@@ -522,6 +522,10 @@ public class JiraIssueHandler {
                 logger.debug("This is not the BDS workflow; plugin will not change issue's state");
                 return new ExistenceAwareIssue(oldIssue, true, true);
             }
+            if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
+                logger.debug("This issue has been closed; plugin will not change issue's state");
+                return new ExistenceAwareIssue(oldIssue, true, true);
+            }
             final Issue updatedIssue = transitionIssue(event, eventData, oldIssue,
                     HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE,
                     HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraUser());

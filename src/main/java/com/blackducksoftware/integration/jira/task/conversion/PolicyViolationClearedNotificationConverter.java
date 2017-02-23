@@ -76,7 +76,12 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
             final String licensesString = getComponentLicensesStringPlainText(notification);
             logger.debug("Component " + notification.getComponentName() +
-                    " (version: " + notification.getComponentVersion().getVersionName() + "): License: " + licensesString);
+                    ": License: " + licensesString);
+
+            String componentVersionName = "";
+            if (notification.getComponentVersion() != null) {
+                componentVersionName = notification.getComponentVersion().getVersionName();
+            }
 
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
@@ -92,7 +97,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setHubProjectVersionUrl(notification.getProjectVersion().getUrl())
                     .setHubComponentName(notification.getComponentName())
                     .setHubComponentUrl(notification.getComponentUrl())
-                    .setHubComponentVersion(notification.getComponentVersion().getVersionName())
+                    .setHubComponentVersion(componentVersionName)
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
                     .setHubLicenseNames(licensesString)
                     .setHubComponentUsage(getComponentUsage(notification))
