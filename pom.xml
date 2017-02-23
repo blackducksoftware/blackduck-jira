@@ -70,7 +70,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>7.4.0</version>
+      <version>7.5.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -262,6 +262,7 @@
           <productVersion>${jira.version}</productVersion>
           <productDataVersion>${jira.version}</productDataVersion>
           <compressResources>false</compressResources>
+          <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>

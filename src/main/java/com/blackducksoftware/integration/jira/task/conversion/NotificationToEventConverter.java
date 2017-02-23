@@ -29,7 +29,7 @@ import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.view.UsageEnum;
@@ -218,7 +218,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                     : HubJiraConstants.LICENSE_NAME_JOINER_OR;
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
-            for (final ComplexLicense license : componentVersion.getLicense().getLicenses()) {
+            for (final ComplexLicenseItem license : componentVersion.getLicense().getLicenses()) {
                 final String licenseTextUrl = getLicenseTextUrl(license);
                 logger.debug("Link to licence text: " + licenseTextUrl);
                 if (licenseIndex++ > 0) {
@@ -239,10 +239,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return licensesString;
     }
 
-    private String getLicenseTextUrl(final ComplexLicense license) throws HubIntegrationException {
+    private String getLicenseTextUrl(final ComplexLicenseItem license) throws HubIntegrationException {
         final String licenseUrl = license.getLicense();
-        final ComplexLicense fullLicense = getHubServicesFactory().createHubRequestService().getItem(
-                licenseUrl, ComplexLicense.class);
+        final ComplexLicenseItem fullLicense = getHubServicesFactory().createHubRequestService().getItem(
+                licenseUrl, ComplexLicenseItem.class);
         final String licenseTextUrl = getMetaService().getFirstLink(fullLicense, "text");
         return licenseTextUrl;
     }
