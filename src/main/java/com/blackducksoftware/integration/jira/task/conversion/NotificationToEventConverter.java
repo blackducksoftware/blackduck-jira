@@ -177,9 +177,9 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
             final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
         final String componentVersionUrl = getMetaService().getHref(componentVersion);
-        // TODO pass Component into this method instead of componentName. Use Component to get componentName.
+        // TODO pass additional arg componentUrl into this method.
         // TODO if componentVersion is null, don't try to get its URL
-        // TODO but get/use Component's URL instead
+        // TODO but get/use (look in bom for) componentUrl instead
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
             logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty",
