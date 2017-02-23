@@ -123,7 +123,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueDescription.append("'.");
         issueDescription.append(" The rule violated is: '");
         issueDescription.append(rule.getName());
-        issueDescription.append("'. Rule overridable : ");
+        issueDescription.append("'. Rule overridable: ");
         issueDescription.append(rule.getOverridable());
 
         if (compVer != null) {
