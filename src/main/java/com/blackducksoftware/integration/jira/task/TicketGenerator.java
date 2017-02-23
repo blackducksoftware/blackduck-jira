@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
@@ -35,6 +36,7 @@ import com.blackducksoftware.integration.hub.dataservice.notification.Notificati
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -144,8 +146,16 @@ public class TicketGenerator {
     private void reportAnyErrors(final NotificationResults results) {
         if (results.isError()) {
             for (final Exception e : results.getExceptions()) {
-                logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                jiraSettingsService.addHubError(e, "getAllNotifications");
+                if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
+                    final String msg = String.format(
+                            "WARNING: An error occurred while collecting supporting information from the Hub for a notification: %s; This can be caused by deletion of Hub data (project version, component, etc.) relevant to the notification soon after the notification was generated",
+                            e.getMessage());
+                    logger.warn(msg);
+                    jiraSettingsService.addHubError(msg, "getAllNotifications");
+                } else {
+                    logger.error("Error retrieving notifications: " + e.getMessage(), e);
+                    jiraSettingsService.addHubError(e, "getAllNotifications");
+                }
             }
         }
     }
