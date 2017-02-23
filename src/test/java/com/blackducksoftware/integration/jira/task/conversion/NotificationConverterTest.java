@@ -106,7 +106,7 @@ public class NotificationConverterTest {
             "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
             + "], component 'componentName' / 'componentVersion'. The rule violated is: '"
             +
-            RULE_NAME + "'. Rule overridable : true" +
+            RULE_NAME + "'. Rule overridable: true" +
             "\nComponent license(s): ";
 
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
