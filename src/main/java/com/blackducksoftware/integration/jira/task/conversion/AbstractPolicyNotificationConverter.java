@@ -28,8 +28,10 @@ import java.util.Map;
 
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
@@ -89,6 +91,14 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
             }
         }
+    }
+
+    @Override
+    protected VersionBomComponentView getBomComponent(final NotificationContentItem notification) throws HubIntegrationException {
+        final PolicyContentItem policyNotif = (PolicyContentItem) notification;
+        final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
+                notification.getComponentName(), policyNotif.getComponentUrl(), notification.getComponentVersion());
+        return bomComp;
     }
 
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,

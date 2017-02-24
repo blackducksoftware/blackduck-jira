@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -83,6 +84,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                 componentVersionName = notification.getComponentVersion().getVersionName();
             }
 
+            final VersionBomComponentView bomComp = getBomComponent(notification);
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
                     .setJiraUserName(getJiraContext().getJiraUser().getName())
@@ -100,7 +102,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setHubComponentVersion(componentVersionName)
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
                     .setHubLicenseNames(licensesString)
-                    .setHubComponentUsage(getComponentUsage(notification))
+                    .setHubComponentUsage(getComponentUsage(notification, bomComp))
                     .setHubComponentOrigin(getComponentOrigin(notification))
                     .setHubComponentOriginId(getComponentOriginId(notification))
                     .setHubProjectVersionNickname(getProjectVersionNickname(notification))

@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -85,6 +86,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             logger.debug("Component " + notification.getComponentName() +
                     " (version: " + compVerName + "): License: " + licensesString);
 
+            final VersionBomComponentView bomComp = getBomComponent(notification);
             final JiraEventInfo jiraEventInfo = new JiraEventInfo();
             jiraEventInfo.setAction(action)
                     .setJiraUserName(getJiraContext().getJiraUser().getName())
@@ -102,7 +104,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     .setHubComponentVersion(compVerName)
                     .setHubComponentVersionUrl(notification.getComponentVersionUrl())
                     .setHubLicenseNames(licensesString)
-                    .setHubComponentUsage(getComponentUsage(notification))
+                    .setHubComponentUsage(getComponentUsage(notification, bomComp))
                     .setHubComponentOrigin(getComponentOrigin(notification))
                     .setHubComponentOriginId(getComponentOriginId(notification))
                     .setHubProjectVersionNickname(getProjectVersionNickname(notification))
@@ -123,5 +125,4 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
 
         return events;
     }
-
 }

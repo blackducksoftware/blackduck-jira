@@ -144,16 +144,9 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return getComponentLicensesString(notification, true);
     }
 
-    // TODO: Only policy NotificationContentItems will have componentUrl, and those
-    // are the only ones that need them.
-    // But that means that getBomComponent needs to be implemented
-    // differently Policy vs. Vuln, so move this method to subclasses,
-    // along with getBomComponent.
-    // Or, maybe better: Use strategy pattern to inject the right getBomComponent() method
-    // into this one (which stays here).
-    protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
-        final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
-                notification.getComponentName(), notification.getComponentVersion());
+    protected abstract VersionBomComponentView getBomComponent(final NotificationContentItem notification) throws HubIntegrationException;
+
+    protected String getComponentUsage(final NotificationContentItem notification, final VersionBomComponentView bomComp) throws HubIntegrationException {
         if (bomComp == null) {
             logger.info(String.format("Unable to find component %s in BOM, so cannot get usage information",
                     notification.getComponentName()));
@@ -181,12 +174,12 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return "";
     }
 
-    private VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
-            final String componentName, final ComponentVersion componentVersion) throws HubIntegrationException {
-        final String componentVersionUrl = getMetaService().getHref(componentVersion);
-        // TODO pass additional arg componentUrl into this method.
-        // TODO if componentVersion is null, don't try to get its URL
-        // TODO but get/use (look in bom for) componentUrl instead
+    protected VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
+            final String componentName, final String componentUrl, final ComponentVersion componentVersion) throws HubIntegrationException {
+        String componentVersionUrl = null;
+        if (componentVersion != null) {
+            componentVersionUrl = getMetaService().getHref(componentVersion);
+        }
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
             logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty",
@@ -202,8 +195,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
             return null;
         }
 
-        final VersionBomComponentView targetBomComp = findCompInBom(bomComps, null, componentVersionUrl); // TODO not
-                                                                                                          // always null
+        final VersionBomComponentView targetBomComp = findCompInBom(bomComps, componentUrl, componentVersionUrl);
         if (targetBomComp == null) {
             logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s",
                     componentName, componentVersion.getVersionName(),
