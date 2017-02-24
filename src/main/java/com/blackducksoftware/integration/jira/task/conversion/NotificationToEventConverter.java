@@ -144,6 +144,13 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return getComponentLicensesString(notification, true);
     }
 
+    // TODO: Only policy NotificationContentItems will have componentUrl, and those
+    // are the only ones that need them.
+    // But that means that getBomComponent needs to be implemented
+    // differently Policy vs. Vuln, so move this method to subclasses,
+    // along with getBomComponent.
+    // Or, maybe better: Use strategy pattern to inject the right getBomComponent() method
+    // into this one (which stays here).
     protected String getComponentUsage(final NotificationContentItem notification) throws HubIntegrationException {
         final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
                 notification.getComponentName(), notification.getComponentVersion());
@@ -194,14 +201,36 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                     projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
             return null;
         }
+
+        final VersionBomComponentView targetBomComp = findCompInBom(bomComps, null, componentVersionUrl); // TODO not
+                                                                                                          // always null
+        if (targetBomComp == null) {
+            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s",
+                    componentName, componentVersion.getVersionName(),
+                    projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+        }
+        return targetBomComp;
+    }
+
+    VersionBomComponentView findCompInBom(final List<VersionBomComponentView> bomComps,
+            final String componentUrl, final String componentVersionUrl) {
+        String urlSought;
+        if (componentVersionUrl != null) {
+            urlSought = componentVersionUrl;
+        } else {
+            urlSought = componentUrl;
+        }
         for (final VersionBomComponentView bomComp : bomComps) {
-            if (componentVersionUrl.equals(bomComp.getComponentVersion())) {
+            String urlToTest;
+            if (bomComp.getComponentVersion() != null) {
+                urlToTest = bomComp.getComponentVersion();
+            } else {
+                urlToTest = bomComp.getComponent();
+            }
+            if (urlSought.equals(urlToTest)) {
                 return bomComp;
             }
         }
-        logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s",
-                componentName, componentVersion.getVersionName(),
-                projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
         return null;
     }
 

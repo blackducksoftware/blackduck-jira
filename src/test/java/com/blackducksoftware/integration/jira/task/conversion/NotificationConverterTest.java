@@ -215,8 +215,81 @@ public class NotificationConverterTest {
         VULNERABILITY, POLICY_VIOLATION, POLICY_VIOLATION_OVERRIDE, POLICY_VIOLATION_CLEARED
     }
 
+    private static MetaService metaService;
+
+    private static Date now;
+
+    private static JiraServices jiraServices;
+
+    private static ProjectVersion projectVersion;
+
+    private static JiraSettingsService jiraSettingsService;
+
+    private static JiraContext jiraContext;
+
+    private static HubServicesFactory hubServicesFactory;
+
+    private static HubProjectMappings projectMappingObject;
+
+    private static HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        now = new Date();
+
+        // Mock the objects that the Converter needs
+        jiraServices = Mockito.mock(JiraServices.class);
+        final Set<HubProjectMapping> mappings = new HashSet<>();
+        final HubProjectMapping mapping = new HubProjectMapping();
+        final HubProject hubProject = createHubProject();
+        mapping.setHubProject(hubProject);
+        final JiraProject jiraProject = createJiraProject();
+        mapping.setJiraProject(jiraProject);
+        mappings.add(mapping);
+        projectMappingObject = new HubProjectMappings(jiraServices,
+                mappings);
+        fieldCopyConfig = createFieldCopyMappings();
+
+        final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
+        final List<IssueType> issueTypes = new ArrayList<>();
+        IssueType issueType = Mockito.mock(IssueType.class);
+        Mockito.when(issueType.getName()).thenReturn(VULNERABILITY_ISSUE_TYPE_NAME);
+        Mockito.when(issueType.getId()).thenReturn(VULNERABILITY_ISSUE_TYPE_ID);
+        issueTypes.add(issueType);
+
+        issueType = Mockito.mock(IssueType.class);
+        Mockito.when(issueType.getName()).thenReturn(POLICY_ISSUE_TYPE_NAME);
+        Mockito.when(issueType.getId()).thenReturn(POLICY_ISSUE_TYPE_ID);
+        issueTypes.add(issueType);
+
+        Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
+        Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
+        Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
+
+        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
+        Mockito.when(jiraUser.getKey()).thenReturn(JIRA_USER_KEY);
+        jiraContext = new JiraContext(jiraUser);
+        jiraSettingsService = null;
+        hubServicesFactory = Mockito.mock(HubServicesFactory.class);
+        final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
+        final HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
+        projectVersion = createProjectVersion();
+        Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
+        Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
+        metaService = Mockito.mock(MetaService.class);
+        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
+        Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
+
+        final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
+        final List<VersionBomComponentView> bom = new ArrayList<>();
+        final VersionBomComponentView bomComp = Mockito.mock(VersionBomComponentView.class);
+        Mockito.when(bomComp.getComponentName()).thenReturn("componentName");
+        Mockito.when(bomComp.getComponentVersionName()).thenReturn("componentVersion");
+        Mockito.when(bomComp.getComponentVersion()).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
+        bom.add(bomComp);
+        Mockito.when(bomRequestService.getBom(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
+        Mockito.when(hubServicesFactory.createBomRequestService()).thenReturn(bomRequestService);
     }
 
     @AfterClass
@@ -269,6 +342,16 @@ public class NotificationConverterTest {
                 POLICY_EXPECTED_PROPERTY_KEY);
     }
 
+    @Test
+    public void testX() throws ConfigurationException {
+        final ListProcessorCache cache = new ListProcessorCache();
+        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory,
+                NotifType.POLICY_VIOLATION,
+                projectMappingObject, fieldCopyConfig, cache);
+
+        // conv.findCompInBom(bomComps, componentUrl, componentVersionUrl);
+    }
+
     private void test(final NotifType notifType, final HubEventAction expectedHubEventAction,
             final String expectedComment,
             final String expectedCommentIfExists,
@@ -279,69 +362,27 @@ public class NotificationConverterTest {
             final String expectedReOpenComment,
             final String expectedResolveComment,
             final String expectedPropertyKey) throws ConfigurationException, URISyntaxException, IntegrationException {
-        final Date now = new Date();
 
-        // Mock the objects that the Converter needs
-        final JiraServices jiraServices = Mockito.mock(JiraServices.class);
-        final Set<HubProjectMapping> mappings = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final HubProject hubProject = createHubProject();
-        mapping.setHubProject(hubProject);
-        final JiraProject jiraProject = createJiraProject();
-        mapping.setJiraProject(jiraProject);
-        mappings.add(mapping);
-        final HubProjectMappings mappingObject = new HubProjectMappings(jiraServices,
-                mappings);
-        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = createFieldCopyMappings();
-
-        final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
-        final List<IssueType> issueTypes = new ArrayList<>();
-        IssueType issueType = Mockito.mock(IssueType.class);
-        Mockito.when(issueType.getName()).thenReturn(VULNERABILITY_ISSUE_TYPE_NAME);
-        Mockito.when(issueType.getId()).thenReturn(VULNERABILITY_ISSUE_TYPE_ID);
-        issueTypes.add(issueType);
-
-        issueType = Mockito.mock(IssueType.class);
-        Mockito.when(issueType.getName()).thenReturn(POLICY_ISSUE_TYPE_NAME);
-        Mockito.when(issueType.getId()).thenReturn(POLICY_ISSUE_TYPE_ID);
-        issueTypes.add(issueType);
-
-        Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
-        Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
-        Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
-
-        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
-        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
-        Mockito.when(jiraUser.getKey()).thenReturn(JIRA_USER_KEY);
-        final JiraContext jiraContext = new JiraContext(jiraUser);
-        final JiraSettingsService jiraSettingsService = null;
-        final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
-        final HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
-        final ProjectVersion projectVersion = createProjectVersion();
-        Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
-        Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
-        final MetaService metaService = Mockito.mock(MetaService.class);
-        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
-        Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
-
-        final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
-        final List<VersionBomComponentView> bom = new ArrayList<>();
-        final VersionBomComponentView bomComp = Mockito.mock(VersionBomComponentView.class);
-        Mockito.when(bomComp.getComponentName()).thenReturn("componentName");
-        Mockito.when(bomComp.getComponentVersionName()).thenReturn("componentVersion");
-        Mockito.when(bomComp.getComponentVersion()).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
-        bom.add(bomComp);
-        Mockito.when(bomRequestService.getBom(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
-        Mockito.when(hubServicesFactory.createBomRequestService()).thenReturn(bomRequestService);
-
-        // Construct the notification and the converter
-        NotificationToEventConverter conv;
-        NotificationContentItem notif;
         final ListProcessorCache cache = new ListProcessorCache();
+        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory, notifType,
+                projectMappingObject, fieldCopyConfig, cache);
+
+        final NotificationContentItem notif = createNotif(metaService, notifType, now, projectVersion);
+        conv.process(notif);
+        final List<NotificationEvent> events = new ArrayList<>(cache.getEvents());
+
+        // Verify the generated event
+        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
+                expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment, expectedPropertyKey);
+    }
+
+    private NotificationToEventConverter createConverter(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
+            final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final NotifType notifType, final HubProjectMappings mappingObject,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final ListProcessorCache cache)
+            throws ConfigurationException {
+        NotificationToEventConverter conv;
         switch (notifType) {
         case VULNERABILITY:
-            notif = createVulnerabilityNotif(metaService, projectVersion, now);
             conv = new VulnerabilityNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -350,7 +391,6 @@ public class NotificationConverterTest {
                     hubServicesFactory);
             break;
         case POLICY_VIOLATION:
-            notif = createPolicyViolationNotif(metaService, projectVersion, now);
             conv = new PolicyViolationNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -359,7 +399,6 @@ public class NotificationConverterTest {
                     hubServicesFactory);
             break;
         case POLICY_VIOLATION_OVERRIDE:
-            notif = createPolicyOverrideNotif(metaService, now);
             conv = new PolicyOverrideNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -368,7 +407,6 @@ public class NotificationConverterTest {
                     hubServicesFactory);
             break;
         case POLICY_VIOLATION_CLEARED:
-            notif = createPolicyClearedNotif(metaService, now);
             conv = new PolicyViolationClearedNotificationConverter(cache,
                     mappingObject,
                     fieldCopyConfig,
@@ -379,24 +417,39 @@ public class NotificationConverterTest {
         default:
             throw new IllegalArgumentException("Unrecognized notification type");
         }
-
-        // Run the converter
-        conv.process(notif);
-        final List<NotificationEvent> events = new ArrayList<>(cache.getEvents());
-
-        // Verify the generated event
-        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
-                expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment, expectedPropertyKey);
+        return conv;
     }
 
-    private HubProject createHubProject() {
+    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now, final ProjectVersion projectVersion)
+            throws URISyntaxException, HubIntegrationException, IntegrationException {
+        NotificationContentItem notif;
+        switch (notifType) {
+        case VULNERABILITY:
+            notif = createVulnerabilityNotif(metaService, projectVersion, now);
+            break;
+        case POLICY_VIOLATION:
+            notif = createPolicyViolationNotif(metaService, projectVersion, now);
+            break;
+        case POLICY_VIOLATION_OVERRIDE:
+            notif = createPolicyOverrideNotif(metaService, now);
+            break;
+        case POLICY_VIOLATION_CLEARED:
+            notif = createPolicyClearedNotif(metaService, now);
+            break;
+        default:
+            throw new IllegalArgumentException("Unrecognized notification type");
+        }
+        return notif;
+    }
+
+    private static HubProject createHubProject() {
         final HubProject hubProject = new HubProject();
         hubProject.setProjectName(HUB_PROJECT_NAME);
         hubProject.setProjectUrl(HUB_PROJECT_URL);
         return hubProject;
     }
 
-    private JiraProject createJiraProject() {
+    private static JiraProject createJiraProject() {
         final JiraProject jiraProject = new JiraProject();
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         jiraProject.setProjectId(JIRA_PROJECT_ID);
@@ -404,7 +457,7 @@ public class NotificationConverterTest {
         return jiraProject;
     }
 
-    private HubJiraFieldCopyConfigSerializable createFieldCopyMappings() {
+    private static HubJiraFieldCopyConfigSerializable createFieldCopyMappings() {
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
         final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
         final ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
@@ -511,7 +564,7 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private ProjectVersion createProjectVersion() {
+    private static ProjectVersion createProjectVersion() {
         final ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setProjectName(HUB_PROJECT_NAME);
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
