@@ -343,13 +343,31 @@ public class NotificationConverterTest {
     }
 
     @Test
-    public void testX() throws ConfigurationException {
+    public void testFindCompInBom() throws ConfigurationException {
         final ListProcessorCache cache = new ListProcessorCache();
         final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory,
                 NotifType.POLICY_VIOLATION,
                 projectMappingObject, fieldCopyConfig, cache);
 
-        // conv.findCompInBom(bomComps, componentUrl, componentVersionUrl);
+        final List<VersionBomComponentView> bomComps = new ArrayList<>();
+        addComp(bomComps, "comp1", null, "comp1version1Url");
+        addComp(bomComps, "comp2", null, "comp2version1Url");
+        addComp(bomComps, "comp3", "comp3Url", null);
+        assertEquals("comp1", conv.findCompInBom(bomComps, null, "comp1version1Url").getComponentName());
+        assertEquals("comp2", conv.findCompInBom(bomComps, null, "comp2version1Url").getComponentName());
+        assertEquals("comp3", conv.findCompInBom(bomComps, "comp3Url", null).getComponentName());
+        assertEquals(null, conv.findCompInBom(bomComps, null, "comp1versionXUrl"));
+        assertEquals(null, conv.findCompInBom(bomComps, "compXUrl", null));
+    }
+
+    private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl,
+            final String componentVersionUrl) {
+        final VersionBomComponentView bomComp = new VersionBomComponentView();
+        bomComp.setComponentName(componentName);
+        bomComp.setComponent(componentUrl);
+        bomComp.setComponentVersion(componentVersionUrl);
+
+        bomComps.add(bomComp);
     }
 
     private void test(final NotifType notifType, final HubEventAction expectedHubEventAction,
