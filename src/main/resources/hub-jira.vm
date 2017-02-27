@@ -201,7 +201,7 @@
 					<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
 			  <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
-			  	<table width="100%">
+			  	<table id='hubProjectMappingTable' width="100%">
 			  		<thead>
 			  			<tr>
 			  				<td class="mappingTableCell"/>

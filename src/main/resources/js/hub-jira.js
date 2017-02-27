@@ -35,6 +35,7 @@ var hiddenClass = "hidden";
 
 var hubJiraGroupsId = "hubJiraGroups";
 
+var hubProjectMappingTable = "hubProjectMappingTable";
 var hubProjectMappingContainer = "hubProjectMappingContainer";
 var hubProjectMappingElement = "hubProjectMappingElement";
 var hubMappingStatus = "mappingStatus";
@@ -86,6 +87,8 @@ var gotProjectMappings = false;
 var gotSourceFields = false;
 var gotTargetFields = false;
 var gotFieldCopyMappings = false;
+
+var initialPageLoad = true;
 
 var jiraProjectMap = new Map();
 var hubProjectMap = new Map();
@@ -194,6 +197,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 			    showStatusMessage(successStatus, 'Success!', successMessage);
 			    
 			    // Since the hub server may have changed, go fetch all hub data
+			    initProjectMappingRows();
 			    populateFormHubData();
 		    },
 		    error: function(response){
@@ -218,6 +222,20 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	 stopProgressSpinner('hubDetailsProgressSpinner');
 		    }
 		  });
+}
+
+function initProjectMappingRows() {
+	console.log("initProjectMapping()=============================================================");
+	var mappingTable = AJS.$("#" + hubProjectMappingTable);
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
+	console.log("initProjectMapping(): Before: #rows: " + mappingElements.length);
+	for (var rowIndex = mappingElements.length-1; rowIndex > 0 ; rowIndex--) {
+		console.log("initProjectMapping: Removing project mapping row: " + rowIndex);
+		var mappingElement = mappingElements[rowIndex];
+		AJS.$('#' + mappingElement.id).remove();
+	}
+	console.log("initProjectMapping(): After: #rows: " + mappingElements.length);
 }
 
 
@@ -408,7 +426,7 @@ function populateForm() {
 	  });
 	  
 	  populateFormHubData();
-	  console.log("*populateForm() Finished");
+	  console.log("populateForm() Finished");
 }
 
 function populateFormHubData() {
@@ -751,14 +769,14 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 				  var key = String(currentJiraProject.attr("projectkey"));
 				  console.log("ajaxComplete(): jira project key: " + key);
 				  if(key){
-					  var test = jiraProjectMap.get(key);
-					  if(test) {
-						  console.log("ajaxComplete(): test.projectError: " + test.projectError);
+					  var jiraProject = jiraProjectMap.get(key);
+					  if(jiraProject) {
+						  console.log("ajaxComplete(): jiraProject.projectError: " + jiraProject.projectError);
 						  var jiraProjectMappingParent = currentJiraProject.parent();
 						  var jiraProjectMappingError = jiraProjectMappingParent.children("#"+jiraProjectErrorId);
-						  if(test.projectError){
+						  if(jiraProject.projectError){
 							  jiraProjectError = true;
-							  jiraProjectMappingError.text(test.projectError.trim());
+							  jiraProjectMappingError.text(jiraProject.projectError.trim());
 							  if(!jiraProjectMappingError.hasClass('error')){
 								  jiraProjectMappingError.addClass('error');
 							  }
@@ -788,9 +806,9 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 				  var key = String(currentHubProject.attr("projectkey"));
 				  console.log("ajaxComplete(): hub project key: " + key);
 				  if(key){
-					  var test = hubProjectMap.get(key);
-					  console.log("ajaxComplete(): hub project test: " + test);
-					  if(test) {
+					  var hubProject = hubProjectMap.get(key);
+					  console.log("ajaxComplete(): hubProject: " + hubProject.projectName);
+					  if(hubProject) {
 						  hubProjectError = false;
 					  }
 					  
@@ -1210,7 +1228,9 @@ function fillInHubProjects(hubProjects) {
 	hubProjectMap = new Map();
 	var mappingElement = AJS.$("#" + hubProjectMappingElement);
 	var hubProjectList = mappingElement.find("datalist[id='"+ hubProjectListId +"']");
-	clearList(hubProjectList[0]);
+	if (hubProjectList.length > 0) {
+	  clearList(hubProjectList[0]);
+    }
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
 			hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
