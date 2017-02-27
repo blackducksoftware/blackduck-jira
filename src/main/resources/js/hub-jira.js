@@ -145,7 +145,6 @@ function testConnection() {
 
 function updateHubDetails() {
 	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
-	populateFormHubData();
 }
 
 function updateConfig() {
@@ -193,6 +192,9 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 			    hideError('configurationErrorRow', 'configurationError');
 			      
 			    showStatusMessage(successStatus, 'Success!', successMessage);
+			    
+			    // Since the hub server may have changed, go fetch all hub data
+			    populateFormHubData();
 		    },
 		    error: function(response){
 		    	console.log("putConfig(): " + response.responseText);
@@ -248,6 +250,8 @@ function populateForm() {
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubdetails/read",
 	    dataType: "json",
 	    success: function(config) {
+	      console.log("Successful get of hub details for " + config.hubUrl);
+	    	
 	      updateValue("hubServerUrl", config.hubUrl);
 	      updateValue("hubTimeout", config.timeout);
 	      updateValue("hubUsername", config.username);
@@ -402,30 +406,16 @@ function populateForm() {
 		    	console.log("Completed get of pluginInfo: " + textStatus);
 		    }
 	  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
-		    dataType: "json",
-		    success: function(config) {
-		      fillInMappings(config.hubProjectMappings);
-		      
-		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
-		      
-		      gotProjectMappings = true;
-		    },
-		    error: function(response){
-		    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	 AJS.$('#projectMappingSpinner').remove();
-		    	 console.log("Completed get of project mappings: " + textStatus);
-		    }
-		  });
+	  
 	  populateFormHubData();
 	  console.log("*populateForm() Finished");
 }
 
 function populateFormHubData() {
+	console.log("populateFormHubData()");
+	gotHubProjects = false;
+	gotProjectMappings = false;
+	
 	AJS.$.ajax({
 	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubProjects/",
 	    dataType: "json",
@@ -480,7 +470,25 @@ function populateFormHubData() {
 	    	console.log("Completed get of ticketsChoice: " + textStatus);
 	    }
 	  });
-  
+  AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
+	    dataType: "json",
+	    success: function(config) {
+	      fillInMappings(config.hubProjectMappings);
+	      
+	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+	      
+	      gotProjectMappings = true;
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	 AJS.$('#projectMappingSpinner').remove();
+	    	 console.log("Completed get of project mappings: " + textStatus);
+	    }
+	  });
 }
 
 function checkProxyConfig(){
@@ -728,9 +736,20 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 	errorDialog.show();
 }
 
+// TODO is this being used?
+function initProjectMapping() {
+	console.log("initProjectMapping()=============================================================");
+	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
+	for (var rowIndex = mappingElements.length-1; rowIndex <= 0 ; rowIndex--) {
+		console.log("initProjectMapping: TBD remove project mapping row: " + rowIndex);
+	}
+}
+
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
+	console.log("ajaxComplete()");
 	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
-	
+		console.log("ajaxComplete(): data is ready");
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
 	
@@ -740,9 +759,11 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 			  var jiraProjectError = true;
 			  if(currentJiraProject != null){
 				  var key = String(currentJiraProject.attr("projectkey"));
+				  console.log("ajaxComplete(): jira project key: " + key);
 				  if(key){
 					  var test = jiraProjectMap.get(key);
 					  if(test) {
+						  console.log("ajaxComplete(): test.projectError: " + test.projectError);
 						  var jiraProjectMappingParent = currentJiraProject.parent();
 						  var jiraProjectMappingError = jiraProjectMappingParent.children("#"+jiraProjectErrorId);
 						  if(test.projectError){
@@ -775,8 +796,10 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 			  var hubProjectError = true;
 			  if(currentHubProject != null){
 				  var key = String(currentHubProject.attr("projectkey"));
+				  console.log("ajaxComplete(): hub project key: " + key);
 				  if(key){
 					  var test = hubProjectMap.get(key);
+					  console.log("ajaxComplete(): hub project test: " + test);
 					  if(test) {
 						  hubProjectError = false;
 					  }
@@ -784,7 +807,9 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 				  }
 			  }
 			  if(hubProjectError){
+				    console.log("ajaxComplete(): this hub project is in error");
 					if(!currentHubProject.hasClass('error')){
+						console.log("ajaxComplete(): adding error class to hub project");
 						currentHubProject.addClass('error');
 					}
 				} else{
@@ -793,6 +818,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 					}
 				}
 			  if(jiraProjectError || hubProjectError){
+				  console.log("ajaxComplete(): adding mapping error status on row: " + m);
 					addMappingErrorStatus(AJS.$(mappingElements[m]));
 			  } else {
 					removeMappingErrorStatus(AJS.$(mappingElements[m]));
@@ -1198,6 +1224,7 @@ function fillInHubProjects(hubProjects) {
 	if(hubProjects != null && hubProjects.length > 0){
 		for (h = 0; h < hubProjects.length; h++) {
 			hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
+			console.log("fillInHubProjects(): adding: " + hubProjects[h].projectName);
 			var newOption = AJS.$('<option>', {
 			    value: hubProjects[h].projectName,
 			    projectKey: hubProjects[h].projectUrl

@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -52,11 +53,13 @@ import com.blackducksoftware.integration.hub.global.HubProxyInfoFieldEnum;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.global.HubServerConfigFieldEnum;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 @Path("/hubdetails")
 public class HubConfigController {
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final UserManager userManager;
 
@@ -112,6 +115,7 @@ public class HubConfigController {
             @Override
             public Object doInTransaction() {
                 final String hubUrl = getValue(settings, HubConfigKeys.CONFIG_HUB_URL);
+                logger.debug(String.format("Returning hub details for %s", hubUrl));
                 final String username = getValue(settings, HubConfigKeys.CONFIG_HUB_USER);
                 final String password = getValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
                 final String passwordLength = getValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
@@ -194,6 +198,7 @@ public class HubConfigController {
 
                 setConfigFromResult(config, serverConfigBuilder.createValidator());
 
+                logger.debug(String.format("Saving connection to %s as %s", config.getHubUrl(), config.getUsername()));
                 setValue(settings, HubConfigKeys.CONFIG_HUB_URL, config.getHubUrl());
                 setValue(settings, HubConfigKeys.CONFIG_HUB_USER, config.getUsername());
 
@@ -206,6 +211,8 @@ public class HubConfigController {
                         setValue(settings, HubConfigKeys.CONFIG_HUB_PASS, encPassword);
                         setValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH, String.valueOf(password.length()));
                     } catch (IllegalArgumentException | EncryptionException e) {
+                        // This error was swallowed; not sure why. Adding a log message
+                        logger.error("Error encrypting password: " + e.getMessage());
                     }
                 } else if (StringUtils.isBlank(password)) {
                     setValue(settings, HubConfigKeys.CONFIG_HUB_PASS, null);

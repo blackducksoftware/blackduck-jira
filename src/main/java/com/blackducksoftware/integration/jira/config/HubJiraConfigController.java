@@ -354,6 +354,7 @@ public class HubJiraConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHubProjects(@Context final HttpServletRequest request) {
+        logger.debug("getHubProjects()");
         final Object projectsConfig;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -367,7 +368,7 @@ public class HubJiraConfigController {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
                     config.setHubProjects(new ArrayList<>(0));
 
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
+                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, config);
                     if (hubServicesFactory == null) {
                         return config;
                     }
@@ -534,7 +535,7 @@ public class HubJiraConfigController {
                         txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, txConfig);
+                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, txConfig);
                     if (hubServicesFactory == null) {
                         return txConfig;
                     }
@@ -680,7 +681,7 @@ public class HubJiraConfigController {
                 public Object doInTransaction() {
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
                     config.setJiraProjects(jiraProjects);
-                    final HubServicesFactory hubServicesFactory = getHubServicesFactory(settings, config);
+                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, config);
                     if (hubServicesFactory == null) {
                         return config;
                     }
@@ -1030,8 +1031,8 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    private HubServicesFactory getHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
-        final RestConnection restConnection = getRestConnection(settings, config);
+    private HubServicesFactory createHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+        final RestConnection restConnection = createRestConnection(settings, config);
         if (config.hasErrors()) {
             return null;
         }
@@ -1039,9 +1040,10 @@ public class HubJiraConfigController {
         return hubServicesFactory;
     }
 
-    private RestConnection getRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    private RestConnection createRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
+        logger.debug(String.format("Establishing connection to hub server: %s as %s", hubUrl, hubUser));
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
         final String encHubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
         final String hubTimeout = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
@@ -1100,6 +1102,7 @@ public class HubJiraConfigController {
 
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
+        logger.debug(String.format("getHubProjects(): Using connection to Hub server: %s", hubServicesFactory.getRestConnection().getBaseUrl()));
         final List<HubProject> hubProjects = new ArrayList<>();
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         List<ProjectItem> hubProjectItems = null;
@@ -1157,7 +1160,6 @@ public class HubJiraConfigController {
 
                     if (policyRules != null && !policyRules.isEmpty()) {
                         for (final PolicyRule rule : policyRules) {
-                            logger.debug("Rule: " + rule);
                             final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
                             String description = rule.getDescription();
                             if (description == null) {
