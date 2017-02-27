@@ -736,16 +736,6 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 	errorDialog.show();
 }
 
-// TODO is this being used?
-function initProjectMapping() {
-	console.log("initProjectMapping()=============================================================");
-	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
-	for (var rowIndex = mappingElements.length-1; rowIndex <= 0 ; rowIndex--) {
-		console.log("initProjectMapping: TBD remove project mapping row: " + rowIndex);
-	}
-}
-
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	console.log("ajaxComplete()");
 	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
