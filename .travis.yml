@@ -19,4 +19,4 @@ script:
   - mvn clean package com.blackducksoftware.integration:hub-maven-plugin:1.4.0:createHubOutput
 after_success:
   - mvn jacoco:report coveralls:report
-  - bash <(curl -s https://test.duckbuild.io/bash/travis) ./target/blackduck/hub-jira_bdio.jsonld
+- bash <(curl -s https://copilot.blackducksoftware.com/bash/travis) ./*_bdio.jsonld
