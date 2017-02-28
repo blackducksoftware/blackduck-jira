@@ -54,6 +54,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.conversion.EventDataSetKeys;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
@@ -399,7 +400,7 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final NotificationEvent notificationEvent) {
-        final JiraEventInfo eventData = new JiraEventInfo(notificationEvent.getDataSet());
+        final JiraEventInfo eventData = (JiraEventInfo) notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_EVENT_INFO);
         logger.debug("Licences: " + eventData.getHubLicenseNames());
 
         switch (eventData.getAction()) {

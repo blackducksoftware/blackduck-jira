@@ -24,6 +24,8 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 public class EventDataSetKeys {
+    public static final String JIRA_EVENT_INFO = "jiraEventInfo";
+
     public static final String ACTION = "action";
 
     public static final String JIRA_ISSUE_SUMMARY = "jiraIssueSummary";

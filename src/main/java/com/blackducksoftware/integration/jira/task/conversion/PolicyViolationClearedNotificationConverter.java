@@ -24,7 +24,9 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -116,8 +118,10 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
                     .setHubRuleName(rule.getName());
 
+            final Map<String, Object> eventDataSet = new HashMap<>(1);
+            eventDataSet.put(EventDataSetKeys.JIRA_EVENT_INFO, jiraEventInfo);
             final String key = generateEventKey(jiraEventInfo.getDataSet());
-            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, jiraEventInfo.getDataSet());
+            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, eventDataSet);
             logger.debug("handleNotificationPerJiraProject(): adding event: " + event);
             events.add(event);
         }
