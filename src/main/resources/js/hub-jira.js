@@ -197,8 +197,8 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 			    showStatusMessage(successStatus, 'Success!', successMessage);
 			    
 			    // Since the hub server may have changed, go fetch all hub data
-			    initProjectMappingRows();
-			    resetFormHubData();
+			    initProjectMappingRows(); 
+			    populateFormHubData();
 			    
 		    },
 		    error: function(response){
@@ -672,35 +672,6 @@ function getJsonArrayFromErrors(errorRow){
 	return jsonArray;
 }
 
-function resetFormHubData() {
-	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/removeProjectMappings';
-	
-	AJS.$.ajax({
-	    url: restUrl,
-	    type: "PUT",
-	    dataType: "json",
-	    contentType: "application/json",
-	    data: '{}',
-	    processData: false,
-	    success: function() {
-	    	console.log('Project mappings reset');
-	    },
-	    error: function(response){
-	    	try {
-	    		var creationErrorObj = JSON.parse(response.responseText);
-	    		alert(creationErrorObj.configError);
-	    	} catch(err) {
-	    		// in case the response is not our error object
-	    		alert("Unexpected format of response while resetting project mappings");
-	    		console.log("Unexpected format of response while resetting project mappings: " + response.responseText);
-	    	}
-	    },
-	    complete: function(jqXHR, textStatus) {
-	    	populateFormHubData();
-	    }
-	  });
-}
-
 function handleErrorRemoval(trashIcon){
 	var currentIcon = AJS.$(trashIcon);
 	var errorRow = currentIcon.closest("tr");
@@ -848,7 +819,6 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 			  if(hubProjectError){
 				    console.log("ajaxComplete(): this hub project is in error");
 					if(!currentHubProject.hasClass('error')){
-						console.log("ajaxComplete(): adding error class to hub project");
 						currentHubProject.addClass('error');
 					}
 				} else{
