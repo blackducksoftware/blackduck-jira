@@ -198,7 +198,8 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 			    
 			    // Since the hub server may have changed, go fetch all hub data
 			    initProjectMappingRows();
-			    populateFormHubData();
+			    resetFormHubData();
+			    
 		    },
 		    error: function(response){
 		    	console.log("putConfig(): " + response.responseText);
@@ -224,6 +225,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		  });
 }
 
+// TODO once the server side storage of mappings is fixed, this likely won't be needed
 function initProjectMappingRows() {
 	console.log("initProjectMapping()=============================================================");
 	var mappingTable = AJS.$("#" + hubProjectMappingTable);
@@ -236,6 +238,8 @@ function initProjectMappingRows() {
 		AJS.$('#' + mappingElement.id).remove();
 	}
 	console.log("initProjectMapping(): After: #rows: " + mappingElements.length);
+	mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
+	console.log("initProjectMapping(): After re-fetch: #rows: " + mappingElements.length);
 }
 
 
@@ -670,6 +674,35 @@ function getJsonArrayFromErrors(errorRow){
 	return jsonArray;
 }
 
+function resetFormHubData() {
+	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/removeProjectMappings';
+	
+	AJS.$.ajax({
+	    url: restUrl,
+	    type: "PUT",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: '{}',
+	    processData: false,
+	    success: function() {
+	    	alert('Project mappings reset'); // TODO TEMP
+	    },
+	    error: function(response){
+	    	try {
+	    		var creationErrorObj = JSON.parse(response.responseText);
+	    		alert(creationErrorObj.configError);
+	    	} catch(err) {
+	    		// in case the response is not our error object
+	    		alert("Unexpected format of response while resetting project mappings");
+	    		console.log("Unexpected format of response while resetting project mappings: " + response.responseText);
+	    	}
+	    },
+	    complete: function(jqXHR, textStatus) {
+	    	populateFormHubData();
+	    }
+	  });
+}
+
 function handleErrorRemoval(trashIcon){
 	var currentIcon = AJS.$(trashIcon);
 	var errorRow = currentIcon.closest("tr");
@@ -694,7 +727,8 @@ function handleErrorRemoval(trashIcon){
 	    		alert(creationErrorObj.configError);
 	    	} catch(err) {
 	    		// in case the response is not our error object
-	    		alert(response.responseText);
+	    		alert("Unexpected format of response while removing error message");
+	    		console.log("Unexpected format of response while removing error message: " + response.responseText);
 	    	}
 	    }
 	  });

@@ -725,6 +725,28 @@ public class HubJiraConfigController {
         return Response.noContent().build();
     }
 
+    @Path("/removeProjectMappings")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removeProjectMappings(@Context final HttpServletRequest request) {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final Response response = checkUserPermissions(request, settings);
+        if (response != null) {
+            return response;
+        }
+        final Object obj = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, null);
+                return null;
+            }
+        });
+        if (obj != null) {
+            return Response.ok(obj).status(Status.BAD_REQUEST).build();
+        }
+        return Response.noContent().build();
+    }
+
     @Path("/removeErrors")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
@@ -1003,6 +1025,7 @@ public class HubJiraConfigController {
 
     private void setValue(final PluginSettings settings, final String key, final Object value) {
         if (value == null) {
+            logger.debug(String.format("Removing %s from plugin settings", key)); // TODO remove this
             settings.remove(key);
         } else {
             settings.put(key, value);
