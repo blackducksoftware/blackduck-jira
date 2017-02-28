@@ -225,9 +225,8 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		  });
 }
 
-// TODO once the server side storage of mappings is fixed, this likely won't be needed
 function initProjectMappingRows() {
-	console.log("initProjectMapping()=============================================================");
+	console.log("initProjectMapping()");
 	var mappingTable = AJS.$("#" + hubProjectMappingTable);
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
@@ -237,7 +236,6 @@ function initProjectMappingRows() {
 		var mappingElement = mappingElements[rowIndex];
 		AJS.$('#' + mappingElement.id).remove();
 	}
-	console.log("initProjectMapping(): After: #rows: " + mappingElements.length);
 	mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
 	console.log("initProjectMapping(): After re-fetch: #rows: " + mappingElements.length);
 }
@@ -685,7 +683,7 @@ function resetFormHubData() {
 	    data: '{}',
 	    processData: false,
 	    success: function() {
-	    	alert('Project mappings reset'); // TODO TEMP
+	    	console.log('Project mappings reset');
 	    },
 	    error: function(response){
 	    	try {
