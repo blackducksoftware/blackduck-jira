@@ -839,7 +839,6 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 				  console.log("ajaxComplete(): hub project key: " + key);
 				  if(key){
 					  var hubProject = hubProjectMap.get(key);
-					  console.log("ajaxComplete(): hubProject: " + hubProject.projectName);
 					  if(hubProject) {
 						  hubProjectError = false;
 					  }
