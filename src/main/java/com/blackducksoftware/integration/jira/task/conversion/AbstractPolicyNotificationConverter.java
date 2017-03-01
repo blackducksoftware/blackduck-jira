@@ -45,7 +45,7 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
+import com.blackducksoftware.integration.jira.task.conversion.output.EventData;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
@@ -174,13 +174,13 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     public String generateEventKey(final Map<String, Object> inputData)
             throws HubIntegrationException {
 
-        final JiraEventInfo jiraEventInfo = (JiraEventInfo) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO);
+        final EventData eventData = (EventData) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA);
 
-        final Long jiraProjectId = jiraEventInfo.getJiraProjectId();
-        final String hubProjectVersionUrl = jiraEventInfo.getHubProjectVersionUrl();
-        final String hubComponentVersionUrl = jiraEventInfo.getHubComponentVersionUrl();
-        final String hubComponentUrl = jiraEventInfo.getHubComponentUrl();
-        final String policyRuleUrl = jiraEventInfo.getHubRuleUrl();
+        final Long jiraProjectId = eventData.getJiraProjectId();
+        final String hubProjectVersionUrl = eventData.getHubProjectVersionUrl();
+        final String hubComponentVersionUrl = eventData.getHubComponentVersionUrl();
+        final String hubComponentUrl = eventData.getHubComponentUrl();
+        final String policyRuleUrl = eventData.getHubRuleUrl();
         if (policyRuleUrl == null) {
             throw new HubIntegrationException("Policy Rule URL is null");
         }

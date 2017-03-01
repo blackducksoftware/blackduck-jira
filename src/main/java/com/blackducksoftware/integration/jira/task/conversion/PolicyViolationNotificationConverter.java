@@ -50,7 +50,7 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
+import com.blackducksoftware.integration.jira.task.conversion.output.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -89,8 +89,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     " (version: " + compVerName + "): License: " + licensesString);
 
             final VersionBomComponentView bomComp = getBomComponent(notification);
-            final JiraEventInfo jiraEventInfo = new JiraEventInfo();
-            jiraEventInfo.setAction(action)
+            final EventData eventData = new EventData();
+            eventData.setAction(action)
                     .setJiraUserName(getJiraContext().getJiraUser().getName())
                     .setJiraUserKey(getJiraContext().getJiraUser().getKey())
                     .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
@@ -122,8 +122,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule));
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
-            eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO, jiraEventInfo);
-            final String key = generateEventKey(jiraEventInfo.getDataSet());
+            eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, eventData);
+            final String key = generateEventKey(eventData.getDataSet());
             final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, eventDataSet);
             events.add(event);
         }

@@ -49,8 +49,8 @@ public class JiraEventInfoTest {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
         final IssuePropertiesGenerator issuePropertiesGenerator = null;
 
-        final JiraEventInfo jiraEventInfo1 = new JiraEventInfo();
-        jiraEventInfo1.setAction(HubEventAction.ADD_COMMENT)
+        final EventData eventData = new EventData();
+        eventData.setAction(HubEventAction.ADD_COMMENT)
                 .setHubComponentName("hubComponentName")
                 .setHubComponentVersion("hubComponentVersion")
                 .setHubProjectName("hubProjectName")
@@ -73,28 +73,28 @@ public class JiraEventInfoTest {
                 .setJiraUserKey("jiraUserKey")
                 .setJiraUserName("jiraUserName");
 
-        assertEquals(HubEventAction.ADD_COMMENT, jiraEventInfo1.getAction());
-        assertEquals("hubComponentName", jiraEventInfo1.getHubComponentName());
-        assertEquals("hubComponentVersion", jiraEventInfo1.getHubComponentVersion());
-        assertEquals("hubProjectName", jiraEventInfo1.getHubProjectName());
-        assertEquals("hubProjectVersion", jiraEventInfo1.getHubProjectVersion());
-        assertEquals("hubRuleName", jiraEventInfo1.getHubRuleName());
-        assertEquals(jiraFieldCopyMappings, jiraEventInfo1.getJiraFieldCopyMappings());
-        assertEquals("jiraIssueAssigneeUserId", jiraEventInfo1.getJiraIssueAssigneeUserId());
-        assertEquals("jiraIssueComment", jiraEventInfo1.getJiraIssueComment());
-        assertEquals("jiraIssueCommentForExistingIssue", jiraEventInfo1.getJiraIssueCommentForExistingIssue());
-        assertEquals("jiraIssueCommentForExistingIssue", jiraEventInfo1.getJiraIssueCommentForExistingIssue());
-        assertEquals("jiraIssueCommentInLieuOfStateChange", jiraEventInfo1.getJiraIssueCommentInLieuOfStateChange());
-        assertEquals("jiraIssueDescription", jiraEventInfo1.getJiraIssueDescription());
-        assertEquals(issuePropertiesGenerator, jiraEventInfo1.getJiraIssuePropertiesGenerator());
-        assertEquals("jiraIssueReOpenComment", jiraEventInfo1.getJiraIssueReOpenComment());
-        assertEquals("jiraIssueResolveComment", jiraEventInfo1.getJiraIssueResolveComment());
-        assertEquals("jiraIssueSummary", jiraEventInfo1.getJiraIssueSummary());
-        assertEquals("jiraIssueTypeId", jiraEventInfo1.getJiraIssueTypeId());
-        assertEquals(Long.valueOf(123L), jiraEventInfo1.getJiraProjectId());
-        assertEquals("jiraProjectName", jiraEventInfo1.getJiraProjectName());
-        assertEquals("jiraUserKey", jiraEventInfo1.getJiraUserKey());
-        assertEquals("jiraUserName", jiraEventInfo1.getJiraUserName());
+        assertEquals(HubEventAction.ADD_COMMENT, eventData.getAction());
+        assertEquals("hubComponentName", eventData.getHubComponentName());
+        assertEquals("hubComponentVersion", eventData.getHubComponentVersion());
+        assertEquals("hubProjectName", eventData.getHubProjectName());
+        assertEquals("hubProjectVersion", eventData.getHubProjectVersion());
+        assertEquals("hubRuleName", eventData.getHubRuleName());
+        assertEquals(jiraFieldCopyMappings, eventData.getJiraFieldCopyMappings());
+        assertEquals("jiraIssueAssigneeUserId", eventData.getJiraIssueAssigneeUserId());
+        assertEquals("jiraIssueComment", eventData.getJiraIssueComment());
+        assertEquals("jiraIssueCommentForExistingIssue", eventData.getJiraIssueCommentForExistingIssue());
+        assertEquals("jiraIssueCommentForExistingIssue", eventData.getJiraIssueCommentForExistingIssue());
+        assertEquals("jiraIssueCommentInLieuOfStateChange", eventData.getJiraIssueCommentInLieuOfStateChange());
+        assertEquals("jiraIssueDescription", eventData.getJiraIssueDescription());
+        assertEquals(issuePropertiesGenerator, eventData.getJiraIssuePropertiesGenerator());
+        assertEquals("jiraIssueReOpenComment", eventData.getJiraIssueReOpenComment());
+        assertEquals("jiraIssueResolveComment", eventData.getJiraIssueResolveComment());
+        assertEquals("jiraIssueSummary", eventData.getJiraIssueSummary());
+        assertEquals("jiraIssueTypeId", eventData.getJiraIssueTypeId());
+        assertEquals(Long.valueOf(123L), eventData.getJiraProjectId());
+        assertEquals("jiraProjectName", eventData.getJiraProjectName());
+        assertEquals("jiraUserKey", eventData.getJiraUserKey());
+        assertEquals("jiraUserName", eventData.getJiraUserName());
 
     }
 }

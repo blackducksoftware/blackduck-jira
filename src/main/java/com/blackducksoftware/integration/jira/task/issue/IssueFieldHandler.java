@@ -45,7 +45,7 @@ import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
+import com.blackducksoftware.integration.jira.task.conversion.output.EventData;
 
 public class IssueFieldHandler {
 
@@ -74,7 +74,7 @@ public class IssueFieldHandler {
         }
     }
 
-    public void setPluginFieldValues(final NotificationEvent notificationEvent, final JiraEventInfo eventData,
+    public void setPluginFieldValues(final NotificationEvent notificationEvent, final EventData eventData,
             final IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
                 && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
@@ -96,7 +96,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private void addIssueInputParameter(final JiraEventInfo eventData, final PluginField pluginField,
+    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField,
             final IssueInputParameters issueInputParameters, final String fieldValue) {
 
         final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields()
@@ -117,7 +117,7 @@ public class IssueFieldHandler {
                 fieldValue);
     }
 
-    public List<String> setOtherFieldValues(final NotificationEvent notificationEvent, final JiraEventInfo eventData,
+    public List<String> setOtherFieldValues(final NotificationEvent notificationEvent, final EventData eventData,
             final IssueInputParameters issueInputParameters) {
         final List<String> labels = new ArrayList<>();
         final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = eventData.getJiraFieldCopyMappings();
@@ -181,7 +181,7 @@ public class IssueFieldHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied
      * to an issue during creation).
      */
-    private String setSystemField(final NotificationEvent notificationEvent, final JiraEventInfo eventData, final IssueInputParameters issueInputParameters,
+    private String setSystemField(final NotificationEvent notificationEvent, final EventData eventData, final IssueInputParameters issueInputParameters,
             final Field targetField,
             final String targetFieldValue) {
         if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
@@ -204,7 +204,7 @@ public class IssueFieldHandler {
         return null;
     }
 
-    private void setComponent(final NotificationEvent notificationEvent, final JiraEventInfo eventData, final IssueInputParameters issueInputParameters,
+    private void setComponent(final NotificationEvent notificationEvent, final EventData eventData, final IssueInputParameters issueInputParameters,
             final String targetFieldValue) {
         Long compId = null;
         final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager()
@@ -230,7 +230,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private void setAffectedVersion(final NotificationEvent notificationEvent, final JiraEventInfo eventData, final IssueInputParameters issueInputParameters,
+    private void setAffectedVersion(final NotificationEvent notificationEvent, final EventData eventData, final IssueInputParameters issueInputParameters,
             final String targetFieldValue) {
         Long versionId = null;
         final Collection<Version> versions = jiraServices.getJiraProjectManager()
@@ -255,7 +255,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private String getPluginFieldValue(final NotificationEvent notificationEvent, final JiraEventInfo eventData, final String pluginFieldId) {
+    private String getPluginFieldValue(final NotificationEvent notificationEvent, final EventData eventData, final String pluginFieldId) {
         String fieldValue = null;
         if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubComponentName();

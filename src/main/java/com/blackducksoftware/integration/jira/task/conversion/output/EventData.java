@@ -30,7 +30,7 @@ import java.util.Set;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 
-public class JiraEventInfo {
+public class EventData {
     private HubEventAction action;
 
     private String jiraUserName;
@@ -91,155 +91,155 @@ public class JiraEventInfo {
 
     private String hubRuleUrl;
 
-    public JiraEventInfo() {
+    public EventData() {
     }
 
-    public JiraEventInfo setAction(final HubEventAction action) {
+    public EventData setAction(final HubEventAction action) {
         this.action = action;
         return this;
     }
 
-    public JiraEventInfo setJiraUserName(final String jiraUserName) {
+    public EventData setJiraUserName(final String jiraUserName) {
         this.jiraUserName = jiraUserName;
         return this;
     }
 
-    public JiraEventInfo setJiraUserKey(final String jiraUserKey) {
+    public EventData setJiraUserKey(final String jiraUserKey) {
         this.jiraUserKey = jiraUserKey;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
+    public EventData setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
         this.jiraIssueAssigneeUserId = jiraIssueAssigneeUserId;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueTypeId(final String jiraIssueTypeId) {
+    public EventData setJiraIssueTypeId(final String jiraIssueTypeId) {
         this.jiraIssueTypeId = jiraIssueTypeId;
         return this;
     }
 
-    public JiraEventInfo setJiraProjectName(final String jiraProjectName) {
+    public EventData setJiraProjectName(final String jiraProjectName) {
         this.jiraProjectName = jiraProjectName;
         return this;
     }
 
-    public JiraEventInfo setJiraProjectId(final Long jiraProjectId) {
+    public EventData setJiraProjectId(final Long jiraProjectId) {
         this.jiraProjectId = jiraProjectId;
         return this;
     }
 
-    public JiraEventInfo setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
+    public EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         this.jiraFieldCopyMappings = jiraFieldCopyMappings;
         return this;
     }
 
-    public JiraEventInfo setHubProjectName(final String hubProjectName) {
+    public EventData setHubProjectName(final String hubProjectName) {
         this.hubProjectName = hubProjectName;
         return this;
     }
 
-    public JiraEventInfo setHubProjectVersion(final String hubProjectVersion) {
+    public EventData setHubProjectVersion(final String hubProjectVersion) {
         this.hubProjectVersion = hubProjectVersion;
         return this;
     }
 
-    public JiraEventInfo setHubProjectVersionUrl(final String hubProjectVersionUrl) {
+    public EventData setHubProjectVersionUrl(final String hubProjectVersionUrl) {
         this.hubProjectVersionUrl = hubProjectVersionUrl;
         return this;
     }
 
-    public JiraEventInfo setHubComponentName(final String hubComponentName) {
+    public EventData setHubComponentName(final String hubComponentName) {
         this.hubComponentName = hubComponentName;
         return this;
     }
 
-    public JiraEventInfo setHubComponentUrl(final String hubComponentUrl) {
+    public EventData setHubComponentUrl(final String hubComponentUrl) {
         this.hubComponentUrl = hubComponentUrl;
         return this;
     }
 
-    public JiraEventInfo setHubComponentVersion(final String hubComponentVersion) {
+    public EventData setHubComponentVersion(final String hubComponentVersion) {
         this.hubComponentVersion = hubComponentVersion;
         return this;
     }
 
-    public JiraEventInfo setHubComponentVersionUrl(final String hubComponentVersionUrl) {
+    public EventData setHubComponentVersionUrl(final String hubComponentVersionUrl) {
         this.hubComponentVersionUrl = hubComponentVersionUrl;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueSummary(final String jiraIssueSummary) {
+    public EventData setJiraIssueSummary(final String jiraIssueSummary) {
         this.jiraIssueSummary = jiraIssueSummary;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueDescription(final String jiraIssueDescription) {
+    public EventData setJiraIssueDescription(final String jiraIssueDescription) {
         this.jiraIssueDescription = jiraIssueDescription;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueComment(final String jiraIssueComment) {
+    public EventData setJiraIssueComment(final String jiraIssueComment) {
         this.jiraIssueComment = jiraIssueComment;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
+    public EventData setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
         this.jiraIssueReOpenComment = jiraIssueReOpenComment;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
+    public EventData setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
         this.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueResolveComment(final String jiraIssueResolveComment) {
+    public EventData setJiraIssueResolveComment(final String jiraIssueResolveComment) {
         this.jiraIssueResolveComment = jiraIssueResolveComment;
         return this;
     }
 
-    public JiraEventInfo setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
+    public EventData setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
         return this;
     }
 
-    public JiraEventInfo setJiraIssuePropertiesGenerator(final IssuePropertiesGenerator jiraIssuePropertiesGenerator) {
+    public EventData setJiraIssuePropertiesGenerator(final IssuePropertiesGenerator jiraIssuePropertiesGenerator) {
         this.jiraIssuePropertiesGenerator = jiraIssuePropertiesGenerator;
         return this;
     }
 
-    public JiraEventInfo setHubRuleName(final String hubRuleName) {
+    public EventData setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
         return this;
     }
 
-    public JiraEventInfo setHubRuleUrl(final String hubRuleUrl) {
+    public EventData setHubRuleUrl(final String hubRuleUrl) {
         this.hubRuleUrl = hubRuleUrl;
         return this;
     }
 
-    public JiraEventInfo setHubLicenseNames(final String hubLicenseNames) {
+    public EventData setHubLicenseNames(final String hubLicenseNames) {
         this.hubLicenseNames = hubLicenseNames;
         return this;
     }
 
-    public JiraEventInfo setHubComponentUsage(final String hubComponentUsage) {
+    public EventData setHubComponentUsage(final String hubComponentUsage) {
         this.hubComponentUsage = hubComponentUsage;
         return this;
     }
 
-    public JiraEventInfo setHubComponentOrigin(final String hubComponentOrigin) {
+    public EventData setHubComponentOrigin(final String hubComponentOrigin) {
         this.hubComponentOrigin = hubComponentOrigin;
         return this;
     }
 
-    public JiraEventInfo setHubComponentOriginId(final String hubComponentOriginId) {
+    public EventData setHubComponentOriginId(final String hubComponentOriginId) {
         this.hubComponentOriginId = hubComponentOriginId;
         return this;
     }
 
-    public JiraEventInfo setHubProjectVersionNickname(final String hubProjectVersionNickname) {
+    public EventData setHubProjectVersionNickname(final String hubProjectVersionNickname) {
         this.hubProjectVersionNickname = hubProjectVersionNickname;
         return this;
     }
@@ -366,7 +366,7 @@ public class JiraEventInfo {
 
     public Map<String, Object> getDataSet() {
         final Map<String, Object> dataSet = new HashMap<>();
-        dataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO, this);
+        dataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, this);
         return dataSet;
     }
 }
