@@ -6,6 +6,7 @@ Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA 
 [![Build Status](https://travis-ci.org/blackducksoftware/hub-jira.svg?branch=master)](https://travis-ci.org/blackducksoftware/hub-jira)
 [![CircleCI](https://circleci.com/gh/blackducksoftware/hub-jira.svg?style=svg)](https://circleci.com/gh/blackducksoftware/hub-jira)
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/groups/blackducksoftware/locations/hub-common/public/results/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/groups/blackducksoftware/locations/hub-common/public/results/branches/master)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Where can I get the latest release? ##
 You can download the latest source from GitHub: https://github.com/blackducksoftware/hub-jira. 
@@ -14,7 +15,3 @@ You can download the latest release artifacts from GitHub: https://github.com/bl
 
 ## Documentation ##
 All documentation for hub-jira can be found on the base project:  https://github.com/blackducksoftware/hub-jira/wiki
-
-## License ##
-
-Apache License 2.0
