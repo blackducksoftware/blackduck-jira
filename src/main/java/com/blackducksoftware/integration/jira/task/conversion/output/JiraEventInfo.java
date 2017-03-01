@@ -89,48 +89,53 @@ public class JiraEventInfo {
 
     private String hubRuleName;
 
+    private String hubRuleUrl;
+
     public JiraEventInfo() {
 
     }
 
-    @SuppressWarnings("unchecked")
-    public JiraEventInfo(final Map<String, Object> dataSet) {
-        action = (HubEventAction) dataSet.get(EventDataSetKeys.ACTION);
-        jiraUserName = (String) dataSet.get(EventDataSetKeys.JIRA_USER_NAME);
-        jiraUserKey = (String) dataSet.get(EventDataSetKeys.JIRA_USER_KEY);
-        jiraIssueAssigneeUserId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID);
-        jiraIssueTypeId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID);
-
-        jiraProjectName = (String) dataSet.get(EventDataSetKeys.JIRA_PROJECT_NAME);
-        jiraProjectId = (Long) dataSet.get(EventDataSetKeys.JIRA_PROJECT_ID);
-        jiraFieldCopyMappings = (Set<ProjectFieldCopyMapping>) dataSet.get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
-
-        hubProjectName = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_NAME);
-        hubProjectVersion = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION);
-        hubProjectVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_URL);
-        hubComponentName = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_NAME);
-        hubComponentUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_URL);
-        hubComponentVersion = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION);
-        hubComponentVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
-
-        hubLicenseNames = (String) dataSet.get(EventDataSetKeys.HUB_LICENSE_NAMES);
-
-        hubComponentUsage = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_USAGE);
-        hubComponentOrigin = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN);
-        hubComponentOriginId = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID);
-        hubProjectVersionNickname = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME);
-
-        jiraIssueSummary = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
-        jiraIssueDescription = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
-
-        jiraIssueComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
-        jiraIssueReOpenComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
-        jiraIssueCommentForExistingIssue = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
-        jiraIssueResolveComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
-        jiraIssueCommentInLieuOfStateChange = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
-        jiraIssuePropertiesGenerator = (IssuePropertiesGenerator) dataSet.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
-        hubRuleName = (String) dataSet.get(EventDataSetKeys.HUB_RULE_NAME);
-    }
+    // TODO
+    // @SuppressWarnings("unchecked")
+    // public JiraEventInfo(final Map<String, Object> dataSet) {
+    // action = (HubEventAction) dataSet.get(EventDataSetKeys.ACTION);
+    // jiraUserName = (String) dataSet.get(EventDataSetKeys.JIRA_USER_NAME);
+    // jiraUserKey = (String) dataSet.get(EventDataSetKeys.JIRA_USER_KEY);
+    // jiraIssueAssigneeUserId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID);
+    // jiraIssueTypeId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID);
+    //
+    // jiraProjectName = (String) dataSet.get(EventDataSetKeys.JIRA_PROJECT_NAME);
+    // jiraProjectId = (Long) dataSet.get(EventDataSetKeys.JIRA_PROJECT_ID);
+    // jiraFieldCopyMappings = (Set<ProjectFieldCopyMapping>) dataSet.get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
+    //
+    // hubProjectName = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_NAME);
+    // hubProjectVersion = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION);
+    // hubProjectVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_URL);
+    // hubComponentName = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_NAME);
+    // hubComponentUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_URL);
+    // hubComponentVersion = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION);
+    // hubComponentVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
+    //
+    // hubLicenseNames = (String) dataSet.get(EventDataSetKeys.HUB_LICENSE_NAMES);
+    //
+    // hubComponentUsage = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_USAGE);
+    // hubComponentOrigin = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN);
+    // hubComponentOriginId = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID);
+    // hubProjectVersionNickname = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME);
+    //
+    // jiraIssueSummary = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
+    // jiraIssueDescription = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
+    //
+    // jiraIssueComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
+    // jiraIssueReOpenComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
+    // jiraIssueCommentForExistingIssue = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
+    // jiraIssueResolveComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
+    // jiraIssueCommentInLieuOfStateChange = (String)
+    // dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
+    // jiraIssuePropertiesGenerator = (IssuePropertiesGenerator)
+    // dataSet.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
+    // hubRuleName = (String) dataSet.get(EventDataSetKeys.HUB_RULE_NAME);
+    // }
 
     public JiraEventInfo setAction(final HubEventAction action) {
         this.action = action;
@@ -249,6 +254,11 @@ public class JiraEventInfo {
 
     public JiraEventInfo setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
+        return this;
+    }
+
+    public JiraEventInfo setHubRuleUrl(final String hubRuleUrl) {
+        this.hubRuleUrl = hubRuleUrl;
         return this;
     }
 
@@ -373,6 +383,10 @@ public class JiraEventInfo {
         return hubRuleName;
     }
 
+    public String getHubRuleUrl() {
+        return hubRuleUrl;
+    }
+
     public String getHubLicenseNames() {
         return hubLicenseNames;
     }
@@ -393,44 +407,10 @@ public class JiraEventInfo {
         return hubProjectVersionNickname;
     }
 
+    // TODO do we really need this?
     public Map<String, Object> getDataSet() {
         final Map<String, Object> dataSet = new HashMap<>();
-        dataSet.put(EventDataSetKeys.ACTION, action);
-        dataSet.put(EventDataSetKeys.JIRA_USER_NAME, jiraUserName);
-        dataSet.put(EventDataSetKeys.JIRA_USER_KEY, jiraUserKey);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID, jiraIssueAssigneeUserId);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_TYPE_ID, jiraIssueTypeId);
-
-        dataSet.put(EventDataSetKeys.JIRA_PROJECT_NAME, jiraProjectName);
-        dataSet.put(EventDataSetKeys.JIRA_PROJECT_ID, jiraProjectId);
-        dataSet.put(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS, jiraFieldCopyMappings);
-
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_NAME, hubProjectName);
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION, hubProjectVersion);
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION_URL, hubProjectVersionUrl);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_NAME, hubComponentName);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_URL, hubComponentUrl);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION, hubComponentVersion);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_VERSION_URL, hubComponentVersionUrl);
-
-        dataSet.put(EventDataSetKeys.HUB_LICENSE_NAMES, hubLicenseNames);
-
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_USAGE, hubComponentUsage);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_ORIGIN, hubComponentOrigin);
-        dataSet.put(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID, hubComponentOriginId);
-        dataSet.put(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME, hubProjectVersionNickname);
-
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_SUMMARY, jiraIssueSummary);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION, jiraIssueDescription);
-
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT, jiraIssueComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT, jiraIssueReOpenComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE, jiraIssueCommentForExistingIssue);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT, jiraIssueResolveComment);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE, jiraIssueCommentInLieuOfStateChange);
-        dataSet.put(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR, jiraIssuePropertiesGenerator);
-        dataSet.put(EventDataSetKeys.HUB_RULE_NAME, hubRuleName);
-
+        dataSet.put(EventDataSetKeys.JIRA_EVENT_INFO, this);
         return dataSet;
     }
 }

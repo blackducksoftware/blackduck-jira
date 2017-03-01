@@ -26,37 +26,37 @@ package com.blackducksoftware.integration.jira.task.conversion;
 public class EventDataSetKeys {
     public static final String JIRA_EVENT_INFO = "jiraEventInfo";
 
-    public static final String ACTION = "action";
+    private static final String ACTION = "action";
 
-    public static final String JIRA_ISSUE_SUMMARY = "jiraIssueSummary";
+    private static final String JIRA_ISSUE_SUMMARY = "jiraIssueSummary";
 
-    public static final String JIRA_ISSUE_DESCRIPTION = "jiraIssueDescription";
+    private static final String JIRA_ISSUE_DESCRIPTION = "jiraIssueDescription";
 
-    public static final String JIRA_ISSUE_RESOLVE_COMMENT = "jiraIssueResolveComment";
+    private static final String JIRA_ISSUE_RESOLVE_COMMENT = "jiraIssueResolveComment";
 
-    public static final String JIRA_ISSUE_REOPEN_COMMENT = "jiraIssueReOpenComment";
+    private static final String JIRA_ISSUE_REOPEN_COMMENT = "jiraIssueReOpenComment";
 
-    public static final String JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE = "jiraIssueCommentForExistingIssue";
+    private static final String JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE = "jiraIssueCommentForExistingIssue";
 
-    public static final String JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE = "jiraIssueCommentInLieuOfStateChange";
+    private static final String JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE = "jiraIssueCommentInLieuOfStateChange";
 
-    public static final String JIRA_ISSUE_COMMENT = "jiraIssueComment";
+    private static final String JIRA_ISSUE_COMMENT = "jiraIssueComment";
 
-    public static final String JIRA_FIELD_COPY_MAPPINGS = "jiraFieldCopyMappings";
+    private static final String JIRA_FIELD_COPY_MAPPINGS = "jiraFieldCopyMappings";
 
-    public static final String JIRA_PROJECT_NAME = "jiraProjectName";
+    private static final String JIRA_PROJECT_NAME = "jiraProjectName";
 
-    public static final String JIRA_PROJECT_ID = "jiraProjectId";
+    private static final String JIRA_PROJECT_ID = "jiraProjectId";
 
-    public static final String JIRA_ISSUE_TYPE_ID = "jiraIssueTypeId";
+    private static final String JIRA_ISSUE_TYPE_ID = "jiraIssueTypeId";
 
-    public static final String JIRA_ISSUE_ASSIGNEE_USER_ID = "jiraIssueAssigneeUserId";
+    private static final String JIRA_ISSUE_ASSIGNEE_USER_ID = "jiraIssueAssigneeUserId";
 
-    public static final String JIRA_USER_KEY = "jiraUserKey";
+    private static final String JIRA_USER_KEY = "jiraUserKey";
 
-    public static final String JIRA_USER_NAME = "jiraUserName";
+    private static final String JIRA_USER_NAME = "jiraUserName";
 
-    public static final String JIRA_ISSUE_PROPERTIES_GENERATOR = "jiraIssuePropertiesGenerator";
+    private static final String JIRA_ISSUE_PROPERTIES_GENERATOR = "jiraIssuePropertiesGenerator";
 
     // Jira objects
 

@@ -118,7 +118,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE)
                     .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT)
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                    .setHubRuleName(rule.getName());
+                    .setHubRuleName(rule.getName())
+                    .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule));
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
             eventDataSet.put(EventDataSetKeys.JIRA_EVENT_INFO, jiraEventInfo);

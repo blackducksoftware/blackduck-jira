@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
@@ -173,11 +174,16 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     public String generateEventKey(final Map<String, Object> inputData)
             throws HubIntegrationException {
 
-        final Long jiraProjectId = (Long) inputData.get(EventDataSetKeys.JIRA_PROJECT_ID);
-        final String policyRuleURL = (String) inputData.get(EventDataSetKeys.HUB_RULE_URL);
-        final String hubProjectVersionUrl = (String) inputData.get(EventDataSetKeys.HUB_PROJECT_VERSION_URL);
-        final String hubComponentUrl = (String) inputData.get(EventDataSetKeys.HUB_COMPONENT_URL);
-        final String hubComponentVersionUrl = (String) inputData.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
+        final JiraEventInfo jiraEventInfo = (JiraEventInfo) inputData.get(EventDataSetKeys.JIRA_EVENT_INFO);
+
+        final Long jiraProjectId = jiraEventInfo.getJiraProjectId();
+        final String hubProjectVersionUrl = jiraEventInfo.getHubProjectVersionUrl();
+        final String hubComponentVersionUrl = jiraEventInfo.getHubComponentVersionUrl();
+        final String hubComponentUrl = jiraEventInfo.getHubComponentUrl();
+        final String policyRuleUrl = jiraEventInfo.getHubRuleUrl();
+        if (policyRuleUrl == null) {
+            throw new HubIntegrationException("Policy Rule URL is null");
+        }
 
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
@@ -207,7 +213,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
         keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(policyRuleURL)));
+        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(policyRuleUrl)));
 
         final String key = keyBuilder.toString();
 
