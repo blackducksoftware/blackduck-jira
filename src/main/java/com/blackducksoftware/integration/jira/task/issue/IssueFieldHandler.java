@@ -45,7 +45,7 @@ import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.EventData;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 
 public class IssueFieldHandler {
 

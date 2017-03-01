@@ -50,8 +50,8 @@ import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSeria
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.blackducksoftware.integration.jira.task.conversion.output.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {

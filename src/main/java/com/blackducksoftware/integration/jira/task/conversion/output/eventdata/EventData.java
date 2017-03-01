@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.conversion.output;
+package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +29,8 @@ import java.util.Set;
 
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 
 public class EventData {
     private HubEventAction action;

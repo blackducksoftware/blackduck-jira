@@ -33,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 
 public class JiraEventInfoTest {
 
