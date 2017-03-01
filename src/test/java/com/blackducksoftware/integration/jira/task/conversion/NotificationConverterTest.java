@@ -63,6 +63,7 @@ import com.blackducksoftware.integration.hub.notification.processor.ListProcesso
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.hub.service.HubRequestService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -500,7 +501,7 @@ public class NotificationConverterTest {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         final NotificationEvent event = events.get(0);
         // HubEvent<VulnerabilityContentItem> event = events.get(0);
-        final JiraEventInfo jiraEventInfo = (JiraEventInfo) event.getDataSet().get(EventDataSetKeys.JIRA_EVENT_INFO);
+        final JiraEventInfo jiraEventInfo = (JiraEventInfo) event.getDataSet().get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO);
         assertEquals(expectedHubEventAction, jiraEventInfo.getAction());
         assertEquals(expectedComment, jiraEventInfo.getJiraIssueComment());
         assertEquals(expectedCommentIfExists, jiraEventInfo.getJiraIssueCommentForExistingIssue());

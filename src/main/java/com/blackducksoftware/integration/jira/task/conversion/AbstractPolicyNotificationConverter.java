@@ -174,7 +174,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     public String generateEventKey(final Map<String, Object> inputData)
             throws HubIntegrationException {
 
-        final JiraEventInfo jiraEventInfo = (JiraEventInfo) inputData.get(EventDataSetKeys.JIRA_EVENT_INFO);
+        final JiraEventInfo jiraEventInfo = (JiraEventInfo) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO);
 
         final Long jiraProjectId = jiraEventInfo.getJiraProjectId();
         final String hubProjectVersionUrl = jiraEventInfo.getHubProjectVersionUrl();

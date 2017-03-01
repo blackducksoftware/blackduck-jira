@@ -54,7 +54,6 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.EventDataSetKeys;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.JiraEventInfo;
@@ -73,8 +72,6 @@ public class JiraIssueHandler {
 
     private final JiraSettingsService jiraSettingsService;
 
-    private final TicketInfoFromSetup ticketInfoFromSetup;
-
     private final IssueFieldHandler issueFieldHandler;
 
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
@@ -82,7 +79,6 @@ public class JiraIssueHandler {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
-        this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
     }
 
@@ -400,7 +396,7 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final NotificationEvent notificationEvent) {
-        final JiraEventInfo eventData = (JiraEventInfo) notificationEvent.getDataSet().get(EventDataSetKeys.JIRA_EVENT_INFO);
+        final JiraEventInfo eventData = (JiraEventInfo) notificationEvent.getDataSet().get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO);
         logger.debug("Licences: " + eventData.getHubLicenseNames());
 
         switch (eventData.getAction()) {

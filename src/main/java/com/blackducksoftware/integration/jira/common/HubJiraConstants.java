@@ -168,4 +168,7 @@ public class HubJiraConstants {
     public static final String LICENSE_NAME_JOINER_OR = " OR ";
 
     public static final String LICENSE_NAME_JOINER_AND = " AND ";
+
+    // Event Data Set key
+    public static final String EVENT_DATA_SET_KEY_JIRA_EVENT_INFO = "jiraEventInfo";
 }

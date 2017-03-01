@@ -122,7 +122,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule));
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
-            eventDataSet.put(EventDataSetKeys.JIRA_EVENT_INFO, jiraEventInfo);
+            eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO, jiraEventInfo);
             final String key = generateEventKey(jiraEventInfo.getDataSet());
             final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, eventDataSet);
             events.add(event);

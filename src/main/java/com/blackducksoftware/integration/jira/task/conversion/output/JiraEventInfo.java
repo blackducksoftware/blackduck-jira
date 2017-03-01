@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.EventDataSetKeys;
 
 public class JiraEventInfo {
     private HubEventAction action;
@@ -92,50 +92,7 @@ public class JiraEventInfo {
     private String hubRuleUrl;
 
     public JiraEventInfo() {
-
     }
-
-    // TODO
-    // @SuppressWarnings("unchecked")
-    // public JiraEventInfo(final Map<String, Object> dataSet) {
-    // action = (HubEventAction) dataSet.get(EventDataSetKeys.ACTION);
-    // jiraUserName = (String) dataSet.get(EventDataSetKeys.JIRA_USER_NAME);
-    // jiraUserKey = (String) dataSet.get(EventDataSetKeys.JIRA_USER_KEY);
-    // jiraIssueAssigneeUserId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_ASSIGNEE_USER_ID);
-    // jiraIssueTypeId = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_TYPE_ID);
-    //
-    // jiraProjectName = (String) dataSet.get(EventDataSetKeys.JIRA_PROJECT_NAME);
-    // jiraProjectId = (Long) dataSet.get(EventDataSetKeys.JIRA_PROJECT_ID);
-    // jiraFieldCopyMappings = (Set<ProjectFieldCopyMapping>) dataSet.get(EventDataSetKeys.JIRA_FIELD_COPY_MAPPINGS);
-    //
-    // hubProjectName = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_NAME);
-    // hubProjectVersion = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION);
-    // hubProjectVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_URL);
-    // hubComponentName = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_NAME);
-    // hubComponentUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_URL);
-    // hubComponentVersion = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION);
-    // hubComponentVersionUrl = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_VERSION_URL);
-    //
-    // hubLicenseNames = (String) dataSet.get(EventDataSetKeys.HUB_LICENSE_NAMES);
-    //
-    // hubComponentUsage = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_USAGE);
-    // hubComponentOrigin = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN);
-    // hubComponentOriginId = (String) dataSet.get(EventDataSetKeys.HUB_COMPONENT_ORIGIN_ID);
-    // hubProjectVersionNickname = (String) dataSet.get(EventDataSetKeys.HUB_PROJECT_VERSION_NICKNAME);
-    //
-    // jiraIssueSummary = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_SUMMARY);
-    // jiraIssueDescription = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_DESCRIPTION);
-    //
-    // jiraIssueComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT);
-    // jiraIssueReOpenComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_REOPEN_COMMENT);
-    // jiraIssueCommentForExistingIssue = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_FOR_EXISTING_ISSUE);
-    // jiraIssueResolveComment = (String) dataSet.get(EventDataSetKeys.JIRA_ISSUE_RESOLVE_COMMENT);
-    // jiraIssueCommentInLieuOfStateChange = (String)
-    // dataSet.get(EventDataSetKeys.JIRA_ISSUE_COMMENT_IN_LIEU_OF_STATE_CHANGE);
-    // jiraIssuePropertiesGenerator = (IssuePropertiesGenerator)
-    // dataSet.get(EventDataSetKeys.JIRA_ISSUE_PROPERTIES_GENERATOR);
-    // hubRuleName = (String) dataSet.get(EventDataSetKeys.HUB_RULE_NAME);
-    // }
 
     public JiraEventInfo setAction(final HubEventAction action) {
         this.action = action;
@@ -407,10 +364,9 @@ public class JiraEventInfo {
         return hubProjectVersionNickname;
     }
 
-    // TODO do we really need this?
     public Map<String, Object> getDataSet() {
         final Map<String, Object> dataSet = new HashMap<>();
-        dataSet.put(EventDataSetKeys.JIRA_EVENT_INFO, this);
+        dataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_INFO, this);
         return dataSet;
     }
 }
