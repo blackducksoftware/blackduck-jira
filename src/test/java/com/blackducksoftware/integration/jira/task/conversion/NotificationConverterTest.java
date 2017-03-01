@@ -590,6 +590,7 @@ public class NotificationConverterTest {
         projectVersion.setUrl(PROJECT_VERSION_URL);
         projectVersion.setVulnerableComponentsLink(VULNERABLE_COMPONENTS_URL);
         projectVersion.setComponentsLink(PROJECT_VERSION_COMPONENTS_URL);
+        projectVersion.setNickname("projectVersionNickname");
         return projectVersion;
     }
 

@@ -24,16 +24,28 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
+import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 
 public class JiraEventInfoTest {
 
@@ -46,40 +58,102 @@ public class JiraEventInfoTest {
     }
 
     @Test
-    public void test() {
+    public void testValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = null;
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
 
-        final EventData eventData = new EventData();
-        eventData.setAction(HubEventAction.ADD_COMMENT)
-                .setHubComponentName("hubComponentName")
-                .setHubComponentVersion("hubComponentVersion")
-                .setHubProjectName("hubProjectName")
-                .setHubProjectVersion("hubProjectVersion")
-                .setHubRuleName("hubRuleName")
-                .setJiraFieldCopyMappings(jiraFieldCopyMappings)
-                .setJiraIssueAssigneeUserId("jiraIssueAssigneeUserId")
-                .setJiraIssueComment("jiraIssueComment")
-                .setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue")
-                .setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue")
-                .setJiraIssueCommentInLieuOfStateChange("jiraIssueCommentInLieuOfStateChange")
-                .setJiraIssueDescription("jiraIssueDescription")
-                .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                .setJiraIssueReOpenComment("jiraIssueReOpenComment")
-                .setJiraIssueResolveComment("jiraIssueResolveComment")
-                .setJiraIssueSummary("jiraIssueSummary")
-                .setJiraIssueTypeId("jiraIssueTypeId")
-                .setJiraProjectId(123L)
-                .setJiraProjectName("jiraProjectName")
-                .setJiraUserKey("jiraUserKey")
-                .setJiraUserName("jiraUserName");
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
 
+        final EventData eventData = eventDataBuilder.build();
+
+        checkCommonValues(jiraFieldCopyMappings, issuePropertiesGenerator, eventData);
+        assertEquals(null, eventData.getHubRuleName());
+        assertEquals(null, eventData.getHubRuleUrl());
+    }
+
+    @Test
+    public void testInValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
+        final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
+        eventDataBuilder.setHubProjectVersionUrl(null);
+
+        try {
+            eventDataBuilder.build();
+            fail("Expected exception");
+        } catch (final EventDataBuilderException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testValidPolicyEvent() throws EventDataBuilderException, URISyntaxException {
+        final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
+        eventDataBuilder.setHubRuleName("hubRuleName");
+        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+
+        final EventData eventData = eventDataBuilder.build();
+
+        checkCommonValues(jiraFieldCopyMappings, issuePropertiesGenerator, eventData);
+        assertEquals("hubRuleName", eventData.getHubRuleName());
+        assertEquals("hubRuleUrl", eventData.getHubRuleUrl());
+    }
+
+    @Test
+    public void testInValidPolicyEventMissingRuleUrl() throws EventDataBuilderException, URISyntaxException {
+        final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
+        eventDataBuilder.setHubRuleName("hubRuleName");
+
+        try {
+            eventDataBuilder.build();
+            fail("Expected exception");
+        } catch (final EventDataBuilderException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInValidPolicyEventMissingRuleName() throws EventDataBuilderException, URISyntaxException {
+        final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
+        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+
+        try {
+            eventDataBuilder.build();
+            fail("Expected exception");
+        } catch (final EventDataBuilderException e) {
+            // expected
+        }
+    }
+
+    private void checkCommonValues(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings, final IssuePropertiesGenerator issuePropertiesGenerator,
+            final EventData eventData) {
         assertEquals(HubEventAction.ADD_COMMENT, eventData.getAction());
         assertEquals("hubComponentName", eventData.getHubComponentName());
+        assertEquals("hubComponentUrl", eventData.getHubComponentUrl());
         assertEquals("hubComponentVersion", eventData.getHubComponentVersion());
+        assertEquals("hubComponentVersionUrl", eventData.getHubComponentVersionUrl());
+
+        assertEquals("hubComponentUsage", eventData.getHubComponentUsage());
+        assertEquals("hubComponentOrigin", eventData.getHubComponentOrigin());
+        assertEquals("hubComponentOriginId", eventData.getHubComponentOriginId());
+
+        assertEquals("hubProjectVersionUrl", eventData.getHubProjectVersionUrl());
+        assertEquals("hubProjectVersionNickname", eventData.getHubProjectVersionNickname());
+        assertEquals("hubLicenseNames", eventData.getHubLicenseNames());
+
         assertEquals("hubProjectName", eventData.getHubProjectName());
         assertEquals("hubProjectVersion", eventData.getHubProjectVersion());
-        assertEquals("hubRuleName", eventData.getHubRuleName());
+
         assertEquals(jiraFieldCopyMappings, eventData.getJiraFieldCopyMappings());
         assertEquals("jiraIssueAssigneeUserId", eventData.getJiraIssueAssigneeUserId());
         assertEquals("jiraIssueComment", eventData.getJiraIssueComment());
@@ -96,6 +170,50 @@ public class JiraEventInfoTest {
         assertEquals("jiraProjectName", eventData.getJiraProjectName());
         assertEquals("jiraUserKey", eventData.getJiraUserKey());
         assertEquals("jiraUserName", eventData.getJiraUserName());
+    }
 
+    private EventDataBuilder createEventDataBuilder(final EventCategory eventCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings,
+            final IssuePropertiesGenerator issuePropertiesGenerator) {
+        final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
+        eventDataBuilder.setAction(HubEventAction.ADD_COMMENT)
+                .setHubComponentName("hubComponentName")
+                .setHubComponentUrl("hubComponentUrl")
+                .setHubComponentVersion("hubComponentVersion")
+                .setHubComponentVersionUrl("hubComponentVersionUrl")
+                .setHubComponentUsage("hubComponentUsage")
+                .setHubComponentOrigin("hubComponentOrigin")
+                .setHubComponentOriginId("hubComponentOriginId")
+                .setHubProjectName("hubProjectName")
+                .setHubProjectVersion("hubProjectVersion")
+                .setHubProjectVersionUrl("hubProjectVersionUrl")
+                .setHubProjectVersionNickname("hubProjectVersionNickname")
+                .setHubLicenseNames("hubLicenseNames")
+                .setJiraFieldCopyMappings(jiraFieldCopyMappings)
+                .setJiraIssueAssigneeUserId("jiraIssueAssigneeUserId")
+                .setJiraIssueComment("jiraIssueComment")
+                .setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue")
+                .setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue")
+                .setJiraIssueCommentInLieuOfStateChange("jiraIssueCommentInLieuOfStateChange")
+                .setJiraIssueDescription("jiraIssueDescription")
+                .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
+                .setJiraIssueReOpenComment("jiraIssueReOpenComment")
+                .setJiraIssueResolveComment("jiraIssueResolveComment")
+                .setJiraIssueSummary("jiraIssueSummary")
+                .setJiraIssueTypeId("jiraIssueTypeId")
+                .setJiraProjectId(123L)
+                .setJiraProjectName("jiraProjectName")
+                .setJiraUserKey("jiraUserKey")
+                .setJiraUserName("jiraUserName");
+        return eventDataBuilder;
+    }
+
+    private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
+        final ProjectVersion projectVersion = new ProjectVersion();
+        final ComponentVersion componentVersion = new ComponentVersion();
+        final List<VulnerabilitySourceQualifiedId> vulns = new ArrayList<>(0);
+        final VulnerabilityContentItem contentItem = new VulnerabilityContentItem(new Date(), projectVersion, "tbd", componentVersion, "tbd", vulns, vulns,
+                vulns);
+        final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(contentItem);
+        return issuePropertiesGenerator;
     }
 }

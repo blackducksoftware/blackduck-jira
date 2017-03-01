@@ -43,6 +43,7 @@ import com.blackducksoftware.integration.jira.common.HubUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -103,7 +104,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws HubIntegrationException;
+            final JiraProject jiraProject) throws EventDataBuilderException, HubIntegrationException;
 
     protected String getIssueDescription(final NotificationContentItem notif, final PolicyRule rule) {
         final StringBuilder issueDescription = new StringBuilder();

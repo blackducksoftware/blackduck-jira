@@ -45,12 +45,15 @@ import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
+import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyIssuePropertiesGenerator;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class PolicyViolationClearedNotificationConverter extends AbstractPolicyNotificationConverter {
@@ -67,7 +70,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
     @Override
     protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws HubIntegrationException {
+            final JiraProject jiraProject) throws HubIntegrationException, EventDataBuilderException {
         final List<NotificationEvent> events = new ArrayList<>();
 
         final HubEventAction action = HubEventAction.RESOLVE;
@@ -87,8 +90,8 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
             }
 
             final VersionBomComponentView bomComp = getBomComponent(notification);
-            final EventData eventData = new EventData();
-            eventData.setAction(action)
+            final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
+            final EventData eventData = eventDataBuilder.setAction(action)
                     .setJiraUserName(getJiraContext().getJiraUser().getName())
                     .setJiraUserKey(getJiraContext().getJiraUser().getKey())
                     .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
@@ -117,7 +120,8 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT)
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
                     .setHubRuleName(rule.getName())
-                    .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule));
+                    .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule))
+                    .build();
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
             eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, eventData);

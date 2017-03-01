@@ -93,155 +93,157 @@ public class EventData {
 
     private String hubRuleUrl;
 
-    public EventData() {
+    // The constructor and setters are only for EventDataBuilder
+
+    EventData() {
     }
 
-    public EventData setAction(final HubEventAction action) {
+    EventData setAction(final HubEventAction action) {
         this.action = action;
         return this;
     }
 
-    public EventData setJiraUserName(final String jiraUserName) {
+    EventData setJiraUserName(final String jiraUserName) {
         this.jiraUserName = jiraUserName;
         return this;
     }
 
-    public EventData setJiraUserKey(final String jiraUserKey) {
+    EventData setJiraUserKey(final String jiraUserKey) {
         this.jiraUserKey = jiraUserKey;
         return this;
     }
 
-    public EventData setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
+    EventData setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
         this.jiraIssueAssigneeUserId = jiraIssueAssigneeUserId;
         return this;
     }
 
-    public EventData setJiraIssueTypeId(final String jiraIssueTypeId) {
+    EventData setJiraIssueTypeId(final String jiraIssueTypeId) {
         this.jiraIssueTypeId = jiraIssueTypeId;
         return this;
     }
 
-    public EventData setJiraProjectName(final String jiraProjectName) {
+    EventData setJiraProjectName(final String jiraProjectName) {
         this.jiraProjectName = jiraProjectName;
         return this;
     }
 
-    public EventData setJiraProjectId(final Long jiraProjectId) {
+    EventData setJiraProjectId(final Long jiraProjectId) {
         this.jiraProjectId = jiraProjectId;
         return this;
     }
 
-    public EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
+    EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         this.jiraFieldCopyMappings = jiraFieldCopyMappings;
         return this;
     }
 
-    public EventData setHubProjectName(final String hubProjectName) {
+    EventData setHubProjectName(final String hubProjectName) {
         this.hubProjectName = hubProjectName;
         return this;
     }
 
-    public EventData setHubProjectVersion(final String hubProjectVersion) {
+    EventData setHubProjectVersion(final String hubProjectVersion) {
         this.hubProjectVersion = hubProjectVersion;
         return this;
     }
 
-    public EventData setHubProjectVersionUrl(final String hubProjectVersionUrl) {
+    EventData setHubProjectVersionUrl(final String hubProjectVersionUrl) {
         this.hubProjectVersionUrl = hubProjectVersionUrl;
         return this;
     }
 
-    public EventData setHubComponentName(final String hubComponentName) {
+    EventData setHubComponentName(final String hubComponentName) {
         this.hubComponentName = hubComponentName;
         return this;
     }
 
-    public EventData setHubComponentUrl(final String hubComponentUrl) {
+    EventData setHubComponentUrl(final String hubComponentUrl) {
         this.hubComponentUrl = hubComponentUrl;
         return this;
     }
 
-    public EventData setHubComponentVersion(final String hubComponentVersion) {
+    EventData setHubComponentVersion(final String hubComponentVersion) {
         this.hubComponentVersion = hubComponentVersion;
         return this;
     }
 
-    public EventData setHubComponentVersionUrl(final String hubComponentVersionUrl) {
+    EventData setHubComponentVersionUrl(final String hubComponentVersionUrl) {
         this.hubComponentVersionUrl = hubComponentVersionUrl;
         return this;
     }
 
-    public EventData setJiraIssueSummary(final String jiraIssueSummary) {
+    EventData setJiraIssueSummary(final String jiraIssueSummary) {
         this.jiraIssueSummary = jiraIssueSummary;
         return this;
     }
 
-    public EventData setJiraIssueDescription(final String jiraIssueDescription) {
+    EventData setJiraIssueDescription(final String jiraIssueDescription) {
         this.jiraIssueDescription = jiraIssueDescription;
         return this;
     }
 
-    public EventData setJiraIssueComment(final String jiraIssueComment) {
+    EventData setJiraIssueComment(final String jiraIssueComment) {
         this.jiraIssueComment = jiraIssueComment;
         return this;
     }
 
-    public EventData setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
+    EventData setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
         this.jiraIssueReOpenComment = jiraIssueReOpenComment;
         return this;
     }
 
-    public EventData setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
+    EventData setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
         this.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
         return this;
     }
 
-    public EventData setJiraIssueResolveComment(final String jiraIssueResolveComment) {
+    EventData setJiraIssueResolveComment(final String jiraIssueResolveComment) {
         this.jiraIssueResolveComment = jiraIssueResolveComment;
         return this;
     }
 
-    public EventData setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
+    EventData setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
         return this;
     }
 
-    public EventData setJiraIssuePropertiesGenerator(final IssuePropertiesGenerator jiraIssuePropertiesGenerator) {
+    EventData setJiraIssuePropertiesGenerator(final IssuePropertiesGenerator jiraIssuePropertiesGenerator) {
         this.jiraIssuePropertiesGenerator = jiraIssuePropertiesGenerator;
         return this;
     }
 
-    public EventData setHubRuleName(final String hubRuleName) {
+    EventData setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
         return this;
     }
 
-    public EventData setHubRuleUrl(final String hubRuleUrl) {
+    EventData setHubRuleUrl(final String hubRuleUrl) {
         this.hubRuleUrl = hubRuleUrl;
         return this;
     }
 
-    public EventData setHubLicenseNames(final String hubLicenseNames) {
+    EventData setHubLicenseNames(final String hubLicenseNames) {
         this.hubLicenseNames = hubLicenseNames;
         return this;
     }
 
-    public EventData setHubComponentUsage(final String hubComponentUsage) {
+    EventData setHubComponentUsage(final String hubComponentUsage) {
         this.hubComponentUsage = hubComponentUsage;
         return this;
     }
 
-    public EventData setHubComponentOrigin(final String hubComponentOrigin) {
+    EventData setHubComponentOrigin(final String hubComponentOrigin) {
         this.hubComponentOrigin = hubComponentOrigin;
         return this;
     }
 
-    public EventData setHubComponentOriginId(final String hubComponentOriginId) {
+    EventData setHubComponentOriginId(final String hubComponentOriginId) {
         this.hubComponentOriginId = hubComponentOriginId;
         return this;
     }
 
-    public EventData setHubProjectVersionNickname(final String hubProjectVersionNickname) {
+    EventData setHubProjectVersionNickname(final String hubProjectVersionNickname) {
         this.hubProjectVersionNickname = hubProjectVersionNickname;
         return this;
     }
