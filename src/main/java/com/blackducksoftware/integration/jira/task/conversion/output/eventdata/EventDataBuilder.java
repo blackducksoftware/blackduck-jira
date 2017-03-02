@@ -256,10 +256,6 @@ public class EventDataBuilder {
             throw new EventDataBuilderException("jiraUserKey not set");
         }
 
-        if (jiraIssueAssigneeUserId == null) {
-            throw new EventDataBuilderException("jiraIssueAssigneeUserId not set");
-        }
-
         if (jiraIssueTypeId == null) {
             throw new EventDataBuilderException("jiraIssueTypeId not set");
         }
@@ -300,26 +296,6 @@ public class EventDataBuilder {
             throw new EventDataBuilderException("hubComponentVersionUrl not set");
         }
 
-        if (hubLicenseNames == null) {
-            throw new EventDataBuilderException("hubLicenseNames not set");
-        }
-
-        if (hubComponentUsage == null) {
-            throw new EventDataBuilderException("hubComponentUsage not set");
-        }
-
-        if (hubComponentOrigin == null) {
-            throw new EventDataBuilderException("hubComponentOrigin not set");
-        }
-
-        if (hubComponentOriginId == null) {
-            throw new EventDataBuilderException("hubComponentOriginId not set");
-        }
-
-        if (hubProjectVersionNickname == null) {
-            throw new EventDataBuilderException("hubProjectVersionNickname not set");
-        }
-
         if (jiraIssueSummary == null) {
             throw new EventDataBuilderException("jiraIssueSummary not set");
         }
@@ -349,9 +325,6 @@ public class EventDataBuilder {
         }
 
         if (this.eventCategory == EventCategory.POLICY) {
-            if (hubComponentUrl == null) {
-                throw new EventDataBuilderException("hubComponentUrl not set");
-            }
             if (hubRuleName == null) {
                 throw new EventDataBuilderException("hubRuleName not set");
             }
