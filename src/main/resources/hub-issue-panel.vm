@@ -6,63 +6,63 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 
 #if ($bdsHubProject)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
+		<strong class="name" id=bdsHubProject>$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 		<div id="hubProjectName" class="value">$bdsHubProject</div>
 	</div>
 #end
 #if ($bdsHubProjectVersion)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
+		<strong class="name" id=bdsHubProjectVersion>$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
 #end
 #if ($bdsHubProjectVersionNickname)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
+		<strong class="name" id=bdsHubProjectVersionNickname>$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
 #end
 <hr/>
 #if ($bdsHubComponent)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
+		<strong class="name" id=bdsHubComponent>$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
 		<div id="hubComponentName" class="value">$bdsHubComponent</div>
 	</div>
 #end
 #if ($bdsHubComponentVersion)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
+		<strong class="name" id=bdsHubComponentVersion>$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
 		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
 	</div>
 #end
 #if ($bdsHubComponentUsage)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
+		<strong class="name" id=bdsHubComponentUsage>$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
 		<div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
 	</div>
 #end
 #if ($bdsHubComponentOrigin)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
+		<strong class="name" id=bdsHubComponentOrigin>$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
 		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
 	</div>
 #end
 #if ($bdsHubComponentOriginId)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
+		<strong class="name" id=bdsHubComponentOriginId>$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
 		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
 	</div>
 #end
 <hr/>
 #if ($bdsHubPolicyRule)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
+		<strong class="name" id=bdsHubPolicyRule>$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
 		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
 	</div>
 #end
 #if ($bdsHubLicenses)
 	<div>
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
+		<strong class="name" id=bdsHubLicenses>$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
 		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
 	</div>
 #end
