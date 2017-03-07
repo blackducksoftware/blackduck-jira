@@ -46,8 +46,8 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubCredentialsFieldEnum;
 import com.blackducksoftware.integration.hub.global.HubProxyInfoFieldEnum;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
@@ -275,10 +275,13 @@ public class HubConfigController {
                     } else {
                         final HubServerConfig serverConfig = serverConfigBuilder.build();
                         try {
-                            final CredentialsRestConnection restConnection = new CredentialsRestConnection(serverConfig);
+                            final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(),
+                                    serverConfig.getGlobalCredentials().getUsername(),
+                                    serverConfig.getGlobalCredentials().getDecryptedPassword(),
+                                    serverConfig.getTimeout());
                             restConnection.connect();
 
-                        } catch (EncryptionException | HubIntegrationException e) {
+                        } catch (final IntegrationException e) {
                             if (e.getMessage().toLowerCase().contains("unauthorized")) {
                                 config.setUsernameError(
                                         "Username and Password are invalid for : " + serverConfig.getHubUrl());

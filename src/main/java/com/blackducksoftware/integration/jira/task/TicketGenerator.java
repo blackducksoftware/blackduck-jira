@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.user.UserItem;
+import com.blackducksoftware.integration.hub.api.user.UserView;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -83,12 +83,10 @@ public class TicketGenerator {
             final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
-        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.getRestConnection(),
+        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.createHubResponseService(),
                 hubServicesFactory.createNotificationRequestService(logger),
                 hubServicesFactory.createProjectVersionRequestService(logger),
                 hubServicesFactory.createPolicyRequestService(),
-                hubServicesFactory.createVersionBomPolicyRequestService(),
-                hubServicesFactory.createHubRequestService(),
                 policyNotificationFilter,
                 hubServicesFactory.createMetaService(logger));
         this.jiraServices = jiraServices;
@@ -99,7 +97,7 @@ public class TicketGenerator {
         this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
-    public void generateTicketsForRecentNotifications(final UserItem hubUser,
+    public void generateTicketsForRecentNotifications(final UserView hubUser,
             final HubProjectMappings hubProjectMappings, final Date startDate,
             final Date endDate) throws HubIntegrationException {
 

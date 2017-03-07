@@ -45,23 +45,23 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
-import com.blackducksoftware.integration.hub.api.item.HubItem;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
-import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyOverrideContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationClearedContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.model.view.HubView;
 import com.blackducksoftware.integration.hub.notification.processor.ListProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
-import com.blackducksoftware.integration.hub.service.HubRequestService;
+import com.blackducksoftware.integration.hub.service.HubResponseService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -223,7 +223,7 @@ public class NotificationConverterTest {
 
     private static JiraServices jiraServices;
 
-    private static ProjectVersion projectVersion;
+    private static ProjectVersionModel projectVersion;
 
     private static JiraSettingsService jiraSettingsService;
 
@@ -275,12 +275,12 @@ public class NotificationConverterTest {
         jiraSettingsService = null;
         hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
-        final HubRequestService hubRequestService = Mockito.mock(HubRequestService.class);
+        final HubResponseService hubRequestService = Mockito.mock(HubResponseService.class);
         projectVersion = createProjectVersion();
-        Mockito.when(hubServicesFactory.createHubRequestService()).thenReturn(hubRequestService);
+        Mockito.when(hubServicesFactory.createHubResponseService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         metaService = Mockito.mock(MetaService.class);
-        Mockito.when(metaService.getHref(Mockito.any(HubItem.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
+        Mockito.when(metaService.getHref(Mockito.any(HubView.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
         Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
 
         final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
@@ -440,7 +440,8 @@ public class NotificationConverterTest {
         return conv;
     }
 
-    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now, final ProjectVersion projectVersion)
+    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now,
+            final ProjectVersionModel projectVersion)
             throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationContentItem notif;
         switch (notifType) {
@@ -541,7 +542,7 @@ public class NotificationConverterTest {
 
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersion projectVersion,
+    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
             final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
@@ -559,19 +560,19 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private ComponentVersion createComponentVersionMock(final String componentVersion) {
-        ComponentVersion fullComponentVersion;
-        fullComponentVersion = Mockito.mock(ComponentVersion.class);
+    private ComponentVersionView createComponentVersionMock(final String componentVersion) {
+        ComponentVersionView fullComponentVersion;
+        fullComponentVersion = Mockito.mock(ComponentVersionView.class);
         Mockito.when(fullComponentVersion.getVersionName()).thenReturn(componentVersion);
         return fullComponentVersion;
     }
 
-    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersion projectVersion,
+    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
             final Date createdAt)
             throws URISyntaxException, IntegrationException {
 
-        final List<PolicyRule> policyRuleList = new ArrayList<>();
-        final PolicyRule rule = createRule();
+        final List<PolicyRuleView> policyRuleList = new ArrayList<>();
+        final PolicyRuleView rule = createRule();
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
                 COMPONENT_NAME,
@@ -583,8 +584,8 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private static ProjectVersion createProjectVersion() {
-        final ProjectVersion projectVersion = new ProjectVersion();
+    private static ProjectVersionModel createProjectVersion() {
+        final ProjectVersionModel projectVersion = new ProjectVersionModel();
         projectVersion.setProjectName(HUB_PROJECT_NAME);
         projectVersion.setProjectVersionName(PROJECT_VERSION_NAME);
         projectVersion.setUrl(PROJECT_VERSION_URL);
@@ -596,11 +597,11 @@ public class NotificationConverterTest {
 
     private NotificationContentItem createPolicyClearedNotif(final MetaService metaService, final Date createdAt)
             throws URISyntaxException, IntegrationException {
-        final ProjectVersion projectVersion = createProjectVersion();
-        final List<PolicyRule> policyRuleList = new ArrayList<>();
+        final ProjectVersionModel projectVersion = createProjectVersion();
+        final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 
         // Create rule
-        final PolicyRule rule = createRule();
+        final PolicyRuleView rule = createRule();
 
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
@@ -614,22 +615,22 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private PolicyRule createRule() throws IntegrationException {
+    private PolicyRuleView createRule() throws IntegrationException {
         final Map<String, Object> objectProperties = new HashMap<>();
         objectProperties.put("name", RULE_NAME);
         objectProperties.put("description", RULE_NAME);
         objectProperties.put("enabled", Boolean.TRUE);
         objectProperties.put("overridable", Boolean.TRUE);
-        final PolicyRule rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRule.class, objectProperties);
+        final PolicyRuleView rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRuleView.class, objectProperties);
         return rule;
     }
 
     private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt)
             throws URISyntaxException, IntegrationException {
-        final ProjectVersion projectVersion = createProjectVersion();
-        final List<PolicyRule> policyRuleList = new ArrayList<>();
+        final ProjectVersionModel projectVersion = createProjectVersion();
+        final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 
-        final PolicyRule rule = createRule();
+        final PolicyRuleView rule = createRule();
 
         policyRuleList.add(rule);
         final NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,

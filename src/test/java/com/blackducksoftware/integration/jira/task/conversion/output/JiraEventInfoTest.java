@@ -37,9 +37,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
@@ -208,8 +208,8 @@ public class JiraEventInfoTest {
     }
 
     private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
-        final ProjectVersion projectVersion = new ProjectVersion();
-        final ComponentVersion componentVersion = new ComponentVersion();
+        final ProjectVersionModel projectVersion = new ProjectVersionModel();
+        final ComponentVersionView componentVersion = new ComponentVersionView();
         final List<VulnerabilitySourceQualifiedId> vulns = new ArrayList<>(0);
         final VulnerabilityContentItem contentItem = new VulnerabilityContentItem(new Date(), projectVersion, "tbd", componentVersion, "tbd", vulns, vulns,
                 vulns);

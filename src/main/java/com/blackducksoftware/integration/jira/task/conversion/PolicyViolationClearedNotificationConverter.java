@@ -30,11 +30,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
@@ -70,13 +70,13 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
     @Override
     protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws HubIntegrationException, EventDataBuilderException {
+            final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException {
         final List<NotificationEvent> events = new ArrayList<>();
 
         final HubEventAction action = HubEventAction.RESOLVE;
         final PolicyViolationClearedContentItem notification = (PolicyViolationClearedContentItem) notif;
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
-        for (final PolicyRule rule : notification.getPolicyRuleList()) {
+        for (final PolicyRuleView rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
                     notification, rule.getName());
 

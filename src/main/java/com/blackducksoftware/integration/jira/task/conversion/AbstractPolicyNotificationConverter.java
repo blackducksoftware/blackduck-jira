@@ -26,10 +26,11 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.List;
 import java.util.Map;
 
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
-import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -66,7 +67,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     @Override
     public void process(final NotificationContentItem notification) throws HubIntegrationException {
         logger.debug("policyNotif: " + notification);
-        final ProjectVersion projectVersion = notification.getProjectVersion();
+        final ProjectVersionModel projectVersion = notification.getProjectVersion();
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectVersion.getProjectName());
         final List<JiraProject> mappingJiraProjects = getMappings()
                 .getJiraProjects(projectVersion.getProjectName());
@@ -104,9 +105,9 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws EventDataBuilderException, HubIntegrationException;
+            final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException;
 
-    protected String getIssueDescription(final NotificationContentItem notif, final PolicyRule rule) {
+    protected String getIssueDescription(final NotificationContentItem notif, final PolicyRuleView rule) {
         final StringBuilder issueDescription = new StringBuilder();
         final String componentsLink = notif.getProjectVersion().getComponentsLink();
         issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
@@ -127,7 +128,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         }
         issueDescription.append(", component '");
         issueDescription.append(notif.getComponentName());
-        final ComponentVersion compVer = notif.getComponentVersion();
+        final ComponentVersionView compVer = notif.getComponentVersion();
         if (compVer != null) {
             issueDescription.append("' / '");
             issueDescription.append(compVer.getVersionName());
@@ -144,7 +145,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
                 licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
                 issueDescription.append("\nComponent license(s): ");
                 issueDescription.append(licenseText);
-            } catch (final HubIntegrationException e) {
+            } catch (final IntegrationException e) {
                 // omit license text
             }
         }
@@ -152,7 +153,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return issueDescription.toString();
     }
 
-    protected String getIssueSummary(final NotificationContentItem notif, final PolicyRule rule) {
+    protected String getIssueSummary(final NotificationContentItem notif, final PolicyRuleView rule) {
         final StringBuilder issueSummary = new StringBuilder();
         issueSummary.append("Black Duck policy violation detected on Hub project '");
         issueSummary.append(notif.getProjectVersion().getProjectName());

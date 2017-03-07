@@ -63,14 +63,15 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.item.HubItemFilter;
+import com.blackducksoftware.integration.hub.api.item.HubViewFilter;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.api.policy.PolicyRequestService;
-import com.blackducksoftware.integration.hub.api.policy.PolicyRule;
-import com.blackducksoftware.integration.hub.api.project.ProjectItem;
+import com.blackducksoftware.integration.hub.api.policy.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
+import com.blackducksoftware.integration.hub.api.project.ProjectView;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -1090,10 +1091,13 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            restConnection = new CredentialsRestConnection(logger, serverConfig);
+            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(),
+                    serverConfig.getGlobalCredentials().getUsername(),
+                    serverConfig.getGlobalCredentials().getDecryptedPassword(),
+                    serverConfig.getTimeout());
             restConnection.connect();
 
-        } catch (IllegalArgumentException | HubIntegrationException e) {
+        } catch (IllegalArgumentException | IntegrationException e) {
             config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
@@ -1102,18 +1106,17 @@ public class HubJiraConfigController {
 
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
-        logger.debug(String.format("getHubProjects(): Using connection to Hub server: %s", hubServicesFactory.getRestConnection().getBaseUrl()));
         final List<HubProject> hubProjects = new ArrayList<>();
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
-        List<ProjectItem> hubProjectItems = null;
+        List<ProjectView> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();
-        } catch (final HubIntegrationException e) {
+        } catch (final IntegrationException e) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
             return hubProjects;
         }
 
-        final HubItemFilter<ProjectItem> filter = new HubItemFilter<>();
+        final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
         final MetaService metaService = hubServicesFactory.createMetaService(logger);
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
@@ -1123,7 +1126,7 @@ public class HubJiraConfigController {
         }
 
         if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
-            for (final ProjectItem project : hubProjectItems) {
+            for (final ProjectView project : hubProjectItems) {
                 final HubProject newHubProject = new HubProject();
                 newHubProject.setProjectName(project.getName());
                 try {
@@ -1151,7 +1154,7 @@ public class HubJiraConfigController {
 
                     final PolicyRequestService policyService = hubServicesFactory.createPolicyRequestService();
 
-                    List<PolicyRule> policyRules = null;
+                    List<PolicyRuleView> policyRules = null;
                     try {
                         policyRules = policyService.getAllPolicyRules();
                     } catch (final HubIntegrationException e) {
@@ -1159,7 +1162,7 @@ public class HubJiraConfigController {
                     }
 
                     if (policyRules != null && !policyRules.isEmpty()) {
-                        for (final PolicyRule rule : policyRules) {
+                        for (final PolicyRuleView rule : policyRules) {
                             final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
                             String description = rule.getDescription();
                             if (description == null) {

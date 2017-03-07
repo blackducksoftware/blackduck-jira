@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyContentItem;
 
 public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator {
@@ -42,7 +42,7 @@ public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator 
         this.projectName = notifContentItem.getProjectVersion().getProjectName();
         this.projectVersion = notifContentItem.getProjectVersion().getProjectVersionName();
         this.componentName = notifContentItem.getComponentName();
-        final ComponentVersion compVer = notifContentItem.getComponentVersion();
+        final ComponentVersionView compVer = notifContentItem.getComponentVersion();
         if (compVer == null) {
             this.componentVersion = "";
         } else {

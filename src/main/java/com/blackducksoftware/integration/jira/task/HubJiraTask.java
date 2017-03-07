@@ -34,12 +34,13 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
+import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.api.user.UserItem;
 import com.blackducksoftware.integration.hub.api.user.UserRequestService;
+import com.blackducksoftware.integration.hub.api.user.UserView;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -137,8 +138,8 @@ public class HubJiraTask {
             final HubServicesFactory hubServicesFactory;
             try {
                 hubServicesFactory = createHubServicesFactory(hubServerConfig);
-            } catch (final HubIntegrationException e) {
-                logger.info("Missing information to generate tickets: " + e.getMessage());
+            } catch (final EncryptionException e) {
+                logger.info("Error handling password: " + e.getMessage());
                 return null;
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
@@ -170,7 +171,7 @@ public class HubJiraTask {
                     config.getHubProjectMappings());
 
             logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
-            final UserItem hubUserItem = getHubUserItem(hubServicesFactory,
+            final UserView hubUserItem = getHubUserItem(hubServicesFactory,
                     hubServerConfig.getGlobalCredentials().getUsername());
             if (hubUserItem == null) {
                 return null;
@@ -186,7 +187,7 @@ public class HubJiraTask {
         return runDateString;
     }
 
-    private UserItem getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
+    private UserView getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
         if (currentUsername == null) {
             final String msg = "Current username is null";
             logger.error(msg);
@@ -194,16 +195,16 @@ public class HubJiraTask {
             return null;
         }
         final UserRequestService userService = hubServicesFactory.createUserRequestService();
-        List<UserItem> users;
+        List<UserView> users;
         try {
             users = userService.getAllUsers();
-        } catch (final HubIntegrationException e) {
+        } catch (final IntegrationException e) {
             final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
             logger.error(msg);
             jiraSettingsService.addHubError(msg, "getCurrentUser");
             return null;
         }
-        for (final UserItem user : users) {
+        for (final UserView user : users) {
             if (currentUsername.equals(user.getUserName())) {
                 return user;
             }
@@ -214,8 +215,10 @@ public class HubJiraTask {
         return null;
     }
 
-    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws HubIntegrationException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig);
+    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws EncryptionException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig.getHubUrl(),
+                hubServerConfig.getGlobalCredentials().getUsername(), hubServerConfig.getGlobalCredentials().getDecryptedPassword(),
+                hubServerConfig.getTimeout());
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }

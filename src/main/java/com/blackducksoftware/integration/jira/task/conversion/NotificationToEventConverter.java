@@ -28,15 +28,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseType;
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseView;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.view.UsageEnum;
 import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersion;
+import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.model.enumeration.ComplexLicenseEnum;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -136,11 +137,11 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return hubServicesFactory;
     }
 
-    protected String getComponentLicensesStringPlainText(final NotificationContentItem notification) throws HubIntegrationException {
+    protected String getComponentLicensesStringPlainText(final NotificationContentItem notification) throws IntegrationException {
         return getComponentLicensesString(notification, false);
     }
 
-    protected String getComponentLicensesStringWithLinksAtlassianFormat(final NotificationContentItem notification) throws HubIntegrationException {
+    protected String getComponentLicensesStringWithLinksAtlassianFormat(final NotificationContentItem notification) throws IntegrationException {
         return getComponentLicensesString(notification, true);
     }
 
@@ -174,8 +175,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return "";
     }
 
-    protected VersionBomComponentView getBomComponent(final ProjectVersion projectVersion,
-            final String componentName, final String componentUrl, final ComponentVersion componentVersion) throws HubIntegrationException {
+    protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion,
+            final String componentName, final String componentUrl, final ComponentVersionView componentVersion) throws HubIntegrationException {
         String componentVersionUrl = null;
         if (componentVersion != null) {
             componentVersionUrl = getMetaService().getHref(componentVersion);
@@ -230,16 +231,16 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return notification.getProjectVersion().getNickname();
     }
 
-    private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws HubIntegrationException {
-        final ComponentVersion componentVersion = notification.getComponentVersion();
+    private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws IntegrationException {
+        final ComponentVersionView componentVersion = notification.getComponentVersion();
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
-            final ComplexLicenseType type = componentVersion.getLicense().getType();
-            final String licenseJoinString = (type == ComplexLicenseType.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
+            final ComplexLicenseEnum type = componentVersion.getLicense().getType();
+            final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
                     : HubJiraConstants.LICENSE_NAME_JOINER_OR;
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
-            for (final ComplexLicenseItem license : componentVersion.getLicense().getLicenses()) {
+            for (final ComplexLicenseView license : componentVersion.getLicense().getLicenses()) {
                 final String licenseTextUrl = getLicenseTextUrl(license);
                 logger.debug("Link to licence text: " + licenseTextUrl);
                 if (licenseIndex++ > 0) {
@@ -260,10 +261,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return licensesString;
     }
 
-    private String getLicenseTextUrl(final ComplexLicenseItem license) throws HubIntegrationException {
+    private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
         final String licenseUrl = license.getLicense();
-        final ComplexLicenseItem fullLicense = getHubServicesFactory().createHubRequestService().getItem(
-                licenseUrl, ComplexLicenseItem.class);
+        final ComplexLicenseView fullLicense = getHubServicesFactory().createHubResponseService().getItem(
+                licenseUrl, ComplexLicenseView.class);
         final String licenseTextUrl = getMetaService().getFirstLink(fullLicense, "text");
         return licenseTextUrl;
     }
