@@ -30,14 +30,14 @@ import java.util.Map;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.aggregate.bom.AggregateBomRequestService;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseView;
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.view.UsageEnum;
-import com.blackducksoftware.integration.hub.api.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.model.enumeration.ComplexLicenseEnum;
+import com.blackducksoftware.integration.hub.model.enumeration.MatchedFileUsageEnum;
+import com.blackducksoftware.integration.hub.model.view.ComplexLicenseView;
+import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
+import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -155,7 +155,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         final StringBuilder usagesText = new StringBuilder();
         int usagesIndex = 0;
-        for (final UsageEnum usage : bomComp.getUsages()) {
+        for (final MatchedFileUsageEnum usage : bomComp.getUsages()) {
             if (usagesIndex > 0) {
                 usagesText.append(", ");
             }
