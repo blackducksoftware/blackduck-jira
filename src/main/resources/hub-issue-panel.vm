@@ -4,128 +4,65 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
-<!-- div class="mod-content" -->
-<ul class="property-list two-cols">
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake1:</strong>
-		<div id="fake1" class="value">fake1</div>
-	</div>
-	</li>
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake2:</strong>
-		<div id="fake2" class="value">fake2</div>
-	</div>
-	</li>
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake3:</strong>
-		<div id="fake3" class="value">fake3</div>
-	</div>
-	</li>
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake4:</strong>
-		<div id="fake4" class="value">fake4</div>
-	</div>
-	</li>
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake5:</strong>
-		<div id="fake5" class="value">fake5</div>
-	</div>
-	</li>
-	<li class="item">
-	<div class="wrap">
-		<strong class="name">fake6:</strong>
-		<div id="fake6" class="value">fake6</div>
-	</div>
-	</li>
-	
-
 #if ($bdsHubProject)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 		<div id="hubProjectName" class="value">$bdsHubProject</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubProjectVersion)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubProjectVersionNickname)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
-	</li>
 #end
-
+<hr/>
 #if ($bdsHubComponent)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
 		<div id="hubComponentName" class="value">$bdsHubComponent</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubComponentVersion)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
 		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubComponentUsage)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
 		<div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubComponentOrigin)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
 		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubComponentOriginId)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
 		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
 	</div>
-	</li>
 #end
-
+<hr/>
 #if ($bdsHubPolicyRule)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
 		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
 	</div>
-	</li>
 #end
 #if ($bdsHubLicenses)
-	<li class="item">
-	<div class="wrap">
+	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
-		<div id="hubPolicyLicenses" class="value">Fake</div>
+		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
 	</div>
-	</li>
 #end
-
-</ul>
-<!-- /div -->
