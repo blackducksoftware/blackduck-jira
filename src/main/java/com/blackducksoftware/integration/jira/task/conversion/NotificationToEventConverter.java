@@ -29,7 +29,7 @@ import java.util.Map;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
+import com.blackducksoftware.integration.hub.api.aggregate.bom.AggregateBomRequestService;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.view.UsageEnum;
@@ -69,7 +69,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final HubServicesFactory hubServicesFactory;
 
-    private final BomRequestService bomRequestService;
+    private final AggregateBomRequestService bomRequestService;
 
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService,
@@ -86,7 +86,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.fieldCopyConfig = fieldCopyConfig;
         this.hubServicesFactory = hubServicesFactory;
-        this.bomRequestService = hubServicesFactory.createBomRequestService();
+        this.bomRequestService = hubServicesFactory.createAggregateBomRequestService(logger);
         this.logger = logger;
     }
 
@@ -189,7 +189,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         List<VersionBomComponentView> bomComps;
         try {
-            bomComps = bomRequestService.getBom(bomUrl);
+            bomComps = bomRequestService.getBomEntries(bomUrl);
         } catch (final Exception e) {
             logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty",
                     projectVersion.getProjectName(), projectVersion.getProjectVersionName()));

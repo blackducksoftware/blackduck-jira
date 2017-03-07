@@ -44,7 +44,7 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.bom.BomRequestService;
+import com.blackducksoftware.integration.hub.api.aggregate.bom.AggregateBomRequestService;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.notification.VulnerabilitySourceQualifiedId;
@@ -79,6 +79,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.log.IntLogger;
+import com.blackducksoftware.integration.test.TestLogger;
 import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
@@ -283,15 +284,16 @@ public class NotificationConverterTest {
         Mockito.when(metaService.getHref(Mockito.any(HubView.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
         Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
 
-        final BomRequestService bomRequestService = Mockito.mock(BomRequestService.class);
+        final AggregateBomRequestService bomRequestService = Mockito.mock(AggregateBomRequestService.class);
         final List<VersionBomComponentView> bom = new ArrayList<>();
         final VersionBomComponentView bomComp = Mockito.mock(VersionBomComponentView.class);
         Mockito.when(bomComp.getComponentName()).thenReturn("componentName");
         Mockito.when(bomComp.getComponentVersionName()).thenReturn("componentVersion");
         Mockito.when(bomComp.getComponentVersion()).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
         bom.add(bomComp);
-        Mockito.when(bomRequestService.getBom(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
-        Mockito.when(hubServicesFactory.createBomRequestService()).thenReturn(bomRequestService);
+        Mockito.when(bomRequestService.getBomEntries(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
+        final IntLogger logger = new TestLogger();
+        Mockito.when(hubServicesFactory.createAggregateBomRequestService(logger)).thenReturn(bomRequestService);
     }
 
     @AfterClass
