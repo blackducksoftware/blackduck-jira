@@ -4,22 +4,47 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
+<ul class="property-list two-cols">
+	<li class="item">
+		<div class="wrap">
+			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
+			<div id="hubProjectName" class="value">$bdsHubProject</div>
+		</div>
+	</li>
+	<li class="item-right">
+		<div class="wrap">
+			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
+			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
+		</div>
+	</li>
+	<li class="item">
+		<div class="wrap">
+			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
+			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
+		</div>
+	</li>
+	<li class="item-right">
+	</li>
+</ul>
+
+<hr style="clear: both"/>
+
 <div id="hubFields">
 
 #if ($bdsHubProject)
-	<div>
+	<div class="wrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 		<div id="hubProjectName" class="value">$bdsHubProject</div>
 	</div>
 #end
 #if ($bdsHubProjectVersion)
-	<div>
+	<div class="wrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
 #end
 #if ($bdsHubProjectVersionNickname)
-	<div>
+	<div class="wrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
