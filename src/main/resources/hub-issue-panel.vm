@@ -5,51 +5,40 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 </script>
 
 <ul class="property-list two-cols">
+#if ($bdsHubProject)
 	<li class="item">
 		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 			<div id="hubProjectName" class="value">$bdsHubProject</div>
 		</div>
 	</li>
+#end
+#if ($bdsHubProjectVersion)
 	<li class="item-right fiftyPercent">
 		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 		</div>
 	</li>
+#end
+#if ($bdsHubProjectVersionNickname)
 	<li class="item">
 		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 		</div>
 	</li>
+#end
 	<li class="item-right  fiftyPercent">
+		<div class="hubWrap">
+			<strong class="name">Fake Label:</strong>
+			<div id="hubProjectVersionNickname" class="value">Fake value</div>
+		</div>
 	</li>
 </ul>
 
 <hr style="clear: both"/>
 
-<div id="hubFields">
-
-#if ($bdsHubProject)
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
-		<div id="hubProjectName" class="value">$bdsHubProject</div>
-	</div>
-#end
-#if ($bdsHubProjectVersion)
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
-		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
-	</div>
-#end
-#if ($bdsHubProjectVersionNickname)
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
-		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
-	</div>
-#end
-</div>
 
 <!-- End of ProjectVersion fields -->
 <hr style="clear: both"/>
