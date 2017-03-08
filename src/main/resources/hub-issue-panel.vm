@@ -6,24 +6,24 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 
 <ul class="property-list two-cols">
 	<li class="item">
-		<div class="wrap">
+		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 			<div id="hubProjectName" class="value">$bdsHubProject</div>
 		</div>
 	</li>
-	<li class="item-right">
-		<div class="wrap">
+	<li class="item-right fiftyPercent">
+		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 		</div>
 	</li>
 	<li class="item">
-		<div class="wrap">
+		<div class="hubWrap">
 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 		</div>
 	</li>
-	<li class="item-right">
+	<li class="item-right  fiftyPercent">
 	</li>
 </ul>
 
@@ -32,19 +32,19 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 <div id="hubFields">
 
 #if ($bdsHubProject)
-	<div class="wrap">
+	<div class="hubWrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
 		<div id="hubProjectName" class="value">$bdsHubProject</div>
 	</div>
 #end
 #if ($bdsHubProjectVersion)
-	<div class="wrap">
+	<div class="hubWrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
 		<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
 	</div>
 #end
 #if ($bdsHubProjectVersionNickname)
-	<div class="wrap">
+	<div class="hubWrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>

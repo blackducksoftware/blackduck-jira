@@ -27,8 +27,13 @@
     text-align: left;
 }
 
-.wrap {
+.hubWrap {
 	padding: 0 10px 0 0px;
+}
+
+.fiftyPercent {
+	width: 50%;
+	box-sizing: border-box;
 }
 
 #hubFields > div {
