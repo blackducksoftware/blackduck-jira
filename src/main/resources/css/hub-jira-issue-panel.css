@@ -22,3 +22,9 @@
     position: relative;
     vertical-align: top;
 }
+
+#hubFields > div {
+ float: left;
+ width: 150px;
+ color: blue;
+}

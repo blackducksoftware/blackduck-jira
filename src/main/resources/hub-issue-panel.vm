@@ -4,6 +4,14 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
+<ul id="issueDetails" class="property-list two-cols">
+<li class="item">one</li>
+<li class="item">two</li>
+<li class="item">three</li>
+</ul>
+
+<div id="hubFields">
+
 #if ($bdsHubProject)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
@@ -22,7 +30,12 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
 	</div>
 #end
+</div>
+
+<!-- End of ProjectVersion fields -->
+<br/>
 <hr/>
+
 #if ($bdsHubComponent)
 	<div>
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
@@ -66,3 +79,4 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
 	</div>
 #end
+
