@@ -32,7 +32,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 </ul>
 
 <!-- End of ProjectVersion fields -->
-<hr style="clear: both"/>
+<hr class="fieldSeparator"/>
 
 <ul class="property-list two-cols">
 #if ($bdsHubComponent)
@@ -75,7 +75,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	</div>
 	</li>
 #end
-<hr style="clear: both"/>
+<hr class="fieldSeparator"/>
 #if ($bdsHubPolicyRule)
 	<li class="item-right fiftyPercent">
 	<div class="hubWrap">
