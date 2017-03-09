@@ -158,12 +158,8 @@ public class EditableFieldLayoutMock implements EditableFieldLayout {
 
     @Override
     public void makeOptional(final FieldLayoutItem fieldToUpdate) {
-        for (final FieldLayoutItem field : fields) {
-            if (field.equals(fieldToUpdate)) {
-                fieldsToMakeOptional.add(field);
-            }
-        }
-
+        fields.parallelStream().filter((field) -> field.equals(fieldToUpdate))
+                .forEach((field) -> fieldsToMakeOptional.add(field));
     }
 
     @Override

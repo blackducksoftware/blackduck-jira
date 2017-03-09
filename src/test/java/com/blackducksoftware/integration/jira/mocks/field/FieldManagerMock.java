@@ -111,14 +111,11 @@ public class FieldManagerMock implements FieldManager {
     @Override
     public OrderableField getOrderableField(final String fieldName) {
         final List<CustomField> customFields = customFieldManagerMock.getCustomFields();
-        if (customFields != null && !customFields.isEmpty()) {
-            for (final CustomField field : customFields) {
-                if (field.getName().equals(fieldName)) {
-                    return field;
-                }
-            }
+        if (customFields == null) {
+            return null;
         }
-        return null;
+        return customFields.parallelStream().filter((field) -> field.getName().equals(fieldName))
+                .findAny().orElse(null);
     }
 
     @Override

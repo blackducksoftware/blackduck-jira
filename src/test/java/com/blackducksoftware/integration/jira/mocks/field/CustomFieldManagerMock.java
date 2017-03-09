@@ -91,14 +91,8 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public CustomField getCustomFieldObjectByName(final String name) {
-        if (!customFields.isEmpty()) {
-            for (final CustomField field : customFields) {
-                if (field.getName().equals(name)) {
-                    return field;
-                }
-            }
-        }
-        return null;
+        return customFields.parallelStream().filter((field) -> field.getName().equals(name))
+                .findAny().orElse(null);
     }
 
     @Override

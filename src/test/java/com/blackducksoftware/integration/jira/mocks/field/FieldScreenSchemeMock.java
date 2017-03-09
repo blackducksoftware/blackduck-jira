@@ -65,12 +65,9 @@ public class FieldScreenSchemeMock implements FieldScreenScheme {
 
     @Override
     public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation issueOperation) {
-        for (final FieldScreenSchemeItem schemeItem : schemeItems) {
-            if (schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey())) {
-                return schemeItem;
-            }
-        }
-        return null;
+        return schemeItems.parallelStream()
+                .filter((schemeItem) -> schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey()))
+                .findAny().orElse(null);
     }
 
     @Override
