@@ -61,11 +61,8 @@ public class ProjectManagerMock implements ProjectManager {
 
     public List<Project> getTestProjectObjectsNullIssueTypes() throws DataAccessException {
         final List<Project> jiraProjects = getTestProjectObjectsWithoutIssueTypes();
-
-        for (final Project project : jiraProjects) {
-            final ProjectMock pMock = (ProjectMock) project;
-            pMock.setIssueTypes(null);
-        }
+        jiraProjects.parallelStream()
+                .forEach((project) -> ((ProjectMock) project).setIssueTypes(null));
         return jiraProjects;
     }
 
@@ -183,12 +180,9 @@ public class ProjectManagerMock implements ProjectManager {
 
     @Override
     public Project getProjectObj(final Long id) throws DataAccessException {
-        for (final Project p : jiraProjects) {
-            if (p.getId().equals(id)) {
-                return p;
-            }
-        }
-        return null;
+        return jiraProjects.parallelStream()
+                .filter((p) -> p.getId().equals(id))
+                .findAny().orElse(null);
     }
 
     @Override

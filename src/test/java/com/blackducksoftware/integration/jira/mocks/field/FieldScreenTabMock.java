@@ -75,12 +75,9 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public FieldScreenLayoutItem getFieldScreenLayoutItem(final String id) {
-        for (final FieldScreenLayoutItem layoutItem : layoutItems) {
-            if (layoutItem.getOrderableField().getId().equals(id)) {
-                return layoutItem;
-            }
-        }
-        return null;
+        return layoutItems.parallelStream()
+                .filter((layoutItem) -> layoutItem.getOrderableField().getId().equals(id))
+                .findAny().orElse(null);
     }
 
     @Override
