@@ -36,7 +36,7 @@
 	box-sizing: border-box;
 }
 
-hr.fieldSeparator {
+div.fieldSectionSeparator {
 	clear: both;
 }
 

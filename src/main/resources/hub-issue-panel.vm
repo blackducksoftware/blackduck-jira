@@ -4,6 +4,8 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
+<div class="module">
+<div class="mod-header"><ul class="ops"></ul><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
 <ul class="property-list two-cols">
 #if ($bdsHubProject)
 	<li class="item">
@@ -30,10 +32,13 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	</li>
 #end
 </ul>
+</div>
 
 <!-- End of ProjectVersion fields -->
-<hr class="fieldSeparator"/>
+<div class="fieldSectionSeparator"/>
 
+<div class="module">
+<div class="mod-header"><ul class="ops"></ul><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
 <ul class="property-list two-cols">
 #if ($bdsHubComponent)
 	<li class="item">
@@ -75,7 +80,9 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	</div>
 	</li>
 #end
-<hr class="fieldSeparator"/>
+
+<div class="fieldSectionSeparator"/>
+
 #if ($bdsHubPolicyRule)
 	<li class="item-right fiftyPercent">
 	<div class="hubWrap">
@@ -94,3 +101,4 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 #end
 
 </ul>
+</div>
