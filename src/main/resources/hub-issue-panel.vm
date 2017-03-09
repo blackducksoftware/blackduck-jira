@@ -4,9 +4,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideHubCustomFields();
 </script>
 
+#if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionNickname)
 <div class="module">
 <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
 <ul class="property-list two-cols">
+
 #if ($bdsHubProject)
 	<li class="item">
 		<div class="hubWrap">
@@ -33,10 +35,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 #end
 </ul>
 </div>
-
-<!-- End of ProjectVersion fields -->
 <div class="fieldSectionSeparator"/>
+#end
 
+
+#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses)
 <div class="module">
 <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
 <ul class="property-list two-cols">
@@ -90,9 +93,8 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 #end
 </ul>
 </div>
-
-<!-- End of Component fields -->
 <div class="fieldSectionSeparator"/>
+#end
 
 #if ($bdsHubPolicyRule)
 <div class="module">
