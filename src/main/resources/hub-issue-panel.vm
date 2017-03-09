@@ -5,7 +5,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 </script>
 
 <div class="module">
-<div class="mod-header"><ul class="ops"></ul><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
+<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
 <ul class="property-list two-cols">
 #if ($bdsHubProject)
 	<li class="item">
@@ -38,7 +38,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 <div class="fieldSectionSeparator"/>
 
 <div class="module">
-<div class="mod-header"><ul class="ops"></ul><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
+<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
 <ul class="property-list two-cols">
 #if ($bdsHubComponent)
 	<li class="item">
@@ -80,25 +80,30 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	</div>
 	</li>
 #end
-
-<div class="fieldSectionSeparator"/>
-
-#if ($bdsHubPolicyRule)
-	<li class="item-right fiftyPercent">
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
-		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
-	</div>
-	</li>
-#end
 #if ($bdsHubLicenses)
-	<li class="item">
+	<li class="item-right fiftyPercent">
 	<div class="hubWrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
 		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
 	</div>
 	</li>
 #end
-
 </ul>
 </div>
+
+<!-- End of Component fields -->
+<div class="fieldSectionSeparator"/>
+
+#if ($bdsHubPolicyRule)
+<div class="module">
+<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.policy.label")</h5></div>
+<ul class="property-list two-cols">
+	<li class="item">
+	<div class="hubWrap">
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
+		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
+	</div>
+	</li>
+</ul>
+</div>
+#end
