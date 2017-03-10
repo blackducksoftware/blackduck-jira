@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.common.jiraversion;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -75,6 +76,7 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertTrue(jiraVersion.isSupported());
     }
 
     @Test
@@ -84,6 +86,7 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertTrue(jiraVersion.isSupported());
     }
 
     @Test
@@ -93,6 +96,7 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertTrue(jiraVersion.isSupported());
     }
 
     @Test
@@ -102,6 +106,7 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertTrue(jiraVersion.isSupported());
     }
 
     @Test
@@ -111,6 +116,7 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertFalse(jiraVersion.isSupported());
     }
 
     @Test
@@ -120,5 +126,24 @@ public class JiraVersionTest {
 
         assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
         assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertTrue(jiraVersion.isSupported());
+    }
+
+    @Test
+    public void testJira7_4() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 4, 0 };
+        final JiraVersion jiraVersion = getJiraVersion("7.4.0", versionNumbers);
+
+        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
+        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
+        assertFalse(jiraVersion.isSupported());
+    }
+
+    @Test
+    public void testMostRecentVersionString() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 4, 0 };
+        final JiraVersion jiraVersion = getJiraVersion("7.4.0", versionNumbers);
+
+        assertEquals("7.3.x", jiraVersion.getMostRecentJiraVersionSupportedString());
     }
 }
