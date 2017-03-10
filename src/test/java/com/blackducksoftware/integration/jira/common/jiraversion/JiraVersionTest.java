@@ -35,21 +35,20 @@ import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
 
 public class JiraVersionTest {
 
-    private JiraVersion getJiraVersion(final String version, final int[] versionNumbers) throws ConfigurationException {
+    private JiraVersionCheck getJiraVersion(final String version, final int[] versionNumbers) throws ConfigurationException {
         final MockBuildUtilsInfoImpl mockBuildInfo = new MockBuildUtilsInfoImpl();
         mockBuildInfo.setVersion(version);
         mockBuildInfo.setVersionNumbers(versionNumbers);
 
-        final JiraVersion jiraVersion = new JiraVersion(mockBuildInfo);
-        return jiraVersion;
+        return new JiraVersionCheck(mockBuildInfo);
     }
 
     @Test
     public void testJira6_4_0() {
         final int[] versionNumbers = { 6, 4, 0 };
-        JiraVersion jiraVersion;
+        JiraVersionCheck jiraVersionCheck;
         try {
-            jiraVersion = getJiraVersion("6.4.0", versionNumbers);
+            jiraVersionCheck = getJiraVersion("6.4.0", versionNumbers);
             fail("Expected configuration exception");
         } catch (final ConfigurationException e) {
 
@@ -60,9 +59,9 @@ public class JiraVersionTest {
     @Test
     public void testJira7_0() throws ConfigurationException {
         final int[] versionNumbers = { 7, 0, 0 };
-        JiraVersion jiraVersion;
+        JiraVersionCheck jiraVersionCheck;
         try {
-            jiraVersion = getJiraVersion("7.0", versionNumbers);
+            jiraVersionCheck = getJiraVersion("7.0", versionNumbers);
             fail("Expected configuration exception");
         } catch (final ConfigurationException e) {
 
@@ -72,78 +71,56 @@ public class JiraVersionTest {
     @Test
     public void testJira7_1_0() throws ConfigurationException {
         final int[] versionNumbers = { 7, 1, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("7.1.0", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertTrue(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.1.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira7_1_99() throws ConfigurationException {
         final int[] versionNumbers = { 7, 1, 99 };
-        final JiraVersion jiraVersion = getJiraVersion("7.1.99", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertTrue(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.1.99", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira7_2_99() throws ConfigurationException {
         final int[] versionNumbers = { 7, 2, 99 };
-        final JiraVersion jiraVersion = getJiraVersion("7.2.99", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertTrue(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.2.99", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira7_2() throws ConfigurationException {
         final int[] versionNumbers = { 7, 2, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("7.2", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertTrue(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.2", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira8_0() throws ConfigurationException {
         final int[] versionNumbers = { 8, 0, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("8.0", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertFalse(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("8.0", versionNumbers);
+        assertFalse(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira7_3() throws ConfigurationException {
         final int[] versionNumbers = { 7, 3, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("7.3.0", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertTrue(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.3.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testJira7_4() throws ConfigurationException {
         final int[] versionNumbers = { 7, 4, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("7.4.0", versionNumbers);
-
-        assertFalse(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_USERS));
-        assertTrue(jiraVersion.hasCapability(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS));
-        assertFalse(jiraVersion.isSupported());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.4.0", versionNumbers);
+        assertFalse(jiraVersionCheck.isSupported());
     }
 
     @Test
     public void testMostRecentVersionString() throws ConfigurationException {
         final int[] versionNumbers = { 7, 4, 0 };
-        final JiraVersion jiraVersion = getJiraVersion("7.4.0", versionNumbers);
-
-        assertEquals("7.3.x", jiraVersion.getMostRecentJiraVersionSupportedString());
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.4.0", versionNumbers);
+        assertEquals("7.3", jiraVersionCheck.getMostRecentJiraVersionSupportedString());
     }
 }

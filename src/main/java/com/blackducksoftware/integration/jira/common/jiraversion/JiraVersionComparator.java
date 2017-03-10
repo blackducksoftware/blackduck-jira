@@ -23,7 +23,19 @@
  */
 package com.blackducksoftware.integration.jira.common.jiraversion;
 
-public enum JiraCapabilityEnum {
-    GET_SYSTEM_ADMINS_AS_USERS,
-    GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS,
+import java.util.Comparator;
+
+public class JiraVersionComparator implements Comparator<JiraVersion> {
+
+    @Override
+    public int compare(final JiraVersion o1, final JiraVersion o2) {
+        if (o1.getMajor() > o2.getMajor()) {
+            return 1;
+        }
+        if (o1.getMajor() < o2.getMajor()) {
+            return -1;
+        }
+        return Integer.compare(o1.getMinor(), o2.getMinor());
+    }
+
 }

@@ -23,64 +23,37 @@
  */
 package com.blackducksoftware.integration.jira.common.jiraversion;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang3.builder.RecursiveToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
-import org.apache.log4j.Logger;
-
-import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-
-/**
- * Provides insight into the capabilities of the current JIRA version.
- *
- * @author sbillings
- *
- */
 public class JiraVersion {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final String name;
 
-    private final List<JiraCapabilityEnum> capabilities = new ArrayList<>();
+    private final int major;
 
-    private final String mostRecentJiraVersionSupportedString = "7.3.x";
+    private final int minor;
 
-    private final boolean supported;
-
-    public String getMostRecentJiraVersionSupportedString() {
-        return mostRecentJiraVersionSupportedString;
+    public JiraVersion(final String name, final int major, final int minor) {
+        super();
+        this.name = name;
+        this.major = major;
+        this.minor = minor;
     }
 
-    public JiraVersion() throws ConfigurationException {
-        this(new BuildUtilsInfoImpl());
+    public String getName() {
+        return name;
     }
 
-    public JiraVersion(final BuildUtilsInfoImpl serverInfoUtils) throws ConfigurationException {
-        final int[] versionNumbers = serverInfoUtils.getVersionNumbers();
-
-        if ((versionNumbers[0] > 7) || ((versionNumbers[0] == 7) && (versionNumbers[1] > 3))) {
-            logger.warn("This version of JIRA (" + serverInfoUtils.getVersion()
-                    + ") is not supported. Attempting to proceed as if it were JIRA version "
-                    + mostRecentJiraVersionSupportedString);
-            capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
-            supported = false;
-        } else if ((versionNumbers[0] == 7) && ((versionNumbers[1] >= 1) && (versionNumbers[1] <= 3))) {
-            logger.debug("This version of JIRA (" + serverInfoUtils.getVersion() + ") is supported.");
-            capabilities.add(JiraCapabilityEnum.GET_SYSTEM_ADMINS_AS_APPLICATIONUSERS);
-            supported = true;
-        } else {
-            final String msg = "This version of JIRA (" + serverInfoUtils.getVersion() + ") is not supported.";
-            logger.error(msg);
-            throw new ConfigurationException(msg);
-        }
+    public int getMajor() {
+        return major;
     }
 
-    public boolean hasCapability(final JiraCapabilityEnum capability) {
-        return capabilities.contains(capability);
+    public int getMinor() {
+        return minor;
     }
 
-    public boolean isSupported() {
-        return supported;
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
     }
-
 }

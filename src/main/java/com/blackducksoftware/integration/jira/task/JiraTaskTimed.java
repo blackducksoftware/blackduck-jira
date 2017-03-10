@@ -47,7 +47,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersion;
+import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
@@ -78,7 +78,7 @@ public class JiraTaskTimed implements Callable<String> {
     public String call() throws Exception {
         logger.info("Running the Hub JIRA periodic timed task.");
 
-        JiraContext jiraContext = initJiraContext(configDetails.getJiraUserName());
+        final JiraContext jiraContext = initJiraContext(configDetails.getJiraUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
@@ -110,8 +110,10 @@ public class JiraTaskTimed implements Callable<String> {
             final JiraContext jiraContext)
             throws ConfigurationException, JiraException {
 
+        // Make sure current JIRA version is supported
+        getJiraVersionCheck(); // throws exception if not
+
         // Create Issue Types, workflow, etc.
-        final JiraVersion jiraVersion = getJiraVersion();
         HubIssueTypeSetup issueTypeSetup;
         try {
             issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraUser().getName());
@@ -128,7 +130,7 @@ public class JiraTaskTimed implements Callable<String> {
 
         final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
                 jiraSettingsService,
-                jiraServices, jiraVersion);
+                jiraServices);
 
         final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
                 .addHubFieldConfigurationToJira(issueTypes);
@@ -145,8 +147,7 @@ public class JiraTaskTimed implements Callable<String> {
         final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
                 .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-        final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices,
-                jiraVersion);
+        final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
@@ -155,7 +156,11 @@ public class JiraTaskTimed implements Callable<String> {
                 fieldConfigurationScheme, workflowSetup, workflow);
     }
 
-    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, HubIssueTypeSetup issueTypeSetup,
+    public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
+        return new JiraVersionCheck();
+    }
+
+    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final HubIssueTypeSetup issueTypeSetup,
             final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
             final FieldLayoutScheme fieldConfigurationScheme, final HubWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
@@ -175,7 +180,7 @@ public class JiraTaskTimed implements Callable<String> {
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
                                     screenSchemesByIssueType);
-                            boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
+                            final boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
                                     jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
                             if (wasAlreadySetUp) {
                                 logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
@@ -189,10 +194,6 @@ public class JiraTaskTimed implements Callable<String> {
         }
     }
 
-    public JiraVersion getJiraVersion() throws ConfigurationException {
-        return new JiraVersion();
-    }
-
     private HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
             final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
         return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
@@ -200,7 +201,7 @@ public class JiraTaskTimed implements Callable<String> {
 
     public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
             final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final JiraVersion jiraVersion) {
+            final JiraServices jiraServices) {
         return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
     }
 
@@ -210,7 +211,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final JiraVersion jiraVersion) {
+            final JiraServices jiraServices) {
         return new HubWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
