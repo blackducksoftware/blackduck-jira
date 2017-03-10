@@ -153,7 +153,7 @@ public class HubJiraConstants {
 
     public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
 
-    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.license.names.label";
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.licenses.label";
 
     public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.usage.label";
 
@@ -162,6 +162,27 @@ public class HubJiraConstants {
     public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.origin.id.label";
 
     public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.nickname.label";
+
+    // Long names for fields
+    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.version.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.version.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.policy.rule.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.licenses.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.usage.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.origin.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.origin.id.label.long";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.version.nickname.label.long";
 
     // String used to join conjunctive and adjunctive licenses together into a string for display
 

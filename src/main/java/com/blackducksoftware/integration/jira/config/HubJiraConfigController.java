@@ -444,17 +444,29 @@ public class HubJiraConfigController {
                     final Fields txSourceFields = new Fields();
                     logger.debug("Adding source fields");
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getDisplayNameProperty())));
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
                     txSourceFields
                             .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
-                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getDisplayNameProperty())));
+                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getDisplayNameProperty())));
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
                     txSourceFields.add(
                             new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(),
-                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getDisplayNameProperty())));
+                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getDisplayNameProperty())));
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                    // TODO: Uncomment these when Hub starts providing Origin info
+                    // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(),
+                    // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
+                    // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(),
+                    // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
+
                     Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                     logger.debug("sourceFields: " + txSourceFields);
                     return txSourceFields;

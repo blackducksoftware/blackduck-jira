@@ -1357,7 +1357,7 @@ function fillInFieldCopyMapping(mappingElement, storedMapping){
 }
 
 function addNewMappingElement(fieldId){
-	var elementToAdd = AJS.$("#" + fieldId).clone();
+	var elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
 	mappingElementCounter = mappingElementCounter + 1;
 	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
 	elementToAdd.appendTo("#" + hubProjectMappingContainer);
@@ -1396,7 +1396,7 @@ function addNewMappingElement(fieldId){
 }
 
 function addNewFieldCopyMappingElement(fieldId){
-	var elementToAdd = AJS.$("#" + fieldId).clone();
+	var elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
 	mappingElementCounter = mappingElementCounter + 1;
 	elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
 	elementToAdd.appendTo("#" + fieldCopyMappingContainer);
