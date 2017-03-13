@@ -29,6 +29,42 @@ var hubCustomFields = ["BDS Hub Project", "BDS Hub Project Version", "BDS Hub Co
 	"BDS Hub Component Usage", "BDS Hub Component Origin", "BDS Hub Component Origin ID",
 	"BDS Hub Project Version Nickname"];
 
+function getCustomFieldValues() {
+	console.log("getCustomFieldValues()");
+	var detailsModule = AJS.$('#' + detailsModuleId);
+	if(detailsModule.length > 0){
+		var customFieldsModule = AJS.$(detailsModule).find('#' + customFieldsModuleId);
+		if(customFieldsModule.length > 0){
+			var customFieldPropertyList =  AJS.$(customFieldsModule).find(".property-list");
+			if(customFieldPropertyList.length > 0){
+				var properties = customFieldPropertyList.children();
+				if(properties.length > 0){
+					for(i=0; i < properties.length; i++){
+						var property = properties[i];
+						var customFieldPropertyLabel =  AJS.$(property).find("strong.name");
+						var customFieldPropertyValueField =  AJS.$(property).find("div.value");
+						
+						var customFieldName = AJS.$(customFieldPropertyLabel).prop("title");
+						var arrayIndex = hubCustomFields.indexOf(customFieldName);
+						if (arrayIndex >= 0) {
+							console.log("*** Found Hub custom field: " + customFieldName);
+							console.log("Value: " + customFieldPropertyValueField[0].innerText);
+						}
+					}
+				} else{
+					setTimeout(getCustomFieldValues, 100);
+				}
+			} else{
+				setTimeout(getCustomFieldValues, 100);
+			}
+		} else{
+			setTimeout(getCustomFieldValues, 100);
+		}
+	} else{
+		setTimeout(getCustomFieldValues, 100);
+	}
+}
+
 function hideHubCustomFields(){
 	var detailsModule = AJS.$('#' + detailsModuleId);
 	if(detailsModule.length > 0){
@@ -62,7 +98,7 @@ function checkPropertyAndHideHubField(property){
 	
 	var customFieldName = AJS.$(customFieldPropertyLabel).prop("title");
 	var arrayIndex = hubCustomFields.indexOf(customFieldName);
-	if(arrayIndex >= 0){
+	if (arrayIndex >= 0) {
 		var displayStyle = AJS.$(property).css("display");
 		if(displayStyle && displayStyle != "none"){
 			//AJS.$(property).css("display", "none");
@@ -74,3 +110,4 @@ function checkPropertyAndHideHubField(property){
 	    alert("The text has been changed.");
 	});
 }
+	
