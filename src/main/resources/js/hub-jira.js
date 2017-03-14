@@ -1068,16 +1068,18 @@ function getJsonArrayFromPolicyRules(){
 		var policyRule = AJS.$(policyRules[i]);
 
 		var currentPolicyRuleUrl = policyRule.attr("policyurl");
-		var currentPolicyRuleDescription = policyRule.attr("title");
-		var currentPolicyRuleName = policyRule.attr("name");
+		// Names and descriptions with chars like ", <, and > cause problems on save
+		// and we don't actually use them; just omitting them for now
+//		var currentPolicyRuleDescription = policyRule.attr("title");
+//		var currentPolicyRuleName = policyRule.attr("name");
 		var currentPolicyRuleChecked = policyRules[i].checked;
-		
+		console.log("Constructing rules jsonArray, but omitting name");
 		jsonArray += '{"'
-			+ policyRuleName + '":"' + currentPolicyRuleName 
+			+ policyRuleName + '":"' + "name omitted by hub-jira.js" 
 			+ '","' 
 			+ policyRuleUrl + '":"' + currentPolicyRuleUrl 
 			+ '","' 
-			+ policyRuleDescription + '":"' + currentPolicyRuleDescription 
+			+ policyRuleDescription + '":"' + "description omitted by hub-jira.js" 
 			+ '","' 
 			+ policyRuleChecked + '":"' + currentPolicyRuleChecked 
 			+ '"}';
