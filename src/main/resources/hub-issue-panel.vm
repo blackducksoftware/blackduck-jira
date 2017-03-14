@@ -1,7 +1,6 @@
 $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-web-panel-resources")
 
 <script language="JavaScript" type="text/javascript">
-	getCustomFieldValues();
     hideHubCustomFields();
 </script>
 
