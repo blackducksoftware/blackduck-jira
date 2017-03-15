@@ -151,7 +151,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         if (bomComp == null) {
             logger.info(String.format("Unable to find component %s in BOM, so cannot get usage information",
                     notification.getComponentName()));
-            return "<unknown>";
+            return "";
         }
         final StringBuilder usagesText = new StringBuilder();
         int usagesIndex = 0;
