@@ -183,7 +183,7 @@
 		      <div class="field-group">
 		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
-		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="longInput textStyle">
+		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput">
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
