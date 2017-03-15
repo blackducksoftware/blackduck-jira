@@ -181,9 +181,23 @@
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
+		      
+		        <table>
+		        <tr>
+		        <td>
 		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
-		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput">
+		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput"></input>
+		        </td>
+		        <td width="160px"></td>
+		        <td>
+		        <label class="label" for="creator">$i18n.getText("hub.integration.jira.creator.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <input type="text" id="creator" name="creator" class="intervalInput"></input>
+		        </td>
+		        </tr>
+		        </table>
+		        
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
