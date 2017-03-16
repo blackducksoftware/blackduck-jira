@@ -246,6 +246,7 @@
 						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
+								</input>
 								<div id="jiraProjectError">
 						    	</div>
 						    </td>
@@ -254,6 +255,7 @@
 						    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
 								<datalist id="hubProjects">
 								</datalist>
+								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
 						    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
@@ -333,6 +335,7 @@
 						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
+								</input>
 								<div id="jiraProjectError">
 						    	</div>
 						    </td>
@@ -370,6 +373,7 @@
 						    	<input class="longInput textStyle" type="text" name="sourceField" list="sourceFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.sourceFieldName.label')">
 								<datalist id="sourceFields">
 								</datalist>
+								</input>
 								<div id="sourceFieldError">
 						    	</div>
 						    </td>
@@ -378,6 +382,7 @@
 						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.targetFieldName.label')">
 								<datalist id="targetFields">
 								</datalist>
+								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
 						    	<div class="largeIcon fa fa-trash-o" onclick="removeFieldCopyMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeFieldCopyMapping.label')"></div>
