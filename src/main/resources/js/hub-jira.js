@@ -328,6 +328,7 @@ function populateForm() {
 		    success: function(config) {
 		      fillInCreatorCandidates(config.creatorCandidates);
 		      
+		      // TODO finish this (error handling)
 //		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
 //		      handleError(errorMessageFieldId, config.errorMessage, true, false);
 		      
@@ -779,7 +780,7 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	console.log("ajaxComplete()");
-	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
+	if(gotJiraProjects && gotHubProjects && gotProjectMappings && gotCreatorCandidates){
 		console.log("ajaxComplete(): data is ready");
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
@@ -1189,6 +1190,25 @@ function fillInCreatorCandidates(creatorCandidates) {
 	for (i=0; i < creatorCandidates.length; i++) {
 		console.log("Creator candidate: " + creatorCandidates[i]);
 	}
+	
+	var creatorElement = AJS.$("#" + "creatorCell");
+	var creatorCandidatesList = creatorElement.find("datalist[id='"+ "creatorCandidates" +"']");
+	console.log("fillInCreatorCandidates() List: " + creatorCandidatesList);
+	if (creatorCandidatesList.length > 0) {
+		console.log("fillInCreatorCandidates(): removing option");
+		  clearList(creatorCandidatesList[0]);
+	    }
+	if(creatorCandidates != null && creatorCandidates.length > 0){
+		for (j = 0; j < creatorCandidates.length; j++) {
+			console.log("Adding creator candidate: " + creatorCandidates[j]);
+//			jiraProjectMap.set(String(jiraProjects[j].projectId), jiraProjects[j]);
+			var newOption = AJS.$('<option>', {
+			    value: creatorCandidates[j],
+			    id: creatorCandidates[j]
+			});
+			creatorCandidatesList.append(newOption);
+		}
+	}
 }
 
 function fillInJiraGroups(hubJiraGroups, jiraGroups){
@@ -1463,6 +1483,10 @@ function removeFieldCopyMappingElement(childElement){
 	if(AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='"+ fieldCopyMappingElement + "']").length > 1){
 		AJS.$(childElement).closest("tr[name*='"+ fieldCopyMappingElement + "']").remove();
 	}
+}
+
+function onCreatorInputChange(inputField) {
+	console.log("onCreatorInputChange() ============================================");
 }
 
 function onMappingInputChange(inputField){
