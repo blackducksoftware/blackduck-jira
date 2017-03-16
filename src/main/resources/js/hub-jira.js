@@ -940,6 +940,8 @@ function getCreateVulnerabilityIssuesChoice() {
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {
+	var creatorUsername = encodeURI(AJS.$("#creatorInput").val());
+	console.log("putConfig(): " + creatorUsername);
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
 	var createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
@@ -949,6 +951,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    dataType: "json",
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
+	    + '", "creator": "' + creatorUsername
 	    + '", "hubProjectMappings": ' + jsonMappingArray
 	    + ', "policyRules": ' + policyRuleArray
 	    + ', "createVulnerabilityIssues": ' + createVulnerabilityIssues
@@ -1486,7 +1489,21 @@ function removeFieldCopyMappingElement(childElement){
 }
 
 function onCreatorInputChange(inputField) {
-	console.log("onCreatorInputChange() ============================================");
+	console.log("onCreatorInputChange()");
+	var field = AJS.$(inputField);
+	var datalist = inputField.list;
+	var options = datalist.options;
+	
+	var optionFound = false;
+    for (var i=0;i<options.length;i++){
+       if (options[i].value == inputField.value) { 
+    	   optionFound = true;
+    	   var option = AJS.$(options[i]);
+    	   
+    	   var username = option.attr("id");
+    	   console.log("onCreatorInputChange(): username: " + username);
+       }
+    }
 }
 
 function onMappingInputChange(inputField){

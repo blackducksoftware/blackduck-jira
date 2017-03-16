@@ -751,6 +751,10 @@ public class HubJiraConfigController {
                             HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
                             config.getIntervalBetweenChecks());
+                    final String issueCreatorJiraUser = config.getCreator();
+                    logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATOR,
+                            issueCreatorJiraUser);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
                             config.getHubProjectMappingsJson());

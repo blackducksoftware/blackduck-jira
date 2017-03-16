@@ -71,6 +71,9 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private String creatorCandidatesError;
 
     @XmlElement
+    private String creator;
+
+    @XmlElement
     private List<HubProject> hubProjects;
 
     @XmlElement
@@ -230,6 +233,14 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         this.creatorCandidates = creatorCandidates;
     }
 
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(final String creator) {
+        this.creator = creator;
+    }
+
     public String getJiraProjectsError() {
         return jiraProjectsError;
     }
@@ -381,6 +392,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
         result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
         result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
+        result = prime * result + ((creator == null) ? 0 : creator.hashCode());
         result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
         result = prime * result + ((creatorCandidatesError == null) ? 0 : creatorCandidatesError.hashCode());
         result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
@@ -471,6 +483,13 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         } else if (!creatorCandidates.equals(other.creatorCandidates)) {
             return false;
         }
+        if (creator == null) {
+            if (other.creator != null) {
+                return false;
+            }
+        } else if (!creator.equals(other.creator)) {
+            return false;
+        }
         if (creatorCandidatesError == null) {
             if (other.creatorCandidatesError != null) {
                 return false;
@@ -511,6 +530,8 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         builder.append(jiraProjectsError);
         builder.append(", creatorCandidates=");
         builder.append(creatorCandidates);
+        builder.append(", creator=");
+        builder.append(creator);
         builder.append(", creatorCandidatesError=");
         builder.append(creatorCandidatesError);
         builder.append(", hubProjects=");

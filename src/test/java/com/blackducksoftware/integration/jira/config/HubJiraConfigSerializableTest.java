@@ -44,6 +44,10 @@ import com.google.gson.GsonBuilder;
 
 public class HubJiraConfigSerializableTest {
 
+    private static final String USER1 = "user1";
+
+    private static final String USER2 = "user2";
+
     @Test
     public void testHubJiraConfigSerializable() {
         final String errorMessage1 = "errorMessage1";
@@ -174,6 +178,7 @@ public class HubJiraConfigSerializableTest {
         item1.setPolicyRulesError(policyRulesError1);
         item1.setCreatorCandidates(creatorCandidates1);
         item1.setCreatorCandidatesError(creatorCandidatesError1);
+        item1.setCreator(USER1);
 
         final HubJiraConfigSerializable item2 = new HubJiraConfigSerializable();
         item2.setErrorMessage(errorMessage2);
@@ -189,6 +194,7 @@ public class HubJiraConfigSerializableTest {
         item2.setPolicyRulesError(policyRulesError2);
         item2.setCreatorCandidates(creatorCandidates2);
         item2.setCreatorCandidatesError(creatorCandidatesError2);
+        item2.setCreator(USER2);
 
         final Gson gson = new GsonBuilder().create();
 
@@ -209,6 +215,7 @@ public class HubJiraConfigSerializableTest {
         item3.setPolicyRulesError(policyRulesError1);
         item3.setCreatorCandidates(creatorCandidates1);
         item3.setCreatorCandidatesError(creatorCandidatesError1);
+        item3.setCreator(USER1);
 
         assertEquals(errorMessage1, item1.getErrorMessage());
         assertEquals(hubProjectMappingError1, item1.getHubProjectMappingError());
@@ -265,12 +272,12 @@ public class HubJiraConfigSerializableTest {
         builder.append(item1.getJiraProjects());
         builder.append(", jiraProjectsError=");
         builder.append(item1.getJiraProjectsError());
-
         builder.append(", creatorCandidates=");
         builder.append(item1.getCreatorCandidates());
+        builder.append(", creator=");
+        builder.append(USER1);
         builder.append(", creatorCandidatesError=");
         builder.append(item1.getCreatorCandidatesError());
-
         builder.append(", hubProjects=");
         builder.append(item1.getHubProjects());
         builder.append(", hubProjectsError=");

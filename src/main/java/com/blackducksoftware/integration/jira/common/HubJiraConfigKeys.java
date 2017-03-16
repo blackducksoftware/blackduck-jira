@@ -51,4 +51,6 @@ public class HubJiraConfigKeys {
     public final static String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
 
     public final static String HUB_CONFIG_CREATOR_CANDIDATES_JSON = "com.blackducksoftware.integration.hub.configuration.creatorCandidates";
+
+    public final static String HUB_CONFIG_CREATOR = "com.blackducksoftware.integration.hub.configuration.creator";
 }
