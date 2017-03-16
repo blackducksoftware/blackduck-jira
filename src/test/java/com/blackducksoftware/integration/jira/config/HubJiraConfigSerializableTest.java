@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -154,6 +155,11 @@ public class HubJiraConfigSerializableTest {
         final List<PolicyRuleSerializable> policyRules2 = new ArrayList<PolicyRuleSerializable>();
         policyRules2.add(policy2);
 
+        final List<String> creatorCandidates1 = Arrays.asList("user1a", "user1b", "user1c");
+        final List<String> creatorCandidates2 = Arrays.asList("user2a", "user2b", "user2c");
+        final String creatorCandidatesError1 = "creatorCandidatesError1";
+        final String creatorCandidatesError2 = "creatorCandidatesError2";
+
         final HubJiraConfigSerializable item1 = new HubJiraConfigSerializable();
         item1.setErrorMessage(errorMessage1);
         item1.setHubProjectMappingError(hubProjectMappingError1);
@@ -166,6 +172,8 @@ public class HubJiraConfigSerializableTest {
         item1.setJiraProjects(jiraProjects1);
         item1.setPolicyRules(policyRules1);
         item1.setPolicyRulesError(policyRulesError1);
+        item1.setCreatorCandidates(creatorCandidates1);
+        item1.setCreatorCandidatesError(creatorCandidatesError1);
 
         final HubJiraConfigSerializable item2 = new HubJiraConfigSerializable();
         item2.setErrorMessage(errorMessage2);
@@ -179,6 +187,8 @@ public class HubJiraConfigSerializableTest {
         item2.setJiraProjects(jiraProjects2);
         item2.setPolicyRules(policyRules2);
         item2.setPolicyRulesError(policyRulesError2);
+        item2.setCreatorCandidates(creatorCandidates2);
+        item2.setCreatorCandidatesError(creatorCandidatesError2);
 
         final Gson gson = new GsonBuilder().create();
 
@@ -197,6 +207,8 @@ public class HubJiraConfigSerializableTest {
         item3.setJiraProjects(jiraProjects1);
         item3.setPolicyRulesJson(rulesJson);
         item3.setPolicyRulesError(policyRulesError1);
+        item3.setCreatorCandidates(creatorCandidates1);
+        item3.setCreatorCandidatesError(creatorCandidatesError1);
 
         assertEquals(errorMessage1, item1.getErrorMessage());
         assertEquals(hubProjectMappingError1, item1.getHubProjectMappingError());
@@ -253,6 +265,12 @@ public class HubJiraConfigSerializableTest {
         builder.append(item1.getJiraProjects());
         builder.append(", jiraProjectsError=");
         builder.append(item1.getJiraProjectsError());
+
+        builder.append(", creatorCandidates=");
+        builder.append(item1.getCreatorCandidates());
+        builder.append(", creatorCandidatesError=");
+        builder.append(item1.getCreatorCandidatesError());
+
         builder.append(", hubProjects=");
         builder.append(item1.getHubProjects());
         builder.append(", hubProjectsError=");
@@ -272,7 +290,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesAllThree() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingError("hubProjectMappingError");
         config.setJiraProjectsError("jiraProjectsError");
         config.setHubProjectsError("hubProjectsError");
@@ -283,7 +301,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesNulls() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingError(null);
         config.setJiraProjectsError(null);
         config.setHubProjectsError(null);
@@ -293,7 +311,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesEmpties() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingError("");
         config.setJiraProjectsError("");
         config.setHubProjectsError("");
@@ -303,7 +321,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesHubOnly() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectsError("HubProjectsError");
         config.enhanceMappingErrorMessage();
         assertEquals("Hub Project Error: HubProjectsError",
@@ -312,7 +330,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesJiraOnly() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setJiraProjectsError("JiraProjectsError");
         config.enhanceMappingErrorMessage();
         assertEquals("JIRA Project Error: JiraProjectsError",
@@ -321,7 +339,7 @@ public class HubJiraConfigSerializableTest {
 
     @Test
     public void testMessagesMappingOnly() {
-        HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingError("mappingError");
         config.enhanceMappingErrorMessage();
         assertEquals("mappingError",

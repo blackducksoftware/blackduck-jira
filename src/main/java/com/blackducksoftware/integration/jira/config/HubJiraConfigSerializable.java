@@ -65,6 +65,12 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private String jiraProjectsError;
 
     @XmlElement
+    private List<String> creatorCandidates;
+
+    @XmlElement
+    private String creatorCandidatesError;
+
+    @XmlElement
     private List<HubProject> hubProjects;
 
     @XmlElement
@@ -100,6 +106,9 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
             hasErrors = true;
         }
+        if (StringUtils.isNotBlank(getCreatorCandidatesError())) {
+            hasErrors = true;
+        }
         if (StringUtils.isNotBlank(getHubProjectsError())) {
             hasErrors = true;
         }
@@ -113,18 +122,19 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     }
 
     public void enhanceMappingErrorMessage() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         addMsg(sb, null, getHubProjectMappingError());
         addMsg(sb, "JIRA Project Error", getJiraProjectsError());
+        addMsg(sb, "Issue Creator Candidates Error", getCreatorCandidatesError());
         addMsg(sb, "Hub Project Error", getHubProjectsError());
-        String msg = sb.toString();
+        final String msg = sb.toString();
         if (!StringUtils.isBlank(msg)) {
             setHubProjectMappingError(msg);
         }
 
     }
 
-    private void addMsg(StringBuilder sb, String label, String msg) {
+    private void addMsg(final StringBuilder sb, final String label, final String msg) {
         if (StringUtils.isBlank(msg)) {
             return;
         }
@@ -142,7 +152,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (!hasErrors()) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotBlank(getErrorMessage())) {
             if (sb.length() > 0) {
                 sb.append("; ErrorMessage: " + getErrorMessage());
@@ -160,6 +170,12 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
                 sb.append("; JiraProjectsError: " + getJiraProjectsError());
             }
             sb.append(getJiraProjectsError());
+        }
+        if (StringUtils.isNotBlank(getCreatorCandidatesError())) {
+            if (sb.length() > 0) {
+                sb.append("; CreatorCandidatesError: " + getCreatorCandidatesError());
+            }
+            sb.append(getCreatorCandidatesError());
         }
         if (StringUtils.isNotBlank(getHubProjectsError())) {
             if (sb.length() > 0) {
@@ -202,8 +218,16 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return jiraProjects;
     }
 
+    public List<String> getCreatorCandidates() {
+        return creatorCandidates;
+    }
+
     public void setJiraProjects(final List<JiraProject> jiraProjects) {
         this.jiraProjects = jiraProjects;
+    }
+
+    public void setCreatorCandidates(final List<String> creatorCandidates) {
+        this.creatorCandidates = creatorCandidates;
     }
 
     public String getJiraProjectsError() {
@@ -212,6 +236,14 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
 
     public void setJiraProjectsError(final String jiraProjectsError) {
         this.jiraProjectsError = jiraProjectsError;
+    }
+
+    public String getCreatorCandidatesError() {
+        return creatorCandidatesError;
+    }
+
+    public void setCreatorCandidatesError(final String creatorCandidatesError) {
+        this.creatorCandidatesError = creatorCandidatesError;
     }
 
     public List<HubProject> getHubProjects() {
@@ -289,7 +321,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return createVulnerabilityIssues;
     }
 
-    public void setCreateVulnerabilityIssues(boolean createVulnerabilityIssues) {
+    public void setCreateVulnerabilityIssues(final boolean createVulnerabilityIssues) {
         this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
@@ -322,7 +354,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return createVulnerabilityIssuesError;
     }
 
-    public void setCreateVulnerabilityIssuesError(String createVulnerabilityIssuesError) {
+    public void setCreateVulnerabilityIssuesError(final String createVulnerabilityIssuesError) {
         this.createVulnerabilityIssuesError = createVulnerabilityIssuesError;
     }
 
@@ -348,7 +380,9 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
         result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
         result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
+        result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
         result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
+        result = prime * result + ((creatorCandidatesError == null) ? 0 : creatorCandidatesError.hashCode());
         result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
         result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
         return result;
@@ -429,6 +463,22 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         } else if (!jiraProjectsError.equals(other.jiraProjectsError)) {
             return false;
         }
+
+        if (creatorCandidates == null) {
+            if (other.creatorCandidates != null) {
+                return false;
+            }
+        } else if (!creatorCandidates.equals(other.creatorCandidates)) {
+            return false;
+        }
+        if (creatorCandidatesError == null) {
+            if (other.creatorCandidatesError != null) {
+                return false;
+            }
+        } else if (!creatorCandidatesError.equals(other.creatorCandidatesError)) {
+            return false;
+        }
+
         if (policyRules == null) {
             if (other.policyRules != null) {
                 return false;
@@ -459,6 +509,10 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         builder.append(jiraProjects);
         builder.append(", jiraProjectsError=");
         builder.append(jiraProjectsError);
+        builder.append(", creatorCandidates=");
+        builder.append(creatorCandidates);
+        builder.append(", creatorCandidatesError=");
+        builder.append(creatorCandidatesError);
         builder.append(", hubProjects=");
         builder.append(hubProjects);
         builder.append(", hubProjectsError=");

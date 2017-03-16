@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -345,7 +346,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting JIRA projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setJiraProjectsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
@@ -387,7 +388,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting Hub projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setHubProjectsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
@@ -677,6 +678,43 @@ public class HubJiraConfigController {
         final HubJiraFieldCopyConfigSerializable returnValue = (HubJiraFieldCopyConfigSerializable) config;
         logger.debug("returnValue: " + returnValue);
         return Response.ok(config).build();
+    }
+
+    @Path("/creatorCandidates")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreatorCandidates(@Context final HttpServletRequest request) {
+        logger.debug("getCreatorCandidates()");
+        final Object projectsConfig;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            projectsConfig = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+                    config.setCreatorCandidates(new ArrayList<>(0));
+
+                    final List<String> creatorCandidates = Arrays.asList("user1", "user2", "user3");
+                    config.setCreatorCandidates(creatorCandidates);
+
+                    if (creatorCandidates.size() == 0) {
+                        config.setCreatorCandidatesError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
+                    }
+                    return config;
+                }
+            });
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting issue creator candidates config: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setCreatorCandidatesError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(projectsConfig).build();
     }
 
     @PUT

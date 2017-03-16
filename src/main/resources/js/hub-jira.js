@@ -81,6 +81,7 @@ var ticketCreationErrorRowId = "ticketCreationErrorRow";
 var ticketCreationErrorCounter = 0;
 var mappingElementCounter = 0;
 
+var gotCreatorCandidates = false;
 var gotJiraProjects = false;
 var gotHubProjects = false;
 var gotProjectMappings = false;
@@ -321,6 +322,25 @@ function populateForm() {
 	    	console.log("Completed get of interval: " + textStatus);
 	    }
 	  });
+	  AJS.$.ajax({
+		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creatorCandidates/",
+		    dataType: "json",
+		    success: function(config) {
+		      fillInCreatorCandidates(config.creatorCandidates);
+		      
+//		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
+//		      handleError(errorMessageFieldId, config.errorMessage, true, false);
+		      
+		      gotCreatorCandidates = true;
+		    },
+		    error: function(response){
+		    	console.log("Error getting creator candidates");
+//		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
+		    },
+		    complete: function(jqXHR, textStatus){
+		    	console.log("Completed get of Creator Candidates: " + textStatus);
+		    }
+		  });
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/jiraProjects/",
 		    dataType: "json",
@@ -1161,6 +1181,13 @@ function addPolicyViolationRules(policyRules){
 			}
 			newPolicy.appendTo(policyRuleContainer);
 		}
+	}
+}
+
+function fillInCreatorCandidates(creatorCandidates) {
+	console.log("fillInCreatorCandidates()");
+	for (i=0; i < creatorCandidates.length; i++) {
+		console.log("Creator candidate: " + creatorCandidates[i]);
 	}
 }
 

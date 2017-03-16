@@ -37,6 +37,8 @@ public class JiraConfigErrors {
 
     public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Hub Projects for this User. This Hub user may not be assigned to any projects.";
 
+    public static final String NO_CREATOR_CANDIDATES_FOUND = "Could not find any JIRA users eligible to be issue creators";
+
     public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
 
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
