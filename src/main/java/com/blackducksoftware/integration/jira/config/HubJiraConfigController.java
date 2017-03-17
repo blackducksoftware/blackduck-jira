@@ -29,7 +29,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -698,7 +697,7 @@ public class HubJiraConfigController {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
                     config.setCreatorCandidates(new ArrayList<>(0));
 
-                    final List<String> creatorCandidates = Arrays.asList("admin", "user2", "user3");
+                    final List<String> creatorCandidates = getJiraUsernames();
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
@@ -715,6 +714,15 @@ public class HubJiraConfigController {
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
+    }
+
+    private List<String> getJiraUsernames() {
+        // TODO add group manager to JiraServices, and get it from there
+        final List<String> jiraUsernames = new ArrayList<>();
+        jiraUsernames.addAll(
+                com.atlassian.jira.component.ComponentAccessor.getGroupManager().getUserNamesInGroup("jira-administrators"));
+        logger.debug("getJiraUsernames(): returning: " + jiraUsernames);
+        return jiraUsernames;
     }
 
     @PUT
