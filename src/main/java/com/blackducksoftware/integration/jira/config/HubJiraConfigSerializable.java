@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -65,7 +66,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private String jiraProjectsError;
 
     @XmlElement
-    private List<String> creatorCandidates;
+    private SortedSet<String> creatorCandidates;
 
     @XmlElement
     private String creatorCandidatesError;
@@ -221,7 +222,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return jiraProjects;
     }
 
-    public List<String> getCreatorCandidates() {
+    public SortedSet<String> getCreatorCandidates() {
         return creatorCandidates;
     }
 
@@ -229,7 +230,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         this.jiraProjects = jiraProjects;
     }
 
-    public void setCreatorCandidates(final List<String> creatorCandidates) {
+    public void setCreatorCandidates(final SortedSet<String> creatorCandidates) {
         this.creatorCandidates = creatorCandidates;
     }
 

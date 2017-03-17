@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -695,9 +697,9 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-                    config.setCreatorCandidates(new ArrayList<>(0));
+                    config.setCreatorCandidates(new TreeSet<String>());
 
-                    final List<String> creatorCandidates = getJiraUsernames(settings);
+                    final SortedSet<String> creatorCandidates = getJiraUsernames(settings);
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
@@ -716,8 +718,8 @@ public class HubJiraConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    private List<String> getJiraUsernames(final PluginSettings settings) {
-        final List<String> jiraUsernames = new ArrayList<>();
+    private SortedSet<String> getJiraUsernames(final PluginSettings settings) {
+        final SortedSet<String> jiraUsernames = new TreeSet<String>();
         final String groupList = getStringValue(settings,
                 HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {

@@ -28,10 +28,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -159,8 +160,20 @@ public class HubJiraConfigSerializableTest {
         final List<PolicyRuleSerializable> policyRules2 = new ArrayList<PolicyRuleSerializable>();
         policyRules2.add(policy2);
 
-        final List<String> creatorCandidates1 = Arrays.asList("user1a", "user1b", "user1c");
-        final List<String> creatorCandidates2 = Arrays.asList("user2a", "user2b", "user2c");
+        final SortedSet<String> creatorCandidates1 = new TreeSet<String>();
+        creatorCandidates1.add("user1c");
+        creatorCandidates1.add("user1b");
+        creatorCandidates1.add("user1a");
+        creatorCandidates1.add("user1b");
+        creatorCandidates1.add("user1b");
+        creatorCandidates1.add("user1b");
+        creatorCandidates1.add("user1b");
+
+        final SortedSet<String> creatorCandidates2 = new TreeSet<String>();
+        creatorCandidates2.add("user2a");
+        creatorCandidates2.add("user2b");
+        creatorCandidates2.add("user2c");
+
         final String creatorCandidatesError1 = "creatorCandidatesError1";
         final String creatorCandidatesError2 = "creatorCandidatesError2";
 
