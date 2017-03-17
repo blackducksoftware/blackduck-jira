@@ -47,6 +47,10 @@ public class JiraConfigErrors {
 
     public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
 
+    public static final String NO_CREATOR_SPECIFIED_ERROR = "The 'JIRA Issue Creator' field is required.";
+
+    public static final String UNAUTHORIZED_CREATOR_ERROR = "The user specified as the issue creator is not a valid JIRA user or has not been granted access to the Hub JIRA plugin.";
+
     public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 
     public static final String NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS = "Only JIRA system admins can update the list of JIRA groups that can access the Hub JIRA configuration.";

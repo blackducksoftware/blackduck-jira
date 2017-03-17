@@ -216,6 +216,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private JiraContext initJiraContext(final String jiraUser) {
+        logger.debug("Checking JIRA user: " + jiraUser);
         final UserManager jiraUserManager = jiraServices.getUserManager();
         final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
         if (jiraSysAdmin == null) {

@@ -159,11 +159,18 @@ public class HubJiraConfigController {
 
     private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
         final String username = userManager.getRemoteUsername(request);
+        if (isUserAuthorizedForPlugin(settings, username)) {
+            return null;
+        }
+        return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    private boolean isUserAuthorizedForPlugin(final PluginSettings settings, final String username) {
         if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
+            return false;
         }
         if (userManager.isSystemAdmin(username)) {
-            return null;
+            return true;
         }
         final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
@@ -182,10 +189,10 @@ public class HubJiraConfigController {
                 }
             }
             if (userIsInGroups) {
-                return null;
+                return true;
             }
         }
-        return Response.status(Status.UNAUTHORIZED).build();
+        return false;
     }
 
     @Path("/admin")
@@ -304,7 +311,7 @@ public class HubJiraConfigController {
 
                     txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
 
-                    checkIntervalErrors(txConfig);
+                    validateInterval(txConfig);
                     return txConfig;
                 }
             });
@@ -629,7 +636,7 @@ public class HubJiraConfigController {
 
                     txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
 
-                    checkMappingErrors(txConfig);
+                    validateMapping(txConfig);
                     return txConfig;
                 }
             });
@@ -756,8 +763,9 @@ public class HubJiraConfigController {
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
-                    checkIntervalErrors(config);
-                    checkMappingErrors(config);
+                    validateInterval(config);
+                    validateCreator(config, settings);
+                    validateMapping(config);
                     if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
@@ -1021,7 +1029,7 @@ public class HubJiraConfigController {
         }
     }
 
-    private void checkIntervalErrors(final HubJiraConfigSerializable config) {
+    private void validateInterval(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
             config.setIntervalBetweenChecksError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
         } else {
@@ -1036,7 +1044,18 @@ public class HubJiraConfigController {
         }
     }
 
-    private void checkMappingErrors(final HubJiraConfigSerializable config) {
+    private void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
+        if (StringUtils.isBlank(config.getCreator())) {
+            config.setIntervalBetweenChecksError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+        }
+        if (isUserAuthorizedForPlugin(settings, config.getCreator())) {
+            return;
+        } else {
+            config.setIntervalBetweenChecksError(JiraConfigErrors.UNAUTHORIZED_CREATOR_ERROR);
+        }
+    }
+
+    private void validateMapping(final HubJiraConfigSerializable config) {
         if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
             boolean hasEmptyMapping = false;
             for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
