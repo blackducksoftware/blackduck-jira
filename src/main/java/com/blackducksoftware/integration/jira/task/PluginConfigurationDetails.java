@@ -91,7 +91,7 @@ public class PluginConfigurationDetails {
         installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
         lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
-        jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+        jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATOR);
 
         fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
         createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
@@ -204,7 +204,7 @@ public class PluginConfigurationDetails {
     }
 
     private boolean getBooleanValue(final PluginSettings settings, final String key) {
-        String valueString = (String) getValue(settings, key);
+        final String valueString = (String) getValue(settings, key);
         if ("true".equalsIgnoreCase(valueString)) {
             return true;
         }

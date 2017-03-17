@@ -698,7 +698,7 @@ public class HubJiraConfigController {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
                     config.setCreatorCandidates(new ArrayList<>(0));
 
-                    final List<String> creatorCandidates = Arrays.asList("user1", "user2", "user3");
+                    final List<String> creatorCandidates = Arrays.asList("admin", "user2", "user3");
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
