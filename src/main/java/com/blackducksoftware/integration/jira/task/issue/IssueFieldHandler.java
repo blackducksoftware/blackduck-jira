@@ -70,7 +70,7 @@ public class IssueFieldHandler {
     public void addLabels(final MutableIssue issue, final List<String> labels) {
         for (final String label : labels) {
             logger.debug("Adding label: " + label);
-            jiraServices.getLabelManager().addLabel(jiraContext.getJiraUser(), issue.getId(), label, false);
+            jiraServices.getLabelManager().addLabel(jiraContext.getJiraAdminUser(), issue.getId(), label, false);
         }
     }
 

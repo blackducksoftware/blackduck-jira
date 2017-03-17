@@ -127,7 +127,7 @@ public class JiraTaskSetupTest {
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        final JiraContext jiraContext = new JiraContext(jiraUser);
+        final JiraContext jiraContext = new JiraContext(jiraUser, jiraUser);
 
         final JiraTaskTimed task = jiraEnv.getJiraTask();
         final TicketInfoFromSetup x = new TicketInfoFromSetup();
@@ -184,7 +184,7 @@ public class JiraTaskSetupTest {
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        final JiraContext jiraContext = new JiraContext(jiraUser);
+        final JiraContext jiraContext = new JiraContext(jiraUser, jiraUser);
 
         final JiraTaskTimed task = jiraEnv.getJiraTask();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();

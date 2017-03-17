@@ -778,12 +778,12 @@ public class HubJiraConfigController {
                             config.getIntervalBetweenChecks());
                     final String issueCreatorJiraUser = config.getCreator();
                     logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATOR,
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER,
                             issueCreatorJiraUser);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
                             config.getHubProjectMappingsJson());
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();

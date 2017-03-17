@@ -43,14 +43,14 @@ public class HubJiraConfigKeys {
 
     public final static String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
 
-    public final static String HUB_CONFIG_JIRA_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
+    public final static String HUB_CONFIG_JIRA_ADMIN_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
+
+    public final static String HUB_CONFIG_JIRA_ISSUE_CREATOR_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".creator";
+
+    public final static String HUB_CONFIG_CREATOR_CANDIDATES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".creatorCandidates";
 
     @Deprecated
     public final static String HUB_CONFIG_JIRA_GROUPS = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubJiraGroups";
 
     public final static String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
-
-    public final static String HUB_CONFIG_CREATOR_CANDIDATES_JSON = "com.blackducksoftware.integration.hub.configuration.creatorCandidates";
-
-    public final static String HUB_CONFIG_CREATOR = "com.blackducksoftware.integration.hub.configuration.creator";
 }

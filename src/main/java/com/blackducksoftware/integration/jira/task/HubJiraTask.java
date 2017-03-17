@@ -241,7 +241,7 @@ public class HubJiraTask {
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
             throws URISyntaxException {
-        logger.debug("JIRA user: " + this.jiraContext.getJiraUser().getName());
+        logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,

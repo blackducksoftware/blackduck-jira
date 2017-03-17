@@ -272,7 +272,7 @@ public class NotificationConverterTest {
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
         Mockito.when(jiraUser.getKey()).thenReturn(JIRA_USER_KEY);
-        jiraContext = new JiraContext(jiraUser);
+        jiraContext = new JiraContext(jiraUser, jiraUser);
         jiraSettingsService = null;
         hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);

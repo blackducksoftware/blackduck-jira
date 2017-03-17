@@ -94,8 +94,8 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             final VersionBomComponentView bomComp = getBomComponent(notification);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
             final EventData eventData = eventDataBuilder.setAction(action)
-                    .setJiraUserName(getJiraContext().getJiraUser().getName())
-                    .setJiraUserKey(getJiraContext().getJiraUser().getKey())
+                    .setJiraUserName(getJiraContext().getJiraAdminUser().getName())
+                    .setJiraUserKey(getJiraContext().getJiraAdminUser().getKey())
                     .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
                     .setJiraIssueTypeId(getIssueTypeId())
                     .setJiraProjectName(jiraProject.getProjectName())
