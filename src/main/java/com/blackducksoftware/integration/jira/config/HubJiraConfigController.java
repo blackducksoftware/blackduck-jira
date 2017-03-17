@@ -697,7 +697,7 @@ public class HubJiraConfigController {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
                     config.setCreatorCandidates(new ArrayList<>(0));
 
-                    final List<String> creatorCandidates = getJiraUsernames();
+                    final List<String> creatorCandidates = getJiraUsernames(settings);
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
@@ -716,11 +716,18 @@ public class HubJiraConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    private List<String> getJiraUsernames() {
-        // TODO add group manager to JiraServices, and get it from there
+    private List<String> getJiraUsernames(final PluginSettings settings) {
         final List<String> jiraUsernames = new ArrayList<>();
-        jiraUsernames.addAll(
-                com.atlassian.jira.component.ComponentAccessor.getGroupManager().getUserNamesInGroup("jira-administrators"));
+        final String groupList = getStringValue(settings,
+                HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        if (!StringUtils.isBlank(groupList)) {
+            final String[] groupNames = groupList.split(",");
+            for (final String groupName : groupNames) {
+                // TODO add group manager to JiraServices, and get it from there
+                jiraUsernames.addAll(
+                        com.atlassian.jira.component.ComponentAccessor.getGroupManager().getUserNamesInGroup(groupName));
+            }
+        }
         logger.debug("getJiraUsernames(): returning: " + jiraUsernames);
         return jiraUsernames;
     }
