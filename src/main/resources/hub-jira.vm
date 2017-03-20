@@ -205,7 +205,7 @@
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
-		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+		      	<div id="generalSettingsError" class="error hidden"></div>
 		      </div>
 	      </div>
       	</fieldset>

@@ -57,7 +57,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private String intervalBetweenChecks;
 
     @XmlElement
-    private String intervalBetweenChecksError;
+    private String generalSettingsError;
 
     @XmlElement
     private List<JiraProject> jiraProjects;
@@ -101,7 +101,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (StringUtils.isNotBlank(getErrorMessage())) {
             hasErrors = true;
         }
-        if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+        if (StringUtils.isNotBlank(getGeneralSettingsError())) {
             hasErrors = true;
         }
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
@@ -156,11 +156,11 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
             }
             sb.append(getErrorMessage());
         }
-        if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+        if (StringUtils.isNotBlank(getGeneralSettingsError())) {
             if (sb.length() > 0) {
-                sb.append("; IntervalBetweenChecksError: " + getIntervalBetweenChecksError());
+                sb.append("; IntervalBetweenChecksError: " + getGeneralSettingsError());
             }
-            sb.append(getIntervalBetweenChecksError());
+            sb.append(getGeneralSettingsError());
         }
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
             if (sb.length() > 0) {
@@ -197,12 +197,12 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         this.intervalBetweenChecks = intervalBetweenChecks;
     }
 
-    public String getIntervalBetweenChecksError() {
-        return intervalBetweenChecksError;
+    public String getGeneralSettingsError() {
+        return generalSettingsError;
     }
 
-    public void setIntervalBetweenChecksError(final String intervalBetweenChecksError) {
-        this.intervalBetweenChecksError = intervalBetweenChecksError;
+    public void setGeneralSettingsError(final String generalSettingsError) {
+        this.generalSettingsError = generalSettingsError;
     }
 
     public List<JiraProject> getJiraProjects() {
@@ -369,7 +369,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
         result = prime * result + ((hubProjectsError == null) ? 0 : hubProjectsError.hashCode());
         result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
-        result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
+        result = prime * result + ((generalSettingsError == null) ? 0 : generalSettingsError.hashCode());
         result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
         result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
         result = prime * result + ((creator == null) ? 0 : creator.hashCode());
@@ -433,11 +433,11 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         } else if (!intervalBetweenChecks.equals(other.intervalBetweenChecks)) {
             return false;
         }
-        if (intervalBetweenChecksError == null) {
-            if (other.intervalBetweenChecksError != null) {
+        if (generalSettingsError == null) {
+            if (other.generalSettingsError != null) {
                 return false;
             }
-        } else if (!intervalBetweenChecksError.equals(other.intervalBetweenChecksError)) {
+        } else if (!generalSettingsError.equals(other.generalSettingsError)) {
             return false;
         }
         if (jiraProjects == null) {
@@ -493,8 +493,8 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         builder.append(errorMessage);
         builder.append(", intervalBetweenChecks=");
         builder.append(intervalBetweenChecks);
-        builder.append(", intervalBetweenChecksError=");
-        builder.append(intervalBetweenChecksError);
+        builder.append(", generalSettingsError=");
+        builder.append(generalSettingsError);
         builder.append(", jiraProjects=");
         builder.append(jiraProjects);
         builder.append(", jiraProjectsError=");

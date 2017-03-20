@@ -319,7 +319,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting interval config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setGeneralSettingsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(config).build();
@@ -710,7 +710,7 @@ public class HubJiraConfigController {
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
-                        config.setIntervalBetweenChecksError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
+                        config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
                     }
                     return config;
                 }
@@ -719,7 +719,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting issue creator candidates config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setGeneralSettingsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
@@ -1031,27 +1031,27 @@ public class HubJiraConfigController {
 
     private void validateInterval(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-            config.setIntervalBetweenChecksError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
         } else {
             try {
                 final int interval = stringToInteger(config.getIntervalBetweenChecks());
                 if (interval <= 0) {
-                    config.setIntervalBetweenChecksError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
+                    config.setGeneralSettingsError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
                 }
             } catch (final IllegalArgumentException e) {
-                config.setIntervalBetweenChecksError(e.getMessage());
+                config.setGeneralSettingsError(e.getMessage());
             }
         }
     }
 
     private void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
         if (StringUtils.isBlank(config.getCreator())) {
-            config.setIntervalBetweenChecksError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
         }
         if (isUserAuthorizedForPlugin(settings, config.getCreator())) {
             return;
         } else {
-            config.setIntervalBetweenChecksError(JiraConfigErrors.UNAUTHORIZED_CREATOR_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrors.UNAUTHORIZED_CREATOR_ERROR);
         }
     }
 

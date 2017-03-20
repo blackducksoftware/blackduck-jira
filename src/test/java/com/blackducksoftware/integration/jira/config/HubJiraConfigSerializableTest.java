@@ -53,7 +53,7 @@ public class HubJiraConfigSerializableTest {
     public void testHubJiraConfigSerializable() {
         final String errorMessage1 = "errorMessage1";
         final String intervalBetweenChecks1 = "intervalBetweenChecks1";
-        final String intervalBetweenChecksError1 = "intervalBetweenChecksError1";
+        final String generalSettingsError1 = "generalSettingsError1";
         final String hubProjectMappingError1 = "hubProjectMappingError1";
         final String policyRulesError1 = "policyRulesError1";
 
@@ -88,7 +88,7 @@ public class HubJiraConfigSerializableTest {
 
         final String errorMessage2 = "";
         final String intervalBetweenChecks2 = "";
-        final String intervalBetweenChecksError2 = "";
+        final String generalSettingsError2 = "";
         final String hubProjectMappingError2 = "";
         final String policyRulesError2 = "";
 
@@ -182,7 +182,7 @@ public class HubJiraConfigSerializableTest {
         item1.setHubProjects(hubProjects1);
         item1.setHubProjectsError(hubProjectsError1);
         item1.setIntervalBetweenChecks(intervalBetweenChecks1);
-        item1.setIntervalBetweenChecksError(intervalBetweenChecksError1);
+        item1.setGeneralSettingsError(generalSettingsError1);
         item1.setJiraProjects(jiraProjects1);
         item1.setPolicyRules(policyRules1);
         item1.setPolicyRulesError(policyRulesError1);
@@ -197,7 +197,7 @@ public class HubJiraConfigSerializableTest {
         item2.setHubProjects(hubProjects2);
         item2.setHubProjectsError(hubProjectsError2);
         item2.setIntervalBetweenChecks(intervalBetweenChecks2);
-        item2.setIntervalBetweenChecksError(intervalBetweenChecksError2);
+        item2.setGeneralSettingsError(generalSettingsError2);
         item2.setJiraProjects(jiraProjects2);
         item2.setPolicyRules(policyRules2);
         item2.setPolicyRulesError(policyRulesError2);
@@ -217,7 +217,7 @@ public class HubJiraConfigSerializableTest {
         item3.setHubProjects(hubProjects1);
         item3.setHubProjectsError(hubProjectsError1);
         item3.setIntervalBetweenChecks(intervalBetweenChecks1);
-        item3.setIntervalBetweenChecksError(intervalBetweenChecksError1);
+        item3.setGeneralSettingsError(generalSettingsError1);
         item3.setJiraProjects(jiraProjects1);
         item3.setPolicyRulesJson(rulesJson);
         item3.setPolicyRulesError(policyRulesError1);
@@ -231,7 +231,7 @@ public class HubJiraConfigSerializableTest {
         assertEquals(hubProjects1, item1.getHubProjects());
         assertEquals(hubProjectsError1, item1.getHubProjectsError());
         assertEquals(intervalBetweenChecks1, item1.getIntervalBetweenChecks());
-        assertEquals(intervalBetweenChecksError1, item1.getIntervalBetweenChecksError());
+        assertEquals(generalSettingsError1, item1.getGeneralSettingsError());
         assertEquals(jiraProjects1, item1.getJiraProjects());
         assertEquals(policyRules1, item1.getPolicyRules());
         assertEquals(policyRulesError1, item1.getPolicyRulesError());
@@ -243,7 +243,7 @@ public class HubJiraConfigSerializableTest {
         assertEquals(hubProjects2, item2.getHubProjects());
         assertEquals(hubProjectsError2, item2.getHubProjectsError());
         assertEquals(intervalBetweenChecks2, item2.getIntervalBetweenChecks());
-        assertEquals(intervalBetweenChecksError2, item2.getIntervalBetweenChecksError());
+        assertEquals(generalSettingsError2, item2.getGeneralSettingsError());
         assertEquals(jiraProjects2, item2.getJiraProjects());
         assertEquals(policyRules2, item2.getPolicyRules());
         assertEquals(policyRulesError2, item2.getPolicyRulesError());
@@ -256,7 +256,7 @@ public class HubJiraConfigSerializableTest {
         assertEquals(hubProjects1, item3.getHubProjects());
         assertEquals(hubProjectsError1, item3.getHubProjectsError());
         assertEquals(intervalBetweenChecks1, item3.getIntervalBetweenChecks());
-        assertEquals(intervalBetweenChecksError1, item3.getIntervalBetweenChecksError());
+        assertEquals(generalSettingsError1, item3.getGeneralSettingsError());
         assertEquals(jiraProjects1, item3.getJiraProjects());
         assertEquals(policyRules1, item3.getPolicyRules());
         assertEquals(rulesJson, item3.getPolicyRulesJson());
@@ -273,8 +273,8 @@ public class HubJiraConfigSerializableTest {
         builder.append(item1.getErrorMessage());
         builder.append(", intervalBetweenChecks=");
         builder.append(item1.getIntervalBetweenChecks());
-        builder.append(", intervalBetweenChecksError=");
-        builder.append(item1.getIntervalBetweenChecksError());
+        builder.append(", generalSettingsError=");
+        builder.append(item1.getGeneralSettingsError());
         builder.append(", jiraProjects=");
         builder.append(item1.getJiraProjects());
         builder.append(", jiraProjectsError=");

@@ -313,10 +313,10 @@ function populateForm() {
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, false);
+	      handleError('generalSettingsError', config.generalSettingsError, true, false);
 	    },
 	    error: function(response){
-	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the Interval.", "Interval Error");
+	    	handleDataRetrievalError(response, "generalSettingsError", "There was a problem retrieving the Interval.", "Interval Error");
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	console.log("Completed get of interval: " + textStatus);
@@ -442,12 +442,12 @@ function initCreatorCandidates() {
 	    dataType: "json",
 	    success: function(config) {
 	      fillInCreatorCandidates(config.creatorCandidates);
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, false);
+	      handleError('generalSettingsError', config.generalSettingsError, true, false);
 	      gotCreatorCandidates = true;
 	    },
 	    error: function(response){
 	    	console.log("Error getting creator candidates");	    	
-	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the issue creator candidates list.", "Creator Candidates Error");
+	    	handleDataRetrievalError(response, "generalSettingsError", "There was a problem retrieving the issue creator candidates list.", "Creator Candidates Error");
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	console.log("Completed get of Creator Candidates: " + textStatus);
@@ -962,7 +962,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    processData: false,
 	    success: function() {
 	    	hideError(errorMessageFieldId);
-	    	hideError('intervalBetweenChecksError');
+	    	hideError('generalSettingsError');
 	    	hideError('hubProjectMappingsError');
 	    	hideError('policyRulesError');
 	    	
@@ -972,18 +972,18 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	try {
 		    	var config = JSON.parse(response.responseText);
 		    	handleError(errorMessageFieldId, config.errorMessage, true, true);
-		    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, true);
+		    	handleError('generalSettingsError', config.generalSettingsError, true, true);
 		    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true, true);
 		    	handleError('policyRulesError', config.policyRulesError, true, true);
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 			    
 			    console.log("errorMessage: " + config.errorMessage); // x
-	            console.log("hubProjectMappingError: " + config.hubProjectMappingError); // x
-	            console.log("hubProjectsError: " + config.hubProjectsError); // <================
-	            console.log("intervalBetweenChecksError: " + config.intervalBetweenChecksError); // x
-	            console.log("jiraProjectsError: " + config.jiraProjectsError); // <================
-	            console.log("policyRulesError: " + config.policyRulesError); // x
+	            console.log("hubProjectMappingError: " + config.hubProjectMappingError);
+	            console.log("hubProjectsError: " + config.hubProjectsError);
+	            console.log("generalSettingsError: " + config.generalSettingsError);
+	            console.log("jiraProjectsError: " + config.jiraProjectsError);
+	            console.log("policyRulesError: " + config.policyRulesError);
 	            
 	    	} catch(err) {
 	    		// in case the response is not our error object
