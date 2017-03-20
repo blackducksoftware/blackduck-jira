@@ -95,8 +95,10 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             final VersionBomComponentView bomComp = getBomComponent(notification);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
             final EventData eventData = eventDataBuilder.setAction(action)
-                    .setJiraUserName(getJiraContext().getJiraAdminUser().getName())
-                    .setJiraUserKey(getJiraContext().getJiraAdminUser().getKey())
+                    .setJiraAdminUserName(getJiraContext().getJiraAdminUser().getName())
+                    .setJiraAdminUserKey(getJiraContext().getJiraAdminUser().getKey())
+                    .setJiraIssueCreatorUserName(getJiraContext().getJiraIssueCreatorUser().getName())
+                    .setJiraIssueCreatorUserKey(getJiraContext().getJiraIssueCreatorUser().getKey())
                     .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId())
                     .setJiraIssueTypeId(getIssueTypeId())
                     .setJiraProjectName(jiraProject.getProjectName())

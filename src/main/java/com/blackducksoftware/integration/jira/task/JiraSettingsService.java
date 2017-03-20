@@ -50,22 +50,23 @@ public class JiraSettingsService {
     };
 
     public void addHubError(final Throwable throwable, final String methodAttempt) {
-        addHubError(throwable, null, null, null, null, methodAttempt);
+        addHubError(throwable, null, null, null, null, null, methodAttempt);
     }
 
     public void addHubError(final String errorMessage, final String methodAttempt) {
-        addHubError(errorMessage, null, null, null, null, methodAttempt);
+        addHubError(errorMessage, null, null, null, null, null, methodAttempt);
     }
 
     public void addHubError(final Throwable throwable, final String hubProject, final String hubProjectVersion,
-            final String jiraProject, final String jiraUser, final String methodAttempt) {
+            final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
         final StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
-        addHubError(sw.toString(), hubProject, hubProjectVersion, jiraProject, jiraUser, methodAttempt);
+        addHubError(sw.toString(), hubProject, hubProjectVersion, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
     }
 
     public void addHubError(final String errorMessage, final String hubProject, final String hubProjectVersion,
-            final String jiraProject, final String jiraUser, final String methodAttempt) {
+            final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
+
         logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
         if (ticketErrors == null) {
@@ -88,9 +89,14 @@ public class JiraSettingsService {
             suffixBuilder.append(jiraProject);
             suffixBuilder.append(" / ");
         }
-        if (StringUtils.isNotBlank(jiraUser)) {
-            suffixBuilder.append("JIRA User : ");
-            suffixBuilder.append(jiraUser);
+        if (StringUtils.isNotBlank(jiraAdminUsername)) {
+            suffixBuilder.append("JIRA Admin User : ");
+            suffixBuilder.append(jiraAdminUsername);
+            suffixBuilder.append(" / ");
+        }
+        if (StringUtils.isNotBlank(jiraIssueCreatorUsername)) {
+            suffixBuilder.append("JIRA Issue Creator User : ");
+            suffixBuilder.append(jiraIssueCreatorUsername);
             suffixBuilder.append(" / ");
         }
         suffixBuilder.append("Method : ");

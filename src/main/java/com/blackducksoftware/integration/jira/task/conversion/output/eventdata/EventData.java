@@ -35,9 +35,13 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 public class EventData {
     private HubEventAction action;
 
-    private String jiraUserName;
+    private String jiraAdminUsername;
 
-    private String jiraUserKey;
+    private String jiraIssueCreatorUsername;
+
+    private String jiraAdminUserKey;
+
+    private String jiraIssueCreatorUserKey;
 
     private String jiraIssueAssigneeUserId;
 
@@ -103,13 +107,23 @@ public class EventData {
         return this;
     }
 
-    EventData setJiraUserName(final String jiraUserName) {
-        this.jiraUserName = jiraUserName;
+    EventData setJiraAdminUsername(final String jiraAdminUsername) {
+        this.jiraAdminUsername = jiraAdminUsername;
         return this;
     }
 
-    EventData setJiraUserKey(final String jiraUserKey) {
-        this.jiraUserKey = jiraUserKey;
+    EventData setJiraIssueCreatorUsername(final String jiraIssueCreatorUsername) {
+        this.jiraIssueCreatorUsername = jiraIssueCreatorUsername;
+        return this;
+    }
+
+    EventData setJiraAdminUserKey(final String jiraAdminUserKey) {
+        this.jiraAdminUserKey = jiraAdminUserKey;
+        return this;
+    }
+
+    EventData setJiraIssueCreatorUserKey(final String jiraIssueCreatorUserKey) {
+        this.jiraIssueCreatorUserKey = jiraIssueCreatorUserKey;
         return this;
     }
 
@@ -252,12 +266,20 @@ public class EventData {
         return action;
     }
 
-    public String getJiraUserName() {
-        return jiraUserName;
+    public String getJiraAdminUsername() {
+        return jiraAdminUsername;
     }
 
-    public String getJiraUserKey() {
-        return jiraUserKey;
+    public String getJiraIssueCreatorUsername() {
+        return jiraIssueCreatorUsername;
+    }
+
+    public String getJiraAdminUserKey() {
+        return jiraAdminUserKey;
+    }
+
+    public String getJiraIssueCreatorUserKey() {
+        return jiraIssueCreatorUserKey;
     }
 
     public String getJiraIssueAssigneeUserId() {

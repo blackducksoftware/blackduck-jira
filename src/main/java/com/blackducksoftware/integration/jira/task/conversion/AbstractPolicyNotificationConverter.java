@@ -89,7 +89,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
                     logger.error(e);
                     getJiraSettingsService().addHubError(e, projectVersion.getProjectName(),
                             projectVersion.getProjectVersionName(), jiraProject.getProjectName(),
-                            getJiraContext().getJiraAdminUser().getName(), "transitionIssue");
+                            getJiraContext().getJiraAdminUser().getName(), getJiraContext().getJiraIssueCreatorUser().getName(), "transitionIssue");
                 }
 
             }

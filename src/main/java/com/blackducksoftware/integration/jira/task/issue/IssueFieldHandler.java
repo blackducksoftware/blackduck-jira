@@ -70,7 +70,7 @@ public class IssueFieldHandler {
     public void addLabels(final MutableIssue issue, final List<String> labels) {
         for (final String label : labels) {
             logger.debug("Adding label: " + label);
-            jiraServices.getLabelManager().addLabel(jiraContext.getJiraAdminUser(), issue.getId(), label, false);
+            jiraServices.getLabelManager().addLabel(jiraContext.getJiraIssueCreatorUser(), issue.getId(), label, false);
         }
     }
 
@@ -108,7 +108,8 @@ public class IssueFieldHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "addIssueInputParameter");
             return;
         }
@@ -152,7 +153,8 @@ public class IssueFieldHandler {
                         eventData.getHubProjectName(),
                         eventData.getHubProjectVersion(),
                         eventData.getJiraProjectName(),
-                        eventData.getJiraUserName(),
+                        eventData.getJiraAdminUsername(),
+                        eventData.getJiraIssueCreatorUsername(),
                         "setOtherFieldValues");
                 continue;
             }
@@ -198,7 +200,8 @@ public class IssueFieldHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "setSystemField");
         }
         return null;
@@ -225,7 +228,8 @@ public class IssueFieldHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "setComponent");
         }
     }
@@ -250,7 +254,8 @@ public class IssueFieldHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "setAffectedVersion");
         }
     }
@@ -278,7 +283,8 @@ public class IssueFieldHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "getPluginFieldValue");
         }
 

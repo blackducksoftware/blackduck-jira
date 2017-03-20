@@ -129,12 +129,12 @@ public class HubWorkflowSetup {
                 final String errorMessage = "Could not find the workflow scheme for the JIRA project : "
                         + project.getName();
                 logger.error(errorMessage);
-                settingService.addHubError(errorMessage, null, null, project.getName(), null,
+                settingService.addHubError(errorMessage, null, null, project.getName(), null, null,
                         "addWorkflowToProjectsWorkflowScheme");
             }
         } catch (final Exception e) {
             logger.error("Failed to add the Hub JIRA worflow to the Hub scheme.", e);
-            settingService.addHubError(e, null, null, project.getName(), null, "addWorkflowToProjectsWorkflowScheme");
+            settingService.addHubError(e, null, null, project.getName(), null, null, "addWorkflowToProjectsWorkflowScheme");
         }
     }
 
@@ -142,7 +142,7 @@ public class HubWorkflowSetup {
             final AssignableWorkflowScheme projectWorkflowScheme, final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder,
             final IssueType issueType, boolean needsToBeUpdated) {
         final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId());
-        String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
+        final String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
         logger.debug("Configured workflow: " + configuredWorkflowName);
         logger.debug("Actual workflow: " + actualWorkflowName);
         if ((StringUtils.isBlank(actualWorkflowName)) || (!actualWorkflowName.equals(hubWorkflow.getName()))) {
