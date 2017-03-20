@@ -94,6 +94,7 @@ import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
+import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -732,9 +733,8 @@ public class HubJiraConfigController {
         if (!StringUtils.isBlank(groupList)) {
             final String[] groupNames = groupList.split(",");
             for (final String groupName : groupNames) {
-                // TODO add group manager to JiraServices, and get it from there
-                jiraUsernames.addAll(
-                        com.atlassian.jira.component.ComponentAccessor.getGroupManager().getUserNamesInGroup(groupName));
+                jiraUsernames.addAll(new JiraServices()
+                        .getGroupManager().getUserNamesInGroup(groupName));
             }
         }
         logger.debug("getJiraUsernames(): returning: " + jiraUsernames);
