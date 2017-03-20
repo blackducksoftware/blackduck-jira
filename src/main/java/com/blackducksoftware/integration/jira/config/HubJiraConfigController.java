@@ -710,7 +710,7 @@ public class HubJiraConfigController {
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
-                        config.setCreatorCandidatesError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
+                        config.setIntervalBetweenChecksError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
                     }
                     return config;
                 }
@@ -719,7 +719,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting issue creator candidates config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setCreatorCandidatesError(msg);
+            errorConfig.setIntervalBetweenChecksError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();

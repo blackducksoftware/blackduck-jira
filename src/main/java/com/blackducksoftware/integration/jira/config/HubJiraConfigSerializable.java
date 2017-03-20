@@ -69,9 +69,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private SortedSet<String> creatorCandidates;
 
     @XmlElement
-    private String creatorCandidatesError;
-
-    @XmlElement
     private String creator;
 
     @XmlElement
@@ -110,9 +107,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
             hasErrors = true;
         }
-        if (StringUtils.isNotBlank(getCreatorCandidatesError())) {
-            hasErrors = true;
-        }
         if (StringUtils.isNotBlank(getHubProjectsError())) {
             hasErrors = true;
         }
@@ -129,7 +123,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         final StringBuilder sb = new StringBuilder();
         addMsg(sb, null, getHubProjectMappingError());
         addMsg(sb, "JIRA Project Error", getJiraProjectsError());
-        addMsg(sb, "Issue Creator Candidates Error", getCreatorCandidatesError());
         addMsg(sb, "Hub Project Error", getHubProjectsError());
         final String msg = sb.toString();
         if (!StringUtils.isBlank(msg)) {
@@ -174,12 +167,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
                 sb.append("; JiraProjectsError: " + getJiraProjectsError());
             }
             sb.append(getJiraProjectsError());
-        }
-        if (StringUtils.isNotBlank(getCreatorCandidatesError())) {
-            if (sb.length() > 0) {
-                sb.append("; CreatorCandidatesError: " + getCreatorCandidatesError());
-            }
-            sb.append(getCreatorCandidatesError());
         }
         if (StringUtils.isNotBlank(getHubProjectsError())) {
             if (sb.length() > 0) {
@@ -248,14 +235,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
 
     public void setJiraProjectsError(final String jiraProjectsError) {
         this.jiraProjectsError = jiraProjectsError;
-    }
-
-    public String getCreatorCandidatesError() {
-        return creatorCandidatesError;
-    }
-
-    public void setCreatorCandidatesError(final String creatorCandidatesError) {
-        this.creatorCandidatesError = creatorCandidatesError;
     }
 
     public List<HubProject> getHubProjects() {
@@ -395,7 +374,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
         result = prime * result + ((creator == null) ? 0 : creator.hashCode());
         result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
-        result = prime * result + ((creatorCandidatesError == null) ? 0 : creatorCandidatesError.hashCode());
         result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
         result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
         return result;
@@ -491,14 +469,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         } else if (!creator.equals(other.creator)) {
             return false;
         }
-        if (creatorCandidatesError == null) {
-            if (other.creatorCandidatesError != null) {
-                return false;
-            }
-        } else if (!creatorCandidatesError.equals(other.creatorCandidatesError)) {
-            return false;
-        }
-
         if (policyRules == null) {
             if (other.policyRules != null) {
                 return false;
@@ -533,8 +503,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         builder.append(creatorCandidates);
         builder.append(", creator=");
         builder.append(creator);
-        builder.append(", creatorCandidatesError=");
-        builder.append(creatorCandidatesError);
         builder.append(", hubProjects=");
         builder.append(hubProjects);
         builder.append(", hubProjectsError=");
