@@ -29,7 +29,7 @@ public class JiraConfigErrors {
 
     public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
 
-    public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
+    public static final String HUB_CONFIG_PLUGIN_MISSING = "The Hub Server connection details have not been configured.";
 
     public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
 
