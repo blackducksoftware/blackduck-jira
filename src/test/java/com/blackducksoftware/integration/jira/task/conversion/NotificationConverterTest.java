@@ -541,15 +541,14 @@ public class NotificationConverterTest {
         assertEquals(expectedReOpenComment, eventData.getJiraIssueReOpenComment());
         assertEquals(expectedResolveComment, eventData.getJiraIssueResolveComment());
         final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
-        // TODO check the property key
-        // assertEquals(expectedPropertyKey, dataSet.get(EventDataSetKeys.)
+
         final IssueProperties issueProperties = issuePropertiesGenerator.createIssueProperties(Long.valueOf(JIRA_ISSUE_ID));
         assertEquals(HUB_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());
         assertEquals(COMPONENT_VERSION, issueProperties.getComponentVersion());
         assertEquals(Long.valueOf(456L), issueProperties.getJiraIssueId());
-        // assertEquals(expectedPropertyKey, issuePropertiesGenerator.createIssueProperties(Long.valueOf(1L)));
+        assertEquals(expectedPropertyKey, event.getEventKey());
 
     }
 
