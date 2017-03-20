@@ -44,7 +44,7 @@
 		      <div style="display: inline-block; width: 100%;">
 		   	   		<div class="buttonContainer">
 			       		<div id="adminSaveSpinner" style="display: inline-block;"></div>
-			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAdminConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAccessConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
 			  	   </div>
 			  </div>
 	      </div>
@@ -70,7 +70,7 @@
       	  <div id="serverConfigArea">
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="hubServerUrl">$i18n.getText("hub.integration.jira.hub.details.url.label")<span class="error"> *</span></label>
-		        <input type="text" id="hubServerUrl" name="hubServerUrl" class="longInput textStyle">
+		        <input type="text" id="hubServerUrl" name="hubServerUrl" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.url.description')"></span>
 		      </div>
 		      <div id="hubServerUrlErrorRow" class="hub-details-field-group hidden">
@@ -80,7 +80,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="hubUsername">$i18n.getText("hub.integration.jira.hub.details.username.label")<span class="error"> *</span></label>
-		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle">
+		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.username.description')"></span>
 		      </div>
 		      <div id="hubUsernameErrorRow" class="hub-details-field-group hidden">
@@ -90,7 +90,7 @@
 		        
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="hubPassword">$i18n.getText("hub.integration.jira.hub.details.password.label")<span class="error"> *</span></label>
-		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle">
+		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.password.description')"></span>
 		      </div>
 		       <div id="hubPasswordErrorRow" class="hub-details-field-group hidden">
@@ -100,7 +100,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="hubTimeout">$i18n.getText("hub.integration.jira.hub.details.timeout.label")<span class="error"> *</span></label>
-		        <input type="text" id="hubTimeout" name="hubTimeout" class="longInput textStyle" default="120">
+		        <input type="text" id="hubTimeout" name="hubTimeout" class="longInput textStyle" default="120" />
 		         <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.timeout.description')"></span>
 		      </div>
 		       <div id="hubTimeoutErrorRow" class="hub-details-field-group hidden">
@@ -115,7 +115,7 @@
       	  <div id="proxyConfigArea">
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="proxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.host.label")</label>
-		        <input type="text" id="proxyHost" name="proxyHost" class="longInput textStyle">
+		        <input type="text" id="proxyHost" name="proxyHost" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.host.description')"></span>
 		      </div>
 		       <div id="proxyHostErrorRow" class="hub-details-field-group hidden">
@@ -125,7 +125,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="proxyPort">$i18n.getText("hub.integration.jira.hub.details.proxy.port.label")</label>
-		        <input type="text" id="proxyPort" name="proxyPort" class="longInput textStyle">
+		        <input type="text" id="proxyPort" name="proxyPort" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.port.description')"></span>
 		      </div>
 		       <div id="proxyPortErrorRow" class="hub-details-field-group hidden">
@@ -135,7 +135,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="noProxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.noproxyhost.label")</label>
-		        <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle">
+		        <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.noproxyhost.description')"></span>
 		      </div>
 		       <div id="noProxyHostErrorRow" class="hub-details-field-group hidden">
@@ -145,7 +145,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="proxyUsername">$i18n.getText("hub.integration.jira.hub.details.proxy.username.label")</label>
-		        <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle">
+		        <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.username.description')"></span>
 		      </div>
 		       <div id="proxyUsernameErrorRow" class="hub-details-field-group hidden">
@@ -155,7 +155,7 @@
 		      
 		      <div class="hub-details-field-group">
 		        <label class="hubDetailsLabel" for="proxyPassword">$i18n.getText("hub.integration.jira.hub.details.proxy.password.label")</label>
-		        <input type="password" id="proxyPassword" name="proxyPassword" class="longInput password textStyle">
+		        <input type="password" id="proxyPassword" name="proxyPassword" class="longInput password textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.password.description')"></span>
 		      </div>
 		      <div id="proxyPasswordErrorRow" class="hub-details-field-group hidden">
@@ -170,8 +170,8 @@
       	  <div id="hubDetailsProgressSpinner" style="display: inline-block;">
 		  	<i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
 		  </div>
-		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.test.label")" class="aui-button aui-button-primary">
-		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary">
+		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.test.label")" class="aui-button aui-button-primary" />
+		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary" />
 	  </div>
 	  </div>
 	</div>
@@ -181,13 +181,31 @@
       	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
+		      
+		        <table>
+		        <tr>
+		        <td>
 		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
-		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="longInput textStyle">
+		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput" />
+		        </td>
+		        <td width="160px"></td>
+		        <td id="creatorCell">
+		        <label class="label" for="creator">$i18n.getText("hub.integration.jira.creator.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <input type="text" id="creatorInput" name="creator" class="intervalInput" 
+		        	placeholder="$i18n.getText('hub.integration.jira.creator.placeholder')"
+		        	list="creatorCandidates" oninput="onCreatorInputChange(this);" />
+		        <datalist id="creatorCandidates">
+				</datalist>
+		        </td>
+		        </tr>
+		        </table>
+		        
 		      </div>
 		      <div class="field-group">
 		      	<label> </label>
-		      	<div id="intervalBetweenChecksError" class="error hidden"></div>
+		      	<div id="generalSettingsError" class="error hidden"></div>
 		      </div>
 	      </div>
       	</fieldset>
@@ -232,6 +250,7 @@
 						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
+								</input>
 								<div id="jiraProjectError">
 						    	</div>
 						    </td>
@@ -240,6 +259,7 @@
 						    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
 								<datalist id="hubProjects">
 								</datalist>
+								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
 						    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
@@ -249,7 +269,7 @@
 				</table>
 			</div>
 			<div class="buttonContainer">
-				<input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button">
+				<input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button" />
 			</div>
 		</fieldset>
       
@@ -272,8 +292,8 @@
 				  		</td>
 				  		<td>
 				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
-					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes">$i18n.getText("hub.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
-					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No">$i18n.getText("hub.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes" />$i18n.getText("hub.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No" />$i18n.getText("hub.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
 							</div>
 				  		</td>
 	      			</tr>
@@ -293,7 +313,7 @@
 	   <div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
 	  	   </div>
 	   </div>
 	</div>
@@ -319,6 +339,7 @@
 						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
+								</input>
 								<div id="jiraProjectError">
 						    	</div>
 						    </td>
@@ -356,6 +377,7 @@
 						    	<input class="longInput textStyle" type="text" name="sourceField" list="sourceFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.sourceFieldName.label')">
 								<datalist id="sourceFields">
 								</datalist>
+								</input>
 								<div id="sourceFieldError">
 						    	</div>
 						    </td>
@@ -364,6 +386,7 @@
 						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.targetFieldName.label')">
 								<datalist id="targetFields">
 								</datalist>
+								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
 						    	<div class="largeIcon fa fa-trash-o" onclick="removeFieldCopyMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeFieldCopyMapping.label')"></div>
@@ -372,7 +395,7 @@
 				  </tbody>
 				</table>
 			<div class="buttonContainer">
-				<input id="fieldCopyAddMappingButton" onclick="addNewFieldCopyMappingElement('fieldCopyMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addFieldCopyMapping.label')" class="aui-button">
+				<input id="fieldCopyAddMappingButton" onclick="addNewFieldCopyMappingElement('fieldCopyMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addFieldCopyMapping.label')" class="aui-button" />
 			</div>
 		</fieldset>
 	</div>
@@ -380,7 +403,7 @@
 	<div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input id="fieldCopySaveButton" onclick="updateFieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary">
+	  	   		<input id="fieldCopySaveButton" onclick="updateFieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
 	  	   </div>
 	</div>
 </div>

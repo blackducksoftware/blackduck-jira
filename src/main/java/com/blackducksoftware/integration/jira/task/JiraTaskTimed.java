@@ -78,7 +78,7 @@ public class JiraTaskTimed implements Callable<String> {
     public String call() throws Exception {
         logger.info("Running the Hub JIRA periodic timed task.");
 
-        final JiraContext jiraContext = initJiraContext(configDetails.getJiraUserName());
+        final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
@@ -116,7 +116,7 @@ public class JiraTaskTimed implements Callable<String> {
         // Create Issue Types, workflow, etc.
         HubIssueTypeSetup issueTypeSetup;
         try {
-            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraUser().getName());
+            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
         } catch (final ConfigurationException e) {
             logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
             return;
@@ -215,16 +215,25 @@ public class JiraTaskTimed implements Callable<String> {
         return new HubWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraContext initJiraContext(final String jiraUser) {
-        final UserManager jiraUserManager = jiraServices.getUserManager();
-        final ApplicationUser jiraSysAdmin = jiraUserManager.getUserByName(jiraUser);
-        if (jiraSysAdmin == null) {
-            logger.error("Could not find the JIRA System admin that saved the Hub JIRA config.");
+    private JiraContext initJiraContext(final String jiraAdminUsername, final String jiraIssueCreatorUsername) {
+        logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
+        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);
+        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername);
+        if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
             return null;
         }
-
-        final JiraContext jiraContext = new JiraContext(jiraSysAdmin);
+        final JiraContext jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
         return jiraContext;
+    }
+
+    private ApplicationUser getJiraUser(final String jiraUsername) {
+        final UserManager jiraUserManager = jiraServices.getUserManager();
+        final ApplicationUser jiraUser = jiraUserManager.getUserByName(jiraUsername);
+        if (jiraUser == null) {
+            logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
+            return null;
+        }
+        return jiraUser;
     }
 
 }

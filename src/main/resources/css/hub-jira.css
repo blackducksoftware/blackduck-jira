@@ -110,6 +110,20 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 	box-shadow: inset 0 1px 3px #ccc;
 }
 
+.intervalInput {
+	type: number;
+	min: 1;
+	max: 999;
+	maxlength: 3;
+	size: 3;
+	border: 1px solid #ccc;
+	border-radius: 3.01px;
+	box-shadow: inset 0 1px 3px #ccc;
+	font-family: arial,tahoma,verdana,sans-serif;
+    font-size: 13px;
+    padding : 2px 5px 2px 5px;
+}
+
 .inputDescription {
 	display: block;
 }

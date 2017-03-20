@@ -81,6 +81,7 @@ var ticketCreationErrorRowId = "ticketCreationErrorRow";
 var ticketCreationErrorCounter = 0;
 var mappingElementCounter = 0;
 
+var gotCreatorCandidates = false;
 var gotJiraProjects = false;
 var gotHubProjects = false;
 var gotProjectMappings = false;
@@ -154,8 +155,8 @@ function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 	
-function updateAdminConfig() {
-		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+function updateAccessConfig() {
+		putAccessConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
 	}
 
 function updateFieldCopyConfig() {
@@ -312,15 +313,18 @@ function populateForm() {
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
 	      
-	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, false);
+	      handleError('generalSettingsError', config.generalSettingsError, true, false);
 	    },
 	    error: function(response){
-	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the Interval.", "Interval Error");
+	    	handleDataRetrievalError(response, "generalSettingsError", "There was a problem retrieving the Interval.", "Interval Error");
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	console.log("Completed get of interval: " + textStatus);
 	    }
 	  });
+	  
+	  initCreatorCandidates();
+	  
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/jiraProjects/",
 		    dataType: "json",
@@ -429,6 +433,26 @@ function populateForm() {
 	  
 	  populateFormHubData();
 	  console.log("populateForm() Finished");
+}
+
+function initCreatorCandidates() {
+	console.log("Initializing issue creator candidate list");
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creatorCandidates/",
+	    dataType: "json",
+	    success: function(config) {
+	      fillInCreatorCandidates(config.creatorCandidates);
+	      handleError('generalSettingsError', config.generalSettingsError, true, false);
+	      gotCreatorCandidates = true;
+	    },
+	    error: function(response){
+	    	console.log("Error getting creator candidates");	    	
+	    	handleDataRetrievalError(response, "generalSettingsError", "There was a problem retrieving the issue creator candidates list.", "Creator Candidates Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of Creator Candidates: " + textStatus);
+	    }
+	  });
 }
 
 function populateFormHubData() {
@@ -759,7 +783,7 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace){
 
 AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	console.log("ajaxComplete()");
-	if(gotJiraProjects == true && gotHubProjects == true && gotProjectMappings == true){
+	if(gotJiraProjects && gotHubProjects && gotProjectMappings && gotCreatorCandidates){
 		console.log("ajaxComplete(): data is ready");
 	var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
 	var mappingElements = mappingContainer.find("tr[name*='"+ hubProjectMappingElement + "']");
@@ -837,7 +861,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	}
 });
 
-function putAdminConfig(restUrl, successMessage, failureMessage) {
+function putAccessConfig(restUrl, successMessage, failureMessage) {
 
 var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val()); 
 
@@ -851,8 +875,8 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 	    processData: false,
 	    success: function() {
 	    	hideError('hubJiraGroupsError');
-	    	
 		    showStatusMessage(successStatus, 'Success!', successMessage);
+		    initCreatorCandidates();
 	    },
 	    error: function(response){
 	    	try {
@@ -919,6 +943,8 @@ function getCreateVulnerabilityIssuesChoice() {
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {
+	var creatorUsername = encodeURI(AJS.$("#creatorInput").val());
+	console.log("putConfig(): " + creatorUsername);
 	var jsonMappingArray = getJsonArrayFromMapping();
 	var policyRuleArray = getJsonArrayFromPolicyRules();
 	var createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
@@ -928,6 +954,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    dataType: "json",
 	    contentType: "application/json",
 	    data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
+	    + '", "creator": "' + creatorUsername
 	    + '", "hubProjectMappings": ' + jsonMappingArray
 	    + ', "policyRules": ' + policyRuleArray
 	    + ', "createVulnerabilityIssues": ' + createVulnerabilityIssues
@@ -935,7 +962,7 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    processData: false,
 	    success: function() {
 	    	hideError(errorMessageFieldId);
-	    	hideError('intervalBetweenChecksError');
+	    	hideError('generalSettingsError');
 	    	hideError('hubProjectMappingsError');
 	    	hideError('policyRulesError');
 	    	
@@ -945,18 +972,18 @@ function putConfig(restUrl, successMessage, failureMessage) {
 	    	try {
 		    	var config = JSON.parse(response.responseText);
 		    	handleError(errorMessageFieldId, config.errorMessage, true, true);
-		    	handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, true);
+		    	handleError('generalSettingsError', config.generalSettingsError, true, true);
 		    	handleError('hubProjectMappingsError', config.hubProjectMappingError, true, true);
 		    	handleError('policyRulesError', config.policyRulesError, true, true);
 		    	
 			    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 			    
 			    console.log("errorMessage: " + config.errorMessage); // x
-	            console.log("hubProjectMappingError: " + config.hubProjectMappingError); // x
-	            console.log("hubProjectsError: " + config.hubProjectsError); // <================
-	            console.log("intervalBetweenChecksError: " + config.intervalBetweenChecksError); // x
-	            console.log("jiraProjectsError: " + config.jiraProjectsError); // <================
-	            console.log("policyRulesError: " + config.policyRulesError); // x
+	            console.log("hubProjectMappingError: " + config.hubProjectMappingError);
+	            console.log("hubProjectsError: " + config.hubProjectsError);
+	            console.log("generalSettingsError: " + config.generalSettingsError);
+	            console.log("jiraProjectsError: " + config.jiraProjectsError);
+	            console.log("policyRulesError: " + config.policyRulesError);
 	            
 	    	} catch(err) {
 	    		// in case the response is not our error object
@@ -1160,6 +1187,32 @@ function addPolicyViolationRules(policyRules){
 				newPolicy.append(newDescription);
 			}
 			newPolicy.appendTo(policyRuleContainer);
+		}
+	}
+}
+
+function fillInCreatorCandidates(creatorCandidates) {
+	console.log("fillInCreatorCandidates()");
+	for (i=0; i < creatorCandidates.length; i++) {
+		console.log("Creator candidate: " + creatorCandidates[i]);
+	}
+	
+	var creatorElement = AJS.$("#" + "creatorCell");
+	var creatorCandidatesList = creatorElement.find("datalist[id='"+ "creatorCandidates" +"']");
+	console.log("fillInCreatorCandidates() List: " + creatorCandidatesList);
+	if (creatorCandidatesList.length > 0) {
+		console.log("fillInCreatorCandidates(): removing option");
+		  clearList(creatorCandidatesList[0]);
+	    }
+	if(creatorCandidates != null && creatorCandidates.length > 0){
+		for (j = 0; j < creatorCandidates.length; j++) {
+			console.log("Adding creator candidate: " + creatorCandidates[j]);
+//			jiraProjectMap.set(String(jiraProjects[j].projectId), jiraProjects[j]);
+			var newOption = AJS.$('<option>', {
+			    value: creatorCandidates[j],
+			    id: creatorCandidates[j]
+			});
+			creatorCandidatesList.append(newOption);
 		}
 	}
 }
@@ -1436,6 +1489,24 @@ function removeFieldCopyMappingElement(childElement){
 	if(AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='"+ fieldCopyMappingElement + "']").length > 1){
 		AJS.$(childElement).closest("tr[name*='"+ fieldCopyMappingElement + "']").remove();
 	}
+}
+
+function onCreatorInputChange(inputField) {
+	console.log("onCreatorInputChange()");
+	var field = AJS.$(inputField);
+	var datalist = inputField.list;
+	var options = datalist.options;
+	
+	var optionFound = false;
+    for (var i=0;i<options.length;i++){
+       if (options[i].value == inputField.value) { 
+    	   optionFound = true;
+    	   var option = AJS.$(options[i]);
+    	   
+    	   var username = option.attr("id");
+    	   console.log("onCreatorInputChange(): username: " + username);
+       }
+    }
 }
 
 function onMappingInputChange(inputField){

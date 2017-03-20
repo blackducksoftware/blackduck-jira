@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -157,11 +159,18 @@ public class HubJiraConfigController {
 
     private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
         final String username = userManager.getRemoteUsername(request);
+        if (isUserAuthorizedForPlugin(settings, username)) {
+            return null;
+        }
+        return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    private boolean isUserAuthorizedForPlugin(final PluginSettings settings, final String username) {
         if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
+            return false;
         }
         if (userManager.isSystemAdmin(username)) {
-            return null;
+            return true;
         }
         final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
@@ -180,10 +189,10 @@ public class HubJiraConfigController {
                 }
             }
             if (userIsInGroups) {
-                return null;
+                return true;
             }
         }
-        return Response.status(Status.UNAUTHORIZED).build();
+        return false;
     }
 
     @Path("/admin")
@@ -302,7 +311,7 @@ public class HubJiraConfigController {
 
                     txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
 
-                    checkIntervalErrors(txConfig);
+                    validateInterval(txConfig);
                     return txConfig;
                 }
             });
@@ -310,7 +319,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting interval config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setGeneralSettingsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(config).build();
@@ -345,7 +354,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting JIRA projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setJiraProjectsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
@@ -387,7 +396,7 @@ public class HubJiraConfigController {
             final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
             final String msg = "Error getting Hub projects config: " + e.getMessage();
             logger.error(msg, e);
-            errorConfig.setIntervalBetweenChecksError(msg);
+            errorConfig.setHubProjectsError(msg);
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
@@ -627,7 +636,7 @@ public class HubJiraConfigController {
 
                     txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
 
-                    checkMappingErrors(txConfig);
+                    validateMapping(txConfig);
                     return txConfig;
                 }
             });
@@ -679,6 +688,59 @@ public class HubJiraConfigController {
         return Response.ok(config).build();
     }
 
+    @Path("/creatorCandidates")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreatorCandidates(@Context final HttpServletRequest request) {
+        logger.debug("getCreatorCandidates()");
+        final Object projectsConfig;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            projectsConfig = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+                    config.setCreatorCandidates(new TreeSet<String>());
+
+                    final SortedSet<String> creatorCandidates = getIssueCreatorCandidates(settings);
+                    config.setCreatorCandidates(creatorCandidates);
+
+                    if (creatorCandidates.size() == 0) {
+                        config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
+                    }
+                    return config;
+                }
+            });
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting issue creator candidates config: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setGeneralSettingsError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(projectsConfig).build();
+    }
+
+    private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
+        final SortedSet<String> jiraUsernames = new TreeSet<String>();
+        final String groupList = getStringValue(settings,
+                HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        if (!StringUtils.isBlank(groupList)) {
+            final String[] groupNames = groupList.split(",");
+            for (final String groupName : groupNames) {
+                // TODO add group manager to JiraServices, and get it from there
+                jiraUsernames.addAll(
+                        com.atlassian.jira.component.ComponentAccessor.getGroupManager().getUserNamesInGroup(groupName));
+            }
+        }
+        logger.debug("getJiraUsernames(): returning: " + jiraUsernames);
+        return jiraUsernames;
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final HubJiraConfigSerializable config, @Context final HttpServletRequest request) {
@@ -701,8 +763,9 @@ public class HubJiraConfigController {
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
-                    checkIntervalErrors(config);
-                    checkMappingErrors(config);
+                    validateInterval(config);
+                    validateCreator(config, settings);
+                    validateMapping(config);
                     if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
@@ -713,10 +776,14 @@ public class HubJiraConfigController {
                             HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
                             config.getIntervalBetweenChecks());
+                    final String issueCreatorJiraUser = config.getCreator();
+                    logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER,
+                            issueCreatorJiraUser);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
                             config.getHubProjectMappingsJson());
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER, username);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
@@ -962,22 +1029,33 @@ public class HubJiraConfigController {
         }
     }
 
-    private void checkIntervalErrors(final HubJiraConfigSerializable config) {
+    private void validateInterval(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-            config.setIntervalBetweenChecksError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
         } else {
             try {
                 final int interval = stringToInteger(config.getIntervalBetweenChecks());
                 if (interval <= 0) {
-                    config.setIntervalBetweenChecksError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
+                    config.setGeneralSettingsError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
                 }
             } catch (final IllegalArgumentException e) {
-                config.setIntervalBetweenChecksError(e.getMessage());
+                config.setGeneralSettingsError(e.getMessage());
             }
         }
     }
 
-    private void checkMappingErrors(final HubJiraConfigSerializable config) {
+    private void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
+        if (StringUtils.isBlank(config.getCreator())) {
+            config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+        }
+        if (isUserAuthorizedForPlugin(settings, config.getCreator())) {
+            return;
+        } else {
+            config.setGeneralSettingsError(JiraConfigErrors.UNAUTHORIZED_CREATOR_ERROR);
+        }
+    }
+
+    private void validateMapping(final HubJiraConfigSerializable config) {
         if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
             boolean hasEmptyMapping = false;
             for (final HubProjectMapping mapping : config.getHubProjectMappings()) {

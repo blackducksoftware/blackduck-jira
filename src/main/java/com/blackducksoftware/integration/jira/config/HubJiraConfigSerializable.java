@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -56,13 +57,19 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     private String intervalBetweenChecks;
 
     @XmlElement
-    private String intervalBetweenChecksError;
+    private String generalSettingsError;
 
     @XmlElement
     private List<JiraProject> jiraProjects;
 
     @XmlElement
     private String jiraProjectsError;
+
+    @XmlElement
+    private SortedSet<String> creatorCandidates;
+
+    @XmlElement
+    private String creator;
 
     @XmlElement
     private List<HubProject> hubProjects;
@@ -94,7 +101,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (StringUtils.isNotBlank(getErrorMessage())) {
             hasErrors = true;
         }
-        if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+        if (StringUtils.isNotBlank(getGeneralSettingsError())) {
             hasErrors = true;
         }
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
@@ -113,18 +120,18 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     }
 
     public void enhanceMappingErrorMessage() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         addMsg(sb, null, getHubProjectMappingError());
         addMsg(sb, "JIRA Project Error", getJiraProjectsError());
         addMsg(sb, "Hub Project Error", getHubProjectsError());
-        String msg = sb.toString();
+        final String msg = sb.toString();
         if (!StringUtils.isBlank(msg)) {
             setHubProjectMappingError(msg);
         }
 
     }
 
-    private void addMsg(StringBuilder sb, String label, String msg) {
+    private void addMsg(final StringBuilder sb, final String label, final String msg) {
         if (StringUtils.isBlank(msg)) {
             return;
         }
@@ -142,18 +149,18 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         if (!hasErrors()) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotBlank(getErrorMessage())) {
             if (sb.length() > 0) {
                 sb.append("; ErrorMessage: " + getErrorMessage());
             }
             sb.append(getErrorMessage());
         }
-        if (StringUtils.isNotBlank(getIntervalBetweenChecksError())) {
+        if (StringUtils.isNotBlank(getGeneralSettingsError())) {
             if (sb.length() > 0) {
-                sb.append("; IntervalBetweenChecksError: " + getIntervalBetweenChecksError());
+                sb.append("; IntervalBetweenChecksError: " + getGeneralSettingsError());
             }
-            sb.append(getIntervalBetweenChecksError());
+            sb.append(getGeneralSettingsError());
         }
         if (StringUtils.isNotBlank(getJiraProjectsError())) {
             if (sb.length() > 0) {
@@ -190,20 +197,36 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         this.intervalBetweenChecks = intervalBetweenChecks;
     }
 
-    public String getIntervalBetweenChecksError() {
-        return intervalBetweenChecksError;
+    public String getGeneralSettingsError() {
+        return generalSettingsError;
     }
 
-    public void setIntervalBetweenChecksError(final String intervalBetweenChecksError) {
-        this.intervalBetweenChecksError = intervalBetweenChecksError;
+    public void setGeneralSettingsError(final String generalSettingsError) {
+        this.generalSettingsError = generalSettingsError;
     }
 
     public List<JiraProject> getJiraProjects() {
         return jiraProjects;
     }
 
+    public SortedSet<String> getCreatorCandidates() {
+        return creatorCandidates;
+    }
+
     public void setJiraProjects(final List<JiraProject> jiraProjects) {
         this.jiraProjects = jiraProjects;
+    }
+
+    public void setCreatorCandidates(final SortedSet<String> creatorCandidates) {
+        this.creatorCandidates = creatorCandidates;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(final String creator) {
+        this.creator = creator;
     }
 
     public String getJiraProjectsError() {
@@ -289,7 +312,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return createVulnerabilityIssues;
     }
 
-    public void setCreateVulnerabilityIssues(boolean createVulnerabilityIssues) {
+    public void setCreateVulnerabilityIssues(final boolean createVulnerabilityIssues) {
         this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
@@ -322,7 +345,7 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         return createVulnerabilityIssuesError;
     }
 
-    public void setCreateVulnerabilityIssuesError(String createVulnerabilityIssuesError) {
+    public void setCreateVulnerabilityIssuesError(final String createVulnerabilityIssuesError) {
         this.createVulnerabilityIssuesError = createVulnerabilityIssuesError;
     }
 
@@ -346,8 +369,10 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
         result = prime * result + ((hubProjectsError == null) ? 0 : hubProjectsError.hashCode());
         result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
-        result = prime * result + ((intervalBetweenChecksError == null) ? 0 : intervalBetweenChecksError.hashCode());
+        result = prime * result + ((generalSettingsError == null) ? 0 : generalSettingsError.hashCode());
         result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
+        result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
+        result = prime * result + ((creator == null) ? 0 : creator.hashCode());
         result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
         result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
         result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
@@ -408,11 +433,11 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         } else if (!intervalBetweenChecks.equals(other.intervalBetweenChecks)) {
             return false;
         }
-        if (intervalBetweenChecksError == null) {
-            if (other.intervalBetweenChecksError != null) {
+        if (generalSettingsError == null) {
+            if (other.generalSettingsError != null) {
                 return false;
             }
-        } else if (!intervalBetweenChecksError.equals(other.intervalBetweenChecksError)) {
+        } else if (!generalSettingsError.equals(other.generalSettingsError)) {
             return false;
         }
         if (jiraProjects == null) {
@@ -427,6 +452,21 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
                 return false;
             }
         } else if (!jiraProjectsError.equals(other.jiraProjectsError)) {
+            return false;
+        }
+
+        if (creatorCandidates == null) {
+            if (other.creatorCandidates != null) {
+                return false;
+            }
+        } else if (!creatorCandidates.equals(other.creatorCandidates)) {
+            return false;
+        }
+        if (creator == null) {
+            if (other.creator != null) {
+                return false;
+            }
+        } else if (!creator.equals(other.creator)) {
             return false;
         }
         if (policyRules == null) {
@@ -453,12 +493,16 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
         builder.append(errorMessage);
         builder.append(", intervalBetweenChecks=");
         builder.append(intervalBetweenChecks);
-        builder.append(", intervalBetweenChecksError=");
-        builder.append(intervalBetweenChecksError);
+        builder.append(", generalSettingsError=");
+        builder.append(generalSettingsError);
         builder.append(", jiraProjects=");
         builder.append(jiraProjects);
         builder.append(", jiraProjectsError=");
         builder.append(jiraProjectsError);
+        builder.append(", creatorCandidates=");
+        builder.append(creatorCandidates);
+        builder.append(", creator=");
+        builder.append(creator);
         builder.append(", hubProjects=");
         builder.append(hubProjects);
         builder.append(", hubProjectsError=");

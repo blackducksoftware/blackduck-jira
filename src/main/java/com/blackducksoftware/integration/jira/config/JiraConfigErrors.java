@@ -29,13 +29,15 @@ public class JiraConfigErrors {
 
     public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Hub Server information is configured correctly. ";
 
-    public static final String HUB_CONFIG_PLUGIN_MISSING = "Could not find the Hub Server configuration. Please verify the correct dependent Hub configuration plugin is installed. ";
+    public static final String HUB_CONFIG_PLUGIN_MISSING = "The Hub Server connection details have not been configured.";
 
     public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
 
     public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any JIRA Projects.";
 
     public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Hub Projects for this User. This Hub user may not be assigned to any projects.";
+
+    public static final String NO_CREATOR_CANDIDATES_FOUND = "Could not find any JIRA users eligible to be issue creators. Make sure Configuration Access has been set up, and that there are users in those groups.";
 
     public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
 
@@ -44,6 +46,10 @@ public class JiraConfigErrors {
     public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";
 
     public static final String NO_INTERVAL_FOUND_ERROR = "No interval between checks was found.";
+
+    public static final String NO_CREATOR_SPECIFIED_ERROR = "The 'JIRA Issue Creator' field is required.";
+
+    public static final String UNAUTHORIZED_CREATOR_ERROR = "The user specified as the issue creator is not a valid JIRA user or has not been granted access to the Hub JIRA plugin.";
 
     public static final String INVALID_INTERVAL_FOUND_ERROR = "The interval must be greater than 0.";
 

@@ -35,9 +35,13 @@ public class EventDataBuilder {
 
     private HubEventAction action;
 
-    private String jiraUserName;
+    private String jiraAdminUserName;
 
-    private String jiraUserKey;
+    private String jiraIssueCreatorUserName;
+
+    private String jiraAdminUserKey;
+
+    private String jiraIssueCreatorUserKey;
 
     private String jiraIssueAssigneeUserId;
 
@@ -102,13 +106,23 @@ public class EventDataBuilder {
         return this;
     }
 
-    public EventDataBuilder setJiraUserName(final String jiraUserName) {
-        this.jiraUserName = jiraUserName;
+    public EventDataBuilder setJiraAdminUserName(final String jiraAdminUserName) {
+        this.jiraAdminUserName = jiraAdminUserName;
         return this;
     }
 
-    public EventDataBuilder setJiraUserKey(final String jiraUserKey) {
-        this.jiraUserKey = jiraUserKey;
+    public EventDataBuilder setJiraIssueCreatorUserName(final String jiraIssueCreatorUserName) {
+        this.jiraIssueCreatorUserName = jiraIssueCreatorUserName;
+        return this;
+    }
+
+    public EventDataBuilder setJiraAdminUserKey(final String jiraAdminUserKey) {
+        this.jiraAdminUserKey = jiraAdminUserKey;
+        return this;
+    }
+
+    public EventDataBuilder setJiraIssueCreatorUserKey(final String jiraIssueCreatorUserKey) {
+        this.jiraIssueCreatorUserKey = jiraIssueCreatorUserKey;
         return this;
     }
 
@@ -248,12 +262,20 @@ public class EventDataBuilder {
     }
 
     public EventData build() throws EventDataBuilderException {
-        if (jiraUserName == null) {
-            throw new EventDataBuilderException("jiraUserName not set");
+        if (jiraAdminUserName == null) {
+            throw new EventDataBuilderException("jiraAdminUserName not set");
         }
 
-        if (jiraUserKey == null) {
-            throw new EventDataBuilderException("jiraUserKey not set");
+        if (jiraAdminUserKey == null) {
+            throw new EventDataBuilderException("jiraAdminUserKey not set");
+        }
+
+        if (jiraIssueCreatorUserName == null) {
+            throw new EventDataBuilderException("jiraIssueCreatorUserName not set");
+        }
+
+        if (jiraIssueCreatorUserKey == null) {
+            throw new EventDataBuilderException("jiraIssueCreatorUserKey not set");
         }
 
         if (jiraIssueTypeId == null) {
@@ -335,8 +357,10 @@ public class EventDataBuilder {
 
         final EventData eventData = new EventData();
         eventData.setAction(action)
-                .setJiraUserName(jiraUserName)
-                .setJiraUserKey(jiraUserKey)
+                .setJiraAdminUsername(jiraAdminUserName)
+                .setJiraAdminUserKey(jiraAdminUserKey)
+                .setJiraIssueCreatorUsername(jiraIssueCreatorUserName)
+                .setJiraIssueCreatorUserKey(jiraIssueCreatorUserKey)
                 .setJiraIssueAssigneeUserId(jiraIssueAssigneeUserId)
                 .setJiraIssueTypeId(jiraIssueTypeId)
                 .setJiraProjectName(jiraProjectName)

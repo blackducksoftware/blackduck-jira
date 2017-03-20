@@ -168,8 +168,10 @@ public class JiraEventInfoTest {
         assertEquals("jiraIssueTypeId", eventData.getJiraIssueTypeId());
         assertEquals(Long.valueOf(123L), eventData.getJiraProjectId());
         assertEquals("jiraProjectName", eventData.getJiraProjectName());
-        assertEquals("jiraUserKey", eventData.getJiraUserKey());
-        assertEquals("jiraUserName", eventData.getJiraUserName());
+        assertEquals("jiraAdminUserKey", eventData.getJiraAdminUserKey());
+        assertEquals("jiraAdminUserName", eventData.getJiraAdminUsername());
+        assertEquals("jiraIssueCreatorUserKey", eventData.getJiraIssueCreatorUserKey());
+        assertEquals("jiraIssueCreatorUserName", eventData.getJiraIssueCreatorUsername());
     }
 
     private EventDataBuilder createEventDataBuilder(final EventCategory eventCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings,
@@ -202,8 +204,11 @@ public class JiraEventInfoTest {
                 .setJiraIssueTypeId("jiraIssueTypeId")
                 .setJiraProjectId(123L)
                 .setJiraProjectName("jiraProjectName")
-                .setJiraUserKey("jiraUserKey")
-                .setJiraUserName("jiraUserName");
+                .setJiraAdminUserKey("jiraAdminUserKey")
+                .setJiraAdminUserName("jiraAdminUserName")
+                .setJiraIssueCreatorUserKey("jiraIssueCreatorUserKey")
+                .setJiraIssueCreatorUserName("jiraIssueCreatorUserName");
+        ;
         return eventDataBuilder;
     }
 

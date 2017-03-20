@@ -113,7 +113,8 @@ public class HubIssueTypeSetup {
         return existingBdIssueTypeNames;
     }
 
-    private void addBdsIssueType(final List<IssueType> bdIssueTypes, final List<String> existingBdIssueTypeNames, String issueTypeName) throws JiraException {
+    private void addBdsIssueType(final List<IssueType> bdIssueTypes, final List<String> existingBdIssueTypeNames, final String issueTypeName)
+            throws JiraException {
         Long avatarId;
         if (!existingBdIssueTypeNames.contains(issueTypeName)) {
             avatarId = hubAvatars.getAvatarId(issueTypeName);
@@ -164,7 +165,7 @@ public class HubIssueTypeSetup {
             if (jiraProject != null) {
                 jiraProjectName = jiraProject.getName();
             }
-            settingService.addHubError(e, null, null, jiraProjectName, null, "addIssueTypesToProjectIssueTypeScheme()");
+            settingService.addHubError(e, null, null, jiraProjectName, null, null, "addIssueTypesToProjectIssueTypeScheme()");
         }
     }
 

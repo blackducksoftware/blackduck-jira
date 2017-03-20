@@ -183,9 +183,13 @@ public class NotificationConverterTest {
 
     private static final int EXPECTED_EVENT_COUNT = 1;
 
-    private static final String JIRA_USER_NAME = "jiraUserName";
+    private static final String JIRA_ADMIN_USERNAME = "jiraAdminUsername";
 
-    private static final String JIRA_USER_KEY = "jiraUserKey";
+    private static final String JIRA_ISSUE_CREATOR_USERNAME = "jiraIssueCreatorUsername";
+
+    private static final String JIRA_ADMIN_USER_KEY = "jiraAdminUserKey";
+
+    private static final String JIRA_ISSUE_CREATOR_USER_KEY = "jiraIssueCreatorUserKey";
 
     private static final String JIRA_PROJECT_NAME = "jiraProjectName";
 
@@ -269,10 +273,14 @@ public class NotificationConverterTest {
         Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
         Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
 
-        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
-        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER_NAME);
-        Mockito.when(jiraUser.getKey()).thenReturn(JIRA_USER_KEY);
-        jiraContext = new JiraContext(jiraUser);
+        final ApplicationUser jiraAdminUser = Mockito.mock(ApplicationUser.class);
+        final ApplicationUser jiraIssueCreatorUser = Mockito.mock(ApplicationUser.class);
+        Mockito.when(jiraAdminUser.getName()).thenReturn(JIRA_ADMIN_USERNAME);
+        Mockito.when(jiraIssueCreatorUser.getName()).thenReturn(JIRA_ISSUE_CREATOR_USERNAME);
+        Mockito.when(jiraAdminUser.getKey()).thenReturn(JIRA_ADMIN_USER_KEY);
+        Mockito.when(jiraIssueCreatorUser.getKey()).thenReturn(JIRA_ISSUE_CREATOR_USER_KEY);
+        Mockito.when(jiraIssueCreatorUser.getKey()).thenReturn(JIRA_ISSUE_CREATOR_USER_KEY);
+        jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
         jiraSettingsService = null;
         hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
@@ -516,8 +524,9 @@ public class NotificationConverterTest {
 
         assertEquals(Long.valueOf(JIRA_PROJECT_ID), eventData.getJiraProjectId());
         assertEquals(JIRA_PROJECT_NAME, eventData.getJiraProjectName());
-        assertEquals(JIRA_USER_KEY, eventData.getJiraUserKey());
-        assertEquals(JIRA_USER_NAME, eventData.getJiraUserName());
+        assertEquals(JIRA_ADMIN_USER_KEY, eventData.getJiraAdminUserKey());
+        assertEquals(JIRA_ADMIN_USERNAME, eventData.getJiraAdminUsername());
+        assertEquals(JIRA_ISSUE_CREATOR_USERNAME, eventData.getJiraIssueCreatorUsername());
         final Set<ProjectFieldCopyMapping> fieldMappings = eventData.getJiraFieldCopyMappings();
         assertEquals(1, fieldMappings.size());
         final Iterator<ProjectFieldCopyMapping> iter = fieldMappings.iterator();

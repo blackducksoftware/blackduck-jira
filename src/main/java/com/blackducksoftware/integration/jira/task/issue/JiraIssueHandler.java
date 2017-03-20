@@ -104,7 +104,8 @@ public class JiraIssueHandler {
                         eventData.getHubProjectName(),
                         eventData.getHubProjectVersion(),
                         eventData.getJiraProjectName(),
-                        eventData.getJiraUserName(),
+                        eventData.getJiraAdminUsername(),
+                        eventData.getJiraIssueCreatorUsername(),
                         methodAttempt);
             }
             for (final String errorMessage : errors.getErrorMessages()) {
@@ -113,7 +114,8 @@ public class JiraIssueHandler {
                         eventData.getHubProjectName(),
                         eventData.getHubProjectVersion(),
                         eventData.getJiraProjectName(),
-                        eventData.getJiraUserName(),
+                        eventData.getJiraAdminUsername(),
+                        eventData.getJiraIssueCreatorUsername(),
                         methodAttempt);
             }
         }
@@ -128,12 +130,12 @@ public class JiraIssueHandler {
                 key);
 
         final SetPropertyValidationResult validationResult = jiraServices.getPropertyService()
-                .validateSetProperty(jiraContext.getJiraUser(), issueId, propertyInput);
+                .validateSetProperty(jiraContext.getJiraIssueCreatorUser(), issueId, propertyInput);
 
         if (!validationResult.isValid()) {
             handleErrorCollection("addIssueProperty", notificationEvent, eventData, validationResult.getErrorCollection());
         } else {
-            final PropertyResult result = jiraServices.getPropertyService().setProperty(jiraContext.getJiraUser(),
+            final PropertyResult result = jiraServices.getPropertyService().setProperty(jiraContext.getJiraIssueCreatorUser(),
                     validationResult);
             handleErrorCollection("addIssueProperty", notificationEvent, eventData, result.getErrorCollection());
         }
@@ -163,7 +165,7 @@ public class JiraIssueHandler {
             final EntityProperty property = props.get(0);
             final IssueProperties propertyValue = createIssuePropertiesFromJson(notificationEvent, property.getValue());
             logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
-            final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraUser(),
+            final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraIssueCreatorUser(),
                     propertyValue.getJiraIssueId());
 
             if (!result.isValid()) {
@@ -190,7 +192,7 @@ public class JiraIssueHandler {
         issueInputParameters.setProjectId(eventData.getJiraProjectId())
                 .setIssueTypeId(eventData.getJiraIssueTypeId())
                 .setSummary(eventData.getJiraIssueSummary())
-                .setReporterId(eventData.getJiraUserName())
+                .setReporterId(eventData.getJiraIssueCreatorUsername())
                 .setDescription(eventData.getJiraIssueDescription());
 
         issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
@@ -214,13 +216,13 @@ public class JiraIssueHandler {
         final List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, eventData, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService()
-                .validateCreate(jiraContext.getJiraUser(), issueInputParameters);
+                .validateCreate(jiraContext.getJiraIssueCreatorUser(), issueInputParameters);
         logger.debug("createIssue(): Project: " + eventData.getJiraProjectName() + ": "
                 + eventData.getJiraIssueSummary());
         if (!validationResult.isValid()) {
             handleErrorCollection("createIssue", notificationEvent, eventData, validationResult.getErrorCollection());
         } else {
-            final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraUser(),
+            final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraIssueCreatorUser(),
                     validationResult);
             final ErrorCollection errors = result.getErrorCollection();
             if (errors.hasAnyErrors()) {
@@ -254,7 +256,8 @@ public class JiraIssueHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "fixIssueAssignment");
         } else {
             logger.debug("Issue assignment is correct");
@@ -263,7 +266,7 @@ public class JiraIssueHandler {
 
     private void assignIssue(final MutableIssue issue, final NotificationEvent notificationEvent,
             final EventData eventData) {
-        final ApplicationUser user = jiraContext.getJiraUser();
+        final ApplicationUser user = jiraContext.getJiraIssueCreatorUser();
         final String assigneeId = eventData.getJiraIssueAssigneeUserId();
         final AssignValidationResult assignValidationResult = jiraServices.getIssueService().validateAssign(user,
                 issue.getId(), assigneeId);
@@ -286,7 +289,8 @@ public class JiraIssueHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "assignIssue");
         }
     }
@@ -329,7 +333,8 @@ public class JiraIssueHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
@@ -347,18 +352,19 @@ public class JiraIssueHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(), "transitionIssue");
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(), "transitionIssue");
         }
         if (transitionAction != null) {
             final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
             parameters.setRetainExistingValuesWhenParameterNotProvided(true);
             final TransitionValidationResult validationResult = jiraServices.getIssueService().validateTransition(
-                    jiraContext.getJiraUser(), issueToTransition.getId(), transitionAction.getId(), parameters);
+                    jiraContext.getJiraIssueCreatorUser(), issueToTransition.getId(), transitionAction.getId(), parameters);
 
             if (!validationResult.isValid()) {
                 handleErrorCollection("transitionIssue", notificationEvent, eventData, validationResult.getErrorCollection());
             } else {
-                final IssueResult result = jiraServices.getIssueService().transition(jiraContext.getJiraUser(),
+                final IssueResult result = jiraServices.getIssueService().transition(jiraContext.getJiraIssueCreatorUser(),
                         validationResult);
                 final ErrorCollection errors = result.getErrorCollection();
                 if (errors.hasAnyErrors()) {
@@ -390,7 +396,8 @@ public class JiraIssueHandler {
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
-                    eventData.getJiraUserName(), "transitionIssue");
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(), "transitionIssue");
         }
         return null;
     }
@@ -447,12 +454,12 @@ public class JiraIssueHandler {
             return;
         }
         final CommentManager commentManager = jiraServices.getCommentManager();
-        commentManager.create(issue, jiraContext.getJiraUser(), comment, true);
+        commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
     }
 
     private ExistenceAwareIssue openIssue(final NotificationEvent notificationEvent, final EventData eventData) {
-        logger.debug("Setting logged in User : " + jiraContext.getJiraUser().getDisplayName());
-        jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraUser());
+        logger.debug("Setting logged in User : " + jiraContext.getJiraIssueCreatorUser().getDisplayName());
+        jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraIssueCreatorUser());
         logger.debug("notificationEvent: " + notificationEvent);
 
         final String notificationUniqueKey = getNotificationUniqueKey(notificationEvent);
@@ -483,7 +490,7 @@ public class JiraIssueHandler {
                     final Issue transitionedIssue = transitionIssue(notificationEvent, eventData, oldIssue,
                             HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED,
                             HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
-                            jiraContext.getJiraUser());
+                            jiraContext.getJiraIssueCreatorUser());
                     if (transitionedIssue != null) {
                         logger.info("Re-opened the already exisiting issue.");
                         addComment(eventData.getJiraIssueReOpenComment(), oldIssue);
@@ -529,7 +536,7 @@ public class JiraIssueHandler {
             }
             final Issue updatedIssue = transitionIssue(event, eventData, oldIssue,
                     HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE,
-                    HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraUser());
+                    HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
             if (updatedIssue != null) {
                 addComment(eventData.getJiraIssueResolveComment(), updatedIssue);
                 logger.info("Resolved the issue based on an override.");

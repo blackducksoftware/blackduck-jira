@@ -63,7 +63,9 @@ public class PluginConfigurationDetails {
 
     private final String lastRunDateString;
 
-    private final String jiraUserName;
+    private final String jiraAdminUserName;
+
+    private final String jiraIssueCreatorUserName;
 
     private final String fieldCopyMappingJson;
 
@@ -91,7 +93,8 @@ public class PluginConfigurationDetails {
         installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
         lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
-        jiraUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_USER);
+        jiraIssueCreatorUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+        jiraAdminUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER);
 
         fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
         createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
@@ -165,8 +168,12 @@ public class PluginConfigurationDetails {
         return lastRunDateString;
     }
 
-    public String getJiraUserName() {
-        return jiraUserName;
+    public String getJiraAdminUserName() {
+        return jiraAdminUserName;
+    }
+
+    public String getJiraIssueCreatorUserName() {
+        return jiraIssueCreatorUserName;
     }
 
     public String getFieldCopyMappingJson() {
@@ -204,7 +211,7 @@ public class PluginConfigurationDetails {
     }
 
     private boolean getBooleanValue(final PluginSettings settings, final String key) {
-        String valueString = (String) getValue(settings, key);
+        final String valueString = (String) getValue(settings, key);
         if ("true".equalsIgnoreCase(valueString)) {
             return true;
         }
