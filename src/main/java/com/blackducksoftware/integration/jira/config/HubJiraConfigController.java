@@ -700,13 +700,14 @@ public class HubJiraConfigController {
             if (response != null) {
                 return response;
             }
+            final String currentJiraUsername = userManager.getRemoteUsername(request);
             projectsConfig = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
                     config.setCreatorCandidates(new TreeSet<String>());
 
-                    final SortedSet<String> creatorCandidates = getJiraUsernames(settings);
+                    final SortedSet<String> creatorCandidates = getIssueCreatorCandidates(settings, currentJiraUsername);
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
@@ -725,8 +726,9 @@ public class HubJiraConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    private SortedSet<String> getJiraUsernames(final PluginSettings settings) {
+    private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings, final String currentJiraUsername) {
         final SortedSet<String> jiraUsernames = new TreeSet<String>();
+        jiraUsernames.add(currentJiraUsername);
         final String groupList = getStringValue(settings,
                 HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
