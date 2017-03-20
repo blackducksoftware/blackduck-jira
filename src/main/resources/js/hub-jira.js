@@ -442,17 +442,11 @@ function initCreatorCandidates() {
 	    dataType: "json",
 	    success: function(config) {
 	      fillInCreatorCandidates(config.creatorCandidates);
-	      
-	      // TODO finish this (error handling)
-//	      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
-//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
 	      handleError('intervalBetweenChecksError', config.intervalBetweenChecksError, true, false);
-	      
 	      gotCreatorCandidates = true;
 	    },
 	    error: function(response){
-	    	console.log("Error getting creator candidates");
-//	    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
+	    	console.log("Error getting creator candidates");	    	
 	    	handleDataRetrievalError(response, "intervalBetweenChecksError", "There was a problem retrieving the issue creator candidates list.", "Creator Candidates Error");
 	    },
 	    complete: function(jqXHR, textStatus){
