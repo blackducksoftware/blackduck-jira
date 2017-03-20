@@ -44,7 +44,7 @@
 		      <div style="display: inline-block; width: 100%;">
 		   	   		<div class="buttonContainer">
 			       		<div id="adminSaveSpinner" style="display: inline-block;"></div>
-			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAdminConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAccessConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
 			  	   </div>
 			  </div>
 	      </div>

@@ -155,8 +155,8 @@ function updateConfig() {
 		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 	
-function updateAdminConfig() {
-		putAdminConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+function updateAccessConfig() {
+		putAccessConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
 	}
 
 function updateFieldCopyConfig() {
@@ -322,26 +322,9 @@ function populateForm() {
 	    	console.log("Completed get of interval: " + textStatus);
 	    }
 	  });
-	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creatorCandidates/",
-		    dataType: "json",
-		    success: function(config) {
-		      fillInCreatorCandidates(config.creatorCandidates);
-		      
-		      // TODO finish this (error handling)
-//		      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
-//		      handleError(errorMessageFieldId, config.errorMessage, true, false);
-		      
-		      gotCreatorCandidates = true;
-		    },
-		    error: function(response){
-		    	console.log("Error getting creator candidates");
-//		    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
-		    },
-		    complete: function(jqXHR, textStatus){
-		    	console.log("Completed get of Creator Candidates: " + textStatus);
-		    }
-		  });
+	  
+	  initCreatorCandidates();
+	  
 	  AJS.$.ajax({
 		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/jiraProjects/",
 		    dataType: "json",
@@ -450,6 +433,30 @@ function populateForm() {
 	  
 	  populateFormHubData();
 	  console.log("populateForm() Finished");
+}
+
+function initCreatorCandidates() {
+	console.log("Initializing issue creator candidate list");
+	AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creatorCandidates/",
+	    dataType: "json",
+	    success: function(config) {
+	      fillInCreatorCandidates(config.creatorCandidates);
+	      
+	      // TODO finish this (error handling)
+//	      handleError(jiraProjectListErrorId, config.jiraProjectsError, false, false);
+//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+	      
+	      gotCreatorCandidates = true;
+	    },
+	    error: function(response){
+	    	console.log("Error getting creator candidates");
+//	    	handleDataRetrievalError(response, jiraProjectListErrorId, "There was a problem retrieving the JIRA Projects.", "JIRA Project Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of Creator Candidates: " + textStatus);
+	    }
+	  });
 }
 
 function populateFormHubData() {
@@ -858,7 +865,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 	}
 });
 
-function putAdminConfig(restUrl, successMessage, failureMessage) {
+function putAccessConfig(restUrl, successMessage, failureMessage) {
 
 var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val()); 
 
@@ -872,8 +879,8 @@ var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 	    processData: false,
 	    success: function() {
 	    	hideError('hubJiraGroupsError');
-	    	
 		    showStatusMessage(successStatus, 'Success!', successMessage);
+		    initCreatorCandidates();
 	    },
 	    error: function(response){
 	    	try {
