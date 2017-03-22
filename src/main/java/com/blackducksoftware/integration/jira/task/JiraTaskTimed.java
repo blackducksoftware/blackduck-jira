@@ -215,8 +215,14 @@ public class JiraTaskTimed implements Callable<String> {
         return new HubWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraContext initJiraContext(final String jiraAdminUsername, final String jiraIssueCreatorUsername) {
+    private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
+        if (jiraIssueCreatorUsername == null) {
+            logger.warn(String.format(
+                    "The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration",
+                    jiraAdminUsername));
+            jiraIssueCreatorUsername = jiraAdminUsername;
+        }
         final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);
         final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername);
         if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
