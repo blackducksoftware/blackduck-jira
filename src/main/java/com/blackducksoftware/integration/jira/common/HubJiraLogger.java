@@ -34,7 +34,7 @@ import com.blackducksoftware.integration.log.LogLevel;
 public class HubJiraLogger extends IntLogger {
     private final Logger jiraLogger;
 
-    private LogLevel logLevel = LogLevel.DEBUG;
+    private LogLevel logLevel = LogLevel.TRACE;
 
     public HubJiraLogger(final Logger logger) {
         this.jiraLogger = logger;
@@ -184,7 +184,7 @@ public class HubJiraLogger extends IntLogger {
     }
 
     @Override
-    public void alwaysLog(String txt) {
+    public void alwaysLog(final String txt) {
         logMessageInfo(txt);
     }
 }

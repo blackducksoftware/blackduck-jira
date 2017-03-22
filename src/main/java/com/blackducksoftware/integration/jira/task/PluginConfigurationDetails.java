@@ -26,9 +26,9 @@ package com.blackducksoftware.integration.jira.task;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.atlassian.utils.HubConfigKeys;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 
 public class PluginConfigurationDetails {
     private final String hubUrl;

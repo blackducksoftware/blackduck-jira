@@ -79,9 +79,6 @@
 				org.xml.sax.helpers,
 				*;resolution:=optional
 			</Import-Package>
-			<Require-Bundle>
-				com.blackducksoftware.integration:hub-atlassian-config
-			</Require-Bundle>
 		</bundle-instructions>
     </plugin-info>
     

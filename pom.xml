@@ -114,33 +114,6 @@
       <version>20070405</version>
       <scope>compile</scope>
     </dependency>
-
-    <dependency>
-      <groupId>com.blackducksoftware.integration</groupId>
-      <artifactId>hub-atlassian-config</artifactId>
-      <version>2.0.0</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.blackducksoftware.integration</groupId>
-          <artifactId>hub-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.atlassian.sal</groupId>
-          <artifactId>sal-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.atlassian.templaterenderer</groupId>
-          <artifactId>atlassian-template-renderer-api</artifactId>
-        </exclusion>
-
-      </exclusions>
-    </dependency>
-
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-core</artifactId>
@@ -256,7 +229,6 @@
           <productVersion>${jira.version}</productVersion>
           <productDataVersion>${jira.version}</productDataVersion>
           <compressResources>false</compressResources>
-          <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
