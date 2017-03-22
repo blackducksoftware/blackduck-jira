@@ -182,14 +182,14 @@
       	 <div id="intervalArea">
 		      <div class="field-group">
 		      
-		        <table>
+		        <table width="100%">
 		        <tr>
 		        <td>
 		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
 		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
 		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput" />
 		        </td>
-		        <td width="160px"></td>
+		        <td width="25px"></td>
 		        <td id="creatorCell">
 		        <label class="label" for="creator">$i18n.getText("hub.integration.jira.creator.label")</label>
 		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
