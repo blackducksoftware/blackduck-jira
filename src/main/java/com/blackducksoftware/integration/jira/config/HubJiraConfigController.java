@@ -325,6 +325,38 @@ public class HubJiraConfigController {
         return Response.ok(config).build();
     }
 
+    @Path("/creator")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreator(@Context final HttpServletRequest request) {
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
+                    final String creator = getStringValue(settings,
+                            HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+                    txConfig.setCreator(creator);
+                    validateCreator(txConfig);
+                    return txConfig;
+                }
+            });
+        } catch (final Exception e) {
+            final HubJiraConfigSerializable errorConfig = new HubJiraConfigSerializable();
+            final String msg = "Error getting creator config: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setGeneralSettingsError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
     @Path("/jiraProjects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -1043,6 +1075,12 @@ public class HubJiraConfigController {
         }
     }
 
+    private void validateCreator(final HubJiraConfigSerializable config) {
+        if (StringUtils.isBlank(config.getCreator())) {
+            config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+        }
+    }
+
     private void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
         if (StringUtils.isBlank(config.getCreator())) {
             config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
@@ -1275,7 +1313,7 @@ public class HubJiraConfigController {
                     if (config.getPolicyRules() != null) {
                         for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
                             for (final PolicyRuleSerializable newRule : newPolicyRules) {
-                                if (oldRule.getName().equals(newRule.getName())) {
+                                if (oldRule.getPolicyUrl().equals(newRule.getPolicyUrl())) {
                                     newRule.setChecked(oldRule.getChecked());
                                     break;
                                 }

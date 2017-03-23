@@ -322,6 +322,22 @@ function populateForm() {
 	    	console.log("Completed get of interval: " + textStatus);
 	    }
 	  });
+
+	  AJS.$.ajax({
+	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creator/",
+	    dataType: "json",
+	    success: function(config) {
+	      updateValue("creatorInput", config.creator);
+	      
+	      handleError('generalSettingsError', config.generalSettingsError, true, false);
+	    },
+	    error: function(response){
+	    	handleDataRetrievalError(response, "generalSettingsError", "There was a problem retrieving the Creator.", "Creator Error");
+	    },
+	    complete: function(jqXHR, textStatus){
+	    	console.log("Completed get of creator: " + textStatus);
+	    }
+	  });
 	  
 	  initCreatorCandidates();
 	  
