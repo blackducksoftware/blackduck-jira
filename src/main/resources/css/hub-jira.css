@@ -173,6 +173,11 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 	padding : 10px 5px 5px 15px !important; 
 }
 
+.errorSection {
+	border: 1px solid #ccc;
+	padding : 10px 5px 5px 15px !important; 
+}
+
 .mappingContainer {
 	overflow-y: scroll; 
 	height:300px;

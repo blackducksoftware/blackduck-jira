@@ -408,7 +408,7 @@
 	</div>
 </div>
 
-	  <fieldset class="fieldSection hidden" id="ticketCreationFieldSet">
+	  <fieldset class="errorSection hidden" id="ticketCreationFieldSet">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
       	  <div id="ticketCreationErrors">
 	      	  <table id="ticketCreationErrorsTable" style="width : 100%;">
