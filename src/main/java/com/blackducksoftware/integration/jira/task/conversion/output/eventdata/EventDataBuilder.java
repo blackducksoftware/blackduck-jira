@@ -310,14 +310,6 @@ public class EventDataBuilder {
             throw new EventDataBuilderException("hubComponentName not set");
         }
 
-        if (hubComponentVersion == null) {
-            throw new EventDataBuilderException("hubComponentVersion not set");
-        }
-
-        if (hubComponentVersionUrl == null) {
-            throw new EventDataBuilderException("hubComponentVersionUrl not set");
-        }
-
         if (jiraIssueSummary == null) {
             throw new EventDataBuilderException("jiraIssueSummary not set");
         }
