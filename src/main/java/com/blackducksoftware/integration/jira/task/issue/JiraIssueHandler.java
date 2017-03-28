@@ -249,7 +249,7 @@ public class JiraIssueHandler {
             logger.debug("Issue needs to be UNassigned");
             assignIssue(issue, notificationEvent, eventData);
         } else if ((assigneeId != null)
-                && (issue.getAssigneeId() != assigneeId)) {
+                && (!issue.getAssigneeId().equals(assigneeId))) {
             final String errorMessage = "Issue assignment failed";
             logger.error(errorMessage);
             jiraSettingsService.addHubError(errorMessage,
