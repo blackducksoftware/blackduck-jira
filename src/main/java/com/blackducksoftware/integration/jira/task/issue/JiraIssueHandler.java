@@ -74,12 +74,16 @@ public class JiraIssueHandler {
 
     private final IssueFieldHandler issueFieldHandler;
 
+    private final HubIssueTrackerHandler hubIssueTrackerHandler;
+
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
             final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
+
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraSettingsService);
     }
 
     private void addIssueProperty(final NotificationEvent notificationEvent, final EventData eventData,
@@ -275,6 +279,7 @@ public class JiraIssueHandler {
             logger.debug("Assigning issue to user ID: " + assigneeId);
             jiraServices.getIssueService().assign(user, assignValidationResult);
             updateIssue(issue, assignValidationResult, user, assigneeId);
+            hubIssueTrackerHandler.updateHubIssue(eventData, issue);
         } else {
             final StringBuilder sb = new StringBuilder("Unable to assign issue ");
             sb.append(issue.getKey());
@@ -478,6 +483,7 @@ public class JiraIssueHandler {
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(notificationEvent, eventData, issue.getId(), notificationUniqueKey, properties);
                 }
+                hubIssueTrackerHandler.createHubIssue(eventData, issue);
                 return new ExistenceAwareIssue(issue, false, false);
             } else {
                 // Issue already exists
@@ -500,6 +506,7 @@ public class JiraIssueHandler {
                     logger.info("This issue already exists and is not resolved.");
                     printIssueInfo(oldIssue);
                 }
+                hubIssueTrackerHandler.updateHubIssue(eventData, oldIssue);
                 return new ExistenceAwareIssue(oldIssue, true, false);
             }
         }
@@ -528,6 +535,7 @@ public class JiraIssueHandler {
             }
             if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
                 logger.debug("This issue has been closed; plugin will not change issue's state");
+                hubIssueTrackerHandler.deleteHubIssue(eventData, oldIssue);
                 return new ExistenceAwareIssue(oldIssue, true, true);
             }
             if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
