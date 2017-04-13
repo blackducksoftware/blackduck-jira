@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
+import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -74,6 +75,8 @@ public class TicketGenerator {
 
     private final boolean createVulnerabilityIssues;
 
+    private final HubIssueTrackerHandler hubIssueTrackerHandler;
+
     public TicketGenerator(final HubServicesFactory hubServicesFactory,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
@@ -95,6 +98,7 @@ public class TicketGenerator {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraSettingsService);
     }
 
     public void generateTicketsForRecentNotifications(final UserView hubUser,
@@ -124,7 +128,7 @@ public class TicketGenerator {
             }
 
             final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
-                    ticketInfoFromSetup);
+                    ticketInfoFromSetup, hubIssueTrackerHandler);
 
             for (final NotificationEvent event : events) {
                 try {

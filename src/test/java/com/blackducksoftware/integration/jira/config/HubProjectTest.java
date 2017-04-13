@@ -36,25 +36,32 @@ public class HubProjectTest {
     public void testHubProject() {
         final String name1 = "name1";
         final String projectUrl1 = "projectUrl1";
+        final String projectIssueTrackerUrl1 = "issueTrackerUrl1";
 
         final String name2 = "name2";
         final String projectUrl2 = "projectUrl2";
+        final String projectIssueTrackerUrl2 = "issueTrackerUrl2";
 
         final HubProject item1 = new HubProject();
         item1.setProjectName(name1);
         item1.setProjectUrl(projectUrl1);
+        item1.setProjectIssueTrackerUrl(projectIssueTrackerUrl1);
         final HubProject item2 = new HubProject();
         item2.setProjectName(name2);
         item2.setProjectUrl(projectUrl2);
+        item2.setProjectIssueTrackerUrl(projectIssueTrackerUrl2);
         final HubProject item3 = new HubProject();
         item3.setProjectName(name1);
         item3.setProjectUrl(projectUrl1);
+        item3.setProjectIssueTrackerUrl(projectIssueTrackerUrl1);
 
         assertEquals(name1, item1.getProjectName());
         assertEquals(projectUrl1, item1.getProjectUrl());
+        assertEquals(projectIssueTrackerUrl1, item1.getProjectIssueTrackerUrl());
 
         assertEquals(name2, item2.getProjectName());
         assertEquals(projectUrl2, item2.getProjectUrl());
+        assertEquals(projectIssueTrackerUrl2, item2.getProjectIssueTrackerUrl());
 
         assertTrue(!item1.equals(item2));
         assertTrue(item1.equals(item3));
@@ -67,6 +74,8 @@ public class HubProjectTest {
         builder.append(item1.getProjectName());
         builder.append(", projectUrl=");
         builder.append(item1.getProjectUrl());
+        builder.append(", projectIssuesUrl=");
+        builder.append(item1.getProjectIssueTrackerUrl());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());

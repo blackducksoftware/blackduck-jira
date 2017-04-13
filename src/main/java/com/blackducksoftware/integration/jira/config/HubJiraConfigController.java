@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -94,6 +96,9 @@ import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 @Path("/")
 public class HubJiraConfigController {
@@ -758,7 +763,7 @@ public class HubJiraConfigController {
     }
 
     private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
-        final SortedSet<String> jiraUsernames = new TreeSet<String>();
+        final SortedSet<String> jiraUsernames = new TreeSet<>();
         final String groupList = getStringValue(settings,
                 HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
@@ -812,6 +817,7 @@ public class HubJiraConfigController {
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER,
                             issueCreatorJiraUser);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
+                    updateHubIssueTracking(settings, config.getHubProjectMappings());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
                             config.getHubProjectMappingsJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
@@ -820,6 +826,7 @@ public class HubJiraConfigController {
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
+
                     return null;
                 }
             });
@@ -1358,4 +1365,28 @@ public class HubJiraConfigController {
         return errorMsg;
     }
 
+    private void updateHubIssueTracking(final PluginSettings settings, final Set<HubProjectMapping> newProjectMappings) {
+        final String oldProjectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+        if (StringUtils.isNotBlank(oldProjectMappingJson)) {
+            final Gson gson = new GsonBuilder().create();
+            final Type mappingType = new TypeToken<Set<HubProjectMapping>>() {
+            }.getType();
+            final Set<HubProjectMapping> oldProjectMappings = gson.fromJson(oldProjectMappingJson, mappingType);
+
+            for (final HubProjectMapping projectMapping : oldProjectMappings) {
+                final HubProject project = projectMapping.getHubProject();
+                final String issueTrackerUrl = project.getProjectIssueTrackerUrl();
+                final String projectName = project.getProjectName();
+                logger.error(String.format("Disabling issue tracking for: %s ", projectName));
+            }
+        }
+
+        for (final HubProjectMapping projectMapping : newProjectMappings) {
+            final HubProject project = projectMapping.getHubProject();
+            final String issueTrackerUrl = project.getProjectIssueTrackerUrl();
+            final String projectName = project.getProjectName();
+            logger.error(String.format("Enabling issue tracking for: %s ", projectName));
+        }
+    }
 }
