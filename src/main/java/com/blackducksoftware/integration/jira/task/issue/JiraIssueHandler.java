@@ -54,6 +54,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
@@ -142,6 +143,14 @@ public class JiraIssueHandler {
                     validationResult);
             handleErrorCollection("addIssueProperty", notificationEvent, eventData, result.getErrorCollection());
         }
+    }
+
+    private void addHubIssueUrlIssueProperty(final NotificationEvent notificationEvent, final EventData eventData, final HubIssueTrackerProperties value,
+            final Long issueId) {
+        final Gson gson = new GsonBuilder().create();
+
+        final String jsonValue = gson.toJson(value);
+        addIssuePropertyJson(notificationEvent, eventData, issueId, HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jsonValue);
     }
 
     private String getNotificationUniqueKey(final NotificationEvent notificationEvent) {
@@ -234,7 +243,6 @@ public class JiraIssueHandler {
                 fixIssueAssignment(notificationEvent, eventData, result);
                 issueFieldHandler.addLabels(result.getIssue(), labels);
                 final Issue jiraIssue = result.getIssue();
-                hubIssueTrackerHandler.createHubIssue(eventData, jiraIssue);
                 return jiraIssue;
             }
         }
@@ -279,8 +287,7 @@ public class JiraIssueHandler {
         if (assignValidationResult.isValid() && !errors.hasAnyErrors()) {
             logger.debug("Assigning issue to user ID: " + assigneeId);
             jiraServices.getIssueService().assign(user, assignValidationResult);
-            final Issue updatedIssue = updateIssue(issue, assignValidationResult, user, assigneeId);
-            hubIssueTrackerHandler.updateHubIssue(eventData, updatedIssue);
+            updateIssue(issue, assignValidationResult, user, assigneeId);
         } else {
             final StringBuilder sb = new StringBuilder("Unable to assign issue ");
             sb.append(issue.getKey());
@@ -391,7 +398,6 @@ public class JiraIssueHandler {
 
                     final Issue updatedIssue = jiraServices.getIssueManager().updateIssue(user, issueToUpdate,
                             issueUpdate);
-                    hubIssueTrackerHandler.updateHubIssue(eventData, updatedIssue);
                     return updatedIssue;
                 }
             }
@@ -477,6 +483,7 @@ public class JiraIssueHandler {
                 // Issue does not yet exist
                 final Issue issue = createIssue(notificationEvent, eventData);
                 if (issue != null) {
+                    final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData, issue);
                     logger.info("Created new Issue.");
                     printIssueInfo(issue);
 
@@ -484,6 +491,9 @@ public class JiraIssueHandler {
                     final IssueProperties properties = issuePropertiesGenerator.createIssueProperties(issue.getId());
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(notificationEvent, eventData, issue.getId(), notificationUniqueKey, properties);
+
+                    final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl);
+                    addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue.getId());
                 }
                 return new ExistenceAwareIssue(issue, false, false);
             } else {
@@ -507,7 +517,6 @@ public class JiraIssueHandler {
                     logger.info("This issue already exists and is not resolved.");
                     printIssueInfo(oldIssue);
                 }
-                hubIssueTrackerHandler.updateHubIssue(eventData, oldIssue);
                 return new ExistenceAwareIssue(oldIssue, true, false);
             }
         }
@@ -536,7 +545,6 @@ public class JiraIssueHandler {
             }
             if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
                 logger.debug("This issue has been closed; plugin will not change issue's state");
-                hubIssueTrackerHandler.deleteHubIssue(eventData, oldIssue);
                 return new ExistenceAwareIssue(oldIssue, true, true);
             }
             if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
@@ -550,7 +558,6 @@ public class JiraIssueHandler {
                 addComment(eventData.getJiraIssueResolveComment(), updatedIssue);
                 logger.info("Resolved the issue based on an override.");
                 printIssueInfo(updatedIssue);
-                hubIssueTrackerHandler.updateHubIssue(eventData, updatedIssue);
             }
             return new ExistenceAwareIssue(oldIssue, true, false);
         } else {

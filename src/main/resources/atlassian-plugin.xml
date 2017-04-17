@@ -106,7 +106,7 @@
     </component>
     
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
-    <component key="eventListener" class="com.blackducksoftware.integration.jira.event.IssueEventListener">
+    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.event.IssueEventListener">
         <description>Class that processes JIRA issue events to modify Hub Issues</description>
     </component>
     

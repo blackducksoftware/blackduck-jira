@@ -37,29 +37,33 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 public class HubIssueTrackerHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
+    public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
+
     private final JiraSettingsService jiraSettingsService;
 
     public HubIssueTrackerHandler(final JiraSettingsService jiraSettingsService) {
         this.jiraSettingsService = jiraSettingsService;
     }
 
-    public void createHubIssue(final EventData eventData, final Issue jiraIssue) {
+    public String createHubIssue(final EventData eventData, final Issue jiraIssue) {
+        String url = "";
         if (StringUtils.isEmpty(eventData.getHubComponentVersionUrl())) {
-            createIssueForComponentVersion(eventData, jiraIssue);
+            url = createIssueForComponentVersion(eventData, jiraIssue);
         } else if (StringUtils.isEmpty(eventData.getHubComponentUrl())) {
-            createIssueForComponent(eventData, jiraIssue);
+            url = createIssueForComponent(eventData, jiraIssue);
         } else {
             final String message = "Error creating hub issue; no component or component version found.";
             logger.error(message);
             jiraSettingsService.addHubError(message, "createHubIssue");
         }
+
+        return url;
     }
 
-    public void updateHubIssue(final EventData eventData, final Issue jiraIssue) {
-        if (StringUtils.isEmpty(eventData.getHubComponentVersionUrl())) {
-            updateIssueForComponentVersion(eventData, jiraIssue);
-        } else if (StringUtils.isEmpty(eventData.getHubComponentUrl())) {
-            updateIssueForComponent(eventData, jiraIssue);
+    public void updateHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+        if (StringUtils.isNotBlank(hubIssueUrl)) {
+            logger.debug(String.format("Updating issue %s from hub for jira issue %s-%s", hubIssueUrl, jiraIssue.getProjectObject().getName(),
+                    jiraIssue.getNumber()));
         } else {
             final String message = "Error updating hub issue; no component or component version found.";
             logger.error(message);
@@ -67,11 +71,10 @@ public class HubIssueTrackerHandler {
         }
     }
 
-    public void deleteHubIssue(final EventData eventData, final Issue jiraIssue) {
-        if (StringUtils.isEmpty(eventData.getHubComponentVersionUrl())) {
-            deleteIssueForComponentVersion(eventData, jiraIssue);
-        } else if (StringUtils.isEmpty(eventData.getHubComponentUrl())) {
-            deleteIssueForComponent(eventData, jiraIssue);
+    public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+        if (StringUtils.isNotBlank(hubIssueUrl)) {
+            logger.debug(String.format("Deleting issue %s from hub for jira issue %s-%s", hubIssueUrl, jiraIssue.getProjectObject().getName(),
+                    jiraIssue.getNumber()));
         } else {
             final String message = "Error deleting hub issue; no component or component version found.";
             logger.error(message);
@@ -79,34 +82,16 @@ public class HubIssueTrackerHandler {
         }
     }
 
-    private void createIssueForComponent(final EventData eventData, final Issue jiraIssue) {
+    private String createIssueForComponent(final EventData eventData, final Issue jiraIssue) {
         logger.error("##### CREATING HUB ISSUE FOR COMPONENT");
         final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
+        return "Test hub issue component URL";
     }
 
-    private void updateIssueForComponent(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### UPDATING HUB ISSUE FOR COMPONENT");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-    }
-
-    private void deleteIssueForComponent(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### DELETING HUB ISSUE FOR COMPONENT");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-    }
-
-    private void createIssueForComponentVersion(final EventData eventData, final Issue jiraIssue) {
+    private String createIssueForComponentVersion(final EventData eventData, final Issue jiraIssue) {
         logger.error("##### CREATING HUB ISSUE FOR COMPONENT VERSION");
         final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-    }
-
-    private void updateIssueForComponentVersion(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### UPDATING HUB ISSUE FOR COMPONENT VERSION");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-    }
-
-    private void deleteIssueForComponentVersion(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### DELETING HUB ISSUE FOR COMPONENT VERSION");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
+        return "Test hub issue component version URL";
     }
 
     private Map<String, String> convertJiraIssueToHubIssue(final EventData eventData, final Issue jiraIssue) {
