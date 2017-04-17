@@ -32,7 +32,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.entity.property.EntityProperty;
-import com.atlassian.jira.entity.property.EntityPropertyQuery;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
@@ -40,6 +39,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProjectMappings;
@@ -119,11 +119,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Issue:            %s", issue));
                 logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
 
-                final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
-                final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-                final List<EntityProperty> props = executableQuery.maxResults(1).find();
-                if (props.size() == 1) {
-                    final EntityProperty property = props.get(0);
+                final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, issue.getId(),
+                        HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+                if (property != null) {
+                    // final EntityProperty property = props.get(0);
                     final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
                     if (eventTypeID.equals(EventType.ISSUE_CREATED_ID)) {
                         // Do nothing because the properties haven't been set on the project yet.

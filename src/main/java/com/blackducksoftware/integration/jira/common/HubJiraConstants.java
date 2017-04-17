@@ -129,6 +129,8 @@ public class HubJiraConstants {
 
     public static final String ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME = "hr";
 
+    public static final String ISSUE_PROPERTY_ENTITY_NAME = "IssueProperty";
+
     public static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
 
     public static final String FIELD_COPY_MAPPING_WILDCARD = "*";
