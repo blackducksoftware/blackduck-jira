@@ -60,11 +60,16 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
     private final PluginSettingsFactory pluginSettingsFactory;
 
-    private final JiraServices jiraServices = new JiraServices();
+    private final JiraServices jiraServices;
 
     public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory) {
+        this(eventPublisher, pluginSettingsFactory, new JiraServices());
+    }
+
+    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
+        this.jiraServices = jiraServices;
     }
 
     @Override
@@ -86,22 +91,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
-        HubServerConfig hubServerConfig = null;
-        try {
-            logger.debug("Building Hub configuration");
-            hubServerConfig = hubConfigBuilder.build();
-            logger.debug("Finished building Hub configuration");
-        } catch (final IllegalStateException e) {
-            logger.error(
-                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
-                            + e.getMessage());
-            return;
-        }
-
         // only execute if hub 3.7 or higher with the issue tracker capability
 
-        final HubJiraConfigSerializable config = deSerializeConfig(configDetails, hubServerConfig);
+        final HubJiraConfigSerializable config = createJiraConfig(configDetails);
         if (config == null) {
             logger.debug("No Hub Jira configuration set");
             return;
@@ -135,6 +127,25 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 }
             }
         }
+    }
+
+    private HubJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails configDetails) {
+        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
+        HubServerConfig hubServerConfig = null;
+        try {
+            logger.debug("Building Hub configuration");
+            hubServerConfig = hubConfigBuilder.build();
+            logger.debug("Finished building Hub configuration");
+        } catch (final IllegalStateException e) {
+            logger.error(
+                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
+                            + e.getMessage());
+            return null;
+        }
+
+        // only execute if hub 3.7 or higher with the issue tracker capability
+
+        return deSerializeConfig(configDetails, hubServerConfig);
     }
 
     private HubJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails, final HubServerConfig hubServerConfig) {

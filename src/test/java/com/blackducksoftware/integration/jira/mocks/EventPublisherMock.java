@@ -23,28 +23,33 @@
  */
 package com.blackducksoftware.integration.jira.mocks;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.event.api.EventPublisher;
 
-public class PluginSettingsFactoryMock implements PluginSettingsFactory {
+public class EventPublisherMock implements EventPublisher {
 
-    PluginSettings settings = new PluginSettingsMock();
+    public boolean registered = false;
 
-    public PluginSettingsFactoryMock() {
+    public boolean published = false;
 
-    }
-
-    public PluginSettingsFactoryMock(final PluginSettingsMock settings) {
-        this.settings = settings;
+    @Override
+    public void register(final Object arg0) {
+        registered = true;
     }
 
     @Override
-    public PluginSettings createSettingsForKey(final String key) {
-        return null;
+    public void unregister(final Object arg0) {
+        registered = false;
+        published = false;
     }
 
     @Override
-    public PluginSettings createGlobalSettings() {
-        return settings;
+    public void unregisterAll() {
+        registered = false;
+        published = false;
+    }
+
+    @Override
+    public void publish(final Object arg0) {
+        published = true;
     }
 }
