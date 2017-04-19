@@ -97,6 +97,8 @@ public class EventDataBuilder {
 
     private String hubRuleUrl;
 
+    private String componentIssueUrl;
+
     public EventDataBuilder(final EventCategory eventCategory) {
         this.eventCategory = eventCategory;
     }
@@ -261,6 +263,11 @@ public class EventDataBuilder {
         return this;
     }
 
+    public EventDataBuilder setComponentIssueUrl(final String componentIssueUrl) {
+        this.componentIssueUrl = componentIssueUrl;
+        return this;
+    }
+
     public EventData build() throws EventDataBuilderException {
         if (jiraAdminUserName == null) {
             throw new EventDataBuilderException("jiraAdminUserName not set");
@@ -379,7 +386,8 @@ public class EventDataBuilder {
                 .setJiraIssueCommentInLieuOfStateChange(jiraIssueCommentInLieuOfStateChange)
                 .setJiraIssuePropertiesGenerator(jiraIssuePropertiesGenerator)
                 .setHubRuleName(hubRuleName)
-                .setHubRuleUrl(hubRuleUrl);
+                .setHubRuleUrl(hubRuleUrl)
+                .setComponentIssueUrl(componentIssueUrl);
         return eventData;
     }
 }

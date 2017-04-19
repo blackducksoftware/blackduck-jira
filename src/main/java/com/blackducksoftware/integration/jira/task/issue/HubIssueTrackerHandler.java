@@ -23,13 +23,18 @@
  */
 package com.blackducksoftware.integration.jira.task.issue;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.bom.BomComponentIssueRequestService;
+import com.blackducksoftware.integration.hub.model.view.IssueView;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -41,29 +46,34 @@ public class HubIssueTrackerHandler {
 
     private final JiraSettingsService jiraSettingsService;
 
-    public HubIssueTrackerHandler(final JiraSettingsService jiraSettingsService) {
+    private final BomComponentIssueRequestService issueRequestService;
+
+    private final DateFormat dateFormatter;
+
+    public HubIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BomComponentIssueRequestService issueRequestService) {
         this.jiraSettingsService = jiraSettingsService;
+        this.issueRequestService = issueRequestService;
+
+        dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public String createHubIssue(final EventData eventData, final Issue jiraIssue) {
+    public String createHubIssue(final EventData eventData, final Issue jiraIssue) throws IntegrationException {
         String url = "";
-        if (StringUtils.isEmpty(eventData.getHubComponentVersionUrl())) {
-            url = createIssueForComponentVersion(eventData, jiraIssue);
-        } else if (StringUtils.isEmpty(eventData.getHubComponentUrl())) {
-            url = createIssueForComponent(eventData, jiraIssue);
+        if (StringUtils.isNotBlank(eventData.getComponentIssueUrl())) {
+            url = issueRequestService.createIssue(createHubIssueView(jiraIssue), eventData.getComponentIssueUrl());
         } else {
             final String message = "Error creating hub issue; no component or component version found.";
             logger.error(message);
             jiraSettingsService.addHubError(message, "createHubIssue");
         }
-
         return url;
     }
 
-    public void updateHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+    public void updateHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
         if (StringUtils.isNotBlank(hubIssueUrl)) {
-            logger.debug(String.format("Updating issue %s from hub for jira issue %s-%s", hubIssueUrl, jiraIssue.getProjectObject().getName(),
-                    jiraIssue.getNumber()));
+            logger.debug(String.format("Updating issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
+            issueRequestService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
         } else {
             final String message = "Error updating hub issue; no component or component version found.";
             logger.error(message);
@@ -73,8 +83,7 @@ public class HubIssueTrackerHandler {
 
     public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
         if (StringUtils.isNotBlank(hubIssueUrl)) {
-            logger.debug(String.format("Deleting issue %s from hub for jira issue %s-%s", hubIssueUrl, jiraIssue.getProjectObject().getName(),
-                    jiraIssue.getNumber()));
+            logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
         } else {
             final String message = "Error deleting hub issue; no component or component version found.";
             logger.error(message);
@@ -82,29 +91,13 @@ public class HubIssueTrackerHandler {
         }
     }
 
-    private String createIssueForComponent(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### CREATING HUB ISSUE FOR COMPONENT");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-        return "Test hub issue component URL";
-    }
-
-    private String createIssueForComponentVersion(final EventData eventData, final Issue jiraIssue) {
-        logger.error("##### CREATING HUB ISSUE FOR COMPONENT VERSION");
-        final Map<String, String> hubIssue = convertJiraIssueToHubIssue(eventData, jiraIssue);
-        return "Test hub issue component version URL";
-    }
-
-    private Map<String, String> convertJiraIssueToHubIssue(final EventData eventData, final Issue jiraIssue) {
-        final Map<String, String> dataMap = new HashMap<>();
-        logHubIssueData(dataMap);
-        return dataMap;
-    }
-
-    private void logHubIssueData(final Map<String, String> hubIssue) {
-        logger.error("Begin Hub Issue data___________");
-        for (final Map.Entry<String, String> entry : hubIssue.entrySet()) {
-            logger.error(String.format("Key: %s, Value: %s", entry.getKey(), entry.getValue()));
-        }
-        logger.error("End Hub Issue data___________");
+    private IssueView createHubIssueView(final Issue jiraIssue) {
+        final IssueView hubIssue = new IssueView();
+        hubIssue.issueId = jiraIssue.getKey();
+        hubIssue.issueAssignee = jiraIssue.getAssignee().getDisplayName();
+        hubIssue.issueStatus = jiraIssue.getStatus().getName();
+        hubIssue.issueCreatedAt = dateFormatter.format(jiraIssue.getCreated());
+        hubIssue.issueUpdatedAt = dateFormatter.format(jiraIssue.getUpdated());
+        return hubIssue;
     }
 }

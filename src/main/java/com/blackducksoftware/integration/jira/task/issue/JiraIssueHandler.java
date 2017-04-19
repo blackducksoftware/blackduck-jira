@@ -48,6 +48,9 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.HubSupportHelper;
+import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -77,13 +80,17 @@ public class JiraIssueHandler {
 
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
 
+    private final HubSupportHelper hubSupportHelper;
+
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext,
-            final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
+            final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler,
+            final HubSupportHelper hubSupportHelper) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
         this.hubIssueTrackerHandler = hubIssueTrackerHandler;
+        this.hubSupportHelper = hubSupportHelper;
     }
 
     private void addIssueProperty(final NotificationEvent notificationEvent, final EventData eventData,
@@ -483,17 +490,23 @@ public class JiraIssueHandler {
                 // Issue does not yet exist
                 final Issue issue = createIssue(notificationEvent, eventData);
                 if (issue != null) {
-                    final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData, issue);
                     logger.info("Created new Issue.");
                     printIssueInfo(issue);
+                    if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
+                        try {
+                            final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData, issue);
+                            final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl);
+                            addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue.getId());
+                        } catch (final IntegrationException ex) {
+                            logger.error("Error occurred creating hub issue.", ex);
+                        }
+                    }
 
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
                     final IssueProperties properties = issuePropertiesGenerator.createIssueProperties(issue.getId());
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(notificationEvent, eventData, issue.getId(), notificationUniqueKey, properties);
 
-                    final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl);
-                    addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue.getId());
                 }
                 return new ExistenceAwareIssue(issue, false, false);
             } else {

@@ -37,9 +37,14 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProjectMappings;
@@ -54,7 +59,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final EventPublisher eventPublisher;
 
@@ -84,54 +89,71 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(final IssueEvent issueEvent) {
-        final Long eventTypeID = issueEvent.getEventTypeId();
-        final Issue issue = issueEvent.getIssue();
+        try {
+            final Long eventTypeID = issueEvent.getEventTypeId();
+            final Issue issue = issueEvent.getIssue();
+            logger.debug("=== ISSUE EVENT ===");
+            logger.debug(String.format("Event Type ID:    %s", eventTypeID));
+            logger.debug(String.format("Issue:            %s", issue));
 
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
-        final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+            final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-        // only execute if hub 3.7 or higher with the issue tracker capability
+            // only execute if hub 3.7 or higher with the issue tracker capability
+            final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
+            final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
+            final HubJiraConfigSerializable config = createJiraConfig(configDetails);
+            if (config == null) {
+                logger.debug("No Hub Jira configuration set");
+                return;
+            }
 
-        final HubJiraConfigSerializable config = createJiraConfig(configDetails);
-        if (config == null) {
-            logger.debug("No Hub Jira configuration set");
-            return;
-        }
+            final JiraProjectMappings jiraProjectMappings = new JiraProjectMappings(config.getHubProjectMappings());
+            final List<HubProject> hubProjectList = jiraProjectMappings.getHubProjects(issue.getProjectId());
+            // limit to only mapped issues
+            if (!hubProjectList.isEmpty()) {
+                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService,
+                        servicesFactory.createBomComponentIssueRequestService(logger));
+                for (final HubProject hubProject : hubProjectList) {
 
-        final JiraProjectMappings jiraProjectMappings = new JiraProjectMappings(config.getHubProjectMappings());
-        final List<HubProject> hubProjectList = jiraProjectMappings.getHubProjects(issue.getProjectId());
-        // limit to only mapped issues
-        if (!hubProjectList.isEmpty()) {
-            final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService);
-            for (final HubProject hubProject : hubProjectList) {
+                    logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
 
-                logger.debug("=== ISSUE EVENT ===");
-                logger.debug(String.format("Event Type ID:    %s", eventTypeID));
-                logger.debug(String.format("Issue:            %s", issue));
-                logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
-
-                final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, issue.getId(),
-                        HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-                if (property != null) {
-                    // final EntityProperty property = props.get(0);
-                    final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
-                    if (eventTypeID.equals(EventType.ISSUE_CREATED_ID)) {
-                        // Do nothing because the properties haven't been set on the project yet.
-                    } else if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
-                        hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
-                    } else {
-                        // issue updated.
-                        hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+                    final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, issue.getId(),
+                            HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+                    if (property != null) {
+                        // final EntityProperty property = props.get(0);
+                        final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+                        if (eventTypeID.equals(EventType.ISSUE_CREATED_ID)) {
+                            // Do nothing because the properties haven't been set on the project yet.
+                        } else if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
+                            hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+                        } else {
+                            // issue updated.
+                            hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+                        }
                     }
                 }
             }
+        } catch (final Exception ex) {
+            logger.error("An unexpected error occurred processing issue event ", ex);
         }
     }
 
-    private HubJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails configDetails) {
+    private HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
         final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
         HubServerConfig hubServerConfig = null;
+        if (configDetails.getProjectMappingJson() == null) {
+            logger.debug(
+                    "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+            return null;
+        }
+
+        if (configDetails.getPolicyRulesJson() == null) {
+            logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
+            return null;
+        }
+
         try {
             logger.debug("Building Hub configuration");
             hubServerConfig = hubConfigBuilder.build();
@@ -143,28 +165,26 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return null;
         }
 
-        // only execute if hub 3.7 or higher with the issue tracker capability
-
-        return deSerializeConfig(configDetails, hubServerConfig);
-    }
-
-    private HubJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails, final HubServerConfig hubServerConfig) {
-        if (pluginConfigDetails.getProjectMappingJson() == null) {
-            logger.debug(
-                    "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-            return null;
-        }
-
-        if (pluginConfigDetails.getPolicyRulesJson() == null) {
-            logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-            return null;
-        }
-
-        logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
+        logger.debug("Last run date: " + configDetails.getLastRunDateString());
         logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / "
                 + hubServerConfig.getGlobalCredentials().getUsername());
-        logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
+        logger.debug("Interval: " + configDetails.getIntervalString());
 
+        return hubServerConfig;
+    }
+
+    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(),
+                config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(),
+                config.getTimeout());
+        return new HubServicesFactory(restConnection);
+    }
+
+    private HubJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
+        return deSerializeConfig(pluginConfigDetails);
+    }
+
+    private HubJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());

@@ -1235,7 +1235,7 @@ public class HubJiraConfigController {
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(logger);
         List<ProjectView> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();

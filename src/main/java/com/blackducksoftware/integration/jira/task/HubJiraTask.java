@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.api.user.UserRequestService;
@@ -143,8 +144,12 @@ public class HubJiraTask {
                 return null;
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+            final HubSupportHelper hubSupportHelper = new HubSupportHelper();
+            final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+            hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
+
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig, hubSupportHelper);
 
             // Phone-Home
             final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
@@ -239,14 +244,14 @@ public class HubJiraTask {
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig)
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubSupportHelper hubSupportHelper)
             throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
                 jiraServices, jiraContext,
                 jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor);
+                linksOfRulesToMonitor, hubSupportHelper);
         return ticketGenerator;
     }
 
