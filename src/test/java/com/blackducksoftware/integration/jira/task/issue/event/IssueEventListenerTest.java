@@ -26,20 +26,28 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
+import com.blackducksoftware.integration.jira.mocks.BomComponentIssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -63,11 +71,17 @@ public class IssueEventListenerTest {
     private JiraServicesMock jiraServices;
 
     @Before
-    public void initTest() {
+    public void initTest() throws MalformedURLException {
         settings = createPluginSettings();
         pluginSettingsFactory = new PluginSettingsFactoryMock(settings);
         jiraServices = new JiraServicesMock();
-        listener = new IssueEventListener(eventPublisher, pluginSettingsFactory, jiraServices);
+        final URL url = new URL("http://www.google.com");
+        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120);
+
+        final BomComponentIssueServiceMock issueServiceMock = new BomComponentIssueServiceMock(restConnection);
+        final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
+        Mockito.when(hubServicesFactory.createBomComponentIssueRequestService(Mockito.any())).thenReturn(issueServiceMock);
+        listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, jiraServices, hubServicesFactory);
     }
 
     private PluginSettingsMock createPluginSettings() {
