@@ -42,9 +42,6 @@ public class HubProject implements Serializable {
     @XmlElement
     private String projectUrl;
 
-    @XmlElement
-    private String projectIssueTrackerUrl;
-
     public String getProjectName() {
         return projectName;
     }
@@ -61,19 +58,10 @@ public class HubProject implements Serializable {
         this.projectUrl = projectUrl;
     }
 
-    public String getProjectIssueTrackerUrl() {
-        return projectIssueTrackerUrl;
-    }
-
-    public void setProjectIssueTrackerUrl(final String projectIssueTrackerUrl) {
-        this.projectIssueTrackerUrl = projectIssueTrackerUrl;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((projectIssueTrackerUrl == null) ? 0 : projectIssueTrackerUrl.hashCode());
         result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
         result = prime * result + ((projectUrl == null) ? 0 : projectUrl.hashCode());
         return result;
@@ -91,13 +79,6 @@ public class HubProject implements Serializable {
             return false;
         }
         final HubProject other = (HubProject) obj;
-        if (projectIssueTrackerUrl == null) {
-            if (other.projectIssueTrackerUrl != null) {
-                return false;
-            }
-        } else if (!projectIssueTrackerUrl.equals(other.projectIssueTrackerUrl)) {
-            return false;
-        }
         if (projectName == null) {
             if (other.projectName != null) {
                 return false;
@@ -117,6 +98,6 @@ public class HubProject implements Serializable {
 
     @Override
     public String toString() {
-        return "HubProject [projectName=" + projectName + ", projectUrl=" + projectUrl + ", projectIssuesUrl=" + projectIssueTrackerUrl + "]";
+        return "HubProject [projectName=" + projectName + ", projectUrl=" + projectUrl + "]";
     }
 }

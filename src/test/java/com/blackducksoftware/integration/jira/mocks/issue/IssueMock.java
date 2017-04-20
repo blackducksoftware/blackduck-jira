@@ -49,6 +49,16 @@ public class IssueMock implements Issue {
 
     private Long projectId;
 
+    private Timestamp created;
+
+    private Timestamp updated;
+
+    private Status status;
+
+    private String description;
+
+    private ApplicationUser assignee;
+
     @Override
     public Long getLong(final String arg0) {
         return null;
@@ -75,7 +85,11 @@ public class IssueMock implements Issue {
 
     @Override
     public ApplicationUser getAssignee() {
-        return null;
+        return assignee;
+    }
+
+    public void setAssignee(final ApplicationUser assignee) {
+        this.assignee = assignee;
     }
 
     @Override
@@ -105,7 +119,11 @@ public class IssueMock implements Issue {
 
     @Override
     public Timestamp getCreated() {
-        return null;
+        return created;
+    }
+
+    public void setCreated(final Timestamp created) {
+        this.created = created;
     }
 
     @Override
@@ -125,7 +143,11 @@ public class IssueMock implements Issue {
 
     @Override
     public String getDescription() {
-        return null;
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
     @Override
@@ -298,17 +320,21 @@ public class IssueMock implements Issue {
 
     @Override
     public Status getStatus() {
-        return null;
+        return status;
     }
 
     @Override
     public String getStatusId() {
-        return null;
+        return status.getId();
     }
 
     @Override
     public Status getStatusObject() {
-        return null;
+        return status;
+    }
+
+    public void setStatusObject(final Status status) {
+        this.status = status;
     }
 
     @Override
@@ -333,7 +359,11 @@ public class IssueMock implements Issue {
 
     @Override
     public Timestamp getUpdated() {
-        return null;
+        return updated;
+    }
+
+    public void setUpdated(final Timestamp updated) {
+        this.updated = updated;
     }
 
     @Override

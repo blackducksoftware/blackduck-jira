@@ -44,6 +44,8 @@ public class HubIssueTrackerHandler {
 
     public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
 
+    public final static String USER_NOT_ASSIGNED = "Not Assigned";
+
     private final JiraSettingsService jiraSettingsService;
 
     private final BomComponentIssueRequestService issueRequestService;
@@ -93,11 +95,30 @@ public class HubIssueTrackerHandler {
 
     private IssueView createHubIssueView(final Issue jiraIssue) {
         final IssueView hubIssue = new IssueView();
-        hubIssue.issueId = jiraIssue.getKey();
-        hubIssue.issueAssignee = jiraIssue.getAssignee().getDisplayName();
-        hubIssue.issueStatus = jiraIssue.getStatus().getName();
-        hubIssue.issueCreatedAt = dateFormatter.format(jiraIssue.getCreated());
-        hubIssue.issueUpdatedAt = dateFormatter.format(jiraIssue.getUpdated());
+        final String issueId = jiraIssue.getKey();
+        String assignee = "";
+
+        if (jiraIssue.getAssignee() != null) {
+            assignee = jiraIssue.getAssignee().getDisplayName();
+        } else {
+            assignee = USER_NOT_ASSIGNED;
+        }
+
+        String status = "";
+
+        if (jiraIssue.getStatus() != null) {
+            status = jiraIssue.getStatus().getName();
+        }
+
+        status = jiraIssue.getStatus().getName();
+        final String createdAt = dateFormatter.format(jiraIssue.getCreated());
+        final String updatedAt = dateFormatter.format(jiraIssue.getUpdated());
+        hubIssue.issueId = issueId;
+        hubIssue.issueAssignee = assignee;
+        hubIssue.issueStatus = status;
+        hubIssue.issueCreatedAt = createdAt;
+        hubIssue.issueUpdatedAt = updatedAt;
+        hubIssue.issueDescription = jiraIssue.getDescription();
         return hubIssue;
     }
 }

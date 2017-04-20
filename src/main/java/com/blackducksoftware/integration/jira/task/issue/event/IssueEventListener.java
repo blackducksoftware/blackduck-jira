@@ -92,45 +92,47 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         try {
             final Long eventTypeID = issueEvent.getEventTypeId();
             final Issue issue = issueEvent.getIssue();
-            logger.debug("=== ISSUE EVENT ===");
-            logger.debug(String.format("Event Type ID:    %s", eventTypeID));
-            logger.debug(String.format("Issue:            %s", issue));
 
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
-            final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+            if (!eventTypeID.equals(EventType.ISSUE_CREATED_ID)) {
+                logger.debug("=== ISSUE EVENT ===");
+                logger.debug(String.format("Event Type ID:    %s", eventTypeID));
+                logger.debug(String.format("Issue:            %s", issue));
 
-            // only execute if hub 3.7 or higher with the issue tracker capability
-            final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
-            final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
-            final HubJiraConfigSerializable config = createJiraConfig(configDetails);
-            if (config == null) {
-                logger.debug("No Hub Jira configuration set");
-                return;
-            }
+                final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+                final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+                final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-            final JiraProjectMappings jiraProjectMappings = new JiraProjectMappings(config.getHubProjectMappings());
-            final List<HubProject> hubProjectList = jiraProjectMappings.getHubProjects(issue.getProjectId());
-            // limit to only mapped issues
-            if (!hubProjectList.isEmpty()) {
-                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService,
-                        servicesFactory.createBomComponentIssueRequestService(logger));
-                for (final HubProject hubProject : hubProjectList) {
+                // only execute if hub 3.7 or higher with the issue tracker capability
+                final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
+                final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
+                final HubJiraConfigSerializable config = createJiraConfig(configDetails);
+                if (config == null) {
+                    logger.debug("No Hub Jira configuration set");
+                    return;
+                }
 
-                    logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
+                final JiraProjectMappings jiraProjectMappings = new JiraProjectMappings(config.getHubProjectMappings());
+                final List<HubProject> hubProjectList = jiraProjectMappings.getHubProjects(issue.getProjectId());
+                // limit to only mapped issues
+                if (!hubProjectList.isEmpty()) {
+                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService,
+                            servicesFactory.createBomComponentIssueRequestService(logger));
+                    for (final HubProject hubProject : hubProjectList) {
 
-                    final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, issue.getId(),
-                            HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-                    if (property != null) {
-                        // final EntityProperty property = props.get(0);
-                        final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
-                        if (eventTypeID.equals(EventType.ISSUE_CREATED_ID)) {
-                            // Do nothing because the properties haven't been set on the project yet.
-                        } else if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
-                            hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
-                        } else {
-                            // issue updated.
-                            hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+                        logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
+
+                        final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
+                                issue.getId(),
+                                HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+                        if (property != null) {
+                            // final EntityProperty property = props.get(0);
+                            final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+                            if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
+                                hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+                            } else {
+                                // issue updated.
+                                hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+                            }
                         }
                     }
                 }
@@ -188,13 +190,18 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
-        logger.debug("Mappings:");
-        for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-            logger.debug(mapping.toString());
+        if (config.getHubProjectMappings() != null) {
+            logger.debug("Mappings:");
+            for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+                logger.debug(mapping.toString());
+            }
         }
-        logger.debug("Policy Rules:");
-        for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-            logger.debug(rule.toString());
+
+        if (config.getPolicyRules() != null) {
+            logger.debug("Policy Rules:");
+            for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
+                logger.debug(rule.toString());
+            }
         }
         return config;
     }
