@@ -38,6 +38,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
@@ -126,24 +127,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                     if (!hubProjectList.isEmpty()) {
                         final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService,
                                 servicesFactory.createBomComponentIssueRequestService(logger));
-                        for (final HubProject hubProject : hubProjectList) {
-
-                            logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
-
-                            final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
-                                    issue.getId(),
-                                    HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-                            if (property != null) {
-                                // final EntityProperty property = props.get(0);
-                                final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
-                                if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
-                                    hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
-                                } else {
-                                    // issue updated.
-                                    hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
-                                }
-                            }
-                        }
+                        handleIssue(eventTypeID, issue, hubIssueHandler, hubProjectList);
                     }
                 }
             }
@@ -214,6 +198,27 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             }
         }
         return config;
+    }
+
+    private void handleIssue(final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler,
+            final List<HubProject> hubProjectList) throws IntegrationException {
+
+        for (final HubProject hubProject : hubProjectList) {
+            logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
+            final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
+                    issue.getId(),
+                    HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+            if (property != null) {
+                // final EntityProperty property = props.get(0);
+                final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+                if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
+                    hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+                } else {
+                    // issue updated.
+                    hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+                }
+            }
+        }
     }
 
     private HubIssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
