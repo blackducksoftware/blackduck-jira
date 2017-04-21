@@ -31,8 +31,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -190,6 +192,67 @@ public class IssueEventListenerTest {
         return gson.toJson(issueProperties);
     }
 
+    private void populateProjectSettings() {
+        final Set<HubProjectMapping> projectSet = new HashSet<>();
+        final HubProjectMapping mapping = new HubProjectMapping();
+        final JiraProject jiraProject = new JiraProject();
+        jiraProject.setProjectId(JIRA_PROJECT_ID);
+        jiraProject.setProjectName(JIRA_PROJECT_NAME);
+        mapping.setJiraProject(jiraProject);
+        final HubProject hubProject = new HubProject();
+        hubProject.setProjectName(HUB_PROJECT_NAME);
+        mapping.setHubProject(hubProject);
+        projectSet.add(mapping);
+        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+    }
+
+    private void createEntityProperty() {
+        final EntityPropertyMock entityProperty = new EntityPropertyMock();
+        entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
+        entityProperty.setKey(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL);
+        entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
+        jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID, entityProperty.getKey(),
+                entityProperty.getValue());
+    }
+
+    private Issue createValidIssue() {
+        final StatusMock status = new StatusMock();
+        status.setName(STATUS_NAME);
+        final ApplicationUserMock assignee = new ApplicationUserMock();
+        assignee.setName(ASSIGNEE_USER_NAME);
+        return createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
+    }
+
+    private void assertIssueCreated(final Long eventTypeId) {
+        final Issue issue = createValidIssue();
+        final IssueEvent event = createIssueEvent(issue, eventTypeId);
+        listener.onIssueEvent(event);
+
+        assertFalse(issueServiceMock.issueMap.isEmpty());
+
+        final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
+        final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
+
+        assertEquals(issue.getKey(), hubIssue.issueId);
+        assertEquals(issue.getDescription(), hubIssue.issueDescription);
+        assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
+        assertEquals(expectedCreatedAt, hubIssue.issueCreatedAt);
+        assertEquals(expectedUpdatedAt, hubIssue.issueUpdatedAt);
+        assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
+    }
+
+    private void assertIssueNotCreated(final Long eventTypeId) {
+        final Issue issue = createValidIssue();
+        final IssueEvent event = createIssueEvent(issue, eventTypeId);
+        listener.onIssueEvent(event);
+        assertTrue(issueServiceMock.issueMap.isEmpty());
+    }
+
     @Test
     public void testDestroy() throws Exception {
         eventPublisher.registered = true;
@@ -231,18 +294,16 @@ public class IssueEventListenerTest {
     }
 
     @Test
+    public void testEventType() {
+        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
+        listener.onIssueEvent(event);
+        assertTrue(issueServiceMock.issueMap.isEmpty());
+    }
+
+    @Test
     public void testUpdateEventWithJiraProjectNotMapped() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final JiraProject jiraProject = new JiraProject();
-        jiraProject.setProjectId(JIRA_PROJECT_ID);
-        jiraProject.setProjectName(JIRA_PROJECT_NAME);
-        mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        mapping.setHubProject(hubProject);
-        projectSet.add(mapping);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+        populateProjectSettings();
         final Issue issue = createIssue(new Long(1), new Long(999), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
@@ -251,17 +312,7 @@ public class IssueEventListenerTest {
 
     @Test
     public void testUpdateEventWithNullEntityProperty() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final JiraProject jiraProject = new JiraProject();
-        jiraProject.setProjectId(JIRA_PROJECT_ID);
-        jiraProject.setProjectName(JIRA_PROJECT_NAME);
-        mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        mapping.setHubProject(hubProject);
-        projectSet.add(mapping);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+        populateProjectSettings();
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
@@ -269,72 +320,54 @@ public class IssueEventListenerTest {
     }
 
     @Test
+    public void testUpdateEventsWithEntityProperty() {
+        populateProjectSettings();
+        createEntityProperty();
+        final List<Long> updateEventList = new ArrayList<>();
+        updateEventList.add(EventType.ISSUE_ASSIGNED_ID);
+        updateEventList.add(EventType.ISSUE_CLOSED_ID);
+        updateEventList.add(EventType.ISSUE_MOVED_ID);
+        updateEventList.add(EventType.ISSUE_REOPENED_ID);
+        updateEventList.add(EventType.ISSUE_RESOLVED_ID);
+        updateEventList.add(EventType.ISSUE_UPDATED_ID);
+        updateEventList.add(EventType.ISSUE_COMMENT_DELETED_ID);
+        updateEventList.add(EventType.ISSUE_COMMENT_EDITED_ID);
+        updateEventList.add(EventType.ISSUE_COMMENTED_ID);
+        updateEventList.add(EventType.ISSUE_GENERICEVENT_ID);
+        updateEventList.add(EventType.ISSUE_WORKLOG_DELETED_ID);
+        updateEventList.add(EventType.ISSUE_WORKLOG_UPDATED_ID);
+        updateEventList.add(EventType.ISSUE_WORKSTARTED_ID);
+        updateEventList.add(EventType.ISSUE_WORKSTOPPED_ID);
+
+        for (final Long eventTypeId : updateEventList) {
+            assertIssueCreated(eventTypeId);
+        }
+    }
+
+    @Test
+    public void testIgnoredEventsWithEntityProperty() {
+        populateProjectSettings();
+        createEntityProperty();
+        final List<Long> updateEventList = new ArrayList<>();
+        updateEventList.add(EventType.ISSUE_CREATED_ID);
+
+        for (final Long eventTypeId : updateEventList) {
+            assertIssueNotCreated(eventTypeId);
+        }
+    }
+
+    @Test
     public void testUpdateEventWithEntityProperty() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final JiraProject jiraProject = new JiraProject();
-        jiraProject.setProjectId(JIRA_PROJECT_ID);
-        jiraProject.setProjectName(JIRA_PROJECT_NAME);
-        mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        mapping.setHubProject(hubProject);
-        projectSet.add(mapping);
-        final EntityPropertyMock entityProperty = new EntityPropertyMock();
-        entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL);
-        entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
-        jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID, entityProperty.getKey(),
-                entityProperty.getValue());
-
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
-        final StatusMock status = new StatusMock();
-        status.setName(STATUS_NAME);
-        final ApplicationUserMock assignee = new ApplicationUserMock();
-        assignee.setName(ASSIGNEE_USER_NAME);
-        final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
-        final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
-        listener.onIssueEvent(event);
-
-        assertFalse(issueServiceMock.issueMap.isEmpty());
-
-        final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
-
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
-        final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
-
-        assertEquals(issue.getKey(), hubIssue.issueId);
-        assertEquals(issue.getDescription(), hubIssue.issueDescription);
-        assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
-        assertEquals(expectedCreatedAt, hubIssue.issueCreatedAt);
-        assertEquals(expectedUpdatedAt, hubIssue.issueUpdatedAt);
-        assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
+        populateProjectSettings();
+        createEntityProperty();
+        assertIssueCreated(EventType.ISSUE_UPDATED_ID);
     }
 
     @Test
     public void testDeleteEventWithEntityProperty() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final JiraProject jiraProject = new JiraProject();
-        jiraProject.setProjectId(JIRA_PROJECT_ID);
-        jiraProject.setProjectName(JIRA_PROJECT_NAME);
-        mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        mapping.setHubProject(hubProject);
-        projectSet.add(mapping);
-        final EntityPropertyMock entityProperty = new EntityPropertyMock();
-        entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL);
-        entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
-        jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID, entityProperty.getKey(),
-                entityProperty.getValue());
+        populateProjectSettings();
+        createEntityProperty();
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
         final StatusMock status = new StatusMock();
         status.setName(STATUS_NAME);
         final ApplicationUserMock assignee = new ApplicationUserMock();
