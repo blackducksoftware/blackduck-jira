@@ -45,6 +45,7 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.hub.model.response.VersionComparison;
 import com.blackducksoftware.integration.hub.model.view.IssueView;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -60,6 +61,7 @@ import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.BomComponentIssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
+import com.blackducksoftware.integration.jira.mocks.HubVersionRequestServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JSonEntityPropertyManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -102,6 +104,8 @@ public class IssueEventListenerTest {
 
     private BomComponentIssueServiceMock issueServiceMock;
 
+    private HubVersionRequestServiceMock versionRequestServiceMock;
+
     @Before
     public void initTest() throws MalformedURLException {
         settings = createPluginSettings();
@@ -112,8 +116,12 @@ public class IssueEventListenerTest {
         final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120);
 
         issueServiceMock = new BomComponentIssueServiceMock(restConnection);
+        versionRequestServiceMock = new HubVersionRequestServiceMock(restConnection);
+        final VersionComparison versionComparison = new VersionComparison("3.7.0", "3.7.0", 0, "=");
+        versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         Mockito.when(hubServicesFactory.createBomComponentIssueRequestService(Mockito.any())).thenReturn(issueServiceMock);
+        Mockito.when(hubServicesFactory.createHubVersionRequestService()).thenReturn(versionRequestServiceMock);
         listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, jiraServices, hubServicesFactory);
     }
 
@@ -206,6 +214,16 @@ public class IssueEventListenerTest {
 
     @Test
     public void testEmptyProjectMapping() {
+        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
+        listener.onIssueEvent(event);
+        assertTrue(issueServiceMock.issueMap.isEmpty());
+    }
+
+    @Test
+    public void testOldHubVersion() {
+        final VersionComparison versionComparison = new VersionComparison("3.7.0", "3.6.0", 1, ">");
+        versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
