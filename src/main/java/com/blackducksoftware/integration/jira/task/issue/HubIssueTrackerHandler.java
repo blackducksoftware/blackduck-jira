@@ -37,7 +37,6 @@ import com.blackducksoftware.integration.hub.model.view.IssueView;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 
 public class HubIssueTrackerHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -60,10 +59,10 @@ public class HubIssueTrackerHandler {
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public String createHubIssue(final EventData eventData, final Issue jiraIssue) throws IntegrationException {
+    public String createHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
         String url = "";
-        if (StringUtils.isNotBlank(eventData.getComponentIssueUrl())) {
-            url = issueRequestService.createIssue(createHubIssueView(jiraIssue), eventData.getComponentIssueUrl());
+        if (StringUtils.isNotBlank(hubIssueUrl)) {
+            url = issueRequestService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
         } else {
             final String message = "Error creating hub issue; no component or component version found.";
             logger.error(message);
@@ -83,9 +82,10 @@ public class HubIssueTrackerHandler {
         }
     }
 
-    public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+    public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
         if (StringUtils.isNotBlank(hubIssueUrl)) {
             logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
+            issueRequestService.deleteIssue(hubIssueUrl);
         } else {
             final String message = "Error deleting hub issue; no component or component version found.";
             logger.error(message);

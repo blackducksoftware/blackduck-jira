@@ -494,7 +494,7 @@ public class JiraIssueHandler {
                     printIssueInfo(issue);
                     if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
                         try {
-                            final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData, issue);
+                            final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
                             final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl);
                             addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue.getId());
                         } catch (final IntegrationException ex) {

@@ -47,8 +47,6 @@ public class IssueMock implements Issue {
 
     private Long id;
 
-    private Long projectId;
-
     private Timestamp created;
 
     private Timestamp updated;
@@ -58,6 +56,8 @@ public class IssueMock implements Issue {
     private String description;
 
     private ApplicationUser assignee;
+
+    private Project project;
 
     @Override
     public Long getLong(final String arg0) {
@@ -211,7 +211,7 @@ public class IssueMock implements Issue {
 
     @Override
     public String getKey() {
-        return null;
+        return String.format("%s-%s", project.getName(), getId());
     }
 
     @Override
@@ -261,16 +261,16 @@ public class IssueMock implements Issue {
 
     @Override
     public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(final Long projectId) {
-        this.projectId = projectId;
+        return project.getId();
     }
 
     @Override
     public Project getProjectObject() {
-        return null;
+        return project;
+    }
+
+    public void setProject(final Project project) {
+        this.project = project;
     }
 
     @Override

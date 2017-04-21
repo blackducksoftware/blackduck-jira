@@ -44,7 +44,7 @@ public class ApplicationUserMock implements ApplicationUser {
     @Override
     public String getDisplayName() {
 
-        return null;
+        return name;
     }
 
     @Override
