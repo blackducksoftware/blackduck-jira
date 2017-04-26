@@ -349,7 +349,7 @@ public class IssueMock implements Issue {
 
     @Override
     public String getSummary() {
-        return null;
+        return description;
     }
 
     @Override

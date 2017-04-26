@@ -32,8 +32,10 @@ import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
+import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.icon.IconType;
 import com.atlassian.jira.issue.CustomFieldManager;
@@ -202,5 +204,13 @@ public class JiraServices {
 
     public GroupManager getGroupManager() {
         return ComponentAccessor.getGroupManager();
+    }
+
+    public String getJiraBaseUrl() {
+        return ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
+    }
+
+    public ProjectPropertyService getProjectPropertyService() {
+        return ComponentAccessor.getComponentOfType(ProjectPropertyService.class);
     }
 }

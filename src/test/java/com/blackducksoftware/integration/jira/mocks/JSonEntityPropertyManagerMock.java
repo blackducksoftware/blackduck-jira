@@ -161,5 +161,4 @@ public class JSonEntityPropertyManagerMock implements JsonEntityPropertyManager 
     public EntityPropertyQuery<?> query() {
         return null;
     }
-
 }

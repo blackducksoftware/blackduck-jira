@@ -41,7 +41,12 @@ import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import com.atlassian.jira.entity.property.EntityProperty;
+import com.atlassian.jira.entity.property.EntityPropertyQuery;
+import com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
@@ -62,7 +67,9 @@ import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.BomComponentIssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyMock;
+import com.blackducksoftware.integration.jira.mocks.EntityPropertyQueryMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
+import com.blackducksoftware.integration.jira.mocks.ExecutableQueryMock;
 import com.blackducksoftware.integration.jira.mocks.HubVersionRequestServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JSonEntityPropertyManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
@@ -70,6 +77,7 @@ import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
+import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
@@ -79,6 +87,8 @@ import com.google.gson.GsonBuilder;
 public class IssueEventListenerTest {
 
     private static final String JIRA_USER = "auser";
+
+    private static final String JIRA_ADMIN_USER = "adminuser";
 
     private static final String HUB_PROJECT_NAME = "HubProjectName";
 
@@ -114,6 +124,9 @@ public class IssueEventListenerTest {
         pluginSettingsFactory = new PluginSettingsFactoryMock(settings);
         jiraServices = new JiraServicesMock();
         jiraServices.setJsonEntityPropertyManager(new JSonEntityPropertyManagerMock());
+        final UserManagerMock userManager = new UserManagerMock();
+        userManager.setMockApplicationUser(createApplicationUser());
+        jiraServices.setUserManager(userManager);
         final URL url = new URL("http://www.google.com");
         final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120);
 
@@ -124,6 +137,9 @@ public class IssueEventListenerTest {
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         Mockito.when(hubServicesFactory.createBomComponentIssueRequestService(Mockito.any())).thenReturn(issueServiceMock);
         Mockito.when(hubServicesFactory.createHubVersionRequestService()).thenReturn(versionRequestServiceMock);
+        final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
+        Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
+
         listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, jiraServices, hubServicesFactory);
     }
 
@@ -149,7 +165,7 @@ public class IssueEventListenerTest {
         settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, "");
 
         settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, "adminuser");
+        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
 
         settings.put(HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
         settings.put(HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
@@ -210,10 +226,28 @@ public class IssueEventListenerTest {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
         entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
         entityProperty.setKey(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL);
+        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
-        jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID, entityProperty.getKey(),
-                entityProperty.getValue());
+        final List<EntityProperty> propList = new ArrayList<>(1);
+        propList.add(entityProperty);
+        final EntityPropertyQuery<?> query = Mockito.mock(EntityPropertyQueryMock.class);
+        final ExecutableQuery executableQuery = Mockito.mock(ExecutableQueryMock.class);
+        Mockito.when(query.key(Mockito.anyString())).thenReturn(executableQuery);
+        Mockito.when(executableQuery.maxResults(Mockito.anyInt())).thenReturn(executableQuery);
+        Mockito.when(executableQuery.find()).thenReturn(propList);
+        final JSonEntityPropertyManagerMock jsonManager = Mockito.mock(JSonEntityPropertyManagerMock.class);
+        Mockito.when(jsonManager.query()).thenAnswer(new Answer<EntityPropertyQuery<?>>() {
+
+            @Override
+            public EntityPropertyQuery<?> answer(final InvocationOnMock invocation) throws Throwable {
+                return query;
+            }
+
+        });
+        jiraServices.setJsonEntityPropertyManager(jsonManager);
+        // jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID,
+        // entityProperty.getKey(),
+        // entityProperty.getValue());
     }
 
     private Issue createValidIssue() {

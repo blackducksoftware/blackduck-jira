@@ -34,7 +34,8 @@ public class IssueListenerWithMocks extends IssueEventListener {
 
     private final HubServicesFactory hubServicesFactory;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices,
+    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory,
+            final JiraServices jiraServices,
             final HubServicesFactory hubServicesFactory) {
         super(eventPublisher, pluginSettingsFactory, jiraServices);
         this.hubServicesFactory = hubServicesFactory;

@@ -45,13 +45,17 @@ public class HubIssueTrackerHandler {
 
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
+    private final JiraServices jiraServices;
+
     private final JiraSettingsService jiraSettingsService;
 
     private final BomComponentIssueRequestService issueRequestService;
 
     private final DateFormat dateFormatter;
 
-    public HubIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BomComponentIssueRequestService issueRequestService) {
+    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
+            final BomComponentIssueRequestService issueRequestService) {
+        this.jiraServices = jiraServices;
         this.jiraSettingsService = jiraSettingsService;
         this.issueRequestService = issueRequestService;
 
@@ -59,37 +63,57 @@ public class HubIssueTrackerHandler {
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public String createHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
+    public String createEntityPropertyKey(final Issue jiraIssue) {
+        return String.format("%s_%s", HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssue.getId());
+    }
+
+    public String createHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
         String url = "";
-        if (StringUtils.isNotBlank(hubIssueUrl)) {
-            url = issueRequestService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
-        } else {
-            final String message = "Error creating hub issue; no component or component version found.";
-            logger.error(message);
-            jiraSettingsService.addHubError(message, "createHubIssue");
+        try {
+            if (StringUtils.isNotBlank(hubIssueUrl)) {
+                url = issueRequestService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+            } else {
+                final String message = "Error creating hub issue; no component or component version found.";
+                logger.error(message);
+                jiraSettingsService.addHubError(message, "createHubIssue");
+            }
+        } catch (final IntegrationException ex) {
+            logger.error("Error creating Hub Issue", ex);
+            jiraSettingsService.addHubError(ex, "createHubIssue");
         }
+
         return url;
     }
 
-    public void updateHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
-        if (StringUtils.isNotBlank(hubIssueUrl)) {
-            logger.debug(String.format("Updating issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-            issueRequestService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
-        } else {
-            final String message = "Error updating hub issue; no component or component version found.";
-            logger.error(message);
-            jiraSettingsService.addHubError(message, "updateHubIssue");
+    public void updateHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+        try {
+            if (StringUtils.isNotBlank(hubIssueUrl)) {
+                logger.debug(String.format("Updating issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
+                issueRequestService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+            } else {
+                final String message = "Error updating hub issue; no component or component version found.";
+                logger.error(message);
+                jiraSettingsService.addHubError(message, "updateHubIssue");
+            }
+        } catch (final IntegrationException ex) {
+            logger.error("Error updating Hub Issue", ex);
+            jiraSettingsService.addHubError(ex, "updateHubIssue");
         }
     }
 
-    public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) throws IntegrationException {
-        if (StringUtils.isNotBlank(hubIssueUrl)) {
-            logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-            issueRequestService.deleteIssue(hubIssueUrl);
-        } else {
-            final String message = "Error deleting hub issue; no component or component version found.";
-            logger.error(message);
-            jiraSettingsService.addHubError(message, "deleteHubIssue");
+    public void deleteHubIssue(final String hubIssueUrl, final Issue jiraIssue) {
+        try {
+            if (StringUtils.isNotBlank(hubIssueUrl)) {
+                logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
+                issueRequestService.deleteIssue(hubIssueUrl);
+            } else {
+                final String message = "Error deleting hub issue; no component or component version found.";
+                logger.error(message);
+                jiraSettingsService.addHubError(message, "deleteHubIssue");
+            }
+        } catch (final IntegrationException ex) {
+            logger.error("Error updating Hub Issue", ex);
+            jiraSettingsService.addHubError(ex, "deleteHubIssue");
         }
     }
 
@@ -118,7 +142,8 @@ public class HubIssueTrackerHandler {
         hubIssue.issueStatus = status;
         hubIssue.issueCreatedAt = createdAt;
         hubIssue.issueUpdatedAt = updatedAt;
-        hubIssue.issueDescription = jiraIssue.getDescription();
+        hubIssue.issueDescription = jiraIssue.getSummary();
+        hubIssue.issueLink = String.format("%s/browse/%s", jiraServices.getJiraBaseUrl(), jiraIssue.getKey());
         return hubIssue;
     }
 }

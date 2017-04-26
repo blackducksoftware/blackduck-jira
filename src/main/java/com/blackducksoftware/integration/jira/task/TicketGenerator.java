@@ -102,7 +102,8 @@ public class TicketGenerator {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
-        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraSettingsService, hubServicesFactory.createBomComponentIssueRequestService(logger));
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService,
+                hubServicesFactory.createBomComponentIssueRequestService(logger));
         this.hubSupportHelper = hubSupportHelper;
     }
 

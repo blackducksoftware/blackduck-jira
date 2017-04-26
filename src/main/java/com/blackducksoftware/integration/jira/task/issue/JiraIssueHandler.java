@@ -48,7 +48,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
 import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
@@ -152,12 +151,33 @@ public class JiraIssueHandler {
         }
     }
 
-    private void addHubIssueUrlIssueProperty(final NotificationEvent notificationEvent, final EventData eventData, final HubIssueTrackerProperties value,
-            final Long issueId) {
-        final Gson gson = new GsonBuilder().create();
+    private void addProjectPropertyJson(final NotificationEvent notificationEvent,
+            final EventData eventData,
+            final Long issueId, final String key,
+            final String jsonValue) {
+        logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
+        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue,
+                key);
 
+        final SetPropertyValidationResult validationResult = jiraServices.getProjectPropertyService()
+                .validateSetProperty(jiraContext.getJiraIssueCreatorUser(), issueId, propertyInput);
+
+        if (!validationResult.isValid()) {
+            handleErrorCollection("addIssueProperty", notificationEvent, eventData, validationResult.getErrorCollection());
+        } else {
+            final PropertyResult result = jiraServices.getProjectPropertyService().setProperty(jiraContext.getJiraIssueCreatorUser(),
+                    validationResult);
+            handleErrorCollection("addIssueProperty", notificationEvent, eventData, result.getErrorCollection());
+        }
+    }
+
+    private void addHubIssueUrlIssueProperty(final NotificationEvent notificationEvent, final EventData eventData,
+            final HubIssueTrackerProperties value, final Issue issue) {
+        final Gson gson = new GsonBuilder().create();
         final String jsonValue = gson.toJson(value);
-        addIssuePropertyJson(notificationEvent, eventData, issueId, HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jsonValue);
+        final String key = hubIssueTrackerHandler.createEntityPropertyKey(issue);
+
+        addProjectPropertyJson(notificationEvent, eventData, issue.getProjectId(), key, jsonValue);
     }
 
     private String getNotificationUniqueKey(final NotificationEvent notificationEvent) {
@@ -493,13 +513,9 @@ public class JiraIssueHandler {
                     logger.info("Created new Issue.");
                     printIssueInfo(issue);
                     if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
-                        try {
-                            final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
-                            final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl);
-                            addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue.getId());
-                        } catch (final IntegrationException ex) {
-                            logger.error("Error occurred creating hub issue.", ex);
-                        }
+                        final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
+                        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
+                        addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
                     }
 
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();

@@ -31,10 +31,15 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.entity.property.EntityProperty;
+import com.atlassian.jira.entity.property.EntityPropertyQuery;
+import com.atlassian.jira.entity.property.EntityPropertyService.DeletePropertyValidationResult;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -47,10 +52,10 @@ import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProject;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProjectMappings;
 import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
@@ -75,7 +80,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         this(eventPublisher, pluginSettingsFactory, new JiraServices());
     }
 
-    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices) {
+    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory,
+            final JiraServices jiraServices) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.jiraServices = jiraServices;
@@ -114,6 +120,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 final HubVersionRequestService hubVersionRequestService = servicesFactory.createHubVersionRequestService();
                 hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
 
+                final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+
                 if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
                     final HubJiraConfigSerializable config = createJiraConfig(configDetails);
                     if (config == null) {
@@ -125,9 +133,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                     final List<HubProject> hubProjectList = jiraProjectMappings.getHubProjects(issue.getProjectId());
                     // limit to only mapped issues
                     if (!hubProjectList.isEmpty()) {
-                        final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService,
+                        final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService,
                                 servicesFactory.createBomComponentIssueRequestService(logger));
-                        handleIssue(eventTypeID, issue, hubIssueHandler, hubProjectList);
+                        handleIssue(jiraContext, eventTypeID, issue, hubIssueHandler, hubProjectList);
                     }
                 }
             }
@@ -200,19 +208,28 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         return config;
     }
 
-    private void handleIssue(final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler,
+    private void handleIssue(final JiraContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler,
             final List<HubProject> hubProjectList) throws IntegrationException {
 
         for (final HubProject hubProject : hubProjectList) {
-            logger.debug(String.format("Hub Project Name: %s", hubProject.getProjectName()));
-            final EntityProperty property = jiraServices.getJsonEntityPropertyManager().get(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
-                    issue.getId(),
-                    HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-            if (property != null) {
+            final String propertyKey = hubIssueHandler.createEntityPropertyKey(issue);
+            logger.debug(String.format("Hub Project Name: %s, entitykey: ", hubProject.getProjectName(), propertyKey));
+            final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
+            final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(propertyKey);
+            final List<EntityProperty> entityProperties = executableQuery.find();
+            if (!entityProperties.isEmpty()) {
+                final EntityProperty property = entityProperties.get(0);
                 // final EntityProperty property = props.get(0);
                 final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
                 if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
                     hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+                    // the issue has been
+                    final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();
+                    final ApplicationUser issueCreatorUser = jiraContext.getJiraIssueCreatorUser();
+                    final DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(issueCreatorUser,
+                            property.getEntityId(),
+                            propertyKey);
+                    jiraServices.getProjectPropertyService().deleteProperty(issueCreatorUser, validationResult);
                 } else {
                     // issue updated.
                     hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
@@ -224,5 +241,32 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private HubIssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
         final Gson gson = new GsonBuilder().create();
         return gson.fromJson(json, HubIssueTrackerProperties.class);
+    }
+
+    private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
+        logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
+        if (jiraIssueCreatorUsername == null) {
+            logger.warn(String.format(
+                    "The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration",
+                    jiraAdminUsername));
+            jiraIssueCreatorUsername = jiraAdminUsername;
+        }
+        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);
+        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername);
+        if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
+            return null;
+        }
+        final JiraContext jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
+        return jiraContext;
+    }
+
+    private ApplicationUser getJiraUser(final String jiraUsername) {
+        final UserManager jiraUserManager = jiraServices.getUserManager();
+        final ApplicationUser jiraUser = jiraUserManager.getUserByName(jiraUsername);
+        if (jiraUser == null) {
+            logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
+            return null;
+        }
+        return jiraUser;
     }
 }

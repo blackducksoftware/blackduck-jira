@@ -47,6 +47,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.BomComponentIssueServiceMock;
+import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
@@ -85,7 +86,7 @@ public class HubIssueTrackerHandlerTest {
         final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120);
         issueServiceMock = new BomComponentIssueServiceMock(restConnection);
 
-        issueHandler = new HubIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
+        issueHandler = new HubIssueTrackerHandler(new JiraServicesMock(), new JiraSettingsService(settings), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {

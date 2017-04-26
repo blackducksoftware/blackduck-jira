@@ -27,8 +27,15 @@ public class HubIssueTrackerProperties {
 
     private final String hubIssueUrl;
 
-    public HubIssueTrackerProperties(final String hubIssueUrl) {
+    private final Long jiraIssueId;
+
+    public HubIssueTrackerProperties(final String hubIssueUrl, final Long jiraIssueId) {
         this.hubIssueUrl = hubIssueUrl;
+        this.jiraIssueId = jiraIssueId;
+    }
+
+    public Long getJiraIssueId() {
+        return jiraIssueId;
     }
 
     public String getHubIssueUrl() {
