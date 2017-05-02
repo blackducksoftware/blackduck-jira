@@ -239,7 +239,6 @@
           <enableQuickReload>true</enableQuickReload>
           <enableFastdev>false</enableFastdev>
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
-          <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
           <instructions>
             <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
             <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
