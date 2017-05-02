@@ -217,7 +217,7 @@ public class JiraEventInfoTest {
         final ComponentVersionView componentVersion = new ComponentVersionView();
         final List<VulnerabilitySourceQualifiedId> vulns = new ArrayList<>(0);
         final VulnerabilityContentItem contentItem = new VulnerabilityContentItem(new Date(), projectVersion, "tbd", componentVersion, "tbd", vulns, vulns,
-                vulns);
+                vulns, "");
         final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(contentItem);
         return issuePropertiesGenerator;
     }

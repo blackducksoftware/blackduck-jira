@@ -215,6 +215,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             // final EntityProperty property = props.get(0);
             final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
             if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
+                // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
                 hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
                 // the issue has been
                 final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();

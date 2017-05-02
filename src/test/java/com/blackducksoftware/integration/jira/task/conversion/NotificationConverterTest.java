@@ -567,7 +567,7 @@ public class NotificationConverterTest {
                 COMPONENT_VERSION_URL,
                 addedVulnList,
                 updatedVulnList,
-                deletedVulnList);
+                deletedVulnList, "");
 
         return notif;
     }
@@ -590,7 +590,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList);
+                policyRuleList, "");
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
         return notif;
@@ -620,7 +620,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList);
+                policyRuleList, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
@@ -649,7 +649,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME);
+                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
