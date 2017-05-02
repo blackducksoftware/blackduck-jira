@@ -75,7 +75,7 @@ public class HubProject implements Serializable {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof HubProject)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final HubProject other = (HubProject) obj;
@@ -98,13 +98,6 @@ public class HubProject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("HubProject [projectName=");
-        builder.append(projectName);
-        builder.append(", projectUrl=");
-        builder.append(projectUrl);
-        builder.append("]");
-        return builder.toString();
+        return "HubProject [projectName=" + projectName + ", projectUrl=" + projectUrl + "]";
     }
-
 }

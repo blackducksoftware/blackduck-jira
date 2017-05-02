@@ -23,66 +23,33 @@
  */
 package com.blackducksoftware.integration.jira.mocks;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.event.api.EventPublisher;
 
-public class ApplicationUserMock implements ApplicationUser {
+public class EventPublisherMock implements EventPublisher {
 
-    private String name;
+    public boolean registered = false;
 
-    @Override
-    public long getDirectoryId() {
-        return 0;
-    }
+    public boolean published = false;
 
     @Override
-    public User getDirectoryUser() {
-
-        return null;
+    public void register(final Object arg0) {
+        registered = true;
     }
 
     @Override
-    public String getDisplayName() {
-
-        return name;
+    public void unregister(final Object arg0) {
+        registered = false;
+        published = false;
     }
 
     @Override
-    public String getEmailAddress() {
-
-        return null;
+    public void unregisterAll() {
+        registered = false;
+        published = false;
     }
 
     @Override
-    public String getKey() {
-
-        return name;
+    public void publish(final Object arg0) {
+        published = true;
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getUsername() {
-
-        return null;
-    }
-
-    @Override
-    public boolean isActive() {
-
-        return false;
-    }
-
-    @Override
-    public Long getId() {
-        return 123L;
-    }
-
 }

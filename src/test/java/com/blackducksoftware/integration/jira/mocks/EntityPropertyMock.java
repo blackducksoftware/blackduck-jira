@@ -23,66 +23,62 @@
  */
 package com.blackducksoftware.integration.jira.mocks;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.user.ApplicationUser;
+import java.sql.Timestamp;
 
-public class ApplicationUserMock implements ApplicationUser {
+import com.atlassian.jira.entity.property.EntityProperty;
 
-    private String name;
+public class EntityPropertyMock implements EntityProperty {
+
+    private String entityName;
+
+    private String key;
+
+    private String value;
 
     @Override
-    public long getDirectoryId() {
-        return 0;
-    }
-
-    @Override
-    public User getDirectoryUser() {
-
+    public Timestamp getCreated() {
         return null;
     }
 
     @Override
-    public String getDisplayName() {
-
-        return name;
+    public Long getEntityId() {
+        return null;
     }
 
     @Override
-    public String getEmailAddress() {
+    public String getEntityName() {
+        return entityName;
+    }
 
+    @Override
+    public Long getId() {
         return null;
     }
 
     @Override
     public String getKey() {
-
-        return name;
+        return key;
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getUsername() {
-
+    public Timestamp getUpdated() {
         return null;
     }
 
     @Override
-    public boolean isActive() {
-
-        return false;
+    public String getValue() {
+        return value;
     }
 
-    @Override
-    public Long getId() {
-        return 123L;
+    public void setEntityName(final String entityName) {
+        this.entityName = entityName;
     }
 
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public void setValue(final String value) {
+        this.value = value;
+    }
 }

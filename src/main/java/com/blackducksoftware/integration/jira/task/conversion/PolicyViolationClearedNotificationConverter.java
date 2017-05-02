@@ -123,6 +123,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
                     .setHubRuleName(rule.getName())
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule))
+                    .setComponentIssueUrl(notif.getComponentIssueLink())
                     .build();
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);

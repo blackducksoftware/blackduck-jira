@@ -105,6 +105,11 @@
         <interface>com.blackducksoftware.integration.jira.HubJiraComponent</interface>
     </component>
     
+    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.event.IssueEventListener">
+        <description>Class that processes JIRA issue events to modify Hub Issues</description>
+    </component>
+    
     <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.task.HubMonitor"
              system="true" public="true">
         <description>The plugin component that schedules the Hub notification check task.</description>

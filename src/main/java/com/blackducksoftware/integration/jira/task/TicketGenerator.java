@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.HubSupportHelper;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
 import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
@@ -45,6 +46,7 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationProcessor;
+import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
@@ -74,13 +76,18 @@ public class TicketGenerator {
 
     private final boolean createVulnerabilityIssues;
 
+    private final HubIssueTrackerHandler hubIssueTrackerHandler;
+
+    private final HubSupportHelper hubSupportHelper;
+
     public TicketGenerator(final HubServicesFactory hubServicesFactory,
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final boolean createVulnerabilityIssues,
-            final List<String> linksOfRulesToInclude) {
+            final List<String> linksOfRulesToInclude,
+            final HubSupportHelper hubSupportHelper) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
         this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.createHubResponseService(),
@@ -95,6 +102,9 @@ public class TicketGenerator {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService,
+                hubServicesFactory.createBomComponentIssueRequestService(logger));
+        this.hubSupportHelper = hubSupportHelper;
     }
 
     public void generateTicketsForRecentNotifications(final UserView hubUser,
@@ -124,7 +134,7 @@ public class TicketGenerator {
             }
 
             final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
-                    ticketInfoFromSetup);
+                    ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
 
             for (final NotificationEvent event : events) {
                 try {

@@ -97,6 +97,8 @@ public class EventData {
 
     private String hubRuleUrl;
 
+    private String componentIssueUrl;
+
     // The constructor and setters are only for EventDataBuilder
 
     EventData() {
@@ -262,6 +264,11 @@ public class EventData {
         return this;
     }
 
+    EventData setComponentIssueUrl(final String componentIssueUrl) {
+        this.componentIssueUrl = componentIssueUrl;
+        return this;
+    }
+
     public HubEventAction getAction() {
         return action;
     }
@@ -388,6 +395,10 @@ public class EventData {
 
     public String getHubProjectVersionNickname() {
         return hubProjectVersionNickname;
+    }
+
+    public String getComponentIssueUrl() {
+        return componentIssueUrl;
     }
 
     public Map<String, Object> getDataSet() {

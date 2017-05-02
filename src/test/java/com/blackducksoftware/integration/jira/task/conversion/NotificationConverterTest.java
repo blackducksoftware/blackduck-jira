@@ -54,8 +54,8 @@ import com.blackducksoftware.integration.hub.dataservice.notification.model.Poli
 import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.model.HubView;
 import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.model.view.HubView;
 import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.model.view.components.VulnerabilitySourceQualifiedId;
@@ -554,7 +554,9 @@ public class NotificationConverterTest {
 
     private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
             final Date createdAt) throws URISyntaxException, HubIntegrationException {
-        final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId(VULN_SOURCE, COMPONENT_VERSION_URL);
+        final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
+        vuln.source = VULN_SOURCE;
+        vuln.vulnerabilityId = COMPONENT_VERSION_URL;
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
@@ -565,7 +567,7 @@ public class NotificationConverterTest {
                 COMPONENT_VERSION_URL,
                 addedVulnList,
                 updatedVulnList,
-                deletedVulnList);
+                deletedVulnList, "");
 
         return notif;
     }
@@ -588,7 +590,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList);
+                policyRuleList, "");
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
         return notif;
@@ -618,7 +620,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList);
+                policyRuleList, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
@@ -647,7 +649,7 @@ public class NotificationConverterTest {
                 COMPONENT_NAME,
                 createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
                 COMPONENT_VERSION_URL,
-                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME);
+                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 

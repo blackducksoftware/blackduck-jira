@@ -21,30 +21,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+public class HubIssueTrackerProperties {
 
-public class PluginSettingsFactoryMock implements PluginSettingsFactory {
+    private final String hubIssueUrl;
 
-    PluginSettings settings = new PluginSettingsMock();
+    private final Long jiraIssueId;
 
-    public PluginSettingsFactoryMock() {
-
+    public HubIssueTrackerProperties(final String hubIssueUrl, final Long jiraIssueId) {
+        this.hubIssueUrl = hubIssueUrl;
+        this.jiraIssueId = jiraIssueId;
     }
 
-    public PluginSettingsFactoryMock(final PluginSettingsMock settings) {
-        this.settings = settings;
+    public Long getJiraIssueId() {
+        return jiraIssueId;
     }
 
-    @Override
-    public PluginSettings createSettingsForKey(final String key) {
-        return null;
-    }
-
-    @Override
-    public PluginSettings createGlobalSettings() {
-        return settings;
+    public String getHubIssueUrl() {
+        return hubIssueUrl;
     }
 }

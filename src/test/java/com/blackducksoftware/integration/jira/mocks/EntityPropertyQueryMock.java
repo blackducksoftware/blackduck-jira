@@ -23,66 +23,44 @@
  */
 package com.blackducksoftware.integration.jira.mocks;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.entity.property.EntityPropertyQuery;
 
-public class ApplicationUserMock implements ApplicationUser {
-
-    private String name;
+public class EntityPropertyQueryMock<T extends EntityPropertyQuery<T>> implements EntityPropertyQuery<T> {
 
     @Override
-    public long getDirectoryId() {
-        return 0;
-    }
-
-    @Override
-    public User getDirectoryUser() {
-
+    public T entityId(final Long arg0) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getDisplayName() {
-
-        return name;
-    }
-
-    @Override
-    public String getEmailAddress() {
-
+    public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery entityName(final String arg0) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getKey() {
-
-        return name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getUsername() {
-
+    public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery key(final String arg0) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public boolean isActive() {
-
-        return false;
+    public T keyPrefix(final String arg0) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
-    public Long getId() {
-        return 123L;
+    public T maxResults(final int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public T offset(final int arg0) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

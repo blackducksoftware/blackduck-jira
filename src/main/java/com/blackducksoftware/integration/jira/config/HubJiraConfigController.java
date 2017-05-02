@@ -758,7 +758,7 @@ public class HubJiraConfigController {
     }
 
     private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
-        final SortedSet<String> jiraUsernames = new TreeSet<String>();
+        final SortedSet<String> jiraUsernames = new TreeSet<>();
         final String groupList = getStringValue(settings,
                 HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
@@ -820,6 +820,7 @@ public class HubJiraConfigController {
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
+
                     return null;
                 }
             });
@@ -1234,7 +1235,7 @@ public class HubJiraConfigController {
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
             final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(logger);
         List<ProjectView> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();
@@ -1357,5 +1358,4 @@ public class HubJiraConfigController {
         errorMsg += newMessage;
         return errorMsg;
     }
-
 }
