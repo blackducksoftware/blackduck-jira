@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task.issue;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.bc.issue.IssueService.AssignValidationResult;
@@ -514,8 +515,11 @@ public class JiraIssueHandler {
                     printIssueInfo(issue);
                     if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
                         final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
-                        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
-                        addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
+
+                        if (StringUtils.isNotBlank(hubIssueUrl)) {
+                            final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
+                            addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
+                        }
                     }
 
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
