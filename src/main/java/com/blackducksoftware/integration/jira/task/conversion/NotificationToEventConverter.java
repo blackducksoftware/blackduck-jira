@@ -198,6 +198,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
         final VersionBomComponentView targetBomComp = findCompInBom(bomComps, componentUrl, componentVersionUrl);
         if (targetBomComp == null) {
+        	logger.info(String.format("Component %s not found in BOM", componentName));
         	String componentVersionName = "<none>";
         	if (componentVersion != null) {
         		componentVersionName = componentVersion.getVersionName();
