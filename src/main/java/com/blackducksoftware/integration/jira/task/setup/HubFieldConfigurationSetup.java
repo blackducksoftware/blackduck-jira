@@ -163,17 +163,21 @@ public class HubFieldConfigurationSetup {
                 for (final FieldLayoutItem field : fields) {
                     String fieldName = field.getOrderableField().getName();
                     logger.debug("addHubFieldConfigurationToJira(): Hub field config: field: " + fieldName);
-                    fieldName = fieldName.replace(" ", "");
-                    fieldName = fieldName.toLowerCase();
-                    if (!requiredDefaultFields.contains(fieldName) && field.isRequired()) {
+                    String normalizedFieldName = fieldName.replace(" ", "");
+                    normalizedFieldName = normalizedFieldName.toLowerCase();
+                    if (!requiredDefaultFields.contains(normalizedFieldName) && field.isRequired()) {
                         logger.debug("addHubFieldConfigurationToJira(): Making field optional");
                         try {
                         	hubFieldLayout.makeOptional(field);
                         	fieldConfigurationNeedsUpdate = true;
                         } catch (IllegalArgumentException e) {
                         	String msg = String.format("Unable to make field %s optional: %s", fieldName, e.getMessage());
-                        	logger.error(msg);
-                        	settingService.addHubError(msg, "addHubFieldConfigurationToJira");
+                        	if ("Assignee".equals(fieldName)) {
+                        		logger.debug(msg);
+                        	} else {
+                        		logger.error(msg);
+                        		settingService.addHubError(msg, "addHubFieldConfigurationToJira");
+                        	}
                         }
                     }
                 }
