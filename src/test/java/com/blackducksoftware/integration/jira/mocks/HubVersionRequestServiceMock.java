@@ -38,7 +38,7 @@ public class HubVersionRequestServiceMock extends HubVersionRequestService {
 
     @Override
     public String getHubVersion() throws IntegrationException {
-        return versionComparison.getProducerVersion();
+        return versionComparison.producerVersion;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class HubVersionRequestServiceMock extends HubVersionRequestService {
 
     @Override
     public boolean isConsumerVersionLessThanOrEqualToServerVersion(final String consumerVersion) throws IntegrationException {
-        if (versionComparison.getNumericResult() <= 0) {
+        if (versionComparison.numericResult <= 0) {
             return true;
         } else {
             return false;

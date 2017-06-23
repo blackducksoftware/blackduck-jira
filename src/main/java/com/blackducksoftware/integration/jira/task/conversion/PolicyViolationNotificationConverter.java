@@ -65,7 +65,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubServicesFactory hubServicesFactory)
-            throws ConfigurationException {
+                    throws ConfigurationException {
         super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
                 fieldCopyConfig, hubServicesFactory, logger);
     }
@@ -79,13 +79,13 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
         final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
         for (final PolicyRuleView rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
-                    notification, rule.getName());
+                    notification, rule.name);
             final ComponentVersionView compVer = notification.getComponentVersion();
             final String compVerName;
             if (compVer == null) {
                 compVerName = "";
             } else {
-                compVerName = compVer.getVersionName();
+                compVerName = compVer.versionName;
             }
             final String licensesString = getComponentLicensesStringPlainText(notification);
             logger.debug("Component " + notification.getComponentName() +
@@ -123,7 +123,7 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
                     .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE)
                     .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT)
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                    .setHubRuleName(rule.getName())
+                    .setHubRuleName(rule.name)
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule))
                     .setComponentIssueUrl(notif.getComponentIssueLink())
                     .build();

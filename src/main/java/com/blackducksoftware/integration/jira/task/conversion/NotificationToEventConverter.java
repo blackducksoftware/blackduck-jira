@@ -155,7 +155,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         final StringBuilder usagesText = new StringBuilder();
         int usagesIndex = 0;
-        for (final MatchedFileUsageEnum usage : bomComp.getUsages()) {
+        for (final MatchedFileUsageEnum usage : bomComp.usages) {
             if (usagesIndex > 0) {
                 usagesText.append(", ");
             }
@@ -198,11 +198,11 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
         final VersionBomComponentView targetBomComp = findCompInBom(bomComps, componentUrl, componentVersionUrl);
         if (targetBomComp == null) {
-        	logger.info(String.format("Component %s not found in BOM", componentName));
-        	String componentVersionName = "<none>";
-        	if (componentVersion != null) {
-        		componentVersionName = componentVersion.getVersionName();
-        	}
+            logger.info(String.format("Component %s not found in BOM", componentName));
+            String componentVersionName = "<none>";
+            if (componentVersion != null) {
+                componentVersionName = componentVersion.versionName;
+            }
             logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s",
                     componentName, componentVersionName,
                     projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
@@ -220,10 +220,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         for (final VersionBomComponentView bomComp : bomComps) {
             String urlToTest;
-            if (bomComp.getComponentVersion() != null) {
-                urlToTest = bomComp.getComponentVersion();
+            if (bomComp.componentVersion != null) {
+                urlToTest = bomComp.componentVersion;
             } else {
-                urlToTest = bomComp.getComponent();
+                urlToTest = bomComp.component;
             }
             if (urlSought.equals(urlToTest)) {
                 return bomComp;
@@ -239,13 +239,13 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws IntegrationException {
         final ComponentVersionView componentVersion = notification.getComponentVersion();
         String licensesString = "";
-        if ((componentVersion != null) && (componentVersion.getLicense() != null) && (componentVersion.getLicense().getLicenses() != null)) {
-            final ComplexLicenseEnum type = componentVersion.getLicense().getType();
+        if ((componentVersion != null) && (componentVersion.license != null) && (componentVersion.license.licenses != null)) {
+            final ComplexLicenseEnum type = componentVersion.license.type;
             final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
                     : HubJiraConstants.LICENSE_NAME_JOINER_OR;
             int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
-            for (final ComplexLicenseView license : componentVersion.getLicense().getLicenses()) {
+            for (final ComplexLicenseView license : componentVersion.license.licenses) {
                 final String licenseTextUrl = getLicenseTextUrl(license);
                 logger.debug("Link to licence text: " + licenseTextUrl);
                 if (licenseIndex++ > 0) {
@@ -254,7 +254,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
                 if (includeLinks) {
                     sb.append("[");
                 }
-                sb.append(license.getName());
+                sb.append(license.name);
                 if (includeLinks) {
                     sb.append("|");
                     sb.append(licenseTextUrl);
@@ -267,7 +267,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     }
 
     private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
-        final String licenseUrl = license.getLicense();
+        final String licenseUrl = license.license;
         final ComplexLicenseView fullLicense = getHubServicesFactory().createHubResponseService().getItem(
                 licenseUrl, ComplexLicenseView.class);
         final String licenseTextUrl = getMetaService().getFirstLink(fullLicense, "text");

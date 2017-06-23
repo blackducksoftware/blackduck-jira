@@ -132,7 +132,11 @@ public class IssueEventListenerTest {
 
         issueServiceMock = new BomComponentIssueServiceMock(restConnection);
         versionRequestServiceMock = new HubVersionRequestServiceMock(restConnection);
-        final VersionComparison versionComparison = new VersionComparison("3.7.0", "3.7.0", 0, "=");
+        final VersionComparison versionComparison = new VersionComparison();
+        versionComparison.consumerVersion = "3.7.0";
+        versionComparison.producerVersion = "3.7.0";
+        versionComparison.numericResult = 0;
+        versionComparison.operatorResult = "=";
         versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         Mockito.when(hubServicesFactory.createBomComponentIssueRequestService(Mockito.any())).thenReturn(issueServiceMock);
@@ -319,7 +323,11 @@ public class IssueEventListenerTest {
 
     @Test
     public void testOldHubVersion() {
-        final VersionComparison versionComparison = new VersionComparison("3.7.0", "3.6.0", 1, ">");
+        final VersionComparison versionComparison = new VersionComparison();
+        versionComparison.consumerVersion = "3.7.0";
+        versionComparison.producerVersion = "3.6.0";
+        versionComparison.numericResult = 1;
+        versionComparison.operatorResult = ">";
         versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);

@@ -65,7 +65,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             final JiraServices jiraServices,
             final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
             final HubServicesFactory hubServicesFactory)
-            throws ConfigurationException {
+                    throws ConfigurationException {
         super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
                 fieldCopyConfig, hubServicesFactory, logger);
     }
@@ -79,7 +79,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
         final PolicyOverrideContentItem notification = (PolicyOverrideContentItem) notif;
         for (final PolicyRuleView rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
-                    notification, rule.getName());
+                    notification, rule.name);
 
             final String licensesString = getComponentLicensesStringPlainText(notification);
             final ComponentVersionView compVer = notification.getComponentVersion();
@@ -87,7 +87,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             if (compVer == null) {
                 compVerName = "";
             } else {
-                compVerName = compVer.getVersionName();
+                compVerName = compVer.versionName;
             }
             logger.debug("Component " + notification.getComponentName() +
                     " (version: " + compVerName + "): License: " + licensesString);
@@ -124,7 +124,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                     .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE)
                     .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT)
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                    .setHubRuleName(rule.getName())
+                    .setHubRuleName(rule.name)
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule))
                     .setComponentIssueUrl(notif.getComponentIssueLink())
                     .build();

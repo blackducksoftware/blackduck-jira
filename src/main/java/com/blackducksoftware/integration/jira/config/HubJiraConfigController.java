@@ -487,8 +487,8 @@ public class HubJiraConfigController {
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
                             getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
                     txSourceFields
-                            .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
-                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                    .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
+                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
                             getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
                     txSourceFields.add(
@@ -1256,7 +1256,7 @@ public class HubJiraConfigController {
         if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
             for (final ProjectView project : hubProjectItems) {
                 final HubProject newHubProject = new HubProject();
-                newHubProject.setProjectName(project.getName());
+                newHubProject.setProjectName(project.name);
                 try {
                     newHubProject.setProjectUrl(metaService.getHref(project));
                 } catch (final HubIntegrationException e) {
@@ -1292,22 +1292,22 @@ public class HubJiraConfigController {
                     if (policyRules != null && !policyRules.isEmpty()) {
                         for (final PolicyRuleView rule : policyRules) {
                             final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-                            String description = rule.getDescription();
+                            String description = rule.description;
                             if (description == null) {
                                 description = "";
                             }
                             newRule.setDescription(cleanDescription(description));
-                            newRule.setName(rule.getName().trim());
+                            newRule.setName(rule.name.trim());
 
                             final MetaService metaService = hubServicesFactory.createMetaService(logger);
                             try {
                                 newRule.setPolicyUrl(metaService.getHref(rule));
                             } catch (final HubIntegrationException e) {
-                                logger.error("Error getting URL for policy rule " + rule.getName() + ": " + e.getMessage());
+                                logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
                                 continue;
                             }
-                            newRule.setEnabled(rule.getEnabled());
+                            newRule.setEnabled(rule.enabled);
                             newPolicyRules.add(newRule);
                         }
                     }

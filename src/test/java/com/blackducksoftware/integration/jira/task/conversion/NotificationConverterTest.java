@@ -294,10 +294,10 @@ public class NotificationConverterTest {
 
         final AggregateBomRequestService bomRequestService = Mockito.mock(AggregateBomRequestService.class);
         final List<VersionBomComponentView> bom = new ArrayList<>();
-        final VersionBomComponentView bomComp = Mockito.mock(VersionBomComponentView.class);
-        Mockito.when(bomComp.getComponentName()).thenReturn("componentName");
-        Mockito.when(bomComp.getComponentVersionName()).thenReturn("componentVersion");
-        Mockito.when(bomComp.getComponentVersion()).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
+        final VersionBomComponentView bomComp = new VersionBomComponentView();
+        bomComp.componentName="componentName";
+        bomComp.componentVersionName="componentVersion";
+        bomComp.componentVersion=PROJECT_VERSION_COMPONENTS_URL;
         bom.add(bomComp);
         Mockito.when(bomRequestService.getBomEntries(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
         final IntLogger logger = new TestLogger();
@@ -365,9 +365,9 @@ public class NotificationConverterTest {
         addComp(bomComps, "comp1", null, "comp1version1Url");
         addComp(bomComps, "comp2", null, "comp2version1Url");
         addComp(bomComps, "comp3", "comp3Url", null);
-        assertEquals("comp1", conv.findCompInBom(bomComps, null, "comp1version1Url").getComponentName());
-        assertEquals("comp2", conv.findCompInBom(bomComps, null, "comp2version1Url").getComponentName());
-        assertEquals("comp3", conv.findCompInBom(bomComps, "comp3Url", null).getComponentName());
+        assertEquals("comp1", conv.findCompInBom(bomComps, null, "comp1version1Url").componentName);
+        assertEquals("comp2", conv.findCompInBom(bomComps, null, "comp2version1Url").componentName);
+        assertEquals("comp3", conv.findCompInBom(bomComps, "comp3Url", null).componentName);
         assertEquals(null, conv.findCompInBom(bomComps, null, "comp1versionXUrl"));
         assertEquals(null, conv.findCompInBom(bomComps, "compXUrl", null));
     }
@@ -375,9 +375,9 @@ public class NotificationConverterTest {
     private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl,
             final String componentVersionUrl) {
         final VersionBomComponentView bomComp = new VersionBomComponentView();
-        bomComp.setComponentName(componentName);
-        bomComp.setComponent(componentUrl);
-        bomComp.setComponentVersion(componentVersionUrl);
+        bomComp.componentName = componentName;
+        bomComp.component = componentUrl;
+        bomComp.componentVersion = componentVersionUrl;
 
         bomComps.add(bomComp);
     }
@@ -409,7 +409,7 @@ public class NotificationConverterTest {
     private NotificationToEventConverter createConverter(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
             final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final NotifType notifType, final HubProjectMappings mappingObject,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final ListProcessorCache cache)
-            throws ConfigurationException {
+                    throws ConfigurationException {
         NotificationToEventConverter conv;
         switch (notifType) {
         case VULNERABILITY:
@@ -452,7 +452,7 @@ public class NotificationConverterTest {
 
     private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now,
             final ProjectVersionModel projectVersion)
-            throws URISyntaxException, HubIntegrationException, IntegrationException {
+                    throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationContentItem notif;
         switch (notifType) {
         case VULNERABILITY:
@@ -508,7 +508,7 @@ public class NotificationConverterTest {
             final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange, final String expectedDescription,
             final String expectedSummary,
             final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
-            throws HubIntegrationException, URISyntaxException {
+                    throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         final NotificationEvent event = events.get(0);
         // HubEvent<VulnerabilityContentItem> event = events.get(0);
@@ -574,14 +574,14 @@ public class NotificationConverterTest {
 
     private ComponentVersionView createComponentVersionMock(final String componentVersion) {
         ComponentVersionView fullComponentVersion;
-        fullComponentVersion = Mockito.mock(ComponentVersionView.class);
-        Mockito.when(fullComponentVersion.getVersionName()).thenReturn(componentVersion);
+        fullComponentVersion = new ComponentVersionView();
+        fullComponentVersion.versionName=componentVersion;
         return fullComponentVersion;
     }
 
     private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
             final Date createdAt)
-            throws URISyntaxException, IntegrationException {
+                    throws URISyntaxException, IntegrationException {
 
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
         final PolicyRuleView rule = createRule();

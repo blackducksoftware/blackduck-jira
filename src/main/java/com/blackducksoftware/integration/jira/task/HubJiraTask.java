@@ -210,7 +210,7 @@ public class HubJiraTask {
             return null;
         }
         for (final UserView user : users) {
-            if (currentUsername.equals(user.getUserName())) {
+            if (currentUsername.equals(user.userName)) {
                 return user;
             }
         }
@@ -245,7 +245,7 @@ public class HubJiraTask {
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
             final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubSupportHelper hubSupportHelper)
-            throws URISyntaxException {
+                    throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,

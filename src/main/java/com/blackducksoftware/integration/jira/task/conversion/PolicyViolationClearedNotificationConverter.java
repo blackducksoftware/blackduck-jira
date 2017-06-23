@@ -78,7 +78,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
         logger.debug("handleNotificationPerJiraProject(): notification: " + notification);
         for (final PolicyRuleView rule : notification.getPolicyRuleList()) {
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(
-                    notification, rule.getName());
+                    notification, rule.name);
 
             final String licensesString = getComponentLicensesStringPlainText(notification);
             logger.debug("Component " + notification.getComponentName() +
@@ -86,7 +86,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
             String componentVersionName = "";
             if (notification.getComponentVersion() != null) {
-                componentVersionName = notification.getComponentVersion().getVersionName();
+                componentVersionName = notification.getComponentVersion().versionName;
             }
 
             final VersionBomComponentView bomComp = getBomComponent(notification);
@@ -121,7 +121,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE)
                     .setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT)
                     .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
-                    .setHubRuleName(rule.getName())
+                    .setHubRuleName(rule.name)
                     .setHubRuleUrl(getHubServicesFactory().createMetaService(logger).getHref(rule))
                     .setComponentIssueUrl(notif.getComponentIssueLink())
                     .build();

@@ -46,7 +46,7 @@ public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator 
         if (compVer == null) {
             this.componentVersion = "";
         } else {
-            this.componentVersion = compVer.getVersionName();
+            this.componentVersion = compVer.versionName;
         }
         this.ruleName = ruleName;
     }

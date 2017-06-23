@@ -58,7 +58,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
             final String issueTypeName,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final HubServicesFactory hubServicesFactory, final HubJiraLogger logger)
-            throws ConfigurationException {
+                    throws ConfigurationException {
         super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig,
                 hubServicesFactory, logger);
         this.logger = logger;
@@ -131,13 +131,13 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         final ComponentVersionView compVer = notif.getComponentVersion();
         if (compVer != null) {
             issueDescription.append("' / '");
-            issueDescription.append(compVer.getVersionName());
+            issueDescription.append(compVer.versionName);
         }
         issueDescription.append("'.");
         issueDescription.append(" The rule violated is: '");
-        issueDescription.append(rule.getName());
+        issueDescription.append(rule.name);
         issueDescription.append("'. Rule overridable: ");
-        issueDescription.append(rule.getOverridable());
+        issueDescription.append(rule.overridable);
 
         if (compVer != null) {
             final String licenseText;
@@ -163,11 +163,11 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueSummary.append(notif.getComponentName());
         if (notif.getComponentVersion() != null) {
             issueSummary.append("' / '");
-            issueSummary.append(notif.getComponentVersion().getVersionName());
+            issueSummary.append(notif.getComponentVersion().versionName);
         }
         issueSummary.append("'");
         issueSummary.append(" [Rule: '");
-        issueSummary.append(rule.getName());
+        issueSummary.append(rule.name);
         issueSummary.append("']");
         return issueSummary.toString();
     }
