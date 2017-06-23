@@ -276,7 +276,7 @@ public class HubFieldScreenSchemeSetup {
                 final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
                 if (existingField == null) {
                     logger.debug("addHubTabToScreen(): custom field " + field.getName()
-                            + " is not on hub screen tab; adding it");
+                    + " is not on hub screen tab; adding it");
                     myTab.addFieldScreenLayoutItem(field.getId());
                     needToUpdateTabAndScreen = true;
                 }
@@ -326,8 +326,7 @@ public class HubFieldScreenSchemeSetup {
         }
         if (layoutItem.getOrderableField() == null) {
             msg = "addHubTabToScreen(): layoutItem's field is null";
-            logger.error(msg);
-            settingService.addHubError(msg, "addHubTabToScreen");
+            logger.debug(msg);
             return false;
         }
         return isOk;
