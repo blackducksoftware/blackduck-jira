@@ -9,7 +9,7 @@ Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA 
 
 ## Where can I get the latest release? ##
 You can download the latest source from GitHub: https://github.com/blackducksoftware/hub-jira. 
-You can download the latest release artifacts from GitHub: https://github.com/blackducksoftware/hub-jira/releases
+You can download the latest release artifacts from GitHub: https://github.com/blackducksoftware/hub-docker-inspector/tree/gh-pages
 
 ## Documentation ##
 All documentation for hub-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/)
