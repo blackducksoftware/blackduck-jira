@@ -9,6 +9,7 @@ Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA 
 
 ## Where can I get the latest release? ##
 You can always get the latest from the [Atlassian Marketplace](https://marketplace.atlassian.com/plugins/com.blackducksoftware.integration.hub-jira/server/overview) 
+
 Alternatively, you can download the latest from GitHub: https://github.com/blackducksoftware/hub-jira/releases
 
 
