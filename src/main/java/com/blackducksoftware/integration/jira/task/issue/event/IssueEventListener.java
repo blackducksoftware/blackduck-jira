@@ -61,28 +61,27 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     private final EventPublisher eventPublisher;
-
     private final PluginSettingsFactory pluginSettingsFactory;
-
     private final JiraServices jiraServices;
+    private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
 
     public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory) {
         this(eventPublisher, pluginSettingsFactory, new JiraServices());
     }
 
-    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory,
-            final JiraServices jiraServices) {
+    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.jiraServices = jiraServices;
+        this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
     }
 
     @Override
@@ -106,31 +105,42 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Event Type ID:    %s", eventTypeID));
                 logger.debug(String.format("Issue:            %s", issue));
 
-                final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
-                final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
+                final String propertyKey = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
+                final EntityProperty hubIssueUrlProperty = getHubIssueTrackerUrlProperty(propertyKey, issue);
 
-                // only execute if hub 3.7 or higher with the issue tracker capability
-                final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
-                final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
+                if (hubIssueUrlProperty == null) {
+                    logger.debug(String.format("Hub Issue Tracker URL not present. No further processing for issue: %s", issue));
+                } else {
 
-                final HubSupportHelper hubSupportHelper = new HubSupportHelper();
-                final HubVersionRequestService hubVersionRequestService = servicesFactory.createHubVersionRequestService();
-                hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
+                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+                    final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+                    final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-                final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+                    // only execute if hub 3.7 or higher with the issue tracker
+                    // capability
+                    final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
+                    if (hubServerConfig == null) {
+                        logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
+                    } else {
+                        final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
 
-                if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
-                    final HubJiraConfigSerializable config = createJiraConfig(configDetails);
-                    if (config == null) {
-                        logger.debug("No Hub Jira configuration set");
-                        return;
+                        final HubSupportHelper hubSupportHelper = new HubSupportHelper();
+                        final HubVersionRequestService hubVersionRequestService = servicesFactory.createHubVersionRequestService();
+                        hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
+
+                        final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+
+                        if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
+                            final HubJiraConfigSerializable config = createJiraConfig(configDetails);
+                            if (config == null) {
+                                logger.debug("No Hub Jira configuration set");
+                                return;
+                            }
+
+                            final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createBomComponentIssueRequestService(logger));
+                            handleIssue(jiraContext, eventTypeID, issue, hubIssueHandler, hubIssueUrlProperty, propertyKey);
+                        }
                     }
-
-                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService,
-                            servicesFactory.createBomComponentIssueRequestService(logger));
-                    handleIssue(jiraContext, eventTypeID, issue, hubIssueHandler);
-
                 }
             }
         } catch (final Exception ex) {
@@ -138,12 +148,24 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         }
     }
 
-    private HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+    private EntityProperty getHubIssueTrackerUrlProperty(final String propertyKey, final Issue issue) {
+
+        logger.debug(String.format("Entitykey: %s", propertyKey));
+        final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
+        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(propertyKey);
+        final List<EntityProperty> entityProperties = executableQuery.find();
+        if (entityProperties.isEmpty()) {
+            return null;
+        } else {
+            return entityProperties.get(0);
+        }
+    }
+
+    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
         final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
         HubServerConfig hubServerConfig = null;
         if (configDetails.getProjectMappingJson() == null) {
-            logger.debug(
-                    "HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+            logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
         }
 
@@ -164,17 +186,14 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         }
 
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
-        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / "
-                + hubServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
         logger.debug("Interval: " + configDetails.getIntervalString());
 
         return hubServerConfig;
     }
 
     public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(),
-                config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(),
-                config.getTimeout());
+        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(), config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(), config.getTimeout());
         return new HubServicesFactory(restConnection);
     }
 
@@ -189,45 +208,38 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         if (config.getHubProjectMappings() != null) {
             logger.debug("Mappings:");
             for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-                logger.debug(mapping.toString());
+                if (mapping != null) {
+                    logger.debug(mapping.toString());
+                }
             }
         }
 
         if (config.getPolicyRules() != null) {
             logger.debug("Policy Rules:");
             for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-                logger.debug(rule.toString());
+                if (rule != null) {
+                    logger.debug(rule.toString());
+                }
             }
         }
         return config;
     }
 
-    private void handleIssue(final JiraContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler)
-            throws IntegrationException {
-
-        final String propertyKey = hubIssueHandler.createEntityPropertyKey(issue);
-        logger.debug(String.format("Entitykey: ", propertyKey));
-        final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
-        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(propertyKey);
-        final List<EntityProperty> entityProperties = executableQuery.find();
-        if (!entityProperties.isEmpty()) {
-            final EntityProperty property = entityProperties.get(0);
-            // final EntityProperty property = props.get(0);
-            final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
-            if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
-                // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
-                hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
-                // the issue has been
-                final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();
-                final ApplicationUser issueCreatorUser = jiraContext.getJiraIssueCreatorUser();
-                final DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(issueCreatorUser,
-                        property.getEntityId(),
-                        propertyKey);
-                jiraServices.getProjectPropertyService().deleteProperty(issueCreatorUser, validationResult);
-            } else {
-                // issue updated.
-                hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
-            }
+    private void handleIssue(final JiraContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+        // final EntityProperty property = props.get(0);
+        final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+        if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
+            // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move
+            // may be treated as delete in the future
+            hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+            // the issue has been
+            final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();
+            final ApplicationUser issueCreatorUser = jiraContext.getJiraIssueCreatorUser();
+            final DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(issueCreatorUser, property.getEntityId(), propertyKey);
+            jiraServices.getProjectPropertyService().deleteProperty(issueCreatorUser, validationResult);
+        } else {
+            // issue updated.
+            hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
         }
     }
 
@@ -239,9 +251,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
-            logger.warn(String.format(
-                    "The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration",
-                    jiraAdminUsername));
+            logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
             jiraIssueCreatorUsername = jiraAdminUsername;
         }
         final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);

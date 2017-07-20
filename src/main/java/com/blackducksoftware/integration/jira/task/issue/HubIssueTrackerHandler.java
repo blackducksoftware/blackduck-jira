@@ -41,8 +41,6 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 public class HubIssueTrackerHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
-
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
     private final JiraServices jiraServices;
@@ -53,18 +51,13 @@ public class HubIssueTrackerHandler {
 
     private final DateFormat dateFormatter;
 
-    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-            final BomComponentIssueRequestService issueRequestService) {
+    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final BomComponentIssueRequestService issueRequestService) {
         this.jiraServices = jiraServices;
         this.jiraSettingsService = jiraSettingsService;
         this.issueRequestService = issueRequestService;
 
         dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
-    public String createEntityPropertyKey(final Issue jiraIssue) {
-        return String.format("%s_%s", HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssue.getId());
     }
 
     public String createHubIssue(final String hubIssueUrl, final Issue jiraIssue) {

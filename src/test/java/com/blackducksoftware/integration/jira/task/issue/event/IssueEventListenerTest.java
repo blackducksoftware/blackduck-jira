@@ -80,7 +80,7 @@ import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerPropertyHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -149,7 +149,7 @@ public class IssueEventListenerTest {
 
     private PluginSettingsMock createPluginSettings() {
         final PluginSettingsMock settings = new PluginSettingsMock();
-        settings.put(HubConfigKeys.CONFIG_HUB_URL, "www.google.com");
+        settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
         settings.put(HubConfigKeys.CONFIG_HUB_USER, JIRA_USER);
         settings.put(HubConfigKeys.CONFIG_HUB_PASS, "apassword");
         settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "");
@@ -229,7 +229,7 @@ public class IssueEventListenerTest {
     private void createEntityProperty() {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
         entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(HubIssueTrackerHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+        entityProperty.setKey(HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
         final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
         final List<EntityProperty> propList = new ArrayList<>(1);
@@ -249,7 +249,8 @@ public class IssueEventListenerTest {
 
         });
         jiraServices.setJsonEntityPropertyManager(jsonManager);
-        // jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME, JIRA_PROJECT_ID,
+        // jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
+        // JIRA_PROJECT_ID,
         // entityProperty.getKey(),
         // entityProperty.getValue());
     }

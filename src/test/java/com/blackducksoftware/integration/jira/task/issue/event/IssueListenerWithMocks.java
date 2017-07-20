@@ -28,15 +28,15 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
+import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class IssueListenerWithMocks extends IssueEventListener {
 
     private final HubServicesFactory hubServicesFactory;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory,
-            final JiraServices jiraServices,
-            final HubServicesFactory hubServicesFactory) {
+    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices, final HubServicesFactory hubServicesFactory) {
         super(eventPublisher, pluginSettingsFactory, jiraServices);
         this.hubServicesFactory = hubServicesFactory;
     }
@@ -44,5 +44,11 @@ public class IssueListenerWithMocks extends IssueEventListener {
     @Override
     public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
         return hubServicesFactory;
+    }
+
+    @Override
+    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+        final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
+        return super.createHubServerConfig(testConfigDetails);
     }
 }
