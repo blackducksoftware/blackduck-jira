@@ -23,32 +23,34 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.event;
 
-import java.util.concurrent.ExecutorService;
-
-import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.mocks.issue.ExecutorServiceMock;
+import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
+import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
-public class IssueListenerWithMocks extends IssueEventListener {
+public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
+
     private final HubServicesFactory hubServicesFactory;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices, final HubServicesFactory hubServicesFactory) {
-        super(eventPublisher, pluginSettingsFactory, jiraServices);
+    public IssueTrackerTaskWithMocks(final Issue jiraIssue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property,
+            final HubServicesFactory hubServicesFactory) {
+        super(jiraIssue, eventTypeID, jiraServices, settings, propertyKey, property);
         this.hubServicesFactory = hubServicesFactory;
     }
 
     @Override
-    public ExecutorService createExecutorService() {
-        return new ExecutorServiceMock();
+    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
+        return hubServicesFactory;
     }
 
     @Override
-    public IssueTrackerTask createTask(final Issue issue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
-        return new IssueTrackerTaskWithMocks(issue, eventTypeID, jiraServices, settings, propertyKey, property, this.hubServicesFactory);
+    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+        final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
+        return super.createHubServerConfig(testConfigDetails);
     }
 }
