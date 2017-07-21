@@ -5,7 +5,7 @@ PROJECT_KEY=TEST
 PROJECT_URL="$SERVER/rest/api/2/project"
 ISSUE_URL="$SERVER/rest/api/2/issue"
 TEMP_FILE=temp_data.json
-MAX_ISSUES=100
+MAX_ISSUES=1000
 
 run() {
     create_project
@@ -53,7 +53,7 @@ create_issue() {
 edit_issue() {
     echo "{ \"fields\": {
     \"summary\": \"Issue $1 Updated\",
-    \"assignee\": \"admin\" } }" > $TEMP_FILE
+    \"assignee\": { \"name\": \"admin\" } } }" > $TEMP_FILE
     json_data=$(cat $TEMP_FILE);
     curl -D- -u $USER -X PUT --data "${json_data}" -H "Content-Type: application/json" $ISSUE_URL/$PROJECT_KEY-$1
 }
