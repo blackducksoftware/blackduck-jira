@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
@@ -67,8 +66,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     }
 
     public ExecutorService createExecutorService() {
-        final ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), threadFactory);
+        return Executors.newSingleThreadExecutor();
     }
 
     @Override
