@@ -70,8 +70,10 @@ public class PluginConfigurationDetails {
     private final String fieldCopyMappingJson;
 
     private final boolean createVulnerabilityIssues;
+    private final PluginSettings settings;
 
     public PluginConfigurationDetails(final PluginSettings settings) {
+        this.settings = settings;
         hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
         hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
         hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
@@ -85,10 +87,8 @@ public class PluginConfigurationDetails {
         hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
         hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        intervalString = getStringValue(settings,
-                HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-        projectMappingJson = getStringValue(settings,
-                HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+        intervalString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        projectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
         policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
         installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
         lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
@@ -98,6 +98,10 @@ public class PluginConfigurationDetails {
 
         fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
         createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+    }
+
+    public PluginSettings getSettings() {
+        return settings;
     }
 
     public String getHubUrl() {
