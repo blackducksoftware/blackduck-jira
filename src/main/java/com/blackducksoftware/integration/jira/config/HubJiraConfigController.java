@@ -488,8 +488,8 @@ public class HubJiraConfigController {
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
                             getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
                     txSourceFields
-                    .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                            .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
+                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
                             getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
                     txSourceFields.add(
@@ -1289,11 +1289,11 @@ public class HubJiraConfigController {
                     } catch (final HubIntegrationException e) {
                         config.setPolicyRulesError(e.getMessage());
                     } catch (final IntegrationRestException ire) {
-                    		if(ire.getHttpStatusCode() == 402) {
-                    			config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
-                    		} else { 
-                    			config.setPolicyRulesError(ire.getMessage());
-                    		}
+                        if (ire.getHttpStatusCode() == 402) {
+                            config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
+                        } else {
+                            config.setPolicyRulesError(ire.getMessage());
+                        }
                     }
 
                     if (policyRules != null && !policyRules.isEmpty()) {
