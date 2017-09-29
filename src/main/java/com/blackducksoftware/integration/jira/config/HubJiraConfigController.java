@@ -79,6 +79,7 @@ import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -1287,6 +1288,12 @@ public class HubJiraConfigController {
                         policyRules = policyService.getAllPolicyRules();
                     } catch (final HubIntegrationException e) {
                         config.setPolicyRulesError(e.getMessage());
+                    } catch (final IntegrationRestException ire) {
+                    		if(ire.getHttpStatusCode() == 402) {
+                    			config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
+                    		} else { 
+                    			config.setPolicyRulesError(ire.getMessage());
+                    		}
                     }
 
                     if (policyRules != null && !policyRules.isEmpty()) {

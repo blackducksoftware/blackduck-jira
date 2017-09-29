@@ -42,6 +42,8 @@ public class JiraConfigErrors {
     public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of the Hub does not support Policies.";
 
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Hub server.";
+    
+    public static final String NO_POLICY_LICENSE_FOUND = "Valid Policy License was not found";
 
     public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";
 
