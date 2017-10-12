@@ -103,7 +103,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
                         return Boolean.FALSE;
                     }
 
-                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createBomComponentIssueRequestService(logger));
+                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createBomComponentIssueRequestService());
                     handleIssue(jiraContext, eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
                 }
             }

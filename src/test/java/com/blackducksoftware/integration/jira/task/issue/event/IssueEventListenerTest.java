@@ -139,7 +139,7 @@ public class IssueEventListenerTest {
         versionComparison.operatorResult = "=";
         versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        Mockito.when(hubServicesFactory.createBomComponentIssueRequestService(Mockito.any())).thenReturn(issueServiceMock);
+        Mockito.when(hubServicesFactory.createBomComponentIssueRequestService()).thenReturn(issueServiceMock);
         Mockito.when(hubServicesFactory.createHubVersionRequestService()).thenReturn(versionRequestServiceMock);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);

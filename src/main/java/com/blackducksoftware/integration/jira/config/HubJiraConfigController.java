@@ -117,11 +117,8 @@ public class HubJiraConfigController {
 
     private final Properties i18nProperties;
 
-    public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
-            final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-            final HubMonitor hubMonitor,
-            final GroupPickerSearchService groupPickerSearchService,
-            final FieldManager fieldManager) {
+    public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager, final HubMonitor hubMonitor,
+            final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
@@ -307,8 +304,7 @@ public class HubJiraConfigController {
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-                    final String intervalBetweenChecks = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    final String intervalBetweenChecks = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
                     txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
 
@@ -341,8 +337,7 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
-                    final String creator = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+                    final String creator = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
                     txConfig.setCreator(creator);
                     validateCreator(txConfig);
                     return txConfig;
@@ -485,29 +480,19 @@ public class HubJiraConfigController {
                 public Object doInTransaction() {
                     final Fields txSourceFields = new Fields();
                     logger.debug("Adding source fields");
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
-                    txSourceFields
-                            .add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(),
-                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
-                    txSourceFields.add(
-                            new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(),
-                                    getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
                     // TODO: Uncomment these when Hub starts providing Origin info
                     // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(),
                     // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
                     // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(),
                     // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(),
-                            getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
 
                     Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                     logger.debug("sourceFields: " + txSourceFields);
@@ -579,8 +564,7 @@ public class HubJiraConfigController {
                 @Override
                 public Object doInTransaction() {
 
-                    final String policyRulesJson = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+                    final String policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
 
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
@@ -625,8 +609,7 @@ public class HubJiraConfigController {
                 public Object doInTransaction() {
                     logger.debug("GET createVulnerabilityTicketsChoice transaction");
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
-                    final String createVulnIssuesChoiceString = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+                    final String createVulnIssuesChoiceString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
                     logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
                     boolean choice = true;
                     if ("false".equalsIgnoreCase(createVulnIssuesChoiceString)) {
@@ -664,8 +647,7 @@ public class HubJiraConfigController {
 
                     final HubJiraConfigSerializable txConfig = new HubJiraConfigSerializable();
 
-                    final String hubProjectMappingsJson = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+                    final String hubProjectMappingsJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 
                     txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
 
@@ -700,8 +682,7 @@ public class HubJiraConfigController {
 
                     final HubJiraFieldCopyConfigSerializable txConfig = new HubJiraFieldCopyConfigSerializable();
 
-                    final String hubFieldCopyMappingsJson = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+                    final String hubFieldCopyMappingsJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
 
                     logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
                     txConfig.setJson(hubFieldCopyMappingsJson);
@@ -760,13 +741,11 @@ public class HubJiraConfigController {
 
     private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
         final SortedSet<String> jiraUsernames = new TreeSet<>();
-        final String groupList = getStringValue(settings,
-                HubJiraConfigKeys.HUB_CONFIG_GROUPS);
+        final String groupList = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
             final String[] groupNames = groupList.split(",");
             for (final String groupName : groupNames) {
-                jiraUsernames.addAll(new JiraServices()
-                        .getGroupManager().getUserNamesInGroup(groupName));
+                jiraUsernames.addAll(new JiraServices().getGroupManager().getUserNamesInGroup(groupName));
             }
         }
         logger.debug("getJiraUsernames(): returning: " + jiraUsernames);
@@ -801,20 +780,15 @@ public class HubJiraConfigController {
                     if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME,
-                                dateFormatter.format(new Date()));
+                        setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
                     }
-                    final String previousInterval = getStringValue(settings,
-                            HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS,
-                            config.getIntervalBetweenChecks());
+                    final String previousInterval = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
                     final String issueCreatorJiraUser = config.getCreator();
                     logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER,
-                            issueCreatorJiraUser);
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, issueCreatorJiraUser);
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON,
-                            config.getHubProjectMappingsJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
                     setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
@@ -841,8 +815,7 @@ public class HubJiraConfigController {
     @Path("/removeErrors")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete,
-            @Context final HttpServletRequest request) {
+    public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete, @Context final HttpServletRequest request) {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         final Response response = checkUserPermissions(request, settings);
         if (response != null) {
@@ -866,8 +839,7 @@ public class HubJiraConfigController {
                     ticketErrors = new ArrayList<>();
                 }
 
-                if (errorsToDelete.getHubJiraTicketErrors() != null
-                        && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
+                if (errorsToDelete.getHubJiraTicketErrors() != null && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
                     for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
                         try {
                             final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
@@ -897,8 +869,7 @@ public class HubJiraConfigController {
     @Path("/admin")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateHubAdminConfiguration(final HubAdminConfigSerializable adminConfig,
-            @Context final HttpServletRequest request) {
+    public Response updateHubAdminConfiguration(final HubAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
         final Object responseObject;
         try {
             final String username = userManager.getRemoteUsername(request);
@@ -939,8 +910,7 @@ public class HubJiraConfigController {
     @Path("/updateFieldCopyMappings")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateFieldCopyConfiguration(final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            @Context final HttpServletRequest request) {
+    public Response updateFieldCopyConfiguration(final HubJiraFieldCopyConfigSerializable fieldCopyConfig, @Context final HttpServletRequest request) {
         try {
             logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
             logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
@@ -961,8 +931,7 @@ public class HubJiraConfigController {
                         return null;
                     }
 
-                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON,
-                            fieldCopyConfig.getJson());
+                    setValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
                     return null;
                 }
             });
@@ -1028,8 +997,7 @@ public class HubJiraConfigController {
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
                         final String oldLastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
                         final String newLastRunDateString = dateFormatter.format(now);
-                        logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString
-                                + "; this will skip over any notifications generated between those times");
+                        logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
                         setValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newLastRunDateString);
                         setValue(settings, HubJiraConstants.HUB_JIRA_ERROR, null);
                     } catch (final Exception e) {
@@ -1117,8 +1085,7 @@ public class HubJiraConfigController {
                 }
             }
             if (hasEmptyMapping) {
-                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(),
-                        JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
+                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(), JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
             }
         }
     }
@@ -1178,14 +1145,11 @@ public class HubJiraConfigController {
         final String encHubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
         final String hubTimeout = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
 
-        if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword)
-                && StringUtils.isBlank(hubTimeout)) {
+        if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword) && StringUtils.isBlank(hubTimeout)) {
             config.setErrorMessage(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING);
             return null;
-        } else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword)
-                || StringUtils.isBlank(hubTimeout)) {
-            config.setErrorMessage(
-                    JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
+        } else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword) || StringUtils.isBlank(hubTimeout)) {
+            config.setErrorMessage(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
             return null;
         }
 
@@ -1220,10 +1184,7 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(),
-                    serverConfig.getGlobalCredentials().getUsername(),
-                    serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout());
+            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout());
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
@@ -1233,10 +1194,9 @@ public class HubJiraConfigController {
         return restConnection;
     }
 
-    private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory,
-            final ErrorTracking config) {
+    private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory, final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(logger);
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         List<ProjectView> hubProjectItems = null;
         try {
             hubProjectItems = projectRequestService.getAllProjects();
@@ -1246,7 +1206,7 @@ public class HubJiraConfigController {
         }
 
         final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
-        final MetaService metaService = hubServicesFactory.createMetaService(logger);
+        final MetaService metaService = hubServicesFactory.createMetaService();
         try {
             hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
         } catch (final HubIntegrationException e1) {
@@ -1306,7 +1266,7 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.name.trim());
 
-                            final MetaService metaService = hubServicesFactory.createMetaService(logger);
+                            final MetaService metaService = hubServicesFactory.createMetaService();
                             try {
                                 newRule.setPolicyUrl(metaService.getHref(rule));
                             } catch (final HubIntegrationException e) {
@@ -1337,8 +1297,7 @@ public class HubJiraConfigController {
         }
         config.setPolicyRules(newPolicyRules);
         if (config.getPolicyRules().isEmpty()) {
-            config.setPolicyRulesError(
-                    concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
+            config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
         }
 
     }

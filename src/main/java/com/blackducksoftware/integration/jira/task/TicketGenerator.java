@@ -51,8 +51,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 /**
- * Collects recent notifications from the Hub, and generates JIRA tickets for
- * them.
+ * Collects recent notifications from the Hub, and generates JIRA tickets for them.
  *
  * @author sbillings
  *
@@ -80,52 +79,37 @@ public class TicketGenerator {
 
     private final HubSupportHelper hubSupportHelper;
 
-    public TicketGenerator(final HubServicesFactory hubServicesFactory,
-            final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            final boolean createVulnerabilityIssues,
-            final List<String> linksOfRulesToInclude,
-            final HubSupportHelper hubSupportHelper) {
+    public TicketGenerator(final HubServicesFactory hubServicesFactory, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final boolean createVulnerabilityIssues, final List<String> linksOfRulesToInclude, final HubSupportHelper hubSupportHelper) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
-        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.createHubResponseService(),
-                hubServicesFactory.createNotificationRequestService(logger),
-                hubServicesFactory.createProjectVersionRequestService(logger),
-                hubServicesFactory.createPolicyRequestService(),
-                policyNotificationFilter,
-                hubServicesFactory.createMetaService(logger));
+        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.createHubResponseService(), hubServicesFactory.createNotificationRequestService(), hubServicesFactory.createProjectVersionRequestService(),
+                hubServicesFactory.createPolicyRequestService(), policyNotificationFilter, hubServicesFactory.createMetaService());
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
-        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService,
-                hubServicesFactory.createBomComponentIssueRequestService(logger));
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, hubServicesFactory.createBomComponentIssueRequestService());
         this.hubSupportHelper = hubSupportHelper;
     }
 
-    public void generateTicketsForRecentNotifications(final UserView hubUser,
-            final HubProjectMappings hubProjectMappings, final Date startDate,
-            final Date endDate) throws HubIntegrationException {
+    public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
 
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Hub projects to monitor");
             return;
         }
         try {
-            final NotificationResults results = notificationDataService.getUserNotifications(startDate,
-                    endDate, hubUser);
+            final NotificationResults results = notificationDataService.getUserNotifications(startDate, endDate, hubUser);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
                 logger.info("There are no notifications to handle");
                 return;
             }
-            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices,
-                    jiraContext, jiraSettingsService, hubServicesFactory, createVulnerabilityIssues);
+            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, createVulnerabilityIssues);
 
             final List<NotificationEvent> events = processor.process(notifs);
             if ((events == null) || (events.size() == 0)) {
@@ -133,8 +117,7 @@ public class TicketGenerator {
                 return;
             }
 
-            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService,
-                    ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
+            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
 
             for (final NotificationEvent event : events) {
                 try {

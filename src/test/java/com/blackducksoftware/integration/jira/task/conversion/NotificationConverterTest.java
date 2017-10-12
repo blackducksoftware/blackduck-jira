@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +56,7 @@ import com.blackducksoftware.integration.hub.dataservice.notification.model.Poli
 import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.model.HubView;
+import com.blackducksoftware.integration.hub.model.enumeration.MatchedFileUsageEnum;
 import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
@@ -105,12 +107,8 @@ public class NotificationConverterTest {
 
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was cleared in the Hub.";
 
-    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on " +
-            "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
-            + "], component 'componentName' / 'componentVersion'. The rule violated is: '"
-            +
-            RULE_NAME + "'. Rule overridable: true" +
-            "\nComponent license(s): ";
+    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
+            + "], component 'componentName' / 'componentVersion'. The rule violated is: '" + RULE_NAME + "'. Rule overridable: true" + "\nComponent license(s): ";
 
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
 
@@ -136,8 +134,7 @@ public class NotificationConverterTest {
 
     private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
 
-    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '"
-            + RULE_NAME + "']";
+    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
 
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was detected again by the Hub.";
 
@@ -201,25 +198,23 @@ public class NotificationConverterTest {
 
     private static final String VULN_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
 
-    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" +
-            "Vulnerabilities added: http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId (NVD)\n" +
-            "Vulnerabilities updated: None\n" +
-            "Vulnerabilities deleted: None\n";
+    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" + "Vulnerabilities added: http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId (NVD)\n"
+            + "Vulnerabilities updated: None\n" + "Vulnerabilities deleted: None\n";
 
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
 
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
 
-    private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " +
-            "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL + "], component 'componentName' / 'componentVersion'. " +
-            "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub." +
-            "\nComponent license(s): ";
+    private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
+            + "], component 'componentName' / 'componentVersion'. " + "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub." + "\nComponent license(s): ";
 
-    private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " +
-            "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
+    private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " + "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
 
     private enum NotifType {
-        VULNERABILITY, POLICY_VIOLATION, POLICY_VIOLATION_OVERRIDE, POLICY_VIOLATION_CLEARED
+        VULNERABILITY,
+        POLICY_VIOLATION,
+        POLICY_VIOLATION_OVERRIDE,
+        POLICY_VIOLATION_CLEARED
     }
 
     private static MetaService metaService;
@@ -253,8 +248,7 @@ public class NotificationConverterTest {
         final JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
         mappings.add(mapping);
-        projectMappingObject = new HubProjectMappings(jiraServices,
-                mappings);
+        projectMappingObject = new HubProjectMappings(jiraServices, mappings);
         fieldCopyConfig = createFieldCopyMappings();
 
         final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
@@ -290,18 +284,19 @@ public class NotificationConverterTest {
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
         metaService = Mockito.mock(MetaService.class);
         Mockito.when(metaService.getHref(Mockito.any(HubView.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
-        Mockito.when(hubServicesFactory.createMetaService(Mockito.any(IntLogger.class))).thenReturn(metaService);
+        Mockito.when(hubServicesFactory.createMetaService()).thenReturn(metaService);
 
         final AggregateBomRequestService bomRequestService = Mockito.mock(AggregateBomRequestService.class);
         final List<VersionBomComponentView> bom = new ArrayList<>();
         final VersionBomComponentView bomComp = new VersionBomComponentView();
-        bomComp.componentName="componentName";
-        bomComp.componentVersionName="componentVersion";
-        bomComp.componentVersion=PROJECT_VERSION_COMPONENTS_URL;
+        bomComp.componentName = "componentName";
+        bomComp.componentVersionName = "componentVersion";
+        bomComp.componentVersion = PROJECT_VERSION_COMPONENTS_URL;
+        bomComp.usages = Arrays.asList(MatchedFileUsageEnum.DYNAMICALLY_LINKED);
         bom.add(bomComp);
         Mockito.when(bomRequestService.getBomEntries(PROJECT_VERSION_COMPONENTS_URL)).thenReturn(bom);
         final IntLogger logger = new TestLogger();
-        Mockito.when(hubServicesFactory.createAggregateBomRequestService(logger)).thenReturn(bomRequestService);
+        Mockito.when(hubServicesFactory.createAggregateBomRequestService()).thenReturn(bomRequestService);
     }
 
     @AfterClass
@@ -310,56 +305,32 @@ public class NotificationConverterTest {
 
     @Test
     public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotifType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS,
-                VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
-                VULN_EXPECTED_DESCRIPTION,
-                VULN_EXPECTED_SUMMARY, VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT,
-                VULN_EXPECTED_RESOLVED_COMMENT,
-                VULN_EXPECTED_PROPERTY_KEY);
+        test(NotifType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+                VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testPolicyViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS,
-                POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
-                POLICY_VIOLATION_EXPECTED_DESCRIPTION,
-                POLICY_VIOLATION_EXPECTED_SUMMARY,
-                POLICY_ISSUE_TYPE_ID,
-                POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT,
-                POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT,
-                POLICY_EXPECTED_PROPERTY_KEY);
+        test(NotifType.POLICY_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION, POLICY_VIOLATION_EXPECTED_SUMMARY,
+                POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotifType.POLICY_VIOLATION_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS,
-                POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
-                POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
-                POLICY_OVERRIDE_EXPECTED_SUMMARY,
-                POLICY_ISSUE_TYPE_ID,
-                POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT,
-                POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT,
-                POLICY_EXPECTED_PROPERTY_KEY);
+        test(NotifType.POLICY_VIOLATION_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
+                POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testPolicyCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotifType.POLICY_VIOLATION_CLEARED, HubEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS,
-                POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE,
-                POLICY_CLEARED_EXPECTED_DESCRIPTION,
-                POLICY_CLEARED_EXPECTED_SUMMARY,
-                POLICY_ISSUE_TYPE_ID,
-                POLICY_CLEARED_EXPECTED_REOPEN_COMMENT,
-                POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT,
-                POLICY_EXPECTED_PROPERTY_KEY);
+        test(NotifType.POLICY_VIOLATION_CLEARED, HubEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
+                POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testFindCompInBom() throws ConfigurationException {
         final ListProcessorCache cache = new ListProcessorCache();
-        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory,
-                NotifType.POLICY_VIOLATION,
-                projectMappingObject, fieldCopyConfig, cache);
+        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory, NotifType.POLICY_VIOLATION, projectMappingObject, fieldCopyConfig, cache);
 
         final List<VersionBomComponentView> bomComps = new ArrayList<>();
         addComp(bomComps, "comp1", null, "comp1version1Url");
@@ -372,8 +343,7 @@ public class NotificationConverterTest {
         assertEquals(null, conv.findCompInBom(bomComps, "compXUrl", null));
     }
 
-    private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl,
-            final String componentVersionUrl) {
+    private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl, final String componentVersionUrl) {
         final VersionBomComponentView bomComp = new VersionBomComponentView();
         bomComp.componentName = componentName;
         bomComp.component = componentUrl;
@@ -382,67 +352,37 @@ public class NotificationConverterTest {
         bomComps.add(bomComp);
     }
 
-    private void test(final NotifType notifType, final HubEventAction expectedHubEventAction,
-            final String expectedComment,
-            final String expectedCommentIfExists,
-            final String expectedCommentInLieuOfStateChange,
-            final String expectedDescription,
-            final String expectedSummary,
-            final String issueTypeId,
-            final String expectedReOpenComment,
-            final String expectedResolveComment,
-            final String expectedPropertyKey) throws ConfigurationException, URISyntaxException, IntegrationException {
+    private void test(final NotifType notifType, final HubEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
+            final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
+            throws ConfigurationException, URISyntaxException, IntegrationException {
 
         final ListProcessorCache cache = new ListProcessorCache();
-        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory, notifType,
-                projectMappingObject, fieldCopyConfig, cache);
+        final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory, notifType, projectMappingObject, fieldCopyConfig, cache);
 
         final NotificationContentItem notif = createNotif(metaService, notifType, now, projectVersion);
         conv.process(notif);
         final List<NotificationEvent> events = new ArrayList<>(cache.getEvents());
 
         // Verify the generated event
-        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange,
-                expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment, expectedPropertyKey);
+        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment,
+                expectedPropertyKey);
     }
 
-    private NotificationToEventConverter createConverter(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-            final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final NotifType notifType, final HubProjectMappings mappingObject,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final ListProcessorCache cache)
-                    throws ConfigurationException {
+    private NotificationToEventConverter createConverter(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final NotifType notifType,
+            final HubProjectMappings mappingObject, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final ListProcessorCache cache) throws ConfigurationException {
         NotificationToEventConverter conv;
         switch (notifType) {
         case VULNERABILITY:
-            conv = new VulnerabilityNotificationConverter(cache,
-                    mappingObject,
-                    fieldCopyConfig,
-                    jiraServices,
-                    jiraContext, jiraSettingsService,
-                    hubServicesFactory);
+            conv = new VulnerabilityNotificationConverter(cache, mappingObject, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
             break;
         case POLICY_VIOLATION:
-            conv = new PolicyViolationNotificationConverter(cache,
-                    mappingObject,
-                    fieldCopyConfig,
-                    jiraServices,
-                    jiraContext, jiraSettingsService,
-                    hubServicesFactory);
+            conv = new PolicyViolationNotificationConverter(cache, mappingObject, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
             break;
         case POLICY_VIOLATION_OVERRIDE:
-            conv = new PolicyOverrideNotificationConverter(cache,
-                    mappingObject,
-                    fieldCopyConfig,
-                    jiraServices,
-                    jiraContext, jiraSettingsService,
-                    hubServicesFactory);
+            conv = new PolicyOverrideNotificationConverter(cache, mappingObject, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
             break;
         case POLICY_VIOLATION_CLEARED:
-            conv = new PolicyViolationClearedNotificationConverter(cache,
-                    mappingObject,
-                    fieldCopyConfig,
-                    jiraServices,
-                    jiraContext, jiraSettingsService,
-                    hubServicesFactory);
+            conv = new PolicyViolationClearedNotificationConverter(cache, mappingObject, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
             break;
         default:
             throw new IllegalArgumentException("Unrecognized notification type");
@@ -450,9 +390,7 @@ public class NotificationConverterTest {
         return conv;
     }
 
-    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now,
-            final ProjectVersionModel projectVersion)
-                    throws URISyntaxException, HubIntegrationException, IntegrationException {
+    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now, final ProjectVersionModel projectVersion) throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationContentItem notif;
         switch (notifType) {
         case VULNERABILITY:
@@ -503,12 +441,9 @@ public class NotificationConverterTest {
         return fieldCopyConfig;
     }
 
-    private void verifyGeneratedEvents(final List<NotificationEvent> events, final String issueTypeId, final HubEventAction expectedHubEventAction,
-            final String expectedComment,
-            final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange, final String expectedDescription,
-            final String expectedSummary,
-            final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
-                    throws HubIntegrationException, URISyntaxException {
+    private void verifyGeneratedEvents(final List<NotificationEvent> events, final String issueTypeId, final HubEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
+            final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
+            throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
         final NotificationEvent event = events.get(0);
         // HubEvent<VulnerabilityContentItem> event = events.get(0);
@@ -552,8 +487,7 @@ public class NotificationConverterTest {
 
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
-            final Date createdAt) throws URISyntaxException, HubIntegrationException {
+    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
         vuln.source = VULN_SOURCE;
         vuln.vulnerabilityId = COMPONENT_VERSION_URL;
@@ -561,13 +495,8 @@ public class NotificationConverterTest {
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
         addedVulnList.add(vuln);
-        final NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion,
-                COMPONENT_NAME,
-                createComponentVersionMock(COMPONENT_VERSION),
-                COMPONENT_VERSION_URL,
-                addedVulnList,
-                updatedVulnList,
-                deletedVulnList, "");
+        final NotificationContentItem notif = new VulnerabilityContentItem(createdAt, projectVersion, COMPONENT_NAME, createComponentVersionMock(COMPONENT_VERSION), COMPONENT_VERSION_URL, addedVulnList, updatedVulnList, deletedVulnList,
+                "");
 
         return notif;
     }
@@ -575,22 +504,16 @@ public class NotificationConverterTest {
     private ComponentVersionView createComponentVersionMock(final String componentVersion) {
         ComponentVersionView fullComponentVersion;
         fullComponentVersion = new ComponentVersionView();
-        fullComponentVersion.versionName=componentVersion;
+        fullComponentVersion.versionName = componentVersion;
         return fullComponentVersion;
     }
 
-    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersionModel projectVersion,
-            final Date createdAt)
-                    throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, IntegrationException {
 
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
         final PolicyRuleView rule = createRule();
         policyRuleList.add(rule);
-        final NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion,
-                COMPONENT_NAME,
-                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
-                COMPONENT_VERSION_URL,
-                policyRuleList, "");
+        final NotificationContentItem notif = new PolicyViolationContentItem(createdAt, projectVersion, COMPONENT_NAME, createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL, COMPONENT_VERSION_URL, policyRuleList, "");
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
         return notif;
@@ -607,8 +530,7 @@ public class NotificationConverterTest {
         return projectVersion;
     }
 
-    private NotificationContentItem createPolicyClearedNotif(final MetaService metaService, final Date createdAt)
-            throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyClearedNotif(final MetaService metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
         final ProjectVersionModel projectVersion = createProjectVersion();
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 
@@ -616,11 +538,7 @@ public class NotificationConverterTest {
         final PolicyRuleView rule = createRule();
 
         policyRuleList.add(rule);
-        final NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion,
-                COMPONENT_NAME,
-                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
-                COMPONENT_VERSION_URL,
-                policyRuleList, "");
+        final NotificationContentItem notif = new PolicyViolationClearedContentItem(createdAt, projectVersion, COMPONENT_NAME, createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL, COMPONENT_VERSION_URL, policyRuleList, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
@@ -637,19 +555,15 @@ public class NotificationConverterTest {
         return rule;
     }
 
-    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt)
-            throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
         final ProjectVersionModel projectVersion = createProjectVersion();
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 
         final PolicyRuleView rule = createRule();
 
         policyRuleList.add(rule);
-        final NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion,
-                COMPONENT_NAME,
-                createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL,
-                COMPONENT_VERSION_URL,
-                policyRuleList, OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME, "");
+        final NotificationContentItem notif = new PolicyOverrideContentItem(createdAt, projectVersion, COMPONENT_NAME, createComponentVersionMock(COMPONENT_VERSION), COMPONENT_URL, COMPONENT_VERSION_URL, policyRuleList,
+                OVERRIDER_FIRST_NAME, OVERRIDER_LAST_NAME, "");
 
         Mockito.when(metaService.getHref(rule)).thenReturn(RULE_URL);
 
