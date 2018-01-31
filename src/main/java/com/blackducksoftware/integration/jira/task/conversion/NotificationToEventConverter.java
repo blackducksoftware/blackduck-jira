@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -71,8 +71,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final AggregateBomRequestService bomRequestService;
 
-    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
+    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
+            final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory,
+            final HubJiraLogger logger) throws ConfigurationException {
         super(cache, hubServicesFactory.createMetaService());
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
@@ -169,21 +171,24 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return "";
     }
 
-    protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl, final ComponentVersionView componentVersion) throws HubIntegrationException {
+    protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl,
+            final ComponentVersionView componentVersion) throws HubIntegrationException {
         String componentVersionUrl = null;
         if (componentVersion != null) {
             componentVersionUrl = getMetaService().getHref(componentVersion);
         }
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
-            logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty", projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty", projectVersion.getProjectName(),
+                    projectVersion.getProjectVersionName()));
             return null;
         }
         List<VersionBomComponentView> bomComps;
         try {
             bomComps = bomRequestService.getBomEntries(bomUrl);
         } catch (final Exception e) {
-            logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", projectVersion.getProjectName(),
+                    projectVersion.getProjectVersionName()));
             return null;
         }
 
@@ -194,7 +199,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
             if (componentVersion != null) {
                 componentVersionName = componentVersion.versionName;
             }
-            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName, projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName,
+                    projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
         }
         return targetBomComp;
     }
@@ -229,28 +235,41 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.license != null) && (componentVersion.license.licenses != null)) {
             final ComplexLicenseEnum type = componentVersion.license.type;
-            final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
-            int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
-            for (final ComplexLicenseView license : componentVersion.license.licenses) {
-                final String licenseTextUrl = getLicenseTextUrl(license);
-                logger.debug("Link to licence text: " + licenseTextUrl);
-                if (licenseIndex++ > 0) {
-                    sb.append(licenseJoinString);
+
+            if (type != null) {
+
+                final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
+                        : HubJiraConstants.LICENSE_NAME_JOINER_OR;
+                int licenseIndex = 0;
+                for (final ComplexLicenseView license : componentVersion.license.licenses) {
+                    if (licenseIndex++ > 0) {
+                        sb.append(licenseJoinString);
+                    }
+                    createLicenseString(sb, license, includeLinks);
                 }
-                if (includeLinks) {
-                    sb.append("[");
-                }
-                sb.append(license.name);
-                if (includeLinks) {
-                    sb.append("|");
-                    sb.append(licenseTextUrl);
-                    sb.append("]");
-                }
+
+            } else {
+                createLicenseString(sb, componentVersion.license, includeLinks);
             }
             licensesString = sb.toString();
         }
         return licensesString;
+    }
+
+    private void createLicenseString(StringBuilder sb, ComplexLicenseView license, final boolean includeLinks) throws IntegrationException {
+        final String licenseTextUrl = getLicenseTextUrl(license);
+        logger.debug("Link to licence text: " + licenseTextUrl);
+
+        if (includeLinks) {
+            sb.append("[");
+        }
+        sb.append(license.name);
+        if (includeLinks) {
+            sb.append("|");
+            sb.append(licenseTextUrl);
+            sb.append("]");
+        }
     }
 
     private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
