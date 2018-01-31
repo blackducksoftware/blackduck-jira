@@ -71,10 +71,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final AggregateBomRequestService bomRequestService;
 
-    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext,
-            final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory,
-            final HubJiraLogger logger) throws ConfigurationException {
+    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings, final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
         super(cache, hubServicesFactory.createMetaService());
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
@@ -171,24 +168,21 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return "";
     }
 
-    protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl,
-            final ComponentVersionView componentVersion) throws HubIntegrationException {
+    protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl, final ComponentVersionView componentVersion) throws HubIntegrationException {
         String componentVersionUrl = null;
         if (componentVersion != null) {
             componentVersionUrl = getMetaService().getHref(componentVersion);
         }
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
-            logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty", projectVersion.getProjectName(),
-                    projectVersion.getProjectVersionName()));
+            logger.debug(String.format("The BOM url for project %s / %s is null, indicating that the BOM is now empty", projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
             return null;
         }
         List<VersionBomComponentView> bomComps;
         try {
             bomComps = bomRequestService.getBomEntries(bomUrl);
         } catch (final Exception e) {
-            logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", projectVersion.getProjectName(),
-                    projectVersion.getProjectVersionName()));
+            logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
             return null;
         }
 
@@ -199,8 +193,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
             if (componentVersion != null) {
                 componentVersionName = componentVersion.versionName;
             }
-            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName,
-                    projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
+            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName, projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
         }
         return targetBomComp;
     }
