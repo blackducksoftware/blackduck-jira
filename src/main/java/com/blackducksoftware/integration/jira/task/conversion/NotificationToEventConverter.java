@@ -71,7 +71,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private final AggregateBomRequestService bomRequestService;
 
-    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings, final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
+    public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
         super(cache, hubServicesFactory.createMetaService());
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
