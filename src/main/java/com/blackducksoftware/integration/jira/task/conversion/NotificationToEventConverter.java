@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -229,28 +229,41 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         String licensesString = "";
         if ((componentVersion != null) && (componentVersion.license != null) && (componentVersion.license.licenses != null)) {
             final ComplexLicenseEnum type = componentVersion.license.type;
-            final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
-            int licenseIndex = 0;
             final StringBuilder sb = new StringBuilder();
-            for (final ComplexLicenseView license : componentVersion.license.licenses) {
-                final String licenseTextUrl = getLicenseTextUrl(license);
-                logger.debug("Link to licence text: " + licenseTextUrl);
-                if (licenseIndex++ > 0) {
-                    sb.append(licenseJoinString);
+
+            if (type != null) {
+
+                final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
+                        : HubJiraConstants.LICENSE_NAME_JOINER_OR;
+                int licenseIndex = 0;
+                for (final ComplexLicenseView license : componentVersion.license.licenses) {
+                    if (licenseIndex++ > 0) {
+                        sb.append(licenseJoinString);
+                    }
+                    createLicenseString(sb, license, includeLinks);
                 }
-                if (includeLinks) {
-                    sb.append("[");
-                }
-                sb.append(license.name);
-                if (includeLinks) {
-                    sb.append("|");
-                    sb.append(licenseTextUrl);
-                    sb.append("]");
-                }
+
+            } else {
+                createLicenseString(sb, componentVersion.license, includeLinks);
             }
             licensesString = sb.toString();
         }
         return licensesString;
+    }
+
+    private void createLicenseString(StringBuilder sb, ComplexLicenseView license, final boolean includeLinks) throws IntegrationException {
+        final String licenseTextUrl = getLicenseTextUrl(license);
+        logger.debug("Link to licence text: " + licenseTextUrl);
+
+        if (includeLinks) {
+            sb.append("[");
+        }
+        sb.append(license.name);
+        if (includeLinks) {
+            sb.append("|");
+            sb.append(licenseTextUrl);
+            sb.append("]");
+        }
     }
 
     private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
