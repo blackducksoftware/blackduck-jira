@@ -7,6 +7,7 @@ Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA 
 [![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/hub-jira/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/hub-jira?branch=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/blackducksoftware/hub-jira/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/blackducksoftware/hub-jira/branches/master)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.blackducksoftware.integration%3Ahub-jira&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.blackducksoftware.integration%3Ahub-jira)
 
 ## Where can I get the latest release? ##
 You can always get the latest from the [Atlassian Marketplace](https://marketplace.atlassian.com/plugins/com.blackducksoftware.integration.hub-jira/server/overview) 
