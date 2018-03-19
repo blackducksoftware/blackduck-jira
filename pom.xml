@@ -26,10 +26,8 @@
    amps.version: 6.2.4
    jira.version: 7.1.4
    -->
-
-    <amps.version>6.2.6</amps.version>
+    <amps.version>6.3.15</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-
     <jira.version>7.3.0</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
@@ -70,7 +68,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>18.0.1</version>
+      <version>18.0.2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
@@ -86,27 +84,23 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <!-- Not sure why this next dependency is necessary, but it is (at runtime) -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.5</version>
     </dependency>
-
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>phone-home-api</artifactId>
       <version>2.0.2</version>
     </dependency>
-
     <dependency>
       <groupId>stax</groupId>
       <artifactId>stax-api</artifactId>
       <version>1.0.1</version>
       <scope>compile</scope>
     </dependency>
-
     <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
     <dependency>
       <groupId>com.sun.net.httpserver</groupId>
@@ -130,7 +124,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
@@ -188,14 +181,12 @@
       <version>1.1.1</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
       <scope>provided</scope>
     </dependency>
-
     <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
     <dependency>
       <groupId>org.springframework</groupId>
@@ -203,14 +194,12 @@
       <version>2.5.6.SEC03</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>2.5.6.SEC03</version>
       <scope>provided</scope>
     </dependency>
-
     <!-- WIRED TEST RUNNER DEPENDENCIES -->
     <dependency>
       <groupId>com.atlassian.plugins</groupId>
