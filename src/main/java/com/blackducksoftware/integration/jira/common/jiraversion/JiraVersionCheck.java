@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -46,7 +46,7 @@ public class JiraVersionCheck {
 
     private final JiraVersion minJiraVersion = new JiraVersion("7.1", 7, 1);
 
-    private final JiraVersion maxJiraVersion = new JiraVersion("7.3", 7, 3);
+    private final JiraVersion maxJiraVersion = new JiraVersion("7.7", 7, 7);
 
     private final JiraVersion currentJiraVersion;
 
