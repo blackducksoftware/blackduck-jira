@@ -114,13 +114,45 @@ public class JiraVersionTest {
     public void testJira7_4() throws ConfigurationException {
         final int[] versionNumbers = { 7, 4, 0 };
         final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.4.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
+    }
+
+    @Test
+    public void testJira7_5() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 5, 0 };
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.5.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
+    }
+
+
+    @Test
+    public void testJira7_6() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 6, 0 };
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.6.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
+    }
+
+
+    @Test
+    public void testJira7_7() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 7, 0 };
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.7.0", versionNumbers);
+        assertTrue(jiraVersionCheck.isSupported());
+    }
+
+    @Test
+    public void testJira7_8() throws ConfigurationException {
+        final int[] versionNumbers = { 7, 8, 0 };
+        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.8.0", versionNumbers);
         assertFalse(jiraVersionCheck.isSupported());
     }
+
+
 
     @Test
     public void testMostRecentVersionString() throws ConfigurationException {
         final int[] versionNumbers = { 7, 4, 0 };
         final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.4.0", versionNumbers);
-        assertEquals("7.3", jiraVersionCheck.getMostRecentJiraVersionSupportedString());
+        assertEquals("7.7", jiraVersionCheck.getMostRecentJiraVersionSupportedString());
     }
 }

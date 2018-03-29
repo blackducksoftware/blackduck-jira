@@ -74,16 +74,16 @@ public class JiraVersionCheck {
         final JiraVersionComparator comparator = new JiraVersionComparator();
         if (comparator.compare(currentJiraVersion, minJiraVersion) >= 0) {
             if (comparator.compare(currentJiraVersion, maxJiraVersion) > 0) {
-                logger.warn("This this version of JIRA (" + currentJiraVersion.getName()
+                logger.warn("This version of JIRA (" + currentJiraVersion.getName()
                         + ") is not supported. Attempting to proceed as if it were JIRA version "
                         + maxJiraVersion.getName());
                 supported = false;
             } else {
-                logger.debug(String.format("This this version of JIRA (%s) is supported.", currentJiraVersion.getName()));
+                logger.debug(String.format("This version of JIRA (%s) is supported.", currentJiraVersion.getName()));
                 supported = true;
             }
         } else {
-            final String msg = "This this version of JIRA (" + currentJiraVersion.getName() + ") is not supported.";
+            final String msg = "This version of JIRA (" + currentJiraVersion.getName() + ") is not supported.";
             logger.error(msg);
             throw new ConfigurationException(msg);
         }
