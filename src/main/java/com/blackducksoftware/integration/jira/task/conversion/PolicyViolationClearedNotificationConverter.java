@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -84,7 +84,7 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
 
             final VersionBomComponentView bomComp = getBomComponent(notification);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
-            final EventData eventData = eventDataBuilder.setAction(action).setJiraAdminUserName(getJiraContext().getJiraAdminUser().getName()).setJiraAdminUserKey(getJiraContext().getJiraAdminUser().getKey())
+            eventDataBuilder.setAction(action).setJiraAdminUserName(getJiraContext().getJiraAdminUser().getName()).setJiraAdminUserKey(getJiraContext().getJiraAdminUser().getKey())
                     .setJiraIssueCreatorUserName(getJiraContext().getJiraIssueCreatorUser().getName()).setJiraIssueCreatorUserKey(getJiraContext().getJiraIssueCreatorUser().getKey())
                     .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId()).setJiraIssueTypeId(getIssueTypeId()).setJiraProjectName(jiraProject.getProjectName()).setJiraProjectId(jiraProject.getProjectId())
                     .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings()).setHubProjectName(notification.getProjectVersion().getProjectName())
@@ -94,7 +94,11 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
                     .setHubProjectVersionNickname(getProjectVersionNickname(notification)).setJiraIssueSummary(getIssueSummary(notification, rule)).setJiraIssueDescription(getIssueDescription(notification, rule)).setJiraIssueComment(null)
                     .setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN).setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT)
                     .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE).setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT)
-                    .setJiraIssuePropertiesGenerator(issuePropertiesGenerator).setHubRuleName(rule.name).setHubRuleUrl(getHubServicesFactory().createMetaService().getHref(rule)).setComponentIssueUrl(notif.getComponentIssueLink()).build();
+                    .setJiraIssuePropertiesGenerator(issuePropertiesGenerator).setHubRuleName(rule.name).setHubRuleUrl(getHubServicesFactory().createMetaService().getHref(rule)).setComponentIssueUrl(notif.getComponentIssueLink());
+
+            populateEventDataBuilder(eventDataBuilder, notification);
+
+            final EventData eventData = eventDataBuilder.build();
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
             eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, eventData);

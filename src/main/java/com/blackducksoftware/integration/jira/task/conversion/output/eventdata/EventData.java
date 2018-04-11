@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,73 +34,42 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 
 public class EventData {
     private HubEventAction action;
-
     private String jiraAdminUsername;
-
     private String jiraIssueCreatorUsername;
-
     private String jiraAdminUserKey;
-
     private String jiraIssueCreatorUserKey;
-
     private String jiraIssueAssigneeUserId;
-
     private String jiraIssueTypeId;
-
     private String jiraProjectName;
-
     private Long jiraProjectId;
-
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
-
     private String hubProjectName;
-
     private String hubProjectVersion;
-
     private String hubProjectVersionUrl;
-
     private String hubComponentName;
-
     private String hubComponentUrl;
-
     private String hubComponentVersion;
-
     private String hubComponentVersionUrl;
-
     private String hubLicenseNames;
-
     private String hubComponentUsage;
-
     private String hubComponentOrigin;
-
     private String hubComponentOriginId;
-
     private String hubProjectVersionNickname;
-
     private String jiraIssueSummary;
-
     private String jiraIssueDescription;
-
     private String jiraIssueComment;
-
     private String jiraIssueReOpenComment;
-
     private String jiraIssueCommentForExistingIssue;
-
     private String jiraIssueResolveComment;
-
     private String jiraIssueCommentInLieuOfStateChange;
-
     private IssuePropertiesGenerator jiraIssuePropertiesGenerator;
-
     private String hubRuleName;
-
     private String hubRuleUrl;
-
     private String componentIssueUrl;
+    private String hubProjectOwner;
+    private String hubProjectVersionLastUpdated;
 
     // The constructor and setters are only for EventDataBuilder
-
     EventData() {
     }
 
@@ -269,6 +238,16 @@ public class EventData {
         return this;
     }
 
+    EventData setHubProjectOwner(final String hubProjectOwner) {
+        this.hubProjectOwner = hubProjectOwner;
+        return this;
+    }
+
+    EventData setHubProjectVersionLastUpdated(final String hubProjectVersionLastUpdated) {
+        this.hubProjectVersionLastUpdated = hubProjectVersionLastUpdated;
+        return this;
+    }
+
     public HubEventAction getAction() {
         return action;
     }
@@ -401,9 +380,18 @@ public class EventData {
         return componentIssueUrl;
     }
 
+    public String getHubProjectOwner() {
+        return hubProjectOwner;
+    }
+
+    public String getHubProjectVersionLastUpdated() {
+        return hubProjectVersionLastUpdated;
+    }
+
     public Map<String, Object> getDataSet() {
         final Map<String, Object> dataSet = new HashMap<>();
         dataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, this);
         return dataSet;
     }
+
 }

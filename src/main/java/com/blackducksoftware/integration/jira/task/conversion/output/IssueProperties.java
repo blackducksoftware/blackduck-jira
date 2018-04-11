@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -23,24 +23,27 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import org.apache.commons.lang3.builder.RecursiveToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 public abstract class IssueProperties {
     private final String projectName;
-
     private final String projectVersion;
-
     private final String componentName;
-
     private final String componentVersion;
-
     private final Long jiraIssueId;
 
-    public IssueProperties(final String projectName, final String projectVersion, final String componentName,
-            final String componentVersion, final Long jiraIssueId) {
+    public IssueProperties(final String projectName, final String projectVersion, final String componentName, final String componentVersion, final Long jiraIssueId) {
         this.projectName = projectName;
         this.projectVersion = projectVersion;
         this.componentName = componentName;
         this.componentVersion = componentVersion;
         this.jiraIssueId = jiraIssueId;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
     }
 
     public String getProjectName() {
@@ -62,4 +65,5 @@ public abstract class IssueProperties {
     public Long getJiraIssueId() {
         return jiraIssueId;
     }
+
 }

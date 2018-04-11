@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -84,16 +84,22 @@ public class JiraFieldUtils {
     }
 
     private static boolean isBdsCustomField(final Field field) {
-        if ((HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName())) ||
-                (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName()))) {
+        if (
+        // @formatter:off
+                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER.equals(field.getName()))
+                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName()))
+                ) {
+         // @formatter:on
             return true;
         }
         return false;

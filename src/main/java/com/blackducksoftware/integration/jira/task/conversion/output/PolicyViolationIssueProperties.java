@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -26,21 +26,13 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 public class PolicyViolationIssueProperties extends IssueProperties {
     private final String ruleName;
 
-    public PolicyViolationIssueProperties(final String projectName, final String projectVersion,
-            final String componentName, final String componentVersion, final Long jiraIssueId, final String ruleName) {
+    public PolicyViolationIssueProperties(final String projectName, final String projectVersion, final String componentName, final String componentVersion, final Long jiraIssueId, final String ruleName) {
         super(projectName, projectVersion, componentName, componentVersion, jiraIssueId);
         this.ruleName = ruleName;
     }
 
     public String getRuleName() {
         return ruleName;
-    }
-
-    @Override
-    public String toString() {
-        return "PolicyViolationIssueProperties [ruleName=" + ruleName + ", getProjectName()=" + getProjectName()
-                + ", getProjectVersion()=" + getProjectVersion() + ", getComponentName()=" + getComponentName()
-                + ", getComponentVersion()=" + getComponentVersion() + ", getJiraIssueId()=" + getJiraIssueId() + "]";
     }
 
 }

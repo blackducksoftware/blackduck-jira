@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -92,11 +92,9 @@ public class JiraIssueHandler {
         this.hubIssueTrackerHandler = hubIssueTrackerHandler;
         this.hubSupportHelper = hubSupportHelper;
         this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
-
     }
 
     private void addIssueProperty(final NotificationEvent notificationEvent, final EventData eventData, final Long issueId, final String key, final IssueProperties value) {
-
         final Gson gson = new GsonBuilder().create();
 
         final String jsonValue = gson.toJson(value);
@@ -200,7 +198,6 @@ public class JiraIssueHandler {
     }
 
     private Issue createIssue(final NotificationEvent notificationEvent, final EventData eventData) {
-
         IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
         issueInputParameters.setProjectId(eventData.getJiraProjectId()).setIssueTypeId(eventData.getJiraIssueTypeId()).setSummary(eventData.getJiraIssueSummary()).setReporterId(eventData.getJiraIssueCreatorUsername())
                 .setDescription(eventData.getJiraIssueDescription());
@@ -406,7 +403,6 @@ public class JiraIssueHandler {
             }
             break;
         }
-
     }
 
     private void addComment(final String comment, final Issue issue) {

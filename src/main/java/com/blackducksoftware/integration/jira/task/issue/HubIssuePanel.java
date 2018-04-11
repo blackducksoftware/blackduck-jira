@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -49,59 +49,29 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
         final Map<String, String> contextMap = new HashMap<>();
         final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
         if (currentIssue != null) {
-            final String hubProject = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT);
-            if (hubProject != null) {
-                contextMap.put("bdsHubProject", hubProject);
-            }
-            final String hubProjectVersion = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION);
-            if (hubProjectVersion != null) {
-                contextMap.put("bdsHubProjectVersion", hubProjectVersion);
-            }
-            final String hubComponent = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT);
-            if (hubComponent != null) {
-                contextMap.put("bdsHubComponent", hubComponent);
-            }
-            final String hubComponentVersion = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION);
-            if (hubComponentVersion != null) {
-                contextMap.put("bdsHubComponentVersion", hubComponentVersion);
-            }
-            final String hubPolicyRule = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE);
-            if (hubPolicyRule != null) {
-                contextMap.put("bdsHubPolicyRule", hubPolicyRule);
-            }
-            final String hubLicenses = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES);
-            if (hubLicenses != null) {
-                contextMap.put("bdsHubLicenses", hubLicenses);
-            }
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT, "bdsHubProject");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION, "bdsHubProjectVersion");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT, "bdsHubComponent");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION, "bdsHubComponentVersion");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE, "bdsHubPolicyRule");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES, "bdsHubLicenses");
 
-            final String hubComponentUsage = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE);
-            if (hubComponentUsage != null) {
-                contextMap.put("bdsHubComponentUsage", hubComponentUsage);
-            }
-            final String hubComponentOrigin = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN);
-            if (hubComponentOrigin != null) {
-                contextMap.put("bdsHubComponentOrigin", hubComponentOrigin);
-            }
-            final String hubComponentOriginId = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID);
-            if (hubComponentOriginId != null) {
-                contextMap.put("bdsHubComponentOriginId", hubComponentOriginId);
-            }
-            final String hubProjectVersionNickname = getCustomFieldValue(currentIssue, customFieldManager,
-                    HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME);
-            if (hubProjectVersionNickname != null) {
-                contextMap.put("bdsHubProjectVersionNickname", hubProjectVersionNickname);
-            }
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE, "bdsHubComponentUsage");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, "bdsHubComponentOrigin");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, "bdsHubComponentOriginId");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, "bdsHubProjectVersionNickname");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER, "bdsHubProjectOwner");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, "bdsHubProjectVersionLastUpdated");
         }
+
         return contextMap;
+    }
+
+    private void populateContextMap(final Map<String, String> contextMap, final Issue currentIssue, final String fieldConstant, final String fieldKey) {
+        final String valueForMap = getCustomFieldValue(currentIssue, customFieldManager, fieldConstant);
+        if (valueForMap != null) {
+            contextMap.put(fieldKey, valueForMap);
+        }
     }
 
     private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager,
