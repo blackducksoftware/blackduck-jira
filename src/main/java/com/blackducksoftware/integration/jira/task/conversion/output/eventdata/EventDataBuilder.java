@@ -299,6 +299,9 @@ public class EventDataBuilder {
 
         if (jiraIssueSummary == null) {
             throw new EventDataBuilderException("jiraIssueSummary not set");
+        } else if (jiraIssueSummary.length() > 255) {
+            // a jira summary can be at most 255 characters
+            jiraIssueSummary = jiraIssueSummary.substring(0, 252) + "...";
         }
 
         if (jiraIssueDescription == null) {
