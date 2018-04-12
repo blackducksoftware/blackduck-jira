@@ -64,7 +64,7 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
 
-    private static final int NUM_FIELDS_VULNERABILITY = 9;
+    private static final int NUM_FIELDS_VULNERABILITY = 11;
 
     private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 1;
 
