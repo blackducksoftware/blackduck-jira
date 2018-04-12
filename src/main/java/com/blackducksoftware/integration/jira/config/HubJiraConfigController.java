@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -487,6 +487,8 @@ public class HubJiraConfigController {
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
                     // TODO: Uncomment these when Hub starts providing Origin info
                     // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(),
                     // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));

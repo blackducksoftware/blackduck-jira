@@ -1,7 +1,7 @@
 /*
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,7 +27,7 @@ var customFieldsModuleId = "customfieldmodule";
 var hubCustomFields = ["BDS Hub Project", "BDS Hub Project Version", "BDS Hub Component", 
 	"BDS Hub Component Version", "BDS Hub Policy Rule", "BDS Hub Component Licenses",
 	"BDS Hub Component Usage", "BDS Hub Component Origin", "BDS Hub Component Origin ID",
-	"BDS Hub Project Version Nickname"];
+	"BDS Hub Project Version Nickname", "BDS Hub Project Owner", "BDS Hub Project Version Last Updated"];
 
 function hideHubCustomFields(){
 	var detailsModule = AJS.$('#' + detailsModuleId);

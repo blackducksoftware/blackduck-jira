@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -96,7 +96,6 @@ public class TicketGenerator {
     }
 
     public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
-
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Hub projects to monitor");
             return;

@@ -37,9 +37,11 @@ import com.blackducksoftware.integration.hub.model.enumeration.ComplexLicenseEnu
 import com.blackducksoftware.integration.hub.model.enumeration.MatchedFileUsageEnum;
 import com.blackducksoftware.integration.hub.model.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
+import com.blackducksoftware.integration.hub.model.view.UserView;
 import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.notification.processor.NotificationSubProcessor;
 import com.blackducksoftware.integration.hub.notification.processor.SubProcessorCache;
+import com.blackducksoftware.integration.hub.service.HubResponseService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -48,27 +50,21 @@ import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.hub.ProjectResponse;
+import com.blackducksoftware.integration.jira.hub.VersionRiskProfileResponse;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class NotificationToEventConverter extends NotificationSubProcessor {
-
     private final HubJiraLogger logger;
-
     private final JiraServices jiraServices;
-
     private final JiraContext jiraContext;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final HubProjectMappings mappings;
-
     private final String issueTypeId;
-
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
-
     private final HubServicesFactory hubServicesFactory;
-
     private final AggregateBomRequestService bomRequestService;
 
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
@@ -224,6 +220,27 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return notification.getProjectVersion().getNickname();
     }
 
+    protected void populateEventDataBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentItem notificationContentItem) {
+        final ProjectVersionModel projectVersionModel = notificationContentItem.getProjectVersion();
+        final String riskProfileUri = projectVersionModel.getRiskProfileLink();
+        final String projectUri = notificationContentItem.getProjectVersion().getProjectLink();
+        final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
+        try {
+            final VersionRiskProfileResponse riskProfile = hubResponseService.getItem(riskProfileUri, VersionRiskProfileResponse.class);
+            eventDataBuilder.setHubProjectVersionLastUpdated(riskProfile.bomLastUpdatedAt);
+        } catch (final IntegrationException e) {
+            logger.error(String.format("Could not find the risk profile for %s: %s", riskProfileUri, e.getMessage()));
+        }
+        try {
+            final ProjectResponse projectResponse = hubResponseService.getItem(projectUri, ProjectResponse.class);
+            final String userUri = projectResponse.projectOwner;
+            final UserView userView = hubResponseService.getItem(userUri, UserView.class);
+            eventDataBuilder.setHubProjectOwner(userView.firstName + " " + userView.lastName);
+        } catch (final IntegrationException e) {
+            logger.error(String.format("Could not find the project for %s: %s", projectUri, e.getMessage()));
+        }
+    }
+
     private String getComponentLicensesString(final NotificationContentItem notification, final boolean includeLinks) throws IntegrationException {
         final ComponentVersionView componentVersion = notification.getComponentVersion();
         String licensesString = "";
@@ -251,7 +268,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return licensesString;
     }
 
-    private void createLicenseString(StringBuilder sb, ComplexLicenseView license, final boolean includeLinks) throws IntegrationException {
+    private void createLicenseString(final StringBuilder sb, final ComplexLicenseView license, final boolean includeLinks) throws IntegrationException {
         final String licenseTextUrl = getLicenseTextUrl(license);
         logger.debug("Link to licence text: " + licenseTextUrl);
 

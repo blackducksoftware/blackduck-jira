@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>common-maven-parent</artifactId>
-    <version>4.0.0</version>
+    <version>5.0.0</version>
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>3.3.6-SNAPSHOT</version>
+  <version>3.4.0-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
@@ -17,11 +17,11 @@
   <description>Hub JIRA Integration</description>
 
   <properties>
-    <!-- 
-   For production builds, use: 
+    <!--
+   For production builds, use:
    amps.version: 5.0.13
    jira.version: 5.2.11
-   
+
    To use quickReload, use:
    amps.version: 6.2.4
    jira.version: 7.1.4

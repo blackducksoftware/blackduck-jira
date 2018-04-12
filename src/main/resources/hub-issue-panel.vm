@@ -54,7 +54,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 #end
 
 
-#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses)
+#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectOwner || $bdsHubProjectVersionLastUpdated)
 <div class="module">
 <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
 <ul class="property-list two-cols">
@@ -137,6 +137,34 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 	<div class="hubWrap">
 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
 		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+	</div>
+	</li>
+#end
+#if ($bdsHubProjectOwner)
+	#if ($side == "left")
+	<li class="item">
+	#set( $side = "right" )
+	#else
+	<li class="item-right fiftyPercent">
+	#set( $side = "left" )
+	#end
+	<div class="hubWrap">
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.owner.label"):</strong>
+		<div id="hubProjectOwner" class="value">$bdsHubProjectOwner</div>
+	</div>
+	</li>
+#end
+#if ($bdsHubProjectVersionLastUpdated)
+	#if ($side == "left")
+	<li class="item">
+	#set( $side = "right" )
+	#else
+	<li class="item-right fiftyPercent">
+	#set( $side = "left" )
+	#end
+	<div class="hubWrap">
+		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
+		<div id="hubProjectVersionLastUpdated" class="value">$bdsHubProjectVersionLastUpdated</div>
 	</div>
 	</li>
 #end

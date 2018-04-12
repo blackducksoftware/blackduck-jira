@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -64,7 +64,7 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
 
-    private static final int NUM_FIELDS_VULNERABILITY = 9;
+    private static final int NUM_FIELDS_VULNERABILITY = 11;
 
     private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 1;
 

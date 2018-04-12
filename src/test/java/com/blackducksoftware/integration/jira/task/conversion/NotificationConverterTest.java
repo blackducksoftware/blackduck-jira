@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -59,6 +59,7 @@ import com.blackducksoftware.integration.hub.model.HubView;
 import com.blackducksoftware.integration.hub.model.enumeration.MatchedFileUsageEnum;
 import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.model.view.UserView;
 import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.model.view.components.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.notification.processor.ListProcessorCache;
@@ -74,6 +75,8 @@ import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.hub.ProjectResponse;
+import com.blackducksoftware.integration.jira.hub.VersionRiskProfileResponse;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
@@ -86,128 +89,71 @@ import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
     private static final long JIRA_ISSUE_ID = 456L;
-
     private static final String OVERRIDER_LAST_NAME = "lastName";
-
     private static final String OVERRIDER_FIRST_NAME = "firstName";
-
     private static final String PROJECT_VERSION_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId/components";
-
+    private static final String RISK_PROFILE_LINK = "project_version_risk_profile_link";
+    private static final String PROJECT_RESPONSE_LINK = "project_response_link";
+    private static final String PROJECT_OWNER_LINK = "project_version_project_owner_link";
     private static final String RULE_URL = "http://int-hub01.dc1.lan:8080/api/rules/ruleId";
-
     private static final String VULNERABLE_COMPONENTS_URL = "http://int-hub01.dc1.lan:8080/api/projects/x/versions/y/vulnerable-components";
-
     private static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
-
     private static final String RULE_NAME = "Test Rule";
-
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=-973294316|hcv=1816144506|hr=1736320804";
-
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was cleared in the Hub.";
-
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was cleared in the Hub.";
-
     private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
             + "], component 'componentName' / 'componentVersion'. The rule violated is: '" + RULE_NAME + "'. Rule overridable: true" + "\nComponent license(s): ";
-
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-
     private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-
     private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
-
     private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Violation Cleared event on this project / component / rule";
-
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was overridden in the Hub.";
-
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was overridden in the Hub.";
-
     private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-
     private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-
     private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
-
     private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
-
     private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = "Automatically resolved in response to a Black Duck Hub Policy Override on this project / component / rule";
-
     private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
-
     private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
-
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was detected again by the Hub.";
-
     private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
-
     private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
-
     private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Hub Security Vulnerability";
-
     private static final String POLICY_ISSUE_TYPE_ID = "Hub Policy Violation ID";
-
     private static final String POLICY_ISSUE_TYPE_NAME = "Hub Policy Violation";
-
     private static final String TARGET_FIELD_NAME = "targetFieldName";
-
     private static final String TARGET_FIELD_ID = "targetFieldId";
-
     private static final String SOURCE_FIELD_NAME = "sourceFieldName";
-
     private static final String SOURCE_FIELD_ID = "sourceFieldId";
-
     private static final String WILDCARD_STRING = "*";
-
     private static final String HUB_PROJECT_URL = "hubProjectUrl";
-
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
-
     private static final String PROJECT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/projects/projectId/versions/versionId";
-
     private static final String COMPONENT_VERSION_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId";
-
     private static final String COMPONENT_URL = "http://int-hub01.dc1.lan:8080/api/components/componentId";
-
     private static final String COMPONENT_VERSION = "componentVersion";
-
     private static final String COMPONENT_NAME = "componentName";
-
     private static final String ASSIGNEE_USER_ID = "assigneeUserId";
-
     private static final String HUB_PROJECT_NAME = "hubProjectName";
-
     private static final long JIRA_PROJECT_ID = 123L;
-
     private static final int EXPECTED_EVENT_COUNT = 1;
-
     private static final String JIRA_ADMIN_USERNAME = "jiraAdminUsername";
-
     private static final String JIRA_ISSUE_CREATOR_USERNAME = "jiraIssueCreatorUsername";
-
     private static final String JIRA_ADMIN_USER_KEY = "jiraAdminUserKey";
-
     private static final String JIRA_ISSUE_CREATOR_USER_KEY = "jiraIssueCreatorUserKey";
-
     private static final String JIRA_PROJECT_NAME = "jiraProjectName";
-
     private static final String VULN_SOURCE = "NVD";
-
     private static final String VULN_EXPECTED_PROPERTY_KEY = "t=v|jp=123|hpv=-32224582|hc=|hcv=1816144506";
-
     private static final String VULN_EXPECTED_RESOLVED_COMMENT = "Automatically resolved; the Black Duck Hub reports no remaining vulnerabilities on this project from this component";
-
     private static final String VULN_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to new Black Duck Hub vulnerabilities on this project from this component";
-
     private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" + "Vulnerabilities added: http://int-hub01.dc1.lan:8080/api/components/componentId/versions/versionId (NVD)\n"
             + "Vulnerabilities updated: None\n" + "Vulnerabilities deleted: None\n";
-
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
-
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
-
     private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
             + "], component 'componentName' / 'componentVersion'. " + "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub." + "\nComponent license(s): ";
-
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " + "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
 
     private enum NotifType {
@@ -218,21 +164,13 @@ public class NotificationConverterTest {
     }
 
     private static MetaService metaService;
-
     private static Date now;
-
     private static JiraServices jiraServices;
-
     private static ProjectVersionModel projectVersion;
-
     private static JiraSettingsService jiraSettingsService;
-
     private static JiraContext jiraContext;
-
     private static HubServicesFactory hubServicesFactory;
-
     private static HubProjectMappings projectMappingObject;
-
     private static HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     @BeforeClass
@@ -279,6 +217,20 @@ public class NotificationConverterTest {
         hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
         final HubResponseService hubRequestService = Mockito.mock(HubResponseService.class);
+
+        final VersionRiskProfileResponse versionRiskProfileResponse = new VersionRiskProfileResponse();
+        versionRiskProfileResponse.bomLastUpdatedAt = "2018-04-11T19:19:38.929Z";
+        Mockito.when(hubRequestService.getItem(Mockito.eq(RISK_PROFILE_LINK), Mockito.eq(VersionRiskProfileResponse.class))).thenReturn(versionRiskProfileResponse);
+
+        final ProjectResponse projectResponse = new ProjectResponse();
+        projectResponse.projectOwner = PROJECT_OWNER_LINK;
+        Mockito.when(hubRequestService.getItem(Mockito.eq(PROJECT_RESPONSE_LINK), Mockito.eq(ProjectResponse.class))).thenReturn(projectResponse);
+
+        final UserView projectOwnerUserView = new UserView();
+        projectOwnerUserView.firstName = "Shmario";
+        projectOwnerUserView.lastName = "Bear";
+        Mockito.when(hubRequestService.getItem(Mockito.eq(PROJECT_OWNER_LINK), Mockito.eq(UserView.class))).thenReturn(projectOwnerUserView);
+
         projectVersion = createProjectVersion();
         Mockito.when(hubServicesFactory.createHubResponseService()).thenReturn(hubRequestService);
         Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
@@ -527,6 +479,8 @@ public class NotificationConverterTest {
         projectVersion.setVulnerableComponentsLink(VULNERABLE_COMPONENTS_URL);
         projectVersion.setComponentsLink(PROJECT_VERSION_COMPONENTS_URL);
         projectVersion.setNickname("projectVersionNickname");
+        projectVersion.setRiskProfileLink(RISK_PROFILE_LINK);
+        projectVersion.setProjectLink(PROJECT_RESPONSE_LINK);
         return projectVersion;
     }
 

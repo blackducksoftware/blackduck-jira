@@ -21,8 +21,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira;
+package com.blackducksoftware.integration.jira.hub;
 
-public interface HubJiraComponent {
-    String getName();
+import com.blackducksoftware.integration.hub.model.HubResponse;
+
+public class ProjectResponse extends HubResponse {
+    public String description;
+    public String name;
+    public Boolean projectLevelAdjustments;
+    public String projectOwner;
+    public Integer projectTier;
+
 }

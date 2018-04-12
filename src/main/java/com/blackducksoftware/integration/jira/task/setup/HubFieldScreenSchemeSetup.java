@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -174,23 +174,18 @@ public class HubFieldScreenSchemeSetup {
     private List<OrderableField> createCommonFields(final List<IssueType> issueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
         customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_COMPONENT));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
 
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList,
-                PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
+        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;
     }
@@ -276,7 +271,7 @@ public class HubFieldScreenSchemeSetup {
                 final FieldScreenLayoutItem existingField = myTab.getFieldScreenLayoutItem(field.getId());
                 if (existingField == null) {
                     logger.debug("addHubTabToScreen(): custom field " + field.getName()
-                    + " is not on hub screen tab; adding it");
+                            + " is not on hub screen tab; adding it");
                     myTab.addFieldScreenLayoutItem(field.getId());
                     needToUpdateTabAndScreen = true;
                 }

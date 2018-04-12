@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -48,19 +48,14 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 
 public class IssueFieldHandler {
-
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final TicketInfoFromSetup ticketInfoFromSetup;
-
     private final JiraContext jiraContext;
 
-    public IssueFieldHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final JiraContext jiraContext,
-            final TicketInfoFromSetup ticketInfoFromSetup) {
+    public IssueFieldHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final JiraContext jiraContext, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.jiraServices = jiraServices;
         this.jiraSettingsService = jiraSettingsService;
         this.jiraContext = jiraContext;
@@ -74,10 +69,8 @@ public class IssueFieldHandler {
         }
     }
 
-    public void setPluginFieldValues(final NotificationEvent notificationEvent, final EventData eventData,
-            final IssueInputParameters issueInputParameters) {
-        if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null
-                && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
+    public void setPluginFieldValues(final NotificationEvent notificationEvent, final EventData eventData, final IssueInputParameters issueInputParameters) {
+        if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getHubProjectName());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getHubProjectVersion());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getHubComponentName());
@@ -87,8 +80,10 @@ public class IssueFieldHandler {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getHubComponentUsage());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getHubComponentOriginId());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters,
-                    eventData.getHubProjectVersionNickname());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getHubProjectVersionNickname());
+
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, issueInputParameters, eventData.getHubProjectVersionLastUpdated());
 
             if (notificationEvent.isPolicyEvent()) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
@@ -180,8 +175,7 @@ public class IssueFieldHandler {
     }
 
     /**
-     * If target field is labels field, the label value is returned (labels cannot be applied
-     * to an issue during creation).
+     * If target field is labels field, the label value is returned (labels cannot be applied to an issue during creation).
      */
     private String setSystemField(final NotificationEvent notificationEvent, final EventData eventData, final IssueInputParameters issueInputParameters,
             final Field targetField,
@@ -276,6 +270,10 @@ public class IssueFieldHandler {
             fieldValue = eventData.getHubProjectName();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectVersion();
+        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubProjectOwner();
+        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubProjectVersionLastUpdated();
         } else {
             final String errorMessage = "Unrecognized plugin field ID: " + pluginFieldId;
             logger.error(errorMessage);

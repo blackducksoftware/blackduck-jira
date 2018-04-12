@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -62,269 +62,247 @@ import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException
 import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
 
 public class HubJiraTask {
-	private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-	private final PluginConfigurationDetails pluginConfigDetails;
+    private final PluginConfigurationDetails pluginConfigDetails;
+    private final JiraContext jiraContext;
+    private final Date runDate;
+    private final String runDateString;
+    private final SimpleDateFormat dateFormatter;
+    private final JiraServices jiraServices = new JiraServices();
+    private final JiraSettingsService jiraSettingsService;
+    private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final String fieldCopyMappingJson;
 
-	private final JiraContext jiraContext;
+    public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
+        this.pluginConfigDetails = configDetails;
+        this.jiraContext = jiraContext;
 
-	private final Date runDate;
+        this.runDate = new Date();
+        dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+        this.runDateString = dateFormatter.format(runDate);
+        logger.debug("Install date: " + configDetails.getInstallDateString());
+        logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
-	private final String runDateString;
+        this.jiraSettingsService = jiraSettingsService;
+        this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
 
-	private final SimpleDateFormat dateFormatter;
+        logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
+    }
 
-	private final JiraServices jiraServices = new JiraServices();
+    /**
+     * Setup, then generate JIRA tickets based on recent notifications
+     *
+     * @return this execution's run date/time string on success, null otherwise
+     */
+    public String execute() {
+        final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
+        HubServerConfig hubServerConfig = null;
+        try {
+            logger.debug("Building Hub configuration");
+            hubServerConfig = hubConfigBuilder.build();
+            logger.debug("Finished building Hub configuration");
+        } catch (final IllegalStateException e) {
+            logger.error(
+                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
+                            + e.getMessage());
+            return "error";
+        }
 
-	private final JiraSettingsService jiraSettingsService;
+        final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
+        if (config == null) {
+            return null;
+        }
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
-	private final TicketInfoFromSetup ticketInfoFromSetup;
+        final Date startDate;
+        try {
+            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
+        } catch (final ParseException e) {
+            logger.info(
+                    "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+            return runDateString;
+        }
 
-	private final String fieldCopyMappingJson;
+        try {
+            final HubServicesFactory hubServicesFactory;
+            try {
+                hubServicesFactory = createHubServicesFactory(hubServerConfig);
+            } catch (final EncryptionException e) {
+                logger.info("Error handling password: " + e.getMessage());
+                return null;
+            }
+            final List<String> linksOfRulesToMonitor = getRuleUrls(config);
+            final HubSupportHelper hubSupportHelper = new HubSupportHelper();
+            final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+            hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
 
-	public HubJiraTask(final PluginConfigurationDetails configDetails, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-			final TicketInfoFromSetup ticketInfoFromSetup) {
-		this.pluginConfigDetails = configDetails;
-		this.jiraContext = jiraContext;
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig, hubSupportHelper);
 
-		this.runDate = new Date();
-		dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
-		dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-		this.runDateString = dateFormatter.format(runDate);
-		logger.debug("Install date: " + configDetails.getInstallDateString());
-		logger.debug("Last run date: " + configDetails.getLastRunDateString());
+            // Phone-Home
+            final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
+            final HubRegistrationRequestService regService = hubServicesFactory.createHubRegistrationRequestService();
+            try {
+                final String hubVersion = hubSupport.getHubVersion();
+                String regId = null;
+                String hubHostName = null;
+                try {
+                    regId = regService.getRegistrationId();
+                } catch (final Exception e) {
+                    logger.debug("Could not get the Hub registration Id.");
+                }
+                try {
+                    hubHostName = hubServerConfig.getHubUrl().getHost();
+                } catch (final Exception e) {
+                    logger.debug("Could not get the Hub Host name.");
+                }
+                bdPhoneHome(hubVersion, regId, hubHostName);
+            } catch (final Exception e) {
+                logger.debug("Unable to phone-home", e);
+            }
+            final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
+                    config.getHubProjectMappings());
 
-		this.jiraSettingsService = jiraSettingsService;
-		this.ticketInfoFromSetup = ticketInfoFromSetup;
-		this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
+            logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
+            final UserView hubUserItem = getHubUserItem(hubServicesFactory,
+                    hubServerConfig.getGlobalCredentials().getUsername());
+            if (hubUserItem == null) {
+                return null;
+            }
+            // Generate JIRA Issues based on recent notifications
+            logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
+            ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
+        } catch (final Exception e) {
+            logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
+            jiraSettingsService.addHubError(e, "executeHubJiraTask");
+            return null;
+        }
+        return runDateString;
+    }
 
-		logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
-	}
+    private UserView getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
+        if (currentUsername == null) {
+            final String msg = "Current username is null";
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        final UserRequestService userService = hubServicesFactory.createUserRequestService();
+        List<UserView> users;
+        try {
+            users = userService.getAllUsers();
+        } catch (final IntegrationException e) {
+            final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
+            logger.error(msg);
+            jiraSettingsService.addHubError(msg, "getCurrentUser");
+            return null;
+        }
+        for (final UserView user : users) {
+            if (currentUsername.equalsIgnoreCase(user.userName)) {
+                return user;
+            }
+        }
+        final String msg = "Current user: " + currentUsername + " not found in list of all users";
+        logger.error(msg);
+        jiraSettingsService.addHubError(msg, "getCurrentUser");
+        return null;
+    }
 
-	/**
-	 * Setup, then generate JIRA tickets based on recent notifications
-	 *
-	 * @return this execution's run date/time string on success, null otherwise
-	 */
-	public String execute() {
-		final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
-		HubServerConfig hubServerConfig = null;
-		try {
-			logger.debug("Building Hub configuration");
-			hubServerConfig = hubConfigBuilder.build();
-			logger.debug("Finished building Hub configuration");
-		} catch (final IllegalStateException e) {
-			logger.error(
-					"Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
-							+ e.getMessage());
-			return "error";
-		}
+    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws EncryptionException {
+        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig.getHubUrl(),
+                hubServerConfig.getGlobalCredentials().getUsername(), hubServerConfig.getGlobalCredentials().getDecryptedPassword(),
+                hubServerConfig.getTimeout());
+        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
+        return hubServicesFactory;
+    }
 
-		final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
-		if (config == null) {
-			return null;
-		}
-		final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
+    private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
+        final List<String> ruleUrls = new ArrayList<>();
+        final List<PolicyRuleSerializable> rules = config.getPolicyRules();
+        for (final PolicyRuleSerializable rule : rules) {
+            final String ruleUrl = rule.getPolicyUrl();
+            logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
+                    + rule.getChecked());
+            if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
+                ruleUrls.add(ruleUrl);
+            }
+        }
+        return ruleUrls;
+    }
 
-		final Date startDate;
-		try {
-			startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
-		} catch (final ParseException e) {
-			logger.info(
-					"This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-			return runDateString;
-		}
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubSupportHelper hubSupportHelper) throws URISyntaxException {
+        logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-		try {
-			final HubServicesFactory hubServicesFactory;
-			try {
-				hubServicesFactory = createHubServicesFactory(hubServerConfig);
-			} catch (final EncryptionException e) {
-				logger.info("Error handling password: " + e.getMessage());
-				return null;
-			}
-			final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-			final HubSupportHelper hubSupportHelper = new HubSupportHelper();
-			final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
-			hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
+                linksOfRulesToMonitor, hubSupportHelper);
+        return ticketGenerator;
+    }
 
-			final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-					linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig, hubSupportHelper);
+    private HubJiraConfigSerializable deSerializeConfig(final HubServerConfig hubServerConfig) {
+        if (pluginConfigDetails.getProjectMappingJson() == null) {
+            logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+            return null;
+        }
 
-			// Phone-Home
-			final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
-			final HubRegistrationRequestService regService = hubServicesFactory.createHubRegistrationRequestService();
-			try {
-				final String hubVersion = hubSupport.getHubVersion();
-				String regId = null;
-				String hubHostName = null;
-				try {
-					regId = regService.getRegistrationId();
-				} catch (final Exception e) {
-					logger.debug("Could not get the Hub registration Id.");
-				}
-				try {
-					hubHostName = hubServerConfig.getHubUrl().getHost();
-				} catch (final Exception e) {
-					logger.debug("Could not get the Hub Host name.");
-				}
-				bdPhoneHome(hubVersion, regId, hubHostName);
-			} catch (final Exception e) {
-				logger.debug("Unable to phone-home", e);
-			}
-			final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
-					config.getHubProjectMappings());
+        if (pluginConfigDetails.getPolicyRulesJson() == null) {
+            logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
+            return null;
+        }
 
-			logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
-			final UserView hubUserItem = getHubUserItem(hubServicesFactory,
-					hubServerConfig.getGlobalCredentials().getUsername());
-			if (hubUserItem == null) {
-				return null;
-			}
-			// Generate JIRA Issues based on recent notifications
-			logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-			ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
-		} catch (final Exception e) {
-			logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
-			jiraSettingsService.addHubError(e, "executeHubJiraTask");
-			return null;
-		}
-		return runDateString;
-	}
+        logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
+        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
 
-	private UserView getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
-		if (currentUsername == null) {
-			final String msg = "Current username is null";
-			logger.error(msg);
-			jiraSettingsService.addHubError(msg, "getCurrentUser");
-			return null;
-		}
-		final UserRequestService userService = hubServicesFactory.createUserRequestService();
-		List<UserView> users;
-		try {
-			users = userService.getAllUsers();
-		} catch (final IntegrationException e) {
-			final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
-			logger.error(msg);
-			jiraSettingsService.addHubError(msg, "getCurrentUser");
-			return null;
-		}
-		for (final UserView user : users) {
-			if (currentUsername.equalsIgnoreCase(user.userName)) {
-				return user;
-			}
-		}
-		final String msg = "Current user: " + currentUsername + " not found in list of all users";
-		logger.error(msg);
-		jiraSettingsService.addHubError(msg, "getCurrentUser");
-		return null;
-	}
+        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
+        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
+        logger.debug("Mappings:");
+        for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+            logger.debug(mapping.toString());
+        }
+        logger.debug("Policy Rules:");
+        for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
+            logger.debug(rule.toString());
+        }
+        return config;
+    }
 
-	private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws EncryptionException {
-		final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig.getHubUrl(),
-				hubServerConfig.getGlobalCredentials().getUsername(), hubServerConfig.getGlobalCredentials().getDecryptedPassword(),
-				hubServerConfig.getTimeout());
-		final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-		return hubServicesFactory;
-	}
+    private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
+        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+        fieldCopyConfig.setJson(fieldCopyMappingJson);
+        return fieldCopyConfig;
+    }
 
-	private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
-		final List<String> ruleUrls = new ArrayList<>();
-		final List<PolicyRuleSerializable> rules = config.getPolicyRules();
-		for (final PolicyRuleSerializable rule : rules) {
-			final String ruleUrl = rule.getPolicyUrl();
-			logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
-					+ rule.getChecked());
-			if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
-				ruleUrls.add(ruleUrl);
-			}
-		}
-		return ruleUrls;
-	}
+    private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
+        final Date startDate;
+        if (lastRunDateString == null) {
+            logger.info("No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: " + installDateString);
+            startDate = dateFormatter.parse(installDateString);
+        } else {
+            startDate = dateFormatter.parse(lastRunDateString);
+        }
+        return startDate;
+    }
 
-	private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory,
-			final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-			final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubSupportHelper hubSupportHelper)
-					throws URISyntaxException {
-		logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
+    /**
+     * @param blackDuckVersion
+     *            Version of the blackduck product, in this instance, the hub
+     * @param regId
+     *            Registration ID of the hub instance that this plugin uses
+     * @param hubHostName
+     *            Host name of the hub instance that this plugin uses
+     *
+     *            This method "phones-home" to the internal BlackDuck Integrations server.
+     */
+    public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName) throws IOException, PhoneHomeException, PropertiesLoaderException {
+        final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
+        final String pluginVersion = jiraServices.getPluginVersion();
 
-		final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory,
-				jiraServices, jiraContext,
-				jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-				linksOfRulesToMonitor, hubSupportHelper);
-		return ticketGenerator;
-	}
-
-	private HubJiraConfigSerializable deSerializeConfig(final HubServerConfig hubServerConfig) {
-		if (pluginConfigDetails.getProjectMappingJson() == null) {
-			logger.debug(
-					"HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-			return null;
-		}
-
-		if (pluginConfigDetails.getPolicyRulesJson() == null) {
-			logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-			return null;
-		}
-
-		logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
-		logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / "
-				+ hubServerConfig.getGlobalCredentials().getUsername());
-		logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
-
-		final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
-		config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
-		config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
-		logger.debug("Mappings:");
-		for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
-			logger.debug(mapping.toString());
-		}
-		logger.debug("Policy Rules:");
-		for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-			logger.debug(rule.toString());
-		}
-		return config;
-	}
-
-	private HubJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
-		final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
-		fieldCopyConfig.setJson(fieldCopyMappingJson);
-		return fieldCopyConfig;
-	}
-
-	private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
-		final Date startDate;
-		if (lastRunDateString == null) {
-			logger.info(
-					"No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: "
-							+ installDateString);
-
-			startDate = dateFormatter.parse(installDateString);
-
-		} else {
-			startDate = dateFormatter.parse(lastRunDateString);
-		}
-		return startDate;
-	}
-
-	/**
-	 * @param blackDuckVersion
-	 *            Version of the blackduck product, in this instance, the hub
-	 * @param regId
-	 *            Registration ID of the hub instance that this plugin uses
-	 * @param hubHostName
-	 *            Host name of the hub instance that this plugin uses
-	 *
-	 *            This method "phones-home" to the internal BlackDuck
-	 *            Integrations server.
-	 */
-	public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName)
-			throws IOException, PhoneHomeException, PropertiesLoaderException {
-		final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
-		final String pluginVersion = jiraServices.getPluginVersion();
-
-		final PhoneHomeClient phClient = new PhoneHomeClient(logger);
-		phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA,
-				thirdPartyVersion, pluginVersion);
-	}
+        final PhoneHomeClient phClient = new PhoneHomeClient(logger);
+        phClient.callHomeIntegrations(regId, hubHostName, BlackDuckName.HUB, blackDuckVersion, ThirdPartyName.JIRA, thirdPartyVersion, pluginVersion);
+    }
 }

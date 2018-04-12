@@ -1,7 +1,7 @@
 /**
  * Hub JIRA Plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -58,7 +58,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
             final String issueTypeName,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
             final HubServicesFactory hubServicesFactory, final HubJiraLogger logger)
-                    throws ConfigurationException {
+            throws ConfigurationException {
         super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig,
                 hubServicesFactory, logger);
         this.logger = logger;
@@ -154,28 +154,19 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     protected String getIssueSummary(final NotificationContentItem notif, final PolicyRuleView rule) {
-        final StringBuilder issueSummary = new StringBuilder();
-        issueSummary.append("Black Duck policy violation detected on Hub project '");
-        issueSummary.append(notif.getProjectVersion().getProjectName());
-        issueSummary.append("' / '");
-        issueSummary.append(notif.getProjectVersion().getProjectVersionName());
-        issueSummary.append("', component '");
-        issueSummary.append(notif.getComponentName());
+        String componentString = notif.getComponentName();
         if (notif.getComponentVersion() != null) {
-            issueSummary.append("' / '");
-            issueSummary.append(notif.getComponentVersion().versionName);
+            componentString += "' / '" + notif.getComponentVersion().versionName;
         }
-        issueSummary.append("'");
-        issueSummary.append(" [Rule: '");
-        issueSummary.append(rule.name);
-        issueSummary.append("']");
+        final String issueSummaryTemplate = "Black Duck policy violation detected on Hub project '%s' / '%s', component '%s' [Rule: '%s']";
+        final Object[] replacements = new String[] { notif.getProjectVersion().getProjectName(), notif.getProjectVersion().getProjectVersionName(), componentString, rule.name };
+
+        final String issueSummary = String.format(issueSummaryTemplate, replacements);
         return issueSummary.toString();
     }
 
     @Override
-    public String generateEventKey(final Map<String, Object> inputData)
-            throws HubIntegrationException {
-
+    public String generateEventKey(final Map<String, Object> inputData) throws HubIntegrationException {
         final EventData eventData = (EventData) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA);
 
         final Long jiraProjectId = eventData.getJiraProjectId();
