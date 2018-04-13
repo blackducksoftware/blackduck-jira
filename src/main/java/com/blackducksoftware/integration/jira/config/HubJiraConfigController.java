@@ -65,22 +65,24 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.item.HubViewFilter;
-import com.blackducksoftware.integration.hub.api.item.MetaService;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.api.policy.PolicyRequestService;
-import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
+import com.blackducksoftware.integration.hub.RestConstants;
+import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
+import com.blackducksoftware.integration.hub.api.generated.response.FilterView;
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
+import com.blackducksoftware.integration.hub.api.view.HubViewFilter;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
-import com.blackducksoftware.integration.hub.model.view.ProjectView;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.PolicyRuleService;
+import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -780,7 +782,7 @@ public class HubJiraConfigController {
                     validateCreator(config, settings);
                     validateMapping(config);
                     if (getValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
-                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
                         setValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
                     }
@@ -995,7 +997,7 @@ public class HubJiraConfigController {
                         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
                         final Date now = new Date();
 
-                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
                         final String oldLastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
                         final String newLastRunDateString = dateFormatter.format(now);
@@ -1186,7 +1188,8 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout());
+            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(),
+                    serverConfig.getProxyInfo(), new UriCombiner());
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
@@ -1198,19 +1201,19 @@ public class HubJiraConfigController {
 
     private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory, final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
+        final ProjectService projectRequestService = hubServicesFactory.createProjectService();
         List<ProjectView> hubProjectItems = null;
         try {
-            hubProjectItems = projectRequestService.getAllProjects();
+            hubProjectItems = projectRequestService.getAllProjectMatches(null);
         } catch (final IntegrationException e) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
             return hubProjects;
         }
 
         final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
-        final MetaService metaService = hubServicesFactory.createMetaService();
+        final MetaHandler metaHandler = new MetaHandler(logger);
         try {
-            hubProjectItems = filter.getAccessibleItems(metaService, hubProjectItems);
+            hubProjectItems = filter.getAccessibleItems(metaHandler, hubProjectItems);
         } catch (final HubIntegrationException e1) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
             return hubProjects;
@@ -1221,7 +1224,7 @@ public class HubJiraConfigController {
                 final HubProject newHubProject = new HubProject();
                 newHubProject.setProjectName(project.name);
                 try {
-                    newHubProject.setProjectUrl(metaService.getHref(project));
+                    newHubProject.setProjectUrl(metaHandler.getHref(project));
                 } catch (final HubIntegrationException e) {
                     config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
                     continue;
@@ -1236,14 +1239,13 @@ public class HubJiraConfigController {
 
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
-            final HubSupportHelper supportHelper = new HubSupportHelper();
+            final HubService hubService = hubServicesFactory.createHubService();
             try {
-                final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
-                supportHelper.checkHubSupport(hubVersionRequestService, null);
-
+                // TODO figure out how to check this now
+                final FilterView policyEnabled = hubService.getResponse(ApiDiscovery.POLICY_RULE_ENABLED_FILTERS_LINK_RESPONSE);
                 if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
 
-                    final PolicyRequestService policyService = hubServicesFactory.createPolicyRequestService();
+                    final PolicyRuleService policyService = hubServicesFactory.createPolicyRuleService();
 
                     List<PolicyRuleView> policyRules = null;
                     try {
@@ -1268,9 +1270,9 @@ public class HubJiraConfigController {
                             newRule.setDescription(cleanDescription(description));
                             newRule.setName(rule.name.trim());
 
-                            final MetaService metaService = hubServicesFactory.createMetaService();
+                            final MetaHandler metaHandler = new MetaHandler(logger);
                             try {
-                                newRule.setPolicyUrl(metaService.getHref(rule));
+                                newRule.setPolicyUrl(metaHandler.getHref(rule));
                             } catch (final HubIntegrationException e) {
                                 logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
                                 config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);

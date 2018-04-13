@@ -37,13 +37,11 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.capability.HubCapabilitiesEnum;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -92,7 +90,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
 
                 final HubSupportHelper hubSupportHelper = new HubSupportHelper();
-                final HubVersionRequestService hubVersionRequestService = servicesFactory.createHubVersionRequestService();
+                final HubVersionService hubVersionRequestService = servicesFactory.createHubVersionService();
                 hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
 
                 if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
@@ -103,7 +101,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
                         return Boolean.FALSE;
                     }
 
-                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createBomComponentIssueRequestService());
+                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createIssueService());
                     handleIssue(jiraContext, eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
                 }
             }
@@ -149,7 +147,8 @@ public class IssueTrackerTask implements Callable<Boolean> {
     }
 
     public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(), config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(), config.getTimeout());
+        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(), config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(), config.getTimeout(),
+                config.getProxyInfo(), new UriCombiner());
         return new HubServicesFactory(restConnection);
     }
 

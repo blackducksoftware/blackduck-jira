@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.bom.BomComponentIssueRequestService;
-import com.blackducksoftware.integration.hub.model.view.IssueView;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class BomComponentIssueServiceMock extends BomComponentIssueRequestService {

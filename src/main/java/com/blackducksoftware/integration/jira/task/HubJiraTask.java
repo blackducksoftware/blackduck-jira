@@ -36,15 +36,16 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubRegistrationRequestService;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.api.user.UserRequestService;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.model.view.UserView;
+import com.blackducksoftware.integration.hub.RestConstants;
+import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
+import com.blackducksoftware.integration.hub.api.generated.response.CurrentVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.UserView;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubRegistrationService;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -79,7 +80,7 @@ public class HubJiraTask {
         this.jiraContext = jiraContext;
 
         this.runDate = new Date();
-        dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         this.runDateString = dateFormatter.format(runDate);
         logger.debug("Install date: " + configDetails.getInstallDateString());
@@ -135,7 +136,7 @@ public class HubJiraTask {
                 return null;
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-            final HubSupportHelper hubSupportHelper = new HubSupportHelper();
+            final HubService hubService = hubServicesFactory.createHubService();
             final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
             hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
 
@@ -143,8 +144,8 @@ public class HubJiraTask {
                     linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig, hubSupportHelper);
 
             // Phone-Home
-            final HubVersionRequestService hubSupport = hubServicesFactory.createHubVersionRequestService();
-            final HubRegistrationRequestService regService = hubServicesFactory.createHubRegistrationRequestService();
+            final CurrentVersionView currentVersion = hubService.getResponse(ApiDiscovery.CURRENT_VERSION_LINK_RESPONSE);
+            final HubRegistrationService regService = hubServicesFactory.createHubRegistrationService();
             try {
                 final String hubVersion = hubSupport.getHubVersion();
                 String regId = null;
@@ -290,13 +291,13 @@ public class HubJiraTask {
 
     /**
      * @param blackDuckVersion
-     *            Version of the blackduck product, in this instance, the hub
+     *                             Version of the blackduck product, in this instance, the hub
      * @param regId
-     *            Registration ID of the hub instance that this plugin uses
+     *                             Registration ID of the hub instance that this plugin uses
      * @param hubHostName
-     *            Host name of the hub instance that this plugin uses
+     *                             Host name of the hub instance that this plugin uses
      *
-     *            This method "phones-home" to the internal BlackDuck Integrations server.
+     *                             This method "phones-home" to the internal BlackDuck Integrations server.
      */
     public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName) throws IOException, PhoneHomeException, PropertiesLoaderException {
         final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();

@@ -23,8 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.mocks.issue;
 
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 
 public class HubServerConfigBuilderMock extends HubServerConfigBuilder {
 

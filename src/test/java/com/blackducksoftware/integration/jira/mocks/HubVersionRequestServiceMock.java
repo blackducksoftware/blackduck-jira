@@ -24,8 +24,6 @@
 package com.blackducksoftware.integration.jira.mocks;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.model.response.VersionComparison;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class HubVersionRequestServiceMock extends HubVersionRequestService {

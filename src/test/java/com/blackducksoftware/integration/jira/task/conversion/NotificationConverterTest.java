@@ -45,26 +45,24 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.aggregate.bom.AggregateBomRequestService;
-import com.blackducksoftware.integration.hub.api.item.MetaService;
-import com.blackducksoftware.integration.hub.api.vulnerablebomcomponent.VulnerableBomComponentRequestService;
-import com.blackducksoftware.integration.hub.dataservice.model.ProjectVersionModel;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyOverrideContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationClearedContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyViolationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.api.core.HubView;
+import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.api.generated.view.UserView;
+import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.response.VulnerabilitySourceQualifiedId;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.model.HubView;
-import com.blackducksoftware.integration.hub.model.enumeration.MatchedFileUsageEnum;
-import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.model.view.PolicyRuleView;
-import com.blackducksoftware.integration.hub.model.view.UserView;
-import com.blackducksoftware.integration.hub.model.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.model.view.components.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.notification.processor.ListProcessorCache;
-import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
-import com.blackducksoftware.integration.hub.service.HubResponseService;
+import com.blackducksoftware.integration.hub.notification.ListProcessorCache;
+import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
+import com.blackducksoftware.integration.hub.notification.NotificationEvent;
+import com.blackducksoftware.integration.hub.notification.PolicyOverrideContentItem;
+import com.blackducksoftware.integration.hub.notification.PolicyViolationClearedContentItem;
+import com.blackducksoftware.integration.hub.notification.PolicyViolationContentItem;
+import com.blackducksoftware.integration.hub.notification.ProjectVersionModel;
+import com.blackducksoftware.integration.hub.notification.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.service.ComponentService;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubProject;
@@ -163,7 +161,7 @@ public class NotificationConverterTest {
         POLICY_VIOLATION_CLEARED
     }
 
-    private static MetaService metaService;
+    private static MetaHandler metaService;
     private static Date now;
     private static JiraServices jiraServices;
     private static ProjectVersionModel projectVersion;
@@ -215,8 +213,8 @@ public class NotificationConverterTest {
         jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
         jiraSettingsService = null;
         hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        final VulnerableBomComponentRequestService vulnBomCompReqSvc = Mockito.mock(VulnerableBomComponentRequestService.class);
-        final HubResponseService hubRequestService = Mockito.mock(HubResponseService.class);
+        final ComponentService vulnBomCompReqSvc = Mockito.mock(ComponentService.class);
+        final HubService hubRequestService = Mockito.mock(HubService.class);
 
         final VersionRiskProfileResponse versionRiskProfileResponse = new VersionRiskProfileResponse();
         versionRiskProfileResponse.bomLastUpdatedAt = "2018-04-11T19:19:38.929Z";
@@ -232,11 +230,11 @@ public class NotificationConverterTest {
         Mockito.when(hubRequestService.getItem(Mockito.eq(PROJECT_OWNER_LINK), Mockito.eq(UserView.class))).thenReturn(projectOwnerUserView);
 
         projectVersion = createProjectVersion();
-        Mockito.when(hubServicesFactory.createHubResponseService()).thenReturn(hubRequestService);
-        Mockito.when(hubServicesFactory.createVulnerableBomComponentRequestService()).thenReturn(vulnBomCompReqSvc);
-        metaService = Mockito.mock(MetaService.class);
+        Mockito.when(hubServicesFactory.createHubService()).thenReturn(hubRequestService);
+        Mockito.when(hubServicesFactory.createComponentService()).thenReturn(vulnBomCompReqSvc);
+        metaService = Mockito.mock(MetaHandler.class);
         Mockito.when(metaService.getHref(Mockito.any(HubView.class))).thenReturn(PROJECT_VERSION_COMPONENTS_URL);
-        Mockito.when(hubServicesFactory.createMetaService()).thenReturn(metaService);
+        Mockito.when(hubServicesFactory.createMetaHandler()).thenReturn(metaService);
 
         final AggregateBomRequestService bomRequestService = Mockito.mock(AggregateBomRequestService.class);
         final List<VersionBomComponentView> bom = new ArrayList<>();
@@ -342,7 +340,7 @@ public class NotificationConverterTest {
         return conv;
     }
 
-    private NotificationContentItem createNotif(final MetaService metaService, final NotifType notifType, final Date now, final ProjectVersionModel projectVersion) throws URISyntaxException, HubIntegrationException, IntegrationException {
+    private NotificationContentItem createNotif(final MetaHandler metaService, final NotifType notifType, final Date now, final ProjectVersionModel projectVersion) throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationContentItem notif;
         switch (notifType) {
         case VULNERABILITY:
@@ -439,7 +437,7 @@ public class NotificationConverterTest {
 
     }
 
-    private NotificationContentItem createVulnerabilityNotif(final MetaService metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, HubIntegrationException {
+    private NotificationContentItem createVulnerabilityNotif(final MetaHandler metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
         vuln.source = VULN_SOURCE;
         vuln.vulnerabilityId = COMPONENT_VERSION_URL;
@@ -460,7 +458,7 @@ public class NotificationConverterTest {
         return fullComponentVersion;
     }
 
-    private NotificationContentItem createPolicyViolationNotif(final MetaService metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyViolationNotif(final MetaHandler metaService, final ProjectVersionModel projectVersion, final Date createdAt) throws URISyntaxException, IntegrationException {
 
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
         final PolicyRuleView rule = createRule();
@@ -484,7 +482,7 @@ public class NotificationConverterTest {
         return projectVersion;
     }
 
-    private NotificationContentItem createPolicyClearedNotif(final MetaService metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyClearedNotif(final MetaHandler metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
         final ProjectVersionModel projectVersion = createProjectVersion();
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 
@@ -509,7 +507,7 @@ public class NotificationConverterTest {
         return rule;
     }
 
-    private NotificationContentItem createPolicyOverrideNotif(final MetaService metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationContentItem createPolicyOverrideNotif(final MetaHandler metaService, final Date createdAt) throws URISyntaxException, IntegrationException {
         final ProjectVersionModel projectVersion = createProjectVersion();
         final List<PolicyRuleView> policyRuleList = new ArrayList<>();
 

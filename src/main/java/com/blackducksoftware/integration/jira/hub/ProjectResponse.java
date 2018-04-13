@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.hub;
 
-import com.blackducksoftware.integration.hub.model.HubResponse;
+import com.blackducksoftware.integration.hub.api.core.HubResponse;
 
 public class ProjectResponse extends HubResponse {
     public String description;

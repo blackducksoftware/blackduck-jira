@@ -30,16 +30,15 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.HubSupportHelper;
-import com.blackducksoftware.integration.hub.dataservice.notification.NotificationDataService;
-import com.blackducksoftware.integration.hub.dataservice.notification.NotificationResults;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.NotificationContentItem;
-import com.blackducksoftware.integration.hub.dataservice.notification.model.PolicyNotificationFilter;
+import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
-import com.blackducksoftware.integration.hub.model.view.UserView;
-import com.blackducksoftware.integration.hub.notification.processor.event.NotificationEvent;
+import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
+import com.blackducksoftware.integration.hub.notification.NotificationEvent;
+import com.blackducksoftware.integration.hub.notification.NotificationResults;
+import com.blackducksoftware.integration.hub.notification.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -61,7 +60,7 @@ public class TicketGenerator {
 
     private final HubServicesFactory hubServicesFactory;
 
-    private final NotificationDataService notificationDataService;
+    private final NotificationService notificationService;
 
     private final JiraContext jiraContext;
 
@@ -83,8 +82,7 @@ public class TicketGenerator {
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final boolean createVulnerabilityIssues, final List<String> linksOfRulesToInclude, final HubSupportHelper hubSupportHelper) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
-        this.notificationDataService = new NotificationDataService(logger, hubServicesFactory.createHubResponseService(), hubServicesFactory.createNotificationRequestService(), hubServicesFactory.createProjectVersionRequestService(),
-                hubServicesFactory.createPolicyRequestService(), policyNotificationFilter, hubServicesFactory.createMetaService());
+        this.notificationService = hubServicesFactory.createNotificationService();
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -101,7 +99,7 @@ public class TicketGenerator {
             return;
         }
         try {
-            final NotificationResults results = notificationDataService.getUserNotifications(startDate, endDate, hubUser);
+            final NotificationResults results = notificationService.getUserNotifications(startDate, endDate, hubUser);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {

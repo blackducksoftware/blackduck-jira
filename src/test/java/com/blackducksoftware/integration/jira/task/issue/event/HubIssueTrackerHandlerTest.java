@@ -40,9 +40,12 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.model.view.IssueView;
+import com.blackducksoftware.integration.hub.RestConstants;
+import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -79,11 +82,13 @@ public class HubIssueTrackerHandlerTest {
 
     private HubIssueTrackerHandler issueHandler;
 
+    private final UriCombiner uriCombiner = new UriCombiner();
+
     @Before
     public void initTest() throws Exception {
         settings = new PluginSettingsMock();
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120);
+        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO, uriCombiner);
         issueServiceMock = new BomComponentIssueServiceMock(restConnection);
 
         issueHandler = new HubIssueTrackerHandler(new JiraServicesMock(), new JiraSettingsService(settings), issueServiceMock);
@@ -146,7 +151,7 @@ public class HubIssueTrackerHandlerTest {
 
         final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
         final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
@@ -167,7 +172,7 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
         final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
@@ -221,7 +226,7 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
         final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());

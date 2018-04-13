@@ -26,7 +26,7 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 
 public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
