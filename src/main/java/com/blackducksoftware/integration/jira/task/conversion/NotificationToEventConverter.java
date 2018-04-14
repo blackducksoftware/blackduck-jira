@@ -30,10 +30,12 @@ import java.util.Map;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
+import com.blackducksoftware.integration.hub.api.generated.enumeration.MatchedFileUsagesType;
 import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
 import com.blackducksoftware.integration.hub.notification.NotificationSubProcessor;
@@ -62,11 +64,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private final String issueTypeId;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
     private final HubServicesFactory hubServicesFactory;
-    private final AggregateBomRequestService bomRequestService;
 
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
             final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
-        super(cache, hubServicesFactory.createMetaHandler());
+        super(cache, new MetaHandler(logger));
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -74,7 +75,6 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         this.issueTypeId = lookUpIssueTypeId(issueTypeName);
         this.fieldCopyConfig = fieldCopyConfig;
         this.hubServicesFactory = hubServicesFactory;
-        this.bomRequestService = hubServicesFactory.createAggregateBomRequestService();
         this.logger = logger;
     }
 
@@ -142,7 +142,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         final StringBuilder usagesText = new StringBuilder();
         int usagesIndex = 0;
-        for (final MatchedFileUsageEnum usage : bomComp.usages) {
+        for (final MatchedFileUsagesType usage : bomComp.usages) {
             if (usagesIndex > 0) {
                 usagesText.append(", ");
             }
@@ -165,7 +165,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl, final ComponentVersionView componentVersion) throws HubIntegrationException {
         String componentVersionUrl = null;
         if (componentVersion != null) {
-            componentVersionUrl = getMetaService().getHref(componentVersion);
+            componentVersionUrl = getMetaHandler().getHref(componentVersion);
         }
         final String bomUrl = projectVersion.getComponentsLink();
         if (bomUrl == null) {
@@ -174,7 +174,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         }
         List<VersionBomComponentView> bomComps;
         try {
-            bomComps = bomRequestService.getBomEntries(bomUrl);
+            bomComps = hubServicesFactory.createHubService().getAllResponses(bomUrl, VersionBomComponentView.class);
         } catch (final Exception e) {
             logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", projectVersion.getProjectName(), projectVersion.getProjectVersionName()));
             return null;
@@ -221,17 +221,16 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         final ProjectVersionModel projectVersionModel = notificationContentItem.getProjectVersion();
         final String riskProfileUri = projectVersionModel.getRiskProfileLink();
         final String projectUri = notificationContentItem.getProjectVersion().getProjectLink();
-        final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
         try {
-            final VersionRiskProfileResponse riskProfile = hubResponseService.getItem(riskProfileUri, VersionRiskProfileResponse.class);
+            final VersionRiskProfileResponse riskProfile = hubServicesFactory.createHubService().getResponse(riskProfileUri, VersionRiskProfileResponse.class);
             eventDataBuilder.setHubProjectVersionLastUpdated(riskProfile.bomLastUpdatedAt);
         } catch (final IntegrationException e) {
             logger.error(String.format("Could not find the risk profile for %s: %s", riskProfileUri, e.getMessage()));
         }
         try {
-            final ProjectResponse projectResponse = hubResponseService.getItem(projectUri, ProjectResponse.class);
+            final ProjectResponse projectResponse = hubServicesFactory.createHubService().getResponse(projectUri, ProjectResponse.class);
             final String userUri = projectResponse.projectOwner;
-            final UserView userView = hubResponseService.getItem(userUri, UserView.class);
+            final UserView userView = hubServicesFactory.createHubService().getResponse(userUri, UserView.class);
             eventDataBuilder.setHubProjectOwner(userView.firstName + " " + userView.lastName);
         } catch (final IntegrationException e) {
             logger.error(String.format("Could not find the project for %s: %s", projectUri, e.getMessage()));
@@ -247,7 +246,7 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
             if (type != null) {
 
-                final String licenseJoinString = (type == ComplexLicenseEnum.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
+                final String licenseJoinString = (type == ComplexLicenseType.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND
                         : HubJiraConstants.LICENSE_NAME_JOINER_OR;
                 int licenseIndex = 0;
                 for (final ComplexLicenseView license : componentVersion.license.licenses) {
@@ -282,8 +281,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
 
     private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
         final String licenseUrl = license.license;
-        final ComplexLicenseView fullLicense = getHubServicesFactory().createHubResponseService().getItem(licenseUrl, ComplexLicenseView.class);
-        final String licenseTextUrl = getMetaService().getFirstLink(fullLicense, "text");
+        final ComplexLicenseView fullLicense = hubServicesFactory.createHubService().getResponse(licenseUrl, ComplexLicenseView.class);
+        final String licenseTextUrl = getMetaHandler().getFirstLink(fullLicense, "text");
         return licenseTextUrl;
     }
 
