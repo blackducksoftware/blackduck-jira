@@ -39,16 +39,13 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubIssueTrackerHandler {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final IssueService issueService;
-
     private final DateFormat dateFormatter;
 
     public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final IssueService issueService) {
@@ -129,13 +126,11 @@ public class HubIssueTrackerHandler {
 
         status = jiraIssue.getStatus().getName();
         // TODO correct Date data type
-        final String createdAt = dateFormatter.format(jiraIssue.getCreated());
-        final String updatedAt = dateFormatter.format(jiraIssue.getUpdated());
         hubIssue.issueId = issueId;
         hubIssue.issueAssignee = assignee;
         hubIssue.issueStatus = status;
-        hubIssue.issueCreatedAt = createdAt;
-        hubIssue.issueUpdatedAt = updatedAt;
+        hubIssue.issueCreatedAt = jiraIssue.getCreated();
+        hubIssue.issueUpdatedAt = jiraIssue.getUpdated();
         hubIssue.issueDescription = jiraIssue.getSummary();
         hubIssue.issueLink = String.format("%s/browse/%s", jiraServices.getJiraBaseUrl(), jiraIssue.getKey());
         return hubIssue;

@@ -67,8 +67,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
-import com.blackducksoftware.integration.hub.api.generated.response.FilterView;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
 import com.blackducksoftware.integration.hub.api.view.HubViewFilter;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
@@ -81,7 +80,6 @@ import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.hub.service.PolicyRuleService;
 import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -100,23 +98,15 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 @Path("/")
 public class HubJiraConfigController {
-
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final UserManager userManager;
-
     private final PluginSettingsFactory pluginSettingsFactory;
-
     private final TransactionTemplate transactionTemplate;
-
     private final ProjectManager projectManager;
-
     private final HubMonitor hubMonitor;
-
     private final GroupPickerSearchService groupPickerSearchService;
-
     private final FieldManager fieldManager;
-
     private final Properties i18nProperties;
 
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager, final HubMonitor hubMonitor,
@@ -1236,64 +1226,54 @@ public class HubJiraConfigController {
     }
 
     private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
-
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
             final HubService hubService = hubServicesFactory.createHubService();
             try {
-                // TODO figure out how to check this now
-                final FilterView policyEnabled = hubService.getResponse(ApiDiscovery.POLICY_RULE_ENABLED_FILTERS_LINK_RESPONSE);
-                if (supportHelper.hasCapability(HubCapabilitiesEnum.POLICY_API)) {
-
-                    final PolicyRuleService policyService = hubServicesFactory.createPolicyRuleService();
-
-                    List<PolicyRuleView> policyRules = null;
-                    try {
-                        policyRules = policyService.getAllPolicyRules();
-                    } catch (final HubIntegrationException e) {
-                        config.setPolicyRulesError(e.getMessage());
-                    } catch (final IntegrationRestException ire) {
-                        if (ire.getHttpStatusCode() == 402) {
-                            config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
-                        } else {
-                            config.setPolicyRulesError(ire.getMessage());
-                        }
+                List<PolicyRuleViewV2> policyRules = null;
+                try {
+                    policyRules = hubService.getAllResponses(ApiDiscovery.POLICY_RULES_LINK_RESPONSE);
+                } catch (final HubIntegrationException e) {
+                    config.setPolicyRulesError(e.getMessage());
+                } catch (final IntegrationRestException ire) {
+                    if (ire.getHttpStatusCode() == 402) {
+                        config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
+                    } else {
+                        config.setPolicyRulesError(ire.getMessage());
                     }
+                }
 
-                    if (policyRules != null && !policyRules.isEmpty()) {
-                        for (final PolicyRuleView rule : policyRules) {
-                            final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-                            String description = rule.description;
-                            if (description == null) {
-                                description = "";
-                            }
-                            newRule.setDescription(cleanDescription(description));
-                            newRule.setName(rule.name.trim());
-
-                            final MetaHandler metaHandler = new MetaHandler(logger);
-                            try {
-                                newRule.setPolicyUrl(metaHandler.getHref(rule));
-                            } catch (final HubIntegrationException e) {
-                                logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
-                                config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
-                                continue;
-                            }
-                            newRule.setEnabled(rule.enabled);
-                            newPolicyRules.add(newRule);
+                if (policyRules != null && !policyRules.isEmpty()) {
+                    for (final PolicyRuleViewV2 rule : policyRules) {
+                        final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
+                        String description = rule.description;
+                        if (description == null) {
+                            description = "";
                         }
+                        newRule.setDescription(cleanDescription(description));
+                        newRule.setName(rule.name.trim());
+
+                        final MetaHandler metaHandler = new MetaHandler(logger);
+                        try {
+                            newRule.setPolicyUrl(metaHandler.getHref(rule));
+                        } catch (final HubIntegrationException e) {
+                            logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
+                            config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
+                            continue;
+                        }
+                        newRule.setEnabled(rule.enabled);
+                        newPolicyRules.add(newRule);
                     }
-                    if (config.getPolicyRules() != null) {
-                        for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
-                            for (final PolicyRuleSerializable newRule : newPolicyRules) {
-                                if (oldRule.getPolicyUrl().equals(newRule.getPolicyUrl())) {
-                                    newRule.setChecked(oldRule.getChecked());
-                                    break;
-                                }
+                }
+                if (config.getPolicyRules() != null) {
+                    for (final PolicyRuleSerializable oldRule : config.getPolicyRules()) {
+                        for (final PolicyRuleSerializable newRule : newPolicyRules) {
+                            if (oldRule.getPolicyUrl().equals(newRule.getPolicyUrl())) {
+                                newRule.setChecked(oldRule.getChecked());
+                                break;
                             }
                         }
                     }
-                } else {
-                    config.setPolicyRulesError(JiraConfigErrors.HUB_SERVER_NO_POLICY_SUPPORT_ERROR);
                 }
             } catch (final Exception e) {
                 config.setPolicyRulesError(e.getMessage());
@@ -1303,7 +1283,6 @@ public class HubJiraConfigController {
         if (config.getPolicyRules().isEmpty()) {
             config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
         }
-
     }
 
     private String cleanDescription(final String origString) {

@@ -42,7 +42,6 @@ import com.blackducksoftware.integration.hub.api.generated.response.CurrentVersi
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubRegistrationService;
 import com.blackducksoftware.integration.hub.service.HubService;
@@ -56,11 +55,8 @@ import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.phone.home.PhoneHomeClient;
-import com.blackducksoftware.integration.phone.home.enums.BlackDuckName;
-import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
-import com.blackducksoftware.integration.phone.home.exception.PhoneHomeException;
-import com.blackducksoftware.integration.phone.home.exception.PropertiesLoaderException;
+import com.blackducksoftware.integration.phonehome.PhoneHomeClient;
+import com.blackducksoftware.integration.phonehome.exception.PhoneHomeException;
 
 public class HubJiraTask {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -137,17 +133,15 @@ public class HubJiraTask {
             }
             final List<String> linksOfRulesToMonitor = getRuleUrls(config);
             final HubService hubService = hubServicesFactory.createHubService();
-            final HubVersionRequestService hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
-            hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
 
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig, hubSupportHelper);
+                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
 
             // Phone-Home
             final CurrentVersionView currentVersion = hubService.getResponse(ApiDiscovery.CURRENT_VERSION_LINK_RESPONSE);
             final HubRegistrationService regService = hubServicesFactory.createHubRegistrationService();
             try {
-                final String hubVersion = hubSupport.getHubVersion();
+                final String hubVersion = currentVersion.version;
                 String regId = null;
                 String hubHostName = null;
                 try {
@@ -191,10 +185,10 @@ public class HubJiraTask {
             jiraSettingsService.addHubError(msg, "getCurrentUser");
             return null;
         }
-        final UserRequestService userService = hubServicesFactory.createUserRequestService();
+        final HubService hubService = hubServicesFactory.createHubService();
         List<UserView> users;
         try {
-            users = userService.getAllUsers();
+            users = hubService.getAllResponses(ApiDiscovery.USERS_LINK_RESPONSE);
         } catch (final IntegrationException e) {
             final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
             logger.error(msg);
@@ -213,9 +207,7 @@ public class HubJiraTask {
     }
 
     private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws EncryptionException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, hubServerConfig.getHubUrl(),
-                hubServerConfig.getGlobalCredentials().getUsername(), hubServerConfig.getGlobalCredentials().getDecryptedPassword(),
-                hubServerConfig.getTimeout());
+        final RestConnection restConnection = hubServerConfig.createRestConnection(logger);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
@@ -235,11 +227,11 @@ public class HubJiraTask {
     }
 
     private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubSupportHelper hubSupportHelper) throws URISyntaxException {
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor, hubSupportHelper);
+                linksOfRulesToMonitor);
         return ticketGenerator;
     }
 
@@ -291,15 +283,15 @@ public class HubJiraTask {
 
     /**
      * @param blackDuckVersion
-     *                             Version of the blackduck product, in this instance, the hub
+     *            Version of the blackduck product, in this instance, the hub
      * @param regId
-     *                             Registration ID of the hub instance that this plugin uses
+     *            Registration ID of the hub instance that this plugin uses
      * @param hubHostName
-     *                             Host name of the hub instance that this plugin uses
+     *            Host name of the hub instance that this plugin uses
      *
-     *                             This method "phones-home" to the internal BlackDuck Integrations server.
+     *            This method "phones-home" to the internal BlackDuck Integrations server.
      */
-    public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName) throws IOException, PhoneHomeException, PropertiesLoaderException {
+    public void bdPhoneHome(final String blackDuckVersion, final String regId, final String hubHostName) throws IOException, PhoneHomeException {
         final String thirdPartyVersion = new BuildUtilsInfoImpl().getVersion();
         final String pluginVersion = jiraServices.getPluginVersion();
 

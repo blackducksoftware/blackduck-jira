@@ -88,22 +88,15 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
             } else {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
-
-                final HubSupportHelper hubSupportHelper = new HubSupportHelper();
-                final HubVersionService hubVersionRequestService = servicesFactory.createHubVersionService();
-                hubSupportHelper.checkHubSupport(hubVersionRequestService, null);
-
-                if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
-                    final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
-                    final HubJiraConfigSerializable config = createJiraConfig(configDetails);
-                    if (config == null) {
-                        logger.debug("No Hub Jira configuration set");
-                        return Boolean.FALSE;
-                    }
-
-                    final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createIssueService());
-                    handleIssue(jiraContext, eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
+                final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+                final HubJiraConfigSerializable config = createJiraConfig(configDetails);
+                if (config == null) {
+                    logger.debug("No Hub Jira configuration set");
+                    return Boolean.FALSE;
                 }
+
+                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createIssueService());
+                handleIssue(jiraContext, eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
             logger.error(String.format("Error occurred processing issue %s, caused by %s", jiraIssue, throwable));

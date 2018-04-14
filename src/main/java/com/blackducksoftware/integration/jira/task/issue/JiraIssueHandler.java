@@ -69,26 +69,18 @@ public class JiraIssueHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraContext jiraContext;
-
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final IssueFieldHandler issueFieldHandler;
-
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
-
-    private final HubSupportHelper hubSupportHelper;
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
 
-    public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler,
-            final HubSupportHelper hubSupportHelper) {
+    public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
         this.hubIssueTrackerHandler = hubIssueTrackerHandler;
-        this.hubSupportHelper = hubSupportHelper;
         this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
     }
 
@@ -426,13 +418,11 @@ public class JiraIssueHandler {
                 if (issue != null) {
                     logger.info("Created new Issue.");
                     printIssueInfo(issue);
-                    if (hubSupportHelper.hasCapability(HubCapabilitiesEnum.ISSUE_TRACKER)) {
-                        final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
+                    final String hubIssueUrl = hubIssueTrackerHandler.createHubIssue(eventData.getComponentIssueUrl(), issue);
 
-                        if (StringUtils.isNotBlank(hubIssueUrl)) {
-                            final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
-                            addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
-                        }
+                    if (StringUtils.isNotBlank(hubIssueUrl)) {
+                        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
+                        addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
                     }
 
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
@@ -527,9 +517,7 @@ public class JiraIssueHandler {
 
     private class ExistenceAwareIssue {
         private final Issue issue;
-
         private final boolean existed;
-
         private final boolean issueStateChangeBlocked;
 
         public ExistenceAwareIssue(final Issue issue, final boolean existed, final boolean issueStateChangeBlocked) {

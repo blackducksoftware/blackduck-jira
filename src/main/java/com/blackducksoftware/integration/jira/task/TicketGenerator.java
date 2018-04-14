@@ -51,35 +51,22 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for them.
- *
- * @author sbillings
- *
  */
 public class TicketGenerator {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final HubServicesFactory hubServicesFactory;
-
     private final NotificationService notificationService;
-
     private final JiraContext jiraContext;
-
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final TicketInfoFromSetup ticketInfoFromSetup;
-
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
-
     private final boolean createVulnerabilityIssues;
-
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
 
-    private final HubSupportHelper hubSupportHelper;
-
     public TicketGenerator(final HubServicesFactory hubServicesFactory, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final boolean createVulnerabilityIssues, final List<String> linksOfRulesToInclude, final HubSupportHelper hubSupportHelper) {
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final boolean createVulnerabilityIssues, final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
         this.notificationService = hubServicesFactory.createNotificationService();
@@ -90,7 +77,6 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
         this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, hubServicesFactory.createBomComponentIssueRequestService());
-        this.hubSupportHelper = hubSupportHelper;
     }
 
     public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
@@ -114,7 +100,7 @@ public class TicketGenerator {
                 return;
             }
 
-            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
+            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
 
             for (final NotificationEvent event : events) {
                 try {
