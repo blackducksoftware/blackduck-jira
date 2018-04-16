@@ -128,4 +128,7 @@ public class HubJiraConstants {
     // Event Data Set key
     public static final String EVENT_DATA_SET_KEY_JIRA_EVENT_DATA = "jiraEventData";
 
+    // Miscellaneous persistent data keys
+    public static final String DATE_LAST_PHONED_HOME = "dateLastPhonedHome";
+
 }
