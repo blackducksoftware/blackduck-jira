@@ -23,30 +23,22 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.RestConstants;
-import com.blackducksoftware.integration.hub.api.core.HubPathMultipleResponses;
-import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
-import com.blackducksoftware.integration.hub.api.generated.view.NotificationView;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.api.view.ReducedNotificationView;
+import com.blackducksoftware.integration.hub.api.view.ReducedUserNotificationView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
 import com.blackducksoftware.integration.hub.notification.NotificationEvent;
 import com.blackducksoftware.integration.hub.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.notification.PolicyNotificationFilter;
-import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -90,18 +82,6 @@ public class TicketGenerator {
         this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, hubServicesFactory.createIssueService());
     }
 
-    public List<ReducedNotificationView> getUserNotifications(final UserView user, final Date startDate, final Date endDate) throws IntegrationException {
-        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String startDateString = sdf.format(startDate);
-        final String endDateString = sdf.format(endDate);
-
-        final Request.Builder requestBuilder = new Request.Builder().addQueryParameter("startDate", startDateString).addQueryParameter("endDate", endDateString);
-        final HubPathMultipleResponses<ReducedNotificationView> notificationLinkResponse = new HubPathMultipleResponses<>(ApiDiscovery.NOTIFICATIONS_LINK, ReducedNotificationView.class);
-        final List<ReducedNotificationView> allNotificationItems = hubService.getResponses(notificationLinkResponse, requestBuilder, true, typeMap);
-        return allNotificationItems;
-    }
-
     public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Hub projects to monitor");
@@ -109,7 +89,8 @@ public class TicketGenerator {
         }
         try {
             final SortedSet<NotificationContentItem> contentList = new TreeSet<>();
-            final List<NotificationView> itemList = notificationService.getUserNotifications(startDate, endDate, hubUser);
+            final List<ReducedUserNotificationView> reducedViews = notificationService.getAllUserNotifications(hubUser, startDate, endDate);
+            // final List<ReducedNotificationView> itemList = notificationService.getUserNotifications(startDate, endDate, hubUser);
             final ParallelResourceProcessorResults<NotificationContentItem> processorResults = parallelProcessor.process(itemList);
             contentList.addAll(processorResults.getResults());
             final NotificationResults results = new NotificationResults(contentList, processorResults.getExceptions());
