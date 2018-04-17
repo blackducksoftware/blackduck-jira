@@ -30,13 +30,11 @@ import static org.junit.Assert.assertTrue;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,12 +50,12 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.rest.UriCombiner;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -67,12 +65,11 @@ import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
-import com.blackducksoftware.integration.jira.mocks.BomComponentIssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyQueryMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
 import com.blackducksoftware.integration.jira.mocks.ExecutableQueryMock;
-import com.blackducksoftware.integration.jira.mocks.HubVersionRequestServiceMock;
+import com.blackducksoftware.integration.jira.mocks.IssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JSonEntityPropertyManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -116,9 +113,7 @@ public class IssueEventListenerTest {
 
     private JiraServicesMock jiraServices;
 
-    private BomComponentIssueServiceMock issueServiceMock;
-
-    private HubVersionRequestServiceMock versionRequestServiceMock;
+    private IssueServiceMock issueServiceMock;
 
     private final UriCombiner uriCombiner = new UriCombiner();
 
@@ -134,17 +129,14 @@ public class IssueEventListenerTest {
         final URL url = new URL("http://www.google.com");
         final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO, uriCombiner);
 
-        issueServiceMock = new BomComponentIssueServiceMock(restConnection);
-        versionRequestServiceMock = new HubVersionRequestServiceMock(restConnection);
-        final VersionComparison versionComparison = new VersionComparison();
-        versionComparison.consumerVersion = "3.7.0";
-        versionComparison.producerVersion = "3.7.0";
-        versionComparison.numericResult = 0;
-        versionComparison.operatorResult = "=";
-        versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        Mockito.when(hubServicesFactory.createBomComponentIssueRequestService()).thenReturn(issueServiceMock);
-        Mockito.when(hubServicesFactory.createHubVersionRequestService()).thenReturn(versionRequestServiceMock);
+        Mockito.when(hubServicesFactory.getRestConnection()).thenReturn(restConnection);
+        final HubService hubService = Mockito.mock(HubService.class);
+        Mockito.when(hubService.getRestConnection()).thenReturn(restConnection);
+
+        issueServiceMock = new IssueServiceMock(hubService);
+        Mockito.when(hubServicesFactory.createIssueService()).thenReturn(issueServiceMock);
+
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
 
@@ -276,16 +268,11 @@ public class IssueEventListenerTest {
 
         final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
-        final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
-
         assertEquals(issue.getKey(), hubIssue.issueId);
         assertEquals(issue.getDescription(), hubIssue.issueDescription);
         assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
-        assertEquals(expectedCreatedAt, hubIssue.issueCreatedAt);
-        assertEquals(expectedUpdatedAt, hubIssue.issueUpdatedAt);
+        assertEquals(issue.getCreated(), hubIssue.issueCreatedAt);
+        assertEquals(issue.getUpdated(), hubIssue.issueUpdatedAt);
         assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
     }
 
@@ -320,20 +307,6 @@ public class IssueEventListenerTest {
 
     @Test
     public void testEmptyProjectMapping() {
-        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
-        final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
-        listener.onIssueEvent(event);
-        assertTrue(issueServiceMock.issueMap.isEmpty());
-    }
-
-    @Test
-    public void testOldHubVersion() {
-        final VersionComparison versionComparison = new VersionComparison();
-        versionComparison.consumerVersion = "3.7.0";
-        versionComparison.producerVersion = "3.6.0";
-        versionComparison.numericResult = 1;
-        versionComparison.operatorResult = ">";
-        versionRequestServiceMock.setHubVersionComparison(versionComparison);
         final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
@@ -422,16 +395,12 @@ public class IssueEventListenerTest {
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_DELETED_ID);
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String expectedCreatedAt = dateFormatter.format(issue.getCreated());
-        final String expectedUpdatedAt = dateFormatter.format(issue.getUpdated());
         final IssueView hubIssue = new IssueView();
         hubIssue.issueId = issue.getKey();
         hubIssue.issueDescription = issue.getDescription();
         hubIssue.issueStatus = issue.getStatus().getName();
-        hubIssue.issueCreatedAt = expectedCreatedAt;
-        hubIssue.issueUpdatedAt = expectedUpdatedAt;
+        hubIssue.issueCreatedAt = issue.getCreated();
+        hubIssue.issueUpdatedAt = issue.getUpdated();
         hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
         issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);

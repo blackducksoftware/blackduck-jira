@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.ListProcessorCache;
 import com.blackducksoftware.integration.hub.notification.NotificationEvent;
@@ -49,24 +50,18 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class JiraNotificationProcessor extends NotificationProcessor<List<NotificationEvent>> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public JiraNotificationProcessor(final HubProjectMappings mapping,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final HubServicesFactory hubServicesFactory,
-            final boolean createVulnerabilityIssues)
-            throws ConfigurationException {
+    public JiraNotificationProcessor(final HubProjectMappings mapping, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler, final boolean createVulnerabilityIssues) throws ConfigurationException {
         final ListProcessorCache cache = new ListProcessorCache();
         getCacheList().add(cache);
 
         final NotificationToEventConverter policyViolationNotificationConverter = new PolicyViolationNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService,
-                hubServicesFactory);
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, metaHandler);
 
         final NotificationToEventConverter policyViolationClearedNotificationConverter = new PolicyViolationClearedNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, metaHandler);
         final NotificationToEventConverter policyOverrideNotificationConverter = new PolicyOverrideNotificationConverter(cache,
-                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory);
+                mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, metaHandler);
 
         getProcessorMap().put(PolicyViolationContentItem.class, policyViolationNotificationConverter);
         getProcessorMap().put(PolicyViolationClearedContentItem.class, policyViolationClearedNotificationConverter);
@@ -74,9 +69,7 @@ public class JiraNotificationProcessor extends NotificationProcessor<List<Notifi
         if (createVulnerabilityIssues) {
             logger.info("Creation of vulnerability issues has been enabled.");
             final NotificationToEventConverter vulnerabilityNotificationConverter = new VulnerabilityNotificationConverter(cache,
-                    mapping, fieldCopyConfig,
-                    jiraServices, jiraContext, jiraSettingsService,
-                    hubServicesFactory);
+                    mapping, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, metaHandler);
             getProcessorMap().put(VulnerabilityContentItem.class, vulnerabilityNotificationConverter);
         } else {
             logger.info("Creation of vulnerability issues has been disabled. No vulnerability issues will be created.");

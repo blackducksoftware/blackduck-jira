@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.api.view.ReducedUserNotificationView;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
@@ -102,7 +102,8 @@ public class TicketGenerator {
                 logger.info("There are no notifications to handle");
                 return;
             }
-            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, createVulnerabilityIssues);
+            final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, new MetaHandler(logger),
+                    createVulnerabilityIssues);
 
             final List<NotificationEvent> events = processor.process(notifs);
             if ((events == null) || (events.size() == 0)) {
