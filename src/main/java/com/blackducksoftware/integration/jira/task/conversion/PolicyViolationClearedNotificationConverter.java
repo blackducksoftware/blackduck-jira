@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.notification.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
 import com.blackducksoftware.integration.hub.notification.NotificationEvent;
@@ -60,8 +61,8 @@ public class PolicyViolationClearedNotificationConverter extends AbstractPolicyN
     private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PolicyViolationClearedNotificationConverter.class.getName()));
 
     public PolicyViolationClearedNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubServicesFactory hubServicesFactory) throws ConfigurationException {
-        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, fieldCopyConfig, hubServicesFactory, logger);
+            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler) throws ConfigurationException {
+        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, fieldCopyConfig, hubServicesFactory, metaHandler, logger);
     }
 
     @Override

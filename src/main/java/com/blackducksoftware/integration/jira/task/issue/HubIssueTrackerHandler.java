@@ -125,7 +125,6 @@ public class HubIssueTrackerHandler {
         }
 
         status = jiraIssue.getStatus().getName();
-        // TODO correct Date data type
         hubIssue.issueId = issueId;
         hubIssue.issueAssignee = assignee;
         hubIssue.issueStatus = status;

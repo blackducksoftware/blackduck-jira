@@ -66,8 +66,8 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
     private final HubServicesFactory hubServicesFactory;
 
     public NotificationToEventConverter(final SubProcessorCache cache, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final HubJiraLogger logger) throws ConfigurationException {
-        super(cache, new MetaHandler(logger));
+            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler, final HubJiraLogger logger) throws ConfigurationException {
+        super(cache, metaHandler);
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;

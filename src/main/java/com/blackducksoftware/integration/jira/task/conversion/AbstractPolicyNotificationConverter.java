@@ -30,6 +30,7 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
 import com.blackducksoftware.integration.hub.notification.NotificationEvent;
@@ -53,14 +54,10 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
     private final HubJiraLogger logger;
 
-    public AbstractPolicyNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final JiraServices jiraServices,
-            final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final String issueTypeName,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig,
-            final HubServicesFactory hubServicesFactory, final HubJiraLogger logger)
+    public AbstractPolicyNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler, final HubJiraLogger logger)
             throws ConfigurationException {
-        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig,
-                hubServicesFactory, logger);
+        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig, hubServicesFactory, metaHandler, logger);
         this.logger = logger;
     }
 
