@@ -88,7 +88,7 @@ public class TicketGenerator {
             return;
         }
         try {
-            final NotificationResults results = notificationDataService.getUserNotifications(startDate, endDate, hubUser);
+            final NotificationResults results = notificationService.getAllUserNotificationResults(hubUser, startDate, endDate);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
@@ -104,7 +104,7 @@ public class TicketGenerator {
                 return;
             }
 
-            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
+            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
 
             for (final NotificationEvent event : events) {
                 try {
