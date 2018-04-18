@@ -38,9 +38,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.response.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.notification.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.notification.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;

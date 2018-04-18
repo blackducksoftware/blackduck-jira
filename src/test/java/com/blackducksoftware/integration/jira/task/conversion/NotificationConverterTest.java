@@ -51,7 +51,6 @@ import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersion
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.api.response.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.ListProcessorCache;
@@ -62,6 +61,7 @@ import com.blackducksoftware.integration.hub.notification.PolicyViolationCleared
 import com.blackducksoftware.integration.hub.notification.PolicyViolationContentItem;
 import com.blackducksoftware.integration.hub.notification.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.notification.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.service.ComponentService;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
