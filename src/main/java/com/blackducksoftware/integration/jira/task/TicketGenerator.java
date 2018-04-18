@@ -26,13 +26,11 @@ package com.blackducksoftware.integration.jira.task;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.api.view.ReducedUserNotificationView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
 import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
@@ -40,6 +38,7 @@ import com.blackducksoftware.integration.hub.notification.NotificationEvent;
 import com.blackducksoftware.integration.hub.notification.NotificationResults;
 import com.blackducksoftware.integration.hub.notification.PolicyNotificationFilter;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -50,7 +49,6 @@ import com.blackducksoftware.integration.jira.task.conversion.JiraNotificationPr
 import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.parallel.processor.ParallelResourceProcessorResults;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for them.
@@ -79,7 +77,8 @@ public class TicketGenerator {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.fieldCopyConfig = fieldCopyConfig;
         this.createVulnerabilityIssues = createVulnerabilityIssues;
-        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, hubServicesFactory.createIssueService());
+        final IssueService issueService = hubServicesFactory.createIssueService();
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, issueService);
     }
 
     public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
@@ -88,14 +87,7 @@ public class TicketGenerator {
             return;
         }
         try {
-            final SortedSet<NotificationContentItem> contentList = new TreeSet<>();
-            final List<ReducedUserNotificationView> reducedViews = notificationService.getAllUserNotifications(hubUser, startDate, endDate);
-            // final List<ReducedNotificationView> itemList = notificationService.getUserNotifications(startDate, endDate, hubUser);
-            final ParallelResourceProcessorResults<NotificationContentItem> processorResults = parallelProcessor.process(itemList);
-            contentList.addAll(processorResults.getResults());
-            final NotificationResults results = new NotificationResults(contentList, processorResults.getExceptions());
-
-            final NotificationResults results = notificationService.getUserNotifications(startDate, endDate, hubUser);
+            final NotificationResults results = notificationDataService.getUserNotifications(startDate, endDate, hubUser);
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
@@ -110,7 +102,7 @@ public class TicketGenerator {
                 return;
             }
 
-            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
+            final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler, hubSupportHelper);
 
             for (final NotificationEvent event : events) {
                 try {
@@ -143,4 +135,5 @@ public class TicketGenerator {
             }
         }
     }
+
 }
