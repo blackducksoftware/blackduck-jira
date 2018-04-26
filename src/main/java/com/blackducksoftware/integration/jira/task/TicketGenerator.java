@@ -30,17 +30,20 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.hub.api.generated.view.NotificationUserView;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
-import com.blackducksoftware.integration.hub.notification.NotificationContentItem;
-import com.blackducksoftware.integration.hub.notification.NotificationEvent;
-import com.blackducksoftware.integration.hub.notification.NotificationResults;
-import com.blackducksoftware.integration.hub.notification.PolicyNotificationFilter;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.hub.service.NotificationService;
+import com.blackducksoftware.integration.hub.throwaway.NotificationContentItem;
+import com.blackducksoftware.integration.hub.throwaway.NotificationEvent;
+import com.blackducksoftware.integration.hub.throwaway.OldNotificationResults;
+import com.blackducksoftware.integration.hub.throwaway.OldNotificationService;
+import com.blackducksoftware.integration.hub.throwaway.PolicyNotificationFilter;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -58,6 +61,7 @@ public class TicketGenerator {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final HubServicesFactory hubServicesFactory;
+    private final OldNotificationService oldNotificationService;
     private final NotificationService notificationService;
     private final JiraContext jiraContext;
     private final JiraServices jiraServices;
@@ -71,6 +75,8 @@ public class TicketGenerator {
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final boolean createVulnerabilityIssues, final List<String> linksOfRulesToInclude) {
         this.hubServicesFactory = hubServicesFactory;
         final PolicyNotificationFilter policyNotificationFilter = new PolicyNotificationFilter(linksOfRulesToInclude);
+        final HubService hubService = hubServicesFactory.createHubService();
+        this.oldNotificationService = new OldNotificationService(hubService, policyNotificationFilter);
         this.notificationService = hubServicesFactory.createNotificationService();
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
@@ -89,7 +95,8 @@ public class TicketGenerator {
         }
         try {
             System.out.println("\n\n\n\n----------------\nstarting to check for notifications\n---------------------------\n\n\n");
-            final NotificationResults results = notificationService.getAllUserNotificationResults(hubUser, startDate, endDate);
+            final List<NotificationUserView> notificationUserViews = notificationService.getAllUserNotifications(hubUser, startDate, endDate);
+            final OldNotificationResults results = oldNotificationService.getAllUserNotificationResults(notificationUserViews);
             System.out.println(results.getNotificationContentItems().size());
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
@@ -126,7 +133,7 @@ public class TicketGenerator {
 
     }
 
-    private void reportAnyErrors(final NotificationResults results) {
+    private void reportAnyErrors(final OldNotificationResults results) {
         if (results.isError()) {
             for (final Exception e : results.getExceptions()) {
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {

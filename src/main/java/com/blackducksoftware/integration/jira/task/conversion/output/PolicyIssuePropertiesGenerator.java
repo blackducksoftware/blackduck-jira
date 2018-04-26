@@ -24,7 +24,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.notification.PolicyContentItem;
+import com.blackducksoftware.integration.hub.throwaway.PolicyContentItem;
 
 public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator {
     private final String projectName;
