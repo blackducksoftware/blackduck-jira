@@ -76,28 +76,39 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(notification, rule.name);
 
             final String licensesString = getComponentLicensesStringPlainText(notification);
-            final ComponentVersionView compVer = notification.getComponentVersion();
-            final String compVerName;
-            if (compVer == null) {
-                compVerName = "";
-            } else {
-                compVerName = compVer.versionName;
-            }
-            logger.debug("Component " + notification.getComponentName() + " (version: " + compVerName + "): License: " + licensesString);
+            final ComponentVersionView componentVersionView = notification.getComponentVersion();
+            final String componentVersionName = componentVersionView == null ? "" : componentVersionView.versionName;
+            logger.debug("Component " + notification.getComponentName() + " (version: " + componentVersionName + "): License: " + licensesString);
 
             final VersionBomComponentView bomComp = getBomComponent(notification);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
-            eventDataBuilder.setAction(action).setJiraAdminUserName(getJiraContext().getJiraAdminUser().getName()).setJiraAdminUserKey(getJiraContext().getJiraAdminUser().getKey())
-                    .setJiraIssueCreatorUserName(getJiraContext().getJiraIssueCreatorUser().getName()).setJiraIssueCreatorUserKey(getJiraContext().getJiraIssueCreatorUser().getKey())
-                    .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId()).setJiraIssueTypeId(getIssueTypeId()).setJiraProjectName(jiraProject.getProjectName()).setJiraProjectId(jiraProject.getProjectId())
-                    .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings()).setHubProjectName(notification.getProjectVersion().getProjectName())
-                    .setHubProjectVersion(notification.getProjectVersion().getProjectVersionName()).setHubProjectVersionUrl(notification.getProjectVersion().getUrl()).setHubComponentName(notification.getComponentName())
-                    .setHubComponentUrl(notification.getComponentUrl()).setHubComponentVersion(compVerName).setHubComponentVersionUrl(notification.getComponentVersionUrl()).setHubLicenseNames(licensesString)
-                    .setHubComponentUsage(getComponentUsage(notification, bomComp)).setHubComponentOrigin(getComponentOrigin(notification)).setHubComponentOriginId(getComponentOriginId(notification))
-                    .setHubProjectVersionNickname(getProjectVersionNickname(notification)).setJiraIssueSummary(getIssueSummary(notification, rule)).setJiraIssueDescription(getIssueDescription(notification, rule)).setJiraIssueComment(null)
-                    .setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN).setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT)
-                    .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE).setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT)
-                    .setJiraIssuePropertiesGenerator(issuePropertiesGenerator).setHubRuleName(rule.name).setHubRuleUrl(getMetaHandler().getHref(rule)).setComponentIssueUrl(notif.getComponentIssueLink());
+            eventDataBuilder.setAction(action);
+            eventDataBuilder.setPropertiesFromJiraContext(getJiraContext());
+            eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
+
+            eventDataBuilder.setJiraIssueTypeId(getIssueTypeId());
+            eventDataBuilder.setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings());
+            eventDataBuilder.setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            eventDataBuilder.setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            eventDataBuilder.setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            eventDataBuilder.setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
+            eventDataBuilder.setHubRuleName(rule.name);
+            eventDataBuilder.setHubRuleUrl(getMetaHandler().getHref(rule));
+            eventDataBuilder.setHubComponentVersion(componentVersionName);
+            eventDataBuilder.setHubLicenseNames(licensesString);
+
+            eventDataBuilder.setHubProjectName(notification.getProjectVersion().getProjectName());
+            eventDataBuilder.setHubProjectVersion(notification.getProjectVersion().getProjectVersionName());
+            eventDataBuilder.setHubProjectVersionUrl(notification.getProjectVersion().getUrl());
+            eventDataBuilder.setHubComponentName(notification.getComponentName());
+            eventDataBuilder.setHubComponentUrl(notification.getComponentUrl());
+            eventDataBuilder.setHubComponentVersionUrl(notification.getComponentVersionUrl());
+            eventDataBuilder.setHubComponentUsage(getComponentUsage(notification, bomComp));
+            eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(notification));
+            eventDataBuilder.setJiraIssueSummary(getIssueSummary(notification, rule));
+            eventDataBuilder.setJiraIssueDescription(getIssueDescription(notification, rule));
+            eventDataBuilder.setComponentIssueUrl(notification.getComponentIssueLink());
 
             populateEventDataBuilder(eventDataBuilder, notification);
 
