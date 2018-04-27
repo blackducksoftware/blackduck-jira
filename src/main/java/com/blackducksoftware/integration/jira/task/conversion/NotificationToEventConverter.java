@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
@@ -220,8 +222,10 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         try {
             final ProjectResponse projectResponse = hubServicesFactory.createHubService().getResponse(projectUri, ProjectResponse.class);
             final String userUri = projectResponse.projectOwner;
-            final UserView userView = hubServicesFactory.createHubService().getResponse(userUri, UserView.class);
-            eventDataBuilder.setHubProjectOwner(userView.firstName + " " + userView.lastName);
+            if (StringUtils.isNotBlank(userUri)) {
+                final UserView userView = hubServicesFactory.createHubService().getResponse(userUri, UserView.class);
+                eventDataBuilder.setHubProjectOwner(userView.firstName + " " + userView.lastName);
+            }
         } catch (final IntegrationException e) {
             logger.error(String.format("Could not find the project for %s: %s", projectUri, e.getMessage()));
         }

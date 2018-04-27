@@ -108,8 +108,6 @@ public class HubServerConfigSerializable implements Serializable {
         boolean hasErrors = false;
         if (StringUtils.isNotBlank(getHubUrlError())) {
             hasErrors = true;
-        } else if (StringUtils.isNotBlank(getHubUrlError())) {
-            hasErrors = true;
         } else if (StringUtils.isNotBlank(getTimeoutError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getUsernameError())) {

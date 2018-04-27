@@ -285,7 +285,7 @@ public class JiraIssueHandler {
         final Status currentStatus = issueToTransition.getStatus();
         logger.debug("Current status : " + currentStatus.getName());
 
-        if (currentStatus.equals(newExpectedStatus)) {
+        if (currentStatus.getName().equals(newExpectedStatus)) {
             logger.debug("Will not tranisition issue, since it is already in the expected state.");
             return issueToTransition;
         }

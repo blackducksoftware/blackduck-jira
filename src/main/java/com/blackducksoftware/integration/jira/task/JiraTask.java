@@ -41,8 +41,7 @@ import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 /**
- * A scheduled JIRA task that collects recent notifications from the Hub, and
- * generates JIRA tickets for them.
+ * A scheduled JIRA task that collects recent notifications from the Hub, and generates JIRA tickets for them.
  *
  * @author sbillings
  *
@@ -82,6 +81,8 @@ public class JiraTask implements PluginJob {
         } catch (final TimeoutException e) {
             logger.error("The timed task timed out");
         } catch (final InterruptedException e) {
+            // TODO the thread needs to know that it was interrupted
+            // Thread.currentThread().interrupt();
             logger.error("The timed task was interrupted");
         } finally {
             if (!future.isDone()) {
