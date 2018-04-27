@@ -134,7 +134,7 @@ public class JiraTaskTimed implements Callable<String> {
 
         final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
                 .addHubFieldConfigurationToJira(issueTypes);
-        if (screenSchemesByIssueType == null || screenSchemesByIssueType.isEmpty()) {
+        if (screenSchemesByIssueType.isEmpty()) {
             logger.error("No Black Duck Screen Schemes found or created");
         }
         ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
