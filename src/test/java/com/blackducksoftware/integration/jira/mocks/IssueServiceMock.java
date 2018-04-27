@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.bom.BomComponentIssueRequestService;
-import com.blackducksoftware.integration.hub.model.view.IssueView;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
+import com.blackducksoftware.integration.hub.service.HubService;
+import com.blackducksoftware.integration.hub.service.IssueService;
 
-public class BomComponentIssueServiceMock extends BomComponentIssueRequestService {
+public class IssueServiceMock extends IssueService {
 
     public final static String CREATION_SUCCESS_URL = "SUCCESS_URL";
 
@@ -39,8 +39,8 @@ public class BomComponentIssueServiceMock extends BomComponentIssueRequestServic
 
     public Map<String, IssueView> issueMap = new HashMap<>();
 
-    public BomComponentIssueServiceMock(final RestConnection restConnection) {
-        super(restConnection, null);
+    public IssueServiceMock(final HubService hubService) {
+        super(hubService);
     }
 
     @Override

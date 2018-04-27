@@ -46,12 +46,13 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.global.HubCredentialsFieldEnum;
-import com.blackducksoftware.integration.hub.global.HubProxyInfoFieldEnum;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.global.HubServerConfigFieldEnum;
+import com.blackducksoftware.integration.hub.CredentialsField;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigFieldEnum;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfoField;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
@@ -277,7 +278,7 @@ public class HubConfigController {
                             final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(),
                                     serverConfig.getGlobalCredentials().getUsername(),
                                     serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                                    serverConfig.getTimeout());
+                                    serverConfig.getTimeout(), serverConfig.getProxyInfo(), new UriCombiner());
                             restConnection.connect();
 
                         } catch (final IntegrationException e) {
@@ -359,26 +360,26 @@ public class HubConfigController {
             if (serverConfigResults.getResultString(HubServerConfigFieldEnum.HUBTIMEOUT) != null) {
                 config.setTimeoutError(serverConfigResults.getResultString(HubServerConfigFieldEnum.HUBTIMEOUT));
             }
-            if (serverConfigResults.getResultString(HubCredentialsFieldEnum.USERNAME) != null) {
-                config.setUsernameError(serverConfigResults.getResultString(HubCredentialsFieldEnum.USERNAME));
+            if (serverConfigResults.getResultString(CredentialsField.USERNAME) != null) {
+                config.setUsernameError(serverConfigResults.getResultString(CredentialsField.USERNAME));
             }
-            if (serverConfigResults.getResultString(HubCredentialsFieldEnum.PASSWORD) != null) {
-                config.setPasswordError(serverConfigResults.getResultString(HubCredentialsFieldEnum.PASSWORD));
+            if (serverConfigResults.getResultString(CredentialsField.PASSWORD) != null) {
+                config.setPasswordError(serverConfigResults.getResultString(CredentialsField.PASSWORD));
             }
-            if (serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYHOST) != null) {
-                config.setHubProxyHostError(serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYHOST));
+            if (serverConfigResults.getResultString(ProxyInfoField.PROXYHOST) != null) {
+                config.setHubProxyHostError(serverConfigResults.getResultString(ProxyInfoField.PROXYHOST));
             }
-            if (serverConfigResults.getResultString(HubProxyInfoFieldEnum.NOPROXYHOSTS) != null) {
-                config.setHubNoProxyHostsError(serverConfigResults.getResultString(HubProxyInfoFieldEnum.NOPROXYHOSTS));
+            if (serverConfigResults.getResultString(ProxyInfoField.NOPROXYHOSTS) != null) {
+                config.setHubNoProxyHostsError(serverConfigResults.getResultString(ProxyInfoField.NOPROXYHOSTS));
             }
-            if (serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYPORT) != null) {
-                config.setHubProxyPortError(serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYPORT));
+            if (serverConfigResults.getResultString(ProxyInfoField.PROXYPORT) != null) {
+                config.setHubProxyPortError(serverConfigResults.getResultString(ProxyInfoField.PROXYPORT));
             }
-            if (serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYUSERNAME) != null) {
-                config.setHubProxyUserError(serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYUSERNAME));
+            if (serverConfigResults.getResultString(ProxyInfoField.PROXYUSERNAME) != null) {
+                config.setHubProxyUserError(serverConfigResults.getResultString(ProxyInfoField.PROXYUSERNAME));
             }
-            if (serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYPASSWORD) != null) {
-                config.setHubProxyPasswordError(serverConfigResults.getResultString(HubProxyInfoFieldEnum.PROXYPASSWORD));
+            if (serverConfigResults.getResultString(ProxyInfoField.PROXYPASSWORD) != null) {
+                config.setHubProxyPasswordError(serverConfigResults.getResultString(ProxyInfoField.PROXYPASSWORD));
             }
         }
     }

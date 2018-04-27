@@ -35,7 +35,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.TransitionOptions;
 
-public class IssueServiceMock implements IssueService {
+public class JiraIssueServiceMock implements IssueService {
 
     @Override
     public IssueResult assign(final ApplicationUser arg0, final AssignValidationResult arg1) {

@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.common;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.log.IntLogger;
@@ -56,63 +57,63 @@ public class HubJiraLogger extends IntLogger {
 
     @Override
     public void info(final String txt) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.INFO)) {
+        if (jiraLogger.isEnabledFor(Level.INFO)) {
             logMessageInfo(txt);
         }
     }
 
     @Override
     public void error(final Throwable t) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
+        if (jiraLogger.isEnabledFor(Level.ERROR)) {
             logThrowable(t);
         }
     }
 
     @Override
     public void error(final String txt, final Throwable t) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
+        if (jiraLogger.isEnabledFor(Level.ERROR)) {
             logThrowable(txt, t);
         }
     }
 
     @Override
     public void error(final String txt) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.ERROR)) {
+        if (jiraLogger.isEnabledFor(Level.ERROR)) {
             logErrorMessage(txt);
         }
     }
 
     @Override
     public void warn(final String txt) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.WARN)) {
+        if (jiraLogger.isEnabledFor(Level.WARN)) {
             logMessageWarn(txt);
         }
     }
 
     @Override
     public void trace(final String txt) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.TRACE)) {
+        if (jiraLogger.isTraceEnabled()) {
             logMessageTrace(txt);
         }
     }
 
     @Override
     public void trace(final String txt, final Throwable t) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.TRACE)) {
+        if (jiraLogger.isTraceEnabled()) {
             logThrowable(txt, t);
         }
     }
 
     @Override
     public void debug(final String txt) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.DEBUG)) {
+        if (jiraLogger.isDebugEnabled()) {
             logMessageDebug(txt);
         }
     }
 
     @Override
     public void debug(final String txt, final Throwable t) {
-        if (LogLevel.isLoggable(logLevel, LogLevel.DEBUG)) {
+        if (jiraLogger.isDebugEnabled()) {
             logThrowable(txt, t);
         }
     }

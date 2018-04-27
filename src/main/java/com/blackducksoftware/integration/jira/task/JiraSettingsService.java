@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -164,4 +165,21 @@ public class JiraSettingsService {
         pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
         return ticketErrors;
     }
+
+    public LocalDate getLastPhoneHome() {
+        try {
+            final String stringDate = (String) settings.get(HubJiraConstants.DATE_LAST_PHONED_HOME);
+            return LocalDate.parse(stringDate);
+        } catch (final Exception e) {
+            logger.warn("Cannot find the date of last phone-home: " + e.getMessage());
+        }
+        return LocalDate.MIN;
+    }
+
+    public void setLastPhoneHome(final LocalDate date) {
+        if (date != null) {
+            settings.put(HubJiraConstants.DATE_LAST_PHONED_HOME, date.toString());
+        }
+    }
+
 }

@@ -32,31 +32,28 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.bom.BomComponentIssueRequestService;
-import com.blackducksoftware.integration.hub.model.view.IssueView;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.RestConstants;
+import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
+import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubIssueTrackerHandler {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
+    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
-    private final BomComponentIssueRequestService issueRequestService;
-
+    private final IssueService issueService;
     private final DateFormat dateFormatter;
 
-    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final BomComponentIssueRequestService issueRequestService) {
+    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final IssueService issueService) {
         this.jiraServices = jiraServices;
         this.jiraSettingsService = jiraSettingsService;
-        this.issueRequestService = issueRequestService;
+        this.issueService = issueService;
 
-        dateFormatter = new SimpleDateFormat(RestConnection.JSON_DATE_FORMAT);
+        dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
@@ -64,7 +61,7 @@ public class HubIssueTrackerHandler {
         String url = "";
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
-                url = issueRequestService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+                url = issueService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
             } else {
                 final String message = "Error creating hub issue; no component or component version found.";
                 logger.error(message);
@@ -82,7 +79,7 @@ public class HubIssueTrackerHandler {
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
                 logger.debug(String.format("Updating issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                issueRequestService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+                issueService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
             } else {
                 final String message = "Error updating hub issue; no component or component version found.";
                 logger.error(message);
@@ -98,7 +95,7 @@ public class HubIssueTrackerHandler {
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
                 logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                issueRequestService.deleteIssue(hubIssueUrl);
+                issueService.deleteIssue(hubIssueUrl);
             } else {
                 final String message = "Error deleting hub issue; no component or component version found.";
                 logger.error(message);
@@ -128,13 +125,11 @@ public class HubIssueTrackerHandler {
         }
 
         status = jiraIssue.getStatus().getName();
-        final String createdAt = dateFormatter.format(jiraIssue.getCreated());
-        final String updatedAt = dateFormatter.format(jiraIssue.getUpdated());
         hubIssue.issueId = issueId;
         hubIssue.issueAssignee = assignee;
         hubIssue.issueStatus = status;
-        hubIssue.issueCreatedAt = createdAt;
-        hubIssue.issueUpdatedAt = updatedAt;
+        hubIssue.issueCreatedAt = jiraIssue.getCreated();
+        hubIssue.issueUpdatedAt = jiraIssue.getUpdated();
         hubIssue.issueDescription = jiraIssue.getSummary();
         hubIssue.issueLink = String.format("%s/browse/%s", jiraServices.getJiraBaseUrl(), jiraIssue.getKey());
         return hubIssue;
