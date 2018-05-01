@@ -94,17 +94,14 @@ public class TicketGenerator {
             return;
         }
         try {
-            System.out.println("\n\n\n\n----------------\nstarting to check for notifications\n---------------------------\n\n\n");
             final List<NotificationUserView> notificationUserViews = notificationService.getAllUserNotifications(hubUser, startDate, endDate);
             final OldNotificationResults results = oldNotificationService.getAllUserNotificationResults(notificationUserViews);
-            System.out.println(results.getNotificationContentItems().size());
             reportAnyErrors(results);
             final SortedSet<NotificationContentItem> notifs = results.getNotificationContentItems();
             if ((notifs == null) || (notifs.size() == 0)) {
                 logger.info("There are no notifications to handle");
                 return;
             }
-            System.out.println("about to process...");
             final JiraNotificationProcessor processor = new JiraNotificationProcessor(hubProjectMappings, fieldCopyConfig, jiraServices, jiraContext, jiraSettingsService, hubServicesFactory, new MetaHandler(logger),
                     createVulnerabilityIssues);
 
@@ -114,7 +111,6 @@ public class TicketGenerator {
                 return;
             }
 
-            System.out.println("about to handle...");
             final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
 
             for (final NotificationEvent event : events) {
@@ -125,7 +121,6 @@ public class TicketGenerator {
                     jiraSettingsService.addHubError(e, "issueHandler.handleEvent(event)");
                 }
             }
-            System.out.println("all done!");
         } catch (final Exception e) {
             logger.error(e);
             jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
