@@ -32,11 +32,12 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 public class HubIssuePanelCondition extends AbstractWebCondition {
 
     @Override
-    public boolean shouldDisplay(ApplicationUser arg0, JiraHelper jiraHelper) {
+    public boolean shouldDisplay(final ApplicationUser arg0, final JiraHelper jiraHelper) {
         final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
-        if (currentIssue.getIssueType().getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
+        final String issueType = currentIssue.getIssueType().getName();
+        if (HubJiraConstants.HUB_VULNERABILITY_ISSUE.equals(issueType)) {
             return true;
-        } else if (currentIssue.getIssueType().getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
+        } else if (HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE.equals(issueType)) {
             return true;
         }
         return false;

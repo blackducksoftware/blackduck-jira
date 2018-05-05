@@ -92,14 +92,12 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
         } catch (final Exception e) {
             logger.debug("Job " + JOB_NAME + " wasn't scheduled");
         }
+        final HashMap<String, Object> classProperties = new HashMap<>();
+        classProperties.put(KEY_INSTANCE, HubMonitor.this);
+        classProperties.put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
         pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
                 JiraTask.class, // class of the job
-                new HashMap<String, Object>() {
-                    {
-                        put(KEY_INSTANCE, HubMonitor.this);
-                        put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
-                    }
-                }, // data that needs to be passed to the job
+                classProperties, // data that needs to be passed to the job
                 new Date(), // the time the job is to start
                 actualInterval); // interval between repeats, in milliseconds
         logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
@@ -141,7 +139,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
         // runtime
         // of the task pushes the next scheduled runtime out beyond the targeted
         // once-a-minute opportunity to run
-        final long intervalSeconds = (intervalMinutes * 60) - 30;
+        final long intervalSeconds = (intervalMinutes * 60) - 30l;
         final long intervalMillisec = intervalSeconds * 1000;
         return intervalMillisec;
     }
