@@ -154,16 +154,6 @@ public abstract class NotificationToEventConverter extends NotificationSubProces
         return usagesText.toString();
     }
 
-    protected String getComponentOrigin(final NotificationContentItem notification) throws HubIntegrationException {
-        // Planned for hub-jira 3.3
-        return "";
-    }
-
-    protected String getComponentOriginId(final NotificationContentItem notification) throws HubIntegrationException {
-        // Planned for hub-jira 3.3
-        return "";
-    }
-
     protected VersionBomComponentView getBomComponent(final ProjectVersionModel projectVersion, final String componentName, final String componentUrl, final ComponentVersionView componentVersion) throws HubIntegrationException {
         String componentVersionUrl = null;
         if (componentVersion != null) {

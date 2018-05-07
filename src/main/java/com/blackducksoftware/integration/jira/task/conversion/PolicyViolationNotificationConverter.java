@@ -67,38 +67,50 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
     }
 
     @Override
-    protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif, final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException {
-        final List<NotificationEvent> events = new ArrayList<>();
+    protected List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notifcationContentItem, final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException {
+        final List<NotificationEvent> notificationEvents = new ArrayList<>();
 
-        final HubEventAction action = HubEventAction.OPEN;
-        final PolicyViolationContentItem notification = (PolicyViolationContentItem) notif;
-        for (final PolicyRuleView rule : notification.getPolicyRuleList()) {
-            final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(notification, rule.name);
-            final ComponentVersionView compVer = notification.getComponentVersion();
-            final String compVerName;
-            if (compVer == null) {
-                compVerName = "";
-            } else {
-                compVerName = compVer.versionName;
-            }
-            final String licensesString = getComponentLicensesStringPlainText(notification);
-            logger.debug("Component " + notification.getComponentName() + " (version: " + compVerName + "): License: " + licensesString);
+        final HubEventAction hubEventAction = HubEventAction.OPEN;
+        final PolicyViolationContentItem policyViolationContentItem = (PolicyViolationContentItem) notifcationContentItem;
+        for (final PolicyRuleView policyRuleView : policyViolationContentItem.getPolicyRuleList()) {
+            final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(policyViolationContentItem, policyRuleView.name);
+            final ComponentVersionView componentVersionView = policyViolationContentItem.getComponentVersion();
+            final String componentVersionName = componentVersionView == null ? "" : componentVersionView.versionName;
+            final String licensesString = getComponentLicensesStringPlainText(policyViolationContentItem);
+            logger.debug("Component " + policyViolationContentItem.getComponentName() + " (version: " + componentVersionName + "): License: " + licensesString);
 
-            final VersionBomComponentView bomComp = getBomComponent(notification);
+            final VersionBomComponentView bomComp = getBomComponent(policyViolationContentItem);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
-            eventDataBuilder.setAction(action).setJiraAdminUserName(getJiraContext().getJiraAdminUser().getName()).setJiraAdminUserKey(getJiraContext().getJiraAdminUser().getKey())
-                    .setJiraIssueCreatorUserName(getJiraContext().getJiraIssueCreatorUser().getName()).setJiraIssueCreatorUserKey(getJiraContext().getJiraIssueCreatorUser().getKey())
-                    .setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId()).setJiraIssueTypeId(getIssueTypeId()).setJiraProjectName(jiraProject.getProjectName()).setJiraProjectId(jiraProject.getProjectId())
-                    .setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings()).setHubProjectName(notification.getProjectVersion().getProjectName())
-                    .setHubProjectVersion(notification.getProjectVersion().getProjectVersionName()).setHubProjectVersionUrl(notification.getProjectVersion().getUrl()).setHubComponentName(notification.getComponentName())
-                    .setHubComponentUrl(notification.getComponentUrl()).setHubComponentVersion(compVerName).setHubComponentVersionUrl(notification.getComponentVersionUrl()).setHubLicenseNames(licensesString)
-                    .setHubComponentUsage(getComponentUsage(notification, bomComp)).setHubComponentOrigin(getComponentOrigin(notification)).setHubComponentOriginId(getComponentOriginId(notification))
-                    .setHubProjectVersionNickname(getProjectVersionNickname(notification)).setJiraIssueSummary(getIssueSummary(notification, rule)).setJiraIssueDescription(getIssueDescription(notification, rule)).setJiraIssueComment(null)
-                    .setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN).setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT)
-                    .setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE).setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT)
-                    .setJiraIssuePropertiesGenerator(issuePropertiesGenerator).setHubRuleName(rule.name).setHubRuleUrl(getMetaHandler().getHref(rule)).setComponentIssueUrl(notif.getComponentIssueLink());
+            eventDataBuilder.setAction(hubEventAction);
+            eventDataBuilder.setPropertiesFromJiraContext(getJiraContext());
+            eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
 
-            populateEventDataBuilder(eventDataBuilder, notification);
+            eventDataBuilder.setJiraIssueTypeId(getIssueTypeId());
+            eventDataBuilder.setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings());
+            eventDataBuilder.setHubComponentVersion(componentVersionName);
+            eventDataBuilder.setHubLicenseNames(licensesString);
+
+            eventDataBuilder.setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            eventDataBuilder.setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            eventDataBuilder.setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            eventDataBuilder.setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
+            eventDataBuilder.setHubRuleName(policyRuleView.name);
+            eventDataBuilder.setHubRuleUrl(getMetaHandler().getHref(policyRuleView));
+
+            eventDataBuilder.setHubProjectName(policyViolationContentItem.getProjectVersion().getProjectName());
+            eventDataBuilder.setHubProjectVersion(policyViolationContentItem.getProjectVersion().getProjectVersionName());
+            eventDataBuilder.setHubProjectVersionUrl(policyViolationContentItem.getProjectVersion().getUrl());
+            eventDataBuilder.setHubComponentName(policyViolationContentItem.getComponentName());
+            eventDataBuilder.setHubComponentUrl(policyViolationContentItem.getComponentUrl());
+            eventDataBuilder.setHubComponentVersionUrl(policyViolationContentItem.getComponentVersionUrl());
+            eventDataBuilder.setHubComponentUsage(getComponentUsage(policyViolationContentItem, bomComp));
+            eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(policyViolationContentItem));
+            eventDataBuilder.setJiraIssueSummary(getIssueSummary(policyViolationContentItem, policyRuleView));
+            eventDataBuilder.setJiraIssueDescription(getIssueDescription(policyViolationContentItem, policyRuleView));
+            eventDataBuilder.setComponentIssueUrl(policyViolationContentItem.getComponentIssueLink());
+
+            populateEventDataBuilder(eventDataBuilder, policyViolationContentItem);
 
             final EventData eventData = eventDataBuilder.build();
 
@@ -106,9 +118,9 @@ public class PolicyViolationNotificationConverter extends AbstractPolicyNotifica
             eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, eventData);
             final String key = generateEventKey(eventData.getDataSet());
             final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, eventDataSet);
-            events.add(event);
+            notificationEvents.add(event);
         }
 
-        return events;
+        return notificationEvents;
     }
 }
