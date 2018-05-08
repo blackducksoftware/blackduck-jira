@@ -23,40 +23,28 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.throwaway.PolicyContentItem;
+import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
 
 public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator {
     private final String projectName;
-
-    private final String projectVersion;
-
+    private final String projectVersionName;
     private final String componentName;
-
-    private final String componentVersion;
-
+    private final String componentVersionName;
     private final String ruleName;
 
-    public PolicyIssuePropertiesGenerator(final PolicyContentItem notifContentItem,
-            final String ruleName) {
-        this.projectName = notifContentItem.getProjectVersion().getProjectName();
-        this.projectVersion = notifContentItem.getProjectVersion().getProjectVersionName();
-        this.componentName = notifContentItem.getComponentName();
-        final ComponentVersionView compVer = notifContentItem.getComponentVersion();
-        if (compVer == null) {
-            this.componentVersion = "";
-        } else {
-            this.componentVersion = compVer.versionName;
-        }
+    public PolicyIssuePropertiesGenerator(final NotificationContentDetail detail, final String ruleName) {
+        this.projectName = detail.getProjectName();
+        this.projectVersionName = detail.getProjectVersionName();
+        this.componentName = detail.getComponentName().orElse("");
+        this.componentVersionName = detail.getComponentVersionName().orElse("");
         this.ruleName = ruleName;
     }
 
     @Override
     public IssueProperties createIssueProperties(final Long issueId) {
         final IssueProperties properties = new PolicyViolationIssueProperties(
-                projectName,
-                projectVersion,
-                componentName, componentVersion,
+                projectName, projectVersionName,
+                componentName, componentVersionName,
                 issueId, ruleName);
         return properties;
     }

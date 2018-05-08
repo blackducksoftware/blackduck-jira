@@ -23,8 +23,10 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import java.util.Date;
 import java.util.Set;
 
+import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
@@ -87,6 +89,36 @@ public class EventDataBuilder {
         setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId());
         setJiraProjectName(jiraProject.getProjectName());
         setJiraProjectId(jiraProject.getProjectId());
+        return this;
+    }
+
+    public EventDataBuilder setPropertiesFromNotificationContentDetail(final NotificationContentDetail detail) {
+        setHubProjectName(detail.getProjectName());
+        setHubProjectVersion(detail.getProjectVersionName());
+        if (detail.getProjectVersion().isPresent()) {
+            setHubProjectVersionUrl(detail.getProjectVersion().get().uri);
+        }
+        if (detail.getComponentName().isPresent()) {
+            setHubComponentName(detail.getComponentName().get());
+        }
+        if (detail.getComponent().isPresent()) {
+            setHubComponentUrl(detail.getComponent().get().uri);
+        }
+        if (detail.getComponentVersionName().isPresent()) {
+            setHubComponentVersion(detail.getComponentVersionName().get());
+        }
+        if (detail.getComponentVersion().isPresent()) {
+            setHubComponentVersionUrl(detail.getComponentVersion().get().uri);
+        }
+        if (detail.getComponentIssue().isPresent()) {
+            setComponentIssueUrl(detail.getComponentIssue().get().uri);
+        }
+        if (detail.getComponentVersionOriginName().isPresent()) {
+            setHubComponentOrigin(detail.getComponentVersionOriginName().get());
+        }
+        if (detail.getComponentVersionOriginId().isPresent()) {
+            setHubComponentOriginId(detail.getComponentVersionOriginId().get());
+        }
         return this;
     }
 
@@ -258,6 +290,11 @@ public class EventDataBuilder {
     public EventDataBuilder setHubProjectOwner(final String hubProjectOwner) {
         this.hubProjectOwner = hubProjectOwner;
         return this;
+    }
+
+    public EventDataBuilder setHubProjectVersionLastUpdated(final Date hubProjectVersionLastUpdated) {
+        // FIXME verify date format
+        return setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated.toString());
     }
 
     public EventDataBuilder setHubProjectVersionLastUpdated(final String hubProjectVersionLastUpdated) {

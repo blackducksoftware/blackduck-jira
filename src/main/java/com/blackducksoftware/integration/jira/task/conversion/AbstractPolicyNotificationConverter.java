@@ -28,14 +28,15 @@ import java.util.Map;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.view.CommonNotificationState;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.throwaway.NotificationContentItem;
 import com.blackducksoftware.integration.hub.throwaway.NotificationEvent;
-import com.blackducksoftware.integration.hub.throwaway.PolicyContentItem;
 import com.blackducksoftware.integration.hub.throwaway.ProjectVersionModel;
 import com.blackducksoftware.integration.hub.throwaway.SubProcessorCache;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -76,6 +77,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
             for (final JiraProject jiraProject : mappingJiraProjects) {
                 logger.debug("JIRA Project: " + jiraProject);
                 try {
+                    // FIXME pass in the correct data
                     final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(notification, jiraProject);
                     if (projectEvents != null) {
                         for (final NotificationEvent event : projectEvents) {
@@ -94,17 +96,16 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    protected VersionBomComponentView getBomComponent(final NotificationContentItem notification) throws HubIntegrationException {
-        final PolicyContentItem policyNotif = (PolicyContentItem) notification;
-        final VersionBomComponentView bomComp = getBomComponent(notification.getProjectVersion(),
-                notification.getComponentName(), policyNotif.getComponentUrl(), notification.getComponentVersion());
+    protected VersionBomComponentView getBomComponent(final ComponentVersionView componentVersion) throws HubIntegrationException {
+        // FIXME
+        final VersionBomComponentView bomComp = getBomComponent(detail.getProjectVersion(),
+                detail.getComponentName(), null, detail.getComponentVersion());
         return bomComp;
     }
 
-    protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final NotificationContentItem notif,
-            final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException;
+    protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException;
 
-    protected String getIssueDescription(final NotificationContentItem notif, final PolicyRuleView rule) {
+    protected String getIssueDescription(final NotificationContentDetail notif, final PolicyRuleViewV2 rule) {
         final StringBuilder issueDescription = new StringBuilder();
         final String componentsLink = notif.getProjectVersion().getComponentsLink();
         issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
@@ -150,7 +151,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return issueDescription.toString();
     }
 
-    protected String getIssueSummary(final NotificationContentItem notif, final PolicyRuleView rule) {
+    protected String getIssueSummary(final NotificationContentDetail notif, final PolicyRuleViewV2 rule) {
         String componentString = notif.getComponentName();
         if (notif.getComponentVersion() != null) {
             componentString += "' / '" + notif.getComponentVersion().versionName;
