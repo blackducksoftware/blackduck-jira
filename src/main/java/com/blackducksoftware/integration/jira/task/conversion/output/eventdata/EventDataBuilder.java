@@ -24,9 +24,15 @@
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.blackducksoftware.integration.hub.notification.content.NotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
+import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
@@ -121,6 +127,61 @@ public class EventDataBuilder {
         }
         return this;
     }
+
+    public EventDataBuilder setIssueCommentPropertiesFromNotificationType(final NotificationType notificationType, final NotificationContent notificationContent) {
+        if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+        } else if (NotificationType.VULNERABILITY.equals(notificationType)) {
+            final String comment = generateComment((VulnerabilityNotificationContent) notificationContent);
+            setJiraIssueComment(comment);
+            setJiraIssueCommentForExistingIssue(comment);
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_VULNERABILITY_REOPEN);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_VULNERABILITY_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(comment);
+        }
+        return this;
+    }
+
+    // TODO START this code doesn't belong here
+    private String generateComment(final VulnerabilityNotificationContent vulnerabilityContent) {
+        final StringBuilder commentText = new StringBuilder();
+        commentText.append("(Black Duck Hub JIRA plugin auto-generated comment)\n");
+        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
+        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
+        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
+        return commentText.toString();
+    }
+
+    private void generateVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
+        commentText.append("Vulnerabilities " + verb + ": ");
+        int index = 0;
+        if (vulns != null && !vulns.isEmpty()) {
+            for (final VulnerabilitySourceQualifiedId vuln : vulns) {
+                commentText.append(vuln.vulnerabilityId + " (" + vuln.source + ")");
+                if ((index + 1) < vulns.size()) {
+                    commentText.append(", ");
+                }
+                index++;
+            }
+        } else {
+            commentText.append("None");
+        }
+        commentText.append("\n");
+    }
+    // TODO END this code doesn't belong here
 
     public EventDataBuilder setAction(final HubEventAction action) {
         this.action = action;

@@ -25,20 +25,18 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
+import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.view.CommonNotificationState;
-import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.hub.throwaway.NotificationContentItem;
+import com.blackducksoftware.integration.hub.service.HubService;
+import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.hub.throwaway.NotificationEvent;
-import com.blackducksoftware.integration.hub.throwaway.ProjectVersionModel;
-import com.blackducksoftware.integration.hub.throwaway.SubProcessorCache;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -54,40 +52,42 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public abstract class AbstractPolicyNotificationConverter extends NotificationToEventConverter {
     private final HubJiraLogger logger;
+    private final HubService hubService;
 
-    public AbstractPolicyNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
-            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler, final HubJiraLogger logger)
+    public AbstractPolicyNotificationConverter(final Set<NotificationEvent> cache, final HubProjectMappings mappings, final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService,
+            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final HubService hubService, final HubJiraLogger logger)
             throws ConfigurationException {
-        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig, hubServicesFactory, metaHandler, logger);
+        super(cache, jiraServices, jiraContext, jiraSettingsService, mappings, issueTypeName, fieldCopyConfig, hubService, logger);
         this.logger = logger;
+        this.hubService = hubService;
     }
 
     @Override
-    public void process(final NotificationContentItem notification) throws HubIntegrationException {
-        logger.debug("policyNotif: " + notification);
-        final ProjectVersionModel projectVersion = notification.getProjectVersion();
-        logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectVersion.getProjectName());
-        final List<JiraProject> mappingJiraProjects = getMappings()
-                .getJiraProjects(projectVersion.getProjectName());
-        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : "
-                + projectVersion.getProjectName());
+    public void process(final CommonNotificationState commonNotificationState) throws HubIntegrationException {
+        logger.debug("policyNotif: " + commonNotificationState);
+
+        // FIXME get the hub project info
+        final String hubProjectName = "";
+        final String hubProjectVersionName = "";
+
+        logger.debug("Getting JIRA project(s) mapped to Hub project: " + hubProjectName);
+        final List<JiraProject> mappingJiraProjects = getMappings().getJiraProjects(hubProjectName);
+        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + hubProjectVersionName);
 
         if (!mappingJiraProjects.isEmpty()) {
-
             for (final JiraProject jiraProject : mappingJiraProjects) {
                 logger.debug("JIRA Project: " + jiraProject);
                 try {
                     // FIXME pass in the correct data
-                    final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(notification, jiraProject);
+                    final List<NotificationEvent> projectEvents = handleNotificationPerJiraProject(commonNotificationState, jiraProject);
                     if (projectEvents != null) {
                         for (final NotificationEvent event : projectEvents) {
-                            getCache().addEvent(event);
+                            getCache().add(event);
                         }
                     }
                 } catch (final Exception e) {
                     logger.error(e);
-                    getJiraSettingsService().addHubError(e, projectVersion.getProjectName(),
-                            projectVersion.getProjectVersionName(), jiraProject.getProjectName(),
+                    getJiraSettingsService().addHubError(e, hubProjectName, hubProjectVersionName, jiraProject.getProjectName(),
                             getJiraContext().getJiraAdminUser().getName(), getJiraContext().getJiraIssueCreatorUser().getName(), "transitionIssue");
                 }
 
@@ -95,41 +95,39 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         }
     }
 
-    @Override
-    protected VersionBomComponentView getBomComponent(final ComponentVersionView componentVersion) throws HubIntegrationException {
-        // FIXME
-        final VersionBomComponentView bomComp = getBomComponent(detail.getProjectVersion(),
-                detail.getComponentName(), null, detail.getComponentVersion());
-        return bomComp;
-    }
-
     protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException;
 
-    protected String getIssueDescription(final NotificationContentDetail notif, final PolicyRuleViewV2 rule) {
+    protected String getIssueDescription(final NotificationContentDetail detail, final PolicyRuleViewV2 rule, final HubBucket hubBucket) {
         final StringBuilder issueDescription = new StringBuilder();
-        final String componentsLink = notif.getProjectVersion().getComponentsLink();
+
+        String componentsLink = null;
+        if (detail.getProjectVersion().isPresent()) {
+            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+            componentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.COMPONENTS_LINK);
+        }
         issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
         if (componentsLink == null) {
             issueDescription.append("'");
-            issueDescription.append(notif.getProjectVersion().getProjectName());
+            issueDescription.append(detail.getProjectName());
             issueDescription.append("' / '");
-            issueDescription.append(notif.getProjectVersion().getProjectVersionName());
+            issueDescription.append(detail.getProjectVersionName());
             issueDescription.append("'");
         } else {
             issueDescription.append("['");
-            issueDescription.append(notif.getProjectVersion().getProjectName());
+            issueDescription.append(detail.getProjectName());
             issueDescription.append("' / '");
-            issueDescription.append(notif.getProjectVersion().getProjectVersionName());
+            issueDescription.append(detail.getProjectVersionName());
             issueDescription.append("'|");
             issueDescription.append(componentsLink);
             issueDescription.append("]");
         }
-        issueDescription.append(", component '");
-        issueDescription.append(notif.getComponentName());
-        final ComponentVersionView compVer = notif.getComponentVersion();
-        if (compVer != null) {
-            issueDescription.append("' / '");
-            issueDescription.append(compVer.versionName);
+        if (detail.getComponentName().isPresent()) {
+            issueDescription.append(", component '");
+            issueDescription.append(detail.getComponentName());
+            if (detail.getComponentVersionName().isPresent()) {
+                issueDescription.append("' / '");
+                issueDescription.append(detail.getComponentVersionName().get());
+            }
         }
         issueDescription.append("'.");
         issueDescription.append(" The rule violated is: '");
@@ -137,33 +135,31 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         issueDescription.append("'. Rule overridable: ");
         issueDescription.append(rule.overridable);
 
-        if (compVer != null) {
-            final String licenseText;
+        if (detail.getComponentVersion().isPresent()) {
             try {
-                licenseText = getComponentLicensesStringWithLinksAtlassianFormat(notif);
+                final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
+                final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
                 issueDescription.append("\nComponent license(s): ");
                 issueDescription.append(licenseText);
             } catch (final IntegrationException e) {
                 // omit license text
             }
         }
-
         return issueDescription.toString();
     }
 
-    protected String getIssueSummary(final NotificationContentDetail notif, final PolicyRuleViewV2 rule) {
-        String componentString = notif.getComponentName();
-        if (notif.getComponentVersion() != null) {
-            componentString += "' / '" + notif.getComponentVersion().versionName;
+    protected String getIssueSummary(final NotificationContentDetail detail, final PolicyRuleViewV2 rule) {
+        if (detail.getComponentName().isPresent()) {
+            String componentString = detail.getComponentName().get();
+            if (detail.getComponentVersionName().isPresent()) {
+                componentString += "' / '" + detail.getComponentVersionName().get();
+            }
+            final String issueSummaryTemplate = "Black Duck policy violation detected on Hub project '%s' / '%s', component '%s' [Rule: '%s']";
+            return String.format(issueSummaryTemplate, detail.getProjectName(), detail.getProjectVersionName(), componentString, rule.name);
         }
-        final String issueSummaryTemplate = "Black Duck policy violation detected on Hub project '%s' / '%s', component '%s' [Rule: '%s']";
-        final Object[] replacements = new String[] { notif.getProjectVersion().getProjectName(), notif.getProjectVersion().getProjectVersionName(), componentString, rule.name };
-
-        final String issueSummary = String.format(issueSummaryTemplate, replacements);
-        return issueSummary.toString();
+        return "";
     }
 
-    @Override
     public String generateEventKey(final Map<String, Object> inputData) throws HubIntegrationException {
         final EventData eventData = (EventData) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA);
 
@@ -210,5 +206,10 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
         logger.debug("property key: " + key);
         return key;
+    }
+
+    public String hashString(final String text) {
+        // FIXME hash the string
+        return text;
     }
 }

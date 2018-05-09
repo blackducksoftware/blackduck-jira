@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -34,16 +35,12 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.UriSingleResponse;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.api.view.CommonNotificationState;
-import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucketService;
-import com.blackducksoftware.integration.hub.throwaway.NotificationCategoryEnum;
 import com.blackducksoftware.integration.hub.throwaway.NotificationEvent;
-import com.blackducksoftware.integration.hub.throwaway.SubProcessorCache;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -64,13 +61,12 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificationConverter {
     private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PolicyOverrideNotificationConverter.class.getName()));
 
-    // FIXME these should be passed in
-    private final HubBucketService bucketService = new HubBucketService(null);
-    private final HubBucket hubBucket = new HubBucket();
+    private final HubBucketService hubBucketService;
 
-    public PolicyOverrideNotificationConverter(final SubProcessorCache cache, final HubProjectMappings mappings, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final JiraServices jiraServices, final JiraContext jiraContext,
-            final JiraSettingsService jiraSettingsService, final HubServicesFactory hubServicesFactory, final MetaHandler metaHandler) throws ConfigurationException {
-        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, fieldCopyConfig, hubServicesFactory, metaHandler, logger);
+    public PolicyOverrideNotificationConverter(final Set<NotificationEvent> cache, final HubProjectMappings mappings, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final JiraServices jiraServices, final JiraContext jiraContext,
+            final JiraSettingsService jiraSettingsService, final HubService hubService, final HubBucketService hubBucketService) throws ConfigurationException {
+        super(cache, mappings, jiraServices, jiraContext, jiraSettingsService, HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, fieldCopyConfig, hubService, logger);
+        this.hubBucketService = hubBucketService;
     }
 
     @Override
@@ -78,20 +74,15 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
         final List<NotificationEvent> events = new ArrayList<>();
 
         final HubEventAction action = HubEventAction.RESOLVE;
+        final HubBucket hubBucket = new HubBucket();
         for (final NotificationContentDetail detail : commonNotificationState.getContent().getNotificationContentDetails()) {
-            bucketService.addToTheBucket(hubBucket, detail.getPresentLinks());
-            UriSingleResponse<PolicyRuleViewV2> policyRuleLink = null;
-            if (detail.isPolicy()) {
-                policyRuleLink = detail.getPolicy().get();
-            }
-            final PolicyRuleViewV2 rule = hubBucket.get(policyRuleLink);
-            final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(detail, rule.name);
+            hubBucketService.addToTheBucket(hubBucket, detail.getPresentLinks());
 
             String licensesString;
-            ComponentVersionView componentVersionView = null;
+            ComponentVersionView componentVersion = null;
             if (detail.getComponentVersion().isPresent()) {
-                componentVersionView = hubBucket.get(detail.getComponentVersion().get());
-                licensesString = getComponentLicensesStringPlainText(componentVersionView);
+                componentVersion = hubBucket.get(detail.getComponentVersion().get());
+                licensesString = getComponentLicensesStringPlainText(componentVersion);
                 final String componentName = detail.getComponentName().orElse("");
                 final String componentVersionName = detail.getComponentVersionName().orElse("");
                 logger.debug("Component " + componentName + " (version: " + componentVersionName + "): License: " + licensesString);
@@ -99,7 +90,6 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                 licensesString = "";
             }
 
-            final VersionBomComponentView bomComp = getBomComponent(componentVersionView);
             final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.POLICY);
             eventDataBuilder.setAction(action);
             eventDataBuilder.setPropertiesFromJiraContext(getJiraContext());
@@ -107,30 +97,35 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
 
             eventDataBuilder.setJiraIssueTypeId(getIssueTypeId());
             eventDataBuilder.setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings());
-            eventDataBuilder.setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
-            eventDataBuilder.setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            eventDataBuilder.setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
-            eventDataBuilder.setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
-            eventDataBuilder.setHubRuleName(rule.name);
-            eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
+
+            eventDataBuilder.setIssueCommentPropertiesFromNotificationType(commonNotificationState.getType(), commonNotificationState.getContent());
+
+            if (detail.isPolicy()) {
+                final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
+                final PolicyRuleViewV2 rule = hubBucket.get(policyRuleLink);
+                eventDataBuilder.setHubRuleName(rule.name);
+                eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
+
+                final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(detail, rule.name);
+                eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
+                eventDataBuilder.setJiraIssueSummary(getIssueSummary(detail, rule));
+                eventDataBuilder.setJiraIssueDescription(getIssueDescription(detail, rule, hubBucket));
+            }
             eventDataBuilder.setHubLicenseNames(licensesString);
 
             eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
 
-            eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, bomComp));
-            eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail));
-            eventDataBuilder.setJiraIssueSummary(getIssueSummary(detail, rule));
-            eventDataBuilder.setJiraIssueDescription(getIssueDescription(detail, rule));
+            eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, hubBucket));
+            eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
 
-            populateEventDataBuilder(eventDataBuilder, detail);
+            populateEventDataBuilder(eventDataBuilder, detail, hubBucket);
 
             final EventData eventData = eventDataBuilder.build();
 
             final Map<String, Object> eventDataSet = new HashMap<>(1);
             eventDataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, eventData);
             final String key = generateEventKey(eventData.getDataSet());
-            final NotificationEvent event = new NotificationEvent(key, NotificationCategoryEnum.POLICY_VIOLATION_OVERRIDE, eventDataSet);
+            final NotificationEvent event = new NotificationEvent(key, commonNotificationState.getType(), eventDataSet);
             events.add(event);
         }
 
