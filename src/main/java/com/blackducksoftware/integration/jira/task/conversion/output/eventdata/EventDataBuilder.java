@@ -25,6 +25,8 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.Set;
 
+import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -71,6 +73,21 @@ public class EventDataBuilder {
 
     public EventDataBuilder(final EventCategory eventCategory) {
         this.eventCategory = eventCategory;
+    }
+
+    public EventDataBuilder setPropertiesFromJiraContext(final JiraContext jiraContext) {
+        setJiraAdminUserName(jiraContext.getJiraAdminUser().getName());
+        setJiraAdminUserKey(jiraContext.getJiraAdminUser().getKey());
+        setJiraIssueCreatorUserName(jiraContext.getJiraIssueCreatorUser().getName());
+        setJiraIssueCreatorUserKey(jiraContext.getJiraIssueCreatorUser().getKey());
+        return this;
+    }
+
+    public EventDataBuilder setPropertiesFromJiraProject(final JiraProject jiraProject) {
+        setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId());
+        setJiraProjectName(jiraProject.getProjectName());
+        setJiraProjectId(jiraProject.getProjectId());
+        return this;
     }
 
     public EventDataBuilder setAction(final HubEventAction action) {
