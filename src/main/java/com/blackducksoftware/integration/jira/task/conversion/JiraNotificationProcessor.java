@@ -104,7 +104,7 @@ public class JiraNotificationProcessor {
             final Class<?> key = item.getClass();
             if (processorMap.containsKey(key)) {
                 final NotificationToEventConverter processor = processorMap.get(key);
-                processor.process(item);
+                processor.convert(item);
             }
         }
     }

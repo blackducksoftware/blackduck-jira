@@ -309,7 +309,7 @@ public class NotificationConverterTest {
         final NotificationToEventConverter conv = createConverter(jiraServices, jiraSettingsService, jiraContext, hubServicesFactory, notifType, projectMappingObject, fieldCopyConfig, cache);
 
         final NotificationContentItem notif = createNotif(metaService, notifType, now, projectVersion);
-        conv.process(notif);
+        conv.convert(notif);
         final List<NotificationEvent> events = new ArrayList<>(cache.getEvents());
 
         // Verify the generated event

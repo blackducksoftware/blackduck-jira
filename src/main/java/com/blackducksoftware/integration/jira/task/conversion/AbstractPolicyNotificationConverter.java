@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,6 @@ import com.blackducksoftware.integration.jira.common.HubUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -63,7 +63,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
     }
 
     @Override
-    public void process(final CommonNotificationState commonNotificationState) throws HubIntegrationException {
+    public Collection<EventData> convert(final CommonNotificationState commonNotificationState) throws HubIntegrationException {
         logger.debug("policyNotif: " + commonNotificationState);
 
         // FIXME get the hub project info
@@ -93,9 +93,9 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
 
             }
         }
+        // TODO
+        return null;
     }
-
-    protected abstract List<NotificationEvent> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject) throws EventDataBuilderException, IntegrationException;
 
     protected String getIssueDescription(final NotificationContentDetail detail, final PolicyRuleViewV2 rule, final HubBucket hubBucket) {
         final StringBuilder issueDescription = new StringBuilder();
@@ -160,6 +160,7 @@ public abstract class AbstractPolicyNotificationConverter extends NotificationTo
         return "";
     }
 
+    // "We can't mess with this" -ekerwin
     public String generateEventKey(final Map<String, Object> inputData) throws HubIntegrationException {
         final EventData eventData = (EventData) inputData.get(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA);
 

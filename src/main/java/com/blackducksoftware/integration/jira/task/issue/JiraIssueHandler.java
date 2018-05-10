@@ -49,12 +49,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.hub.throwaway.NotificationEvent;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -66,6 +60,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -78,31 +73,28 @@ public class JiraIssueHandler {
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final IssueFieldHandler issueFieldHandler;
-    private final IssueFormatHelper issueFormatHelper;
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
 
-    public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler,
-            final IssueFormatHelper issueFormatHelper) {
+    public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
-        this.issueFormatHelper = issueFormatHelper;
         this.hubIssueTrackerHandler = hubIssueTrackerHandler;
         this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
     }
 
-    private void addIssueProperty(final NotificationContentDetail detail, final EventData eventData, final Long issueId, final String key, final IssueProperties value) {
+    private void addIssueProperty(final EventData eventData, final Long issueId, final String key, final IssueProperties value) {
         final Gson gson = new GsonBuilder().create();
 
         final String jsonValue = gson.toJson(value);
-        addIssuePropertyJson(notificationEvent, eventData, issueId, key, jsonValue);
+        addIssuePropertyJson(eventData, issueId, key, jsonValue);
     }
 
-    private void handleErrorCollection(final String methodAttempt, final NotificationContentDetail detail, final EventData eventData, final ErrorCollection errors) {
+    private void handleErrorCollection(final String methodAttempt, final EventData eventData, final ErrorCollection errors) {
         if (errors.hasAnyErrors()) {
-            logger.error("Error on: " + methodAttempt + " for notificationEvent: " + notificationEvent);
+            logger.error("Error on: " + methodAttempt + " for eventData: " + eventData);
             for (final Entry<String, String> error : errors.getErrors().entrySet()) {
                 final String errorMessage = error.getKey() + " / " + error.getValue();
                 logger.error(errorMessage);
@@ -117,52 +109,52 @@ public class JiraIssueHandler {
         }
     }
 
-    private void addIssuePropertyJson(final NotificationContentDetail detail, final EventData eventData, final Long issueId, final String key, final String jsonValue) {
+    private void addIssuePropertyJson(final EventData eventData, final Long issueId, final String key, final String jsonValue) {
         logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
         final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
         final SetPropertyValidationResult validationResult = jiraServices.getPropertyService().validateSetProperty(jiraContext.getJiraIssueCreatorUser(), issueId, propertyInput);
 
         if (!validationResult.isValid()) {
-            handleErrorCollection("addIssueProperty", notificationEvent, eventData, validationResult.getErrorCollection());
+            handleErrorCollection("addIssueProperty", eventData, validationResult.getErrorCollection());
         } else {
             final PropertyResult result = jiraServices.getPropertyService().setProperty(jiraContext.getJiraIssueCreatorUser(), validationResult);
-            handleErrorCollection("addIssueProperty", notificationEvent, eventData, result.getErrorCollection());
+            handleErrorCollection("addIssueProperty", eventData, result.getErrorCollection());
         }
     }
 
-    private void addProjectPropertyJson(final NotificationContentDetail detail, final EventData eventData, final Long issueId, final String key, final String jsonValue) {
+    private void addProjectPropertyJson(final EventData eventData, final Long issueId, final String key, final String jsonValue) {
         logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
         final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
         final SetPropertyValidationResult validationResult = jiraServices.getProjectPropertyService().validateSetProperty(jiraContext.getJiraIssueCreatorUser(), issueId, propertyInput);
 
         if (!validationResult.isValid()) {
-            handleErrorCollection("addIssueProperty", notificationEvent, eventData, validationResult.getErrorCollection());
+            handleErrorCollection("addIssueProperty", eventData, validationResult.getErrorCollection());
         } else {
             final PropertyResult result = jiraServices.getProjectPropertyService().setProperty(jiraContext.getJiraIssueCreatorUser(), validationResult);
-            handleErrorCollection("addIssueProperty", notificationEvent, eventData, result.getErrorCollection());
+            handleErrorCollection("addIssueProperty", eventData, result.getErrorCollection());
         }
     }
 
-    private void addHubIssueUrlIssueProperty(final NotificationContentDetail detail, final EventData eventData, final HubIssueTrackerProperties value, final Issue issue) {
+    private void addHubIssueUrlIssueProperty(final EventData eventData, final HubIssueTrackerProperties value, final Issue issue) {
         final Gson gson = new GsonBuilder().create();
         final String jsonValue = gson.toJson(value);
         final String key = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
 
-        addProjectPropertyJson(notificationEvent, eventData, issue.getProjectId(), key, jsonValue);
+        addProjectPropertyJson(eventData, issue.getProjectId(), key, jsonValue);
     }
 
-    private String getNotificationUniqueKey(final NotificationContentDetail detail) {
+    private String getNotificationUniqueKey(final EventData eventData) {
         String notificationUniqueKey = null;
-        notificationUniqueKey = notificationEvent.getEventKey();
+        notificationUniqueKey = eventData.getEventKey();
         return notificationUniqueKey;
     }
 
-    private Issue findIssue(final NotificationContentDetail detail, final EventData eventData) {
-        logger.debug("findIssue(): notificationEvent: " + notificationEvent);
+    private Issue findIssue(final EventData eventData) {
+        logger.debug("findIssue(): eventData: " + eventData);
 
-        final String notificationUniqueKey = getNotificationUniqueKey(notificationEvent);
+        final String notificationUniqueKey = getNotificationUniqueKey(eventData);
 
         if (notificationUniqueKey != null) {
             logger.debug("findIssue(): key: " + notificationUniqueKey);
@@ -174,12 +166,12 @@ public class JiraIssueHandler {
                 return null;
             }
             final EntityProperty property = props.get(0);
-            final IssueProperties propertyValue = createIssuePropertiesFromJson(notificationEvent, property.getValue());
+            final IssueProperties propertyValue = createIssuePropertiesFromJson(eventData, property.getValue());
             logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
             final IssueResult result = jiraServices.getIssueService().getIssue(jiraContext.getJiraIssueCreatorUser(), propertyValue.getJiraIssueId());
 
             if (!result.isValid()) {
-                handleErrorCollection("findIssue", notificationEvent, eventData, result.getErrorCollection());
+                handleErrorCollection("findIssue", eventData, result.getErrorCollection());
             } else {
                 return result.getIssue();
             }
@@ -187,16 +179,18 @@ public class JiraIssueHandler {
         return null;
     }
 
-    private IssueProperties createIssuePropertiesFromJson(final NotificationContentDetail detail, final String json) {
+    private IssueProperties createIssuePropertiesFromJson(final EventData eventData, final String json) {
         final Gson gson = new GsonBuilder().create();
-        if (notificationEvent.isPolicyEvent()) {
+
+        final EventCategory eventDataCategory = EventCategory.fromNotificationType(eventData.getNotificationType());
+        if (EventCategory.POLICY.equals(eventDataCategory)) {
             return gson.fromJson(json, PolicyViolationIssueProperties.class);
         }
 
         return gson.fromJson(json, VulnerabilityIssueProperties.class);
     }
 
-    private Issue createIssue(final NotificationContentDetail detail, final EventData eventData) {
+    private Issue createIssue(final EventData eventData) {
         IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
         issueInputParameters.setProjectId(eventData.getJiraProjectId()).setIssueTypeId(eventData.getJiraIssueTypeId()).setSummary(eventData.getJiraIssueSummary()).setReporterId(eventData.getJiraIssueCreatorUsername())
                 .setDescription(eventData.getJiraIssueDescription());
@@ -215,20 +209,20 @@ public class JiraIssueHandler {
         logger.debug("issueInputParameters.applyDefaultValuesWhenParameterNotProvided(): " + issueInputParameters.applyDefaultValuesWhenParameterNotProvided());
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): " + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        issueFieldHandler.setPluginFieldValues(notificationEvent, eventData, issueInputParameters);
-        final List<String> labels = issueFieldHandler.setOtherFieldValues(notificationEvent, eventData, issueInputParameters);
+        issueFieldHandler.setPluginFieldValues(eventData, issueInputParameters);
+        final List<String> labels = issueFieldHandler.setOtherFieldValues(eventData, issueInputParameters);
 
         final CreateValidationResult validationResult = jiraServices.getIssueService().validateCreate(jiraContext.getJiraIssueCreatorUser(), issueInputParameters);
         logger.debug("createIssue(): Project: " + eventData.getJiraProjectName() + ": " + eventData.getJiraIssueSummary());
         if (!validationResult.isValid()) {
-            handleErrorCollection("createIssue", notificationEvent, eventData, validationResult.getErrorCollection());
+            handleErrorCollection("createIssue", eventData, validationResult.getErrorCollection());
         } else {
             final IssueResult result = jiraServices.getIssueService().create(jiraContext.getJiraIssueCreatorUser(), validationResult);
             final ErrorCollection errors = result.getErrorCollection();
             if (errors.hasAnyErrors()) {
-                handleErrorCollection("createIssue", notificationEvent, eventData, errors);
+                handleErrorCollection("createIssue", eventData, errors);
             } else {
-                fixIssueAssignment(notificationEvent, eventData, result);
+                fixIssueAssignment(eventData, result);
                 issueFieldHandler.addLabels(result.getIssue(), labels);
                 final Issue jiraIssue = result.getIssue();
                 return jiraIssue;
@@ -237,7 +231,7 @@ public class JiraIssueHandler {
         return null;
     }
 
-    private void fixIssueAssignment(final NotificationContentDetail detail, final EventData eventData, final IssueResult result) {
+    private void fixIssueAssignment(final EventData eventData, final IssueResult result) {
         final MutableIssue issue = result.getIssue();
         if (issue.getAssignee() == null) {
             logger.debug("Created issue " + issue.getKey() + "; Assignee: null");
@@ -247,7 +241,7 @@ public class JiraIssueHandler {
         final String assigneeId = eventData.getJiraIssueAssigneeUserId();
         if ((assigneeId == null) && (issue.getAssigneeId() != null)) {
             logger.debug("Issue needs to be UNassigned");
-            assignIssue(issue, notificationEvent, eventData);
+            assignIssue(issue, eventData);
         } else if ((assigneeId != null) && (!issue.getAssigneeId().equals(assigneeId))) {
             final String errorMessage = "Issue assignment failed";
             logger.error(errorMessage);
@@ -258,7 +252,7 @@ public class JiraIssueHandler {
         }
     }
 
-    private void assignIssue(final MutableIssue issue, final NotificationContentDetail detail, final EventData eventData) {
+    private void assignIssue(final MutableIssue issue, final EventData eventData) {
         final ApplicationUser user = jiraContext.getJiraIssueCreatorUser();
         final String assigneeId = eventData.getJiraIssueAssigneeUserId();
         final AssignValidationResult assignValidationResult = jiraServices.getIssueService().validateAssign(user, issue.getId(), assigneeId);
@@ -266,7 +260,7 @@ public class JiraIssueHandler {
         if (assignValidationResult.isValid() && !errors.hasAnyErrors()) {
             logger.debug("Assigning issue to user ID: " + assigneeId);
             jiraServices.getIssueService().assign(user, assignValidationResult);
-            updateIssue(issue, assignValidationResult, user, assigneeId);
+            updateIssue(issue, user, assigneeId);
         } else {
             final StringBuilder sb = new StringBuilder("Unable to assign issue ");
             sb.append(issue.getKey());
@@ -282,7 +276,7 @@ public class JiraIssueHandler {
         }
     }
 
-    private Issue updateIssue(final MutableIssue issueToUpdate, final AssignValidationResult assignValidationResult, final ApplicationUser userMakingChange, final String assigneeId) {
+    private Issue updateIssue(final MutableIssue issueToUpdate, final ApplicationUser userMakingChange, final String assigneeId) {
         issueToUpdate.setAssigneeId(assigneeId);
         final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
         logger.debug("Updating issue with assigned user ID: " + assigneeId);
@@ -290,7 +284,7 @@ public class JiraIssueHandler {
         return updatedIssue;
     }
 
-    private Issue transitionIssue(final NotificationContentDetail detail, final EventData eventData, final Issue issueToTransition, final String stepName, final String newExpectedStatus, final ApplicationUser user) {
+    private Issue transitionIssue(final EventData eventData, final Issue issueToTransition, final String stepName, final String newExpectedStatus, final ApplicationUser user) {
         final Status currentStatus = issueToTransition.getStatus();
         logger.debug("Current status : " + currentStatus.getName());
 
@@ -330,12 +324,12 @@ public class JiraIssueHandler {
             final TransitionValidationResult validationResult = jiraServices.getIssueService().validateTransition(jiraContext.getJiraIssueCreatorUser(), issueToTransition.getId(), transitionAction.getId(), parameters);
 
             if (!validationResult.isValid()) {
-                handleErrorCollection("transitionIssue", notificationEvent, eventData, validationResult.getErrorCollection());
+                handleErrorCollection("transitionIssue", eventData, validationResult.getErrorCollection());
             } else {
                 final IssueResult result = jiraServices.getIssueService().transition(jiraContext.getJiraIssueCreatorUser(), validationResult);
                 final ErrorCollection errors = result.getErrorCollection();
                 if (errors.hasAnyErrors()) {
-                    handleErrorCollection("transitionIssue", notificationEvent, eventData, errors);
+                    handleErrorCollection("transitionIssue", eventData, errors);
                 } else {
                     final IssueImpl issueToUpdate = (IssueImpl) issueToTransition;
                     issueToUpdate.setStatusObject(result.getIssue().getStatus());
@@ -362,71 +356,45 @@ public class JiraIssueHandler {
         return null;
     }
 
-    public void handleEvent(final NotificationType notificationType, final NotificationContentDetail detail, final HubBucket hubBucket) {
-        ComponentVersionView componentVersion = null;
-        if (detail.getComponentVersion().isPresent()) {
-            componentVersion = hubBucket.get(detail.getComponentVersion().get());
-        }
-        try {
-            logger.debug("Licences: " + issueFormatHelper.getComponentLicensesStringPlainText(componentVersion));
-        } catch (final IntegrationException e) {
-        }
+    // TODO investigate why this is necessary
+    @SuppressWarnings("synthetic-access")
+    public void handleEvent(final EventData eventData) {
+        logger.debug("Licences: " + eventData.getHubLicenseNames());
 
-        HubEventAction actionToTake = null;
-        if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
-            actionToTake = HubEventAction.RESOLVE;
-        } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
-            actionToTake = HubEventAction.OPEN;
-        } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
-            actionToTake = HubEventAction.RESOLVE;
-        } else if (NotificationType.VULNERABILITY.equals(notificationType)) {
-            actionToTake = HubEventAction.ADD_COMMENT;
-            // FIXME implement logic here
-            final boolean componentVersionExistsInBom = false;
-            final boolean notificationHasOnlyDeletes = false;
-
-            if (!componentVersionExistsInBom) {
-                actionToTake = HubEventAction.RESOLVE;
-            } else if (notificationHasOnlyDeletes) {
-                actionToTake = HubEventAction.ADD_COMMENT_IF_EXISTS;
-            }
-        } else {
-            logger.info(String.format("No action to take for notification of type: %s.", notificationType.toString()));
-            return;
-        }
-
-        // FIXME make more generic
+        final HubEventAction actionToTake = eventData.getAction();
         if (HubEventAction.OPEN.equals(actionToTake)) {
-            final ExistenceAwareIssue openedIssue = openIssue(detail, eventData);
+            final ExistenceAwareIssue openedIssue = openIssue(eventData);
             if (openedIssue != null) {
                 if (openedIssue.issueStateChangeBlocked) {
                     addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
                 }
             }
-        } else if (HubEventAction.RESOLVE.equals(actionToTake)) {
-            // final ExistenceAwareIssue resolvedIssue = closeIssue(detail, eventData);
-            // if (resolvedIssue != null) {
-            // if (resolvedIssue.issueStateChangeBlocked) {
-            // addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
-            // }
-            // }
-        } else if (HubEventAction.ADD_COMMENT.equals(actionToTake)) {
-            // final ExistenceAwareIssue issueToCommentOn = openIssue(detail, eventData);
-            // if (issueToCommentOn.getIssue() != null) {
-            // if (!issueToCommentOn.isExisted()) {
-            // addComment(eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
-            // } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
-            // addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
-            // } else {
-            // addComment(eventData.getJiraIssueCommentForExistingIssue(), issueToCommentOn.getIssue());
-            // }
-            // }
-        } else if (HubEventAction.ADD_COMMENT_IF_EXISTS.equals(actionToTake)) {
-            // final Issue existingIssue = findIssue(detail, eventData);
-            // if (existingIssue != null) {
-            // addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
-            // }
         }
+        if (HubEventAction.RESOLVE.equals(actionToTake)) {
+            final ExistenceAwareIssue resolvedIssue = closeIssue(eventData);
+            if (resolvedIssue != null) {
+                if (resolvedIssue.issueStateChangeBlocked) {
+                    addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
+                }
+            }
+        } else if (HubEventAction.ADD_COMMENT.equals(actionToTake)) {
+            final ExistenceAwareIssue issueToCommentOn = openIssue(eventData);
+            if (issueToCommentOn.getIssue() != null) {
+                if (!issueToCommentOn.isExisted()) {
+                    addComment(eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
+                } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
+                    addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
+                } else {
+                    addComment(eventData.getJiraIssueCommentForExistingIssue(), issueToCommentOn.getIssue());
+                }
+            }
+        } else if (HubEventAction.ADD_COMMENT_IF_EXISTS.equals(actionToTake)) {
+            final Issue existingIssue = findIssue(eventData);
+            if (existingIssue != null) {
+                addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
+            }
+        }
+
     }
 
     private void addComment(final String comment, final Issue issue) {
@@ -437,18 +405,18 @@ public class JiraIssueHandler {
         commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
     }
 
-    private ExistenceAwareIssue openIssue(final NotificationContentDetail detail, final EventData eventData) {
+    private ExistenceAwareIssue openIssue(final EventData eventData) {
         logger.debug("Setting logged in User : " + jiraContext.getJiraIssueCreatorUser().getDisplayName());
         jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraIssueCreatorUser());
-        logger.debug("NotificationContentDetail: " + detail);
+        // TODO what do we really want to log here - logger.debug("notificationEvent: " + notificationEvent);
 
-        final String notificationUniqueKey = getNotificationUniqueKey(notificationEvent);
+        final String notificationUniqueKey = getNotificationUniqueKey(eventData);
         if (notificationUniqueKey != null) {
-            final Issue oldIssue = findIssue(notificationEvent, eventData);
+            final Issue oldIssue = findIssue(eventData);
 
             if (oldIssue == null) {
                 // Issue does not yet exist
-                final Issue issue = createIssue(notificationEvent, eventData);
+                final Issue issue = createIssue(eventData);
                 if (issue != null) {
                     logger.info("Created new Issue.");
                     printIssueInfo(issue);
@@ -456,13 +424,13 @@ public class JiraIssueHandler {
 
                     if (StringUtils.isNotBlank(hubIssueUrl)) {
                         final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
-                        addHubIssueUrlIssueProperty(notificationEvent, eventData, issueTrackerProperties, issue);
+                        addHubIssueUrlIssueProperty(eventData, issueTrackerProperties, issue);
                     }
 
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
                     final IssueProperties properties = issuePropertiesGenerator.createIssueProperties(issue.getId());
                     logger.debug("Adding properties to created issue: " + properties);
-                    addIssueProperty(notificationEvent, eventData, issue.getId(), notificationUniqueKey, properties);
+                    addIssueProperty(eventData, issue.getId(), notificationUniqueKey, properties);
 
                 }
                 return new ExistenceAwareIssue(issue, false, false);
@@ -474,7 +442,7 @@ public class JiraIssueHandler {
                 }
 
                 if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
-                    final Issue transitionedIssue = transitionIssue(notificationEvent, eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
+                    final Issue transitionedIssue = transitionIssue(eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, HubJiraConstants.HUB_WORKFLOW_STATUS_OPEN,
                             jiraContext.getJiraIssueCreatorUser());
                     if (transitionedIssue != null) {
                         logger.info("Re-opened the already exisiting issue.");
@@ -503,8 +471,8 @@ public class JiraIssueHandler {
         return isBdsWorkflow;
     }
 
-    private ExistenceAwareIssue closeIssue(final NotificationEvent event, final EventData eventData) {
-        final Issue oldIssue = findIssue(event, eventData);
+    private ExistenceAwareIssue closeIssue(final EventData eventData) {
+        final Issue oldIssue = findIssue(eventData);
         if (oldIssue != null) {
             if (!issueUsesBdsWorkflow(oldIssue)) {
                 logger.debug("This is not the BDS workflow; plugin will not change issue's state");
@@ -518,7 +486,7 @@ public class JiraIssueHandler {
                 logger.debug("This issue is already Resolved; plugin will not change issue's state");
                 return new ExistenceAwareIssue(oldIssue, true, true);
             }
-            final Issue updatedIssue = transitionIssue(event, eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
+            final Issue updatedIssue = transitionIssue(eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
             if (updatedIssue != null) {
                 addComment(eventData.getJiraIssueResolveComment(), updatedIssue);
                 logger.info("Resolved the issue based on an override.");
@@ -531,7 +499,7 @@ public class JiraIssueHandler {
             logger.debug("Hub Project Version : " + eventData.getHubProjectVersion());
             logger.debug("Hub Component Name : " + eventData.getHubComponentName());
             logger.debug("Hub Component Version : " + eventData.getHubComponentVersion());
-            if (event.isPolicyEvent()) {
+            if (eventData.isPolicy()) {
                 logger.debug("Hub Rule Name : " + eventData.getHubRuleName());
             }
             return null;
@@ -549,7 +517,7 @@ public class JiraIssueHandler {
         logger.debug("For Project Id : " + issue.getProjectObject().getId());
     }
 
-    private class ExistenceAwareIssue {
+    protected class ExistenceAwareIssue {
         private final Issue issue;
         private final boolean existed;
         private final boolean issueStateChangeBlocked;

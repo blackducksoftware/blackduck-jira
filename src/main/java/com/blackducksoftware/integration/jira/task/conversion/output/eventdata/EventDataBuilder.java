@@ -24,14 +24,10 @@
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.notification.content.NotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
@@ -39,8 +35,9 @@ import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderE
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.util.Stringable;
 
-public class EventDataBuilder {
+public class EventDataBuilder extends Stringable {
     private final EventCategory eventCategory;
 
     private HubEventAction action;
@@ -78,6 +75,8 @@ public class EventDataBuilder {
     private String componentIssueUrl;
     private String hubProjectOwner;
     private String hubProjectVersionLastUpdated;
+    private NotificationType notificationType;
+    private String eventKey;
 
     public EventDataBuilder(final EventCategory eventCategory) {
         this.eventCategory = eventCategory;
@@ -128,7 +127,7 @@ public class EventDataBuilder {
         return this;
     }
 
-    public EventDataBuilder setIssueCommentPropertiesFromNotificationType(final NotificationType notificationType, final NotificationContent notificationContent) {
+    public EventDataBuilder setPolicyIssueCommentPropertiesFromNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
             setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
             setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
@@ -144,44 +143,20 @@ public class EventDataBuilder {
             setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
             setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
             setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
-        } else if (NotificationType.VULNERABILITY.equals(notificationType)) {
-            final String comment = generateComment((VulnerabilityNotificationContent) notificationContent);
-            setJiraIssueComment(comment);
-            setJiraIssueCommentForExistingIssue(comment);
-            setJiraIssueReOpenComment(HubJiraConstants.HUB_VULNERABILITY_REOPEN);
-            setJiraIssueResolveComment(HubJiraConstants.HUB_VULNERABILITY_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(comment);
+        } else {
+
         }
         return this;
     }
 
-    // TODO START this code doesn't belong here
-    private String generateComment(final VulnerabilityNotificationContent vulnerabilityContent) {
-        final StringBuilder commentText = new StringBuilder();
-        commentText.append("(Black Duck Hub JIRA plugin auto-generated comment)\n");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
-        return commentText.toString();
+    public EventDataBuilder setVulnerabilityIssueCommentProperties(final String comment) {
+        setJiraIssueComment(comment);
+        setJiraIssueCommentForExistingIssue(comment);
+        setJiraIssueReOpenComment(HubJiraConstants.HUB_VULNERABILITY_REOPEN);
+        setJiraIssueResolveComment(HubJiraConstants.HUB_VULNERABILITY_RESOLVE);
+        setJiraIssueCommentInLieuOfStateChange(comment);
+        return this;
     }
-
-    private void generateVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
-        commentText.append("Vulnerabilities " + verb + ": ");
-        int index = 0;
-        if (vulns != null && !vulns.isEmpty()) {
-            for (final VulnerabilitySourceQualifiedId vuln : vulns) {
-                commentText.append(vuln.vulnerabilityId + " (" + vuln.source + ")");
-                if ((index + 1) < vulns.size()) {
-                    commentText.append(", ");
-                }
-                index++;
-            }
-        } else {
-            commentText.append("None");
-        }
-        commentText.append("\n");
-    }
-    // TODO END this code doesn't belong here
 
     public EventDataBuilder setAction(final HubEventAction action) {
         this.action = action;
@@ -363,6 +338,36 @@ public class EventDataBuilder {
         return this;
     }
 
+    public EventDataBuilder setNotificationType(final NotificationType notificationType) {
+        this.notificationType = notificationType;
+        return this;
+    }
+
+    public EventDataBuilder setEventKey(final String eventKey) {
+        this.eventKey = eventKey;
+        return this;
+    }
+
+    public Long getJiraProjectId() {
+        return jiraProjectId;
+    }
+
+    public String getHubProjectVersionUrl() {
+        return hubProjectVersionUrl;
+    }
+
+    public String getHubComponentVersionUrl() {
+        return hubComponentVersionUrl;
+    }
+
+    public String getHubComponentUrl() {
+        return hubComponentUrl;
+    }
+
+    public String getHubRuleUrl() {
+        return hubRuleUrl;
+    }
+
     public EventData build() throws EventDataBuilderException {
         if (jiraAdminUserName == null) {
             throw new EventDataBuilderException("jiraAdminUserName not set");
@@ -487,7 +492,9 @@ public class EventDataBuilder {
                 .setHubRuleUrl(hubRuleUrl)
                 .setComponentIssueUrl(componentIssueUrl)
                 .setHubProjectOwner(hubProjectOwner)
-                .setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated);
+                .setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated)
+                .setNotificationType(notificationType)
+                .setEventKey(eventKey);
         return eventData;
     }
 }

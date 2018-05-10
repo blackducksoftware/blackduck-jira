@@ -98,8 +98,6 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             eventDataBuilder.setJiraIssueTypeId(getIssueTypeId());
             eventDataBuilder.setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings());
 
-            eventDataBuilder.setIssueCommentPropertiesFromNotificationType(commonNotificationState.getType(), commonNotificationState.getContent());
-
             if (detail.isPolicy()) {
                 final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
                 final PolicyRuleViewV2 rule = hubBucket.get(policyRuleLink);
@@ -110,6 +108,11 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
                 eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
                 eventDataBuilder.setJiraIssueSummary(getIssueSummary(detail, rule));
                 eventDataBuilder.setJiraIssueDescription(getIssueDescription(detail, rule, hubBucket));
+
+                eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(commonNotificationState.getType());
+            } else {
+                final String comment = "";
+                eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
             }
             eventDataBuilder.setHubLicenseNames(licensesString);
 
@@ -118,7 +121,7 @@ public class PolicyOverrideNotificationConverter extends AbstractPolicyNotificat
             eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, hubBucket));
             eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
 
-            populateEventDataBuilder(eventDataBuilder, detail, hubBucket);
+            addExtraneousHubInfoToEventDatBuilder(eventDataBuilder, detail, hubBucket);
 
             final EventData eventData = eventDataBuilder.build();
 
