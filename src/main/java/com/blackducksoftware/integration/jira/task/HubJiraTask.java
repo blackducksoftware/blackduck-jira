@@ -44,6 +44,8 @@ import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilde
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.IssueService;
+import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.hub.service.PhoneHomeService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -129,9 +131,9 @@ public class HubJiraTask {
                 logger.info("Error handling password: " + e.getMessage());
                 return null;
             }
-            final List<String> linksOfRulesToMonitor = getRuleUrls(config);
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory,
-                    linksOfRulesToMonitor, ticketInfoFromSetup, fieldCopyConfig);
+
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory.createHubService(), hubServicesFactory.createNotificationService(), hubServicesFactory.createIssueService(), ticketInfoFromSetup,
+                    getRuleUrls(config), fieldCopyConfig);
 
             // Phone-Home
             final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
@@ -207,12 +209,12 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubServicesFactory hubServicesFactory, final List<String> linksOfRulesToMonitor, final TicketInfoFromSetup ticketInfoFromSetup,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
+    private TicketGenerator initTicketGenerator(final JiraContext jiraContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService, final TicketInfoFromSetup ticketInfoFromSetup,
+            final List<String> linksOfRulesToMonitor, final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, fieldCopyConfig, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor);
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, pluginConfigDetails.isCreateVulnerabilityIssues(),
+                linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 

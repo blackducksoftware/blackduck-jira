@@ -54,7 +54,6 @@ import com.blackducksoftware.integration.hub.notification.content.VulnerabilityN
 import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.hub.service.bucket.HubBucketService;
 import com.blackducksoftware.integration.hub.service.model.RequestFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -80,25 +79,22 @@ public class NotificationToEventConverter {
     private final JiraServices jiraServices;
     private final JiraContext jiraContext;
     private final JiraSettingsService jiraSettingsService;
-    private final HubProjectMappings mappings;
-    private final String issueTypeId;
+    private final HubProjectMappings hubProjectMappings;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
     private final EventDataFormatHelper dataFormatHelper;
-    private final HubBucketService hubBucketService;
+    private final List<String> linksOfRulesToMonitor;
     private final HubService hubService;
 
-    // TODO abstract more functionality where appropriate
     public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-            final String issueTypeName, final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final HubBucketService hubBucketService, final HubService hubSerivce,
-            final HubJiraLogger logger) throws ConfigurationException {
+            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final HubJiraLogger logger)
+            throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
-        this.mappings = mappings;
-        this.issueTypeId = lookUpIssueTypeId(issueTypeName);
+        this.hubProjectMappings = mappings;
         this.fieldCopyConfig = fieldCopyConfig;
         this.dataFormatHelper = dataFormatHelper;
-        this.hubBucketService = hubBucketService;
+        this.linksOfRulesToMonitor = linksOfRulesToMonitor;
         this.hubService = hubSerivce;
         this.logger = logger;
     }
@@ -116,7 +112,7 @@ public class NotificationToEventConverter {
         final String hubProjectVersionName = "";
 
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + hubProjectName);
-        final List<JiraProject> mappingJiraProjects = getMappings().getJiraProjects(hubProjectName);
+        final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(hubProjectName);
         logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + hubProjectVersionName);
 
         final Set<EventData> allEvents = new HashSet<>();
@@ -128,8 +124,7 @@ public class NotificationToEventConverter {
                     allEvents.addAll(projectEvents);
                 } catch (final Exception e) {
                     logger.error(e);
-                    getJiraSettingsService().addHubError(e, hubProjectName, hubProjectVersionName, jiraProject.getProjectName(),
-                            getJiraContext().getJiraAdminUser().getName(), getJiraContext().getJiraIssueCreatorUser().getName(), "transitionIssue");
+                    jiraSettingsService.addHubError(e, hubProjectName, hubProjectVersionName, jiraProject.getProjectName(), jiraContext.getJiraAdminUser().getName(), jiraContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
                 }
 
             }
@@ -137,70 +132,76 @@ public class NotificationToEventConverter {
         return allEvents;
     }
 
-    private List<EventData> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject, final HubBucket hubBucket) throws EventDataBuilderException, IntegrationException {
+    private List<EventData> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject, final HubBucket hubBucket)
+            throws EventDataBuilderException, IntegrationException, ConfigurationException {
         final List<EventData> events = new ArrayList<>();
         final NotificationContent notificationContent = commonNotificationState.getContent();
         for (final NotificationContentDetail detail : notificationContent.getNotificationContentDetails()) {
-            hubBucketService.addToTheBucket(hubBucket, detail.getPresentLinks());
+            if (doWeCareAboutThisNotification(detail)) {
+                HubEventAction action = HubEventAction.OPEN;
+                final NotificationType notificationType = commonNotificationState.getType();
+                final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
+                final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
 
-            String licensesString;
-            ComponentVersionView componentVersion = null;
-            if (detail.getComponentVersion().isPresent()) {
-                componentVersion = hubBucket.get(detail.getComponentVersion().get());
-                licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
-                // if the component is not null, we shouldn't have to worry about these
-                final String componentName = detail.getComponentName().orElse("");
-                final String componentVersionName = detail.getComponentVersionName().orElse("");
-                logger.debug("Component " + componentName + " (version: " + componentVersionName + "): License: " + licensesString);
-            } else {
-                licensesString = "";
-            }
+                if (detail.isPolicy()) {
+                    final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
+                    final PolicyRuleViewV2 rule = hubBucket.get(policyRuleLink);
+                    eventDataBuilder.setHubRuleName(rule.name);
+                    eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
 
-            HubEventAction action = HubEventAction.OPEN;
-            final NotificationType notificationType = commonNotificationState.getType();
-            final EventDataBuilder eventDataBuilder = new EventDataBuilder(EventCategory.fromNotificationType(notificationType));
-            eventDataBuilder.setPropertiesFromJiraContext(getJiraContext());
-            eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
-            eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
+                    final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(detail, rule.name);
+                    eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
+                    eventDataBuilder.setJiraIssueSummary(dataFormatHelper.getIssueSummary(detail, rule));
+                    eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, rule, hubBucket));
+                    eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(notificationType);
 
-            eventDataBuilder.setHubLicenseNames(licensesString);
-            eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, hubBucket));
-            eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
+                    action = HubEventAction.fromPolicyNotificationType(notificationType);
+                } else {
+                    final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
+                    final String comment = dataFormatHelper.generateVulnerabilitiesComment(vulnerabilityContent);
+                    eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
 
-            eventDataBuilder.setJiraIssueTypeId(getIssueTypeId());
-            eventDataBuilder.setJiraFieldCopyMappings(getFieldCopyConfig().getProjectFieldCopyMappings());
-
-            addExtraneousHubInfoToEventDatBuilder(eventDataBuilder, detail, hubBucket);
-            if (detail.isPolicy()) {
-                final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
-                final PolicyRuleViewV2 rule = hubBucket.get(policyRuleLink);
-                eventDataBuilder.setHubRuleName(rule.name);
-                eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
-
-                final IssuePropertiesGenerator issuePropertiesGenerator = new PolicyIssuePropertiesGenerator(detail, rule.name);
-                eventDataBuilder.setJiraIssuePropertiesGenerator(issuePropertiesGenerator);
-                eventDataBuilder.setJiraIssueSummary(dataFormatHelper.getIssueSummary(detail, rule));
-                eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, rule, hubBucket));
-                eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(notificationType);
-
-                action = HubEventAction.fromPolicyNotificationType(notificationType);
-            } else {
-                final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
-                final String comment = dataFormatHelper.generateVulnerabilitiesComment(vulnerabilityContent);
-                eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
-
-                action = HubEventAction.ADD_COMMENT;
-                if (!doesComponentVersionHaveVulnerabilities(vulnerabilityContent, detail, hubBucket)) {
-                    action = HubEventAction.RESOLVE;
-                } else if (doesNotificationOnlyHaveDeletes(vulnerabilityContent)) {
-                    action = HubEventAction.ADD_COMMENT_IF_EXISTS;
+                    action = HubEventAction.ADD_COMMENT;
+                    if (!doesComponentVersionHaveVulnerabilities(vulnerabilityContent, detail, hubBucket)) {
+                        action = HubEventAction.RESOLVE;
+                    } else if (doesNotificationOnlyHaveDeletes(vulnerabilityContent)) {
+                        action = HubEventAction.ADD_COMMENT_IF_EXISTS;
+                    }
                 }
-            }
-            eventDataBuilder.setAction(action);
-            eventDataBuilder.setNotificationType(notificationType);
-            eventDataBuilder.setEventKey(generateEventKey(eventDataBuilder));
 
-            events.add(eventDataBuilder.build());
+                String licensesString;
+                ComponentVersionView componentVersion = null;
+                if (detail.getComponentVersion().isPresent()) {
+                    componentVersion = hubBucket.get(detail.getComponentVersion().get());
+                    licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
+                    // if the component is not null, we shouldn't have to worry about these
+                    final String componentName = detail.getComponentName().orElse("");
+                    final String componentVersionName = detail.getComponentVersionName().orElse("");
+                    logger.debug("Component " + componentName + " (version: " + componentVersionName + "): License: " + licensesString);
+                } else {
+                    licensesString = "";
+                }
+                eventDataBuilder.setPropertiesFromJiraContext(jiraContext);
+                eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
+                eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
+
+                eventDataBuilder.setHubLicenseNames(licensesString);
+                eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, hubBucket));
+                eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
+
+                eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
+                eventDataBuilder.setJiraFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
+
+                addExtraneousHubInfoToEventDataBuilder(eventDataBuilder, detail, hubBucket);
+
+                eventDataBuilder.setAction(action);
+                eventDataBuilder.setNotificationType(notificationType);
+                eventDataBuilder.setEventKey(generateEventKey(eventDataBuilder));
+
+                events.add(eventDataBuilder.build());
+            } else {
+                logger.debug(String.format("Ignoring the following notification detail: %s", detail));
+            }
         }
         return events;
     }
@@ -252,9 +253,22 @@ public class NotificationToEventConverter {
         return key;
     }
 
-    public String hashString(final String text) {
-        // FIXME hash the string
-        return text;
+    public String hashString(final String origString) {
+        String hashString;
+        if (origString == null) {
+            hashString = "";
+        } else {
+            hashString = String.valueOf(origString.hashCode());
+        }
+        return hashString;
+    }
+
+    private boolean doWeCareAboutThisNotification(final NotificationContentDetail detail) {
+        if (detail.isPolicy() && detail.getPolicy().isPresent()) {
+            final String linkOfRule = detail.getPolicy().get().uri;
+            return linksOfRulesToMonitor.contains(linkOfRule);
+        }
+        return false;
     }
 
     private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final NotificationContentDetail detail, final HubBucket hubBucket) {
@@ -277,7 +291,7 @@ public class NotificationToEventConverter {
         } catch (final IntegrationException intException) {
             final String msg = String.format("Error getting vulnerable components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
             logger.error(msg);
-            getJiraSettingsService().addHubError(msg, "getVulnerableComponentsMatchingComponentName");
+            jiraSettingsService.addHubError(msg, "getVulnerableComponentsMatchingComponentName");
             return true;
         }
 
@@ -305,20 +319,16 @@ public class NotificationToEventConverter {
         return vulnerabilityContent.deletedVulnerabilityCount > 0 && vulnerabilityContent.newVulnerabilityCount == 0 && vulnerabilityContent.updatedVulnerabilityCount == 0;
     }
 
-    public JiraSettingsService getJiraSettingsService() {
-        return jiraSettingsService;
-    }
-
-    public HubProjectMappings getMappings() {
-        return mappings;
-    }
-
     protected JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
         return jiraServices.getJiraProject(jiraProjectId);
     }
 
-    protected JiraContext getJiraContext() {
-        return jiraContext;
+    protected String getIssueTypeId(final EventCategory category) throws ConfigurationException {
+        String issueType = HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE;
+        if (EventCategory.VULNERABILITY.equals(category)) {
+            issueType = HubJiraConstants.HUB_VULNERABILITY_ISSUE;
+        }
+        return lookUpIssueTypeId(issueType);
     }
 
     private String lookUpIssueTypeId(final String targetIssueTypeName) throws ConfigurationException {
@@ -332,14 +342,6 @@ public class NotificationToEventConverter {
             }
         }
         throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
-    }
-
-    protected String getIssueTypeId() {
-        return issueTypeId;
-    }
-
-    protected HubJiraFieldCopyConfigSerializable getFieldCopyConfig() {
-        return fieldCopyConfig;
     }
 
     protected String getComponentUsage(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
@@ -394,7 +396,7 @@ public class NotificationToEventConverter {
         return "";
     }
 
-    protected void addExtraneousHubInfoToEventDatBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentDetail detail, final HubBucket hubBucket) {
+    protected void addExtraneousHubInfoToEventDataBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentDetail detail, final HubBucket hubBucket) {
         if (detail.getProjectVersion().isPresent()) {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {
