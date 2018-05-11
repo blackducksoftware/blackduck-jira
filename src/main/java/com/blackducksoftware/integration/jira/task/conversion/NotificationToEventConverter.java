@@ -25,7 +25,6 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +53,7 @@ import com.blackducksoftware.integration.hub.notification.content.VulnerabilityN
 import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
+import com.blackducksoftware.integration.hub.service.model.ProjectVersionDescription;
 import com.blackducksoftware.integration.hub.service.model.RequestFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -101,45 +101,40 @@ public class NotificationToEventConverter {
 
     public Collection<EventData> convert(final CommonNotificationState commonNotificationState, final HubBucket hubBucket) throws HubIntegrationException {
         final NotificationType notificationType = commonNotificationState.getType();
-        if (NotificationType.LICENSE_LIMIT.equals(notificationType)) {
-            logger.warn(String.format("Cannot convert notification of type %s: not currently supported", notificationType.toString()));
-            return Collections.emptyList();
-        }
-        logger.debug(String.format("%s Notification: %s", notificationType, commonNotificationState));
-
-        // FIXME get the hub project info
-        final String hubProjectName = "";
-        final String hubProjectVersionName = "";
-
-        logger.debug("Getting JIRA project(s) mapped to Hub project: " + hubProjectName);
-        final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(hubProjectName);
-        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + hubProjectVersionName);
+        final NotificationContent notificationContent = commonNotificationState.getContent();
+        logger.debug(String.format("%s Notification: %s", notificationType, notificationContent));
 
         final Set<EventData> allEvents = new HashSet<>();
-        if (!mappingJiraProjects.isEmpty()) {
-            for (final JiraProject jiraProject : mappingJiraProjects) {
-                logger.debug("JIRA Project: " + jiraProject);
-                try {
-                    final List<EventData> projectEvents = handleNotificationPerJiraProject(commonNotificationState, jiraProject, hubBucket);
-                    allEvents.addAll(projectEvents);
-                } catch (final Exception e) {
-                    logger.error(e);
-                    jiraSettingsService.addHubError(e, hubProjectName, hubProjectVersionName, jiraProject.getProjectName(), jiraContext.getJiraAdminUser().getName(), jiraContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
-                }
+        for (final ProjectVersionDescription projectVersionDescription : notificationContent.getAffectedProjectVersionDescriptions()) {
+            final String projectName = projectVersionDescription.getProjectName();
+            logger.debug("Getting JIRA project(s) mapped to Hub project: " + projectName);
+            final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(projectName);
+            logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + projectName);
 
+            if (!mappingJiraProjects.isEmpty()) {
+                for (final JiraProject jiraProject : mappingJiraProjects) {
+                    logger.debug("JIRA Project: " + jiraProject);
+                    try {
+                        final List<EventData> projectEvents = handleNotificationPerJiraProject(notificationType, notificationContent, jiraProject, hubBucket);
+                        allEvents.addAll(projectEvents);
+                    } catch (final Exception e) {
+                        logger.error(e);
+                        jiraSettingsService.addHubError(e, projectName, projectVersionDescription.getProjectVersionName(), jiraProject.getProjectName(), jiraContext.getJiraAdminUser().getName(),
+                                jiraContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
+                    }
+
+                }
             }
         }
         return allEvents;
     }
 
-    private List<EventData> handleNotificationPerJiraProject(final CommonNotificationState commonNotificationState, final JiraProject jiraProject, final HubBucket hubBucket)
+    private List<EventData> handleNotificationPerJiraProject(final NotificationType notificationType, final NotificationContent notificationContent, final JiraProject jiraProject, final HubBucket hubBucket)
             throws EventDataBuilderException, IntegrationException, ConfigurationException {
         final List<EventData> events = new ArrayList<>();
-        final NotificationContent notificationContent = commonNotificationState.getContent();
         for (final NotificationContentDetail detail : notificationContent.getNotificationContentDetails()) {
             if (doWeCareAboutThisNotification(detail)) {
                 HubEventAction action = HubEventAction.OPEN;
-                final NotificationType notificationType = commonNotificationState.getType();
                 final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
                 final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
 

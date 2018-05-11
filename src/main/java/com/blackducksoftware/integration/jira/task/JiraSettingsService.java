@@ -58,16 +58,14 @@ public class JiraSettingsService {
         addHubError(errorMessage, null, null, null, null, null, methodAttempt);
     }
 
-    public void addHubError(final Throwable throwable, final String hubProject, final String hubProjectVersion,
-            final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
+    public void addHubError(final Throwable throwable, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
+            final String methodAttempt) {
         final StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
-        addHubError(sw.toString(), hubProject, hubProjectVersion, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+        addHubError(sw.toString(), hubProjectName, hubProjectVersionName, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
     }
 
-    public void addHubError(final String errorMessage, final String hubProject, final String hubProjectVersion,
-            final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
-
+    public void addHubError(final String errorMessage, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
         logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
         if (ticketErrors == null) {
@@ -75,14 +73,14 @@ public class JiraSettingsService {
         }
 
         final StringBuilder suffixBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(hubProject)) {
+        if (StringUtils.isNotBlank(hubProjectName)) {
             suffixBuilder.append("Hub Project : ");
-            suffixBuilder.append(hubProject);
+            suffixBuilder.append(hubProjectName);
             suffixBuilder.append(" / ");
         }
-        if (StringUtils.isNotBlank(hubProjectVersion)) {
+        if (StringUtils.isNotBlank(hubProjectVersionName)) {
             suffixBuilder.append("Version : ");
-            suffixBuilder.append(hubProjectVersion);
+            suffixBuilder.append(hubProjectVersionName);
             suffixBuilder.append(" / ");
         }
         if (StringUtils.isNotBlank(jiraProject)) {
