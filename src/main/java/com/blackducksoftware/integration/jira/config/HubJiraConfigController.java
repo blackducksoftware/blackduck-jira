@@ -67,7 +67,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleView;
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
 import com.blackducksoftware.integration.hub.api.view.HubViewFilter;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
@@ -1230,7 +1230,7 @@ public class HubJiraConfigController {
         if (hubServicesFactory != null) {
             final HubService hubService = hubServicesFactory.createHubService();
             try {
-                List<PolicyRuleView> policyRules = null;
+                List<PolicyRuleViewV2> policyRules = null;
                 try {
                     policyRules = hubService.getAllResponses(ApiDiscovery.POLICY_RULES_LINK_RESPONSE);
                 } catch (final HubIntegrationException e) {
@@ -1244,7 +1244,7 @@ public class HubJiraConfigController {
                 }
 
                 if (policyRules != null && !policyRules.isEmpty()) {
-                    for (final PolicyRuleView rule : policyRules) {
+                    for (final PolicyRuleViewV2 rule : policyRules) {
                         final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
                         String description = rule.description;
                         if (description == null) {
