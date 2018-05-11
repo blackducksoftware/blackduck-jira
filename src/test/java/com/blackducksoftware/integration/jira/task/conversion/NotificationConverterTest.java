@@ -29,11 +29,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -82,7 +80,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.util.ObjectFactory;
 
 public class NotificationConverterTest {
     private static final long JIRA_ISSUE_ID = 456L;
@@ -498,12 +495,11 @@ public class NotificationConverterTest {
     }
 
     private PolicyRuleView createRule() throws IntegrationException {
-        final Map<String, Object> objectProperties = new HashMap<>();
-        objectProperties.put("name", RULE_NAME);
-        objectProperties.put("description", RULE_NAME);
-        objectProperties.put("enabled", Boolean.TRUE);
-        objectProperties.put("overridable", Boolean.TRUE);
-        final PolicyRuleView rule = ObjectFactory.INSTANCE.createPopulatedInstance(PolicyRuleView.class, objectProperties);
+        final PolicyRuleView rule = new PolicyRuleView();
+        rule.name = RULE_NAME;
+        rule.description = RULE_NAME;
+        rule.enabled = true;
+        rule.overridable = true;
         return rule;
     }
 
