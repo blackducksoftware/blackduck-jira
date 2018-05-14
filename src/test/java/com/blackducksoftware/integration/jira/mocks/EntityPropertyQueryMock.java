@@ -29,37 +29,37 @@ public class EntityPropertyQueryMock<T extends EntityPropertyQuery<T>> implement
 
     @Override
     public T entityId(final Long arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery entityName(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery key(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public T keyPrefix(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public T maxResults(final int arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public T offset(final int arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

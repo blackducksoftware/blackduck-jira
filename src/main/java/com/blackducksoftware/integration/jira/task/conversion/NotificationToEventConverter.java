@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -50,7 +51,6 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.hub.service.model.ProjectVersionDescription;
@@ -73,6 +73,8 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.rest.RestConstants;
+import com.blackducksoftware.integration.rest.request.Request;
 
 public class NotificationToEventConverter {
     private final HubJiraLogger logger;
@@ -279,10 +281,6 @@ public class NotificationToEventConverter {
             requestBuilder.addQueryParameter("q", detail.getComponentName().orElse(""));
 
             vulnerableBomComponentItems = hubService.getAllResponses(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE, requestBuilder);
-            // FIXME catch the correct exceptions
-        } catch (final NullPointerException npe) {
-            logger.debug("The vulnerable-components link is missing from the project version object. Unable to determine if this component still has vulnerabilities");
-            return true;
         } catch (final IntegrationException intException) {
             final String msg = String.format("Error getting vulnerable components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
             logger.error(msg);
@@ -396,7 +394,8 @@ public class NotificationToEventConverter {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {
                 final VersionRiskProfileView riskProfile = hubService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
-                eventDataBuilder.setHubProjectVersionLastUpdated(riskProfile.bomLastUpdatedAt);
+                final SimpleDateFormat dateFormat = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+                eventDataBuilder.setHubProjectVersionLastUpdated(dateFormat.format(riskProfile.bomLastUpdatedAt));
             } catch (final IntegrationException e) {
                 logger.error(String.format("Could not find the risk profile for %s: %s", ProjectVersionView.RISKPROFILE_LINK_RESPONSE, e.getMessage()));
             }

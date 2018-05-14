@@ -92,7 +92,7 @@ public class TicketGenerator {
         }
         try {
             final NotificationResults results = notificationService.getAllUserNotificationResults(hubUser, startDate, endDate);
-            final Collection<CommonNotificationState> commonNotificationStates = results.getNotificationContentItems();
+            final Collection<CommonNotificationState> commonNotificationStates = results.getCommonNotificationStates();
             final HubBucket hubBucket = results.getHubBucket();
             reportAnyErrors(hubBucket);
 

@@ -30,6 +30,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.util.OutlookDate;
 
+@SuppressWarnings("deprecation")
 public class JiraAuthenticationContextMock implements JiraAuthenticationContext {
 
     @Override
@@ -57,7 +58,6 @@ public class JiraAuthenticationContextMock implements JiraAuthenticationContext 
 
     @Override
     public OutlookDate getOutlookDate() {
-
         return null;
     }
 
@@ -86,7 +86,7 @@ public class JiraAuthenticationContextMock implements JiraAuthenticationContext 
 
     @Override
     public ApplicationUser getLoggedInUser() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

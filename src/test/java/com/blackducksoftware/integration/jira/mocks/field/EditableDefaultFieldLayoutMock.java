@@ -176,7 +176,7 @@ public class EditableDefaultFieldLayoutMock implements EditableDefaultFieldLayou
     @Override
     public List<FieldLayoutItem> getVisibleLayoutItems(final ApplicationUser arg0, final Project arg1,
             final List<String> arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

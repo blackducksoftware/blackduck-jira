@@ -192,85 +192,85 @@ public class UserManagerMock implements UserManager {
 
     @Override
     public boolean canUpdateGroupMembershipForUser(final ApplicationUser arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean canUpdateUserPassword(final ApplicationUser arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public ApplicationUser createUser(final UserDetails arg0) throws CreateException, PermissionException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser findUserInDirectory(final String arg0, final Long arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getUser(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getUserEvenWhenUnknown(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getUserObject(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<ApplicationUser> getAllUsers() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<Directory> getDefaultCreateDirectory() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<ApplicationUser> getUserById(final Long arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<UserIdentity> getUserIdentityById(final Long arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<UserIdentity> getUserIdentityByKey(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Optional<UserIdentity> getUserIdentityByUsername(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

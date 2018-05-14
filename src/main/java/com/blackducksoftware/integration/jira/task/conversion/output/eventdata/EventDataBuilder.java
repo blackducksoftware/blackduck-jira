@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
-import java.util.Date;
 import java.util.Set;
 
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
@@ -326,11 +325,6 @@ public class EventDataBuilder extends Stringable {
     public EventDataBuilder setHubProjectOwner(final String hubProjectOwner) {
         this.hubProjectOwner = hubProjectOwner;
         return this;
-    }
-
-    public EventDataBuilder setHubProjectVersionLastUpdated(final Date hubProjectVersionLastUpdated) {
-        // FIXME verify date format
-        return setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated.toString());
     }
 
     public EventDataBuilder setHubProjectVersionLastUpdated(final String hubProjectVersionLastUpdated) {

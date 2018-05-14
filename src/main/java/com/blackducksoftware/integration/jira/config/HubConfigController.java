@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.config;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -46,25 +48,23 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.CredentialsField;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigFieldEnum;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoField;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.rest.credentials.CredentialsField;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfoField;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 @Path("/hubdetails")
 public class HubConfigController {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    // This variable must be "package protected" to avoid synthetic access
+    final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final UserManager userManager;
-
     private final PluginSettingsFactory pluginSettingsFactory;
-
     private final TransactionTemplate transactionTemplate;
 
     public HubConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
@@ -172,7 +172,8 @@ public class HubConfigController {
         return Response.ok(obj).build();
     }
 
-    private int getIntFromObject(final String value) {
+    // This method must be "package protected" to avoid synthetic access
+    int getIntFromObject(final String value) {
         if (StringUtils.isNotBlank(value)) {
             return NumberUtils.toInt(value);
         }
@@ -274,18 +275,13 @@ public class HubConfigController {
                         return config;
                     } else {
                         final HubServerConfig serverConfig = serverConfigBuilder.build();
-                        try {
-                            final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(),
-                                    serverConfig.getGlobalCredentials().getUsername(),
-                                    serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                                    serverConfig.getTimeout(), serverConfig.getProxyInfo(), new UriCombiner());
+                        try (final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(),
+                                serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(), serverConfig.getProxyInfo());) {
                             restConnection.connect();
-
-                        } catch (final IntegrationException e) {
+                        } catch (final IntegrationException | IOException e) {
                             if (e.getMessage().toLowerCase().contains("unauthorized")) {
                                 config.setUsernameError(
                                         "Username and Password are invalid for : " + serverConfig.getHubUrl());
-
                             } else {
                                 config.setTestConnectionError(e.toString());
                             }
@@ -311,7 +307,8 @@ public class HubConfigController {
         }
     }
 
-    private HubServerConfigBuilder setConfigBuilderFromSerializableConfig(final HubServerConfigSerializable config,
+    // This method must be "package protected" to avoid synthetic access
+    HubServerConfigBuilder setConfigBuilderFromSerializableConfig(final HubServerConfigSerializable config,
             final PluginSettings settings) {
         final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
         serverConfigBuilder.setHubUrl(config.getHubUrl());
@@ -350,7 +347,8 @@ public class HubConfigController {
         return serverConfigBuilder;
     }
 
-    private void setConfigFromResult(final HubServerConfigSerializable config,
+    // This method must be "package protected" to avoid synthetic access
+    void setConfigFromResult(final HubServerConfigSerializable config,
             final AbstractValidator validator) {
         final ValidationResults serverConfigResults = validator.assertValid();
         if (serverConfigResults.hasErrors()) {
@@ -384,11 +382,13 @@ public class HubConfigController {
         }
     }
 
-    private String getValue(final PluginSettings settings, final String key) {
+    // This method must be "package protected" to avoid synthetic access
+    String getValue(final PluginSettings settings, final String key) {
         return (String) settings.get(key);
     }
 
-    private void setValue(final PluginSettings settings, final String key, final Object value) {
+    // This method must be "package protected" to avoid synthetic access
+    void setValue(final PluginSettings settings, final String key, final Object value) {
         if (value == null) {
             settings.remove(key);
         } else {

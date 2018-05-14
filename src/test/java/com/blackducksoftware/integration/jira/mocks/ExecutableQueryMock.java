@@ -33,73 +33,72 @@ public class ExecutableQueryMock implements ExecutableQuery {
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery entityId(final Long arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery entityName(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery key(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery keyPrefix(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery maxResults(final int arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public com.atlassian.jira.entity.property.EntityPropertyQuery.ExecutableQuery offset(final int arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public long count() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return 0;
     }
 
     @Override
     public void delete() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public List<EntityProperty> find() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void find(final Visitor<EntityProperty> arg0) {
-        // TODO Auto-generated method stub
-
+        // Auto-generated method stub
     }
 
     @Override
     public List<String> findDistinctKeys() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public List<String> findKeys() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

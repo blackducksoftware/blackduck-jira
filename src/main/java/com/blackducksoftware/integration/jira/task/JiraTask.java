@@ -81,7 +81,7 @@ public class JiraTask implements PluginJob {
         } catch (final TimeoutException e) {
             logger.error("The timed task timed out");
         } catch (final InterruptedException e) {
-            // TODO the thread needs to know that it was interrupted
+            // FIXME the thread needs to know that it was interrupted
             // Thread.currentThread().interrupt();
             logger.error("The timed task was interrupted");
         } finally {

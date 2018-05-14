@@ -54,19 +54,17 @@ public class HttpServletRequestMock implements HttpServletRequest {
 
     @Override
     public Object getAttribute(final String name) {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Enumeration getAttributeNames() {
-
         return null;
     }
 
     @Override
     public String getCharacterEncoding() {
-
         return null;
     }
 
@@ -77,85 +75,73 @@ public class HttpServletRequestMock implements HttpServletRequest {
 
     @Override
     public int getContentLength() {
-
         return 0;
     }
 
     @Override
     public String getContentType() {
-
         return null;
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-
         return null;
     }
 
     @Override
     public String getParameter(final String name) {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Enumeration getParameterNames() {
-
         return null;
     }
 
     @Override
     public String[] getParameterValues(final String name) {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Map getParameterMap() {
-
         return null;
     }
 
     @Override
     public String getProtocol() {
-
         return null;
     }
 
     @Override
     public String getScheme() {
-
         return null;
     }
 
     @Override
     public String getServerName() {
-
         return null;
     }
 
     @Override
     public int getServerPort() {
-
         return 0;
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
-
         return null;
     }
 
     @Override
     public String getRemoteAddr() {
-
         return null;
     }
 
     @Override
     public String getRemoteHost() {
-
         return null;
     }
 
@@ -171,121 +157,104 @@ public class HttpServletRequestMock implements HttpServletRequest {
 
     @Override
     public Locale getLocale() {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Enumeration getLocales() {
-
         return null;
     }
 
     @Override
     public boolean isSecure() {
-
         return false;
     }
 
     @Override
     public RequestDispatcher getRequestDispatcher(final String path) {
-
         return null;
     }
 
     @Override
     public String getRealPath(final String path) {
-
         return null;
     }
 
     @Override
     public int getRemotePort() {
-
         return 0;
     }
 
     @Override
     public String getLocalName() {
-
         return null;
     }
 
     @Override
     public String getLocalAddr() {
-
         return null;
     }
 
     @Override
     public int getLocalPort() {
-
         return 0;
     }
 
     @Override
     public String getAuthType() {
-
         return null;
     }
 
     @Override
     public Cookie[] getCookies() {
-
         return null;
     }
 
     @Override
     public long getDateHeader(final String name) {
-
         return 0;
     }
 
     @Override
     public String getHeader(final String name) {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Enumeration getHeaders(final String name) {
-
         return null;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Enumeration getHeaderNames() {
-
         return null;
     }
 
     @Override
     public int getIntHeader(final String name) {
-
         return 0;
     }
 
     @Override
     public String getMethod() {
-
         return null;
     }
 
     @Override
     public String getPathInfo() {
-
         return null;
     }
 
     @Override
     public String getPathTranslated() {
-
         return null;
     }
 
     @Override
     public String getContextPath() {
-
         return null;
     }
 
@@ -300,31 +269,26 @@ public class HttpServletRequestMock implements HttpServletRequest {
 
     @Override
     public String getRemoteUser() {
-
         return null;
     }
 
     @Override
     public boolean isUserInRole(final String role) {
-
         return false;
     }
 
     @Override
     public Principal getUserPrincipal() {
-
         return null;
     }
 
     @Override
     public String getRequestedSessionId() {
-
         return null;
     }
 
     @Override
     public String getRequestURI() {
-
         return null;
     }
 
@@ -339,116 +303,108 @@ public class HttpServletRequestMock implements HttpServletRequest {
 
     @Override
     public String getServletPath() {
-
         return null;
     }
 
     @Override
     public HttpSession getSession(final boolean create) {
-
         return null;
     }
 
     @Override
     public HttpSession getSession() {
-
         return null;
     }
 
     @Override
     public boolean isRequestedSessionIdValid() {
-
         return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromCookie() {
-
         return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromURL() {
-
         return false;
     }
 
     @Override
     public boolean isRequestedSessionIdFromUrl() {
-
         return false;
     }
 
     @Override
     public ServletContext getServletContext() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public AsyncContext startAsync() throws IllegalStateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
             throws IllegalStateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean isAsyncStarted() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isAsyncSupported() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public AsyncContext getAsyncContext() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public DispatcherType getDispatcherType() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean authenticate(final HttpServletResponse response) throws IOException, ServletException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public void login(final String username, final String password) throws ServletException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void logout() throws ServletException {
-        // TODO Auto-generated method stub
-
+        // Auto-generated method stub
     }
 
     @Override
     public Collection<Part> getParts() throws IOException, ServletException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Part getPart(final String name) throws IOException, ServletException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

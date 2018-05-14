@@ -59,7 +59,7 @@ public class ConstantsManagerMock implements ConstantsManager {
     }
 
     @Override
-    public List<IssueConstant> convertToConstantObjects(final String arg0, final Collection arg1) {
+    public List<IssueConstant> convertToConstantObjects(final String arg0, @SuppressWarnings("rawtypes") final Collection arg1) {
         return null;
     }
 
@@ -89,6 +89,7 @@ public class ConstantsManagerMock implements ConstantsManager {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Collection getConstantObjects(final String arg0) {
         return null;
     }
@@ -278,79 +279,79 @@ public class ConstantsManagerMock implements ConstantsManager {
 
     @Override
     public List<IssueConstant> getConstantsByIds(final CONSTANT_TYPE arg0, final Collection<String> arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Priority getDefaultPriority() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public IssueType getIssueType(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Resolution getResolution(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Status getStatus(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void recalculateIssueTypeSequencesAndStore(final List<IssueType> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void recalculatePrioritySequencesAndStore(final List<Priority> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void recalculateResolutionSequencesAndStore(final List<Resolution> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void recalculateStatusSequencesAndStore(final List<Status> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public List<IssueType> getEditableSubTaskIssueTypes() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Priority> getPriorities() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Resolution> getResolutions() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Status> getStatuses() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

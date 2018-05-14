@@ -51,10 +51,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
@@ -80,6 +77,8 @@ import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -115,8 +114,6 @@ public class IssueEventListenerTest {
 
     private IssueServiceMock issueServiceMock;
 
-    private final UriCombiner uriCombiner = new UriCombiner();
-
     @Before
     public void initTest() throws MalformedURLException {
         settings = createPluginSettings();
@@ -127,7 +124,7 @@ public class IssueEventListenerTest {
         userManager.setMockApplicationUser(createApplicationUser());
         jiraServices.setUserManager(userManager);
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO, uriCombiner);
+        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
 
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         Mockito.when(hubServicesFactory.getRestConnection()).thenReturn(restConnection);

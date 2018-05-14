@@ -179,154 +179,154 @@ public class UserUtilMock implements UserUtil {
 
     @Override
     public void addToJiraUsePermission(final ApplicationUser arg0) throws PermissionException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void addUserToGroup(final Group arg0, final ApplicationUser arg1) throws PermissionException, AddException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void addUserToGroups(final Collection<Group> arg0, final ApplicationUser arg1) throws PermissionException,
             AddException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void changePassword(final ApplicationUser arg0, final String arg1) throws UserNotFoundException,
             InvalidCredentialException, OperationNotPermittedException, PermissionException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public ApplicationUser createUser(final UserDetails arg0, final boolean arg1, final int arg2,
             final Set<ApplicationKey> arg3) throws PermissionException, CreateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser createUserNoNotification(final String arg0, final String arg1, final String arg2,
             final String arg3) throws PermissionException, CreateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser createUserNoNotification(final String arg0, final String arg1, final String arg2,
             final String arg3, final Long arg4) throws PermissionException, CreateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser createUserWithNotification(final String arg0, final String arg1, final String arg2,
             final String arg3, final int arg4) throws PermissionException, CreateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser createUserWithNotification(final String arg0, final String arg1, final String arg2,
             final String arg3, final Long arg4, final int arg5) throws PermissionException, CreateException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public PasswordResetToken generatePasswordResetToken(final ApplicationUser arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getUser(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getUserObject(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void removeUserFromGroup(final Group arg0, final ApplicationUser arg1) throws PermissionException,
             RemoveException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void removeUserFromGroups(final Collection<Group> arg0, final ApplicationUser arg1)
             throws PermissionException, RemoveException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public PasswordResetTokenValidation validatePasswordResetToken(final ApplicationUser arg0, final String arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getAdministrators() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SortedSet<ApplicationUser> getAllUsersInGroupNames(final Collection<String> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<ApplicationUser> getAllUsersInGroupNamesUnsorted(final Collection<String> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SortedSet<ApplicationUser> getAllUsersInGroups(final Collection<Group> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getJiraAdministrators() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getSystemAdministrators() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SortedSet<ApplicationUser> getUsersInGroupNames(final Collection<String> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SortedSet<ApplicationUser> getUsersInGroups(final Collection<Group> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

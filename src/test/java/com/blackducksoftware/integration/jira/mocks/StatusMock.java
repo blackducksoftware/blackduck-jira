@@ -34,37 +34,37 @@ public class StatusMock implements Status {
 
     @Override
     public String getDescTranslation() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getDescTranslation(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getDescTranslation(final I18nHelper arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getDescription() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getIconUrlHtml() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getId() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
@@ -79,61 +79,61 @@ public class StatusMock implements Status {
 
     @Override
     public String getNameTranslation() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getNameTranslation(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getNameTranslation(final I18nHelper arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Long getSequence() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public int compareTo(final Object o) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return 0;
     }
 
     @Override
     public String getCompleteIconUrl() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public String getIconUrl() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SimpleStatus getSimpleStatus() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public SimpleStatus getSimpleStatus(final I18nHelper arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public StatusCategory getStatusCategory() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

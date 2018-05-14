@@ -356,8 +356,6 @@ public class JiraIssueHandler {
         return null;
     }
 
-    // TODO investigate why this is necessary
-    @SuppressWarnings("synthetic-access")
     public void handleEvent(final EventData eventData) {
         logger.debug("Licences: " + eventData.getHubLicenseNames());
 
@@ -365,7 +363,7 @@ public class JiraIssueHandler {
         if (HubEventAction.OPEN.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = openIssue(eventData);
             if (openedIssue != null) {
-                if (openedIssue.issueStateChangeBlocked) {
+                if (openedIssue.isIssueStateChangeBlocked()) {
                     addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
                 }
             }
@@ -373,7 +371,7 @@ public class JiraIssueHandler {
         if (HubEventAction.RESOLVE.equals(actionToTake)) {
             final ExistenceAwareIssue resolvedIssue = closeIssue(eventData);
             if (resolvedIssue != null) {
-                if (resolvedIssue.issueStateChangeBlocked) {
+                if (resolvedIssue.isIssueStateChangeBlocked()) {
                     addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
                 }
             }
@@ -408,7 +406,7 @@ public class JiraIssueHandler {
     private ExistenceAwareIssue openIssue(final EventData eventData) {
         logger.debug("Setting logged in User : " + jiraContext.getJiraIssueCreatorUser().getDisplayName());
         jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraIssueCreatorUser());
-        // TODO what do we really want to log here - logger.debug("notificationEvent: " + notificationEvent);
+        logger.debug("eventData: " + eventData);
 
         final String notificationUniqueKey = getNotificationUniqueKey(eventData);
         if (notificationUniqueKey != null) {
@@ -522,18 +520,19 @@ public class JiraIssueHandler {
         private final boolean existed;
         private final boolean issueStateChangeBlocked;
 
-        public ExistenceAwareIssue(final Issue issue, final boolean existed, final boolean issueStateChangeBlocked) {
+        // The constructor must be "package protected" to avoid synthetic access
+        ExistenceAwareIssue(final Issue issue, final boolean existed, final boolean issueStateChangeBlocked) {
             super();
             this.issue = issue;
             this.existed = existed;
             this.issueStateChangeBlocked = issueStateChangeBlocked;
         }
 
-        private Issue getIssue() {
+        public Issue getIssue() {
             return issue;
         }
 
-        private boolean isExisted() {
+        public boolean isExisted() {
             return existed;
         }
 

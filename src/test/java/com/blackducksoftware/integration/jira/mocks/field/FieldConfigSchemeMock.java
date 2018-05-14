@@ -83,6 +83,7 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public ConfigurableField getField() {
         return null;
     }
@@ -134,7 +135,7 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 
     @Override
     public Collection<IssueType> getAssociatedIssueTypes() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
