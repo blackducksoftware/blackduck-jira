@@ -193,9 +193,7 @@ public class HubConfigController {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-
-                final HubServerConfigBuilder serverConfigBuilder = setConfigBuilderFromSerializableConfig(config,
-                        settings);
+                final HubServerConfigBuilder serverConfigBuilder = setConfigBuilderFromSerializableConfig(config, settings);
 
                 setConfigFromResult(config, serverConfigBuilder.createValidator());
 

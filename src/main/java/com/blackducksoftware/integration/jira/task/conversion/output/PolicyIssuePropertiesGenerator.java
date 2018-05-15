@@ -35,17 +35,14 @@ public class PolicyIssuePropertiesGenerator implements IssuePropertiesGenerator 
     public PolicyIssuePropertiesGenerator(final NotificationContentDetail detail, final String ruleName) {
         this.projectName = detail.getProjectName();
         this.projectVersionName = detail.getProjectVersionName();
-        this.componentName = detail.getComponentName().orElse("");
-        this.componentVersionName = detail.getComponentVersionName().orElse("");
+        this.componentName = detail.getComponentName().orElse("?");
+        this.componentVersionName = detail.getComponentVersionName().orElse("?");
         this.ruleName = ruleName;
     }
 
     @Override
     public IssueProperties createIssueProperties(final Long issueId) {
-        final IssueProperties properties = new PolicyViolationIssueProperties(
-                projectName, projectVersionName,
-                componentName, componentVersionName,
-                issueId, ruleName);
+        final IssueProperties properties = new PolicyViolationIssueProperties(projectName, projectVersionName, componentName, componentVersionName, issueId, ruleName);
         return properties;
     }
 

@@ -27,20 +27,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.throwaway.ProjectVersionModel;
-import com.blackducksoftware.integration.hub.throwaway.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
+import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
@@ -213,12 +208,10 @@ public class JiraEventInfoTest {
     }
 
     private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
-        final ProjectVersionModel projectVersion = new ProjectVersionModel();
-        final ComponentVersionView componentVersion = new ComponentVersionView();
-        final List<VulnerabilitySourceQualifiedId> vulns = new ArrayList<>(0);
-        final VulnerabilityContentItem contentItem = new VulnerabilityContentItem(new Date(), projectVersion, "tbd", componentVersion, "tbd", vulns, vulns,
-                vulns, "");
-        final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(contentItem);
+        final VulnerabilityNotificationContent content = new VulnerabilityNotificationContent();
+        final NotificationContentDetail detail = NotificationContentDetail.createVulnerabilityDetail(content, "projectName", "projectVersionName", "projectVersionUri", "componentName", "componentVersionName", "componentVersionUri",
+                "componentVersionOriginName", "componentIssueUri", "componentVersionOriginId");
+        final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(detail);
         return issuePropertiesGenerator;
     }
 }

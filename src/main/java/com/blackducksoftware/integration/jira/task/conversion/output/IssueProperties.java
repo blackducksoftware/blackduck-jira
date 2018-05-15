@@ -28,16 +28,16 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public abstract class IssueProperties {
     private final String projectName;
-    private final String projectVersion;
+    private final String projectVersionName;
     private final String componentName;
-    private final String componentVersion;
+    private final String componentVersionName;
     private final Long jiraIssueId;
 
-    public IssueProperties(final String projectName, final String projectVersion, final String componentName, final String componentVersion, final Long jiraIssueId) {
+    public IssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final Long jiraIssueId) {
         this.projectName = projectName;
-        this.projectVersion = projectVersion;
+        this.projectVersionName = projectVersionName;
         this.componentName = componentName;
-        this.componentVersion = componentVersion;
+        this.componentVersionName = componentVersionName;
         this.jiraIssueId = jiraIssueId;
     }
 
@@ -51,7 +51,7 @@ public abstract class IssueProperties {
     }
 
     public String getProjectVersion() {
-        return projectVersion;
+        return projectVersionName;
     }
 
     public String getComponentName() {
@@ -59,7 +59,7 @@ public abstract class IssueProperties {
     }
 
     public String getComponentVersion() {
-        return componentVersion;
+        return componentVersionName;
     }
 
     public Long getJiraIssueId() {

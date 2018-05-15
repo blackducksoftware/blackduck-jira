@@ -81,6 +81,10 @@ public class EventDataBuilder extends Stringable {
         this.eventCategory = eventCategory;
     }
 
+    public EventCategory getEventCategory() {
+        return eventCategory;
+    }
+
     public EventDataBuilder setPropertiesFromJiraContext(final JiraContext jiraContext) {
         setJiraAdminUserName(jiraContext.getJiraAdminUser().getName());
         setJiraAdminUserKey(jiraContext.getJiraAdminUser().getKey());

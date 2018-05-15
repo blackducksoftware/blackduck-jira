@@ -49,7 +49,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class JiraTask implements PluginJob {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public JiraTask() {
+    protected JiraTask() {
     }
 
     @Override

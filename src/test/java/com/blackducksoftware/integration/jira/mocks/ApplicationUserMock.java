@@ -27,8 +27,8 @@ import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.user.ApplicationUser;
 
 public class ApplicationUserMock implements ApplicationUser {
-
     private String name;
+    private String key;
 
     @Override
     public long getDirectoryId() {
@@ -37,26 +37,26 @@ public class ApplicationUserMock implements ApplicationUser {
 
     @Override
     public User getDirectoryUser() {
-
         return null;
     }
 
     @Override
     public String getDisplayName() {
-
         return name;
     }
 
     @Override
     public String getEmailAddress() {
-
         return null;
     }
 
     @Override
     public String getKey() {
+        return key != null ? key : name;
+    }
 
-        return name;
+    public void setKey(final String key) {
+        this.key = key;
     }
 
     @Override
@@ -70,13 +70,11 @@ public class ApplicationUserMock implements ApplicationUser {
 
     @Override
     public String getUsername() {
-
         return null;
     }
 
     @Override
     public boolean isActive() {
-
         return false;
     }
 

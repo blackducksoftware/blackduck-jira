@@ -48,7 +48,7 @@ public class EventDataFormatHelper {
         this.hubService = hubService;
     }
 
-    public String getIssueSummary(final NotificationContentDetail detail, final PolicyRuleViewV2 rule) {
+    public String getIssueSummaryForRule(final NotificationContentDetail detail, final PolicyRuleViewV2 rule) {
         if (detail.getComponentName().isPresent()) {
             String componentString = detail.getComponentName().get();
             if (detail.getComponentVersionName().isPresent()) {
@@ -60,15 +60,39 @@ public class EventDataFormatHelper {
         return "";
     }
 
+    public String getIssueSummaryForVulnerability(final NotificationContentDetail detail) {
+        final StringBuilder issueSummary = new StringBuilder();
+        issueSummary.append("Black Duck vulnerability status changes on Hub project '");
+        issueSummary.append(detail.getProjectName());
+        issueSummary.append("' / '");
+        issueSummary.append(detail.getProjectVersionName());
+        issueSummary.append("', component '");
+        issueSummary.append(detail.getComponentName().orElse("?"));
+        issueSummary.append("' / '");
+        issueSummary.append(detail.getComponentVersionName().orElse("?"));
+        issueSummary.append("'");
+        return issueSummary.toString();
+    }
+
+    public String getIssueDescription(final NotificationContentDetail detail, final HubBucket hubBucket) {
+        return getIssueDescription(detail, null, hubBucket);
+    }
+
     public String getIssueDescription(final NotificationContentDetail detail, final PolicyRuleViewV2 rule, final HubBucket hubBucket) {
         final StringBuilder issueDescription = new StringBuilder();
 
         String componentsLink = null;
+        String vulnerableComponentsLink = null;
         if (detail.getProjectVersion().isPresent()) {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             componentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.COMPONENTS_LINK);
+            vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
         }
-        issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
+        if (rule != null) {
+            issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
+        } else {
+            issueDescription.append("This issue tracks vulnerability status changes on Hub project ");
+        }
         if (componentsLink == null) {
             issueDescription.append("'");
             issueDescription.append(detail.getProjectName());
@@ -86,17 +110,29 @@ public class EventDataFormatHelper {
         }
         if (detail.getComponentName().isPresent()) {
             issueDescription.append(", component '");
-            issueDescription.append(detail.getComponentName());
+            issueDescription.append(detail.getComponentName().get());
             if (detail.getComponentVersionName().isPresent()) {
                 issueDescription.append("' / '");
                 issueDescription.append(detail.getComponentVersionName().get());
             }
         }
-        issueDescription.append("'.");
-        issueDescription.append(" The rule violated is: '");
-        issueDescription.append(rule.name);
-        issueDescription.append("'. Rule overridable: ");
-        issueDescription.append(rule.overridable);
+        if (rule != null) {
+            issueDescription.append("'.");
+            issueDescription.append(" The rule violated is: '");
+            issueDescription.append(rule.name);
+            issueDescription.append("'. Rule overridable: ");
+            issueDescription.append(rule.overridable);
+        } else {
+            issueDescription.append("'. For details, see the comments below, or the project's ");
+            if (vulnerableComponentsLink != null) {
+                issueDescription.append("[vulnerabilities|");
+                issueDescription.append(vulnerableComponentsLink);
+                issueDescription.append("]");
+            } else {
+                issueDescription.append("vulnerabilities");
+            }
+            issueDescription.append(" in the Hub.");
+        }
 
         if (detail.getComponentVersion().isPresent()) {
             try {
