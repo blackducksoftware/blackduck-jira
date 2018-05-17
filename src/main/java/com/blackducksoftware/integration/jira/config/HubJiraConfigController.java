@@ -977,6 +977,7 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
+        logger.debug("Reset called with parameter: " + object);
         final Object responseString;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();

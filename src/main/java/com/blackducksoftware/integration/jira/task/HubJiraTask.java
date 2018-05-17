@@ -141,8 +141,7 @@ public class HubJiraTask {
                 bdPhoneHome(hubServicesFactory.createPhoneHomeService());
             }
 
-            final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices,
-                    config.getHubProjectMappings());
+            final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, config.getHubProjectMappings());
 
             logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
             final UserView hubUserItem = getHubUserItem(hubServicesFactory,

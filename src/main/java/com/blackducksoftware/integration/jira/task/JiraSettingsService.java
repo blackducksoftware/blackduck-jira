@@ -43,7 +43,6 @@ import com.blackducksoftware.integration.jira.config.TicketCreationError;
 
 public class JiraSettingsService {
     private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));
-
     private final PluginSettings settings;
 
     public JiraSettingsService(final PluginSettings settings) {
@@ -65,7 +64,8 @@ public class JiraSettingsService {
         addHubError(sw.toString(), hubProjectName, hubProjectVersionName, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
     }
 
-    public void addHubError(final String errorMessage, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername, final String methodAttempt) {
+    public void addHubError(final String errorMessage, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
+            final String methodAttempt) {
         logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
         if (ticketErrors == null) {

@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +37,8 @@ import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 
+// TODO this class should be deleted after testing to confirm it is not used
 public class HubIssuePanel2 extends AbstractJiraContextProvider {
-
     private final CustomFieldManager customFieldManager;
 
     public HubIssuePanel2(final CustomFieldManager customFieldManager) {
@@ -101,20 +102,20 @@ public class HubIssuePanel2 extends AbstractJiraContextProvider {
     }
 
     private void populateContextMap(final Map<String, String> contextMap, final Issue currentIssue) {
-        final String hubProject = getCustomFieldValue(currentIssue, customFieldManager,
-                HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT);
+        final String hubProject = getCustomFieldValue(currentIssue, customFieldManager, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT);
         if (hubProject != null) {
             contextMap.put("bdsHubProject", hubProject);
         }
     }
 
-    private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager,
-            final String fieldName) {
-        final CustomField hubCustomField = customFieldManager.getCustomFieldObjectByName(fieldName);
-        if (hubCustomField != null) {
-            final String hubFieldValue = (String) currentIssue.getCustomFieldValue(hubCustomField);
-            if (StringUtils.isNotBlank(hubFieldValue)) {
-                return hubFieldValue;
+    private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager, final String fieldName) {
+        final Collection<CustomField> hubCustomFields = customFieldManager.getCustomFieldObjectsByName(fieldName);
+        if (hubCustomFields != null) {
+            for (final CustomField hubField : hubCustomFields) {
+                final String hubFieldValue = (String) currentIssue.getCustomFieldValue(hubField);
+                if (StringUtils.isNotBlank(hubFieldValue)) {
+                    return hubFieldValue;
+                }
             }
         }
         return null;

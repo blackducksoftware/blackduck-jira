@@ -177,10 +177,7 @@ public class NotificationToEventConverter {
                 if (detail.getComponentVersion().isPresent()) {
                     componentVersion = hubBucket.get(detail.getComponentVersion().get());
                     licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
-                    // if the component is not null, we shouldn't have to worry about these
-                    final String componentName = detail.getComponentName().orElse("");
-                    final String componentVersionName = detail.getComponentVersionName().orElse("");
-                    logger.debug("Component " + componentName + " (version: " + componentVersionName + "): License: " + licensesString);
+                    logger.debug("Component " + detail.getComponentName().orElse("?") + " (version: " + detail.getComponentVersionName().orElse("?") + "): License: " + licensesString);
                 } else {
                     licensesString = "";
                 }
