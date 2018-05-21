@@ -33,10 +33,10 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.api.view.CommonNotificationState;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.HubItemTransformException;
-import com.blackducksoftware.integration.hub.notification.NotificationResults;
+import com.blackducksoftware.integration.hub.notification.NotificationDetailResults;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.hub.service.NotificationService;
@@ -91,17 +91,17 @@ public class TicketGenerator {
             return;
         }
         try {
-            final NotificationResults results = notificationService.getAllUserNotificationResults(hubUser, startDate, endDate);
-            final Collection<CommonNotificationState> commonNotificationStates = results.getCommonNotificationStates();
+            final NotificationDetailResults results = notificationService.getAllUserNotificationResults(hubUser, startDate, endDate);
+            final List<NotificationContentDetail> notificationDetails = results.getResults();
             final HubBucket hubBucket = results.getHubBucket();
             reportAnyErrors(hubBucket);
 
-            logger.info(String.format("There are %d notifications to handle", commonNotificationStates.size()));
-            if (!commonNotificationStates.isEmpty()) {
+            logger.info(String.format("There are %d notifications to handle", notificationDetails.size()));
+            if (!notificationDetails.isEmpty()) {
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
                 final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig, new EventDataFormatHelper(logger, hubService),
                         linksOfRulesToMonitor, hubService, logger);
-                handleEachIssue(notificationConverter, commonNotificationStates, issueHandler, hubBucket);
+                handleEachIssue(notificationConverter, notificationDetails, issueHandler, hubBucket);
             }
         } catch (final Exception e) {
             logger.error(e);
@@ -109,11 +109,11 @@ public class TicketGenerator {
         }
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final Collection<CommonNotificationState> commonNotificationStates, final JiraIssueHandler issueHandler, final HubBucket hubBucket)
+    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationContentDetail> notificationDetails, final JiraIssueHandler issueHandler, final HubBucket hubBucket)
             throws HubIntegrationException {
-        for (final CommonNotificationState commonState : commonNotificationStates) {
-            if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(commonState.getType())) {
-                final Collection<EventData> events = converter.convert(commonState, hubBucket);
+        for (final NotificationContentDetail detail : notificationDetails) {
+            if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detail.getType())) {
+                final Collection<EventData> events = converter.convert(detail, hubBucket);
                 for (final EventData event : events) {
                     try {
                         issueHandler.handleEvent(event);

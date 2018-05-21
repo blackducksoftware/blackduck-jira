@@ -27,6 +27,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,13 +36,18 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.notification.content.NotificationContentDetail;
+import com.blackducksoftware.integration.hub.api.component.AffectedProjectVersion;
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 public class JiraEventInfoTest {
 
@@ -208,9 +215,17 @@ public class JiraEventInfoTest {
     }
 
     private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
+        final AffectedProjectVersion affectedProjectVersion = new AffectedProjectVersion();
+        affectedProjectVersion.projectName = "projectName";
+        affectedProjectVersion.projectVersionName = "projectVersionName";
+        affectedProjectVersion.projectVersion = "projectVersionUri";
+
         final VulnerabilityNotificationContent content = new VulnerabilityNotificationContent();
-        final NotificationContentDetail detail = NotificationContentDetail.createVulnerabilityDetail(content, "projectName", "projectVersionName", "projectVersionUri", "componentName", "componentVersionName", "componentVersionUri",
-                "componentVersionOriginName", "componentIssueUri", "componentVersionOriginId");
+        content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
+        content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
+
+        final NotificationContentDetailFactory notifFactory = new NotificationContentDetailFactory(new Gson(), new JsonParser());
+        final NotificationContentDetail detail = notifFactory.generateContentDetails(null, new Date(), null, NotificationType.VULNERABILITY, content).get(0);
         final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(detail);
         return issuePropertiesGenerator;
     }
