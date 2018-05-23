@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -38,6 +39,8 @@ import org.junit.Test;
 
 import com.blackducksoftware.integration.hub.api.component.AffectedProjectVersion;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.blackducksoftware.integration.hub.api.generated.view.NotificationView;
+import com.blackducksoftware.integration.hub.notification.CommonNotificationView;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetailFactory;
@@ -62,7 +65,7 @@ public class JiraEventInfoTest {
     @Test
     public void testValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
 
@@ -76,7 +79,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubProjectVersionUrl(null);
@@ -92,7 +95,7 @@ public class JiraEventInfoTest {
     @Test
     public void testValidPolicyEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleName("hubRuleName");
@@ -108,7 +111,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidPolicyEventMissingRuleUrl() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleName("hubRuleName");
@@ -124,7 +127,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidPolicyEventMissingRuleName() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleUrl("hubRuleUrl");
@@ -214,7 +217,7 @@ public class JiraEventInfoTest {
         return eventDataBuilder;
     }
 
-    private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
+    private IssuePropertiesGenerator createIssuePropertyGenerator(final NotificationType notificationType) throws URISyntaxException {
         final AffectedProjectVersion affectedProjectVersion = new AffectedProjectVersion();
         affectedProjectVersion.projectName = "projectName";
         affectedProjectVersion.projectVersionName = "projectVersionName";
@@ -223,10 +226,21 @@ public class JiraEventInfoTest {
         final VulnerabilityNotificationContent content = new VulnerabilityNotificationContent();
         content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
         content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
+        content.versionName = "versionName";
+        content.componentName = "compName";
+        content.componentVersion = "compVerName";
+        content.componentVersionOriginId = "compVerOriginId";
+        content.componentVersionOriginName = "compVerOriginName";
+
+        final NotificationView view = new NotificationView();
+        view.contentType = "contentType";
+        view.createdAt = new Date();
+        view.type = notificationType;
+        final CommonNotificationView commonView = new CommonNotificationView(view);
 
         final NotificationContentDetailFactory notifFactory = new NotificationContentDetailFactory(new Gson(), new JsonParser());
-        final NotificationContentDetail detail = notifFactory.generateContentDetails(null, new Date(), null, NotificationType.VULNERABILITY, content).get(0);
-        final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(detail);
+        final NotificationContentDetail detail = notifFactory.generateContentDetails(commonView, content).getNotificationContentDetails().get(0);
+        final IssuePropertiesGenerator issuePropertiesGenerator = new IssuePropertiesGenerator(detail, Optional.empty());
         return issuePropertiesGenerator;
     }
 }

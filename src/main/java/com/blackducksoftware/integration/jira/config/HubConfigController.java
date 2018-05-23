@@ -251,8 +251,7 @@ public class HubConfigController {
     @Path("/testConnection")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response testConnection(final HubServerConfigSerializable config,
-            @Context final HttpServletRequest request) {
+    public Response testConnection(final HubServerConfigSerializable config, @Context final HttpServletRequest request) {
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
             final Response response = checkUserPermissions(request, settings);
@@ -263,9 +262,7 @@ public class HubConfigController {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
-                    final HubServerConfigBuilder serverConfigBuilder = setConfigBuilderFromSerializableConfig(config,
-                            settings);
+                    final HubServerConfigBuilder serverConfigBuilder = setConfigBuilderFromSerializableConfig(config, settings);
 
                     setConfigFromResult(config, serverConfigBuilder.createValidator());
 
@@ -306,10 +303,9 @@ public class HubConfigController {
     }
 
     // This method must be "package protected" to avoid synthetic access
-    HubServerConfigBuilder setConfigBuilderFromSerializableConfig(final HubServerConfigSerializable config,
-            final PluginSettings settings) {
+    HubServerConfigBuilder setConfigBuilderFromSerializableConfig(final HubServerConfigSerializable config, final PluginSettings settings) {
         final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
-        serverConfigBuilder.setHubUrl(config.getHubUrl());
+        serverConfigBuilder.setUrl(config.getHubUrl());
         serverConfigBuilder.setTimeout(config.getTimeout());
         serverConfigBuilder.setUsername(config.getUsername());
 
@@ -346,8 +342,7 @@ public class HubConfigController {
     }
 
     // This method must be "package protected" to avoid synthetic access
-    void setConfigFromResult(final HubServerConfigSerializable config,
-            final AbstractValidator validator) {
+    void setConfigFromResult(final HubServerConfigSerializable config, final AbstractValidator validator) {
         final ValidationResults serverConfigResults = validator.assertValid();
         if (serverConfigResults.hasErrors()) {
             if (serverConfigResults.getResultString(HubServerConfigFieldEnum.HUBURL) != null) {

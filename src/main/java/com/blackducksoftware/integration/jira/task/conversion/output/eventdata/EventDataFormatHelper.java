@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
@@ -48,37 +49,42 @@ public class EventDataFormatHelper {
         this.hubService = hubService;
     }
 
-    public String getIssueSummaryForRule(final NotificationContentDetail detail, final PolicyRuleViewV2 rule) {
-        if (detail.getComponentName().isPresent()) {
-            String componentString = detail.getComponentName().get();
-            if (detail.getComponentVersionName().isPresent()) {
-                componentString += "' / '" + detail.getComponentVersionName().get();
-            }
+    public String getIssueSummary(final NotificationContentDetail detail, final Optional<PolicyRuleViewV2> optionalPolicyRule) {
+        final String projectName = detail.getProjectName().orElse("?");
+        final String projectVersionName = detail.getProjectVersionName().orElse("?");
+        if (detail.isPolicy()) {
+            final String componentString = getComponentString(detail.getComponentName(), detail.getComponentVersionName());
+            final String ruleName = optionalPolicyRule.isPresent() ? optionalPolicyRule.get().name : "?";
             final String issueSummaryTemplate = "Black Duck policy violation detected on Hub project '%s' / '%s', component '%s' [Rule: '%s']";
-            return String.format(issueSummaryTemplate, detail.getProjectName(), detail.getProjectVersionName(), componentString, rule.name);
+            return String.format(issueSummaryTemplate, projectName, projectVersionName, componentString, ruleName);
+        } else if (detail.isVulnerability()) {
+            final StringBuilder issueSummary = new StringBuilder();
+            issueSummary.append("Black Duck vulnerability status changes on Hub project '");
+            issueSummary.append(projectName);
+            issueSummary.append("' / '");
+            issueSummary.append(projectVersionName);
+            issueSummary.append("', component '");
+            issueSummary.append(detail.getComponentName().orElse("?"));
+            issueSummary.append("' / '");
+            issueSummary.append(detail.getComponentVersionName().orElse("?"));
+            issueSummary.append("'");
+            return issueSummary.toString();
         }
         return "";
     }
 
-    public String getIssueSummaryForVulnerability(final NotificationContentDetail detail) {
-        final StringBuilder issueSummary = new StringBuilder();
-        issueSummary.append("Black Duck vulnerability status changes on Hub project '");
-        issueSummary.append(detail.getProjectName());
-        issueSummary.append("' / '");
-        issueSummary.append(detail.getProjectVersionName());
-        issueSummary.append("', component '");
-        issueSummary.append(detail.getComponentName().orElse("?"));
-        issueSummary.append("' / '");
-        issueSummary.append(detail.getComponentVersionName().orElse("?"));
-        issueSummary.append("'");
-        return issueSummary.toString();
+    private String getComponentString(final Optional<String> componentName, final Optional<String> componentVersionName) {
+        String componentString = "?";
+        if (componentName.isPresent()) {
+            componentString = componentName.get();
+            if (componentVersionName.isPresent()) {
+                componentString += "' / '" + componentVersionName.get();
+            }
+        }
+        return componentString;
     }
 
-    public String getIssueDescription(final NotificationContentDetail detail, final HubBucket hubBucket) {
-        return getIssueDescription(detail, null, hubBucket);
-    }
-
-    public String getIssueDescription(final NotificationContentDetail detail, final PolicyRuleViewV2 rule, final HubBucket hubBucket) {
+    public String getIssueDescription(final NotificationContentDetail detail, final Optional<PolicyRuleViewV2> optionalRule, final HubBucket hubBucket) {
         final StringBuilder issueDescription = new StringBuilder();
 
         String componentsLink = null;
@@ -88,22 +94,24 @@ public class EventDataFormatHelper {
             componentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.COMPONENTS_LINK);
             vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
         }
-        if (rule != null) {
+        if (detail.isPolicy()) {
             issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
         } else {
             issueDescription.append("This issue tracks vulnerability status changes on Hub project ");
         }
+        final String projectName = detail.getProjectName().orElse("?");
+        final String projectVersionName = detail.getProjectVersionName().orElse("?");
         if (componentsLink == null) {
             issueDescription.append("'");
-            issueDescription.append(detail.getProjectName());
+            issueDescription.append(projectName);
             issueDescription.append("' / '");
-            issueDescription.append(detail.getProjectVersionName());
+            issueDescription.append(projectVersionName);
             issueDescription.append("'");
         } else {
             issueDescription.append("['");
-            issueDescription.append(detail.getProjectName());
+            issueDescription.append(projectName);
             issueDescription.append("' / '");
-            issueDescription.append(detail.getProjectVersionName());
+            issueDescription.append(projectVersionName);
             issueDescription.append("'|");
             issueDescription.append(componentsLink);
             issueDescription.append("]");
@@ -116,7 +124,8 @@ public class EventDataFormatHelper {
                 issueDescription.append(detail.getComponentVersionName().get());
             }
         }
-        if (rule != null) {
+        if (optionalRule.isPresent()) {
+            final PolicyRuleViewV2 rule = optionalRule.get();
             issueDescription.append("'.");
             issueDescription.append(" The rule violated is: '");
             issueDescription.append(rule.name);

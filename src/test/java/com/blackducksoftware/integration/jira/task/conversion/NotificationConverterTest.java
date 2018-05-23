@@ -53,11 +53,14 @@ import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskP
 import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
+import com.blackducksoftware.integration.hub.api.generated.view.NotificationView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.notification.CommonNotificationView;
+import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
 import com.blackducksoftware.integration.hub.notification.content.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.notification.content.PolicyInfo;
 import com.blackducksoftware.integration.hub.notification.content.PolicyOverrideNotificationContent;
@@ -65,7 +68,6 @@ import com.blackducksoftware.integration.hub.notification.content.RuleViolationC
 import com.blackducksoftware.integration.hub.notification.content.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
@@ -307,7 +309,7 @@ public class NotificationConverterTest {
             throws ConfigurationException, URISyntaxException, IntegrationException {
         final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
                 mockLogger);
-        final NotificationContentDetail notif = createNotif(mockHubBucket, notifType, new Date());
+        final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, new Date());
         final Collection<EventData> events = conv.convert(notif, mockHubBucket);
 
         // Verify the generated event
@@ -339,8 +341,8 @@ public class NotificationConverterTest {
         Mockito.when(mockHubBucket.get(mockUriSingleResponseComponentVersionView)).thenReturn(createComponentVersionView());
     }
 
-    private NotificationContentDetail createNotif(final HubBucket mockHubBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
-        NotificationContentDetail notif;
+    private NotificationDetailResult createNotif(final HubBucket mockHubBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
+        NotificationDetailResult notif;
         final NotificationContentDetailFactory notifFactory = new NotificationContentDetailFactory(new Gson(), new JsonParser());
         if (NotificationType.VULNERABILITY.equals(notifType)) {
             notif = createVulnerabilityNotif(notifFactory, now);
@@ -400,7 +402,7 @@ public class NotificationConverterTest {
         assertEquals(expectedPropertyKey, eventData.getEventKey());
     }
 
-    private NotificationContentDetail createVulnerabilityNotif(final NotificationContentDetailFactory notifFactory, final Date createdAt) throws URISyntaxException, HubIntegrationException {
+    private NotificationDetailResult createVulnerabilityNotif(final NotificationContentDetailFactory notifFactory, final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
         vuln.source = VULN_SOURCE;
         vuln.vulnerabilityId = COMPONENT_VERSION_URL;
@@ -426,10 +428,10 @@ public class NotificationConverterTest {
         affected.projectVersionName = PROJECT_VERSION_NAME;
         content.affectedProjectVersions = Arrays.asList(affected);
 
-        return notifFactory.generateContentDetails(null, createdAt, null, NotificationType.VULNERABILITY, content).get(0);
+        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.VULNERABILITY, createdAt), content);
     }
 
-    private NotificationContentDetail createRuleViolationNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -444,10 +446,10 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(null, createdAt, null, NotificationType.RULE_VIOLATION, content).get(0);
+        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.RULE_VIOLATION, createdAt), content);
     }
 
-    private NotificationContentDetail createRuleViolationClearedNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationClearedNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_CLEARED_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -462,10 +464,10 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(null, createdAt, null, NotificationType.RULE_VIOLATION_CLEARED, content).get(0);
+        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.RULE_VIOLATION_CLEARED, createdAt), content);
     }
 
-    private NotificationContentDetail createPolicyOverrideNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createPolicyOverrideNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_OVERRIDE_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -485,7 +487,7 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(null, createdAt, null, NotificationType.POLICY_OVERRIDE, content).get(0);
+        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.POLICY_OVERRIDE, createdAt), content);
     }
 
     private static HubProject createHubProject() {
@@ -516,6 +518,18 @@ public class NotificationConverterTest {
         projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
         return fieldCopyConfig;
+    }
+
+    private static CommonNotificationView createCommonNotificationView(final NotificationType type, final Date createdAt) {
+        return new CommonNotificationView(createNotificationView(type, createdAt));
+    }
+
+    private static NotificationView createNotificationView(final NotificationType type, final Date createdAt) {
+        final NotificationView view = new NotificationView();
+        view.contentType = "contentType";
+        view.createdAt = createdAt;
+        view.type = type;
+        return view;
     }
 
     private static ProjectVersionView createProjectVersionView() {

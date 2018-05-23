@@ -101,8 +101,12 @@ public class EventDataBuilder extends Stringable {
     }
 
     public EventDataBuilder setPropertiesFromNotificationContentDetail(final NotificationContentDetail detail) {
-        setHubProjectName(detail.getProjectName());
-        setHubProjectVersion(detail.getProjectVersionName());
+        if (detail.getProjectName().isPresent()) {
+            setHubProjectName(detail.getProjectName().get());
+        }
+        if (detail.getProjectVersionName().isPresent()) {
+            setHubProjectVersion(detail.getProjectVersionName().get());
+        }
         if (detail.getProjectVersion().isPresent()) {
             setHubProjectVersionUrl(detail.getProjectVersion().get().uri);
         }
