@@ -56,21 +56,11 @@ import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
 public class HubIssueTrackerHandlerTest {
-
-    private static final String JIRA_USER = "auser";
-
-    private static final String HUB_PROJECT_NAME = "HubProjectName";
-
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
-
     private static final Long JIRA_PROJECT_ID = new Long(1);
-
     private static final String ISSUE_URL = "ISSUE URL";
-
     private static final String STATUS_NAME = "STATUS NAME";
-
     private static final String ISSUE_DESCRIPTION = "ISSUE DESCRIPTION";
-
     private static final String ASSIGNEE_USER_NAME = "assignedUser";
 
     private PluginSettingsMock settings;

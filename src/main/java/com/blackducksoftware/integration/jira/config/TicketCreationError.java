@@ -40,7 +40,6 @@ import com.google.gson.reflect.TypeToken;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TicketCreationError implements Serializable, Comparable<TicketCreationError> {
-
     public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendMonthOfYear(2)
             .appendLiteral('/').appendDayOfMonth(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
             .appendClockhourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(2).appendHalfdayOfDayText().toFormatter();
@@ -78,7 +77,7 @@ public class TicketCreationError implements Serializable, Comparable<TicketCreat
     }
 
     public DateTime getTimeStampDateTime() {
-        DateTime errorTime = DateTime.parse(timeStamp,
+        final DateTime errorTime = DateTime.parse(timeStamp,
                 ERROR_TIME_FORMAT);
         return errorTime;
     }
@@ -95,16 +94,16 @@ public class TicketCreationError implements Serializable, Comparable<TicketCreat
     }
 
     @Override
-    public int compareTo(TicketCreationError o) {
+    public int compareTo(final TicketCreationError o) {
         // This will ensure oldest first
         return o.getTimeStampDateTime().compareTo(getTimeStampDateTime());
     }
 
-    public static List<TicketCreationError> fromJson(String json) {
+    public static List<TicketCreationError> fromJson(final String json) {
         return gson.fromJson(json, listType);
     }
 
-    public static String toJson(List<TicketCreationError> errors) {
+    public static String toJson(final List<TicketCreationError> errors) {
         return gson.toJson(errors);
     }
 

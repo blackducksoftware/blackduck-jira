@@ -37,6 +37,7 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
 
+@SuppressWarnings("rawtypes")
 public class IssueTypeSchemeManagerMock implements IssueTypeSchemeManager {
     private FieldConfigScheme fieldConfigScheme;
 

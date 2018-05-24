@@ -39,8 +39,8 @@ import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchContext;
 import com.atlassian.jira.project.Project;
 
+@SuppressWarnings("rawtypes")
 public class CustomFieldManagerMock implements CustomFieldManager {
-
     private final List<CustomField> customFields = new ArrayList<>();
 
     public List<CustomField> getCustomFields() {

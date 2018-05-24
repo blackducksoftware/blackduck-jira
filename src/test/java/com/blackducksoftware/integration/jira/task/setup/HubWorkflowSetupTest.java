@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -34,13 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;

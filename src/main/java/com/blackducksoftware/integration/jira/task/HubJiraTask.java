@@ -151,7 +151,7 @@ public class HubJiraTask {
             }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-            ticketGenerator.generateTicketsForRecentNotifications(hubUserItem, hubProjectMappings, startDate, runDate);
+            ticketGenerator.generateTicketsForNotificationsInDateRange(hubUserItem, hubProjectMappings, startDate, runDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addHubError(e, "executeHubJiraTask");

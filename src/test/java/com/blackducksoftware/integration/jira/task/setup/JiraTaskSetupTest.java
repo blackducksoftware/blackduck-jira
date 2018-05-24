@@ -593,331 +593,248 @@ public class JiraTaskSetupTest {
         return config.getHubProjectMappingsJson();
     }
 
-    private class JiraEnvironment {
+    @SuppressWarnings("unused")
+    class JiraEnvironment {
         private GroupPickerSearchServiceMock groupPickerSearchServiceMock;
-
         private WorkflowManagerMock workflowManagerMock;
-
         private WorkflowSchemeManagerMock workflowSchemeManagerMock;
-
         private UserManagerMock userManagerMock;
-
         private ProjectManagerMock projectManagerMock;
-
         private AvatarManagerMock avatarManagerMock;
-
         private ConstantsManagerMock constantsManagerMock;
-
         private IssueTypeSchemeManagerMock issueTypeSchemeManagerMock;
-
         private FieldConfigSchemeMock fieldConfigSchemeMock;
-
         private FieldLayoutManagerMock fieldLayoutManagerMock;
-
         private IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManagerMock;
-
         private IssueTypeScreenSchemeMock issueTypeScreenSchemeMock;
-
         private FieldLayoutSchemeMock fieldLayoutSchemeMock;
-
         private FieldConfigurationSchemeMock fieldConfigurationSchemeMock;
-
         private EditableFieldLayoutMock editableFieldLayoutMock;
-
         private OrderableFieldMock orderableFieldMock;
-
         private CustomFieldManagerMock customFieldManagerMock;
-
         private FieldManagerMock fieldManagerMock;
-
         private FieldScreenManagerMock fieldScreenManagerMock;
-
         private FieldScreenSchemeManagerMock fieldScreenSchemeManagerMock;
-
         private PluginSettingsMock pluginSettingsMock;
-
         private JiraSettingsService jiraSettingsService;
-
         private Collection<IssueType> issueTypes;
-
         private UserUtil userUtil;
-
         private JiraServices jiraServices;
-
         private HubFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
-
         private JiraTaskTimed jiraTask;
-
         private String mappingJson;
-
         private Avatar avatarTemplate;
 
-        private GroupPickerSearchServiceMock getGroupPickerSearchServiceMock() {
-            return groupPickerSearchServiceMock;
-        }
-
-        private JiraEnvironment setGroupPickerSearchServiceMock(
+        JiraEnvironment setGroupPickerSearchServiceMock(
                 final GroupPickerSearchServiceMock groupPickerSearchServiceMock) {
             this.groupPickerSearchServiceMock = groupPickerSearchServiceMock;
             return this;
         }
 
-        private WorkflowManagerMock getWorkflowManagerMock() {
+        WorkflowManagerMock getWorkflowManagerMock() {
             return workflowManagerMock;
         }
 
-        private JiraEnvironment setWorkflowManagerMock(final WorkflowManagerMock workflowManagerMock) {
+        JiraEnvironment setWorkflowManagerMock(final WorkflowManagerMock workflowManagerMock) {
             this.workflowManagerMock = workflowManagerMock;
             return this;
         }
 
-        private WorkflowSchemeManagerMock getWorkflowSchemeManagerMock() {
+        WorkflowSchemeManagerMock getWorkflowSchemeManagerMock() {
             return workflowSchemeManagerMock;
         }
 
-        private JiraEnvironment setWorkflowSchemeManagerMock(
+        JiraEnvironment setWorkflowSchemeManagerMock(
                 final WorkflowSchemeManagerMock workflowSchemeManagerMock) {
             this.workflowSchemeManagerMock = workflowSchemeManagerMock;
             return this;
         }
 
-        private UserManagerMock getUserManagerMock() {
-            return userManagerMock;
-        }
-
-        private JiraEnvironment setUserManagerMock(final UserManagerMock userManagerMock) {
+        JiraEnvironment setUserManagerMock(final UserManagerMock userManagerMock) {
             this.userManagerMock = userManagerMock;
             return this;
         }
 
-        private ProjectManagerMock getProjectManagerMock() {
-            return projectManagerMock;
-        }
-
-        private JiraEnvironment setProjectManagerMock(final ProjectManagerMock projectManagerMock) {
+        JiraEnvironment setProjectManagerMock(final ProjectManagerMock projectManagerMock) {
             this.projectManagerMock = projectManagerMock;
             return this;
         }
 
-        private AvatarManagerMock getAvatarManagerMock() {
+        AvatarManagerMock getAvatarManagerMock() {
             return avatarManagerMock;
         }
 
-        private JiraEnvironment setAvatarManagerMock(final AvatarManagerMock avatarManagerMock) {
+        JiraEnvironment setAvatarManagerMock(final AvatarManagerMock avatarManagerMock) {
             this.avatarManagerMock = avatarManagerMock;
             return this;
         }
 
-        private ConstantsManagerMock getConstantsManagerMock() {
+        ConstantsManagerMock getConstantsManagerMock() {
             return constantsManagerMock;
         }
 
-        private JiraEnvironment setConstantsManagerMock(final ConstantsManagerMock constantsManagerMock) {
+        JiraEnvironment setConstantsManagerMock(final ConstantsManagerMock constantsManagerMock) {
             this.constantsManagerMock = constantsManagerMock;
             return this;
         }
 
-        private IssueTypeSchemeManagerMock getIssueTypeSchemeManagerMock() {
-            return issueTypeSchemeManagerMock;
-        }
-
-        private JiraEnvironment setIssueTypeSchemeManagerMock(
+        JiraEnvironment setIssueTypeSchemeManagerMock(
                 final IssueTypeSchemeManagerMock issueTypeSchemeManagerMock) {
             this.issueTypeSchemeManagerMock = issueTypeSchemeManagerMock;
             return this;
         }
 
-        private FieldConfigSchemeMock getFieldConfigSchemeMock() {
-            return fieldConfigSchemeMock;
-        }
-
-        private JiraEnvironment setFieldConfigSchemeMock(final FieldConfigSchemeMock fieldConfigSchemeMock) {
+        JiraEnvironment setFieldConfigSchemeMock(final FieldConfigSchemeMock fieldConfigSchemeMock) {
             this.fieldConfigSchemeMock = fieldConfigSchemeMock;
             return this;
         }
 
-        private FieldLayoutManagerMock getFieldLayoutManagerMock() {
-            return fieldLayoutManagerMock;
-        }
-
-        private JiraEnvironment setFieldLayoutManagerMock(final FieldLayoutManagerMock fieldLayoutManagerMock) {
+        JiraEnvironment setFieldLayoutManagerMock(final FieldLayoutManagerMock fieldLayoutManagerMock) {
             this.fieldLayoutManagerMock = fieldLayoutManagerMock;
             return this;
         }
 
-        private IssueTypeScreenSchemeManagerMock getIssueTypeScreenSchemeManagerMock() {
-            return issueTypeScreenSchemeManagerMock;
-        }
-
-        private JiraEnvironment setIssueTypeScreenSchemeManagerMock(
+        JiraEnvironment setIssueTypeScreenSchemeManagerMock(
                 final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManagerMock) {
             this.issueTypeScreenSchemeManagerMock = issueTypeScreenSchemeManagerMock;
             return this;
         }
 
-        private IssueTypeScreenSchemeMock getIssueTypeScreenSchemeMock() {
+        IssueTypeScreenSchemeMock getIssueTypeScreenSchemeMock() {
             return issueTypeScreenSchemeMock;
         }
 
-        private JiraEnvironment setIssueTypeScreenSchemeMock(
+        JiraEnvironment setIssueTypeScreenSchemeMock(
                 final IssueTypeScreenSchemeMock issueTypeScreenSchemeMock) {
             this.issueTypeScreenSchemeMock = issueTypeScreenSchemeMock;
             return this;
         }
 
-        private FieldLayoutSchemeMock getFieldLayoutSchemeMock() {
+        FieldLayoutSchemeMock getFieldLayoutSchemeMock() {
             return fieldLayoutSchemeMock;
         }
 
-        private JiraEnvironment setFieldLayoutSchemeMock(final FieldLayoutSchemeMock fieldLayoutSchemeMock) {
+        JiraEnvironment setFieldLayoutSchemeMock(final FieldLayoutSchemeMock fieldLayoutSchemeMock) {
             this.fieldLayoutSchemeMock = fieldLayoutSchemeMock;
             return this;
         }
 
-        private FieldConfigurationSchemeMock getFieldConfigurationSchemeMock() {
-            return fieldConfigurationSchemeMock;
-        }
-
-        private JiraEnvironment setFieldConfigurationSchemeMock(
+        JiraEnvironment setFieldConfigurationSchemeMock(
                 final FieldConfigurationSchemeMock fieldConfigurationSchemeMock) {
             this.fieldConfigurationSchemeMock = fieldConfigurationSchemeMock;
             return this;
         }
 
-        private EditableFieldLayoutMock getEditableFieldLayoutMock() {
-            return editableFieldLayoutMock;
-        }
-
-        private JiraEnvironment setEditableFieldLayoutMock(final EditableFieldLayoutMock editableFieldLayoutMock) {
+        JiraEnvironment setEditableFieldLayoutMock(final EditableFieldLayoutMock editableFieldLayoutMock) {
             this.editableFieldLayoutMock = editableFieldLayoutMock;
             return this;
         }
 
-        private OrderableFieldMock getOrderableFieldMock() {
-            return orderableFieldMock;
-        }
-
-        private JiraEnvironment setOrderableFieldMock(final OrderableFieldMock orderableFieldMock) {
+        JiraEnvironment setOrderableFieldMock(final OrderableFieldMock orderableFieldMock) {
             this.orderableFieldMock = orderableFieldMock;
             return this;
         }
 
-        private CustomFieldManagerMock getCustomFieldManagerMock() {
+        CustomFieldManagerMock getCustomFieldManagerMock() {
             return customFieldManagerMock;
         }
 
-        private JiraEnvironment setCustomFieldManagerMock(final CustomFieldManagerMock customFieldManagerMock) {
+        JiraEnvironment setCustomFieldManagerMock(final CustomFieldManagerMock customFieldManagerMock) {
             this.customFieldManagerMock = customFieldManagerMock;
             return this;
         }
 
-        private FieldManagerMock getFieldManagerMock() {
-            return fieldManagerMock;
-        }
-
-        private JiraEnvironment setFieldManagerMock(final FieldManagerMock fieldManagerMock) {
+        JiraEnvironment setFieldManagerMock(final FieldManagerMock fieldManagerMock) {
             this.fieldManagerMock = fieldManagerMock;
             return this;
         }
 
-        private FieldScreenManagerMock getFieldScreenManagerMock() {
+        FieldScreenManagerMock getFieldScreenManagerMock() {
             return fieldScreenManagerMock;
         }
 
-        private JiraEnvironment setFieldScreenManagerMock(final FieldScreenManagerMock fieldScreenManagerMock) {
+        JiraEnvironment setFieldScreenManagerMock(final FieldScreenManagerMock fieldScreenManagerMock) {
             this.fieldScreenManagerMock = fieldScreenManagerMock;
             return this;
         }
 
-        private FieldScreenSchemeManagerMock getFieldScreenSchemeManagerMock() {
+        FieldScreenSchemeManagerMock getFieldScreenSchemeManagerMock() {
             return fieldScreenSchemeManagerMock;
         }
 
-        private JiraEnvironment setFieldScreenSchemeManagerMock(
+        JiraEnvironment setFieldScreenSchemeManagerMock(
                 final FieldScreenSchemeManagerMock fieldScreenSchemeManagerMock) {
             this.fieldScreenSchemeManagerMock = fieldScreenSchemeManagerMock;
             return this;
         }
 
-        private PluginSettingsMock getPluginSettingsMock() {
+        PluginSettingsMock getPluginSettingsMock() {
             return pluginSettingsMock;
         }
 
-        private JiraEnvironment setPluginSettingsMock(final PluginSettingsMock pluginSettingsMock) {
+        JiraEnvironment setPluginSettingsMock(final PluginSettingsMock pluginSettingsMock) {
             this.pluginSettingsMock = pluginSettingsMock;
             return this;
         }
 
-        private JiraSettingsService getJiraSettingsService() {
+        JiraSettingsService getJiraSettingsService() {
             return jiraSettingsService;
         }
 
-        private JiraEnvironment setJiraSettingsService(final JiraSettingsService jiraSettingsService) {
+        JiraEnvironment setJiraSettingsService(final JiraSettingsService jiraSettingsService) {
             this.jiraSettingsService = jiraSettingsService;
             return this;
         }
 
-        private Collection<IssueType> getIssueTypes() {
-            return issueTypes;
-        }
-
-        private JiraEnvironment setIssueTypes(final Collection<IssueType> issueTypes) {
+        JiraEnvironment setIssueTypes(final Collection<IssueType> issueTypes) {
             this.issueTypes = issueTypes;
             return this;
         }
 
-        private UserUtil getUserUtil() {
-            return userUtil;
-        }
-
-        private JiraEnvironment setUserUtil(final UserUtil userUtil) {
+        JiraEnvironment setUserUtil(final UserUtil userUtil) {
             this.userUtil = userUtil;
             return this;
         }
 
-        private JiraServices getJiraServices() {
+        JiraServices getJiraServices() {
             return jiraServices;
         }
 
-        private JiraEnvironment setJiraServices(final JiraServices jiraServices) {
+        JiraEnvironment setJiraServices(final JiraServices jiraServices) {
             this.jiraServices = jiraServices;
             return this;
         }
 
-        private HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup() {
-            return HubFieldScreenSchemeSetup;
-        }
-
-        private JiraEnvironment setHubFieldScreenSchemeSetup(
+        JiraEnvironment setHubFieldScreenSchemeSetup(
                 final HubFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
             HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
             return this;
         }
 
-        private JiraTaskTimed getJiraTask() {
+        JiraTaskTimed getJiraTask() {
             return jiraTask;
         }
 
-        private JiraEnvironment setJiraTask(final JiraTaskTimed jiraTask) {
+        JiraEnvironment setJiraTask(final JiraTaskTimed jiraTask) {
             this.jiraTask = jiraTask;
             return this;
         }
 
-        private String getMappingJson() {
+        String getMappingJson() {
             return mappingJson;
         }
 
-        private JiraEnvironment setMappingJson(final String mappingJson) {
+        JiraEnvironment setMappingJson(final String mappingJson) {
             this.mappingJson = mappingJson;
             return this;
         }
 
-        private JiraEnvironment setAvatarTemplate(final Avatar avatarTemplate) {
+        JiraEnvironment setAvatarTemplate(final Avatar avatarTemplate) {
             this.avatarTemplate = avatarTemplate;
             return this;
         }
 
-        private Avatar getAvatarTemplate() {
+        Avatar getAvatarTemplate() {
             return avatarTemplate;
         }
 

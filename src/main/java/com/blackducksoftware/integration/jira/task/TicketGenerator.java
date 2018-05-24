@@ -85,7 +85,7 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public void generateTicketsForRecentNotifications(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
+    public void generateTicketsForNotificationsInDateRange(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Hub projects to monitor");
             return;
@@ -113,7 +113,7 @@ public class TicketGenerator {
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<EventData> events = converter.convert(detailResult, hubBucket);
+                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, hubBucket);
                 for (final EventData event : events) {
                     try {
                         issueHandler.handleEvent(event);

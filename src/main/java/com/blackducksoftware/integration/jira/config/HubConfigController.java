@@ -130,7 +130,7 @@ public class HubConfigController {
                 final HubServerConfigSerializable config = new HubServerConfigSerializable();
 
                 final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
-                serverConfigBuilder.setHubUrl(hubUrl);
+                serverConfigBuilder.setUrl(hubUrl);
                 serverConfigBuilder.setTimeout(timeout);
                 serverConfigBuilder.setUsername(username);
                 serverConfigBuilder.setPassword(password);

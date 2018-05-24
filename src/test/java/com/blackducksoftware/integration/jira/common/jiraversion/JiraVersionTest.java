@@ -46,9 +46,8 @@ public class JiraVersionTest {
     @Test
     public void testJira6_4_0() {
         final int[] versionNumbers = { 6, 4, 0 };
-        JiraVersionCheck jiraVersionCheck;
         try {
-            jiraVersionCheck = getJiraVersion("6.4.0", versionNumbers);
+            getJiraVersion("6.4.0", versionNumbers);
             fail("Expected configuration exception");
         } catch (final ConfigurationException e) {
 
@@ -59,9 +58,8 @@ public class JiraVersionTest {
     @Test
     public void testJira7_0() throws ConfigurationException {
         final int[] versionNumbers = { 7, 0, 0 };
-        JiraVersionCheck jiraVersionCheck;
         try {
-            jiraVersionCheck = getJiraVersion("7.0", versionNumbers);
+            getJiraVersion("7.0", versionNumbers);
             fail("Expected configuration exception");
         } catch (final ConfigurationException e) {
 
@@ -124,14 +122,12 @@ public class JiraVersionTest {
         assertTrue(jiraVersionCheck.isSupported());
     }
 
-
     @Test
     public void testJira7_6() throws ConfigurationException {
         final int[] versionNumbers = { 7, 6, 0 };
         final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.6.0", versionNumbers);
         assertTrue(jiraVersionCheck.isSupported());
     }
-
 
     @Test
     public void testJira7_7() throws ConfigurationException {
@@ -146,8 +142,6 @@ public class JiraVersionTest {
         final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.8.0", versionNumbers);
         assertFalse(jiraVersionCheck.isSupported());
     }
-
-
 
     @Test
     public void testMostRecentVersionString() throws ConfigurationException {

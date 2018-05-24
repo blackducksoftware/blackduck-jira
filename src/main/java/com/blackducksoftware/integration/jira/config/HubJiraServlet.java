@@ -70,6 +70,8 @@ public class HubJiraServlet extends HttpServlet {
         }
 
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        // Used for backwards compatibility
+        @SuppressWarnings("deprecation")
         final String oldHubJiraGroupsString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
         if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {

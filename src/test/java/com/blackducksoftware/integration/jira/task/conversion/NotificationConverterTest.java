@@ -310,7 +310,7 @@ public class NotificationConverterTest {
         final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
                 mockLogger);
         final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, new Date());
-        final Collection<EventData> events = conv.convert(notif, mockHubBucket);
+        final Collection<EventData> events = conv.createEventDataForNotificationDetailResult(notif, mockHubBucket);
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment,

@@ -39,7 +39,7 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
     public HubServerConfigBuilder createHubServerConfigBuilder() {
         final HubServerConfigBuilderMock configBuilder = new HubServerConfigBuilderMock();
 
-        configBuilder.setHubUrl(getHubUrl());
+        configBuilder.setUrl(getHubUrl());
         configBuilder.setUsername(getHubUsername());
         configBuilder.setPassword(getHubPasswordEncrypted());
         configBuilder.setPasswordLength(NumberUtils.toInt(getHubPasswordLength()));

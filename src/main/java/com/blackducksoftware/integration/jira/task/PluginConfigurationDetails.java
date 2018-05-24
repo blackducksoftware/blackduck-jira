@@ -172,7 +172,7 @@ public class PluginConfigurationDetails {
 
     public HubServerConfigBuilder createHubServerConfigBuilder() {
         final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
-        hubConfigBuilder.setHubUrl(hubUrl);
+        hubConfigBuilder.setUrl(hubUrl);
         hubConfigBuilder.setUsername(hubUsername);
         hubConfigBuilder.setPassword(hubPasswordEncrypted);
         hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));

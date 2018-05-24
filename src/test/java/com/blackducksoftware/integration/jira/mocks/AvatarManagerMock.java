@@ -44,6 +44,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.Consumer;
 
+@SuppressWarnings("deprecation")
 public class AvatarManagerMock implements AvatarManager {
     private final List<Avatar> avatarTemplatesUsedToCreateAvatars = new ArrayList<>();
 

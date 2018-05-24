@@ -165,6 +165,8 @@ public class HubJiraConfigController {
         if (userManager.isSystemAdmin(username)) {
             return true;
         }
+        // Deprecated property used to update new property
+        @SuppressWarnings("deprecation")
         final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
         if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
@@ -191,6 +193,8 @@ public class HubJiraConfigController {
     @Path("/admin")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    // Deprecated property used to update new property
+    @SuppressWarnings("deprecation")
     public Response getHubJiraAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
@@ -495,7 +499,6 @@ public class HubJiraConfigController {
                     logger.debug("sourceFields: " + txSourceFields);
                     return txSourceFields;
                 }
-
             });
         } catch (final Exception e) {
             final Fields errorSourceFields = new Fields();
@@ -542,7 +545,6 @@ public class HubJiraConfigController {
             errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
         }
-
         return Response.ok(targetFields).build();
     }
 
@@ -585,7 +587,6 @@ public class HubJiraConfigController {
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
-
         return Response.ok(config).build();
     }
 
@@ -969,7 +970,6 @@ public class HubJiraConfigController {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -1173,7 +1173,7 @@ public class HubJiraConfigController {
         CredentialsRestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
-            configBuilder.setHubUrl(hubUrl);
+            configBuilder.setUrl(hubUrl);
             configBuilder.setUsername(hubUser);
             configBuilder.setPassword(encHubPassword);
             configBuilder.setPasswordLength(NumberUtils.toInt(encHubPasswordLength));

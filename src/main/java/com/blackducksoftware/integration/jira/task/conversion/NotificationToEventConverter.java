@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +100,7 @@ public class NotificationToEventConverter {
         this.logger = logger;
     }
 
-    public Collection<EventData> convert(final NotificationDetailResult detailResult, final HubBucket hubBucket) throws HubIntegrationException {
+    public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket hubBucket) throws HubIntegrationException {
         final NotificationType notificationType = detailResult.getType();
         logger.debug(String.format("%s Notification: %s", notificationType, detailResult));
 
@@ -107,10 +108,8 @@ public class NotificationToEventConverter {
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             if (shouldHandle(detail) && detail.getProjectName().isPresent()) {
                 final String projectName = detail.getProjectName().get();
-                final Optional<EventData> projectEvent = handleNotificationPerHubProject(projectName, notificationType, detail, detailResult.getNotificationContent(), hubBucket);
-                if (projectEvent.isPresent()) {
-                    allEvents.add(projectEvent.get());
-                }
+                final List<EventData> projectEvents = createEventDataForHubProjectMappings(projectName, notificationType, detail, detailResult.getNotificationContent(), hubBucket);
+                allEvents.addAll(projectEvents);
             } else {
                 logger.debug(String.format("Ignoring the following notification detail: %s", detail));
             }
@@ -118,26 +117,30 @@ public class NotificationToEventConverter {
         return allEvents;
     }
 
-    private Optional<EventData> handleNotificationPerHubProject(final String hubProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
+    private List<EventData> createEventDataForHubProjectMappings(final String hubProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
             final HubBucket hubBucket) {
         logger.debug("Getting JIRA project(s) mapped to Hub project: " + hubProjectName);
         final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(hubProjectName);
         logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + hubProjectName);
 
+        final List<EventData> eventDataList = new ArrayList<>();
         for (final JiraProject jiraProject : mappingJiraProjects) {
             logger.debug("JIRA Project: " + jiraProject);
             try {
-                return handleNotificationPerJiraProject(notificationType, detail, notificationContent, jiraProject, hubBucket);
+                final Optional<EventData> jiraProjectEventData = createEventDataForJiraProject(notificationType, detail, notificationContent, jiraProject, hubBucket);
+                if (jiraProjectEventData.isPresent()) {
+                    eventDataList.add(jiraProjectEventData.get());
+                }
             } catch (final Exception e) {
                 logger.error(e);
                 jiraSettingsService.addHubError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraContext.getJiraAdminUser().getName(),
                         jiraContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
             }
         }
-        return Optional.empty();
+        return eventDataList;
     }
 
-    private Optional<EventData> handleNotificationPerJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
+    private Optional<EventData> createEventDataForJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
             final HubBucket hubBucket)
             throws EventDataBuilderException, IntegrationException, ConfigurationException {
         HubEventAction action = HubEventAction.OPEN;
@@ -319,11 +322,7 @@ public class NotificationToEventConverter {
         return vulnerabilityContent.deletedVulnerabilityCount > 0 && vulnerabilityContent.newVulnerabilityCount == 0 && vulnerabilityContent.updatedVulnerabilityCount == 0;
     }
 
-    protected final JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
-        return jiraServices.getJiraProject(jiraProjectId);
-    }
-
-    protected final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
+    private final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
         String issueType = HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE;
         if (EventCategory.VULNERABILITY.equals(category)) {
             issueType = HubJiraConstants.HUB_VULNERABILITY_ISSUE;
@@ -344,7 +343,7 @@ public class NotificationToEventConverter {
         throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
     }
 
-    protected final String getComponentUsage(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
+    private String getComponentUsage(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
         final VersionBomComponentView bomComp = getBomComponent(detail, hubBucket);
         if (bomComp == null) {
             logger.info(String.format("Unable to find component %s in BOM, so cannot get usage information", detail.getComponentName()));
@@ -387,7 +386,7 @@ public class NotificationToEventConverter {
         return null;
     }
 
-    protected final String getProjectVersionNickname(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
+    private String getProjectVersionNickname(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
         if (detail.getProjectVersion().isPresent()) {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             return projectVersion.nickname;
@@ -395,7 +394,7 @@ public class NotificationToEventConverter {
         return "";
     }
 
-    protected final void addExtraneousHubInfoToEventDataBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentDetail detail, final HubBucket hubBucket) {
+    private void addExtraneousHubInfoToEventDataBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentDetail detail, final HubBucket hubBucket) {
         if (detail.getProjectVersion().isPresent()) {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {

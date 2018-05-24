@@ -37,13 +37,11 @@ public class JiraProjectTest {
         final String name1 = "name1";
         final Long id1 = 0L;
         final String key1 = "key1";
-        final String assignedUserId1 = "assignedUserId1";
         final String projectError1 = "error1";
 
         final String name2 = "name2";
         final Long id2 = 2L;
         final String key2 = "key2";
-        final String issueTypeId2 = "type2";
         final String projectError2 = "error2";
 
         final JiraProject item1 = new JiraProject();

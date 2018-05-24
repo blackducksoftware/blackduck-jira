@@ -83,35 +83,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class IssueEventListenerTest {
-
     private static final String JIRA_USER = "auser";
-
-    private static final String JIRA_ADMIN_USER = "adminuser";
-
     private static final String HUB_PROJECT_NAME = "HubProjectName";
-
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
-
     private static final Long JIRA_PROJECT_ID = new Long(1);
-
     private static final String ISSUE_URL = "ISSUE URL";
-
     private static final String STATUS_NAME = "STATUS NAME";
-
     private static final String ISSUE_DESCRIPTION = "ISSUE DESCRIPTION";
-
     private static final String ASSIGNEE_USER_NAME = "assignedUser";
 
     private final EventPublisherMock eventPublisher = new EventPublisherMock();
-
     private IssueEventListener listener;
-
     private PluginSettingsMock settings;
-
     private PluginSettingsFactoryMock pluginSettingsFactory;
-
     private JiraServicesMock jiraServices;
-
     private IssueServiceMock issueServiceMock;
 
     @Before
