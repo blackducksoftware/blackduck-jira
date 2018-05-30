@@ -27,8 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -37,20 +35,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.api.component.AffectedProjectVersion;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.api.generated.view.NotificationView;
-import com.blackducksoftware.integration.hub.notification.CommonNotificationView;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 
 public class JiraEventInfoTest {
 
@@ -218,28 +209,19 @@ public class JiraEventInfoTest {
     }
 
     private IssuePropertiesGenerator createIssuePropertyGenerator(final NotificationType notificationType) throws URISyntaxException {
-        final AffectedProjectVersion affectedProjectVersion = new AffectedProjectVersion();
-        affectedProjectVersion.projectName = "projectName";
-        affectedProjectVersion.projectVersionName = "projectVersionName";
-        affectedProjectVersion.projectVersion = "projectVersionUri";
+        final Optional<String> projectName = Optional.of("projectName");
+        final Optional<String> projectVersionName = Optional.of("projectVersionName");
+        final Optional<String> projectVersionUri = Optional.of("projectVersionUri");
 
-        final VulnerabilityNotificationContent content = new VulnerabilityNotificationContent();
-        content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
-        content.affectedProjectVersions = Arrays.asList(affectedProjectVersion);
-        content.versionName = "versionName";
-        content.componentName = "compName";
-        content.componentVersion = "compVerName";
-        content.componentVersionOriginId = "compVerOriginId";
-        content.componentVersionOriginName = "compVerOriginName";
+        final Optional<String> componentName = Optional.of("compName");
+        final Optional<String> componentUri = Optional.of("componentUri");
+        final Optional<String> componentVersionName = Optional.of("versionName");
+        final Optional<String> componentVersionUri = Optional.of("compVerName");
+        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
+        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
 
-        final NotificationView view = new NotificationView();
-        view.contentType = "contentType";
-        view.createdAt = new Date();
-        view.type = notificationType;
-        final CommonNotificationView commonView = new CommonNotificationView(view);
-
-        final NotificationContentDetailFactory notifFactory = new NotificationContentDetailFactory(new Gson(), new JsonParser());
-        final NotificationContentDetail detail = notifFactory.generateContentDetails(commonView, content).getNotificationContentDetails().get(0);
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(notificationType.name(), projectName, projectVersionName, projectVersionUri, componentName, componentUri, componentVersionName, componentVersionUri,
+                Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId);
         final IssuePropertiesGenerator issuePropertiesGenerator = new IssuePropertiesGenerator(detail, Optional.empty());
         return issuePropertiesGenerator;
     }

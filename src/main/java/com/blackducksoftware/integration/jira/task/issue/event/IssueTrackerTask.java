@@ -64,6 +64,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
     private final String propertyKey;
     private final EntityProperty property;
 
+    // TODO the issue service should be injected here, as should the jiraSettingsService
     public IssueTrackerTask(final Issue jiraIssue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
         this.eventTypeID = eventTypeID;
         this.jiraIssue = jiraIssue;
@@ -80,8 +81,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
             final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
             final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-            // only execute if hub 3.7 or higher with the issue tracker
-            // capability
+            // only execute if hub 3.7 or higher with the issue tracker capability
             final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
             if (hubServerConfig == null) {
                 logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
@@ -89,8 +89,8 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
                 final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
                 final HubJiraConfigSerializable config = createJiraConfig(configDetails);
-                if (config == null) {
-                    logger.debug("No Hub Jira configuration set");
+                if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
+                    logger.debug("Hub Jira configuration is incomplete");
                     return Boolean.FALSE;
                 }
 
@@ -176,8 +176,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         // final EntityProperty property = props.get(0);
         final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
-            // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move
-            // may be treated as delete in the future
+            // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
             hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
             // the issue has been
             final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();

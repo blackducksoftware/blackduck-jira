@@ -92,7 +92,7 @@ public class TicketGenerator {
         }
         try {
             final HubBucket hubBucket = new HubBucket();
-            final NotificationDetailResults results = notificationService.getAllUserNotificationDetailResults(hubBucket, hubUser, startDate, endDate);
+            final NotificationDetailResults results = notificationService.getAllUserNotificationDetailResultsPopulated(hubBucket, hubUser, startDate, endDate);
             final List<NotificationDetailResult> notificationDetailResults = results.getResults();
             reportAnyErrors(hubBucket);
 

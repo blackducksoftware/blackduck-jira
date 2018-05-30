@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -53,13 +54,11 @@ import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskP
 import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
-import com.blackducksoftware.integration.hub.api.generated.view.NotificationView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.notification.CommonNotificationView;
 import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
 import com.blackducksoftware.integration.hub.notification.content.ComponentVersionStatus;
 import com.blackducksoftware.integration.hub.notification.content.PolicyInfo;
@@ -68,7 +67,7 @@ import com.blackducksoftware.integration.hub.notification.content.RuleViolationC
 import com.blackducksoftware.integration.hub.notification.content.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetailFactory;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
@@ -89,8 +88,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 
 public class NotificationConverterTest {
     private static final long JIRA_ISSUE_ID = 456L;
@@ -343,15 +340,14 @@ public class NotificationConverterTest {
 
     private NotificationDetailResult createNotif(final HubBucket mockHubBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationDetailResult notif;
-        final NotificationContentDetailFactory notifFactory = new NotificationContentDetailFactory(new Gson(), new JsonParser());
         if (NotificationType.VULNERABILITY.equals(notifType)) {
-            notif = createVulnerabilityNotif(notifFactory, now);
+            notif = createVulnerabilityNotif(now);
         } else if (NotificationType.RULE_VIOLATION.equals(notifType)) {
-            notif = createRuleViolationNotif(notifFactory, mockHubBucket, now);
+            notif = createRuleViolationNotif(mockHubBucket, now);
         } else if (NotificationType.POLICY_OVERRIDE.equals(notifType)) {
-            notif = createPolicyOverrideNotif(notifFactory, mockHubBucket, now);
+            notif = createPolicyOverrideNotif(mockHubBucket, now);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notifType)) {
-            notif = createRuleViolationClearedNotif(notifFactory, mockHubBucket, now);
+            notif = createRuleViolationClearedNotif(mockHubBucket, now);
         } else {
             throw new IllegalArgumentException("Unrecognized notification type");
         }
@@ -402,7 +398,7 @@ public class NotificationConverterTest {
         assertEquals(expectedPropertyKey, eventData.getEventKey());
     }
 
-    private NotificationDetailResult createVulnerabilityNotif(final NotificationContentDetailFactory notifFactory, final Date createdAt) throws URISyntaxException, HubIntegrationException {
+    private NotificationDetailResult createVulnerabilityNotif(final Date createdAt) throws URISyntaxException, HubIntegrationException {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
         vuln.source = VULN_SOURCE;
         vuln.vulnerabilityId = COMPONENT_VERSION_URL;
@@ -428,10 +424,23 @@ public class NotificationConverterTest {
         affected.projectVersionName = PROJECT_VERSION_NAME;
         content.affectedProjectVersions = Arrays.asList(affected);
 
-        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.VULNERABILITY, createdAt), content);
+        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
+        final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
+
+        final Optional<String> componentName = Optional.of(COMPONENT_NAME);
+        final Optional<String> componentVersionName = Optional.of(COMPONENT_VERSION_NAME);
+        final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
+        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
+        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
+                componentVersionName, componentVersionUri, Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+
+        return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -446,10 +455,25 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.RULE_VIOLATION, createdAt), content);
+        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
+        final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
+
+        final Optional<String> componentName = Optional.of(COMPONENT_NAME);
+        final Optional<String> componentVersionName = Optional.of(COMPONENT_VERSION_NAME);
+        final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
+        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
+        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
+        final Optional<String> policyName = Optional.of(policyInfo.policyName);
+        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
+                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+
+        return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationClearedNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationClearedNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_CLEARED_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -464,10 +488,25 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.RULE_VIOLATION_CLEARED, createdAt), content);
+        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
+        final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
+
+        final Optional<String> componentName = Optional.of(COMPONENT_NAME);
+        final Optional<String> componentVersionName = Optional.of(COMPONENT_VERSION_NAME);
+        final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
+        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
+        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
+        final Optional<String> policyName = Optional.of(policyInfo.policyName);
+        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
+                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+
+        return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION_CLEARED, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createPolicyOverrideNotif(final NotificationContentDetailFactory notifFactory, final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createPolicyOverrideNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_OVERRIDE_EXPECTED_DESCRIPTION);
         Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -487,7 +526,20 @@ public class NotificationConverterTest {
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        return notifFactory.generateContentDetails(createCommonNotificationView(NotificationType.POLICY_OVERRIDE, createdAt), content);
+        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
+        final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
+
+        final Optional<String> componentName = Optional.of(COMPONENT_NAME);
+        final Optional<String> componentVersionName = Optional.of(COMPONENT_VERSION_NAME);
+        final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
+        final Optional<String> policyName = Optional.of(policyInfo.policyName);
+        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
+                componentVersionName, componentVersionUri, policyName, policyUri, Optional.empty(), Optional.empty(), Optional.empty());
+
+        return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
     private static HubProject createHubProject() {
@@ -518,18 +570,6 @@ public class NotificationConverterTest {
         projectFieldCopyMappings.add(projectFieldCopyMapping);
         fieldCopyConfig.setProjectFieldCopyMappings(projectFieldCopyMappings);
         return fieldCopyConfig;
-    }
-
-    private static CommonNotificationView createCommonNotificationView(final NotificationType type, final Date createdAt) {
-        return new CommonNotificationView(createNotificationView(type, createdAt));
-    }
-
-    private static NotificationView createNotificationView(final NotificationType type, final Date createdAt) {
-        final NotificationView view = new NotificationView();
-        view.contentType = "contentType";
-        view.createdAt = createdAt;
-        view.type = type;
-        return view;
     }
 
     private static ProjectVersionView createProjectVersionView() {

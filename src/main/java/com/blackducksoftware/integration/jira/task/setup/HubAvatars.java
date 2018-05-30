@@ -41,65 +41,60 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class HubAvatars {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private Map<String, Avatar> avatars = new HashMap<>();
+    private final Map<String, Avatar> avatars = new HashMap<>();
 
     private final JiraServices jiraServices;
 
     private final ApplicationUser jiraUser;
 
-    public HubAvatars(JiraServices jiraServices, ApplicationUser jiraUser) {
+    public HubAvatars(final JiraServices jiraServices, final ApplicationUser jiraUser) {
         this.jiraServices = jiraServices;
         this.jiraUser = jiraUser;
     }
 
-    public Long getAvatarId(String issueTypeName) {
+    public Long getAvatarId(final String issueTypeName) {
         logger.debug("Getting avatar id for issue type: " + issueTypeName);
         Avatar blackDuckAvatar;
         if (avatars.containsKey(issueTypeName)) {
-            Long avatarId = avatars.get(issueTypeName).getId();
+            final Long avatarId = avatars.get(issueTypeName).getId();
             logger.debug("Returning avatar ID from cache: " + avatarId);
             return avatarId;
         }
         try {
             blackDuckAvatar = createBlackDuckAvatar(issueTypeName);
+            if (blackDuckAvatar != null) {
+                logger.debug("Successfully created Black Duck Avatar with ID: " + blackDuckAvatar.getId());
+                avatars.put(issueTypeName, blackDuckAvatar);
+                return blackDuckAvatar.getId();
+            }
         } catch (DataAccessException | IOException e) {
             logger.error("Error creating Black Duck avatar. ", e);
-            return jiraServices.getAvatarManager().getAnonymousAvatarId();
         }
-        logger.debug("Successfully created Black Duck Avatar with ID: " + blackDuckAvatar.getId());
-        avatars.put(issueTypeName, blackDuckAvatar);
-        return blackDuckAvatar.getId();
+        return jiraServices.getAvatarManager().getAnonymousAvatarId();
     }
 
-    private Avatar createBlackDuckAvatar(String issueTypeName) throws DataAccessException, IOException {
+    private Avatar createBlackDuckAvatar(final String issueTypeName) throws DataAccessException, IOException {
         logger.debug("Creating avatar for issue type: " + issueTypeName);
 
-        String avatarImagePath = getAvatarImagePath(issueTypeName);
-        String avatarImageFilename = getAvatarImageFilename(issueTypeName);
+        final String avatarImagePath = getAvatarImagePath(issueTypeName);
+        final String avatarImageFilename = getAvatarImageFilename(issueTypeName);
 
         logger.debug("Loading Black Duck avatar from " + avatarImagePath);
 
         logger.debug("Creating avatar template");
-        final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate(
-                avatarImageFilename,
-                "image/png", jiraUser.getKey());
+        final Avatar avatarTemplate = jiraServices.createIssueTypeAvatarTemplate(avatarImageFilename, "image/png", jiraUser.getKey());
         if (avatarTemplate == null) {
             logger.debug("jiraServices.createIssueTypeAvatarTemplate() returned null");
             return null;
         }
 
-        InputStream is = ClassLoaderUtils.getResourceAsStream(avatarImagePath, this.getClass());
-        final Avatar duckyAvatar = jiraServices.getAvatarManager().create(avatarTemplate,
-                is, null);
-
-        if (duckyAvatar == null) {
-            throw new DataAccessException("AvatarManager().create() returned null");
-        }
+        final InputStream is = ClassLoaderUtils.getResourceAsStream(avatarImagePath, this.getClass());
+        final Avatar duckyAvatar = jiraServices.getAvatarManager().create(avatarTemplate, is, null);
         logger.debug("Created Avatar " + duckyAvatar.getFileName() + " with ID " + duckyAvatar.getId());
         return duckyAvatar;
     }
 
-    private String getAvatarImagePath(String issueTypeName) {
+    private String getAvatarImagePath(final String issueTypeName) {
         if (HubJiraConstants.HUB_VULNERABILITY_ISSUE.equals(issueTypeName)) {
             return HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY;
         } else {
@@ -107,7 +102,7 @@ public class HubAvatars {
         }
     }
 
-    private String getAvatarImageFilename(String issueTypeName) {
+    private String getAvatarImageFilename(final String issueTypeName) {
         if (HubJiraConstants.HUB_VULNERABILITY_ISSUE.equals(issueTypeName)) {
             return HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
         } else {

@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>33.0.0-SNAPSHOT</version>
+      <version>33.0.2</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>

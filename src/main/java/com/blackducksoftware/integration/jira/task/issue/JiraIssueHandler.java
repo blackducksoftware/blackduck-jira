@@ -377,7 +377,7 @@ public class JiraIssueHandler {
             }
         } else if (HubEventAction.ADD_COMMENT.equals(actionToTake)) {
             final ExistenceAwareIssue issueToCommentOn = openIssue(eventData);
-            if (issueToCommentOn.getIssue() != null) {
+            if (issueToCommentOn != null && issueToCommentOn.getIssue() != null) {
                 if (!issueToCommentOn.isExisted()) {
                     addComment(eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
                 } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
