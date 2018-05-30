@@ -25,14 +25,18 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.Set;
 
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraContext;
 import com.blackducksoftware.integration.jira.common.JiraProject;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.util.Stringable;
 
-public class EventDataBuilder {
+public class EventDataBuilder extends Stringable {
     private final EventCategory eventCategory;
 
     private HubEventAction action;
@@ -70,9 +74,15 @@ public class EventDataBuilder {
     private String componentIssueUrl;
     private String hubProjectOwner;
     private String hubProjectVersionLastUpdated;
+    private NotificationType notificationType;
+    private String eventKey;
 
     public EventDataBuilder(final EventCategory eventCategory) {
         this.eventCategory = eventCategory;
+    }
+
+    public EventCategory getEventCategory() {
+        return eventCategory;
     }
 
     public EventDataBuilder setPropertiesFromJiraContext(final JiraContext jiraContext) {
@@ -87,6 +97,71 @@ public class EventDataBuilder {
         setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId());
         setJiraProjectName(jiraProject.getProjectName());
         setJiraProjectId(jiraProject.getProjectId());
+        return this;
+    }
+
+    public EventDataBuilder setPropertiesFromNotificationContentDetail(final NotificationContentDetail detail) {
+        if (detail.getProjectName().isPresent()) {
+            setHubProjectName(detail.getProjectName().get());
+        }
+        if (detail.getProjectVersionName().isPresent()) {
+            setHubProjectVersion(detail.getProjectVersionName().get());
+        }
+        if (detail.getProjectVersion().isPresent()) {
+            setHubProjectVersionUrl(detail.getProjectVersion().get().uri);
+        }
+        if (detail.getComponentName().isPresent()) {
+            setHubComponentName(detail.getComponentName().get());
+        }
+        if (detail.getComponent().isPresent()) {
+            setHubComponentUrl(detail.getComponent().get().uri);
+        }
+        if (detail.getComponentVersionName().isPresent()) {
+            setHubComponentVersion(detail.getComponentVersionName().get());
+        }
+        if (detail.getComponentVersion().isPresent()) {
+            setHubComponentVersionUrl(detail.getComponentVersion().get().uri);
+        }
+        if (detail.getComponentIssue().isPresent()) {
+            setComponentIssueUrl(detail.getComponentIssue().get().uri);
+        }
+        if (detail.getComponentVersionOriginName().isPresent()) {
+            setHubComponentOrigin(detail.getComponentVersionOriginName().get());
+        }
+        if (detail.getComponentVersionOriginId().isPresent()) {
+            setHubComponentOriginId(detail.getComponentVersionOriginId().get());
+        }
+        return this;
+    }
+
+    public EventDataBuilder setPolicyIssueCommentPropertiesFromNotificationType(final NotificationType notificationType) {
+        if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
+            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+        } else {
+
+        }
+        return this;
+    }
+
+    public EventDataBuilder setVulnerabilityIssueCommentProperties(final String comment) {
+        setJiraIssueComment(comment);
+        setJiraIssueCommentForExistingIssue(comment);
+        setJiraIssueReOpenComment(HubJiraConstants.HUB_VULNERABILITY_REOPEN);
+        setJiraIssueResolveComment(HubJiraConstants.HUB_VULNERABILITY_RESOLVE);
+        setJiraIssueCommentInLieuOfStateChange(comment);
         return this;
     }
 
@@ -265,6 +340,36 @@ public class EventDataBuilder {
         return this;
     }
 
+    public EventDataBuilder setNotificationType(final NotificationType notificationType) {
+        this.notificationType = notificationType;
+        return this;
+    }
+
+    public EventDataBuilder setEventKey(final String eventKey) {
+        this.eventKey = eventKey;
+        return this;
+    }
+
+    public Long getJiraProjectId() {
+        return jiraProjectId;
+    }
+
+    public String getHubProjectVersionUrl() {
+        return hubProjectVersionUrl;
+    }
+
+    public String getHubComponentVersionUrl() {
+        return hubComponentVersionUrl;
+    }
+
+    public String getHubComponentUrl() {
+        return hubComponentUrl;
+    }
+
+    public String getHubRuleUrl() {
+        return hubRuleUrl;
+    }
+
     public EventData build() throws EventDataBuilderException {
         if (jiraAdminUserName == null) {
             throw new EventDataBuilderException("jiraAdminUserName not set");
@@ -389,7 +494,9 @@ public class EventDataBuilder {
                 .setHubRuleUrl(hubRuleUrl)
                 .setComponentIssueUrl(componentIssueUrl)
                 .setHubProjectOwner(hubProjectOwner)
-                .setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated);
+                .setHubProjectVersionLastUpdated(hubProjectVersionLastUpdated)
+                .setNotificationType(notificationType)
+                .setEventKey(eventKey);
         return eventData;
     }
 }

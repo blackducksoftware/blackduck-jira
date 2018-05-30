@@ -33,7 +33,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProjectFieldCopyMapping implements Serializable {
-
     private static final long serialVersionUID = -8343238734203251050L;
 
     @XmlElement
@@ -57,14 +56,14 @@ public class ProjectFieldCopyMapping implements Serializable {
     public ProjectFieldCopyMapping() {
     }
 
-    public ProjectFieldCopyMapping(String jiraProjectName, String hubProjectName, String sourceFieldId, String sourceFieldName, String targetFieldId,
-            String targetFieldName) {
+    public ProjectFieldCopyMapping(final String jiraProjectName, final String hubProjectName, final String sourceFieldId, final String sourceFieldName, final String targetFieldId, final String targetFieldName) {
         super();
         this.jiraProjectName = jiraProjectName;
         this.hubProjectName = hubProjectName;
         this.sourceFieldId = sourceFieldId;
         this.sourceFieldName = sourceFieldName;
         this.targetFieldId = targetFieldId;
+        this.targetFieldName = targetFieldName;
     }
 
     public String getJiraProjectName() {
@@ -91,27 +90,27 @@ public class ProjectFieldCopyMapping implements Serializable {
         return targetFieldName;
     }
 
-    public void setJiraProjectName(String jiraProjectName) {
+    public void setJiraProjectName(final String jiraProjectName) {
         this.jiraProjectName = jiraProjectName;
     }
 
-    public void setHubProjectName(String hubProjectName) {
+    public void setHubProjectName(final String hubProjectName) {
         this.hubProjectName = hubProjectName;
     }
 
-    public void setSourceFieldId(String sourceFieldId) {
+    public void setSourceFieldId(final String sourceFieldId) {
         this.sourceFieldId = sourceFieldId;
     }
 
-    public void setSourceFieldName(String sourceFieldName) {
+    public void setSourceFieldName(final String sourceFieldName) {
         this.sourceFieldName = sourceFieldName;
     }
 
-    public void setTargetFieldId(String targetFieldId) {
+    public void setTargetFieldId(final String targetFieldId) {
         this.targetFieldId = targetFieldId;
     }
 
-    public void setTargetFieldName(String targetFieldName) {
+    public void setTargetFieldName(final String targetFieldName) {
         this.targetFieldName = targetFieldName;
     }
 

@@ -266,7 +266,7 @@ public class JiraWorkflowMock implements JiraWorkflow {
 
     @Override
     public Status getLinkedStatus(final StepDescriptor arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

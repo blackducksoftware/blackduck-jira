@@ -27,12 +27,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
+import com.blackducksoftware.integration.util.Stringable;
 
-public class EventData {
+public class EventData extends Stringable {
     private HubEventAction action;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
@@ -68,6 +70,8 @@ public class EventData {
     private String componentIssueUrl;
     private String hubProjectOwner;
     private String hubProjectVersionLastUpdated;
+    private NotificationType notificationType;
+    private String eventKey;
 
     // The constructor and setters are only for EventDataBuilder
     EventData() {
@@ -76,6 +80,10 @@ public class EventData {
     EventData setAction(final HubEventAction action) {
         this.action = action;
         return this;
+    }
+
+    public boolean isPolicy() {
+        return NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType);
     }
 
     EventData setJiraAdminUsername(final String jiraAdminUsername) {
@@ -248,6 +256,16 @@ public class EventData {
         return this;
     }
 
+    public EventData setNotificationType(final NotificationType notificationType) {
+        this.notificationType = notificationType;
+        return this;
+    }
+
+    public EventData setEventKey(final String eventKey) {
+        this.eventKey = eventKey;
+        return this;
+    }
+
     public HubEventAction getAction() {
         return action;
     }
@@ -386,6 +404,14 @@ public class EventData {
 
     public String getHubProjectVersionLastUpdated() {
         return hubProjectVersionLastUpdated;
+    }
+
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public String getEventKey() {
+        return eventKey;
     }
 
     public Map<String, Object> getDataSet() {

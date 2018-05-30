@@ -36,10 +36,9 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 
 import webwork.action.Action;
 
+@SuppressWarnings("rawtypes")
 public class FieldScreenLayoutItemMock implements FieldScreenLayoutItem {
-
     private Long id;
-
     private OrderableField field;
 
     @Override

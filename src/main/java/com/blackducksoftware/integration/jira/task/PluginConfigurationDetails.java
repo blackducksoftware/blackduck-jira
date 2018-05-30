@@ -32,44 +32,26 @@ import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 
 public class PluginConfigurationDetails {
     private final String hubUrl;
-
     private final String hubUsername;
-
     private final String hubPasswordEncrypted;
-
     private final String hubPasswordLength;
-
     private final String hubTimeoutString;
-
     private final String hubProxyHost;
-
     private final String hubProxyPort;
-
     private final String hubProxyNoHost;
-
     private final String hubProxyUser;
-
     private final String hubProxyPassEncrypted;
-
     private final String hubProxyPassLength;
-
     private final String intervalString;
-
     private final String projectMappingJson;
-
     private final String policyRulesJson;
-
     private final String installDateString;
-
     private final String lastRunDateString;
-
     private final String jiraAdminUserName;
-
     private final String jiraIssueCreatorUserName;
-
     private final String fieldCopyMappingJson;
-
     private final boolean createVulnerabilityIssues;
+
     private final PluginSettings settings;
 
     public PluginConfigurationDetails(final PluginSettings settings) {
@@ -190,7 +172,7 @@ public class PluginConfigurationDetails {
 
     public HubServerConfigBuilder createHubServerConfigBuilder() {
         final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
-        hubConfigBuilder.setHubUrl(hubUrl);
+        hubConfigBuilder.setUrl(hubUrl);
         hubConfigBuilder.setUsername(hubUsername);
         hubConfigBuilder.setPassword(hubPasswordEncrypted);
         hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));

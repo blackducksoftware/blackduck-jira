@@ -92,7 +92,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Issue:            %s", issue));
 
                 final String propertyKey = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
-                final EntityProperty hubIssueUrlProperty = getHubIssueTrackerUrlProperty(propertyKey, issue);
+                final EntityProperty hubIssueUrlProperty = getHubIssueTrackerUrlProperty(propertyKey);
 
                 if (hubIssueUrlProperty == null) {
                     logger.debug(String.format("Hub Issue Tracker URL not present. No further processing for issue: %s", issue));
@@ -106,8 +106,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         }
     }
 
-    private EntityProperty getHubIssueTrackerUrlProperty(final String propertyKey, final Issue issue) {
-
+    private EntityProperty getHubIssueTrackerUrlProperty(final String propertyKey) {
         logger.debug(String.format("Entitykey: %s", propertyKey));
         final EntityPropertyQuery<?> query = jiraServices.getJsonEntityPropertyManager().query();
         final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(propertyKey);

@@ -51,7 +51,7 @@ public class GroupPickerSearchServiceMock implements GroupPickerSearchService {
 
     @Override
     public Group getGroupByName(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

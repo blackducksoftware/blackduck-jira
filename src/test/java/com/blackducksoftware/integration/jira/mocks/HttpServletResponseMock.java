@@ -216,25 +216,25 @@ public class HttpServletResponseMock implements HttpServletResponse {
 
     @Override
     public int getStatus() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return 0;
     }
 
     @Override
     public String getHeader(final String name) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<String> getHeaders(final String name) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

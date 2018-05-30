@@ -57,65 +57,70 @@ public class HubJiraLogger extends IntLogger {
 
     @Override
     public void info(final String txt) {
-        if (jiraLogger.isEnabledFor(Level.INFO)) {
+        if (isEnabledFor(Level.INFO)) {
             logMessageInfo(txt);
         }
     }
 
     @Override
     public void error(final Throwable t) {
-        if (jiraLogger.isEnabledFor(Level.ERROR)) {
+        if (isEnabledFor(Level.ERROR)) {
             logThrowable(t);
         }
     }
 
     @Override
     public void error(final String txt, final Throwable t) {
-        if (jiraLogger.isEnabledFor(Level.ERROR)) {
+        if (isEnabledFor(Level.ERROR)) {
             logThrowable(txt, t);
         }
     }
 
     @Override
     public void error(final String txt) {
-        if (jiraLogger.isEnabledFor(Level.ERROR)) {
+        if (isEnabledFor(Level.ERROR)) {
             logErrorMessage(txt);
         }
     }
 
     @Override
     public void warn(final String txt) {
-        if (jiraLogger.isEnabledFor(Level.WARN)) {
+        if (isEnabledFor(Level.WARN)) {
             logMessageWarn(txt);
         }
     }
 
     @Override
     public void trace(final String txt) {
-        if (jiraLogger.isTraceEnabled()) {
-            logMessageTrace(txt);
-        }
+        logMessageTrace(txt);
     }
 
     @Override
     public void trace(final String txt, final Throwable t) {
-        if (jiraLogger.isTraceEnabled()) {
+        if (jiraLogger != null && jiraLogger.isTraceEnabled()) {
             logThrowable(txt, t);
         }
     }
 
     @Override
     public void debug(final String txt) {
-        if (jiraLogger.isDebugEnabled()) {
-            logMessageDebug(txt);
-        }
+        logMessageDebug(txt);
     }
 
     @Override
     public void debug(final String txt, final Throwable t) {
-        if (jiraLogger.isDebugEnabled()) {
+        if (jiraLogger != null && jiraLogger.isDebugEnabled()) {
             logThrowable(txt, t);
         }
+    }
+
+    @Override
+    public void alwaysLog(final String txt) {
+        logMessageInfo(txt);
+    }
+
+    private boolean isEnabledFor(final Level logLevel) {
+        return jiraLogger != null && jiraLogger.isEnabledFor(logLevel);
     }
 
     private void logMessageInfo(final String txt) {
@@ -130,7 +135,7 @@ public class HubJiraLogger extends IntLogger {
 
     private void logMessageDebug(final String txt) {
         if (txt != null) {
-            if (jiraLogger != null) {
+            if (jiraLogger != null && jiraLogger.isDebugEnabled()) {
                 jiraLogger.debug(txt);
             } else {
                 System.out.println(txt);
@@ -150,7 +155,7 @@ public class HubJiraLogger extends IntLogger {
 
     private void logMessageTrace(final String txt) {
         if (txt != null) {
-            if (jiraLogger != null) {
+            if (jiraLogger != null && jiraLogger.isTraceEnabled()) {
                 jiraLogger.trace(txt);
             } else {
                 System.out.println(txt);
@@ -182,10 +187,5 @@ public class HubJiraLogger extends IntLogger {
                 System.out.println(txt);
             }
         }
-    }
-
-    @Override
-    public void alwaysLog(final String txt) {
-        logMessageInfo(txt);
     }
 }

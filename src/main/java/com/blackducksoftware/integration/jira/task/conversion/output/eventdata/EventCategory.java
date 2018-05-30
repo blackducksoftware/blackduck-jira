@@ -23,6 +23,17 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+
 public enum EventCategory {
-    POLICY, VULNERABILITY
+    POLICY,
+    VULNERABILITY;
+
+    public static EventCategory fromNotificationType(final NotificationType notificationType) {
+        EventCategory category = EventCategory.POLICY;
+        if (NotificationType.VULNERABILITY.equals(notificationType)) {
+            category = EventCategory.VULNERABILITY;
+        }
+        return category;
+    }
 }

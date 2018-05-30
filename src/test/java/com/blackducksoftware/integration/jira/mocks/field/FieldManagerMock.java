@@ -119,6 +119,7 @@ public class FieldManagerMock implements FieldManager {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Set<OrderableField> getOrderableFields() {
 
         return null;
@@ -264,56 +265,56 @@ public class FieldManagerMock implements FieldManager {
     @Override
     public Set<CustomField> getAvailableCustomFields(final ApplicationUser arg0, final Issue arg1)
             throws FieldException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<NavigableField> getAvailableNavigableFields(final ApplicationUser arg0) throws FieldException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0) throws FieldException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0, final QueryContext arg1)
             throws FieldException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<FieldLayout> getVisibleFieldLayouts(final ApplicationUser arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean isCustomFieldId(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isExistingCustomField(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isFieldHidden(final ApplicationUser arg0, final Field arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean isFieldHidden(final ApplicationUser arg0, final String arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 

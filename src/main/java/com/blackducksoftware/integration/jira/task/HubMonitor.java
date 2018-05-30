@@ -39,21 +39,14 @@ import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
-
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
-
     /* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
-
     public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
-
     private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
-
     private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     private final PluginScheduler pluginScheduler; // provided by SAL
-
     private final PluginSettingsFactory pluginSettingsFactory;
 
     @Inject
@@ -135,10 +128,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
             intervalMinutes = 1;
         }
         logger.info("Interval in minutes: " + intervalMinutes);
-        // Lop off 30 seconds to give the task room to run. Otherwise, the
-        // runtime
-        // of the task pushes the next scheduled runtime out beyond the targeted
-        // once-a-minute opportunity to run
+        // Lop off 30 seconds to give the task room to run. Otherwise, the runtime of the task pushes
+        // the next scheduled runtime out beyond the targeted once-a-minute opportunity to run
         final long intervalSeconds = (intervalMinutes * 60) - 30l;
         final long intervalMillisec = intervalSeconds * 1000;
         return intervalMillisec;

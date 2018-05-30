@@ -174,7 +174,7 @@ public class HubFieldConfigurationSetupTest {
             final HubFieldConfigurationSetup fieldConfigSetupSpy) {
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 
-        Mockito.when(fieldConfigSetupSpy.createEditableFieldLayout(Mockito.anyListOf(FieldLayoutItem.class)))
+        Mockito.when(fieldConfigSetupSpy.createEditableFieldLayout(Mockito.anyList()))
                 .thenAnswer(new Answer<EditableFieldLayout>() {
                     @Override
                     public EditableFieldLayout answer(final InvocationOnMock invocation) throws Throwable {

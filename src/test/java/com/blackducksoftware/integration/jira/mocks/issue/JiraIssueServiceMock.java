@@ -106,66 +106,66 @@ public class JiraIssueServiceMock implements IssueService {
 
     @Override
     public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public IssueResult update(final ApplicationUser arg0, final UpdateValidationResult arg1,
             final EventDispatchOption arg2, final boolean arg3) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public AssignValidationResult validateAssign(final ApplicationUser arg0, final Long arg1, final String arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public CreateValidationResult validateCreate(final ApplicationUser arg0, final IssueInputParameters arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public DeleteValidationResult validateDelete(final ApplicationUser arg0, final Long arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public CreateValidationResult validateSubTaskCreate(final ApplicationUser arg0, final Long arg1,
             final IssueInputParameters arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
             final IssueInputParameters arg3) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public TransitionValidationResult validateTransition(final ApplicationUser arg0, final Long arg1, final int arg2,
             final IssueInputParameters arg3, final TransitionOptions arg4) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public UpdateValidationResult validateUpdate(final ApplicationUser arg0, final Long arg1,
             final IssueInputParameters arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public AsynchronousTaskResult clone(final ApplicationUser arg0, final CloneValidationResult arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
@@ -173,7 +173,7 @@ public class JiraIssueServiceMock implements IssueService {
     public CloneValidationResult validateClone(final ApplicationUser arg0, final Issue arg1, final String arg2, final boolean arg3, final boolean arg4,
             final boolean arg5,
             final Map<CustomField, Optional<Boolean>> arg6) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

@@ -34,8 +34,8 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.event.entity.EntityPropertySetEvent;
 import com.atlassian.jira.user.ApplicationUser;
 
+@SuppressWarnings("deprecation")
 public class JSonEntityPropertyManagerMock implements JsonEntityPropertyManager {
-
     Map<String, Map<Long, Map<String, EntityProperty>>> entityMap;
 
     public JSonEntityPropertyManagerMock() {
@@ -125,7 +125,6 @@ public class JSonEntityPropertyManagerMock implements JsonEntityPropertyManager 
     @Override
     public void put(final ApplicationUser arg0, final String arg1, final Long arg2, final String arg3, final String arg4,
             final Function2<ApplicationUser, EntityProperty, ? extends EntityPropertySetEvent> arg5, final boolean arg6) {
-
     }
 
     @Override

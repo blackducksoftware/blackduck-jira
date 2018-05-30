@@ -38,8 +38,8 @@ import com.atlassian.jira.plugin.customfield.CustomFieldTypeModuleDescriptor;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.web.bean.BulkEditBean;
 
+@SuppressWarnings("rawtypes")
 public class CustomFieldTypeMock implements CustomFieldType {
-
     @Override
     public String availableForBulkEdit(final BulkEditBean arg0) {
 

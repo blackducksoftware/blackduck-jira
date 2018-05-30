@@ -29,14 +29,11 @@ import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.util.I18nHelper;
 
+@SuppressWarnings("unused")
 public class IssueTypeMock implements IssueType {
-
     private String name;
-
     private String id;
-
     private GenericValue value;
-
     private String description;
 
     public void setDescription(final String description) {

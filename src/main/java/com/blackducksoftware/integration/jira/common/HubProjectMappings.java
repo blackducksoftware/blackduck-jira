@@ -37,11 +37,9 @@ public class HubProjectMappings {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final Set<HubProjectMapping> mappings;
-
     private final JiraServices jiraServices;
 
-    public HubProjectMappings(final JiraServices jiraServices,
-            final Set<HubProjectMapping> mappings) {
+    public HubProjectMappings(final JiraServices jiraServices, final Set<HubProjectMapping> mappings) {
         this.jiraServices = jiraServices;
         this.mappings = mappings;
     }

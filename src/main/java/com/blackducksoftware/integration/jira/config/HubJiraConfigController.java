@@ -65,7 +65,6 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
@@ -75,9 +74,6 @@ import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.rest.UriCombiner;
-import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.ProjectService;
@@ -95,18 +91,24 @@ import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.rest.RestConstants;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
 
 @Path("/")
 public class HubJiraConfigController {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    // This must be "package protected" to avoid synthetic access
+    final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+
+    // These must be "package protected" to avoid synthetic access
+    final PluginSettingsFactory pluginSettingsFactory;
+    final ProjectManager projectManager;
+    final GroupPickerSearchService groupPickerSearchService;
+    final FieldManager fieldManager;
 
     private final UserManager userManager;
-    private final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
-    private final ProjectManager projectManager;
     private final HubMonitor hubMonitor;
-    private final GroupPickerSearchService groupPickerSearchService;
-    private final FieldManager fieldManager;
     private final Properties i18nProperties;
 
     public HubJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager, final HubMonitor hubMonitor,
@@ -136,7 +138,8 @@ public class HubJiraConfigController {
         logger.debug("i18nProperties: " + i18nProperties);
     }
 
-    private String getI18nProperty(final String key) {
+    // This must be "package protected" to avoid synthetic access
+    String getI18nProperty(final String key) {
         if (i18nProperties == null) {
             return key;
         }
@@ -162,6 +165,8 @@ public class HubJiraConfigController {
         if (userManager.isSystemAdmin(username)) {
             return true;
         }
+        // Deprecated property used to update new property
+        @SuppressWarnings("deprecation")
         final String oldHubJiraGroupsString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
         if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
@@ -188,6 +193,8 @@ public class HubJiraConfigController {
     @Path("/admin")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    // Deprecated property used to update new property
+    @SuppressWarnings("deprecation")
     public Response getHubJiraAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
@@ -492,7 +499,6 @@ public class HubJiraConfigController {
                     logger.debug("sourceFields: " + txSourceFields);
                     return txSourceFields;
                 }
-
             });
         } catch (final Exception e) {
             final Fields errorSourceFields = new Fields();
@@ -539,7 +545,6 @@ public class HubJiraConfigController {
             errorTargetFields.setErrorMessage(msg);
             return Response.ok(errorTargetFields).build();
         }
-
         return Response.ok(targetFields).build();
     }
 
@@ -582,7 +587,6 @@ public class HubJiraConfigController {
             logger.error(msg, e);
             return Response.ok(errorConfig).build();
         }
-
         return Response.ok(config).build();
     }
 
@@ -733,7 +737,8 @@ public class HubJiraConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    private SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
+    // This must be "package protected" to avoid synthetic access
+    SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
         final SortedSet<String> jiraUsernames = new TreeSet<>();
         final String groupList = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
@@ -940,7 +945,8 @@ public class HubJiraConfigController {
         return Response.noContent().build();
     }
 
-    private boolean isValid(final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
+    // This must be "package protected" to avoid synthetic access
+    boolean isValid(final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
         if (fieldCopyConfig.getProjectFieldCopyMappings().size() == 0) {
             fieldCopyConfig.setErrorMessage(JiraConfigErrors.NO_VALID_FIELD_CONFIGURATIONS);
             return false;
@@ -964,7 +970,6 @@ public class HubJiraConfigController {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -972,6 +977,7 @@ public class HubJiraConfigController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
+        logger.debug("Reset called with parameter: " + object);
         final Object responseString;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -1011,7 +1017,8 @@ public class HubJiraConfigController {
         return Response.noContent().build();
     }
 
-    private void updateHubTaskInterval(final String previousIntervalString, final String newIntervalString) {
+    // This must be "package protected" to avoid synthetic access
+    void updateHubTaskInterval(final String previousIntervalString, final String newIntervalString) {
         final int previousInterval = NumberUtils.toInt(previousIntervalString);
         int newInterval;
         try {
@@ -1024,7 +1031,8 @@ public class HubJiraConfigController {
         }
     }
 
-    private void validateInterval(final HubJiraConfigSerializable config) {
+    // This must be "package protected" to avoid synthetic access
+    void validateInterval(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
             config.setGeneralSettingsError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
         } else {
@@ -1039,13 +1047,15 @@ public class HubJiraConfigController {
         }
     }
 
-    private void validateCreator(final HubJiraConfigSerializable config) {
+    // This must be "package protected" to avoid synthetic access
+    void validateCreator(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getCreator())) {
             config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
         }
     }
 
-    private void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
+    // This must be "package protected" to avoid synthetic access
+    void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
         if (StringUtils.isBlank(config.getCreator())) {
             config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
         }
@@ -1056,7 +1066,8 @@ public class HubJiraConfigController {
         }
     }
 
-    private void validateMapping(final HubJiraConfigSerializable config) {
+    // This must be "package protected" to avoid synthetic access
+    void validateMapping(final HubJiraConfigSerializable config) {
         if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
             boolean hasEmptyMapping = false;
             for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
@@ -1084,15 +1095,18 @@ public class HubJiraConfigController {
         }
     }
 
-    private Object getValue(final PluginSettings settings, final String key) {
+    // This must be "package protected" to avoid synthetic access
+    Object getValue(final PluginSettings settings, final String key) {
         return settings.get(key);
     }
 
-    private String getStringValue(final PluginSettings settings, final String key) {
+    // This must be "package protected" to avoid synthetic access
+    String getStringValue(final PluginSettings settings, final String key) {
         return (String) getValue(settings, key);
     }
 
-    private void setValue(final PluginSettings settings, final String key, final Object value) {
+    // This must be "package protected" to avoid synthetic access
+    void setValue(final PluginSettings settings, final String key, final Object value) {
         if (value == null) {
             settings.remove(key);
         } else {
@@ -1108,7 +1122,8 @@ public class HubJiraConfigController {
         }
     }
 
-    private List<JiraProject> getJiraProjects(final List<Project> jiraProjects) {
+    // This must be "package protected" to avoid synthetic access
+    List<JiraProject> getJiraProjects(final List<Project> jiraProjects) {
         final List<JiraProject> newJiraProjects = new ArrayList<>();
         if (jiraProjects != null && !jiraProjects.isEmpty()) {
             for (final Project oldProject : jiraProjects) {
@@ -1122,7 +1137,8 @@ public class HubJiraConfigController {
         return newJiraProjects;
     }
 
-    private HubServicesFactory createHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
+    // This must be "package protected" to avoid synthetic access
+    HubServicesFactory createHubServicesFactory(final PluginSettings settings, final HubJiraConfigSerializable config) {
         final RestConnection restConnection = createRestConnection(settings, config);
         if (config.hasErrors()) {
             return null;
@@ -1157,7 +1173,7 @@ public class HubJiraConfigController {
         CredentialsRestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
-            configBuilder.setHubUrl(hubUrl);
+            configBuilder.setUrl(hubUrl);
             configBuilder.setUsername(hubUser);
             configBuilder.setPassword(encHubPassword);
             configBuilder.setPasswordLength(NumberUtils.toInt(encHubPasswordLength));
@@ -1179,7 +1195,7 @@ public class HubJiraConfigController {
             }
 
             restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(),
-                    serverConfig.getProxyInfo(), new UriCombiner());
+                    serverConfig.getProxyInfo());
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
@@ -1189,7 +1205,8 @@ public class HubJiraConfigController {
         return restConnection;
     }
 
-    private List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory, final ErrorTracking config) {
+    // This must be "package protected" to avoid synthetic access
+    List<HubProject> getHubProjects(final HubServicesFactory hubServicesFactory, final ErrorTracking config) {
         final List<HubProject> hubProjects = new ArrayList<>();
         final ProjectService projectRequestService = hubServicesFactory.createProjectService();
         List<ProjectView> hubProjectItems = null;
@@ -1225,7 +1242,8 @@ public class HubJiraConfigController {
         return hubProjects;
     }
 
-    private void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
+    // This must be "package protected" to avoid synthetic access
+    void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final HubJiraConfigSerializable config) {
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (hubServicesFactory != null) {
             final HubService hubService = hubServicesFactory.createHubService();

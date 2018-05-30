@@ -32,11 +32,11 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.rest.RestConstants;
 
 public class HubIssueTrackerHandler {
     public final static String USER_NOT_ASSIGNED = "Not Assigned";

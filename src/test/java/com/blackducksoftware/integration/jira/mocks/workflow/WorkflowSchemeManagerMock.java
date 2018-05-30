@@ -541,62 +541,62 @@ public class WorkflowSchemeManagerMock implements WorkflowSchemeManager {
 
     @Override
     public void deleteEntities(final Iterable<Long> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public List<GenericValue> getEntitiesByIds(final List<Long> arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void swapParameterForEntitiesOfType(final String arg0, final String arg1, final String arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public AssignableWorkflowScheme cleanUpSchemeDraft(final Project arg0, final ApplicationUser arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public AssignableWorkflowScheme copyDraft(final DraftWorkflowScheme arg0, final ApplicationUser arg1,
             final String arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public GenericValue getWorkflowScheme(final Project arg0) throws GenericEntityException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers(final Long arg0, final Project arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers(final Long arg0, final Issue arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers(final Long arg0, final GenericValue arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ApplicationUser> getUsers(final Long arg0, final PermissionContext arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

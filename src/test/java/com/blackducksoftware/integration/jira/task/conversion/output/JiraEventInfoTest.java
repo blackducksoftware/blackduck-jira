@@ -27,20 +27,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.throwaway.ProjectVersionModel;
-import com.blackducksoftware.integration.hub.throwaway.VulnerabilityContentItem;
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
@@ -60,7 +56,7 @@ public class JiraEventInfoTest {
     @Test
     public void testValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
 
@@ -74,7 +70,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubProjectVersionUrl(null);
@@ -90,7 +86,7 @@ public class JiraEventInfoTest {
     @Test
     public void testValidPolicyEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleName("hubRuleName");
@@ -106,7 +102,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidPolicyEventMissingRuleUrl() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleName("hubRuleName");
@@ -122,7 +118,7 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidPolicyEventMissingRuleName() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator();
+        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
         eventDataBuilder.setHubRuleUrl("hubRuleUrl");
@@ -212,13 +208,21 @@ public class JiraEventInfoTest {
         return eventDataBuilder;
     }
 
-    private IssuePropertiesGenerator createIssuePropertyGenerator() throws URISyntaxException {
-        final ProjectVersionModel projectVersion = new ProjectVersionModel();
-        final ComponentVersionView componentVersion = new ComponentVersionView();
-        final List<VulnerabilitySourceQualifiedId> vulns = new ArrayList<>(0);
-        final VulnerabilityContentItem contentItem = new VulnerabilityContentItem(new Date(), projectVersion, "tbd", componentVersion, "tbd", vulns, vulns,
-                vulns, "");
-        final IssuePropertiesGenerator issuePropertiesGenerator = new VulnerabilityIssuePropertiesGenerator(contentItem);
+    private IssuePropertiesGenerator createIssuePropertyGenerator(final NotificationType notificationType) throws URISyntaxException {
+        final Optional<String> projectName = Optional.of("projectName");
+        final Optional<String> projectVersionName = Optional.of("projectVersionName");
+        final Optional<String> projectVersionUri = Optional.of("projectVersionUri");
+
+        final Optional<String> componentName = Optional.of("compName");
+        final Optional<String> componentUri = Optional.of("componentUri");
+        final Optional<String> componentVersionName = Optional.of("versionName");
+        final Optional<String> componentVersionUri = Optional.of("compVerName");
+        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
+        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(notificationType.name(), projectName, projectVersionName, projectVersionUri, componentName, componentUri, componentVersionName, componentVersionUri,
+                Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+        final IssuePropertiesGenerator issuePropertiesGenerator = new IssuePropertiesGenerator(detail, Optional.empty());
         return issuePropertiesGenerator;
     }
 }

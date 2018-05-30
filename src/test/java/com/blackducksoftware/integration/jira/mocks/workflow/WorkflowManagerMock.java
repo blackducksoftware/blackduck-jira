@@ -345,26 +345,26 @@ public class WorkflowManagerMock implements WorkflowManager {
 
     @Override
     public void copyAndDeleteDraftWorkflows(final ApplicationUser arg0, final Set<JiraWorkflow> arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public void copyAndDeleteDraftsForInactiveWorkflowsIn(final ApplicationUser arg0, final Iterable<JiraWorkflow> arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 
     @Override
     public ActionDescriptor getActionDescriptor(final Issue arg0, final int arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void replaceConditionInTransition(final ActionDescriptor arg0, final Map<String, String> arg1,
             final Map<String, String> arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
 
     }
 

@@ -94,6 +94,7 @@ public class HubJiraServletTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testDoGetUserNotAdminNotInOldGroup() throws Exception {
         final String userName = "TestUser";
         final String redirectUrl = "http://testRedirect";
@@ -156,6 +157,7 @@ public class HubJiraServletTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testDoGetUserNotAdminInOldGroup() throws Exception {
         final String userName = "TestUser";
         final String redirectUrl = "http://testRedirect";

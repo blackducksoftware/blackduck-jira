@@ -25,13 +25,11 @@ package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.Set;
 
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.customfields.CustomFieldUtils;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldException;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.NavigableField;
-import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
@@ -39,18 +37,6 @@ import com.blackducksoftware.integration.jira.config.Fields;
 import com.blackducksoftware.integration.jira.config.IdToNameMapping;
 
 public class JiraFieldUtils {
-
-    public static void printFields(final HubJiraLogger logger, final FieldManager fieldManager, final ApplicationUser user, final Issue issue) {
-        try {
-            final Set<NavigableField> navFields = fieldManager.getAllAvailableNavigableFields();
-            for (final NavigableField field : navFields) {
-                logger.debug("NavigableField: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
-            }
-        } catch (final Exception e) {
-            logger.debug("Error getting fields: " + e.getMessage());
-        }
-    }
-
     public static Fields getTargetFields(final HubJiraLogger logger, final FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
         addEligibleSystemFields(logger, fieldManager, targetFields);

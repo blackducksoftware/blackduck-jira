@@ -27,8 +27,8 @@ import com.atlassian.jira.issue.fields.OrderableField;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 
+@SuppressWarnings("rawtypes")
 public class FieldLayoutItemMock implements FieldLayoutItem {
-
     private OrderableField orderableField;
 
     private boolean isRequired;

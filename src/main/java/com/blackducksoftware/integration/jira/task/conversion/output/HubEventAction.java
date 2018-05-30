@@ -23,6 +23,21 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+
 public enum HubEventAction {
-    RESOLVE, OPEN, ADD_COMMENT, ADD_COMMENT_IF_EXISTS
+    RESOLVE,
+    OPEN,
+    ADD_COMMENT,
+    ADD_COMMENT_IF_EXISTS;
+
+    public static HubEventAction fromPolicyNotificationType(final NotificationType notificationType) {
+        if (NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
+            return RESOLVE;
+        } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
+            return OPEN;
+        } else {
+            throw new IllegalArgumentException(String.format("Cannot determine an action from non-policy NotificationType: %s", notificationType));
+        }
+    }
 }

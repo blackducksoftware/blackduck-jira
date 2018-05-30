@@ -67,7 +67,7 @@ public class ProjectManagerMock implements ProjectManager {
     }
 
     public List<Project> getTestProjectObjectsWithoutIssueTypes() throws DataAccessException {
-        final List<Project> jiraProjects = new ArrayList<Project>();
+        final List<Project> jiraProjects = new ArrayList<>();
 
         final ProjectMock jiraProject1 = new ProjectMock();
         jiraProject1.setId(0L);
@@ -303,56 +303,55 @@ public class ProjectManagerMock implements ProjectManager {
 
     @Override
     public Project createProject(final ApplicationUser arg0, final ProjectCreationData arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getDefaultAssignee(final Project arg0, final ProjectComponent arg1) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ApplicationUser getDefaultAssignee(final Project arg0, final Collection<ProjectComponent> arg1)
             throws DefaultAssigneeException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ProjectCategory getProjectCategory(final Long arg0) throws DataAccessException {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public List<Project> getProjects() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean isProjectCategoryUnique(final String arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return false;
     }
 
     @Override
     public Project updateProjectType(final ApplicationUser arg0, final Project arg1, final ProjectTypeKey arg2) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void removeProjectIssues(final Project arg0, final Context arg1) throws RemoveException {
-        // TODO Auto-generated method stub
-
+        // Auto-generated method stub
     }
 
     @Override
     public Project updateProject(final UpdateProjectParameters arg0) {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

@@ -23,6 +23,36 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-public interface IssuePropertiesGenerator {
-    IssueProperties createIssueProperties(final Long issueId);
+import java.util.Optional;
+
+import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+
+public class IssuePropertiesGenerator {
+    private static final String UNKNOWN = "<unknown>";
+
+    private final boolean isPolicy;
+    private final String projectName;
+    private final String projectVersionName;
+    private final String componentName;
+    private final String componentVersionName;
+    private final String ruleName;
+
+    public IssuePropertiesGenerator(final NotificationContentDetail notificationContentDetail, final Optional<PolicyRuleViewV2> optionalPolicyRule) {
+        // FIXME what is the type?
+        this.isPolicy = notificationContentDetail.isPolicy();
+        this.projectName = notificationContentDetail.getProjectName().orElse(UNKNOWN);
+        this.projectVersionName = notificationContentDetail.getProjectVersionName().orElse(UNKNOWN);
+        this.componentName = notificationContentDetail.getComponentName().orElse(UNKNOWN);
+        this.componentVersionName = notificationContentDetail.getComponentVersionName().orElse(UNKNOWN);
+        this.ruleName = optionalPolicyRule.isPresent() ? optionalPolicyRule.get().name : UNKNOWN;
+    }
+
+    public IssueProperties createIssueProperties(final Long issueId) {
+        // TODO do we want to add origin info?
+        if (isPolicy) {
+            return new PolicyViolationIssueProperties(projectName, projectVersionName, componentName, componentVersionName, issueId, ruleName);
+        }
+        return new VulnerabilityIssueProperties(projectName, projectVersionName, componentName, componentVersionName, issueId);
+    }
 }

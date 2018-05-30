@@ -42,7 +42,6 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeMan
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
@@ -73,8 +72,6 @@ public class JiraServicesMock extends JiraServices {
     private JsonEntityPropertyManager jsonEntityPropertyManager;
 
     private CommentManager commentManager;
-
-    private GroupManager groupManager;
 
     private UserManager userManager;
 
@@ -142,10 +139,6 @@ public class JiraServicesMock extends JiraServices {
 
     public void setCommentManager(final CommentManager commentManager) {
         this.commentManager = commentManager;
-    }
-
-    public void setGroupManager(final GroupManager groupManager) {
-        this.groupManager = groupManager;
     }
 
     public void setUserManager(final UserManager userManager) {

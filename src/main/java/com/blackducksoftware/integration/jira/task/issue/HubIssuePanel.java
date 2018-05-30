@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,6 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 
 public class HubIssuePanel extends AbstractJiraContextProvider {
-
     private final CustomFieldManager customFieldManager;
 
     public HubIssuePanel(final CustomFieldManager customFieldManager) {
@@ -74,13 +74,14 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
         }
     }
 
-    private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager,
-            final String fieldName) {
-        final CustomField hubCustomField = customFieldManager.getCustomFieldObjectByName(fieldName);
-        if (hubCustomField != null) {
-            final String hubFieldValue = (String) currentIssue.getCustomFieldValue(hubCustomField);
-            if (StringUtils.isNotBlank(hubFieldValue)) {
-                return hubFieldValue;
+    private String getCustomFieldValue(final Issue currentIssue, final CustomFieldManager customFieldManager, final String fieldName) {
+        final Collection<CustomField> hubCustomFields = customFieldManager.getCustomFieldObjectsByName(fieldName);
+        if (hubCustomFields != null) {
+            for (final CustomField hubField : hubCustomFields) {
+                final String hubFieldValue = (String) currentIssue.getCustomFieldValue(hubField);
+                if (StringUtils.isNotBlank(hubFieldValue)) {
+                    return hubFieldValue;
+                }
             }
         }
         return null;

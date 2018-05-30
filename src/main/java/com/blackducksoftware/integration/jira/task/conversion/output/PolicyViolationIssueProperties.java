@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 public class PolicyViolationIssueProperties extends IssueProperties {
     private final String ruleName;
 
-    public PolicyViolationIssueProperties(final String projectName, final String projectVersion, final String componentName, final String componentVersion, final Long jiraIssueId, final String ruleName) {
-        super(projectName, projectVersion, componentName, componentVersion, jiraIssueId);
+    public PolicyViolationIssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final Long jiraIssueId, final String ruleName) {
+        super(projectName, projectVersionName, componentName, componentVersionName, jiraIssueId);
         this.ruleName = ruleName;
     }
 

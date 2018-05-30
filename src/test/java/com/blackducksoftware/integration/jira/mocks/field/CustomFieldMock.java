@@ -77,6 +77,7 @@ public class CustomFieldMock implements CustomField {
 
     private String description;
 
+    @SuppressWarnings("rawtypes")
     private CustomFieldType fieldType;
 
     private CustomFieldSearcher searcher;
@@ -91,7 +92,7 @@ public class CustomFieldMock implements CustomField {
         this.description = description;
     }
 
-    public void setFieldType(final CustomFieldType fieldType) {
+    public void setFieldType(@SuppressWarnings("rawtypes") final CustomFieldType fieldType) {
         this.fieldType = fieldType;
     }
 
@@ -112,7 +113,7 @@ public class CustomFieldMock implements CustomField {
     }
 
     @Override
-    public String getColumnViewHtml(final FieldLayoutItem arg0, final Map arg1, final Issue arg2) {
+    public String getColumnViewHtml(final FieldLayoutItem arg0, @SuppressWarnings("rawtypes") final Map arg1, final Issue arg2) {
 
         return null;
     }
@@ -427,7 +428,7 @@ public class CustomFieldMock implements CustomField {
         return fieldType;
     }
 
-    public void setCustomFieldType(final CustomFieldType customFieldType) {
+    public void setCustomFieldType(@SuppressWarnings("rawtypes") final CustomFieldType customFieldType) {
         this.fieldType = customFieldType;
     }
 
@@ -600,7 +601,7 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public List<IssueType> getAssociatedIssueTypeObjects() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 

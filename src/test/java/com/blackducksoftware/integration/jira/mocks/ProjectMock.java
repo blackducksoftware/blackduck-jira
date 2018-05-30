@@ -44,7 +44,7 @@ public class ProjectMock implements Project {
 
     private Long id;
 
-    private List<IssueType> issueTypes = new ArrayList<IssueType>();
+    private List<IssueType> issueTypes = new ArrayList<>();
 
     @Override
     public Collection<IssueType> getIssueTypes() {
@@ -162,25 +162,25 @@ public class ProjectMock implements Project {
 
     @Override
     public ApplicationUser getLead() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ProjectCategory getProjectCategory() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public ProjectTypeKey getProjectTypeKey() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<ProjectComponent> getComponents() {
-        // TODO Auto-generated method stub
+        // Auto-generated method stub
         return null;
     }
 
