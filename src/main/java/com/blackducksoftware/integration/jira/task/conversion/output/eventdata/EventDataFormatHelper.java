@@ -197,10 +197,10 @@ public class EventDataFormatHelper {
                 appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
             }
             if (remediationOptions.latestAfterCurrent != null) {
-                appendRemediationVersionText(stringBuilder, remediationOptions.latestAfterCurrent, "is the latest version after the current");
+                appendRemediationVersionText(stringBuilder, remediationOptions.latestAfterCurrent, "is the most recent");
             }
             if (remediationOptions.noVulnerabilities != null) {
-                appendRemediationVersionText(stringBuilder, remediationOptions.noVulnerabilities, "has no vulnerabilities");
+                appendRemediationVersionText(stringBuilder, remediationOptions.noVulnerabilities, "has no known vulnerabilities");
             }
         }
     }
@@ -210,8 +210,7 @@ public class EventDataFormatHelper {
         stringBuilder.append(remediatingVersionView.name);
         stringBuilder.append("|");
         stringBuilder.append(remediatingVersionView.componentVersion);
-        stringBuilder.append("]");
-        stringBuilder.append(" ");
+        stringBuilder.append("] ");
         stringBuilder.append(versionComment);
         if (remediatingVersionView.vulnerabilityCount != null && remediatingVersionView.vulnerabilityCount > 0) {
             stringBuilder.append(". Vulnerability count: ");
