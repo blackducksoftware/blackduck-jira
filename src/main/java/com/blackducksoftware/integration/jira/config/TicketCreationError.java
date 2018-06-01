@@ -25,29 +25,35 @@ package com.blackducksoftware.integration.jira.config;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TicketCreationError implements Serializable, Comparable<TicketCreationError> {
-    public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendMonthOfYear(2)
-            .appendLiteral('/').appendDayOfMonth(2).appendLiteral('/').appendYear(4, 4).appendLiteral(' ')
-            .appendClockhourOfHalfday(1).appendLiteral(':').appendMinuteOfHour(2).appendHalfdayOfDayText().toFormatter();
+    public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder()
+            .appendPattern("MM")
+            .appendLiteral('/')
+            .appendPattern("dd")
+            .appendLiteral('/')
+            .appendPattern("y")
+            .appendLiteral(' ')
+            .appendPattern("hh")
+            .appendLiteral(':')
+            .appendPattern("mm")
+            .appendPattern("a")
+            .toFormatter();
 
     private static final long serialVersionUID = 8705688400750977007L;
-
     private static final Gson gson = new Gson();
-
     private static final Type listType = new TypeToken<List<TicketCreationError>>() {
     }.getType();
 
@@ -76,9 +82,8 @@ public class TicketCreationError implements Serializable, Comparable<TicketCreat
         this.timeStamp = timeStamp;
     }
 
-    public DateTime getTimeStampDateTime() {
-        final DateTime errorTime = DateTime.parse(timeStamp,
-                ERROR_TIME_FORMAT);
+    public LocalDateTime getTimeStampDateTime() {
+        final LocalDateTime errorTime = LocalDateTime.parse(timeStamp, ERROR_TIME_FORMAT);
         return errorTime;
     }
 

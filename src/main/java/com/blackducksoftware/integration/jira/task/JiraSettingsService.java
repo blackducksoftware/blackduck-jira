@@ -25,7 +25,9 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,8 +35,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -108,8 +108,7 @@ public class JiraSettingsService {
 
         final TicketCreationError error = new TicketCreationError();
         error.setStackTrace(finalErrorBuilder.toString());
-        error.setTimeStamp(DateTime.now().toString(TicketCreationError.ERROR_TIME_FORMAT));
-
+        error.setTimeStamp(LocalDateTime.now().format(TicketCreationError.ERROR_TIME_FORMAT));
         ticketErrors.add(error);
 
         final int maxErrorSize = 20;
@@ -149,12 +148,12 @@ public class JiraSettingsService {
         }
         logger.debug("# error messages pulled from settings: " + ticketErrors.size());
         Collections.sort(ticketErrors);
-        final DateTime currentTime = DateTime.now();
+        final LocalDateTime currentTime = LocalDateTime.now();
         final Iterator<TicketCreationError> expirationIterator = ticketErrors.iterator();
         while (expirationIterator.hasNext()) {
             final TicketCreationError ticketError = expirationIterator.next();
-            final DateTime errorTime = ticketError.getTimeStampDateTime();
-            if (Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+            final LocalDateTime errorTime = ticketError.getTimeStampDateTime();
+            if (Duration.between(errorTime, currentTime).toDays() > 30L) { // Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
                 logger.debug("Removing old error message with timestamp: " + ticketError.getTimeStamp());
                 expirationIterator.remove();
             }
