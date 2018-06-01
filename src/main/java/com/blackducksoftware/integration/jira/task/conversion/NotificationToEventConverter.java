@@ -32,13 +32,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.UriSingleResponse;
+import com.blackducksoftware.integration.hub.api.generated.component.RiskCountView;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.MatchedFileUsagesType;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.blackducksoftware.integration.hub.api.generated.enumeration.RiskCountType;
 import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskProfileView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
@@ -46,7 +47,6 @@ import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
 import com.blackducksoftware.integration.hub.notification.content.NotificationContent;
@@ -279,27 +279,32 @@ public class NotificationToEventConverter {
     }
 
     private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final NotificationContentDetail detail, final HubBucket hubBucket) {
-        if (CollectionUtils.isEmpty(vulnerabilityContent.deletedVulnerabilityIds)) {
-            logger.debug("Since no vulnerabilities were deleted, the component must still have vulnerabilities");
+        if (CollectionUtils.isEmpty(vulnerabilityContent.deletedVulnerabilityIds) && CollectionUtils.isEmpty(vulnerabilityContent.updatedVulnerabilityIds)) {
+            logger.debug("Since no vulnerabilities were deleted or changed, the component must still have vulnerabilities");
             return true;
         }
 
-        List<VulnerableComponentView> vulnerableBomComponentItems;
+        int vulnerablitiesCount = 0;
         try {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().orElse(null));
             final Request.Builder requestBuilder = RequestFactory.createCommonGetRequestBuilder();
             requestBuilder.addQueryParameter("q", detail.getComponentName().orElse(""));
+            final List<VersionBomComponentView> versionBomComponents = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE, requestBuilder);
 
-            vulnerableBomComponentItems = hubService.getAllResponses(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE, requestBuilder);
+            for (final VersionBomComponentView versionBomComponent : versionBomComponents) {
+                if (versionBomComponent.securityRiskProfile != null) {
+                    vulnerablitiesCount += getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
+                }
+            }
         } catch (final IntegrationException intException) {
-            final String msg = String.format("Error getting vulnerable components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
+            final String msg = String.format("Error getting bom components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
             logger.error(msg);
             jiraSettingsService.addHubError(msg, "getVulnerableComponentsMatchingComponentName");
             return true;
         }
 
-        logger.debug("vulnerableBomComponentItems.size(): " + vulnerableBomComponentItems.size());
-        if (hasVersion(vulnerableBomComponentItems, detail.getComponentVersionName().orElse(""))) {
+        logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
+        if (vulnerablitiesCount > 0) {
             logger.debug("This component still has vulnerabilities");
             return true;
         } else {
@@ -308,14 +313,14 @@ public class NotificationToEventConverter {
         }
     }
 
-    private boolean hasVersion(final List<VulnerableComponentView> vulnerableBomComponentItems, final String targetVersionName) {
-        for (final VulnerableComponentView vulnerableBomComponentItem : vulnerableBomComponentItems) {
-            final String currentVersionName = vulnerableBomComponentItem.componentVersionName;
-            if (!StringUtils.isEmpty(currentVersionName) && currentVersionName.equals(targetVersionName)) {
-                return true;
+    private int getSumOfCounts(final List<RiskCountView> vulnerabilityCounts) {
+        int count = 0;
+        for (final RiskCountView riskCount : vulnerabilityCounts) {
+            if (!RiskCountType.OK.equals(riskCount.countType)) {
+                count += riskCount.count.intValue();
             }
         }
-        return false;
+        return count;
     }
 
     private boolean doesNotificationOnlyHaveDeletes(final VulnerabilityNotificationContent vulnerabilityContent) {
