@@ -90,11 +90,8 @@ public class IssueFieldHandler {
         }
     }
 
-    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField,
-            final IssueInputParameters issueInputParameters, final String fieldValue) {
-
-        final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields()
-                .get(pluginField);
+    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final String fieldValue) {
+        final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields().get(pluginField);
         if (jiraCustomField == null) {
             final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
             logger.error(errorMessage);
@@ -108,8 +105,7 @@ public class IssueFieldHandler {
             return;
         }
         final Long fieldId = jiraCustomField.getIdAsLong();
-        issueInputParameters.addCustomFieldValue(fieldId,
-                fieldValue);
+        issueInputParameters.addCustomFieldValue(fieldId, fieldValue);
     }
 
     public List<String> setOtherFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {

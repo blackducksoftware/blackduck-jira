@@ -57,13 +57,9 @@ public class HubIssueTypeSetup {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
-
     private final JiraSettingsService settingService;
-
     private final Collection<IssueType> issueTypes;
-
     private final ApplicationUser jiraUser;
-
     private final HubAvatars hubAvatars;
 
     public HubIssueTypeSetup(final JiraServices jiraServices, final JiraSettingsService settingService,
@@ -225,8 +221,7 @@ public class HubIssueTypeSetup {
     }
 
     /**
-     * See if entity exists. If it does, returns true. If it exists but is
-     * wrong, returns false but adds it to entitiesToRemove.
+     * See if entity exists. If it does, returns true. If it exists but is wrong, returns false but adds it to entitiesToRemove.
      */
     private boolean checkForExistingEntity(final FieldScreenScheme fieldScreenScheme,
             final Collection<IssueTypeScreenSchemeEntity> existingEntities, final IssueType issueType,

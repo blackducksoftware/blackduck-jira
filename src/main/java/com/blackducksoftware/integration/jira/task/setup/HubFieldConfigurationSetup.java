@@ -60,9 +60,7 @@ public class HubFieldConfigurationSetup {
         requiredDefaultFields.add("issuetype");
     }
 
-    public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes,
-            final FieldLayout fieldConfiguration) {
-
+    public FieldLayoutScheme createFieldConfigurationScheme(final List<IssueType> issueTypes, final FieldLayout fieldConfiguration) {
         boolean changesToStore = false;
         FieldLayoutScheme fieldConfigurationScheme = null;
 
@@ -82,15 +80,11 @@ public class HubFieldConfigurationSetup {
         }
 
         if (fieldConfigurationScheme == null) {
-            fieldConfigurationScheme = jiraServices.getFieldLayoutManager()
-                    .createFieldLayoutScheme(
-                            HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME,
-                            HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME);
+            fieldConfigurationScheme = jiraServices.getFieldLayoutManager().createFieldLayoutScheme(HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME, HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME);
             changesToStore = true;
         }
 
         for (final IssueType issueType : issueTypes) {
-
             boolean issueTypeAlreadyAssociated = false;
             final Collection<FieldLayoutSchemeEntity> entities = fieldConfigurationScheme.getEntities();
             for (final FieldLayoutSchemeEntity entity : entities) {
@@ -161,31 +155,29 @@ public class HubFieldConfigurationSetup {
             final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
             if (fields != null && !fields.isEmpty()) {
                 for (final FieldLayoutItem field : fields) {
-                    String fieldName = field.getOrderableField().getName();
+                    final String fieldName = field.getOrderableField().getName();
                     logger.debug("addHubFieldConfigurationToJira(): Hub field config: field: " + fieldName);
                     String normalizedFieldName = fieldName.replace(" ", "");
                     normalizedFieldName = normalizedFieldName.toLowerCase();
                     if (!requiredDefaultFields.contains(normalizedFieldName) && field.isRequired()) {
                         logger.debug("addHubFieldConfigurationToJira(): Making field optional");
                         try {
-                        	hubFieldLayout.makeOptional(field);
-                        	fieldConfigurationNeedsUpdate = true;
-                        } catch (IllegalArgumentException e) {
-                        	String msg = String.format("Unable to make field %s optional: %s", fieldName, e.getMessage());
-                        	if ("Assignee".equals(fieldName)) {
-                        		logger.debug(msg);
-                        	} else {
-                        		logger.error(msg);
-                        		settingService.addHubError(msg, "addHubFieldConfigurationToJira");
-                        	}
+                            hubFieldLayout.makeOptional(field);
+                            fieldConfigurationNeedsUpdate = true;
+                        } catch (final IllegalArgumentException e) {
+                            final String msg = String.format("Unable to make field %s optional: %s", fieldName, e.getMessage());
+                            if ("Assignee".equals(fieldName)) {
+                                logger.debug(msg);
+                            } else {
+                                logger.error(msg);
+                                settingService.addHubError(msg, "addHubFieldConfigurationToJira");
+                            }
                         }
                     }
                 }
             }
             if (fieldConfigurationNeedsUpdate) {
-                // Persists our field configuration,
-                // creates it if it doesnt exist,
-                // updates it if it does exist
+                // Persists our field configuration, creates it if it doesn't exist, updates it if it does exist
                 logger.debug("addHubFieldConfigurationToJira(): Updating Hub field configuration");
                 jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
             }

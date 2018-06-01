@@ -59,15 +59,11 @@ public class JiraTaskTimed implements Callable<String> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final PluginSettings settings;
-
     private final JiraServices jiraServices;
-
     private final JiraSettingsService jiraSettingsService;
-
     private final PluginConfigurationDetails configDetails;
 
-    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices,
-            final PluginConfigurationDetails configDetails) {
+    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final PluginConfigurationDetails configDetails) {
         this.settings = settings;
         this.jiraSettingsService = jiraSettingsService;
         this.configDetails = configDetails;
@@ -93,10 +89,8 @@ public class JiraTaskTimed implements Callable<String> {
         }
         final DateTime afterSetup = new DateTime();
         final Period diff = new Period(beforeSetup, afterSetup);
-        logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis()
-                + "ms.");
-        final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService,
-                ticketInfoFromSetup);
+        logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis() + "ms.");
+        final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
         final String runDateString = processor.execute();
         if (runDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
@@ -132,8 +126,7 @@ public class JiraTaskTimed implements Callable<String> {
                 jiraSettingsService,
                 jiraServices);
 
-        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup
-                .addHubFieldConfigurationToJira(issueTypes);
+        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addHubFieldConfigurationToJira(issueTypes);
         if (screenSchemesByIssueType.isEmpty()) {
             logger.error("No Black Duck Screen Schemes found or created");
         }
@@ -141,11 +134,9 @@ public class JiraTaskTimed implements Callable<String> {
 
         logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-        final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService,
-                jiraServices);
+        final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService, jiraServices);
         final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
-        final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup
-                .createFieldConfigurationScheme(issueTypes, fieldConfiguration);
+        final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
         final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
         final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
@@ -178,8 +169,7 @@ public class JiraTaskTimed implements Callable<String> {
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-                            issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject,
-                                    screenSchemesByIssueType);
+                            issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, screenSchemesByIssueType);
                             final boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
                                     jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
                             if (wasAlreadySetUp) {
@@ -199,9 +189,7 @@ public class JiraTaskTimed implements Callable<String> {
         return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
     }
 
-    public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(
-            final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices) {
+    public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
     }
 
