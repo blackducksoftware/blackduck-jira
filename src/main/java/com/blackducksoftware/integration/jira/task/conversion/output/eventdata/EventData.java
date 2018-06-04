@@ -23,12 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
@@ -412,12 +409,6 @@ public class EventData extends Stringable {
 
     public String getEventKey() {
         return eventKey;
-    }
-
-    public Map<String, Object> getDataSet() {
-        final Map<String, Object> dataSet = new HashMap<>();
-        dataSet.put(HubJiraConstants.EVENT_DATA_SET_KEY_JIRA_EVENT_DATA, this);
-        return dataSet;
     }
 
 }

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.generated.component.RemediatingVersionView;
+import com.blackducksoftware.integration.hub.api.generated.component.RemediationOptionsView;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
@@ -35,6 +37,7 @@ import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionVi
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.blackducksoftware.integration.hub.service.ComponentService;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -149,6 +152,9 @@ public class EventDataFormatHelper {
                 final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
                 issueDescription.append("\nComponent license(s): ");
                 issueDescription.append(licenseText);
+                if (!optionalRule.isPresent()) {
+                    appendRemediationOptionsText(issueDescription, componentVersion);
+                }
             } catch (final IntegrationException e) {
                 // omit license text
             }
@@ -159,9 +165,9 @@ public class EventDataFormatHelper {
     public String generateVulnerabilitiesComment(final VulnerabilityNotificationContent vulnerabilityContent) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck Hub JIRA plugin auto-generated comment)\n");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
-        generateVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
+        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
+        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
+        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
         return commentText.toString();
     }
 
@@ -173,7 +179,47 @@ public class EventDataFormatHelper {
         return getComponentLicensesString(componentVersion, true);
     }
 
-    private void generateVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
+    private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
+        // TODO use the HubService once the Hub APIs have the link.
+        final ComponentService componentService = new ComponentService(hubService);
+        RemediationOptionsView remediationOptions;
+        try {
+            remediationOptions = componentService.getRemediationInformation(componentVersionView);
+        } catch (final IntegrationException e) {
+            logger.debug("Could not get remediation information: ");
+            logger.debug(e.getMessage());
+            return;
+        }
+        if (remediationOptions != null) {
+            // TODO This has "Beta" text. Change that text when confidence in the information is high.
+            stringBuilder.append("\n\nRemediation Information (Beta):\n");
+            if (remediationOptions.fixesPreviousVulnerabilities != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
+            }
+            if (remediationOptions.latestAfterCurrent != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.latestAfterCurrent, "is the most recent");
+            }
+            if (remediationOptions.noVulnerabilities != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.noVulnerabilities, "has no known vulnerabilities");
+            }
+        }
+    }
+
+    private void appendRemediationVersionText(final StringBuilder stringBuilder, final RemediatingVersionView remediatingVersionView, final String versionComment) {
+        stringBuilder.append(" * Version [");
+        stringBuilder.append(remediatingVersionView.name);
+        stringBuilder.append("|");
+        stringBuilder.append(remediatingVersionView.componentVersion);
+        stringBuilder.append("] ");
+        stringBuilder.append(versionComment);
+        if (remediatingVersionView.vulnerabilityCount != null && remediatingVersionView.vulnerabilityCount > 0) {
+            stringBuilder.append(". Vulnerability count: ");
+            stringBuilder.append(remediatingVersionView.vulnerabilityCount);
+        }
+        stringBuilder.append(".\n");
+    }
+
+    private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
         commentText.append("Vulnerabilities " + verb + ": ");
         int index = 0;
         if (vulns != null && !vulns.isEmpty()) {
