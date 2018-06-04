@@ -488,13 +488,9 @@ public class HubJiraConfigController {
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
-                    // TODO: Uncomment these when Hub starts providing Origin info
-                    // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(),
-                    // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
-                    // txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(),
-                    // getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
                     txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
-
                     Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                     logger.debug("sourceFields: " + txSourceFields);
                     return txSourceFields;
