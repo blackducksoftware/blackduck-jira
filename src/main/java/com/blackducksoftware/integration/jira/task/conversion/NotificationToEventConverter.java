@@ -54,7 +54,6 @@ import com.blackducksoftware.integration.hub.notification.content.VulnerabilityN
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.hub.service.model.RequestFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
@@ -73,7 +72,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.rest.RestConstants;
-import com.blackducksoftware.integration.rest.request.Request;
 
 public class NotificationToEventConverter {
     private final HubJiraLogger logger;
@@ -278,6 +276,7 @@ public class NotificationToEventConverter {
         return detail.isVulnerability();
     }
 
+    // TODO take the bom component in as a parameter once it is provided as part of the notification
     private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final NotificationContentDetail detail, final HubBucket hubBucket) {
         if (CollectionUtils.isEmpty(vulnerabilityContent.deletedVulnerabilityIds) && CollectionUtils.isEmpty(vulnerabilityContent.updatedVulnerabilityIds)) {
             logger.debug("Since no vulnerabilities were deleted or changed, the component must still have vulnerabilities");
@@ -287,15 +286,17 @@ public class NotificationToEventConverter {
         int vulnerablitiesCount = 0;
         try {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().orElse(null));
-            final Request.Builder requestBuilder = RequestFactory.createCommonGetRequestBuilder();
-            requestBuilder.addQueryParameter("q", detail.getComponentName().orElse(""));
-            final List<VersionBomComponentView> versionBomComponents = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE, requestBuilder);
+            final List<VersionBomComponentView> versionBomComponents = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
 
+            final String bomComponentToSearchFor = detail.getComponentName().orElse("");
             for (final VersionBomComponentView versionBomComponent : versionBomComponents) {
-                if (versionBomComponent.securityRiskProfile != null) {
+                if (bomComponentToSearchFor.equals(versionBomComponent.componentName) && versionBomComponent.securityRiskProfile != null) {
                     vulnerablitiesCount += getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
                 }
             }
+        } catch (final NullPointerException npe) {
+            logger.error("Error getting bom components. Either the notification data was stale, or it did not contain the correct Hub project information.");
+            return true;
         } catch (final IntegrationException intException) {
             final String msg = String.format("Error getting bom components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
             logger.error(msg);
