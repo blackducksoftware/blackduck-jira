@@ -71,7 +71,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.rest.RestConstants;
 
 public class NotificationToEventConverter {
     private final HubJiraLogger logger;
@@ -289,8 +288,9 @@ public class NotificationToEventConverter {
             final List<VersionBomComponentView> versionBomComponents = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
 
             final String bomComponentToSearchFor = detail.getComponentName().orElse("");
+            final String bomComponentVersionToSearchFor = detail.getComponentVersionName().orElse("");
             for (final VersionBomComponentView versionBomComponent : versionBomComponents) {
-                if (bomComponentToSearchFor.equals(versionBomComponent.componentName) && versionBomComponent.securityRiskProfile != null) {
+                if (bomComponentToSearchFor.equals(versionBomComponent.componentName) && bomComponentVersionToSearchFor.equals(versionBomComponent.componentVersionName)) {
                     vulnerablitiesCount += getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
                 }
             }
@@ -405,7 +405,7 @@ public class NotificationToEventConverter {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {
                 final VersionRiskProfileView riskProfile = hubService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
-                final SimpleDateFormat dateFormat = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+                final SimpleDateFormat dateFormat = new SimpleDateFormat();
                 eventDataBuilder.setHubProjectVersionLastUpdated(dateFormat.format(riskProfile.bomLastUpdatedAt));
             } catch (final IntegrationException e) {
                 logger.error(String.format("Could not find the risk profile for %s: %s", ProjectVersionView.RISKPROFILE_LINK_RESPONSE, e.getMessage()));

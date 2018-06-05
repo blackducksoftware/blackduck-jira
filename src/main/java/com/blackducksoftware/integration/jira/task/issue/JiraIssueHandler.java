@@ -33,6 +33,7 @@ import com.atlassian.jira.bc.issue.IssueService.AssignValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
+import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.entity.property.EntityPropertyQuery;
 import com.atlassian.jira.entity.property.EntityPropertyService;
@@ -229,6 +230,31 @@ public class JiraIssueHandler {
             }
         }
         return null;
+    }
+
+    private Issue updateHubFieldsAndDescription(final Issue existingIssue, final EventData eventData) {
+        final IssueInputParameters issueInputParameters = jiraServices.getIssueService().newIssueInputParameters();
+        issueInputParameters.setDescription(eventData.getJiraIssueDescription()).setRetainExistingValuesWhenParameterNotProvided(true);
+
+        issueFieldHandler.setPluginFieldValues(eventData, issueInputParameters);
+        // FIXME remove: final List<String> labels = issueFieldHandler.setOtherFieldValues(eventData, issueInputParameters);
+
+        final UpdateValidationResult validationResult = jiraServices.getIssueService().validateUpdate(existingIssue.getCreator(), existingIssue.getId(), issueInputParameters);
+        logger.debug("updateHubFieldsAndDescription(): Project: " + eventData.getJiraProjectName() + ": " + eventData.getJiraIssueSummary());
+        if (!validationResult.isValid()) {
+            handleErrorCollection("updateHubFieldsAndDescription", eventData, validationResult.getErrorCollection());
+        } else {
+            final IssueResult result = jiraServices.getIssueService().update(jiraContext.getJiraIssueCreatorUser(), validationResult);
+            final ErrorCollection errors = result.getErrorCollection();
+            if (errors.hasAnyErrors()) {
+                handleErrorCollection("updateHubFieldsAndDescription", eventData, errors);
+            } else {
+                // FIXME remove: issueFieldHandler.addLabels(result.getIssue(), labels);
+                final Issue jiraIssue = result.getIssue();
+                return jiraIssue;
+            }
+        }
+        return existingIssue;
     }
 
     private void fixIssueAssignment(final EventData eventData, final IssueResult result) {
@@ -434,6 +460,7 @@ public class JiraIssueHandler {
                 return new ExistenceAwareIssue(issue, false, false);
             } else {
                 // Issue already exists
+                updateHubFieldsAndDescription(oldIssue, eventData);
                 if (!issueUsesBdsWorkflow(oldIssue)) {
                     logger.debug("This is not the BDS workflow; plugin will not change issue's state");
                     return new ExistenceAwareIssue(oldIssue, true, true);
