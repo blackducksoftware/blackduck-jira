@@ -143,6 +143,7 @@ public class NotificationToEventConverter {
         HubEventAction action = HubEventAction.OPEN;
         final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
+        final VersionBomComponentView versionBomComponent = getBomComponent(detail, hubBucket);
 
         Optional<PolicyRuleViewV2> optionalPolicyRule = Optional.empty();
         if (detail.isPolicy()) {
@@ -161,29 +162,16 @@ public class NotificationToEventConverter {
             eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
 
             action = HubEventAction.ADD_COMMENT;
-            if (!doesComponentVersionHaveVulnerabilities(vulnerabilityContent, detail, hubBucket)) {
+            if (!doesComponentVersionHaveVulnerabilities(vulnerabilityContent, versionBomComponent)) {
                 action = HubEventAction.RESOLVE;
             } else if (doesNotificationOnlyHaveDeletes(vulnerabilityContent)) {
                 action = HubEventAction.ADD_COMMENT_IF_EXISTS;
             }
         }
 
-        // TODO add a helper method for this stuff
-        String licensesString;
-        ComponentVersionView componentVersion = null;
-        if (detail.getComponentVersion().isPresent()) {
-            componentVersion = hubBucket.get(detail.getComponentVersion().get());
-            licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
-            logger.debug("Component " + detail.getComponentName().orElse("?") + " (version: " + detail.getComponentVersionName().orElse("?") + "): License: " + licensesString);
-        } else {
-            licensesString = "";
-        }
         eventDataBuilder.setPropertiesFromJiraContext(jiraContext);
         eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
         eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
-
-        eventDataBuilder.setHubLicenseNames(licensesString);
-        eventDataBuilder.setHubComponentUsage(getComponentUsage(detail, hubBucket));
         eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
         eventDataBuilder.setJiraFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
 
@@ -192,11 +180,14 @@ public class NotificationToEventConverter {
         eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, optionalPolicyRule, hubBucket));
         eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
 
-        addExtraneousHubInfoToEventDataBuilder(eventDataBuilder, detail, hubBucket);
+        eventDataBuilder.setHubLicenseNames(getLicenseText(detail, versionBomComponent, hubBucket));
+        eventDataBuilder.setHubComponentUsage(getComponentUsage(versionBomComponent));
 
         eventDataBuilder.setAction(action);
         eventDataBuilder.setNotificationType(notificationType);
         eventDataBuilder.setEventKey(generateEventKey(eventDataBuilder));
+
+        addExtraneousHubInfoToEventDataBuilder(eventDataBuilder, detail, hubBucket);
 
         return Optional.of(eventDataBuilder.build());
     }
@@ -275,33 +266,15 @@ public class NotificationToEventConverter {
         return detail.isVulnerability();
     }
 
-    // TODO take the bom component in as a parameter once it is provided as part of the notification
-    private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final NotificationContentDetail detail, final HubBucket hubBucket) {
+    private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final VersionBomComponentView versionBomComponent) {
         if (CollectionUtils.isEmpty(vulnerabilityContent.deletedVulnerabilityIds) && CollectionUtils.isEmpty(vulnerabilityContent.updatedVulnerabilityIds)) {
             logger.debug("Since no vulnerabilities were deleted or changed, the component must still have vulnerabilities");
             return true;
         }
 
         int vulnerablitiesCount = 0;
-        try {
-            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().orElse(null));
-            final List<VersionBomComponentView> versionBomComponents = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
-
-            final String bomComponentToSearchFor = detail.getComponentName().orElse("");
-            final String bomComponentVersionToSearchFor = detail.getComponentVersionName().orElse("");
-            for (final VersionBomComponentView versionBomComponent : versionBomComponents) {
-                if (bomComponentToSearchFor.equals(versionBomComponent.componentName) && bomComponentVersionToSearchFor.equals(versionBomComponent.componentVersionName)) {
-                    vulnerablitiesCount += getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
-                }
-            }
-        } catch (final NullPointerException npe) {
-            logger.error("Error getting bom components. Either the notification data was stale, or it did not contain the correct Hub project information.");
-            return true;
-        } catch (final IntegrationException intException) {
-            final String msg = String.format("Error getting bom components. Unable to determine if this component still has vulnerabilities. The error was: %s", intException.getMessage());
-            logger.error(msg);
-            jiraSettingsService.addHubError(msg, "getVulnerableComponentsMatchingComponentName");
-            return true;
+        if (versionBomComponent != null) {
+            vulnerablitiesCount = getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
         }
 
         logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
@@ -349,47 +322,19 @@ public class NotificationToEventConverter {
         throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
     }
 
-    private String getComponentUsage(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
-        final VersionBomComponentView bomComp = getBomComponent(detail, hubBucket);
-        if (bomComp == null) {
-            logger.info(String.format("Unable to find component %s in BOM, so cannot get usage information", detail.getComponentName()));
-            return "";
-        }
+    private String getComponentUsage(final VersionBomComponentView bomComp) throws HubIntegrationException {
         final StringBuilder usagesText = new StringBuilder();
-        int usagesIndex = 0;
-        for (final MatchedFileUsagesType usage : bomComp.usages) {
-            if (usagesIndex > 0) {
-                usagesText.append(", ");
+        if (bomComp != null) {
+            int usagesIndex = 0;
+            for (final MatchedFileUsagesType usage : bomComp.usages) {
+                if (usagesIndex > 0) {
+                    usagesText.append(", ");
+                }
+                usagesText.append(usage.toString());
+                usagesIndex++;
             }
-            usagesText.append(usage.toString());
-            usagesIndex++;
         }
         return usagesText.toString();
-    }
-
-    protected final VersionBomComponentView findCompInBom(final List<VersionBomComponentView> bomComps, final ComponentView actualComp, final ComponentVersionView actualCompVer) {
-        String urlSought;
-        try {
-            if (actualCompVer != null) {
-                urlSought = hubService.getHref(actualCompVer);
-            } else {
-                urlSought = hubService.getHref(actualComp);
-            }
-            for (final VersionBomComponentView bomComp : bomComps) {
-                String urlToTest;
-                if (bomComp.componentVersion != null) {
-                    urlToTest = bomComp.componentVersion;
-                } else {
-                    urlToTest = bomComp.component;
-                }
-                if (urlSought.equals(urlToTest)) {
-                    return bomComp;
-                }
-            }
-        } catch (final HubIntegrationException e) {
-            logger.error(e);
-        }
-        return null;
     }
 
     private String getProjectVersionNickname(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
@@ -421,7 +366,7 @@ public class NotificationToEventConverter {
 
     private VersionBomComponentView getBomComponent(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
         VersionBomComponentView targetBomComp = null;
-        if (detail.getProjectVersion().isPresent() && detail.getComponent().isPresent()) {
+        if (detail.getProjectVersion().isPresent()) {
             List<VersionBomComponentView> bomComps;
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {
@@ -430,19 +375,61 @@ public class NotificationToEventConverter {
                 logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", detail.getProjectName(), detail.getProjectVersionName()));
                 return null;
             }
-            final ComponentView notificationComponent = hubBucket.get(detail.getComponent().get());
+            ComponentView notificationComponent = null;
             ComponentVersionView notificationComponentVersion = null;
+            if (detail.getComponent().isPresent()) {
+                notificationComponent = hubBucket.get(detail.getComponent().get());
+            }
             if (detail.getComponentVersion().isPresent()) {
                 notificationComponentVersion = hubBucket.get(detail.getComponentVersion().get());
             }
             targetBomComp = findCompInBom(bomComps, notificationComponent, notificationComponentVersion);
             if (targetBomComp == null) {
-                logger.info(String.format("Component %s not found in BOM", notificationComponent.name));
+                final String componentName = detail.getComponentName().orElse("<unknown component>");
                 final String componentVersionName = detail.getComponentVersionName().orElse("<unknown component version>");
-                logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", notificationComponent.name, componentVersionName, detail.getProjectName(), detail.getProjectVersionName()));
+                logger.info(String.format("Component %s not found in BOM", componentName));
+                logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName, detail.getProjectName().orElse("?"), detail.getProjectVersionName().orElse("?")));
             }
         }
         return targetBomComp;
+    }
+
+    protected final VersionBomComponentView findCompInBom(final List<VersionBomComponentView> bomComps, final ComponentView actualComp, final ComponentVersionView actualCompVer) {
+        String urlSought;
+        try {
+            if (actualCompVer != null) {
+                urlSought = hubService.getHref(actualCompVer);
+            } else {
+                urlSought = hubService.getHref(actualComp);
+            }
+            for (final VersionBomComponentView bomComp : bomComps) {
+                String urlToTest;
+                if (bomComp.componentVersion != null) {
+                    urlToTest = bomComp.componentVersion;
+                } else {
+                    urlToTest = bomComp.component;
+                }
+                if (urlSought.equals(urlToTest)) {
+                    return bomComp;
+                }
+            }
+        } catch (final HubIntegrationException e) {
+            logger.error(e);
+        }
+        return null;
+    }
+
+    private String getLicenseText(final NotificationContentDetail detail, final VersionBomComponentView versionBomComponent, final HubBucket hubBucket) throws IntegrationException {
+        String licensesString = "";
+        if (versionBomComponent != null) {
+            licensesString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent);
+            logger.debug("Component " + versionBomComponent.componentName + " (version: " + versionBomComponent.componentVersionName + "): License: " + licensesString);
+        } else if (detail.getComponentVersion().isPresent()) {
+            final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
+            licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
+            logger.debug("Component " + detail.getComponentName().orElse("?") + " (version: " + detail.getComponentVersionName().orElse("?") + "): License: " + licensesString);
+        }
+        return licensesString;
     }
 
 }

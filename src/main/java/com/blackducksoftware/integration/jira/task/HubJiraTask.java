@@ -132,8 +132,9 @@ public class HubJiraTask {
                 return null;
             }
 
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory.createHubService(), hubServicesFactory.createNotificationService(), hubServicesFactory.createIssueService(), ticketInfoFromSetup,
-                    getRuleUrls(config), fieldCopyConfig);
+            final boolean getOldestNotificationsFirst = true;
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory.createHubService(), hubServicesFactory.createNotificationService(getOldestNotificationsFirst), hubServicesFactory.createIssueService(),
+                    ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
             // Phone-Home
             final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();

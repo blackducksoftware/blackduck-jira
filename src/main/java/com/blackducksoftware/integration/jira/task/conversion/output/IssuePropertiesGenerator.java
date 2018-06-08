@@ -39,7 +39,6 @@ public class IssuePropertiesGenerator {
     private final String ruleName;
 
     public IssuePropertiesGenerator(final NotificationContentDetail notificationContentDetail, final Optional<PolicyRuleViewV2> optionalPolicyRule) {
-        // FIXME what is the type?
         this.isPolicy = notificationContentDetail.isPolicy();
         this.projectName = notificationContentDetail.getProjectName().orElse(UNKNOWN);
         this.projectVersionName = notificationContentDetail.getProjectVersionName().orElse(UNKNOWN);
