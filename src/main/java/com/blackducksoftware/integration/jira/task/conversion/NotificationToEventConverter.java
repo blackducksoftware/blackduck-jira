@@ -267,24 +267,22 @@ public class NotificationToEventConverter {
     }
 
     private boolean doesComponentVersionHaveVulnerabilities(final VulnerabilityNotificationContent vulnerabilityContent, final VersionBomComponentView versionBomComponent) {
+        logger.debug("Checking if the component still has vulnerabilities...");
         if (CollectionUtils.isEmpty(vulnerabilityContent.deletedVulnerabilityIds) && CollectionUtils.isEmpty(vulnerabilityContent.updatedVulnerabilityIds)) {
             logger.debug("Since no vulnerabilities were deleted or changed, the component must still have vulnerabilities");
             return true;
         }
 
-        int vulnerablitiesCount = 0;
         if (versionBomComponent != null) {
-            vulnerablitiesCount = getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
+            final int vulnerablitiesCount = getSumOfCounts(versionBomComponent.securityRiskProfile.counts);
+            logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
+            if (vulnerablitiesCount > 0) {
+                logger.debug("This component still has vulnerabilities");
+                return true;
+            }
         }
-
-        logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
-        if (vulnerablitiesCount > 0) {
-            logger.debug("This component still has vulnerabilities");
-            return true;
-        } else {
-            logger.debug("This component either no longer has vulnerabilities, or is no longer in the BOM");
-            return false;
-        }
+        logger.debug("This component either no longer has vulnerabilities, or is no longer in the BOM");
+        return false;
     }
 
     private int getSumOfCounts(final List<RiskCountView> vulnerabilityCounts) {

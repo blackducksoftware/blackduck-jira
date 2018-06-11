@@ -236,10 +236,9 @@ public class JiraIssueHandler {
         issueInputParameters.setDescription(eventData.getJiraIssueDescription()).setRetainExistingValuesWhenParameterNotProvided(true);
 
         issueFieldHandler.setPluginFieldValues(eventData, issueInputParameters);
-        // FIXME remove: final List<String> labels = issueFieldHandler.setOtherFieldValues(eventData, issueInputParameters);
 
         final UpdateValidationResult validationResult = jiraServices.getIssueService().validateUpdate(existingIssue.getCreator(), existingIssue.getId(), issueInputParameters);
-        logger.debug("updateHubFieldsAndDescription(): Project: " + eventData.getJiraProjectName() + ": " + eventData.getJiraIssueSummary());
+        logger.debug("updateHubFieldsAndDescription(): Issue: " + existingIssue.getKey());
         if (!validationResult.isValid()) {
             handleErrorCollection("updateHubFieldsAndDescription", eventData, validationResult.getErrorCollection());
         } else {
@@ -248,7 +247,6 @@ public class JiraIssueHandler {
             if (errors.hasAnyErrors()) {
                 handleErrorCollection("updateHubFieldsAndDescription", eventData, errors);
             } else {
-                // FIXME remove: issueFieldHandler.addLabels(result.getIssue(), labels);
                 final Issue jiraIssue = result.getIssue();
                 return jiraIssue;
             }
@@ -337,12 +335,6 @@ public class JiraIssueHandler {
                 break;
             }
         }
-        if (transitionAction == null) {
-            final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey() + ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
-            logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage, eventData.getHubProjectName(), eventData.getHubProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(), eventData.getJiraIssueCreatorUsername(),
-                    "transitionIssue");
-        }
         if (transitionAction != null) {
             final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
             parameters.setRetainExistingValuesWhenParameterNotProvided(true);
@@ -382,7 +374,7 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final EventData eventData) {
-        logger.debug("Licences: " + eventData.getHubLicenseNames());
+        logger.info("Handling event: " + eventData.getEventKey());
 
         final HubEventAction actionToTake = eventData.getAction();
         if (HubEventAction.OPEN.equals(actionToTake)) {
@@ -392,8 +384,7 @@ public class JiraIssueHandler {
                     addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
                 }
             }
-        }
-        if (HubEventAction.RESOLVE.equals(actionToTake)) {
+        } else if (HubEventAction.RESOLVE.equals(actionToTake)) {
             final ExistenceAwareIssue resolvedIssue = closeIssue(eventData);
             if (resolvedIssue != null) {
                 if (resolvedIssue.isIssueStateChangeBlocked()) {
@@ -417,10 +408,10 @@ public class JiraIssueHandler {
                 addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
             }
         }
-
     }
 
     private void addComment(final EventData eventData, final String comment, final Issue issue) {
+        logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
         if (comment != null) {
             final String lastCommentKey = String.valueOf(comment.hashCode());
             final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issue.getId(), HubJiraConstants.HUB_JIRA_LAST_COMMENT_KEY);

@@ -162,8 +162,7 @@ public class JiraTaskTimed implements Callable<String> {
                 for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
                             && projectMapping.getJiraProject().getProjectId() != null) {
-                        // Get jira Project object by Id
-                        // from the JiraProject in the mapping
+                        // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
                                 .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
