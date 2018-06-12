@@ -114,12 +114,11 @@ public class HubJiraTask {
         }
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
-        final Date startDate;
+        Date startDate;
         try {
             startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
         } catch (final ParseException e) {
-            logger.info(
-                    "This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+            logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
             return runDateString;
         }
 
@@ -145,8 +144,7 @@ public class HubJiraTask {
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, config.getHubProjectMappings());
 
             logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
-            final UserView hubUserItem = getHubUserItem(hubServicesFactory,
-                    hubServerConfig.getGlobalCredentials().getUsername());
+            final UserView hubUserItem = getHubUserItem(hubServicesFactory, hubServerConfig.getGlobalCredentials().getUsername());
             if (hubUserItem == null) {
                 return null;
             }
@@ -158,6 +156,10 @@ public class HubJiraTask {
             jiraSettingsService.addHubError(e, "executeHubJiraTask");
             return null;
         }
+        return runDateString;
+    }
+
+    public String getRunDateString() {
         return runDateString;
     }
 
@@ -200,8 +202,7 @@ public class HubJiraTask {
         final List<PolicyRuleSerializable> rules = config.getPolicyRules();
         for (final PolicyRuleSerializable rule : rules) {
             final String ruleUrl = rule.getPolicyUrl();
-            logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: "
-                    + rule.getChecked());
+            logger.debug("getRuleUrls(): rule name: " + rule.getName() + "; ruleUrl: " + ruleUrl + "; checked: " + rule.getChecked());
             if ((rule.getChecked()) && (!ruleUrl.equals("undefined"))) {
                 ruleUrls.add(ruleUrl);
             }
