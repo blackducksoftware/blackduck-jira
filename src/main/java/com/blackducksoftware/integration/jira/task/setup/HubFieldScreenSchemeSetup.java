@@ -58,6 +58,8 @@ import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
+// TODO investigate why the JIRA API returns raw types
+@SuppressWarnings("rawtypes")
 public class HubFieldScreenSchemeSetup {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final JiraSettingsService settingService;
@@ -119,6 +121,8 @@ public class HubFieldScreenSchemeSetup {
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField) {
         try {
+            @SuppressWarnings("deprecation")
+            // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
             CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
                 customField = createCustomField(issueTypeList, pluginField.getName());
