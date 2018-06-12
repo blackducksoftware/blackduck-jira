@@ -147,8 +147,7 @@ public class JiraIssueHandler {
     }
 
     private String getNotificationUniqueKey(final EventData eventData) {
-        String notificationUniqueKey = null;
-        notificationUniqueKey = eventData.getEventKey();
+        final String notificationUniqueKey = eventData.getEventKey();
         return notificationUniqueKey;
     }
 
@@ -237,10 +236,9 @@ public class JiraIssueHandler {
         issueInputParameters.setDescription(eventData.getJiraIssueDescription()).setRetainExistingValuesWhenParameterNotProvided(true);
 
         issueFieldHandler.setPluginFieldValues(eventData, issueInputParameters);
-        // FIXME remove: final List<String> labels = issueFieldHandler.setOtherFieldValues(eventData, issueInputParameters);
 
         final UpdateValidationResult validationResult = jiraServices.getIssueService().validateUpdate(existingIssue.getCreator(), existingIssue.getId(), issueInputParameters);
-        logger.debug("updateHubFieldsAndDescription(): Project: " + eventData.getJiraProjectName() + ": " + eventData.getJiraIssueSummary());
+        logger.debug("updateHubFieldsAndDescription(): Issue: " + existingIssue.getKey());
         if (!validationResult.isValid()) {
             handleErrorCollection("updateHubFieldsAndDescription", eventData, validationResult.getErrorCollection());
         } else {
@@ -249,7 +247,6 @@ public class JiraIssueHandler {
             if (errors.hasAnyErrors()) {
                 handleErrorCollection("updateHubFieldsAndDescription", eventData, errors);
             } else {
-                // FIXME remove: issueFieldHandler.addLabels(result.getIssue(), labels);
                 final Issue jiraIssue = result.getIssue();
                 return jiraIssue;
             }
@@ -338,12 +335,6 @@ public class JiraIssueHandler {
                 break;
             }
         }
-        if (transitionAction == null) {
-            final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey() + ", from status : " + currentStatus.getName() + ". We could not find the step : " + stepName;
-            logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage, eventData.getHubProjectName(), eventData.getHubProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(), eventData.getJiraIssueCreatorUsername(),
-                    "transitionIssue");
-        }
         if (transitionAction != null) {
             final IssueInputParameters parameters = jiraServices.getIssueService().newIssueInputParameters();
             parameters.setRetainExistingValuesWhenParameterNotProvided(true);
@@ -383,50 +374,54 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final EventData eventData) {
-        logger.debug("Licences: " + eventData.getHubLicenseNames());
+        logger.info("Handling event: " + eventData.getEventKey());
 
         final HubEventAction actionToTake = eventData.getAction();
         if (HubEventAction.OPEN.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = openIssue(eventData);
             if (openedIssue != null) {
                 if (openedIssue.isIssueStateChangeBlocked()) {
-                    addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
+                    addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
                 }
             }
-        }
-        if (HubEventAction.RESOLVE.equals(actionToTake)) {
+        } else if (HubEventAction.RESOLVE.equals(actionToTake)) {
             final ExistenceAwareIssue resolvedIssue = closeIssue(eventData);
             if (resolvedIssue != null) {
                 if (resolvedIssue.isIssueStateChangeBlocked()) {
-                    addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
+                    addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
                 }
             }
         } else if (HubEventAction.ADD_COMMENT.equals(actionToTake)) {
             final ExistenceAwareIssue issueToCommentOn = openIssue(eventData);
             if (issueToCommentOn != null && issueToCommentOn.getIssue() != null) {
                 if (!issueToCommentOn.isExisted()) {
-                    addComment(eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
+                    addComment(eventData, eventData.getJiraIssueComment(), issueToCommentOn.getIssue());
                 } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
-                    addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
+                    addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
                 } else {
-                    addComment(eventData.getJiraIssueCommentForExistingIssue(), issueToCommentOn.getIssue());
+                    addComment(eventData, eventData.getJiraIssueCommentForExistingIssue(), issueToCommentOn.getIssue());
                 }
             }
         } else if (HubEventAction.ADD_COMMENT_IF_EXISTS.equals(actionToTake)) {
             final Issue existingIssue = findIssue(eventData);
             if (existingIssue != null) {
-                addComment(eventData.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
+                addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
             }
         }
-
     }
 
-    private void addComment(final String comment, final Issue issue) {
-        if (comment == null) {
-            return;
+    private void addComment(final EventData eventData, final String comment, final Issue issue) {
+        logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
+        if (comment != null) {
+            final String lastCommentKey = String.valueOf(comment.hashCode());
+            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issue.getId(), HubJiraConstants.HUB_JIRA_LAST_COMMENT_KEY);
+            if (propResult.isValid() && propResult.getEntityProperty().isDefined() && lastCommentKey.equals(propResult.getEntityProperty().get().getValue())) {
+                return;
+            }
+            final CommentManager commentManager = jiraServices.getCommentManager();
+            commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
+            addIssuePropertyJson(eventData, issue.getId(), HubJiraConstants.HUB_JIRA_LAST_COMMENT_KEY, lastCommentKey);
         }
-        final CommentManager commentManager = jiraServices.getCommentManager();
-        commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
     }
 
     private ExistenceAwareIssue openIssue(final EventData eventData) {
@@ -455,7 +450,6 @@ public class JiraIssueHandler {
                     final IssueProperties properties = issuePropertiesGenerator.createIssueProperties(issue.getId());
                     logger.debug("Adding properties to created issue: " + properties);
                     addIssueProperty(eventData, issue.getId(), notificationUniqueKey, properties);
-
                 }
                 return new ExistenceAwareIssue(issue, false, false);
             } else {
@@ -471,7 +465,7 @@ public class JiraIssueHandler {
                             jiraContext.getJiraIssueCreatorUser());
                     if (transitionedIssue != null) {
                         logger.info("Re-opened the already exisiting issue.");
-                        addComment(eventData.getJiraIssueReOpenComment(), oldIssue);
+                        addComment(eventData, eventData.getJiraIssueReOpenComment(), oldIssue);
                         printIssueInfo(oldIssue);
                     }
                 } else {
@@ -513,7 +507,7 @@ public class JiraIssueHandler {
             }
             final Issue updatedIssue = transitionIssue(eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
             if (updatedIssue != null) {
-                addComment(eventData.getJiraIssueResolveComment(), updatedIssue);
+                addComment(eventData, eventData.getJiraIssueResolveComment(), updatedIssue);
                 logger.info("Resolved the issue based on an override.");
                 printIssueInfo(updatedIssue);
             }

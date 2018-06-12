@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -35,10 +37,12 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.rest.RestConstants;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and generates JIRA tickets for them.
@@ -70,26 +74,42 @@ public class JiraTask implements PluginJob {
 
         logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
+        final Date fallbackDate = new Date();
         final ExecutorService executor = Executors.newSingleThreadExecutor();
         final Future<String> future = executor.submit(new JiraTaskTimed(settings, jiraSettingsService, new JiraServices(), configDetails));
         String result;
         try {
             result = future.get(taskTimeoutMinutes, TimeUnit.MINUTES);
             logger.info("The timed task completed with result: " + result);
-        } catch (final ExecutionException e) {
-            logger.error("The timed task threw an error: " + e.getMessage(), e);
-        } catch (final TimeoutException e) {
-            logger.error("The timed task timed out");
-        } catch (final InterruptedException e) {
-            // FIXME the thread needs to know that it was interrupted
-            // Thread.currentThread().interrupt();
-            logger.error("The timed task was interrupted");
+        } catch (final Exception genericException) {
+            setFallbackRunDate(settings, configDetails, fallbackDate);
+            try {
+                throw genericException;
+            } catch (final ExecutionException e) {
+                logger.error("The timed task threw an error: " + e.getMessage(), e);
+            } catch (final TimeoutException e) {
+                logger.error("The timed task timed out");
+            } catch (final InterruptedException e) {
+                // Since the exception was caught, the thread hasn't been interrupted yet; it will be manually interrupted (by future.cancel(true)) in the finally block.
+                logger.error("The timed task was interrupted");
+            }
         } finally {
             if (!future.isDone()) {
                 future.cancel(true);
             }
         }
         logger.info("hub-jira periodic task has completed");
+    }
+
+    // Fall back in case the timed task set the lastRunDate before throwing an exception
+    private void setFallbackRunDate(final PluginSettings settings, final PluginConfigurationDetails configDetails, final Date fallbackDate) {
+        if (configDetails.getLastRunDateString() != null) {
+            final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+            dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+            final String fallbackDateString = dateFormatter.format(fallbackDate);
+            logger.warn("Setting fallback date due to error in timed task: " + fallbackDateString);
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, fallbackDateString);
+        }
     }
 
 }

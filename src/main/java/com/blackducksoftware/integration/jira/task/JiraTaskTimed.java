@@ -91,10 +91,7 @@ public class JiraTaskTimed implements Callable<String> {
         final Period diff = new Period(beforeSetup, afterSetup);
         logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis() + "ms.");
         final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
-        final String runDateString = processor.execute();
-        if (runDateString != null) {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, runDateString);
-        }
+        runHubJiraTaskAndSetLastRunDate(processor);
         logger.info("hub-jira periodic timed task has completed");
         return "success";
     }
@@ -151,6 +148,20 @@ public class JiraTaskTimed implements Callable<String> {
         return new JiraVersionCheck();
     }
 
+    // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
+    private void runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor) {
+        final String previousRunDateString = configDetails.getLastRunDateString();
+        if (previousRunDateString != null) {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, processor.getRunDateString());
+        }
+        final String newRunDateString = processor.execute();
+        if (newRunDateString != null) {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+        } else {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, previousRunDateString);
+        }
+    }
+
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final HubIssueTypeSetup issueTypeSetup,
             final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
             final FieldLayoutScheme fieldConfigurationScheme, final HubWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
@@ -162,8 +173,7 @@ public class JiraTaskTimed implements Callable<String> {
                 for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
                             && projectMapping.getJiraProject().getProjectId() != null) {
-                        // Get jira Project object by Id
-                        // from the JiraProject in the mapping
+                        // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
                                 .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {

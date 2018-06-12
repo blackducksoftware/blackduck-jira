@@ -23,17 +23,20 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.component.RemediatingVersionView;
 import com.blackducksoftware.integration.hub.api.generated.component.RemediationOptionsView;
+import com.blackducksoftware.integration.hub.api.generated.component.VersionBomLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
 import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
@@ -171,14 +174,6 @@ public class EventDataFormatHelper {
         return commentText.toString();
     }
 
-    public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) throws IntegrationException {
-        return getComponentLicensesString(componentVersion, false);
-    }
-
-    public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) throws IntegrationException {
-        return getComponentLicensesString(componentVersion, true);
-    }
-
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
         // TODO use the HubService once the Hub APIs have the link.
         final ComponentService componentService = new ComponentService(hubService);
@@ -220,9 +215,11 @@ public class EventDataFormatHelper {
     }
 
     private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
-        commentText.append("Vulnerabilities " + verb + ": ");
+        final boolean hasContent = vulns != null && !vulns.isEmpty();
+        final String formattedVerb = hasContent ? "*" + verb + "*" : "_" + verb + "_";
+        commentText.append("Vulnerabilities " + formattedVerb + ": ");
         int index = 0;
-        if (vulns != null && !vulns.isEmpty()) {
+        if (hasContent) {
             for (final VulnerabilitySourceQualifiedId vuln : vulns) {
                 commentText.append(vuln.vulnerabilityId + " (" + vuln.source + ")");
                 if ((index + 1) < vulns.size()) {
@@ -236,16 +233,52 @@ public class EventDataFormatHelper {
         commentText.append("\n");
     }
 
-    private String getComponentLicensesString(final ComponentVersionView componentVersion, final boolean includeLinks) throws IntegrationException {
+    public String getComponentLicensesStringPlainText(final VersionBomComponentView componentVersion) throws IntegrationException {
+        if (componentVersion.licenses != null && !componentVersion.licenses.isEmpty()) {
+            EventDataLicense license;
+            if (componentVersion.licenses.size() == 1) {
+                license = new EventDataLicense(componentVersion.licenses.get(0));
+            } else {
+                license = new EventDataLicense(componentVersion.licenses);
+            }
+            return getComponentLicensesString(license, false);
+        }
+        return "";
+    }
+
+    public String getComponentLicensesStringWithLinksAtlassianFormat(final VersionBomComponentView componentVersion) throws IntegrationException {
+        if (componentVersion.licenses != null && !componentVersion.licenses.isEmpty()) {
+            EventDataLicense license;
+            if (componentVersion.licenses.size() == 1) {
+                license = new EventDataLicense(componentVersion.licenses.get(0));
+            } else {
+                license = new EventDataLicense(componentVersion.licenses);
+            }
+            return getComponentLicensesString(license, true);
+        }
+        return "";
+    }
+
+    public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) throws IntegrationException {
+        final EventDataLicense license = new EventDataLicense(componentVersion.license);
+        return getComponentLicensesString(license, false);
+    }
+
+    public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) throws IntegrationException {
+        final EventDataLicense license = new EventDataLicense(componentVersion.license);
+        return getComponentLicensesString(license, true);
+    }
+
+    private String getComponentLicensesString(final EventDataLicense eventDataLicense, final boolean includeLinks) throws IntegrationException {
         String licensesString = "";
-        if ((componentVersion != null) && (componentVersion.license != null) && (componentVersion.license.licenses != null)) {
-            final ComplexLicenseType type = componentVersion.license.type;
+        if (eventDataLicense.isPopulated()) {
+            final ComplexLicenseType type = eventDataLicense.licenseType;
             final StringBuilder sb = new StringBuilder();
 
             if (type != null) {
-                final String licenseJoinString = (type == ComplexLicenseType.CONJUNCTIVE) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
+                final String licenseJoinString = (ComplexLicenseType.CONJUNCTIVE.equals(type)) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
                 int licenseIndex = 0;
-                for (final ComplexLicenseView license : componentVersion.license.licenses) {
+                for (final EventDataLicense license : eventDataLicense.licenses) {
                     if (licenseIndex++ > 0) {
                         sb.append(licenseJoinString);
                     }
@@ -253,21 +286,21 @@ public class EventDataFormatHelper {
                 }
 
             } else {
-                createLicenseString(sb, componentVersion.license, includeLinks);
+                createLicenseString(sb, eventDataLicense, includeLinks);
             }
             licensesString = sb.toString();
         }
         return licensesString;
     }
 
-    private void createLicenseString(final StringBuilder sb, final ComplexLicenseView license, final boolean includeLinks) throws IntegrationException {
+    private void createLicenseString(final StringBuilder sb, final EventDataLicense license, final boolean includeLinks) throws IntegrationException {
         final String licenseTextUrl = getLicenseTextUrl(license);
         logger.debug("Link to licence text: " + licenseTextUrl);
 
         if (includeLinks) {
             sb.append("[");
         }
-        sb.append(license.name);
+        sb.append(license.licenseDisplay);
         if (includeLinks) {
             sb.append("|");
             sb.append(licenseTextUrl);
@@ -275,10 +308,64 @@ public class EventDataFormatHelper {
         }
     }
 
-    private String getLicenseTextUrl(final ComplexLicenseView license) throws IntegrationException {
-        final String licenseUrl = license.license;
+    private String getLicenseTextUrl(final EventDataLicense license) throws IntegrationException {
+        final String licenseUrl = license.licenseUrl;
         final ComplexLicenseView fullLicense = hubService.getResponse(licenseUrl, ComplexLicenseView.class);
         final String licenseTextUrl = hubService.getFirstLink(fullLicense, "text");
         return licenseTextUrl;
     }
+
+    class EventDataLicense {
+        public final String licenseUrl;
+        public final String licenseDisplay;
+        public final ComplexLicenseType licenseType;
+        public final List<EventDataLicense> licenses;
+
+        public EventDataLicense(final List<VersionBomLicenseView> licenses) {
+            this.licenseUrl = null;
+            this.licenseDisplay = "Multiple licenses";
+            this.licenseType = ComplexLicenseType.CONJUNCTIVE;
+            this.licenses = createLicenseListFromBom(licenses);
+        }
+
+        public EventDataLicense(final ComplexLicenseView licenseView) {
+            this.licenseUrl = licenseView.license;
+            this.licenseDisplay = licenseView.licenseDisplay;
+            this.licenseType = licenseView.type;
+            this.licenses = createLicenseListFromComplex(licenseView.licenses);
+        }
+
+        public EventDataLicense(final VersionBomLicenseView licenseView) {
+            this.licenseUrl = licenseView.license;
+            this.licenseDisplay = licenseView.licenseDisplay;
+            this.licenseType = licenseView.licenseType;
+            this.licenses = createLicenseListFromBom(licenseView.licenses);
+        }
+
+        public List<EventDataLicense> createLicenseListFromComplex(final List<ComplexLicenseView> licenses) {
+            final List<EventDataLicense> eventDataLicenses = new ArrayList<>();
+            if (licenses != null) {
+                for (final ComplexLicenseView license : licenses) {
+                    eventDataLicenses.add(new EventDataLicense(license));
+                }
+            }
+            return eventDataLicenses;
+        }
+
+        public List<EventDataLicense> createLicenseListFromBom(final List<VersionBomLicenseView> licenses) {
+            final List<EventDataLicense> eventDataLicenses = new ArrayList<>();
+            if (licenses != null) {
+                for (final VersionBomLicenseView license : licenses) {
+                    eventDataLicenses.add(new EventDataLicense(license));
+                }
+            }
+            return eventDataLicenses;
+        }
+
+        public boolean isPopulated() {
+            return licenseDisplay != null && licenseUrl != null;
+        }
+
+    }
+
 }
