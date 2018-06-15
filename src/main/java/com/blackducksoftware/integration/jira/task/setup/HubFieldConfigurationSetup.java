@@ -44,13 +44,10 @@ import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class HubFieldConfigurationSetup {
-
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraSettingsService settingService;
-
     private final JiraServices jiraServices;
-
     public final List<String> requiredDefaultFields = new ArrayList<>();
 
     public HubFieldConfigurationSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
@@ -68,11 +65,8 @@ public class HubFieldConfigurationSetup {
         final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
         if (fieldLayoutSchemes != null) {
             for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
-                if (HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme
-                        .getName())) {
-                    logger.debug(
-                            "Field Configuration Scheme " + HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME
-                                    + " already exists");
+                if (HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
+                    logger.debug("Field Configuration Scheme " + HubJiraConstants.HUB_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
                     fieldConfigurationScheme = existingFieldConfigurationScheme;
                     break;
                 }
@@ -92,8 +86,7 @@ public class HubFieldConfigurationSetup {
                     continue;
                 }
                 if (entity.getIssueTypeObject().getName().equals(issueType.getName())) {
-                    logger.debug("IssueType " + issueType.getName()
-                            + " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
+                    logger.debug("IssueType " + issueType.getName() + " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
                     logger.debug("\tTarget field configuration ID is: " + fieldConfiguration.getId());
                     if ((entity.getFieldLayoutId() != null)
                             && (entity.getFieldLayoutId().equals(fieldConfiguration.getId()))) {
@@ -129,9 +122,7 @@ public class HubFieldConfigurationSetup {
     public EditableFieldLayout addHubFieldConfigurationToJira() {
         EditableFieldLayout hubFieldLayout = null;
         try {
-
-            final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager()
-                    .getEditableFieldLayouts();
+            final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager().getEditableFieldLayouts();
             if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
                 for (final EditableFieldLayout layout : fieldLayouts) {
                     if (layout.getName().equals(HubJiraConstants.HUB_FIELD_CONFIGURATION)) {

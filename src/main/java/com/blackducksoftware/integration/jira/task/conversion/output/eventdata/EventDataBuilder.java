@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.Set;
 
+import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
@@ -72,7 +73,7 @@ public class EventDataBuilder extends Stringable {
     private String hubRuleName;
     private String hubRuleUrl;
     private String componentIssueUrl;
-    private String hubProjectOwner;
+    private ApplicationUser hubProjectOwner;
     private String hubProjectVersionLastUpdated;
     private NotificationType notificationType;
     private String eventKey;
@@ -330,7 +331,7 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
-    public EventDataBuilder setHubProjectOwner(final String hubProjectOwner) {
+    public EventDataBuilder setHubProjectOwner(final ApplicationUser hubProjectOwner) {
         this.hubProjectOwner = hubProjectOwner;
         return this;
     }
