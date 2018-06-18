@@ -160,15 +160,13 @@ public class HubFieldScreenSchemeSetup {
                     }
                 }
                 if (needToUpdateCustomField) {
-                    // Setup is incomplete, but the only available way to recover
-                    // (by deleting the custom attribute and re-creating it) is too dangerous
+                    // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                     final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
                     logger.error(msg);
                     settingService.addHubError(msg, "getOrderedFieldFromCustomField");
                 }
             } else {
-                // Setup is incomplete, but the only available way to recover
-                // (by deleting the custom attribute and re-creating it) is too dangerous
+                // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                 final String msg = "The custom field " + customField.getName() + " has no IssueType associations.";
                 logger.error(msg);
                 settingService.addHubError(msg, "getOrderedFieldFromCustomField");
@@ -187,16 +185,16 @@ public class HubFieldScreenSchemeSetup {
         final List<OrderableField> customFields = new ArrayList<>();
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
 
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
-
-        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;

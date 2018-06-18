@@ -87,43 +87,31 @@ public class IssueFieldHandler {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
             }
             if (eventData.getHubProjectOwner() != null) {
-                // FIXME this fails with java.lang.ClassCastException: com.atlassian.jira.user.DelegatingApplicationUser cannot be cast to <String/Long>
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
             }
         }
     }
 
+    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final ApplicationUser fieldValue) {
+        addIssueInputParameter(eventData, pluginField, issueInputParameters, fieldValue.getUsername());
+    }
+
     private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final String fieldValue) {
         final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields().get(pluginField);
-        if (jiraCustomField == null) {
-            logError(eventData, pluginField);
-            return;
+        if (jiraCustomField != null) {
+            final Long fieldId = jiraCustomField.getIdAsLong();
+            issueInputParameters.addCustomFieldValue(fieldId, fieldValue);
+        } else {
+            final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
+            logger.error(errorMessage);
+            jiraSettingsService.addHubError(errorMessage,
+                    eventData.getHubProjectName(),
+                    eventData.getHubProjectVersion(),
+                    eventData.getJiraProjectName(),
+                    eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
+                    "addIssueInputParameter");
         }
-        final Long fieldId = jiraCustomField.getIdAsLong();
-        issueInputParameters.addCustomFieldValue(fieldId, fieldValue);
-    }
-
-    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final ApplicationUser fieldValue) {
-        final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields().get(pluginField);
-        if (jiraCustomField == null) {
-            logError(eventData, pluginField);
-            return;
-        }
-        final Long fieldId = jiraCustomField.getIdAsLong();
-
-        issueInputParameters.addCustomFieldValue(fieldId, Long.toString(fieldValue.getId()));
-    }
-
-    private void logError(final EventData eventData, final PluginField pluginField) {
-        final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
-        logger.error(errorMessage);
-        jiraSettingsService.addHubError(errorMessage,
-                eventData.getHubProjectName(),
-                eventData.getHubProjectVersion(),
-                eventData.getJiraProjectName(),
-                eventData.getJiraAdminUsername(),
-                eventData.getJiraIssueCreatorUsername(),
-                "addIssueInputParameter");
     }
 
     public List<String> setOtherFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {
@@ -213,9 +201,7 @@ public class IssueFieldHandler {
 
     private void setComponent(final EventData eventData, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
         Long compId = null;
-        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager()
-                .getProjectObj(eventData.getJiraProjectId())
-                .getComponents();
+        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(eventData.getJiraProjectId()).getComponents();
         for (final ProjectComponent component : components) {
             if (targetFieldValue.equals(component.getName())) {
                 compId = component.getId();

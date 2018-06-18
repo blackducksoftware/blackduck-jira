@@ -2,187 +2,171 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 
 <script language="JavaScript" type="text/javascript">
     hideHubCustomFields();
+    replaceProjectOwnerField();
 </script>
 
 #if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionNickname)
-<div class="module">
-<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
-<ul class="property-list two-cols">
-
-#set( $side = "left" )
-
-#if ($bdsHubProject)
-	<li class="item">
-		<div class="hubWrap">
-			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
-			<div id="hubProjectName" class="value">$bdsHubProject</div>
-		</div>
-	</li>
-	#set( $side = "right" )
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
+        <ul class="property-list two-cols">
+            #if ($bdsHubProject)
+                #set( $side = "left" )
+                	<li class="item">
+                		<div class="hubWrap">
+                			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
+                			<div id="hubProjectName" class="value">$bdsHubProject</div>
+                		</div>
+                	</li>
+                	#set( $side = "right" )
+            #end
+            #if ($bdsHubProjectVersion)
+                	#if ($side == "left")
+                	   <li class="item">
+                	   #set( $side = "right" )
+                	#else
+                	   <li class="item-right fiftyPercent">
+                	   #set( $side = "left" )
+                	#end
+            		<div class="hubWrap">
+            			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
+            			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
+            		</div>
+                	</li>
+            #end
+            #if ($bdsHubProjectVersionNickname)
+                	#if ($side == "left")
+                	   <li class="item">
+                	   #set( $side = "right" )
+                	#else
+                	   <li class="item-right fiftyPercent">
+                	   #set( $side = "left" )
+                	#end
+                		<div class="hubWrap">
+                			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
+                			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
+                		</div>
+                	</li>
+            #end
+        </ul>
+    </div>
+    <div class="fieldSectionSeparator"/>
+#end          
+            
+#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectVersionLastUpdated)
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
+            <ul class="property-list two-cols">
+            
+            #set( $side = "left" )
+            
+            #if ($bdsHubComponent)
+                	<li class="item">
+                    	<div class="hubWrap">
+                    		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
+                    		<div id="hubComponentName" class="value">$bdsHubComponent</div>
+                    	</div>
+                	</li>
+                	#set( $side = "right" )
+            #end
+            #if ($bdsHubComponentVersion)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
+                		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsHubComponentOrigin)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
+                		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsHubComponentOriginId)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
+                		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsHubComponentUsage)
+                #if ($side == "left")
+                    <li class="item">
+                    #set( $side = "right" )
+                #else
+                    <li class="item-right fiftyPercent">
+                    #set( $side = "left" )
+                #end
+                <div class="hubWrap">
+                    <strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
+                    <div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
+                </div>
+                </li>
+            #end
+            #if ($bdsHubLicenses)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
+                		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsHubProjectVersionLastUpdated)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
+                		<div id="hubProjectVersionLastUpdated" class="value">$bdsHubProjectVersionLastUpdated</div>
+                	</div>
+            	</li>
+            #end
+        </ul>
+    </div>
+    <div class="fieldSectionSeparator"/>
 #end
-#if ($bdsHubProjectVersion)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-		<div class="hubWrap">
-			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.label"):</strong>
-			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
-		</div>
-	</li>
-#end
-#if ($bdsHubProjectVersionNickname)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-		<div class="hubWrap">
-			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.nickname.label"):</strong>
-			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
-		</div>
-	</li>
-#end
-</ul>
-</div>
-<div class="fieldSectionSeparator"/>
-#end
-
-
-#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectOwner || $bdsHubProjectVersionLastUpdated)
-<div class="module">
-<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
-<ul class="property-list two-cols">
-
-#set( $side = "left" )
-
-#if ($bdsHubComponent)
-	<li class="item">
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
-		<div id="hubComponentName" class="value">$bdsHubComponent</div>
-	</div>
-	</li>
-	#set( $side = "right" )
-#end
-#if ($bdsHubComponentVersion)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.version.label"):</strong>
-		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubComponentUsage)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.usage.label"):</strong>
-		<div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubComponentOrigin)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.label"):</strong>
-		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubComponentOriginId)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.origin.id.label"):</strong>
-		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubLicenses)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
-		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubProjectOwner)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.owner.label"):</strong>
-		<div id="hubProjectOwner" class="value">$bdsHubProjectOwner</div>
-	</div>
-	</li>
-#end
-#if ($bdsHubProjectVersionLastUpdated)
-	#if ($side == "left")
-	<li class="item">
-	#set( $side = "right" )
-	#else
-	<li class="item-right fiftyPercent">
-	#set( $side = "left" )
-	#end
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
-		<div id="hubProjectVersionLastUpdated" class="value">$bdsHubProjectVersionLastUpdated</div>
-	</div>
-	</li>
-#end
-</ul>
-</div>
-<div class="fieldSectionSeparator"/>
-#end
-
+            
 #if ($bdsHubPolicyRule)
-<div class="module">
-<div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.policy.label")</h5></div>
-<ul class="property-list two-cols">
-	<li class="item">
-	<div class="hubWrap">
-		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
-		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
-	</div>
-	</li>
-</ul>
-</div>
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.policy.label")</h5></div>
+        <ul class="property-list two-cols">
+            	<li class="item">
+                	<div class="hubWrap">
+                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
+                		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
+                	</div>
+            	</li>
+        </ul>
+    </div>
 #end
