@@ -94,12 +94,12 @@ function changeHubFieldInModule(fieldName, newValue, moduleId, innerListId, inne
 					}
 				}
 			} else {
-				setTimeout(replaceProjectOwnerField, 100);
+				setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 			}
 		} else {
-			setTimeout(replaceProjectOwnerField, 100);
+			setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 		}
 	} else {
-		setTimeout(replaceProjectOwnerField, 100);
+		setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 	}
 }

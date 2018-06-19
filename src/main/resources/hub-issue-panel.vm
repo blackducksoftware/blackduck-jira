@@ -1,8 +1,12 @@
 $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-web-panel-resources")
 
 <script language="JavaScript" type="text/javascript">
-    hideHubCustomFields();
-    replaceProjectOwnerField();
+    try {
+        hideHubCustomFields();
+        replaceProjectOwnerField();
+    } catch (error) {
+        
+    }
 </script>
 
 #if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionNickname)

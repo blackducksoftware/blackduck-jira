@@ -102,7 +102,7 @@ public class NotificationToEventConverter {
 
     public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket hubBucket) throws HubIntegrationException {
         final NotificationType notificationType = detailResult.getType();
-        logger.debug(String.format("%s Notification: %s", notificationType, detailResult));
+        logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
 
         final Set<EventData> allEvents = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
