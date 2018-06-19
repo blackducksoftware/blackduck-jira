@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -108,24 +109,45 @@ public class HubFieldScreenSchemeSetup {
         return hubIssueType;
     }
 
-    private CustomField createCustomField(final List<IssueType> issueTypeList, final String fieldName) throws GenericEntityException {
+    private CustomField createCustomTextField(final List<IssueType> issueTypeList, final String fieldName) throws RuntimeException {
+        return createCustomField(issueTypeList, fieldName, "textarea", "textsearcher");
+    }
+
+    private CustomField createCustomUserField(final List<IssueType> issueTypeList, final String fieldName) throws RuntimeException {
+        return createCustomField(issueTypeList, fieldName, "userpicker", "userpickersearcher");
+    }
+
+    private CustomField createCustomField(final List<IssueType> issueTypeList, final String fieldName, final String typeSuffix, final String searcherSuffix) throws RuntimeException {
         logger.debug("createCustomField(): " + fieldName);
-        final CustomFieldType fieldType = jiraServices.getCustomFieldManager().getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + "textarea");
-        final CustomFieldSearcher fieldSearcher = jiraServices.getCustomFieldManager().getCustomFieldSearcher(CreateCustomField.FIELD_TYPE_PREFIX + "textsearcher");
+        final CustomFieldType fieldType = jiraServices.getCustomFieldManager().getCustomFieldType(CreateCustomField.FIELD_TYPE_PREFIX + typeSuffix);
+        final CustomFieldSearcher fieldSearcher = jiraServices.getCustomFieldManager().getCustomFieldSearcher(CreateCustomField.FIELD_TYPE_PREFIX + searcherSuffix);
 
         final List<JiraContextNode> contexts = new ArrayList<>();
         contexts.add(GlobalIssueContext.getInstance());
 
-        return jiraServices.getCustomFieldManager().createCustomField(fieldName, "", fieldType, fieldSearcher, contexts, issueTypeList);
+        try {
+            return jiraServices.getCustomFieldManager().createCustomField(fieldName, "", fieldType, fieldSearcher, contexts, issueTypeList);
+        } catch (final GenericEntityException e) {
+            // This will be caught by this::getOrderedFieldFromCustomField
+            throw new RuntimeException(e);
+        }
     }
 
-    private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField) {
+    private OrderableField getOrderedTextFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField) {
+        return getOrderedFieldFromCustomField(issueTypeList, pluginField, this::createCustomTextField);
+    }
+
+    private OrderableField getOrderedUserFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField) {
+        return getOrderedFieldFromCustomField(issueTypeList, pluginField, this::createCustomUserField);
+    }
+
+    private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField, final BiFunction<List<IssueType>, String, CustomField> createCustomFieldFunction) {
         try {
             @SuppressWarnings("deprecation")
             // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
             CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
-                customField = createCustomField(issueTypeList, pluginField.getName());
+                customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
                 final List<IssueType> associatatedIssueTypeList = customField.getAssociatedIssueTypes();
@@ -138,15 +160,13 @@ public class HubFieldScreenSchemeSetup {
                     }
                 }
                 if (needToUpdateCustomField) {
-                    // Setup is incomplete, but the only available way to recover
-                    // (by deleting the custom attribute and re-creating it) is too dangerous
+                    // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                     final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
                     logger.error(msg);
                     settingService.addHubError(msg, "getOrderedFieldFromCustomField");
                 }
             } else {
-                // Setup is incomplete, but the only available way to recover
-                // (by deleting the custom attribute and re-creating it) is too dangerous
+                // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                 final String msg = "The custom field " + customField.getName() + " has no IssueType associations.";
                 logger.error(msg);
                 settingService.addHubError(msg, "getOrderedFieldFromCustomField");
@@ -163,19 +183,19 @@ public class HubFieldScreenSchemeSetup {
 
     private List<OrderableField> createCommonFields(final List<IssueType> issueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
 
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
 
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
-        customFields.add(getOrderedFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;
     }
@@ -184,7 +204,7 @@ public class HubFieldScreenSchemeSetup {
         final List<OrderableField> customFields = new ArrayList<>();
         final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
         policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
-        customFields.add(getOrderedFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;
     }

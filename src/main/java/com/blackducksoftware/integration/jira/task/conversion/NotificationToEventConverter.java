@@ -33,7 +33,9 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.UriSingleResponse;
 import com.blackducksoftware.integration.hub.api.generated.component.RiskCountView;
@@ -46,6 +48,7 @@ import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
+import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
@@ -99,7 +102,7 @@ public class NotificationToEventConverter {
 
     public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket hubBucket) throws HubIntegrationException {
         final NotificationType notificationType = detailResult.getType();
-        logger.debug(String.format("%s Notification: %s", notificationType, detailResult));
+        logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
 
         final Set<EventData> allEvents = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
@@ -187,7 +190,8 @@ public class NotificationToEventConverter {
         eventDataBuilder.setNotificationType(notificationType);
         eventDataBuilder.setEventKey(generateEventKey(eventDataBuilder));
 
-        addExtraneousHubInfoToEventDataBuilder(eventDataBuilder, detail, hubBucket);
+        eventDataBuilder.setHubProjectVersionLastUpdated(getBomLastUpdated(detail, hubBucket));
+        eventDataBuilder.setHubProjectOwner(getJiraProjectOwner(jiraServices.getUserSearchService(), detail.getProjectVersion(), hubBucket));
 
         return Optional.of(eventDataBuilder.build());
     }
@@ -343,23 +347,39 @@ public class NotificationToEventConverter {
         return "";
     }
 
-    private void addExtraneousHubInfoToEventDataBuilder(final EventDataBuilder eventDataBuilder, final NotificationContentDetail detail, final HubBucket hubBucket) {
+    private ApplicationUser getJiraProjectOwner(final UserSearchService userSearchService, final Optional<UriSingleResponse<ProjectVersionView>> projectVersionOptional, final HubBucket hubBucket) {
+        if (projectVersionOptional.isPresent()) {
+            try {
+                final ProjectVersionView projectVersion = hubBucket.get(projectVersionOptional.get());
+                final ProjectView project = hubService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
+                if (project.projectOwner != null) {
+                    final UserView projectOwner = hubService.getResponse(project.projectOwner, UserView.class);
+                    if (projectOwner != null) {
+                        for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.email)) {
+                            // We will assume that if users are configured correctly, they will have unique email addresses.
+                            return jiraUser;
+                        }
+                    }
+                }
+            } catch (final Exception e) {
+                logger.error("Unable to get the project owner for this notification from the hub.");
+            }
+        }
+        return null;
+    }
+
+    private String getBomLastUpdated(final NotificationContentDetail detail, final HubBucket hubBucket) {
         if (detail.getProjectVersion().isPresent()) {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
             try {
                 final VersionRiskProfileView riskProfile = hubService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
                 final SimpleDateFormat dateFormat = new SimpleDateFormat();
-                eventDataBuilder.setHubProjectVersionLastUpdated(dateFormat.format(riskProfile.bomLastUpdatedAt));
+                return dateFormat.format(riskProfile.bomLastUpdatedAt);
             } catch (final IntegrationException e) {
                 logger.error(String.format("Could not find the risk profile for %s: %s", ProjectVersionView.RISKPROFILE_LINK_RESPONSE, e.getMessage()));
             }
-            try {
-                final ProjectView project = hubService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
-                eventDataBuilder.setHubProjectOwner(project.projectOwner);
-            } catch (final IntegrationException e) {
-                logger.error(String.format("Could not find the project for %s: %s", ProjectVersionView.PROJECT_LINK_RESPONSE, e.getMessage()));
-            }
         }
+        return "";
     }
 
     private VersionBomComponentView getBomComponent(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {

@@ -37,6 +37,7 @@ import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.version.Version;
+import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraContext;
@@ -80,19 +81,27 @@ public class IssueFieldHandler {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getHubComponentOriginId());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getHubProjectVersionNickname());
-
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, issueInputParameters, eventData.getHubProjectVersionLastUpdated());
 
             if (eventData.isPolicy()) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
             }
+            if (eventData.getHubProjectOwner() != null) {
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
+            }
         }
+    }
+
+    private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final ApplicationUser fieldValue) {
+        addIssueInputParameter(eventData, pluginField, issueInputParameters, fieldValue.getUsername());
     }
 
     private void addIssueInputParameter(final EventData eventData, final PluginField pluginField, final IssueInputParameters issueInputParameters, final String fieldValue) {
         final CustomField jiraCustomField = ticketInfoFromSetup.getCustomFields().get(pluginField);
-        if (jiraCustomField == null) {
+        if (jiraCustomField != null) {
+            final Long fieldId = jiraCustomField.getIdAsLong();
+            issueInputParameters.addCustomFieldValue(fieldId, fieldValue);
+        } else {
             final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
             logger.error(errorMessage);
             jiraSettingsService.addHubError(errorMessage,
@@ -102,10 +111,7 @@ public class IssueFieldHandler {
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
                     "addIssueInputParameter");
-            return;
         }
-        final Long fieldId = jiraCustomField.getIdAsLong();
-        issueInputParameters.addCustomFieldValue(fieldId, fieldValue);
     }
 
     public List<String> setOtherFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {
@@ -171,9 +177,7 @@ public class IssueFieldHandler {
     /**
      * If target field is labels field, the label value is returned (labels cannot be applied to an issue during creation).
      */
-    private String setSystemField(final EventData eventData, final IssueInputParameters issueInputParameters,
-            final Field targetField,
-            final String targetFieldValue) {
+    private String setSystemField(final EventData eventData, final IssueInputParameters issueInputParameters, final Field targetField, final String targetFieldValue) {
         if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(eventData, issueInputParameters, targetFieldValue);
         } else if (targetField.getId().equals(HubJiraConstants.COMPONENTS_FIELD_ID)) {
@@ -195,12 +199,9 @@ public class IssueFieldHandler {
         return null;
     }
 
-    private void setComponent(final EventData eventData, final IssueInputParameters issueInputParameters,
-            final String targetFieldValue) {
+    private void setComponent(final EventData eventData, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
         Long compId = null;
-        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager()
-                .getProjectObj(eventData.getJiraProjectId())
-                .getComponents();
+        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(eventData.getJiraProjectId()).getComponents();
         for (final ProjectComponent component : components) {
             if (targetFieldValue.equals(component.getName())) {
                 compId = component.getId();
@@ -265,7 +266,7 @@ public class IssueFieldHandler {
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectVersion();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectOwner();
+            fieldValue = eventData.getHubProjectOwner() != null ? eventData.getHubProjectOwner().getUsername() : "";
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectVersionLastUpdated();
         } else {
@@ -282,4 +283,5 @@ public class IssueFieldHandler {
 
         return fieldValue;
     }
+
 }

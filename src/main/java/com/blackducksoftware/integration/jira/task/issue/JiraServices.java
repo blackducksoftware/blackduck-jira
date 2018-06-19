@@ -33,6 +33,8 @@ import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
+import com.atlassian.jira.bc.user.search.DefaultUserPickerSearchService;
+import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
@@ -119,6 +121,11 @@ public class JiraServices {
 
     public UserManager getUserManager() {
         return ComponentAccessor.getUserManager();
+    }
+
+    public UserSearchService getUserSearchService() {
+        return new DefaultUserPickerSearchService(getUserManager(), ComponentAccessor.getApplicationProperties(), getAuthContext(), ComponentAccessor.getPermissionManager(), getGroupManager(),
+                getJiraProjectManager(), null, ComponentAccessor.getCrowdService(), null, null, null);
     }
 
     public UserUtil getUserUtil() {

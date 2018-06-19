@@ -100,8 +100,7 @@ public class HubIssueTypeSetup {
     private List<String> collectExistingBdsIssueTypeNames(final List<IssueType> bdIssueTypes) {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
-            if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE)
-                    || issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
+            if (issueType.getName().equals(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(HubJiraConstants.HUB_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
                 existingBdIssueTypeNames.add(issueType.getName());
             }
