@@ -63,10 +63,8 @@ import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
-
-    private static final int NUM_FIELDS_VULNERABILITY = 11;
-
-    private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 1;
+    private static final int NUM_FIELDS_VULNERABILITY = 14;
+    private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 2;
 
     @Test
     public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {

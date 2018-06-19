@@ -37,9 +37,13 @@ public class HubJiraConstants {
     // Field names (user visible)
     public final static String HUB_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
     public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
+    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
+    public final static String HUB_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
+    public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
     public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
+    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
     public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";

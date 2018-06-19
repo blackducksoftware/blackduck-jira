@@ -112,18 +112,13 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraTaskSetupTest {
     private final static String HUB_JIRA_GROUP = "hub-jira";
-
     private static final String HUB_PROJECT_NAME = "Test Hub Project";
-
     private static final String JIRA_PROJECT_NAME = ProjectManagerMock.JIRA_PROJECT_PREFIX;
-
     private static final long JIRA_PROJECT_ID = ProjectManagerMock.JIRA_PROJECT_ID_BASE;
-
     private static final String JIRA_USER = "Jira User";
 
     @Test
     public void testServerSetupIssueTypesAlreadyCreated() throws Exception {
-
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
@@ -137,7 +132,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
 
-        assertEquals(12, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
+        assertEquals(16, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -147,9 +142,9 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(16, tab.getFieldScreenLayoutItems().size()); // TODO unhardcode all these
+                assertEquals(20, tab.getFieldScreenLayoutItems().size()); // TODO unhardcode all these
             } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
-                assertEquals(15, tab.getFieldScreenLayoutItems().size());
+                assertEquals(18, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);
@@ -165,8 +160,8 @@ public class JiraTaskSetupTest {
                                 .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
-        assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
-        assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size() == 6);
+        assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
+        assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
         assertTrue(((String) jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
@@ -179,7 +174,6 @@ public class JiraTaskSetupTest {
 
     @Test
     public void testServerSetupIssueTypesNotAlreadyCreated() throws Exception {
-
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
@@ -193,7 +187,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(2, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
-        assertEquals(12, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
+        assertEquals(16, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -203,12 +197,12 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(16, tab.getFieldScreenLayoutItems().size());
+                assertEquals(20, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
-                assertEquals(15, tab.getFieldScreenLayoutItems().size());
+                assertEquals(18, tab.getFieldScreenLayoutItems().size());
             }
         }
-        assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);
+        assertEquals(2, jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size());
         for (final FieldScreenScheme fieldScreenScheme : jiraEnv.getFieldScreenSchemeManagerMock()
                 .getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
@@ -221,8 +215,8 @@ public class JiraTaskSetupTest {
                                 .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
-        assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size() == 2);
-        assertTrue(jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size() == 6);
+        assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
+        assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
         assertTrue(((String) jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
@@ -249,7 +243,6 @@ public class JiraTaskSetupTest {
     }
 
     private JiraEnvironment generateJiraMocks(final boolean bdIssueTypesAlreadyAdded) throws ConfigurationException {
-
         final GroupPickerSearchServiceMock groupPickerSearchService = getGroupPickerSearchServiceMock(false);
         final WorkflowManagerMock workflowManager = getWorkflowManagerMock();
         final WorkflowSchemeManagerMock workflowSchemeManager = getWorkflowSchemeManagerMock(false);

@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.setup;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -66,7 +67,7 @@ public class HubFieldConfigurationSetupTest {
         fieldConfigSetup.addHubFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
-        assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 1);
+        assertEquals(1, fieldLayout.getFieldsToMakeOptional().size());
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
         assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
     }
@@ -89,7 +90,7 @@ public class HubFieldConfigurationSetupTest {
         fieldConfigSetup.addHubFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
-        assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 0);
+        assertEquals(0, fieldLayout.getFieldsToMakeOptional().size());
         assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
     }
 
