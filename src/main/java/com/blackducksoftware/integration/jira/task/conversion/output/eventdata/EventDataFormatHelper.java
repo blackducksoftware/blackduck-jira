@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.component.RemediatingVersionView;
 import com.blackducksoftware.integration.hub.api.generated.component.RemediationOptionsView;
@@ -90,55 +92,19 @@ public class EventDataFormatHelper {
         return componentString;
     }
 
-    public String getIssueDescription(final NotificationContentDetail detail, final Optional<PolicyRuleViewV2> optionalRule, final HubBucket hubBucket) {
+    public String getIssueDescription(final NotificationContentDetail detail, final HubBucket hubBucket) {
         final StringBuilder issueDescription = new StringBuilder();
 
-        String componentsLink = null;
-        String vulnerableComponentsLink = null;
-        if (detail.getProjectVersion().isPresent()) {
-            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
-            componentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.COMPONENTS_LINK);
-            vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
-        }
+        issueDescription.append("Black Duck has detected ");
         if (detail.isPolicy()) {
-            issueDescription.append("The Black Duck Hub has detected a policy violation on Hub project ");
-        } else {
-            issueDescription.append("This issue tracks vulnerability status changes on Hub project ");
-        }
-        final String projectName = detail.getProjectName().orElse("?");
-        final String projectVersionName = detail.getProjectVersionName().orElse("?");
-        if (componentsLink == null) {
-            issueDescription.append("'");
-            issueDescription.append(projectName);
-            issueDescription.append("' / '");
-            issueDescription.append(projectVersionName);
-            issueDescription.append("'");
-        } else {
-            issueDescription.append("['");
-            issueDescription.append(projectName);
-            issueDescription.append("' / '");
-            issueDescription.append(projectVersionName);
-            issueDescription.append("'|");
-            issueDescription.append(componentsLink);
-            issueDescription.append("]");
-        }
-        if (detail.getComponentName().isPresent()) {
-            issueDescription.append(", component '");
-            issueDescription.append(detail.getComponentName().get());
-            if (detail.getComponentVersionName().isPresent()) {
-                issueDescription.append("' / '");
-                issueDescription.append(detail.getComponentVersionName().get());
+            issueDescription.append("a policy violation.  \n");
+        } else if (detail.isVulnerability()) {
+            issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
+            String vulnerableComponentsLink = null;
+            if (detail.getProjectVersion().isPresent()) {
+                final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+                vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
-        }
-        if (optionalRule.isPresent()) {
-            final PolicyRuleViewV2 rule = optionalRule.get();
-            issueDescription.append("'.");
-            issueDescription.append(" The rule violated is: '");
-            issueDescription.append(rule.name);
-            issueDescription.append("'. Rule overridable: ");
-            issueDescription.append(rule.overridable);
-        } else {
-            issueDescription.append("'. For details, see the comments below, or the project's ");
             if (vulnerableComponentsLink != null) {
                 issueDescription.append("[vulnerabilities|");
                 issueDescription.append(vulnerableComponentsLink);
@@ -153,13 +119,15 @@ public class EventDataFormatHelper {
             try {
                 final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
                 final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
-                issueDescription.append("\nComponent license(s): ");
-                issueDescription.append(licenseText);
-                if (!optionalRule.isPresent()) {
+                if (StringUtils.isNotBlank(licenseText)) {
+                    issueDescription.append("  \nKB Component license(s): ");
+                    issueDescription.append(licenseText);
+                }
+                if (detail.isVulnerability()) {
                     appendRemediationOptionsText(issueDescription, componentVersion);
                 }
             } catch (final IntegrationException e) {
-                // omit license text
+                // omit additional text
             }
         }
         return issueDescription.toString();

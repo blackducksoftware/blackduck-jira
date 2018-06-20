@@ -48,6 +48,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
@@ -63,8 +64,8 @@ import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
-    private static final int NUM_FIELDS_VULNERABILITY = 14;
-    private static final int NUM_FIELDS_POLICY = NUM_FIELDS_VULNERABILITY + 2;
+    private static final int NUM_FIELDS_POLICY = PluginField.values().length;
+    private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_POLICY - 2;
 
     @Test
     public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
@@ -196,7 +197,7 @@ public class HubFieldScreenSchemeSetupTest {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
         }
-        assertTrue(fieldScreenManager.getUpdatedTabs().size() == 2);
+        assertEquals(2, fieldScreenManager.getUpdatedTabs().size());
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
@@ -206,7 +207,7 @@ public class HubFieldScreenSchemeSetupTest {
                 assertEquals(NUM_FIELDS_VULNERABILITY, tab.getFieldScreenLayoutItems().size());
             }
         }
-        assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
+        assertEquals(2, fieldScreenManager.getUpdatedScreens().size());
         for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemeManager.getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
@@ -218,8 +219,8 @@ public class HubFieldScreenSchemeSetupTest {
                                 .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
-        assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
-        assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
+        assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
+        assertEquals(6, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
@@ -349,7 +350,7 @@ public class HubFieldScreenSchemeSetupTest {
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_VULNERABILITY + 4, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -392,10 +393,10 @@ public class HubFieldScreenSchemeSetupTest {
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_VULNERABILITY + 4, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
             }
         }
-        assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
+        assertEquals(2, fieldScreenManager.getUpdatedScreens().size());
         for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemeManager.getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
@@ -407,8 +408,8 @@ public class HubFieldScreenSchemeSetupTest {
                                 .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
-        assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
-        assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 7);
+        assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
+        assertEquals(7, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));

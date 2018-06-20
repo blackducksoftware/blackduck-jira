@@ -89,7 +89,10 @@ public class IssueFieldHandler {
 
             if (eventData.isPolicy()) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, issueInputParameters, eventData.getHubRuleOverridable());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, issueInputParameters, eventData.getHubRuleDescription());
+                // TODO use this when the Hub supports policy redirect: addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubBaseUrl() + "/ui/policy-management");
             }
             if (eventData.getHubProjectOwner() != null) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
@@ -266,8 +269,13 @@ public class IssueFieldHandler {
             fieldValue = eventData.getHubComponentVersionUrl();
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
             fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleName());
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleOverridable());
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleDescription());
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL.getId().equals(pluginFieldId)) {
-            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
+            // TODO use this when the Hub supports policy redirect: fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
+            fieldValue = eventData.getHubBaseUrl() + "/ui/policy-management";
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectName();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {

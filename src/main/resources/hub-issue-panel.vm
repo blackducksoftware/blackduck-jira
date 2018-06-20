@@ -9,7 +9,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     }
 </script>
 
-#if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionUrl || $bdsHubProjectVersionNickname)
+#if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionNickname)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.project.label")</h5></div>
         <ul class="property-list two-cols">
@@ -56,7 +56,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     <div class="fieldSectionSeparator"/>
 #end          
             
-#if ($bdsHubComponent || $bdsHubComponentUrl || $bdsHubComponentVersion || $bdsHubComponentVersionUrl || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectVersionLastUpdated)
+#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectVersionLastUpdated)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.component.label")</h5></div>
             <ul class="property-list two-cols">
@@ -165,16 +165,41 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     <div class="fieldSectionSeparator"/>
 #end
             
-#if ($bdsHubPolicyRule)
+#if ($bdsHubPolicyRule || $bdsHubPolicyRuleOverridable)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.policy.label")</h5></div>
         <ul class="property-list two-cols">
-            	<li class="item">
-                	<div class="hubWrap">
-                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
-                		<div id="hubPolicyRuleName" class="value"><a href="$bdsHubPolicyRuleUrl">$bdsHubPolicyRule</a></div>
-                	</div>
-            	</li>
+            
+            #set( $side = "left" )
+        
+            #if ($bdsHubPolicyRule)
+                #if ($side == "left")
+                    <li class="item">
+                    #set( $side = "right" )
+                #else
+                    <li class="item-right fiftyPercent">
+                    #set( $side = "left" )
+                #end
+                <div class="hubWrap">
+                    <strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
+                    <div id="hubPolicyRuleName" class="value" title="$bdsHubPolicyRuleDescription"><a href="$bdsHubPolicyRuleUrl">$bdsHubPolicyRule</a></div>
+                </div>
+                	</li>
+             #end
+            	#if ($bdsHubPolicyRuleOverridable)
+                    #if ($side == "left")
+                        <li class="item">
+                        #set( $side = "right" )
+                    #else
+                        <li class="item-right fiftyPercent">
+                        #set( $side = "left" )
+                    #end
+                    <div class="hubWrap">
+                        <strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.overridable.label"):</strong>
+                        <div id="hubPolicyRuleOverridable" class="value">$bdsHubPolicyRuleOverridable</div>
+                    </div>
+                </li>
+            #end
         </ul>
     </div>
 #end

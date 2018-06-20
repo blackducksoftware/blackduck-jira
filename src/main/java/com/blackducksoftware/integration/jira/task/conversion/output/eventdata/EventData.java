@@ -43,6 +43,7 @@ public class EventData extends Stringable {
     private String jiraProjectName;
     private Long jiraProjectId;
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
+    private String hubBaseUrl;
     private String hubProjectName;
     private String hubProjectVersion;
     private String hubProjectVersionUrl;
@@ -64,6 +65,8 @@ public class EventData extends Stringable {
     private String jiraIssueCommentInLieuOfStateChange;
     private IssuePropertiesGenerator jiraIssuePropertiesGenerator;
     private String hubRuleName;
+    private String hubRuleOverridable;
+    private String hubRuleDescription;
     private String hubRuleUrl;
     private String componentIssueUrl;
     private ApplicationUser hubProjectOwner;
@@ -126,6 +129,11 @@ public class EventData extends Stringable {
 
     EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         this.jiraFieldCopyMappings = jiraFieldCopyMappings;
+        return this;
+    }
+
+    EventData setHubBaseUrl(final String hubBaseUrl) {
+        this.hubBaseUrl = hubBaseUrl;
         return this;
     }
 
@@ -206,6 +214,16 @@ public class EventData extends Stringable {
 
     EventData setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
+        return this;
+    }
+
+    EventData setHubRuleOverridable(final String hubRuleOverridable) {
+        this.hubRuleOverridable = hubRuleOverridable;
+        return this;
+    }
+
+    EventData setHubRuleDescription(final String hubRuleDescription) {
+        this.hubRuleDescription = hubRuleDescription;
         return this;
     }
 
@@ -304,6 +322,10 @@ public class EventData extends Stringable {
         return jiraFieldCopyMappings;
     }
 
+    public String getHubBaseUrl() {
+        return hubBaseUrl;
+    }
+
     public String getHubProjectName() {
         return hubProjectName;
     }
@@ -366,6 +388,14 @@ public class EventData extends Stringable {
 
     public String getHubRuleName() {
         return hubRuleName;
+    }
+
+    public String getHubRuleOverridable() {
+        return hubRuleOverridable;
+    }
+
+    public String getHubRuleDescription() {
+        return hubRuleDescription;
     }
 
     public String getHubRuleUrl() {

@@ -208,6 +208,8 @@ public class HubFieldScreenSchemeSetup {
         final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
         policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
         customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
         customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;

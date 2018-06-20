@@ -141,8 +141,7 @@ public class NotificationToEventConverter {
     }
 
     private Optional<EventData> createEventDataForJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
-            final HubBucket hubBucket)
-            throws EventDataBuilderException, IntegrationException, ConfigurationException {
+            final HubBucket hubBucket) throws EventDataBuilderException, IntegrationException, ConfigurationException {
         HubEventAction action = HubEventAction.OPEN;
         final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
@@ -154,6 +153,8 @@ public class NotificationToEventConverter {
             optionalPolicyRule = Optional.ofNullable(hubBucket.get(policyRuleLink));
             if (optionalPolicyRule.isPresent()) {
                 eventDataBuilder.setHubRuleName(optionalPolicyRule.get().name);
+                eventDataBuilder.setHubRuleOverridable(optionalPolicyRule.get().overridable);
+                eventDataBuilder.setHubRuleDescription(optionalPolicyRule.get().description);
                 eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
             }
             eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(notificationType);
@@ -180,9 +181,10 @@ public class NotificationToEventConverter {
 
         eventDataBuilder.setJiraIssuePropertiesGenerator(new IssuePropertiesGenerator(detail, optionalPolicyRule));
         eventDataBuilder.setJiraIssueSummary(dataFormatHelper.getIssueSummary(detail, optionalPolicyRule));
-        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, optionalPolicyRule, hubBucket));
+        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, hubBucket));
         eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
 
+        eventDataBuilder.setHubBaseUrl(hubService.getHubBaseUrl().toString());
         eventDataBuilder.setHubLicenseNames(getLicenseText(detail, versionBomComponent, hubBucket));
         eventDataBuilder.setHubComponentUsage(getComponentUsage(versionBomComponent));
 
@@ -196,7 +198,7 @@ public class NotificationToEventConverter {
         return Optional.of(eventDataBuilder.build());
     }
 
-    // "We can't mess with this" -ekerwin
+    // This must remain consistent among non-major versions
     public String generateEventKey(final EventDataBuilder eventDataBuilder) throws HubIntegrationException {
         final Long jiraProjectId = eventDataBuilder.getJiraProjectId();
         final String hubProjectVersionUrl = eventDataBuilder.getHubProjectVersionUrl();
