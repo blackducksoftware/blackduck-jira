@@ -194,6 +194,7 @@ public class HubFieldScreenSchemeSetup {
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL));
 
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));

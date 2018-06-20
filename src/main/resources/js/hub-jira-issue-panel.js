@@ -30,7 +30,7 @@ var hubCustomFields = [
 	"BDS Hub Component Url", "BDS Hub Component Version", "BDS Hub Component Version Url", "BDS Hub Policy Rule", 
 	"BDS Hub Policy Rule Description", "BDS Hub Policy Rule Overridable", "BDS Hub Policy Rule Url", "BDS Hub Component Licenses", 
 	"BDS Hub Component Usage", "BDS Hub Component Origin", "BDS Hub Component Origin ID", "BDS Hub Project Version Nickname", 
-	"BDS Hub Project Owner", "BDS Hub Project Version Last Updated"
+	"BDS Hub Project Owner", "BDS Hub Project Version Last Updated", "BDS Hub Component License Url"
 	];
 
 function hideHubCustomFields() {

@@ -38,13 +38,16 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.UriSingleResponse;
+import com.blackducksoftware.integration.hub.api.core.LinkSingleResponse;
 import com.blackducksoftware.integration.hub.api.generated.component.RiskCountView;
+import com.blackducksoftware.integration.hub.api.generated.component.VersionBomLicenseView;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.MatchedFileUsagesType;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.RiskCountType;
 import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskProfileView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
+import com.blackducksoftware.integration.hub.api.generated.view.LicenseView;
 import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
@@ -184,9 +187,11 @@ public class NotificationToEventConverter {
         eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, hubBucket));
         eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
 
-        eventDataBuilder.setHubBaseUrl(hubService.getHubBaseUrl().toString());
-        eventDataBuilder.setHubLicenseNames(getLicenseText(detail, versionBomComponent, hubBucket));
+        final String licenseText = getLicenseText(detail, versionBomComponent, hubBucket);
+        eventDataBuilder.setHubLicenseNames(licenseText);
+        eventDataBuilder.setHubLicenseUrl(getLicenseTextLink(versionBomComponent, licenseText));
         eventDataBuilder.setHubComponentUsage(getComponentUsage(versionBomComponent));
+        eventDataBuilder.setHubBaseUrl(hubService.getHubBaseUrl().toString());
 
         eventDataBuilder.setAction(action);
         eventDataBuilder.setNotificationType(notificationType);
@@ -450,6 +455,28 @@ public class NotificationToEventConverter {
             logger.debug("Component " + detail.getComponentName().orElse("?") + " (version: " + detail.getComponentVersionName().orElse("?") + "): License: " + licensesString);
         }
         return licensesString;
+    }
+
+    private String getLicenseTextLink(final VersionBomComponentView versionBomComponent, final String licenseName) {
+        if (versionBomComponent != null && CollectionUtils.isNotEmpty(versionBomComponent.licenses)) {
+            VersionBomLicenseView versionBomLicense = null;
+            for (final VersionBomLicenseView license : versionBomComponent.licenses) {
+                if (licenseName.equals(license.licenseDisplay)) {
+                    versionBomLicense = license;
+                }
+            }
+            if (versionBomLicense == null) {
+                versionBomLicense = versionBomComponent.licenses.get(0);
+            }
+            try {
+                final LicenseView genericLicense = hubService.getResponse(versionBomLicense.license, LicenseView.class);
+                final LicenseView kbLicense = hubService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
+                return hubService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
+            } catch (final Exception e) {
+                logger.debug("Unable to get the BOM component license text.");
+            }
+        }
+        return "";
     }
 
 }

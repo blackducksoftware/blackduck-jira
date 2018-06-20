@@ -64,6 +64,7 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE, "bdsHubComponentUsage");
 
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES, "bdsHubLicenses");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_URL, "bdsHubLicenseUrl");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, "bdsHubProjectVersionLastUpdated");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE, "bdsHubPolicyRule");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, "bdsHubPolicyRuleOverridable");

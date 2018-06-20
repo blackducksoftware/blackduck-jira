@@ -47,6 +47,7 @@ public class HubJiraConstants {
     public final static String HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
     public final static String HUB_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
     public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
+    public final static String HUB_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";

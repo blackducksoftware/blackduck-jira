@@ -112,7 +112,7 @@ public class EventDataFormatHelper {
             } else {
                 issueDescription.append("vulnerabilities");
             }
-            issueDescription.append(" in the Hub.");
+            issueDescription.append(" in the Hub.  \n\n");
         }
 
         if (detail.getComponentVersion().isPresent()) {
@@ -120,7 +120,7 @@ public class EventDataFormatHelper {
                 final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
                 final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
                 if (StringUtils.isNotBlank(licenseText)) {
-                    issueDescription.append("  \nKB Component license(s): ");
+                    issueDescription.append("KB Component license(s): ");
                     issueDescription.append(licenseText);
                 }
                 if (detail.isVulnerability()) {
@@ -155,7 +155,7 @@ public class EventDataFormatHelper {
         }
         if (remediationOptions != null) {
             // TODO This has "Beta" text. Change that text when confidence in the information is high.
-            stringBuilder.append("\n\nRemediation Information (Beta):\n");
+            stringBuilder.append("\nRemediation Information (Beta):\n");
             if (remediationOptions.fixesPreviousVulnerabilities != null) {
                 appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
             }
@@ -263,7 +263,7 @@ public class EventDataFormatHelper {
 
     private void createLicenseString(final StringBuilder sb, final EventDataLicense license, final boolean includeLinks) throws IntegrationException {
         final String licenseTextUrl = getLicenseTextUrl(license);
-        logger.debug("Link to licence text: " + licenseTextUrl);
+        logger.debug("Link to license text: " + licenseTextUrl);
 
         if (includeLinks) {
             sb.append("[");
@@ -331,7 +331,7 @@ public class EventDataFormatHelper {
         }
 
         public boolean isPopulated() {
-            return licenseDisplay != null && licenseUrl != null;
+            return licenseDisplay != null && (licenseUrl != null || licenseType != null);
         }
 
     }

@@ -81,6 +81,7 @@ public class IssueFieldHandler {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getHubComponentVersion());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, issueInputParameters, eventData.getHubComponentVersionUrl());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getHubLicenseNames());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL, issueInputParameters, eventData.getHubLicenseUrl());
 
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getHubComponentUsage());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
@@ -267,6 +268,10 @@ public class IssueFieldHandler {
             fieldValue = eventData.getHubComponentVersion();
         } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubComponentVersionUrl();
+        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubLicenseNames();
+        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubLicenseUrl();
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
             fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleName());
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.getId().equals(pluginFieldId)) {

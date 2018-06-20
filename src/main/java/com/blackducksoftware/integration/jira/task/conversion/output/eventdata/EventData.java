@@ -52,6 +52,7 @@ public class EventData extends Stringable {
     private String hubComponentVersion;
     private String hubComponentVersionUrl;
     private String hubLicenseNames;
+    private String hubLicenseUrl;
     private String hubComponentUsage;
     private String hubComponentOrigin;
     private String hubComponentOriginId;
@@ -237,6 +238,11 @@ public class EventData extends Stringable {
         return this;
     }
 
+    EventData setHubLicenseUrl(final String hubLicenseUrl) {
+        this.hubLicenseUrl = hubLicenseUrl;
+        return this;
+    }
+
     EventData setHubComponentUsage(final String hubComponentUsage) {
         this.hubComponentUsage = hubComponentUsage;
         return this;
@@ -404,6 +410,10 @@ public class EventData extends Stringable {
 
     public String getHubLicenseNames() {
         return hubLicenseNames;
+    }
+
+    public String getHubLicenseUrl() {
+        return hubLicenseUrl;
     }
 
     public String getHubComponentUsage() {
