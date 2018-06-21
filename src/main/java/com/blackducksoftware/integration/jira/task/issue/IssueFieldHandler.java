@@ -73,18 +73,27 @@ public class IssueFieldHandler {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getHubProjectName());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getHubProjectVersion());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL, issueInputParameters, eventData.getHubProjectVersionUrl());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getHubProjectVersionNickname());
+
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getHubComponentName());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL, issueInputParameters, eventData.getHubComponentUrl());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getHubComponentVersion());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, issueInputParameters, eventData.getHubComponentVersionUrl());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getHubLicenseNames());
+            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL, issueInputParameters, eventData.getHubLicenseUrl());
 
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getHubComponentUsage());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getHubComponentOriginId());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getHubProjectVersionNickname());
             addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, issueInputParameters, eventData.getHubProjectVersionLastUpdated());
 
             if (eventData.isPolicy()) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, issueInputParameters, eventData.getHubRuleOverridable());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, issueInputParameters, eventData.getHubRuleDescription());
+                // TODO use this when the Hub supports policy redirect: addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
+                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubBaseUrl() + "/ui/policy-management");
             }
             if (eventData.getHubProjectOwner() != null) {
                 addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
@@ -253,18 +262,31 @@ public class IssueFieldHandler {
         String fieldValue = null;
         if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubComponentName();
+        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubComponentUrl();
         } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubComponentVersion();
+        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubComponentVersionUrl();
+        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubLicenseNames();
+        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubLicenseUrl();
         } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
-            if (eventData.isPolicy()) {
-                fieldValue = eventData.getHubRuleName();
-            } else {
-                logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
-            }
+            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleName());
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleOverridable());
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleDescription());
+        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL.getId().equals(pluginFieldId)) {
+            // TODO use this when the Hub supports policy redirect: fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
+            fieldValue = eventData.getHubBaseUrl() + "/ui/policy-management";
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectName();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectVersion();
+        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getHubProjectVersionUrl();
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getHubProjectOwner() != null ? eventData.getHubProjectOwner().getUsername() : "";
         } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId().equals(pluginFieldId)) {
@@ -282,6 +304,14 @@ public class IssueFieldHandler {
         }
 
         return fieldValue;
+    }
+
+    private String getPolicyFieldValue(final EventData eventData, final String value) {
+        if (eventData.isPolicy()) {
+            return value;
+        }
+        logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
+        return null;
     }
 
 }

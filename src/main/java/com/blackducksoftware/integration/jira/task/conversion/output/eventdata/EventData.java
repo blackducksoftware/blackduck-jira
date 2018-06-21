@@ -43,6 +43,7 @@ public class EventData extends Stringable {
     private String jiraProjectName;
     private Long jiraProjectId;
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
+    private String hubBaseUrl;
     private String hubProjectName;
     private String hubProjectVersion;
     private String hubProjectVersionUrl;
@@ -51,6 +52,7 @@ public class EventData extends Stringable {
     private String hubComponentVersion;
     private String hubComponentVersionUrl;
     private String hubLicenseNames;
+    private String hubLicenseUrl;
     private String hubComponentUsage;
     private String hubComponentOrigin;
     private String hubComponentOriginId;
@@ -64,6 +66,8 @@ public class EventData extends Stringable {
     private String jiraIssueCommentInLieuOfStateChange;
     private IssuePropertiesGenerator jiraIssuePropertiesGenerator;
     private String hubRuleName;
+    private String hubRuleOverridable;
+    private String hubRuleDescription;
     private String hubRuleUrl;
     private String componentIssueUrl;
     private ApplicationUser hubProjectOwner;
@@ -126,6 +130,11 @@ public class EventData extends Stringable {
 
     EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         this.jiraFieldCopyMappings = jiraFieldCopyMappings;
+        return this;
+    }
+
+    EventData setHubBaseUrl(final String hubBaseUrl) {
+        this.hubBaseUrl = hubBaseUrl;
         return this;
     }
 
@@ -209,6 +218,16 @@ public class EventData extends Stringable {
         return this;
     }
 
+    EventData setHubRuleOverridable(final String hubRuleOverridable) {
+        this.hubRuleOverridable = hubRuleOverridable;
+        return this;
+    }
+
+    EventData setHubRuleDescription(final String hubRuleDescription) {
+        this.hubRuleDescription = hubRuleDescription;
+        return this;
+    }
+
     EventData setHubRuleUrl(final String hubRuleUrl) {
         this.hubRuleUrl = hubRuleUrl;
         return this;
@@ -216,6 +235,11 @@ public class EventData extends Stringable {
 
     EventData setHubLicenseNames(final String hubLicenseNames) {
         this.hubLicenseNames = hubLicenseNames;
+        return this;
+    }
+
+    EventData setHubLicenseUrl(final String hubLicenseUrl) {
+        this.hubLicenseUrl = hubLicenseUrl;
         return this;
     }
 
@@ -304,6 +328,10 @@ public class EventData extends Stringable {
         return jiraFieldCopyMappings;
     }
 
+    public String getHubBaseUrl() {
+        return hubBaseUrl;
+    }
+
     public String getHubProjectName() {
         return hubProjectName;
     }
@@ -368,12 +396,24 @@ public class EventData extends Stringable {
         return hubRuleName;
     }
 
+    public String getHubRuleOverridable() {
+        return hubRuleOverridable;
+    }
+
+    public String getHubRuleDescription() {
+        return hubRuleDescription;
+    }
+
     public String getHubRuleUrl() {
         return hubRuleUrl;
     }
 
     public String getHubLicenseNames() {
         return hubLicenseNames;
+    }
+
+    public String getHubLicenseUrl() {
+        return hubLicenseUrl;
     }
 
     public String getHubComponentUsage() {

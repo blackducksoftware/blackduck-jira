@@ -37,10 +37,17 @@ public class HubJiraConstants {
     // Field names (user visible)
     public final static String HUB_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
     public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
+    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
+    public final static String HUB_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
+    public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
     public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
+    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
+    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
+    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
     public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
+    public final static String HUB_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
     public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
@@ -94,32 +101,39 @@ public class HubJiraConstants {
     public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n.properties";
 
     // JIRA Custom Field display name labels
-    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.label";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.label";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.label";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.version.label";
-    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.policy.rule.label";
-    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.licenses.label";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.usage.label";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.origin.label";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.component.origin.id.label";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.nickname.label";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.owner.label";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY = "hub.integration.jira.issue.custom.project.version.last.updated.label";
+    private static final String HUB_CUSTOM_FIELD_PREFIX = "hub.integration.jira.issue.custom";
+    private static final String HUB_CUSTOM_FIELD_SUFFIX = ".label";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".project" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".project.version" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".component" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".component.version" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".policy.rule" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".policy.rule.overridable" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".licenses" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".component.usage" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".component.origin" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".component.origin.id" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".project.version.nickname" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".project.owner" + HUB_CUSTOM_FIELD_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY = HUB_CUSTOM_FIELD_PREFIX + ".project.version.last.updated" + HUB_CUSTOM_FIELD_SUFFIX;
 
     // Long names for fields
-    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.label.long";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.version.label.long";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.label.long";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.version.label.long";
-    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.policy.rule.label.long";
-    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.licenses.label.long";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.usage.label.long";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.origin.label.long";
-    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.component.origin.id.label.long";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.version.nickname.label.long";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.owner.label.long";
-    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY_LONG = "hub.integration.jira.issue.custom.project.version.last.updated.label.long";
+    private static final String HUB_CUSTOM_FIELD_LONG_SUFFIX = ".long";
+
+    public static final String HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY_LONG = HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY + HUB_CUSTOM_FIELD_LONG_SUFFIX;
 
     // String used to join conjunctive and adjunctive licenses together into a string for display
     public static final String LICENSE_NAME_JOINER_OR = " OR ";

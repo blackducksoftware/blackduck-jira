@@ -50,6 +50,7 @@ public class EventDataBuilder extends Stringable {
     private String jiraProjectName;
     private Long jiraProjectId;
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
+    private String hubBaseUrl;
     private String hubProjectName;
     private String hubProjectVersion;
     private String hubProjectVersionUrl;
@@ -58,6 +59,7 @@ public class EventDataBuilder extends Stringable {
     private String hubComponentVersion;
     private String hubComponentVersionUrl;
     private String hubLicenseNames;
+    private String hubLicenseUrl;
     private String hubComponentUsage;
     private String hubComponentOrigin;
     private String hubComponentOriginId;
@@ -71,6 +73,8 @@ public class EventDataBuilder extends Stringable {
     private String jiraIssueCommentInLieuOfStateChange;
     private IssuePropertiesGenerator jiraIssuePropertiesGenerator;
     private String hubRuleName;
+    private String hubRuleOverridable;
+    private String hubRuleDescription;
     private String hubRuleUrl;
     private String componentIssueUrl;
     private ApplicationUser hubProjectOwner;
@@ -216,6 +220,11 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
+    public EventDataBuilder setHubBaseUrl(final String hubBaseUrl) {
+        this.hubBaseUrl = hubBaseUrl;
+        return this;
+    }
+
     public EventDataBuilder setHubProjectName(final String hubProjectName) {
         this.hubProjectName = hubProjectName;
         return this;
@@ -291,8 +300,18 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
+    public EventDataBuilder setHubRuleOverridable(final Boolean hubRuleOverridable) {
+        this.hubRuleOverridable = hubRuleOverridable != null ? hubRuleOverridable.toString() : "unknown";
+        return this;
+    }
+
     public EventDataBuilder setHubRuleName(final String hubRuleName) {
         this.hubRuleName = hubRuleName;
+        return this;
+    }
+
+    public EventDataBuilder setHubRuleDescription(final String hubRuleDescription) {
+        this.hubRuleDescription = hubRuleDescription != null ? hubRuleDescription : "No description.";
         return this;
     }
 
@@ -303,6 +322,11 @@ public class EventDataBuilder extends Stringable {
 
     public EventDataBuilder setHubLicenseNames(final String hubLicenseNames) {
         this.hubLicenseNames = hubLicenseNames;
+        return this;
+    }
+
+    public EventDataBuilder setHubLicenseUrl(final String hubLicenseUrl) {
+        this.hubLicenseUrl = hubLicenseUrl;
         return this;
     }
 
@@ -471,6 +495,7 @@ public class EventDataBuilder extends Stringable {
                 .setJiraProjectName(jiraProjectName)
                 .setJiraProjectId(jiraProjectId)
                 .setJiraFieldCopyMappings(jiraFieldCopyMappings)
+                .setHubBaseUrl(hubBaseUrl)
                 .setHubProjectName(hubProjectName)
                 .setHubProjectVersion(hubProjectVersion)
                 .setHubProjectVersionUrl(hubProjectVersionUrl)
@@ -479,6 +504,7 @@ public class EventDataBuilder extends Stringable {
                 .setHubComponentVersion(hubComponentVersion)
                 .setHubComponentVersionUrl(hubComponentVersionUrl)
                 .setHubLicenseNames(hubLicenseNames)
+                .setHubLicenseUrl(hubLicenseUrl)
                 .setHubComponentUsage(hubComponentUsage)
                 .setHubComponentOrigin(hubComponentOrigin)
                 .setHubComponentOriginId(hubComponentOriginId)
@@ -492,6 +518,8 @@ public class EventDataBuilder extends Stringable {
                 .setJiraIssueCommentInLieuOfStateChange(jiraIssueCommentInLieuOfStateChange)
                 .setJiraIssuePropertiesGenerator(jiraIssuePropertiesGenerator)
                 .setHubRuleName(hubRuleName)
+                .setHubRuleOverridable(hubRuleOverridable)
+                .setHubRuleDescription(hubRuleDescription)
                 .setHubRuleUrl(hubRuleUrl)
                 .setComponentIssueUrl(componentIssueUrl)
                 .setHubProjectOwner(hubProjectOwner)

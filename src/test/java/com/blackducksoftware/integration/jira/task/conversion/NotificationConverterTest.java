@@ -25,7 +25,9 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -98,15 +100,13 @@ public class NotificationConverterTest {
     private static final long JIRA_ISSUE_ID = 456L;
     private static final String OVERRIDER_LAST_NAME = "lastName";
     private static final String OVERRIDER_FIRST_NAME = "firstName";
-    private static final String PROJECT_VERSION_COMPONENTS_URL = "http://localhost:8080/api/components/componentId";
     private static final String RULE_URL = "http://localhost:8080/api/rules/ruleId";
     private static final String VULNERABLE_COMPONENTS_URL = "http://localhost:8080/api/projects/x/versions/y/vulnerable-components";
     private static final String RULE_NAME = "Test Rule";
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=|hcv=1816144506|hr=1736320804";
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = "This Policy Violation was cleared in the Hub.";
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = "This Policy Violation was cleared in the Hub.";
-    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "The Black Duck Hub has detected a policy violation on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
-            + "], component 'componentName' / 'componentVersion'. The rule violated is: '" + RULE_NAME + "'. Rule overridable: true" + "\nComponent license(s): ";
+    private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "Black Duck has detected a policy violation.  \n";
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
     private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
     private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = "Automatically re-opened in response to a new Black Duck Hub Policy Violation on this project / component / rule";
@@ -155,8 +155,7 @@ public class NotificationConverterTest {
             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
-    private final static String VULN_EXPECTED_DESCRIPTION = "This issue tracks vulnerability status changes on " + "Hub project ['hubProjectName' / 'projectVersionName'|" + PROJECT_VERSION_COMPONENTS_URL
-            + "], component 'componentName' / 'componentVersion'. " + "For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "]" + " in the Hub." + "\nComponent license(s): ";
+    private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in the Hub.  \n\n";
     private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " + "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
 
     private static JiraServices jiraServices;
@@ -239,8 +238,7 @@ public class NotificationConverterTest {
     @Test
     public void testRuleViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
-                POLICY_VIOLATION_EXPECTED_SUMMARY,
-                POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
+                POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
@@ -308,7 +306,7 @@ public class NotificationConverterTest {
 
     private void test(final NotificationType notifType, final HubEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
             final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
-            throws ConfigurationException, URISyntaxException, IntegrationException {
+            throws URISyntaxException, IntegrationException, ConfigurationException {
         final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
                 mockLogger);
         final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, new Date());
@@ -319,10 +317,13 @@ public class NotificationConverterTest {
                 expectedPropertyKey);
     }
 
-    private static void mockHubServiceResponses(final HubService mockHubService) throws IntegrationException {
+    private static void mockHubServiceResponses(final HubService mockHubService) throws IntegrationException, MalformedURLException {
         final PrintStreamIntLogger mockLogger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG);
         final RestConnection mockRestConnection = new UnauthenticatedRestConnection(mockLogger, null, 120, ProxyInfo.NO_PROXY_INFO);
         Mockito.when(mockHubService.getRestConnection()).thenReturn(mockRestConnection);
+
+        final URL hubBaseUrl = new URL("https://localhost:8080");
+        Mockito.when(mockHubService.getHubBaseUrl()).thenReturn(hubBaseUrl);
 
         final VersionRiskProfileView riskProfile = new VersionRiskProfileView();
         riskProfile.bomLastUpdatedAt = new Date();

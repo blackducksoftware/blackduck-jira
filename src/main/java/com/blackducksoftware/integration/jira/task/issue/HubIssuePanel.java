@@ -51,18 +51,25 @@ public class HubIssuePanel extends AbstractJiraContextProvider {
         if (currentIssue != null) {
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT, "bdsHubProject");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION, "bdsHubProjectVersion");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL, "bdsHubProjectVersionUrl");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER, "bdsHubProjectOwner");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, "bdsHubProjectVersionNickname");
 
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT, "bdsHubComponent");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_URL, "bdsHubComponentUrl");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION, "bdsHubComponentVersion");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, "bdsHubComponentVersionUrl");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, "bdsHubComponentOrigin");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, "bdsHubComponentOriginId");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE, "bdsHubComponentUsage");
 
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES, "bdsHubLicenses");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_URL, "bdsHubLicenseUrl");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, "bdsHubProjectVersionLastUpdated");
             populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE, "bdsHubPolicyRule");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, "bdsHubPolicyRuleOverridable");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, "bdsHubPolicyRuleDescription");
+            populateContextMap(contextMap, currentIssue, HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_URL, "bdsHubPolicyRuleUrl");
         }
 
         return contextMap;

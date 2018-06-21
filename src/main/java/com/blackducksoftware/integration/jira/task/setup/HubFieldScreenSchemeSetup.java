@@ -185,12 +185,16 @@ public class HubFieldScreenSchemeSetup {
         final List<OrderableField> customFields = new ArrayList<>();
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL));
         customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
 
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL));
 
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
@@ -205,6 +209,9 @@ public class HubFieldScreenSchemeSetup {
         final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
         policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
         customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;
     }

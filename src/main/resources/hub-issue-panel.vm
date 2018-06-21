@@ -18,7 +18,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	<li class="item">
                 		<div class="hubWrap">
                 			<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.project.label"):</strong>
-                			<div id="hubProjectName" class="value">$bdsHubProject</div>
+                			<div id="hubProjectName" class="value"><a href="$bdsHubProjectVersionUrl" target="_blank">$bdsHubProject</a></div>
                 		</div>
                 	</li>
                 	#set( $side = "right" )
@@ -67,7 +67,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	<li class="item">
                     	<div class="hubWrap">
                     		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.component.label"):</strong>
-                    		<div id="hubComponentName" class="value">$bdsHubComponent</div>
+                    		#if ($bdsHubComponentVersionUrl)
+                    		    <div id="hubComponentName" class="value"><a href="$bdsHubComponentVersionUrl" target="_blank">$bdsHubComponent</a></div>
+                    		#else
+                            <div id="hubComponentName" class="value"><a href="$bdsHubComponentUrl" target="_blank">$bdsHubComponent</a></div>
+                    	    #end
                     	</div>
                 	</li>
                 	#set( $side = "right" )
@@ -138,7 +142,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.licenses.label"):</strong>
-                		<div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+                		#if ($bdsHubLicenseUrl)
+                		    <div id="hubPolicyLicenses" class="value"><a href="$bdsHubLicenseUrl" target="_blank">$bdsHubLicenses</a></div>
+                		#else
+                         <div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+                		#end
                 	</div>
                 	</li>
             #end
@@ -161,16 +169,41 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     <div class="fieldSectionSeparator"/>
 #end
             
-#if ($bdsHubPolicyRule)
+#if ($bdsHubPolicyRule || $bdsHubPolicyRuleOverridable)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("hub.integration.jira.issue.custom.section.policy.label")</h5></div>
         <ul class="property-list two-cols">
-            	<li class="item">
-                	<div class="hubWrap">
-                		<strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
-                		<div id="hubPolicyRuleName" class="value">$bdsHubPolicyRule</div>
-                	</div>
-            	</li>
+            
+            #set( $side = "left" )
+        
+            #if ($bdsHubPolicyRule)
+                #if ($side == "left")
+                    <li class="item">
+                    #set( $side = "right" )
+                #else
+                    <li class="item-right fiftyPercent">
+                    #set( $side = "left" )
+                #end
+                <div class="hubWrap">
+                    <strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.label"):</strong>
+                    <div id="hubPolicyRuleName" class="value" title="$bdsHubPolicyRuleDescription"><a href="$bdsHubPolicyRuleUrl" target="_blank">$bdsHubPolicyRule</a></div>
+                </div>
+                	</li>
+             #end
+            	#if ($bdsHubPolicyRuleOverridable)
+                    #if ($side == "left")
+                        <li class="item">
+                        #set( $side = "right" )
+                    #else
+                        <li class="item-right fiftyPercent">
+                        #set( $side = "left" )
+                    #end
+                    <div class="hubWrap">
+                        <strong class="name">$i18n.getText("hub.integration.jira.issue.custom.policy.rule.overridable.label"):</strong>
+                        <div id="hubPolicyRuleOverridable" class="value">$bdsHubPolicyRuleOverridable</div>
+                    </div>
+                </li>
+            #end
         </ul>
     </div>
 #end
