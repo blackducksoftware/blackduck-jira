@@ -64,7 +64,6 @@ public class HubJiraTask {
     private final PluginConfigurationDetails pluginConfigDetails;
     private final JiraContext jiraContext;
     private final Date runDate;
-    private final String runDateString;
     private final SimpleDateFormat dateFormatter;
     private final JiraServices jiraServices = new JiraServices();
     private final JiraSettingsService jiraSettingsService;
@@ -78,7 +77,6 @@ public class HubJiraTask {
         this.runDate = new Date();
         dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-        this.runDateString = dateFormatter.format(runDate);
         logger.debug("Install date: " + configDetails.getInstallDateString());
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
 
@@ -94,7 +92,7 @@ public class HubJiraTask {
      *
      * @return this execution's run date/time string on success, null otherwise
      */
-    public String execute() {
+    public String execute(final String previousStartDate) {
         final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
         HubServerConfig hubServerConfig = null;
         try {
@@ -110,16 +108,16 @@ public class HubJiraTask {
 
         final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
         if (config == null) {
-            return null;
+            return previousStartDate;
         }
         final HubJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
         Date startDate;
         try {
-            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), pluginConfigDetails.getLastRunDateString());
+            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), previousStartDate);
         } catch (final ParseException e) {
             logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-            return runDateString;
+            return getRunDateString();
         }
 
         try {
@@ -128,7 +126,7 @@ public class HubJiraTask {
                 hubServicesFactory = createHubServicesFactory(hubServerConfig);
             } catch (final EncryptionException e) {
                 logger.info("Error handling password: " + e.getMessage());
-                return null;
+                return previousStartDate;
             }
 
             final boolean getOldestNotificationsFirst = true;
@@ -150,17 +148,18 @@ public class HubJiraTask {
             }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
-            ticketGenerator.generateTicketsForNotificationsInDateRange(hubUserItem, hubProjectMappings, startDate, runDate);
+            final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(hubUserItem, hubProjectMappings, startDate, runDate);
+            final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
+            return dateFormatter.format(nextRunDate);
         } catch (final Exception e) {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addHubError(e, "executeHubJiraTask");
-            return null;
+            return previousStartDate;
         }
-        return runDateString;
     }
 
     public String getRunDateString() {
-        return runDateString;
+        return dateFormatter.format(runDate);
     }
 
     private UserView getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {

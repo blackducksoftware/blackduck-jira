@@ -97,7 +97,7 @@ public class EventDataFormatHelper {
 
         issueDescription.append("Black Duck has detected ");
         if (detail.isPolicy()) {
-            issueDescription.append("a policy violation.  \n");
+            issueDescription.append("a policy violation.  \n\n");
         } else if (detail.isVulnerability()) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;

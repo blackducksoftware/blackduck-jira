@@ -85,10 +85,10 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public void generateTicketsForNotificationsInDateRange(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
+    public Date generateTicketsForNotificationsInDateRange(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Hub projects to monitor");
-            return;
+            return startDate;
         }
         try {
             final HubBucket hubBucket = new HubBucket();
@@ -103,10 +103,14 @@ public class TicketGenerator {
                         linksOfRulesToMonitor, hubService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket);
             }
+            if (results.getLatestNotificationCreatedAtDate().isPresent()) {
+                return results.getLatestNotificationCreatedAtDate().get();
+            }
         } catch (final Exception e) {
             logger.error(e);
             jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
         }
+        return startDate;
     }
 
     private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket)

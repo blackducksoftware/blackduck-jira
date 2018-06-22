@@ -119,9 +119,7 @@ public class JiraTaskTimed implements Callable<String> {
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-        final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(
-                jiraSettingsService,
-                jiraServices);
+        final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
 
         final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addHubFieldConfigurationToJira(issueTypes);
         if (screenSchemesByIssueType.isEmpty()) {
@@ -154,12 +152,8 @@ public class JiraTaskTimed implements Callable<String> {
         if (previousRunDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, processor.getRunDateString());
         }
-        final String newRunDateString = processor.execute();
-        if (newRunDateString != null) {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
-        } else {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, previousRunDateString);
-        }
+        final String newRunDateString = processor.execute(previousRunDateString);
+        settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final HubIssueTypeSetup issueTypeSetup,
