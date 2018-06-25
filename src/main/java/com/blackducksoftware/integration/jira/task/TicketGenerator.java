@@ -101,7 +101,7 @@ public class TicketGenerator {
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
                 final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig, new EventDataFormatHelper(logger, hubService),
                         linksOfRulesToMonitor, hubService, logger);
-                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket);
+                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {
                 return results.getLatestNotificationCreatedAtDate().get();
@@ -113,11 +113,11 @@ public class TicketGenerator {
         return startDate;
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket)
+    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket, final Date batchStartDate)
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, hubBucket);
+                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, hubBucket, batchStartDate);
                 for (final EventData event : events) {
                     try {
                         issueHandler.handleEvent(event);

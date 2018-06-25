@@ -87,6 +87,11 @@ public class JiraTask implements PluginJob {
             if (!future.isDone()) {
                 future.cancel(true);
             }
+            try {
+                executor.shutdown();
+            } catch (final SecurityException e) {
+                logger.warn(e.getMessage());
+            }
         }
         logger.info("hub-jira periodic task has completed");
     }

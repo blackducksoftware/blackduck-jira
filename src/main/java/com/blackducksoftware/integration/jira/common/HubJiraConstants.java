@@ -144,6 +144,7 @@ public class HubJiraConstants {
 
     // Miscellaneous persistent data keys
     public static final String DATE_LAST_PHONED_HOME = "dateLastPhonedHome";
-    public static final String HUB_JIRA_LAST_COMMENT_KEY = "hubJiraLastCommentKey";
+    public static final String HUB_JIRA_ISSUE_LAST_COMMENT_KEY = "hubJiraLastCommentKey";
+    public static final String HUB_JIRA_ISSUE_LAST_BATCH_START_KEY = "hubJiralastBatchStartKey";
 
 }

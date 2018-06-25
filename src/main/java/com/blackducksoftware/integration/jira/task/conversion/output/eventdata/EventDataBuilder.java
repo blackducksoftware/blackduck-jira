@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import java.util.Date;
 import java.util.Set;
 
 import com.atlassian.jira.user.ApplicationUser;
@@ -41,6 +42,7 @@ public class EventDataBuilder extends Stringable {
     private final EventCategory eventCategory;
 
     private HubEventAction action;
+    private Date lastBatchStartDate;
     private String jiraAdminUserName;
     private String jiraIssueCreatorUserName;
     private String jiraAdminUserKey;
@@ -172,6 +174,11 @@ public class EventDataBuilder extends Stringable {
 
     public EventDataBuilder setAction(final HubEventAction action) {
         this.action = action;
+        return this;
+    }
+
+    public EventDataBuilder setLastBatchStartDate(final Date lastBatchStartDate) {
+        this.lastBatchStartDate = lastBatchStartDate;
         return this;
     }
 
@@ -486,6 +493,7 @@ public class EventDataBuilder extends Stringable {
 
         final EventData eventData = new EventData();
         eventData.setAction(action)
+                .setLastBatchStartDate(lastBatchStartDate)
                 .setJiraAdminUsername(jiraAdminUserName)
                 .setJiraAdminUserKey(jiraAdminUserKey)
                 .setJiraIssueCreatorUsername(jiraIssueCreatorUserName)

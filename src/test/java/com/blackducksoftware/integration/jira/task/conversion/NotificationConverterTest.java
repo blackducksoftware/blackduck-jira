@@ -310,8 +310,9 @@ public class NotificationConverterTest {
             throws URISyntaxException, IntegrationException, ConfigurationException {
         final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
                 mockLogger);
-        final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, new Date());
-        final Collection<EventData> events = conv.createEventDataForNotificationDetailResult(notif, mockHubBucket);
+        final Date startDate = new Date();
+        final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, startDate);
+        final Collection<EventData> events = conv.createEventDataForNotificationDetailResult(notif, mockHubBucket, startDate);
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment,

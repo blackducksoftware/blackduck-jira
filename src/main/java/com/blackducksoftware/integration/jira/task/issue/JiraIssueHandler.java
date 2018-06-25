@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.issue;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -76,6 +77,7 @@ public class JiraIssueHandler {
     private final IssueFieldHandler issueFieldHandler;
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
+    private final Date instanceUniqueDate;
 
     public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
         this.jiraServices = jiraServices;
@@ -84,6 +86,7 @@ public class JiraIssueHandler {
         this.issueFieldHandler = new IssueFieldHandler(jiraServices, jiraSettingsService, jiraContext, ticketInfoFromSetup);
         this.hubIssueTrackerHandler = hubIssueTrackerHandler;
         this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
+        this.instanceUniqueDate = new Date();
     }
 
     private void addIssueProperty(final EventData eventData, final Long issueId, final String key, final IssueProperties value) {
@@ -248,6 +251,7 @@ public class JiraIssueHandler {
                 handleErrorCollection("updateHubFieldsAndDescription", eventData, errors);
             } else {
                 final Issue jiraIssue = result.getIssue();
+                logger.debug("Updated Black Duck fields for issue: " + jiraIssue.getKey());
                 return jiraIssue;
             }
         }
@@ -412,15 +416,16 @@ public class JiraIssueHandler {
 
     private void addComment(final EventData eventData, final String comment, final Issue issue) {
         logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
-        if (comment != null) {
+        if (comment != null && !checkIfAlreadyProcessedAndUpdateLastBatch(issue.getId(), eventData)) {
             final String lastCommentKey = String.valueOf(comment.hashCode());
-            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issue.getId(), HubJiraConstants.HUB_JIRA_LAST_COMMENT_KEY);
+            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY);
             if (propResult.isValid() && propResult.getEntityProperty().isDefined() && lastCommentKey.equals(propResult.getEntityProperty().get().getValue())) {
+                // This comment would be a duplicate of the previous one, so there is no need to add it.
                 return;
             }
             final CommentManager commentManager = jiraServices.getCommentManager();
             commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
-            addIssuePropertyJson(eventData, issue.getId(), HubJiraConstants.HUB_JIRA_LAST_COMMENT_KEY, lastCommentKey);
+            addIssuePropertyJson(eventData, issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY, lastCommentKey);
         }
     }
 
@@ -449,12 +454,19 @@ public class JiraIssueHandler {
                     final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
                     final IssueProperties properties = issuePropertiesGenerator.createIssueProperties(issue.getId());
                     logger.debug("Adding properties to created issue: " + properties);
+                    addLastBatchStartKeyToIssue(issue.getId(), eventData);
                     addIssueProperty(eventData, issue.getId(), notificationUniqueKey, properties);
                 }
                 return new ExistenceAwareIssue(issue, false, false);
             } else {
                 // Issue already exists
+                if (checkIfAlreadyProcessedAndUpdateLastBatch(oldIssue.getId(), eventData)) {
+                    logger.debug("This issue has already been updated; plugin will not change issue's state");
+                    return new ExistenceAwareIssue(oldIssue, true, true);
+                }
+
                 updateHubFieldsAndDescription(oldIssue, eventData);
+
                 if (!issueUsesBdsWorkflow(oldIssue)) {
                     logger.debug("This is not the BDS workflow; plugin will not change issue's state");
                     return new ExistenceAwareIssue(oldIssue, true, true);
@@ -481,37 +493,32 @@ public class JiraIssueHandler {
     private boolean issueUsesBdsWorkflow(final Issue oldIssue) {
         final JiraWorkflow issueWorkflow = jiraServices.getWorkflowManager().getWorkflow(oldIssue);
         logger.debug("Issue " + oldIssue.getKey() + " uses workflow " + issueWorkflow.getName());
-        boolean isBdsWorkflow;
-        if (HubJiraConstants.HUB_JIRA_WORKFLOW.equals(issueWorkflow.getName())) {
-            isBdsWorkflow = true;
-        } else {
-            isBdsWorkflow = false;
-        }
-        return isBdsWorkflow;
+        return HubJiraConstants.HUB_JIRA_WORKFLOW.equals(issueWorkflow.getName());
     }
 
     private ExistenceAwareIssue closeIssue(final EventData eventData) {
         final Issue oldIssue = findIssue(eventData);
         if (oldIssue != null) {
-            if (!issueUsesBdsWorkflow(oldIssue)) {
+            boolean issueStateChangeBlocked = true;
+            if (checkIfAlreadyProcessedAndUpdateLastBatch(oldIssue.getId(), eventData)) {
+                logger.debug("This issue has already been updated; plugin will not change issue's state");
+            } else if (!issueUsesBdsWorkflow(oldIssue)) {
                 logger.debug("This is not the BDS workflow; plugin will not change issue's state");
-                return new ExistenceAwareIssue(oldIssue, true, true);
-            }
-            if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
+            } else if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
                 logger.debug("This issue has been closed; plugin will not change issue's state");
-                return new ExistenceAwareIssue(oldIssue, true, true);
-            }
-            if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+            } else if (oldIssue.getStatus().getName().equals(HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
                 logger.debug("This issue is already Resolved; plugin will not change issue's state");
-                return new ExistenceAwareIssue(oldIssue, true, true);
+            } else {
+                issueStateChangeBlocked = false;
+                updateHubFieldsAndDescription(oldIssue, eventData);
+                final Issue updatedIssue = transitionIssue(eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
+                if (updatedIssue != null) {
+                    addComment(eventData, eventData.getJiraIssueResolveComment(), updatedIssue);
+                    logger.info("Resolved the issue based on an override.");
+                    printIssueInfo(updatedIssue);
+                }
             }
-            final Issue updatedIssue = transitionIssue(eventData, oldIssue, HubJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, HubJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED, jiraContext.getJiraIssueCreatorUser());
-            if (updatedIssue != null) {
-                addComment(eventData, eventData.getJiraIssueResolveComment(), updatedIssue);
-                logger.info("Resolved the issue based on an override.");
-                printIssueInfo(updatedIssue);
-            }
-            return new ExistenceAwareIssue(oldIssue, true, false);
+            return new ExistenceAwareIssue(oldIssue, true, issueStateChangeBlocked);
         } else {
             logger.info("Could not find an existing issue to close for this event.");
             logger.debug("Hub Project Name : " + eventData.getHubProjectName());
@@ -523,6 +530,39 @@ public class JiraIssueHandler {
             }
             return null;
         }
+    }
+
+    private boolean checkIfAlreadyProcessedAndUpdateLastBatch(final Long issueId, final EventData eventData) {
+        final Date eventBatchStartDate = eventData.getLastBatchStartDate();
+        if (eventBatchStartDate != null) {
+            final String eventBatchStartDateTimeString = getTimeString(eventBatchStartDate);
+            final String instanceUniqueTimeString = getTimeString(instanceUniqueDate);
+
+            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issueId, HubJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY);
+            if (propResult.isValid() && propResult.getEntityProperty().isDefined()) {
+                final String lastBatchStartKey = propResult.getEntityProperty().get().getValue();
+                if (lastBatchStartKey.startsWith(eventBatchStartDateTimeString) && !lastBatchStartKey.endsWith(instanceUniqueTimeString)) {
+                    // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
+                    // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
+                    logger.debug("Ignoring a notification that has already been processed: eventKey=" + eventData.getEventKey());
+                    return true;
+                }
+            }
+            addLastBatchStartKeyToIssue(issueId, eventData);
+        }
+        return false;
+    }
+
+    private void addLastBatchStartKeyToIssue(final Long issueId, final EventData eventData) {
+        final Date eventBatchStartDate = eventData.getLastBatchStartDate();
+        if (eventBatchStartDate != null) {
+            final String newBatchStartKey = getTimeString(eventBatchStartDate) + getTimeString(instanceUniqueDate);
+            addIssuePropertyJson(eventData, issueId, HubJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY, newBatchStartKey);
+        }
+    }
+
+    private String getTimeString(final Date date) {
+        return Long.toString(date.getTime());
     }
 
     private void printIssueInfo(final Issue issue) {

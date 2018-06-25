@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import java.util.Date;
 import java.util.Set;
 
 import com.atlassian.jira.user.ApplicationUser;
@@ -34,6 +35,7 @@ import com.blackducksoftware.integration.util.Stringable;
 
 public class EventData extends Stringable {
     private HubEventAction action;
+    private Date lastBatchStartDate;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
     private String jiraAdminUserKey;
@@ -86,6 +88,11 @@ public class EventData extends Stringable {
 
     public boolean isPolicy() {
         return NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType);
+    }
+
+    EventData setLastBatchStartDate(final Date lastBatchStartDate) {
+        this.lastBatchStartDate = lastBatchStartDate;
+        return this;
     }
 
     EventData setJiraAdminUsername(final String jiraAdminUsername) {
@@ -290,6 +297,10 @@ public class EventData extends Stringable {
 
     public HubEventAction getAction() {
         return action;
+    }
+
+    public Date getLastBatchStartDate() {
+        return lastBatchStartDate;
     }
 
     public String getJiraAdminUsername() {
