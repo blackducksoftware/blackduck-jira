@@ -416,6 +416,7 @@ public class HubJiraConfigController {
                     if (hubProjects.size() == 0) {
                         config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
                     }
+                    closeRestConnection(hubServicesFactory.getRestConnection());
                     return config;
                 }
             });
@@ -574,6 +575,7 @@ public class HubJiraConfigController {
                         return txConfig;
                     }
                     setHubPolicyRules(hubServicesFactory, txConfig);
+                    closeRestConnection(hubServicesFactory.getRestConnection());
                     return txConfig;
                 }
             });
@@ -767,6 +769,8 @@ public class HubJiraConfigController {
                         return config;
                     }
                     final List<HubProject> hubProjects = getHubProjects(hubServicesFactory, config);
+                    closeRestConnection(hubServicesFactory.getRestConnection());
+
                     config.setHubProjects(hubProjects);
                     config.setJiraProjects(jiraProjects);
                     validateInterval(config);
@@ -1141,6 +1145,14 @@ public class HubJiraConfigController {
         }
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
+    }
+
+    void closeRestConnection(final RestConnection restConnection) {
+        try {
+            restConnection.close();
+        } catch (final IOException e) {
+            logger.error("There was a problem trying to close the connection to the Hub server.", e);
+        }
     }
 
     private RestConnection createRestConnection(final PluginSettings settings, final HubJiraConfigSerializable config) {

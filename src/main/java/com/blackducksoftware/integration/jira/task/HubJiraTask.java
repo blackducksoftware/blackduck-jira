@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -120,8 +121,8 @@ public class HubJiraTask {
             return getRunDateString();
         }
 
+        HubServicesFactory hubServicesFactory = null;
         try {
-            final HubServicesFactory hubServicesFactory;
             try {
                 hubServicesFactory = createHubServicesFactory(hubServerConfig);
             } catch (final EncryptionException e) {
@@ -155,6 +156,10 @@ public class HubJiraTask {
             logger.error("Error processing Hub notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addHubError(e, "executeHubJiraTask");
             return previousStartDate;
+        } finally {
+            if (hubServicesFactory != null) {
+                closeRestConnection(hubServicesFactory.getRestConnection());
+            }
         }
     }
 
@@ -194,6 +199,14 @@ public class HubJiraTask {
         final RestConnection restConnection = hubServerConfig.createRestConnection(logger);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
+    }
+
+    void closeRestConnection(final RestConnection restConnection) {
+        try {
+            restConnection.close();
+        } catch (final IOException e) {
+            logger.error("There was a problem trying to close the connection to the Hub server.", e);
+        }
     }
 
     private List<String> getRuleUrls(final HubJiraConfigSerializable config) {
