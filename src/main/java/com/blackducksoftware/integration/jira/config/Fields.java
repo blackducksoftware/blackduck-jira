@@ -45,10 +45,7 @@ public class Fields implements Serializable, ErrorTracking {
 
     @Override
     public boolean hasErrors() {
-        if (StringUtils.isBlank(errorMessage)) {
-            return false;
-        }
-        return true;
+        return StringUtils.isNotBlank(errorMessage);
     }
 
     @Override
@@ -57,7 +54,7 @@ public class Fields implements Serializable, ErrorTracking {
     }
 
     @Override
-    public void setErrorMessage(String errorMessage) {
+    public void setErrorMessage(final String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
@@ -65,11 +62,11 @@ public class Fields implements Serializable, ErrorTracking {
         return idToNameMappings;
     }
 
-    public void setIdToNameMappings(List<IdToNameMapping> idToNameMappings) {
+    public void setIdToNameMappings(final List<IdToNameMapping> idToNameMappings) {
         this.idToNameMappings = idToNameMappings;
     }
 
-    public void add(IdToNameMapping idToNameMapping) {
+    public void add(final IdToNameMapping idToNameMapping) {
         this.idToNameMappings.add(idToNameMapping);
     }
 

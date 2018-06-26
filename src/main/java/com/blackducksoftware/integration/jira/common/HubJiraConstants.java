@@ -24,39 +24,39 @@
 package com.blackducksoftware.integration.jira.common;
 
 public class HubJiraConstants {
-    private final static String HUB_JIRA_GROUP = "hub-jira";
+    private static final String HUB_JIRA_GROUP = "hub-jira";
 
-    public final static int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
-    public final static String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
-    public final static String HUB_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
+    public static final int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
+    public static final String HUB_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
+    public static final String HUB_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
 
     // Issue type names (user visible)
-    public final static String HUB_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
-    public final static String HUB_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
+    public static final String HUB_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
+    public static final String HUB_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
 
     // Field names (user visible)
-    public final static String HUB_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
-    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
-    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
-    public final static String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
-    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
-    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
-    public final static String HUB_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
-    public final static String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
-    public final static String HUB_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
-    public final static String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
-    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "BDS Hub Project Version Nickname";
-    public final static String HUB_CUSTOM_FIELD_PROJECT_OWNER = "BDS Hub Project Owner";
-    public final static String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "BDS Hub Project Version Last Updated";
+    public static final String HUB_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
+    public static final String HUB_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
+    public static final String HUB_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
+    public static final String HUB_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
+    public static final String HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "BDS Hub Project Version Nickname";
+    public static final String HUB_CUSTOM_FIELD_PROJECT_OWNER = "BDS Hub Project Owner";
+    public static final String HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "BDS Hub Project Version Last Updated";
 
     // Configuration object names visible only to administrators
-    public final static String HUB_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
+    public static final String HUB_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
     public static final String HUB_FIELD_CONFIGURATION_SCHEME_NAME = "BDS Hub PlugIn Field Configuration Scheme";
     public static final String HUB_FIELD_CONFIGURATION = "BDS Hub PlugIn Field Configuration";
     public static final String HUB_POLICY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Policy Screen Scheme";
@@ -64,19 +64,19 @@ public class HubJiraConstants {
     public static final String HUB_POLICY_SCREEN_NAME = "BDS Hub PlugIn Policy Screen";
     public static final String HUB_SECURITY_SCREEN_NAME = "BDS Hub PlugIn Security Screen";
     public static final String HUB_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
-    public final static String HUB_WORKFLOW_STATUS_OPEN = "Open";
-    public final static String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";
-    public final static String HUB_WORKFLOW_STATUS_CLOSED = "Closed";
-    public final static String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
-    public final static String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
-    public final static String HUB_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Policy Violation on this project / component / rule";
-    public final static String HUB_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Policy Override on this project / component / rule";
-    public final static String HUB_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Policy Violation Cleared event on this project / component / rule";
-    public final static String HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT = "This Policy Violation was detected again by Black Duck.";
-    public final static String HUB_POLICY_VIOLATION_CLEARED_COMMENT = "This Policy Violation was cleared in the Black Duck Hub.";
-    public final static String HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in the Black Duck Hub.";
-    public final static String HUB_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck vulnerabilities on this project from this component";
-    public final static String HUB_VULNERABILITY_RESOLVE = "Automatically resolved; Black Duck reports no remaining vulnerabilities on this project from this component";
+    public static final String HUB_WORKFLOW_STATUS_OPEN = "Open";
+    public static final String HUB_WORKFLOW_STATUS_RESOLVED = "Resolved";
+    public static final String HUB_WORKFLOW_STATUS_CLOSED = "Closed";
+    public static final String HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
+    public static final String HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
+    public static final String HUB_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Policy Violation on this project / component / rule";
+    public static final String HUB_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Policy Override on this project / component / rule";
+    public static final String HUB_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Policy Violation Cleared event on this project / component / rule";
+    public static final String HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT = "This Policy Violation was detected again by Black Duck.";
+    public static final String HUB_POLICY_VIOLATION_CLEARED_COMMENT = "This Policy Violation was cleared in the Black Duck Hub.";
+    public static final String HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in the Black Duck Hub.";
+    public static final String HUB_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck vulnerabilities on this project from this component";
+    public static final String HUB_VULNERABILITY_RESOLVE = "Automatically resolved; Black Duck reports no remaining vulnerabilities on this project from this component";
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY = "180 - duck_vulnerability.png";
     public static final String BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY = "180 - duck_policy.png";
