@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>3.7.1-SNAPSHOT</version>
+  <version>3.7.1</version>
   <packaging>atlassian-plugin</packaging>
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
