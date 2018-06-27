@@ -24,31 +24,22 @@
 package com.blackducksoftware.integration.jira.config;
 
 public class HubConfigKeys {
+    public static final String HUB_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.configuration";
 
-    public final static String HUB_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.configuration";
+    public static final String CONFIG_HUB_URL = HUB_CONFIG_KEY_PREFIX + ".huburl";
+    public static final String CONFIG_HUB_USER = HUB_CONFIG_KEY_PREFIX + ".hubuser";
+    public static final String CONFIG_HUB_PASS = HUB_CONFIG_KEY_PREFIX + ".hubpassword";
+    public static final String CONFIG_HUB_PASS_LENGTH = HUB_CONFIG_KEY_PREFIX + ".hubpasswordlength";
+    public static final String CONFIG_HUB_TIMEOUT = HUB_CONFIG_KEY_PREFIX + ".hubtimeout";
+    public static final String CONFIG_HUB_TRUST_CERT = HUB_CONFIG_KEY_PREFIX + ".hubtrustcert";
 
-    public final static String CONFIG_HUB_URL = HUB_CONFIG_KEY_PREFIX + ".huburl";
+    public static final String CONFIG_PROXY_HOST = HUB_CONFIG_KEY_PREFIX + ".hubproxyhost";
+    public static final String CONFIG_PROXY_PORT = HUB_CONFIG_KEY_PREFIX + ".hubproxyport";
+    public static final String CONFIG_PROXY_USER = HUB_CONFIG_KEY_PREFIX + ".hubproxyuser";
+    public static final String CONFIG_PROXY_PASS = HUB_CONFIG_KEY_PREFIX + ".hubproxypass";
+    public static final String CONFIG_PROXY_PASS_LENGTH = HUB_CONFIG_KEY_PREFIX + ".hubproxypasslength";
+    public static final String CONFIG_PROXY_NO_HOST = HUB_CONFIG_KEY_PREFIX + ".hubproxynohost";
 
-    public final static String CONFIG_HUB_USER = HUB_CONFIG_KEY_PREFIX + ".hubuser";
-
-    public final static String CONFIG_HUB_PASS = HUB_CONFIG_KEY_PREFIX + ".hubpassword";
-
-    public final static String CONFIG_HUB_PASS_LENGTH = HUB_CONFIG_KEY_PREFIX + ".hubpasswordlength";
-
-    public final static String CONFIG_HUB_TIMEOUT = HUB_CONFIG_KEY_PREFIX + ".hubtimeout";
-
-    public final static String CONFIG_PROXY_HOST = HUB_CONFIG_KEY_PREFIX + ".hubproxyhost";
-
-    public final static String CONFIG_PROXY_PORT = HUB_CONFIG_KEY_PREFIX + ".hubproxyport";
-
-    public final static String CONFIG_PROXY_USER = HUB_CONFIG_KEY_PREFIX + ".hubproxyuser";
-
-    public final static String CONFIG_PROXY_PASS = HUB_CONFIG_KEY_PREFIX + ".hubproxypass";
-
-    public final static String CONFIG_PROXY_PASS_LENGTH = HUB_CONFIG_KEY_PREFIX + ".hubproxypasslength";
-
-    public final static String CONFIG_PROXY_NO_HOST = HUB_CONFIG_KEY_PREFIX + ".hubproxynohost";
-
-    public final static String HUB_CONFIG_GROUPS = HUB_CONFIG_KEY_PREFIX + ".hubGroups";
+    public static final String HUB_CONFIG_GROUPS = HUB_CONFIG_KEY_PREFIX + ".hubGroups";
 
 }
