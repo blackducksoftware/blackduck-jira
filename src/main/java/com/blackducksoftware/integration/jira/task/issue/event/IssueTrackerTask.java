@@ -39,7 +39,6 @@ import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMapping;
@@ -139,8 +138,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
     }
 
     public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final RestConnection restConnection = new CredentialsRestConnection(logger, config.getHubUrl(), config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(), config.getTimeout(),
-                config.getProxyInfo());
+        final RestConnection restConnection = config.createCredentialsRestConnection(logger);
         return new HubServicesFactory(restConnection);
     }
 
