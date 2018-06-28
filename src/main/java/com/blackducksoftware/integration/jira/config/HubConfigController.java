@@ -273,8 +273,7 @@ public class HubConfigController {
                         return config;
                     } else {
                         final HubServerConfig serverConfig = serverConfigBuilder.build();
-                        try (final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(),
-                                serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(), serverConfig.getProxyInfo());) {
+                        try (final CredentialsRestConnection restConnection = serverConfig.createCredentialsRestConnection(logger);) {
                             restConnection.connect();
                         } catch (final IntegrationException | IOException e) {
                             if (e.getMessage().toLowerCase().contains("unauthorized")) {

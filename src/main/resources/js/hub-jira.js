@@ -1139,8 +1139,8 @@ function getJsonArrayFromPolicyRules(){
 function updateValue(fieldId, configField) {
 	if(configField){
 		var fieldObject = AJS.$("#" + fieldId);
-		if (fieldObject.type == "checkbox") {
-			fieldObject.checked = decodeURI(configField);
+		if (fieldObject.type == "checkbox" || (fieldObject[0] && fieldObject[0].type == "checkbox")) {
+			fieldObject.prop("checked", decodeURI(configField));
 		} else {
 		    fieldObject.val(decodeURI(configField));
 		}
