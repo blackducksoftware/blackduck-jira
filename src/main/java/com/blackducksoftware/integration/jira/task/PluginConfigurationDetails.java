@@ -36,6 +36,7 @@ public class PluginConfigurationDetails {
     private final String hubPasswordEncrypted;
     private final String hubPasswordLength;
     private final String hubTimeoutString;
+    private final boolean hubTrustCert;
     private final String hubProxyHost;
     private final String hubProxyPort;
     private final String hubProxyNoHost;
@@ -61,6 +62,7 @@ public class PluginConfigurationDetails {
         hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
         hubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
         hubTimeoutString = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
+        hubTrustCert = getBooleanValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
 
         hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
         hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
@@ -177,6 +179,7 @@ public class PluginConfigurationDetails {
         hubConfigBuilder.setPassword(hubPasswordEncrypted);
         hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));
         hubConfigBuilder.setTimeout(hubTimeoutString);
+        hubConfigBuilder.setTrustCert(hubTrustCert);
 
         hubConfigBuilder.setProxyHost(hubProxyHost);
         hubConfigBuilder.setProxyPort(hubProxyPort);

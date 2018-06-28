@@ -120,6 +120,7 @@ public class HubConfigController {
                 final String password = getValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
                 final String passwordLength = getValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
                 final String timeout = getValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
+                final String trustCert = getValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
                 final String proxyHost = getValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
                 final String proxyPort = getValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
                 final String noProxyHosts = getValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
@@ -132,6 +133,7 @@ public class HubConfigController {
                 final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
                 serverConfigBuilder.setUrl(hubUrl);
                 serverConfigBuilder.setTimeout(timeout);
+                serverConfigBuilder.setTrustCert(trustCert);
                 serverConfigBuilder.setUsername(username);
                 serverConfigBuilder.setPassword(password);
                 serverConfigBuilder.setPasswordLength(NumberUtils.toInt(passwordLength));
@@ -154,6 +156,7 @@ public class HubConfigController {
                     }
                 }
                 config.setTimeout(timeout);
+                config.setTrustCert(trustCert);
                 config.setHubProxyHost(proxyHost);
                 config.setHubProxyPort(proxyPort);
                 config.setHubNoProxyHosts(noProxyHosts);
@@ -218,6 +221,7 @@ public class HubConfigController {
                     setValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH, null);
                 }
                 setValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT, config.getTimeout());
+                setValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT, config.getTrustCert());
                 setValue(settings, HubConfigKeys.CONFIG_PROXY_HOST, config.getHubProxyHost());
                 setValue(settings, HubConfigKeys.CONFIG_PROXY_PORT, config.getHubProxyPort());
                 setValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST, config.getHubNoProxyHosts());
@@ -225,8 +229,7 @@ public class HubConfigController {
 
                 final String proxyPassword = config.getHubProxyPassword();
                 if (StringUtils.isNotBlank(proxyPassword) && !config.isProxyPasswordMasked()) {
-                    // only update the stored password if it is not the masked
-                    // password used for display
+                    // only update the stored password if it is not the masked password used for display
                     try {
                         final String encryptedProxyPassword = PasswordEncrypter.encrypt(proxyPassword);
                         setValue(settings, HubConfigKeys.CONFIG_PROXY_PASS, encryptedProxyPassword);
@@ -270,13 +273,11 @@ public class HubConfigController {
                         return config;
                     } else {
                         final HubServerConfig serverConfig = serverConfigBuilder.build();
-                        try (final CredentialsRestConnection restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(),
-                                serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(), serverConfig.getProxyInfo());) {
+                        try (final CredentialsRestConnection restConnection = serverConfig.createCredentialsRestConnection(logger);) {
                             restConnection.connect();
                         } catch (final IntegrationException | IOException e) {
                             if (e.getMessage().toLowerCase().contains("unauthorized")) {
-                                config.setUsernameError(
-                                        "Username and Password are invalid for : " + serverConfig.getHubUrl());
+                                config.setUsernameError("Username and Password are invalid for : " + serverConfig.getHubUrl());
                             } else {
                                 config.setTestConnectionError(e.toString());
                             }
@@ -291,13 +292,18 @@ public class HubConfigController {
             return Response.noContent().build();
         } catch (final Throwable t) {
             final StringBuilder sb = new StringBuilder();
-            sb.append("Unexpected exception caught in testConnection(): ");
             sb.append(t.getMessage());
             if (t.getCause() != null) {
                 sb.append("; Caused by: ");
                 sb.append(t.getCause().getMessage());
             }
-            config.setHubUrlError(sb.toString());
+            final String lowerCaseMessage = t.getMessage().toLowerCase();
+            if (lowerCaseMessage.contains("ssl") || lowerCaseMessage.contains("pkix")) {
+                config.setTrustCertError("There was an issue handling the certificate: " + sb.toString());
+            } else {
+                sb.insert(0, "Unexpected exception caught in testConnection(): ");
+                config.setHubUrlError(sb.toString());
+            }
             return Response.ok(config).status(Status.BAD_REQUEST).build();
         }
     }
@@ -307,6 +313,7 @@ public class HubConfigController {
         final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
         serverConfigBuilder.setUrl(config.getHubUrl());
         serverConfigBuilder.setTimeout(config.getTimeout());
+        serverConfigBuilder.setTrustCert(config.getTrustCert());
         serverConfigBuilder.setUsername(config.getUsername());
 
         if (StringUtils.isBlank(config.getPassword())) {

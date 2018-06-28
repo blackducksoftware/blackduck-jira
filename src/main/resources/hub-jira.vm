@@ -107,6 +107,16 @@
 		      	<label> </label>
 		      	<div id="hubTimeoutError" class="error "></div>
 		      </div>
+		      
+		      <div class="hub-details-field-group">
+                <label class="hubDetailsLabel" for="hubTrustCert">$i18n.getText("hub.integration.jira.hub.details.trust.cert.label")<span class="error"></span></label>
+                <input type="checkbox" id="hubTrustCert" name="hubTrustCert" />
+                 <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.trust.cert.description')"></span>
+              </div>
+               <div id="hubTrustCertErrorRow" class="hub-details-field-group hidden">
+                <label> </label>
+                <div id="hubTrustCertError" class="error "></div>
+              </div>
 		   </div>
       </fieldset>
       

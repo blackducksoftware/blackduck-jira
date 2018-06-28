@@ -69,6 +69,12 @@ public class HubServerConfigSerializable implements Serializable {
     private int passwordLength;
 
     @XmlElement
+    private Boolean trustCert;
+
+    @XmlElement
+    private String trustCertError;
+
+    @XmlElement
     private String hubProxyHost;
 
     @XmlElement
@@ -109,6 +115,8 @@ public class HubServerConfigSerializable implements Serializable {
         if (StringUtils.isNotBlank(getHubUrlError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getTimeoutError())) {
+            hasErrors = true;
+        } else if (StringUtils.isNotBlank(getTrustCertError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getUsernameError())) {
             hasErrors = true;
@@ -197,6 +205,30 @@ public class HubServerConfigSerializable implements Serializable {
 
     public void setTimeoutError(final String timeoutError) {
         this.timeoutError = timeoutError;
+    }
+
+    public String getTrustCert() {
+        return trustCert != null ? trustCert.toString() : Boolean.FALSE.toString();
+    }
+
+    public void setTrustCert(final String trustCert) {
+        if (trustCert != null) {
+            setTrustCert(Boolean.parseBoolean(trustCert));
+        } else {
+            setTrustCert(Boolean.FALSE);
+        }
+    }
+
+    public void setTrustCert(final Boolean trustCert) {
+        this.trustCert = trustCert;
+    }
+
+    public String getTrustCertError() {
+        return trustCertError;
+    }
+
+    public void setTrustCertError(final String trustCertError) {
+        this.trustCertError = trustCertError;
     }
 
     public String getUsername() {

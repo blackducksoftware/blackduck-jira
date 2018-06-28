@@ -173,6 +173,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    contentType: "application/json",
 		    data: '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
 		    + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
+		    + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
 		    + '", "username": "' + encodeURI(AJS.$("#hubUsername").val())
 		    + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
 		    + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
@@ -186,6 +187,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	handleError(errorMessageFieldId, "", true, true);
 		    	hideError('hubServerUrlErrorRow', 'hubServerUrlError');
 		    	hideError('hubTimeoutErrorRow', 'hubTimeoutError');
+		    	hideError('hubTrustCertErrorRow', 'hubTrustCertError');
 		    	hideError('hubUsernameErrorRow', 'hubUsernameError');
 		    	hideError('hubPasswordErrorRow', 'hubPasswordError');
 		    	hideError('proxyHostErrorRow', 'proxyHostError');
@@ -209,6 +211,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	handleError(errorMessageFieldId, config.errorMessage, true, true);
 		    	handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 		    	handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
+		    	handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
 		    	handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
 		    	handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
 		    	handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
@@ -275,6 +278,7 @@ function populateForm() {
 	    	
 	      updateValue("hubServerUrl", config.hubUrl);
 	      updateValue("hubTimeout", config.timeout);
+	      updateValue("hubTrustCert", config.trustCert);
 	      updateValue("hubUsername", config.username);
 	      updateValue("hubPassword", config.password);
 	      updateValue("proxyHost", config.hubProxyHost);
@@ -288,6 +292,7 @@ function populateForm() {
 	      handleError(errorMessageFieldId, config.errorMessage, true, true);
 	      handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 	      handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
+	      handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
 	      handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
 	      handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
 	      handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
@@ -1133,7 +1138,12 @@ function getJsonArrayFromPolicyRules(){
 
 function updateValue(fieldId, configField) {
 	if(configField){
-		 AJS.$("#" + fieldId).val(decodeURI(configField));
+		var fieldObject = AJS.$("#" + fieldId);
+		if (fieldObject.type == "checkbox" || (fieldObject[0] && fieldObject[0].type == "checkbox")) {
+			fieldObject.prop("checked", decodeURI(configField));
+		} else {
+		    fieldObject.val(decodeURI(configField));
+		}
     }
 }
 

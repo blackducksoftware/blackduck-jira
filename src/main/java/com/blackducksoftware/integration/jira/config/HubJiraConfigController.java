@@ -73,7 +73,6 @@ import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.ProjectService;
@@ -1162,6 +1161,7 @@ public class HubJiraConfigController {
         final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
         final String encHubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
         final String hubTimeout = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
+        final String hubTrustCert = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
 
         if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword) && StringUtils.isBlank(hubTimeout)) {
             config.setErrorMessage(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING);
@@ -1178,7 +1178,7 @@ public class HubJiraConfigController {
         final String encHubProxyPassword = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
         final String hubProxyPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        CredentialsRestConnection restConnection = null;
+        RestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
             configBuilder.setUrl(hubUrl);
@@ -1186,6 +1186,7 @@ public class HubJiraConfigController {
             configBuilder.setPassword(encHubPassword);
             configBuilder.setPasswordLength(NumberUtils.toInt(encHubPasswordLength));
             configBuilder.setTimeout(hubTimeout);
+            configBuilder.setTrustCert(hubTrustCert);
             configBuilder.setProxyHost(hubProxyHost);
             configBuilder.setProxyPort(hubProxyPort);
             configBuilder.setIgnoredProxyHosts(hubNoProxyHost);
@@ -1202,8 +1203,7 @@ public class HubJiraConfigController {
                 return null;
             }
 
-            restConnection = new CredentialsRestConnection(logger, serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(), serverConfig.getTimeout(),
-                    serverConfig.getProxyInfo());
+            restConnection = serverConfig.createCredentialsRestConnection(logger);
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
