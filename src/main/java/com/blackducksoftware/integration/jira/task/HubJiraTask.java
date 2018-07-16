@@ -104,7 +104,7 @@ public class HubJiraTask {
             logger.error(
                     "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
                             + e.getMessage());
-            return "error";
+            return previousStartDate;
         }
 
         final HubJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
@@ -145,7 +145,7 @@ public class HubJiraTask {
             logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
             final UserView hubUserItem = getHubUserItem(hubServicesFactory, hubServerConfig.getGlobalCredentials().getUsername());
             if (hubUserItem == null) {
-                return null;
+                return previousStartDate;
             }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
