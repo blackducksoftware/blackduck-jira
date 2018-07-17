@@ -153,7 +153,7 @@ public class JiraSettingsService {
         while (expirationIterator.hasNext()) {
             final TicketCreationError ticketError = expirationIterator.next();
             final LocalDateTime errorTime = ticketError.getTimeStampDateTime();
-            if (Duration.between(errorTime, currentTime).toDays() > 30L) { // Days.daysBetween(errorTime, currentTime).isGreaterThan(Days.days(30))) {
+            if (Duration.between(errorTime, currentTime).toDays() > 30L) {
                 logger.debug("Removing old error message with timestamp: " + ticketError.getTimeStamp());
                 expirationIterator.remove();
             }

@@ -123,8 +123,7 @@ public class HubFieldScreenSchemeSetupTest {
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
 
-        final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService,
-                jiraServices);
+        final HubFieldScreenSchemeSetup fieldConfigSetup = new HubFieldScreenSchemeSetup(settingService, jiraServices);
         fieldConfigSetup.addHubFieldConfigurationToJira(null);
 
         assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));

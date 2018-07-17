@@ -352,8 +352,12 @@ public class NotificationToEventConverter {
 
     private String getProjectVersionNickname(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
         if (detail.getProjectVersion().isPresent()) {
-            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
-            return projectVersion.nickname;
+            try {
+                final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+                return projectVersion.nickname;
+            } catch (final NullPointerException npe) {
+                logger.debug("Caught NPE in getProjectVersionNickname()", npe);
+            }
         }
         return "";
     }
@@ -373,7 +377,7 @@ public class NotificationToEventConverter {
                     }
                 }
             } catch (final Exception e) {
-                logger.error("Unable to get the project owner for this notification from the hub.");
+                logger.warn("Unable to get the project owner for this notification from the hub: " + e.getMessage());
             }
         }
         return null;
@@ -386,8 +390,11 @@ public class NotificationToEventConverter {
                 final VersionRiskProfileView riskProfile = hubService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
                 final SimpleDateFormat dateFormat = new SimpleDateFormat();
                 return dateFormat.format(riskProfile.bomLastUpdatedAt);
-            } catch (final IntegrationException e) {
-                logger.error(String.format("Could not find the risk profile for %s: %s", ProjectVersionView.RISKPROFILE_LINK_RESPONSE, e.getMessage()));
+            } catch (final IntegrationException intException) {
+                logger.debug(String.format("Could not find the risk profile: %s", intException.getMessage()));
+            } catch (final NullPointerException npe) {
+                logger.debug(String.format("The risk profile for %s / %s was null.", detail.getProjectName().orElse("?"), detail.getProjectVersionName().orElse("?")));
+                logger.trace("Caught NPE in getBomLastUpdated()", npe);
             }
         }
         return "";
@@ -395,30 +402,38 @@ public class NotificationToEventConverter {
 
     private VersionBomComponentView getBomComponent(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
         VersionBomComponentView targetBomComp = null;
-        if (detail.getProjectVersion().isPresent()) {
-            List<VersionBomComponentView> bomComps;
+        if (!detail.getProjectVersion().isPresent()) {
+            logger.debug("No project version uri was available from the current notification detail.");
+            return null;
+        }
+        List<VersionBomComponentView> bomComps;
+        final String projectName = detail.getProjectName().orElse("?");
+        final String projectVersionName = detail.getProjectVersionName().orElse("?");
+        final String componentName = detail.getComponentName().orElse("?");
+        final String componentVersionName = detail.getComponentVersionName().orElse("?");
+        try {
             final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
-            try {
-                bomComps = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
-            } catch (final IntegrationException e) {
-                logger.debug(String.format("Error getting BOM for project %s / %s; Perhaps the BOM is now empty", detail.getProjectName(), detail.getProjectVersionName()));
-                return null;
-            }
-            ComponentView notificationComponent = null;
-            ComponentVersionView notificationComponentVersion = null;
-            if (detail.getComponent().isPresent()) {
-                notificationComponent = hubBucket.get(detail.getComponent().get());
-            }
-            if (detail.getComponentVersion().isPresent()) {
-                notificationComponentVersion = hubBucket.get(detail.getComponentVersion().get());
-            }
-            targetBomComp = findCompInBom(bomComps, notificationComponent, notificationComponentVersion);
-            if (targetBomComp == null) {
-                final String componentName = detail.getComponentName().orElse("<unknown component>");
-                final String componentVersionName = detail.getComponentVersionName().orElse("<unknown component version>");
-                logger.info(String.format("Component %s not found in BOM", componentName));
-                logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName, detail.getProjectName().orElse("?"), detail.getProjectVersionName().orElse("?")));
-            }
+            bomComps = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
+        } catch (final IntegrationException intException) {
+            logger.debug(String.format("Error getting BOM for project %s / %s; perhaps the BOM is now empty.", projectName, projectVersionName));
+            return null;
+        } catch (final NullPointerException npe) {
+            logger.debug(String.format("The hub resource (%s / %s, %s / %s) sought could not be found; perhaps it was deleted.", projectName, projectVersionName, componentName, componentVersionName));
+            logger.trace("Caught NPE in getBomComponent()", npe);
+            return null;
+        }
+        ComponentView notificationComponent = null;
+        ComponentVersionView notificationComponentVersion = null;
+        if (detail.getComponent().isPresent()) {
+            notificationComponent = hubBucket.get(detail.getComponent().get());
+        }
+        if (detail.getComponentVersion().isPresent()) {
+            notificationComponentVersion = hubBucket.get(detail.getComponentVersion().get());
+        }
+        targetBomComp = findCompInBom(bomComps, notificationComponent, notificationComponentVersion);
+        if (targetBomComp == null) {
+            logger.info(String.format("Component %s not found in BOM", componentName));
+            logger.debug(String.format("Component %s / %s not found in the BOM for project %s / %s", componentName, componentVersionName, projectName, projectVersionName));
         }
         return targetBomComp;
     }

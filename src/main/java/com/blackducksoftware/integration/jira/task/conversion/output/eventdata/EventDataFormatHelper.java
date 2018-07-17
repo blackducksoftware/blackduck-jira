@@ -103,7 +103,9 @@ public class EventDataFormatHelper {
             String vulnerableComponentsLink = null;
             if (detail.getProjectVersion().isPresent()) {
                 final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
-                vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+                if (projectVersion != null) {
+                    vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+                }
             }
             if (vulnerableComponentsLink != null) {
                 issueDescription.append("[vulnerabilities|");
@@ -116,18 +118,14 @@ public class EventDataFormatHelper {
         }
 
         if (detail.getComponentVersion().isPresent()) {
-            try {
-                final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
-                final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
-                if (StringUtils.isNotBlank(licenseText)) {
-                    issueDescription.append("KB Component license(s): ");
-                    issueDescription.append(licenseText);
-                }
-                if (detail.isVulnerability()) {
-                    appendRemediationOptionsText(issueDescription, componentVersion);
-                }
-            } catch (final IntegrationException e) {
-                // omit additional text
+            final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
+            final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
+            if (StringUtils.isNotBlank(licenseText)) {
+                issueDescription.append("KB Component license(s): ");
+                issueDescription.append(licenseText);
+            }
+            if (detail.isVulnerability()) {
+                appendRemediationOptionsText(issueDescription, componentVersion);
             }
         }
         return issueDescription.toString();
@@ -201,7 +199,7 @@ public class EventDataFormatHelper {
         commentText.append("\n");
     }
 
-    public String getComponentLicensesStringPlainText(final VersionBomComponentView componentVersion) throws IntegrationException {
+    public String getComponentLicensesStringPlainText(final VersionBomComponentView componentVersion) {
         if (componentVersion.licenses != null && !componentVersion.licenses.isEmpty()) {
             EventDataLicense license;
             if (componentVersion.licenses.size() == 1) {
@@ -214,7 +212,7 @@ public class EventDataFormatHelper {
         return "";
     }
 
-    public String getComponentLicensesStringWithLinksAtlassianFormat(final VersionBomComponentView componentVersion) throws IntegrationException {
+    public String getComponentLicensesStringWithLinksAtlassianFormat(final VersionBomComponentView componentVersion) {
         if (componentVersion.licenses != null && !componentVersion.licenses.isEmpty()) {
             EventDataLicense license;
             if (componentVersion.licenses.size() == 1) {
@@ -227,17 +225,17 @@ public class EventDataFormatHelper {
         return "";
     }
 
-    public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) throws IntegrationException {
+    public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) {
         final EventDataLicense license = new EventDataLicense(componentVersion.license);
         return getComponentLicensesString(license, false);
     }
 
-    public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) throws IntegrationException {
+    public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) {
         final EventDataLicense license = new EventDataLicense(componentVersion.license);
         return getComponentLicensesString(license, true);
     }
 
-    private String getComponentLicensesString(final EventDataLicense eventDataLicense, final boolean includeLinks) throws IntegrationException {
+    private String getComponentLicensesString(final EventDataLicense eventDataLicense, final boolean includeLinks) {
         String licensesString = "";
         if (eventDataLicense.isPopulated()) {
             final ComplexLicenseType type = eventDataLicense.licenseType;
@@ -261,7 +259,7 @@ public class EventDataFormatHelper {
         return licensesString;
     }
 
-    private void createLicenseString(final StringBuilder sb, final EventDataLicense license, final boolean includeLinks) throws IntegrationException {
+    private void createLicenseString(final StringBuilder sb, final EventDataLicense license, final boolean includeLinks) {
         final String licenseTextUrl = getLicenseTextUrl(license);
         logger.debug("Link to license text: " + licenseTextUrl);
 
@@ -276,11 +274,15 @@ public class EventDataFormatHelper {
         }
     }
 
-    private String getLicenseTextUrl(final EventDataLicense license) throws IntegrationException {
+    private String getLicenseTextUrl(final EventDataLicense license) {
         final String licenseUrl = license.licenseUrl;
-        final ComplexLicenseView fullLicense = hubService.getResponse(licenseUrl, ComplexLicenseView.class);
-        final String licenseTextUrl = hubService.getFirstLink(fullLicense, "text");
-        return licenseTextUrl;
+        try {
+            final ComplexLicenseView fullLicense = hubService.getResponse(licenseUrl, ComplexLicenseView.class);
+            return hubService.getFirstLink(fullLicense, "text");
+        } catch (final Exception e) {
+            logger.debug("Error getting license text url.");
+        }
+        return hubService.getHubBaseUrl().toString();
     }
 
     class EventDataLicense {
