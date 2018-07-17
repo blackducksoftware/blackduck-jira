@@ -31,6 +31,8 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 
 public class TicketCreationErrorTest {
+    public static final String DATE_TIME_SINGLE_DIGIT_FIELDS_WITHOUT_LEADING_ZERO_STRING = "5/5/2005 5:05PM";
+    public static final LocalDateTime DATE_TIME_SINGLE_DIGIT_FILEDS_WITHOUT_LEADING_ZERO_OBJECT = LocalDateTime.of(2005, 5, 5, 17, 5);
     public static final String DATE_TIME_SINGLE_DIGIT_FIELDS_STRING = "02/02/2002 02:02AM";
     public static final LocalDateTime DATE_TIME_SINGLE_DIGIT_FILEDS_OBJECT = LocalDateTime.of(2002, 2, 2, 2, 2);
     public static final String DATE_TIME_MULTI_DIGIT_FIELDS_STRING = "10/10/2010 10:10AM";
@@ -46,6 +48,13 @@ public class TicketCreationErrorTest {
     public void errorTimeFormatMultiDigitFieldsTest() {
         final String timeStamp = DATE_TIME_MULTI_DIGIT_FILEDS_OBJECT.format(TicketCreationError.ERROR_TIME_FORMAT);
         assertEquals(DATE_TIME_MULTI_DIGIT_FIELDS_STRING, timeStamp);
+    }
+
+    @Test
+    public void getTimeStampDateTimeSingleDigitFieldsWithoutLeadingZeroTest() {
+        final TicketCreationError ticketCreationError = new TicketCreationError();
+        ticketCreationError.setTimeStamp(DATE_TIME_SINGLE_DIGIT_FIELDS_WITHOUT_LEADING_ZERO_STRING);
+        assertEquals(DATE_TIME_SINGLE_DIGIT_FILEDS_WITHOUT_LEADING_ZERO_OBJECT, ticketCreationError.getTimeStampDateTime());
     }
 
     @Test
