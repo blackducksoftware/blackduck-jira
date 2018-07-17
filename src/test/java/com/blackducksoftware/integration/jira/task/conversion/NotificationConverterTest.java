@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -216,7 +217,7 @@ public class NotificationConverterTest {
         mockHubServiceResponses(mockHubSerivce);
         mockHubBucket = Mockito.mock(HubBucket.class);
         mockHubBucketResponses(mockHubBucket);
-        mockLogger = new HubJiraLogger(null);
+        mockLogger = new HubJiraLogger(Logger.getLogger(NotificationConverterTest.class));
 
         // Project Mappings
         projectMappingObject = new HubProjectMappings(jiraServices, mappings);

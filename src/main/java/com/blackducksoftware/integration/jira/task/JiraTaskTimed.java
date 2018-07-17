@@ -91,9 +91,9 @@ public class JiraTaskTimed implements Callable<String> {
         final Period diff = new Period(beforeSetup, afterSetup);
         logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis() + "ms.");
         final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
-        runHubJiraTaskAndSetLastRunDate(processor);
+        final String runResult = runHubJiraTaskAndSetLastRunDate(processor);
         logger.info("hub-jira periodic timed task has completed");
-        return "success";
+        return runResult;
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
@@ -147,13 +147,18 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
-    private void runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor) {
+    private String runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor) {
+        String runStatus = "error";
         final String previousRunDateString = configDetails.getLastRunDateString();
         if (previousRunDateString != null) {
             settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, processor.getRunDateString());
         }
         final String newRunDateString = processor.execute(previousRunDateString);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+        if (newRunDateString != null) {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+            runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
+        }
+        return runStatus;
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final HubIssueTypeSetup issueTypeSetup,
