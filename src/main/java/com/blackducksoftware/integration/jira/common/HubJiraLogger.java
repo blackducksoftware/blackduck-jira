@@ -23,9 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.common;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -35,7 +32,7 @@ import com.blackducksoftware.integration.log.LogLevel;
 public class HubJiraLogger extends IntLogger {
     private final Logger jiraLogger;
 
-    private LogLevel logLevel = LogLevel.TRACE;
+    private LogLevel logLevel = LogLevel.INFO;
 
     public HubJiraLogger(final Logger logger) {
         this.jiraLogger = logger;
@@ -58,134 +55,82 @@ public class HubJiraLogger extends IntLogger {
     @Override
     public void info(final String txt) {
         if (isEnabledFor(Level.INFO)) {
-            logMessageInfo(txt);
+            jiraLogger.info(txt);
         }
     }
 
     @Override
     public void error(final Throwable t) {
         if (isEnabledFor(Level.ERROR)) {
-            logThrowable(t);
+            jiraLogger.error("An error was caused by: ", t);
         }
     }
 
     @Override
     public void error(final String txt, final Throwable t) {
         if (isEnabledFor(Level.ERROR)) {
-            logThrowable(txt, t);
+            jiraLogger.error(txt, t);
         }
     }
 
     @Override
     public void error(final String txt) {
         if (isEnabledFor(Level.ERROR)) {
-            logErrorMessage(txt);
+            jiraLogger.error(txt);
         }
     }
 
     @Override
     public void warn(final String txt) {
         if (isEnabledFor(Level.WARN)) {
-            logMessageWarn(txt);
+            jiraLogger.warn(txt);
         }
     }
 
     @Override
     public void trace(final String txt) {
-        logMessageTrace(txt);
+        if (jiraLogger.isTraceEnabled()) {
+            jiraLogger.trace(txt);
+        }
     }
 
     @Override
     public void trace(final String txt, final Throwable t) {
-        if (jiraLogger != null && jiraLogger.isTraceEnabled()) {
-            logThrowable(txt, t);
+        if (jiraLogger.isTraceEnabled()) {
+            jiraLogger.trace(txt, t);
         }
     }
 
     @Override
     public void debug(final String txt) {
-        logMessageDebug(txt);
+        if (jiraLogger.isDebugEnabled()) {
+            jiraLogger.debug(txt);
+        }
     }
 
     @Override
     public void debug(final String txt, final Throwable t) {
-        if (jiraLogger != null && jiraLogger.isDebugEnabled()) {
-            logThrowable(txt, t);
+        if (jiraLogger.isDebugEnabled()) {
+            jiraLogger.debug(txt, t);
         }
     }
 
     @Override
     public void alwaysLog(final String txt) {
-        logMessageInfo(txt);
-    }
-
-    private boolean isEnabledFor(final Level logLevel) {
-        return jiraLogger != null && jiraLogger.isEnabledFor(logLevel);
-    }
-
-    private void logMessageInfo(final String txt) {
-        if (txt != null) {
-            if (jiraLogger != null) {
-                jiraLogger.info(txt);
-            } else {
-                System.out.println(txt);
-            }
+        final Level level = jiraLogger.getLevel();
+        if (level != null && !isEnabledFor(Level.INFO)) {
+            jiraLogger.log(level, txt);
+        } else {
+            jiraLogger.info(txt);
         }
     }
 
-    private void logMessageDebug(final String txt) {
-        if (txt != null) {
-            if (jiraLogger != null && jiraLogger.isDebugEnabled()) {
-                jiraLogger.debug(txt);
-            } else {
-                System.out.println(txt);
-            }
+    private boolean isEnabledFor(final Level level) {
+        if (jiraLogger.isEnabledFor(level)) {
+            return true;
         }
+        final LogLevel logLevel = LogLevel.fromString(level.toString());
+        return this.logLevel != null && this.logLevel.isLoggable(logLevel);
     }
 
-    private void logMessageWarn(final String txt) {
-        if (txt != null) {
-            if (jiraLogger != null) {
-                jiraLogger.warn(txt);
-            } else {
-                System.out.println(txt);
-            }
-        }
-    }
-
-    private void logMessageTrace(final String txt) {
-        if (txt != null) {
-            if (jiraLogger != null && jiraLogger.isTraceEnabled()) {
-                jiraLogger.trace(txt);
-            } else {
-                System.out.println(txt);
-            }
-        }
-    }
-
-    private void logThrowable(final Throwable throwable) {
-        logThrowable("An error occurred caused by ", throwable);
-    }
-
-    private void logThrowable(final String txt, final Throwable throwable) {
-        if (txt != null) {
-            if (jiraLogger != null) {
-                jiraLogger.error(txt, throwable);
-            } else {
-                final StringWriter sw = new StringWriter();
-                throwable.printStackTrace(new PrintWriter(sw));
-                System.err.println(sw.toString());
-            }
-        }
-    }
-
-    private void logErrorMessage(final String txt) {
-        if (txt != null) {
-            if (jiraLogger != null) {
-                jiraLogger.error(txt);
-            } else {
-                System.out.println(txt);
-            }
-        }
-    }
 }
