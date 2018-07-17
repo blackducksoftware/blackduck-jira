@@ -91,7 +91,7 @@ public class HubJiraTask {
     /**
      * Setup, then generate JIRA tickets based on recent notifications
      *
-     * @return this execution's run date/time string on success, null otherwise
+     * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
         final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
