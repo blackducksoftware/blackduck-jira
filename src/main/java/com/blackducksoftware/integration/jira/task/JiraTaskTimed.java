@@ -23,13 +23,13 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
@@ -79,7 +79,7 @@ public class JiraTaskTimed implements Callable<String> {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
         }
-        final DateTime beforeSetup = new DateTime();
+        final LocalDateTime beforeSetup = LocalDateTime.now();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
             jiraSetup(jiraServices, jiraSettingsService, configDetails.getProjectMappingJson(), ticketInfoFromSetup, jiraContext);
@@ -87,9 +87,9 @@ public class JiraTaskTimed implements Callable<String> {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
         }
-        final DateTime afterSetup = new DateTime();
-        final Period diff = new Period(beforeSetup, afterSetup);
-        logger.info("Hub JIRA setup took " + diff.getMinutes() + "m," + diff.getSeconds() + "s," + diff.getMillis() + "ms.");
+        final LocalDateTime afterSetup = LocalDateTime.now();
+        final Duration diff = Duration.between(beforeSetup, afterSetup);
+        logger.info("Hub JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
         final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
         final String runResult = runHubJiraTaskAndSetLastRunDate(processor);
         logger.info("hub-jira periodic timed task has completed");
@@ -179,8 +179,7 @@ public class JiraTaskTimed implements Callable<String> {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, screenSchemesByIssueType);
-                            final boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(
-                                    jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
+                            final boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
                             if (wasAlreadySetUp) {
                                 logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
                             } else {
@@ -215,9 +214,7 @@ public class JiraTaskTimed implements Callable<String> {
     private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
-            logger.warn(String.format(
-                    "The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration",
-                    jiraAdminUsername));
+            logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
             jiraIssueCreatorUsername = jiraAdminUsername;
         }
         final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);

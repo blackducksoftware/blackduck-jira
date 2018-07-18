@@ -145,7 +145,7 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size()); // TODO unhardcode all these
+                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
             }

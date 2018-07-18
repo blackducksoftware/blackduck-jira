@@ -78,8 +78,8 @@ public class HubJiraTask {
         this.runDate = new Date();
         dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-        logger.debug("Install date: " + configDetails.getInstallDateString());
-        logger.debug("Last run date: " + configDetails.getLastRunDateString());
+        logger.info("Install date: " + configDetails.getInstallDateString());
+        logger.info("Last run date: " + configDetails.getLastRunDateString());
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
@@ -126,7 +126,7 @@ public class HubJiraTask {
             try {
                 hubServicesFactory = createHubServicesFactory(hubServerConfig);
             } catch (final EncryptionException e) {
-                logger.info("Error handling password: " + e.getMessage());
+                logger.warn("Error handling password: " + e.getMessage());
                 return previousStartDate;
             }
 
@@ -142,9 +142,11 @@ public class HubJiraTask {
 
             final HubProjectMappings hubProjectMappings = new HubProjectMappings(jiraServices, config.getHubProjectMappings());
 
-            logger.debug("Getting user item for user: " + hubServerConfig.getGlobalCredentials().getUsername());
-            final UserView hubUserItem = getHubUserItem(hubServicesFactory, hubServerConfig.getGlobalCredentials().getUsername());
+            final String hubUsername = hubServerConfig.getGlobalCredentials().getUsername();
+            logger.debug("Getting user item for user: " + hubUsername);
+            final UserView hubUserItem = getHubUserItem(hubServicesFactory, hubUsername);
             if (hubUserItem == null) {
+                logger.warn("Will not request notifications from the hub because of an invalid user configuration");
                 return previousStartDate;
             }
             // Generate JIRA Issues based on recent notifications

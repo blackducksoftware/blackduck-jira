@@ -51,25 +51,25 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 
     @Inject
     public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
-        logger.debug("HubMonitor ctor called.");
+        logger.trace("HubMonitor ctor called.");
         this.pluginScheduler = pluginScheduler;
         this.pluginSettingsFactory = pluginSettingsFactory;
     }
 
     @Override
     public void onStart() {
-        logger.debug("HubMonitor onStart() called.");
+        logger.trace("HubMonitor onStart() called.");
         reschedule(0L);
     }
 
     public void changeInterval() {
-        logger.debug("HubMonitor changeInterval() called.");
+        logger.trace("HubMonitor changeInterval() called.");
         reschedule(0L);
     }
 
     @Override
     public void reschedule(final long intervalIgnored) {
-        logger.debug("HubMonitor reschedule() called.");
+        logger.trace("HubMonitor reschedule() called.");
 
         final long actualInterval = getIntervalMillisec();
 
@@ -97,7 +97,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
     }
 
     public String getName() {
-        logger.debug("HubMonitor.getName() called");
+        logger.trace("HubMonitor.getName() called");
         if (pluginScheduler != null) {
             return "hubMonitor with pluginScheduler:" + pluginScheduler.toString();
         }
@@ -137,7 +137,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 
     @Override
     public void destroy() throws Exception {
-        logger.info("destroy() called; Unscheduling " + JOB_NAME);
+        logger.debug("destroy() called; Unscheduling " + JOB_NAME);
         pluginScheduler.unscheduleJob(JOB_NAME);
     }
 }
