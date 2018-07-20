@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.model;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -36,19 +36,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.ErrorTracking;
+import com.blackducksoftware.integration.util.Stringable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
-
-    private static final long serialVersionUID = -3736258315416679501L;
+public class HubJiraConfigSerializable extends Stringable implements Serializable, ErrorTracking {
+    private static final long serialVersionUID = -8798933499737490438L;
 
     @XmlElement
     private String errorMessage;
@@ -94,6 +95,9 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
 
     @XmlElement
     private String createVulnerabilityIssuesError;
+
+    public HubJiraConfigSerializable() {
+    }
 
     @Override
     public boolean hasErrors() {
@@ -357,133 +361,6 @@ public class HubJiraConfigSerializable implements Serializable, ErrorTracking {
     @Override
     public void setErrorMessage(final String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-        result = prime * result + ((hubProjectMappingError == null) ? 0 : hubProjectMappingError.hashCode());
-        result = prime * result + ((hubProjectMappings == null) ? 0 : hubProjectMappings.hashCode());
-        result = prime * result + ((hubProjects == null) ? 0 : hubProjects.hashCode());
-        result = prime * result + ((hubProjectsError == null) ? 0 : hubProjectsError.hashCode());
-        result = prime * result + ((intervalBetweenChecks == null) ? 0 : intervalBetweenChecks.hashCode());
-        result = prime * result + ((generalSettingsError == null) ? 0 : generalSettingsError.hashCode());
-        result = prime * result + ((jiraProjects == null) ? 0 : jiraProjects.hashCode());
-        result = prime * result + ((creatorCandidates == null) ? 0 : creatorCandidates.hashCode());
-        result = prime * result + ((creator == null) ? 0 : creator.hashCode());
-        result = prime * result + ((jiraProjectsError == null) ? 0 : jiraProjectsError.hashCode());
-        result = prime * result + ((policyRules == null) ? 0 : policyRules.hashCode());
-        result = prime * result + ((policyRulesError == null) ? 0 : policyRulesError.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof HubJiraConfigSerializable)) {
-            return false;
-        }
-        final HubJiraConfigSerializable other = (HubJiraConfigSerializable) obj;
-        if (errorMessage == null) {
-            if (other.errorMessage != null) {
-                return false;
-            }
-        } else if (!errorMessage.equals(other.errorMessage)) {
-            return false;
-        }
-        if (hubProjectMappingError == null) {
-            if (other.hubProjectMappingError != null) {
-                return false;
-            }
-        } else if (!hubProjectMappingError.equals(other.hubProjectMappingError)) {
-            return false;
-        }
-        if (hubProjectMappings == null) {
-            if (other.hubProjectMappings != null) {
-                return false;
-            }
-        } else if (!hubProjectMappings.equals(other.hubProjectMappings)) {
-            return false;
-        }
-        if (hubProjects == null) {
-            if (other.hubProjects != null) {
-                return false;
-            }
-        } else if (!hubProjects.equals(other.hubProjects)) {
-            return false;
-        }
-        if (hubProjectsError == null) {
-            if (other.hubProjectsError != null) {
-                return false;
-            }
-        } else if (!hubProjectsError.equals(other.hubProjectsError)) {
-            return false;
-        }
-        if (intervalBetweenChecks == null) {
-            if (other.intervalBetweenChecks != null) {
-                return false;
-            }
-        } else if (!intervalBetweenChecks.equals(other.intervalBetweenChecks)) {
-            return false;
-        }
-        if (generalSettingsError == null) {
-            if (other.generalSettingsError != null) {
-                return false;
-            }
-        } else if (!generalSettingsError.equals(other.generalSettingsError)) {
-            return false;
-        }
-        if (jiraProjects == null) {
-            if (other.jiraProjects != null) {
-                return false;
-            }
-        } else if (!jiraProjects.equals(other.jiraProjects)) {
-            return false;
-        }
-        if (jiraProjectsError == null) {
-            if (other.jiraProjectsError != null) {
-                return false;
-            }
-        } else if (!jiraProjectsError.equals(other.jiraProjectsError)) {
-            return false;
-        }
-
-        if (creatorCandidates == null) {
-            if (other.creatorCandidates != null) {
-                return false;
-            }
-        } else if (!creatorCandidates.equals(other.creatorCandidates)) {
-            return false;
-        }
-        if (creator == null) {
-            if (other.creator != null) {
-                return false;
-            }
-        } else if (!creator.equals(other.creator)) {
-            return false;
-        }
-        if (policyRules == null) {
-            if (other.policyRules != null) {
-                return false;
-            }
-        } else if (!policyRules.equals(other.policyRules)) {
-            return false;
-        }
-        if (policyRulesError == null) {
-            if (other.policyRulesError != null) {
-                return false;
-            }
-        } else if (!policyRulesError.equals(other.policyRulesError)) {
-            return false;
-        }
-        return true;
     }
 
     @Override

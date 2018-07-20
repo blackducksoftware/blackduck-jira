@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira;
 
 import com.atlassian.sal.api.ApplicationProperties;
 
+//This class is required for publishing our component (see atlassian-plugin.xml).
 public class HubJiraComponentImpl implements HubJiraComponent {
     private final ApplicationProperties applicationProperties;
 

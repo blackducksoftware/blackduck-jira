@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.jira.common.jiraversion;
 import java.util.Comparator;
 
 public class JiraVersionComparator implements Comparator<JiraVersion> {
-
     @Override
     public int compare(final JiraVersion o1, final JiraVersion o2) {
         if (o1.getMajor() > o2.getMajor()) {

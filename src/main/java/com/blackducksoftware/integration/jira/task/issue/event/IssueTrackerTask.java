@@ -41,10 +41,10 @@ import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
@@ -86,7 +86,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
             } else {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
-                final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+                final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
                 final HubJiraConfigSerializable config = createJiraConfig(configDetails);
                 if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
                     logger.debug("Hub Jira configuration is incomplete");
@@ -170,7 +170,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return config;
     }
 
-    private void handleIssue(final JiraContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+    private void handleIssue(final JiraUserContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
         // final EntityProperty property = props.get(0);
         final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
@@ -192,7 +192,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return gson.fromJson(json, HubIssueTrackerProperties.class);
     }
 
-    private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
+    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
             logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
@@ -203,7 +203,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
             return null;
         }
-        final JiraContext jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
+        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
         return jiraContext;
     }
 

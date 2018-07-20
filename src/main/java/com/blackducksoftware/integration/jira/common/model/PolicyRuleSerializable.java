@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.common.model;
 
 import java.io.Serializable;
 
@@ -30,11 +30,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.blackducksoftware.integration.util.Stringable;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PolicyRuleSerializable implements Serializable {
-
-    private static final long serialVersionUID = -7381056830354720387L;
+public class PolicyRuleSerializable extends Stringable implements Serializable {
+    private static final long serialVersionUID = 3197063302649091949L;
 
     @XmlElement
     private String name;
@@ -50,6 +51,9 @@ public class PolicyRuleSerializable implements Serializable {
 
     @XmlElement
     private boolean enabled;
+
+    public PolicyRuleSerializable() {
+    }
 
     public String getName() {
         return name;
@@ -89,60 +93,6 @@ public class PolicyRuleSerializable implements Serializable {
 
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (checked ? 1231 : 1237);
-        result = prime * result + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + (enabled ? 1231 : 1237);
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((policyUrl == null) ? 0 : policyUrl.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof PolicyRuleSerializable)) {
-            return false;
-        }
-        final PolicyRuleSerializable other = (PolicyRuleSerializable) obj;
-        if (checked != other.checked) {
-            return false;
-        }
-        if (description == null) {
-            if (other.description != null) {
-                return false;
-            }
-        } else if (!description.equals(other.description)) {
-            return false;
-        }
-        if (enabled != other.enabled) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (policyUrl == null) {
-            if (other.policyUrl != null) {
-                return false;
-            }
-        } else if (!policyUrl.equals(other.policyUrl)) {
-            return false;
-        }
-        return true;
     }
 
     @Override

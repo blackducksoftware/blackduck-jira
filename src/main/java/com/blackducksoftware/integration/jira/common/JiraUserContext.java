@@ -21,11 +21,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.common;
 
-import com.blackducksoftware.integration.hub.api.core.HubResponse;
+import com.atlassian.jira.user.ApplicationUser;
 
-public class VersionRiskProfileResponse extends HubResponse {
-    public String bomLastUpdatedAt;
+public class JiraUserContext {
+    private final ApplicationUser jiraAdminUser;
+    private final ApplicationUser jiraIssueCreatorUser;
+
+    public JiraUserContext(final ApplicationUser jiraAdminUser, final ApplicationUser jiraIssueCreatorUser) {
+        this.jiraAdminUser = jiraAdminUser;
+        this.jiraIssueCreatorUser = jiraIssueCreatorUser;
+    }
+
+    public ApplicationUser getJiraAdminUser() {
+        return jiraAdminUser;
+    }
+
+    public ApplicationUser getJiraIssueCreatorUser() {
+        return jiraIssueCreatorUser;
+    }
 
 }

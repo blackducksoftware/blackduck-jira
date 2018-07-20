@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.model;
 
 import java.io.Serializable;
 
@@ -30,9 +30,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.blackducksoftware.integration.util.Stringable;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProjectFieldCopyMapping implements Serializable {
+public class ProjectFieldCopyMapping extends Stringable implements Serializable {
     private static final long serialVersionUID = -8343238734203251050L;
 
     @XmlElement

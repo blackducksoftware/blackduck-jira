@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira;
 
+// This interface is required for publishing our component (see atlassian-plugin.xml).
 public interface HubJiraComponent {
     String getName();
 }

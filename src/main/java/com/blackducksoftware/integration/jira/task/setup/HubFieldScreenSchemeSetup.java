@@ -55,7 +55,7 @@ import com.atlassian.jira.issue.operation.ScreenableIssueOperation;
 import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginField;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 

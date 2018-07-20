@@ -42,13 +42,13 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
-import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
@@ -74,7 +74,7 @@ public class JiraTaskTimed implements Callable<String> {
     public String call() throws Exception {
         logger.info("Running the Hub JIRA periodic timed task.");
 
-        final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
@@ -98,7 +98,7 @@ public class JiraTaskTimed implements Callable<String> {
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
             final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup,
-            final JiraContext jiraContext)
+            final JiraUserContext jiraContext)
             throws ConfigurationException, JiraException {
 
         // Make sure current JIRA version is supported
@@ -211,7 +211,7 @@ public class JiraTaskTimed implements Callable<String> {
         return new HubWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
+    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
             logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
@@ -222,7 +222,7 @@ public class JiraTaskTimed implements Callable<String> {
         if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
             return null;
         }
-        final JiraContext jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
+        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
         return jiraContext;
     }
 

@@ -36,10 +36,11 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

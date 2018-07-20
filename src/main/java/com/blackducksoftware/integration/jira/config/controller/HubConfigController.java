@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.controller;
 
 import java.io.IOException;
 
@@ -53,6 +53,8 @@ import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilde
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigFieldEnum;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.config.HubConfigKeys;
+import com.blackducksoftware.integration.jira.config.model.HubServerConfigSerializable;
 import com.blackducksoftware.integration.rest.credentials.CredentialsField;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfoField;
 import com.blackducksoftware.integration.validator.AbstractValidator;

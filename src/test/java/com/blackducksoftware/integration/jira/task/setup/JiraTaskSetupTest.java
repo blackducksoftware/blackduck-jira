@@ -64,15 +64,15 @@ import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PluginField;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
-import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
@@ -125,7 +125,7 @@ public class JiraTaskSetupTest {
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        final JiraContext jiraContext = new JiraContext(jiraUser, jiraUser);
+        final JiraUserContext jiraContext = new JiraUserContext(jiraUser, jiraUser);
 
         final JiraTaskTimed task = jiraEnv.getJiraTask();
         final TicketInfoFromSetup x = new TicketInfoFromSetup();
@@ -181,7 +181,7 @@ public class JiraTaskSetupTest {
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
-        final JiraContext jiraContext = new JiraContext(jiraUser, jiraUser);
+        final JiraUserContext jiraContext = new JiraUserContext(jiraUser, jiraUser);
 
         final JiraTaskTimed task = jiraEnv.getJiraTask();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();

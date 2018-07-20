@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +32,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.blackducksoftware.integration.jira.config.ErrorTracking;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Fields implements Serializable, ErrorTracking {

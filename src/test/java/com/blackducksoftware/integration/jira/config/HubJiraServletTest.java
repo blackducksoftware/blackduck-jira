@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.config.controller.HubJiraServlet;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;
 import com.blackducksoftware.integration.jira.mocks.LoginUriProviderMock;

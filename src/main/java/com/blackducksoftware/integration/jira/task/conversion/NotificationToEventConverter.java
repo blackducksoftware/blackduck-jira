@@ -65,11 +65,11 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.HubUrlParser;
-import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
-import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
@@ -82,7 +82,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 public class NotificationToEventConverter {
     private final HubJiraLogger logger;
     private final JiraServices jiraServices;
-    private final JiraContext jiraContext;
+    private final JiraUserContext jiraContext;
     private final JiraSettingsService jiraSettingsService;
     private final HubProjectMappings hubProjectMappings;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
@@ -90,7 +90,7 @@ public class NotificationToEventConverter {
     private final List<String> linksOfRulesToMonitor;
     private final HubService hubService;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final HubJiraLogger logger)
             throws ConfigurationException {
         this.jiraServices = jiraServices;

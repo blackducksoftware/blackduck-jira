@@ -43,9 +43,9 @@ import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
-import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
@@ -61,7 +61,7 @@ public class TicketGenerator {
 
     private final HubService hubService;
     private final NotificationService notificationService;
-    private final JiraContext jiraContext;
+    private final JiraUserContext jiraContext;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
@@ -70,7 +70,7 @@ public class TicketGenerator {
     private final List<String> linksOfRulesToMonitor;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraContext jiraContext,
+    public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraContext,
             final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.hubService = hubService;

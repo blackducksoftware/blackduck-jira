@@ -53,7 +53,7 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
@@ -71,7 +71,7 @@ import com.opensymphony.workflow.loader.ActionDescriptor;
 public class JiraIssueHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraContext jiraContext;
+    private final JiraUserContext jiraContext;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final IssueFieldHandler issueFieldHandler;
@@ -79,7 +79,7 @@ public class JiraIssueHandler {
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
     private final Date instanceUniqueDate;
 
-    public JiraIssueHandler(final JiraServices jiraServices, final JiraContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
+    public JiraIssueHandler(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;

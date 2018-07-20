@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.config;
 
 public interface ErrorTracking {
-
     boolean hasErrors();
 
     String getErrorMessage();

@@ -23,14 +23,11 @@
  */
 package com.blackducksoftware.integration.jira.common.jiraversion;
 
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import com.blackducksoftware.integration.util.Stringable;
 
-public class JiraVersion {
+public class JiraVersion extends Stringable {
     private final String name;
-
     private final int major;
-
     private final int minor;
 
     public JiraVersion(final String name, final int major, final int minor) {
@@ -52,8 +49,4 @@ public class JiraVersion {
         return minor;
     }
 
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
-    }
 }

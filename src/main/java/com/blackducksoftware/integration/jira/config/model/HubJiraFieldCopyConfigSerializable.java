@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.model;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -37,14 +37,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackducksoftware.integration.jira.config.ErrorTracking;
+import com.blackducksoftware.integration.util.Stringable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTracking {
-    private static final long serialVersionUID = 2893090613500813058L;
+public class HubJiraFieldCopyConfigSerializable extends Stringable implements Serializable, ErrorTracking {
+    private static final long serialVersionUID = 7103882445919763746L;
 
     @XmlElement
     private String errorMessage;
@@ -56,7 +58,7 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
         return projectFieldCopyMappings;
     }
 
-    public void setProjectFieldCopyMappings(Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
+    public void setProjectFieldCopyMappings(final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
         this.projectFieldCopyMappings = projectFieldCopyMappings;
     }
 
@@ -80,37 +82,13 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
     }
 
     public List<String> getSourceFields() {
-        List<String> sourceFields = new ArrayList<>();
+        final List<String> sourceFields = new ArrayList<>();
         if (projectFieldCopyMappings != null) {
-            for (ProjectFieldCopyMapping mapping : projectFieldCopyMappings) {
+            for (final ProjectFieldCopyMapping mapping : projectFieldCopyMappings) {
                 sourceFields.add(mapping.getSourceFieldName());
             }
         }
         return sourceFields;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-        result = prime * result + ((projectFieldCopyMappings == null) ? 0 : projectFieldCopyMappings.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        HubJiraFieldCopyConfigSerializable other = (HubJiraFieldCopyConfigSerializable) obj;
-        if (errorMessage == null) {
-            if (other.errorMessage != null) return false;
-        } else if (!errorMessage.equals(other.errorMessage)) return false;
-        if (projectFieldCopyMappings == null) {
-            if (other.projectFieldCopyMappings != null) return false;
-        } else if (!projectFieldCopyMappings.equals(other.projectFieldCopyMappings)) return false;
-        return true;
     }
 
     @Override
@@ -128,7 +106,7 @@ public class HubJiraFieldCopyConfigSerializable implements Serializable, ErrorTr
     }
 
     @Override
-    public void setErrorMessage(String errorMessage) {
+    public void setErrorMessage(final String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

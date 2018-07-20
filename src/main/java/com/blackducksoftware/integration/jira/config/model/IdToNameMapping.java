@@ -21,15 +21,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.hub;
+package com.blackducksoftware.integration.jira.config.model;
 
-import com.blackducksoftware.integration.hub.api.core.HubResponse;
+import java.io.Serializable;
 
-public class ProjectResponse extends HubResponse {
-    public String description;
-    public String name;
-    public Boolean projectLevelAdjustments;
-    public String projectOwner;
-    public Integer projectTier;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+public class IdToNameMapping implements Serializable {
+    private static final long serialVersionUID = -6879420109287472484L;
+
+    @XmlElement
+    private String id;
+
+    @XmlElement
+    private String name;
+
+    public IdToNameMapping() {
+    }
+
+    public IdToNameMapping(final String id, final String name) {
+        super();
+        this.id = id;
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "IdToNameMapping [id=" + id + ", name=" + name + "]";
+    }
 }

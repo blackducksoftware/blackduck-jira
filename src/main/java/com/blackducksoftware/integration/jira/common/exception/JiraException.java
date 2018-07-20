@@ -39,8 +39,7 @@ public class JiraException extends Exception {
         super(message, cause);
     }
 
-    public JiraException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
+    public JiraException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

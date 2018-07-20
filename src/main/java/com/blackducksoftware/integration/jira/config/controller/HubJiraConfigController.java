@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,13 +79,26 @@ import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.common.PluginField;
 import com.blackducksoftware.integration.jira.common.PluginVersion;
-import com.blackducksoftware.integration.jira.common.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.ErrorTracking;
+import com.blackducksoftware.integration.jira.config.HubConfigKeys;
+import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
+import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
+import com.blackducksoftware.integration.jira.config.TicketCreationError;
+import com.blackducksoftware.integration.jira.config.model.Fields;
+import com.blackducksoftware.integration.jira.config.model.HubAdminConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
+import com.blackducksoftware.integration.jira.config.model.PluginInfoSerializable;
+import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.issue.JiraFieldUtils;
@@ -371,7 +384,7 @@ public class HubJiraConfigController {
                     txProjectsConfig.setJiraProjects(jiraProjects);
 
                     if (jiraProjects.size() == 0) {
-                        txProjectsConfig.setJiraProjectsError(JiraConfigErrors.NO_JIRA_PROJECTS_FOUND);
+                        txProjectsConfig.setJiraProjectsError(JiraConfigErrorStrings.NO_JIRA_PROJECTS_FOUND);
                     }
                     return txProjectsConfig;
                 }
@@ -413,7 +426,7 @@ public class HubJiraConfigController {
                     config.setHubProjects(hubProjects);
 
                     if (hubProjects.size() == 0) {
-                        config.setHubProjectsError(JiraConfigErrors.NO_HUB_PROJECTS_FOUND);
+                        config.setHubProjectsError(JiraConfigErrorStrings.NO_HUB_PROJECTS_FOUND);
                     }
                     closeRestConnection(hubServicesFactory.getRestConnection());
                     return config;
@@ -719,7 +732,7 @@ public class HubJiraConfigController {
                     config.setCreatorCandidates(creatorCandidates);
 
                     if (creatorCandidates.size() == 0) {
-                        config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_CANDIDATES_FOUND);
+                        config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_CANDIDATES_FOUND);
                     }
                     return config;
                 }
@@ -884,7 +897,7 @@ public class HubJiraConfigController {
                     final HubAdminConfigSerializable txResponseObject = new HubAdminConfigSerializable();
 
                     if (!userIsSysAdmin) {
-                        txResponseObject.setHubJiraGroupsError(JiraConfigErrors.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
+                        txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
                         return txResponseObject;
                     } else {
                         setValue(settings, HubJiraConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
@@ -947,25 +960,25 @@ public class HubJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     boolean isValid(final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
         if (fieldCopyConfig.getProjectFieldCopyMappings().size() == 0) {
-            fieldCopyConfig.setErrorMessage(JiraConfigErrors.NO_VALID_FIELD_CONFIGURATIONS);
+            fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.NO_VALID_FIELD_CONFIGURATIONS);
             return false;
         }
 
         for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
             if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldId())) {
-                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
                 return false;
             }
             if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldId())) {
-                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
                 return false;
             }
             if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldName())) {
-                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
                 return false;
             }
             if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldName())) {
-                fieldCopyConfig.setErrorMessage(JiraConfigErrors.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
                 return false;
             }
         }
@@ -1033,12 +1046,12 @@ public class HubJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     void validateInterval(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getIntervalBetweenChecks())) {
-            config.setGeneralSettingsError(JiraConfigErrors.NO_INTERVAL_FOUND_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrorStrings.NO_INTERVAL_FOUND_ERROR);
         } else {
             try {
                 final int interval = stringToInteger(config.getIntervalBetweenChecks());
                 if (interval <= 0) {
-                    config.setGeneralSettingsError(JiraConfigErrors.INVALID_INTERVAL_FOUND_ERROR);
+                    config.setGeneralSettingsError(JiraConfigErrorStrings.INVALID_INTERVAL_FOUND_ERROR);
                 }
             } catch (final IllegalArgumentException e) {
                 config.setGeneralSettingsError(e.getMessage());
@@ -1049,19 +1062,19 @@ public class HubJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     void validateCreator(final HubJiraConfigSerializable config) {
         if (StringUtils.isBlank(config.getCreator())) {
-            config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_SPECIFIED_ERROR);
         }
     }
 
     // This must be "package protected" to avoid synthetic access
     void validateCreator(final HubJiraConfigSerializable config, final PluginSettings settings) {
         if (StringUtils.isBlank(config.getCreator())) {
-            config.setGeneralSettingsError(JiraConfigErrors.NO_CREATOR_SPECIFIED_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_SPECIFIED_ERROR);
         }
         if (isUserAuthorizedForPlugin(settings, config.getCreator())) {
             return;
         } else {
-            config.setGeneralSettingsError(JiraConfigErrors.UNAUTHORIZED_CREATOR_ERROR);
+            config.setGeneralSettingsError(JiraConfigErrorStrings.UNAUTHORIZED_CREATOR_ERROR);
         }
     }
 
@@ -1089,7 +1102,7 @@ public class HubJiraConfigController {
                 }
             }
             if (hasEmptyMapping) {
-                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(), JiraConfigErrors.MAPPING_HAS_EMPTY_ERROR));
+                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
             }
         }
     }
@@ -1164,10 +1177,10 @@ public class HubJiraConfigController {
         final String hubTrustCert = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
 
         if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword) && StringUtils.isBlank(hubTimeout)) {
-            config.setErrorMessage(JiraConfigErrors.HUB_CONFIG_PLUGIN_MISSING);
+            config.setErrorMessage(JiraConfigErrorStrings.HUB_CONFIG_PLUGIN_MISSING);
             return null;
         } else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword) || StringUtils.isBlank(hubTimeout)) {
-            config.setErrorMessage(JiraConfigErrors.HUB_SERVER_MISCONFIGURATION + JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
+            config.setErrorMessage(JiraConfigErrorStrings.HUB_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION);
             return null;
         }
 
@@ -1199,7 +1212,7 @@ public class HubJiraConfigController {
                 serverConfig = configBuilder.build();
             } catch (final IllegalStateException e) {
                 logger.error("Error in Hub server configuration: " + e.getMessage());
-                config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION);
+                config.setErrorMessage(JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION);
                 return null;
             }
 
@@ -1207,7 +1220,7 @@ public class HubJiraConfigController {
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
-            config.setErrorMessage(JiraConfigErrors.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+            config.setErrorMessage(JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
         return restConnection;
@@ -1263,7 +1276,7 @@ public class HubJiraConfigController {
                     config.setPolicyRulesError(e.getMessage());
                 } catch (final IntegrationRestException ire) {
                     if (ire.getHttpStatusCode() == 402) {
-                        config.setPolicyRulesError(JiraConfigErrors.NO_POLICY_LICENSE_FOUND);
+                        config.setPolicyRulesError(JiraConfigErrorStrings.NO_POLICY_LICENSE_FOUND);
                     } else {
                         config.setPolicyRulesError(ire.getMessage());
                     }
@@ -1284,7 +1297,7 @@ public class HubJiraConfigController {
                             newRule.setPolicyUrl(metaHandler.getHref(rule));
                         } catch (final HubIntegrationException e) {
                             logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
-                            config.setPolicyRulesError(JiraConfigErrors.POLICY_RULE_URL_ERROR);
+                            config.setPolicyRulesError(JiraConfigErrorStrings.POLICY_RULE_URL_ERROR);
                             continue;
                         }
                         newRule.setEnabled(rule.enabled);
@@ -1307,7 +1320,7 @@ public class HubJiraConfigController {
         }
         config.setPolicyRules(newPolicyRules);
         if (config.getPolicyRules().isEmpty()) {
-            config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrors.NO_POLICY_RULES_FOUND_ERROR));
+            config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrorStrings.NO_POLICY_RULES_FOUND_ERROR));
         }
     }
 

@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.common.model;
 
 import java.io.Serializable;
 
@@ -30,17 +30,21 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.blackducksoftware.integration.util.Stringable;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubProject implements Serializable {
-
-    private static final long serialVersionUID = 7694431556001276668L;
+public class HubProject extends Stringable implements Serializable {
+    private static final long serialVersionUID = 7885950714527809739L;
 
     @XmlElement
     private String projectName;
 
     @XmlElement
     private String projectUrl;
+
+    public HubProject() {
+    }
 
     public String getProjectName() {
         return projectName;
@@ -59,45 +63,8 @@ public class HubProject implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
-        result = prime * result + ((projectUrl == null) ? 0 : projectUrl.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final HubProject other = (HubProject) obj;
-        if (projectName == null) {
-            if (other.projectName != null) {
-                return false;
-            }
-        } else if (!projectName.equals(other.projectName)) {
-            return false;
-        }
-        if (projectUrl == null) {
-            if (other.projectUrl != null) {
-                return false;
-            }
-        } else if (!projectUrl.equals(other.projectUrl)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public String toString() {
         return "HubProject [projectName=" + projectName + ", projectUrl=" + projectUrl + "]";
     }
+
 }

@@ -25,6 +25,8 @@ package com.blackducksoftware.integration.jira.config;
 
 import java.util.Comparator;
 
+import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
+
 public class IdToNameMappingByNameComparator implements Comparator<IdToNameMapping> {
 
     @Override

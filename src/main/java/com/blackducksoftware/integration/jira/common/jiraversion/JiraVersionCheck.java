@@ -35,19 +35,15 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
  *
  * To add a new JIRA version, add a new addVersion() call to buildTable().
  *
- * To add a new capability, add it to the following (which are all in this
- * class): 1. JiraCapability, 2. CapabilitySet, 3. hasCapability().
+ * To add a new capability, add it to the following (which are all in this class): 1. JiraCapability, 2. CapabilitySet, 3. hasCapability().
  *
  * @author sbillings
  *
  */
 public class JiraVersionCheck {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     private final JiraVersion minJiraVersion = new JiraVersion("7.1", 7, 1);
-
     private final JiraVersion maxJiraVersion = new JiraVersion("7.7", 7, 7);
-
     private final JiraVersion currentJiraVersion;
 
     private final boolean supported;

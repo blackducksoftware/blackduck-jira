@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.controller;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,15 +41,10 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 
 public class HubJiraServlet extends HttpServlet {
-
     private static final long serialVersionUID = 8293922701957754642L;
-
     private final UserManager userManager;
-
     private final LoginUriProvider loginUriProvider;
-
     private final TemplateRenderer renderer;
-
     private final PluginSettingsFactory pluginSettingsFactory;
 
     public HubJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider,

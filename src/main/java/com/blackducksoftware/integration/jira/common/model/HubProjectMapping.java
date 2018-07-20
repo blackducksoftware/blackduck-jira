@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.common.model;
 
 import java.io.Serializable;
 
@@ -30,17 +30,21 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.blackducksoftware.integration.util.Stringable;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HubProjectMapping implements Serializable {
-
-    private static final long serialVersionUID = 5092202477431243180L;
+public class HubProjectMapping extends Stringable implements Serializable {
+    private static final long serialVersionUID = -7375806850713790815L;
 
     @XmlElement
     private JiraProject jiraProject;
 
     @XmlElement
     private HubProject hubProject;
+
+    public HubProjectMapping() {
+    }
 
     public JiraProject getJiraProject() {
         return jiraProject;
@@ -56,44 +60,6 @@ public class HubProjectMapping implements Serializable {
 
     public void setHubProject(final HubProject hubProject) {
         this.hubProject = hubProject;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((hubProject == null) ? 0 : hubProject.hashCode());
-        result = prime * result + ((jiraProject == null) ? 0 : jiraProject.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final HubProjectMapping other = (HubProjectMapping) obj;
-        if (hubProject == null) {
-            if (other.hubProject != null) {
-                return false;
-            }
-        } else if (!hubProject.equals(other.hubProject)) {
-            return false;
-        }
-        if (jiraProject == null) {
-            if (other.jiraProject != null) {
-                return false;
-            }
-        } else if (!jiraProject.equals(other.jiraProject)) {
-            return false;
-        }
-        return true;
     }
 
     @Override

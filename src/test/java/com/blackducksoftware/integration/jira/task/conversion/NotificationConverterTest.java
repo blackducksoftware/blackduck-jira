@@ -75,14 +75,14 @@ import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
-import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.config.HubJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
@@ -162,7 +162,7 @@ public class NotificationConverterTest {
 
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;
-    private static JiraContext jiraContext;
+    private static JiraUserContext jiraContext;
     private static HubService mockHubSerivce;
     private static HubBucket mockHubBucket;
     private static HubJiraLogger mockLogger;
@@ -210,7 +210,7 @@ public class NotificationConverterTest {
         final ApplicationUserMock jiraIssueCreatorUser = new ApplicationUserMock();
         jiraIssueCreatorUser.setName(JIRA_ISSUE_CREATOR_USERNAME);
         jiraIssueCreatorUser.setKey(JIRA_ISSUE_CREATOR_USER_KEY);
-        jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
+        jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
 
         // Hub Services
         mockHubSerivce = Mockito.mock(HubService.class);

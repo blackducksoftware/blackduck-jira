@@ -30,10 +30,10 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.JiraContext;
-import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
-import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.util.Stringable;
@@ -92,7 +92,7 @@ public class EventDataBuilder extends Stringable {
         return eventCategory;
     }
 
-    public EventDataBuilder setPropertiesFromJiraContext(final JiraContext jiraContext) {
+    public EventDataBuilder setPropertiesFromJiraContext(final JiraUserContext jiraContext) {
         setJiraAdminUserName(jiraContext.getJiraAdminUser().getName());
         setJiraAdminUserKey(jiraContext.getJiraAdminUser().getKey());
         setJiraIssueCreatorUserName(jiraContext.getJiraIssueCreatorUser().getName());

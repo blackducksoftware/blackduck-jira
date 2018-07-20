@@ -29,8 +29,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-public class JiraProjectMappings {
+import com.blackducksoftware.integration.jira.common.model.HubProject;
+import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
 
+public class JiraProjectMappings {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final Set<HubProjectMapping> mappings;

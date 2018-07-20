@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.config.model;
 
 import java.io.Serializable;
 
@@ -30,10 +30,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.blackducksoftware.integration.util.Stringable;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PluginInfoSerializable implements Serializable {
+public class PluginInfoSerializable extends Stringable implements Serializable {
     private static final long serialVersionUID = -8191140112051871209L;
+
+    public PluginInfoSerializable() {
+    }
 
     @XmlElement
     private String pluginVersion;
@@ -42,27 +47,8 @@ public class PluginInfoSerializable implements Serializable {
         return pluginVersion;
     }
 
-    public void setPluginVersion(String pluginVersion) {
+    public void setPluginVersion(final String pluginVersion) {
         this.pluginVersion = pluginVersion;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((pluginVersion == null) ? 0 : pluginVersion.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        PluginInfoSerializable other = (PluginInfoSerializable) obj;
-        if (pluginVersion == null) {
-            if (other.pluginVersion != null) return false;
-        } else if (!pluginVersion.equals(other.pluginVersion)) return false;
-        return true;
-    }
 }

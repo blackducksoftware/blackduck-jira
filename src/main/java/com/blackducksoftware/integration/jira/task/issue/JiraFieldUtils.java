@@ -33,8 +33,8 @@ import com.atlassian.jira.issue.fields.NavigableField;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.config.Fields;
-import com.blackducksoftware.integration.jira.config.IdToNameMapping;
+import com.blackducksoftware.integration.jira.config.model.Fields;
+import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
 
 public class JiraFieldUtils {
     public static Fields getTargetFields(final HubJiraLogger logger, final FieldManager fieldManager) throws JiraException {
