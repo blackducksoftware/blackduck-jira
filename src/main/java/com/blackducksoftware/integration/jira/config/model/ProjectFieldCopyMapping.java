@@ -59,7 +59,6 @@ public class ProjectFieldCopyMapping extends Stringable implements Serializable 
     }
 
     public ProjectFieldCopyMapping(final String jiraProjectName, final String hubProjectName, final String sourceFieldId, final String sourceFieldName, final String targetFieldId, final String targetFieldName) {
-        super();
         this.jiraProjectName = jiraProjectName;
         this.hubProjectName = hubProjectName;
         this.sourceFieldId = sourceFieldId;

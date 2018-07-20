@@ -56,8 +56,7 @@ public class JiraFieldUtils {
         }
         for (final NavigableField field : navFields) {
             if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
-                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " +
-                        field.getNameKey());
+                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
                 if (!isBdsCustomField(field)) {
                     targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
                 } else {

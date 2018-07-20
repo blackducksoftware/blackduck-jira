@@ -11,7 +11,14 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 
 public abstract class BlackDuckIssueFieldTemplate {
     private final ApplicationUser projectOwner;
@@ -112,6 +119,27 @@ public abstract class BlackDuckIssueFieldTemplate {
 
     public String getUpdatedTimeString() {
         return updatedTimeString;
+    }
+
+    public Map<Long, String> getHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) throws JiraException {
+        final Map<Long, String> hubFieldMappings = new HashMap<>();
+        // TODO add all
+        addCustomField(ticketInfoFromSetup, hubFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT, getProjectName());
+
+        hubFieldMappings.putAll(getAddtionalHubFieldMappings(ticketInfoFromSetup));
+
+        return hubFieldMappings;
+    }
+
+    protected abstract Map<Long, String> getAddtionalHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup);
+
+    protected final void addCustomField(final TicketInfoFromSetup ticketInfoFromSetup, final Map<Long, String> hubFieldMappings, final PluginField pluginField, final String fieldValue) throws JiraException {
+        final CustomField customField = ticketInfoFromSetup.getCustomFields().get(pluginField);
+        if (customField != null) {
+            hubFieldMappings.put(customField.getIdAsLong(), fieldValue);
+        } else {
+            throw new JiraException("Could not create custom field: " + pluginField.getName());
+        }
     }
 
 }

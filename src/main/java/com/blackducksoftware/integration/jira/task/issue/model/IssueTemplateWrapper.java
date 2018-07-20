@@ -11,33 +11,44 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueInputParametersImpl;
+
 public class IssueTemplateWrapper {
-    private final String issueSummary;
-    private final String description;
-    private final JiraIssueFieldTemplate jiraIssueTemplate;
     private final BlackDuckIssueFieldTemplate blackDuckIssueTemplate;
+    private final IssueInputParameters issueInputParameters;
 
-    public IssueTemplateWrapper(final String issueSummary, final String description, final JiraIssueFieldTemplate jiraIssueTemplate, final BlackDuckIssueFieldTemplate blackDuckIssueTemplate) {
-        this.issueSummary = issueSummary;
-        this.description = description;
-        this.jiraIssueTemplate = jiraIssueTemplate;
+    public IssueTemplateWrapper(final BlackDuckIssueFieldTemplate blackDuckIssueTemplate, final IssueInputParameters issueInputParameters) {
         this.blackDuckIssueTemplate = blackDuckIssueTemplate;
+        this.issueInputParameters = issueInputParameters;
+
+        setDefaultValues(issueInputParameters);
     }
 
-    public String getIssueSummary() {
-        return issueSummary;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public JiraIssueFieldTemplate getJiraIssueTemplate() {
-        return jiraIssueTemplate;
+    public IssueTemplateWrapper(final BlackDuckIssueFieldTemplate blackDuckIssueTemplate, final Long jiraProjectId, final String jiraIssueTypeId, final String summary, final String issueCreatorUsername, final String issueDescription,
+            final String assigneeId) {
+        this.blackDuckIssueTemplate = blackDuckIssueTemplate;
+        this.issueInputParameters = new IssueInputParametersImpl(); // TODO jiraServices.getIssueService().newIssueInputParameters();
+        issueInputParameters
+                .setProjectId(jiraProjectId)
+                .setIssueTypeId(jiraIssueTypeId)
+                .setSummary(summary)
+                .setReporterId(issueCreatorUsername)
+                .setDescription(issueDescription)
+                .setAssigneeId(assigneeId);
     }
 
     public BlackDuckIssueFieldTemplate getBlackDuckIssueTemplate() {
         return blackDuckIssueTemplate;
+    }
+
+    public IssueInputParameters getIssueInputParameters() {
+        return issueInputParameters;
+    }
+
+    private void setDefaultValues(final IssueInputParameters issueInputParameters) {
+        issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
+        issueInputParameters.setApplyDefaultValuesWhenParameterNotProvided(true);
     }
 
 }

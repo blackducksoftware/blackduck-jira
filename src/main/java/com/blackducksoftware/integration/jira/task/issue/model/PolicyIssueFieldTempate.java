@@ -11,7 +11,10 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.Map;
+
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 
 public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     private final String policyRuleName;
@@ -97,6 +100,12 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
 
     public String getPolicyRuleOverridable() {
         return policyRuleOverridable;
+    }
+
+    @Override
+    protected Map<Long, String> getAddtionalHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) {
+        // TODO implement this
+        return null;
     }
 
 }
