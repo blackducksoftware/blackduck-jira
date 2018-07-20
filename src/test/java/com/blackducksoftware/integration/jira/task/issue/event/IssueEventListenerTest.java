@@ -77,7 +77,7 @@ import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.Gson;

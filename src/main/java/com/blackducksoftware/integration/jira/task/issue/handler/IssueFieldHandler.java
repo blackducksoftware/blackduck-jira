@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +46,7 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class IssueFieldHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));

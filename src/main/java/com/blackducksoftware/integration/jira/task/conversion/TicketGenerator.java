@@ -49,8 +49,8 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 /**

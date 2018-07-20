@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import java.util.Date;
 import java.util.List;
@@ -64,6 +64,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViola
 import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;

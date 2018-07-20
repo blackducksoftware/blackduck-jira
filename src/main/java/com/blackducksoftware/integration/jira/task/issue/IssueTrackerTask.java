@@ -48,7 +48,7 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.google.gson.Gson;

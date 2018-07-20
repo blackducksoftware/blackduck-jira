@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import com.atlassian.jira.issue.Issue;
 

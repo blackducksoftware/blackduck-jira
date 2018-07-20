@@ -51,7 +51,7 @@ import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 

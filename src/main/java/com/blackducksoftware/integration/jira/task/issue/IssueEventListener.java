@@ -41,7 +41,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
