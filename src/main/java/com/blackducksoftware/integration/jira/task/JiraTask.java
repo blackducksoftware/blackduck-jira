@@ -38,7 +38,9 @@ import com.atlassian.sal.api.scheduling.PluginJob;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginVersion;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 /**
  * A scheduled JIRA task that collects recent notifications from the Hub, and generates JIRA tickets for them.

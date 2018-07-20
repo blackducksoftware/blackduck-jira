@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.config;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,7 +39,6 @@ import org.apache.log4j.Logger;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.TicketCreationError;
 
 public class JiraSettingsService {
     private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));

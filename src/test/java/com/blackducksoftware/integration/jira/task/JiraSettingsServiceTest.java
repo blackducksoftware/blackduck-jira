@@ -34,6 +34,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class JiraSettingsServiceTest {
 

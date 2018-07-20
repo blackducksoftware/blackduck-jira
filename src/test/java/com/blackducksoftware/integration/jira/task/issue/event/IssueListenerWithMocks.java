@@ -32,7 +32,9 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.mocks.issue.ExecutorServiceMock;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
+import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class IssueListenerWithMocks extends IssueEventListener {
     private final HubServicesFactory hubServicesFactory;

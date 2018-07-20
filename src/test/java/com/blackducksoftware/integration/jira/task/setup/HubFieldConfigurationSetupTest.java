@@ -37,6 +37,7 @@ import org.mockito.stubbing.Answer;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.EditableDefaultFieldLayoutMock;
@@ -44,7 +45,6 @@ import com.blackducksoftware.integration.jira.mocks.field.EditableFieldLayoutMoc
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutItemMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.OrderableFieldMock;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldConfigurationSetupTest {
 

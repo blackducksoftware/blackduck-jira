@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.event;
+package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.concurrent.Callable;
 
@@ -44,12 +44,12 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.event;
+package com.blackducksoftware.integration.jira.task.issue;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +41,8 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerPropertyHandler;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));

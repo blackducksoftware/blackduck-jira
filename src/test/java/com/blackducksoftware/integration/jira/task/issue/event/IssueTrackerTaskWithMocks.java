@@ -29,9 +29,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
-import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
 

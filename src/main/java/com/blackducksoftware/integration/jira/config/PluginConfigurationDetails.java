@@ -21,14 +21,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.config;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 
 public class PluginConfigurationDetails {
     private final String hubUrl;

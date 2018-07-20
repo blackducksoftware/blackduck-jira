@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue;
+package com.blackducksoftware.integration.jira.task.issue.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,7 +35,7 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.rest.RestConstants;
 
 public class HubIssueTrackerHandler {

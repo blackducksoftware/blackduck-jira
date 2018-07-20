@@ -56,8 +56,8 @@ import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 // TODO investigate why the JIRA API returns raw types
 @SuppressWarnings("rawtypes")

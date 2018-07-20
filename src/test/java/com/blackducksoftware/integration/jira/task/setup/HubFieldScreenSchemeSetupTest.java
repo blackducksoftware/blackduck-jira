@@ -49,6 +49,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
@@ -61,7 +62,6 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeManag
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubFieldScreenSchemeSetupTest {
     private static final int NUM_FIELDS_POLICY = PluginField.values().length;

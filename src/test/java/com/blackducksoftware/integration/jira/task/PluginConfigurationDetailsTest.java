@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 
 public class PluginConfigurationDetailsTest {
 

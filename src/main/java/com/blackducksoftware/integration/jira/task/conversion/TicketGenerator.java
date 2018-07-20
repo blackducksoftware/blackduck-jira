@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.conversion;
 
 import java.util.Collection;
 import java.util.Date;
@@ -45,13 +45,13 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.NotificationToEventConverter;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.JiraIssueHandler;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueHandler;
+import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for them.

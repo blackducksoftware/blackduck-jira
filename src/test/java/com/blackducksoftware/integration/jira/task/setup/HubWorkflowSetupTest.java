@@ -37,6 +37,7 @@ import org.junit.Test;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
@@ -48,7 +49,6 @@ import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowS
 import com.blackducksoftware.integration.jira.mocks.workflow.JiraWorkflowMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManagerMock;
-import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 
 public class HubWorkflowSetupTest {
 
