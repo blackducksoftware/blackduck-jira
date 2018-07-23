@@ -55,6 +55,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
@@ -64,7 +65,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViola
 import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;

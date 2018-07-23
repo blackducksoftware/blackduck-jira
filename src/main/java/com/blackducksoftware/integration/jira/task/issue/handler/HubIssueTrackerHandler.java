@@ -35,8 +35,8 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.rest.RestConstants;
 
 public class HubIssueTrackerHandler {

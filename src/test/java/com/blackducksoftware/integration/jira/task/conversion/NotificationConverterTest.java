@@ -81,6 +81,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.common.model.HubProject;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
@@ -91,7 +92,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
 import com.blackducksoftware.integration.rest.connection.RestConnection;

@@ -11,15 +11,18 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 
 public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     private final String policyRuleName;
     private final String policyRuleUri;
     private final String policyRuleOverridable;
+    private final String policyRuleDescription;
 
     // @formatter:off
     public PolicyIssueFieldTempate(
@@ -39,11 +42,13 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleName
             ,final String policyRuleUri
             ,final String policyRuleOverridable
+            ,final String policyRuleDescription
             ) {
         super(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString);
         this.policyRuleName = policyRuleName;
         this.policyRuleUri = policyRuleUri;
         this.policyRuleOverridable = policyRuleOverridable;
+        this.policyRuleDescription = policyRuleDescription;
     }
     // @formatter:on
 
@@ -63,8 +68,9 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleName
             ,final String policyRuleUri
             ,final String policyRuleOverridable
+            ,final String policyRuleDescription
             ) {
-        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, null, null, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable);
+        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, null, null, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription);
     }
     // @formatter:on
 
@@ -85,8 +91,9 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleName
             ,final String policyRuleUri
             ,final String policyRuleOverridable
+            ,final String policyRuleDescription
             ) {
-        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable);
+        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription);
     }
     // @formatter:on
 
@@ -103,9 +110,14 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     }
 
     @Override
-    protected Map<Long, String> getAddtionalHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) {
-        // TODO implement this
-        return null;
+    protected Map<Long, String> getAddtionalHubFieldMappings(final Map<PluginField, CustomField> customFields) {
+        final Map<Long, String> policyFieldMappings = new HashMap<>();
+        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
+        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
+        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
+        // TODO use: <hubBaseUrl> + "/ui/policy-management"
+        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
+        return policyFieldMappings;
     }
 
 }

@@ -48,10 +48,10 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;

@@ -90,6 +90,7 @@ import com.blackducksoftware.integration.jira.config.ErrorTracking;
 import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
 import com.blackducksoftware.integration.jira.config.model.Fields;
@@ -101,8 +102,7 @@ import com.blackducksoftware.integration.jira.config.model.PluginInfoSerializabl
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.HubMonitor;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraFieldUtils;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
 import com.blackducksoftware.integration.rest.RestConstants;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.exception.IntegrationRestException;

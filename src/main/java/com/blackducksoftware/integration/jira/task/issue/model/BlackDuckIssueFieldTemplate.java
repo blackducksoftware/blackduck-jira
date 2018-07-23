@@ -17,10 +17,10 @@ import java.util.Map;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.util.Stringable;
 
-public abstract class BlackDuckIssueFieldTemplate {
+public abstract class BlackDuckIssueFieldTemplate extends Stringable {
     private final ApplicationUser projectOwner;
     private final String projectName;
     private final String projectVersionName;
@@ -121,25 +121,43 @@ public abstract class BlackDuckIssueFieldTemplate {
         return updatedTimeString;
     }
 
-    public Map<Long, String> getHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) throws JiraException {
-        final Map<Long, String> hubFieldMappings = new HashMap<>();
+    public final Map<Long, String> getBlackDuckFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) {
+        final Map<PluginField, CustomField> customFields = ticketInfoFromSetup.getCustomFields();
+        final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
         // TODO add all
-        addCustomField(ticketInfoFromSetup, hubFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT, getProjectName());
+        if (projectOwner != null) {
+            addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
+        }
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT, projectName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, projectVersionName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL, projectVersionUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, projectVersionNickname);
 
-        hubFieldMappings.putAll(getAddtionalHubFieldMappings(ticketInfoFromSetup));
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT, componentName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL, componentUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, componentVersionName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, componentVersionUri);
 
-        return hubFieldMappings;
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, licenseString);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL, licenseLink);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
+
+        blackDuckFieldMappings.putAll(getAddtionalHubFieldMappings(customFields));
+
+        return blackDuckFieldMappings;
     }
 
-    protected abstract Map<Long, String> getAddtionalHubFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup);
-
-    protected final void addCustomField(final TicketInfoFromSetup ticketInfoFromSetup, final Map<Long, String> hubFieldMappings, final PluginField pluginField, final String fieldValue) throws JiraException {
-        final CustomField customField = ticketInfoFromSetup.getCustomFields().get(pluginField);
+    protected final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> hubFieldMappings, final PluginField pluginField, final String fieldValue) {
+        final CustomField customField = customFields.get(pluginField);
         if (customField != null) {
             hubFieldMappings.put(customField.getIdAsLong(), fieldValue);
         } else {
-            throw new JiraException("Could not create custom field: " + pluginField.getName());
+            // TODO should this class have logging at all?
+            // logger.warn("JIRA custom field " + pluginField.getName() + " not found");
         }
     }
+
+    protected abstract Map<Long, String> getAddtionalHubFieldMappings(final Map<PluginField, CustomField> customFields);
 
 }
