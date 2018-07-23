@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.common.exception;
 
 public class EventDataBuilderException extends Exception {
-
     private static final long serialVersionUID = 7709990445225630347L;
 
     public EventDataBuilderException() {

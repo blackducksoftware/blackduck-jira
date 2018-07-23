@@ -1,13 +1,25 @@
-/*
- * Copyright (C) 2018 Black Duck Software Inc.
- * http://www.blackducksoftware.com/
- * All rights reserved.
+/**
+ * Hub JIRA Plugin
  *
- * This software is the confidential and proprietary information of
- * Black Duck Software ("Confidential Information"). You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Black Duck Software.
+ * Copyright (C) 2018 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
@@ -16,7 +28,6 @@ import java.util.Map;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.util.Stringable;
 
@@ -121,10 +132,8 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         return updatedTimeString;
     }
 
-    public final Map<Long, String> getBlackDuckFieldMappings(final TicketInfoFromSetup ticketInfoFromSetup) {
-        final Map<PluginField, CustomField> customFields = ticketInfoFromSetup.getCustomFields();
+    public final Map<Long, String> getBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
-        // TODO add all
         if (projectOwner != null) {
             addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
         }

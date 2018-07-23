@@ -23,9 +23,14 @@
  */
 package com.blackducksoftware.integration.jira.common.exception;
 
-public class JiraException extends Exception {
+import com.atlassian.jira.util.ErrorCollection;
+import com.atlassian.jira.util.ErrorCollections;
 
-    private static final long serialVersionUID = -5115029798246254838L;
+public class JiraException extends Exception {
+    private static final long serialVersionUID = -6785395631043285556L;
+
+    private String methodAttempt = "unknown";
+    private ErrorCollection errorCollection = ErrorCollections.empty();
 
     public JiraException(final String message) {
         super(message);
@@ -35,12 +40,38 @@ public class JiraException extends Exception {
         super(cause);
     }
 
+    public JiraException(final String message, final String methodAttempt) {
+        super(message);
+        this.methodAttempt = methodAttempt;
+    }
+
+    public JiraException(final String methodAttempt, final ErrorCollection errorCollection) {
+        this.methodAttempt = methodAttempt;
+        this.errorCollection = errorCollection;
+    }
+
     public JiraException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     public JiraException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public void setMethodAttempt(final String methodAttempt) {
+        this.methodAttempt = methodAttempt;
+    }
+
+    public String getMethodAttempt() {
+        return methodAttempt;
+    }
+
+    public void setErrorCollection(final ErrorCollection errorCollection) {
+        this.errorCollection = errorCollection;
+    }
+
+    public ErrorCollection getErrorCollection() {
+        return errorCollection;
     }
 
 }
