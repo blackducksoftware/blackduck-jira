@@ -150,8 +150,9 @@ public class JiraTaskTimed implements Callable<String> {
     private String runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor) {
         String runStatus = "error";
         final String previousRunDateString = configDetails.getLastRunDateString();
-        if (previousRunDateString != null) {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, processor.getRunDateString());
+        final String currentRunDateString = processor.getRunDateString();
+        if (previousRunDateString != null && currentRunDateString != null) {
+            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, currentRunDateString);
         }
         final String newRunDateString = processor.execute(previousRunDateString);
         if (newRunDateString != null) {
