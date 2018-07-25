@@ -155,6 +155,7 @@ public class HubJiraTask {
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Hub notifications from " + startDate + " to " + runDate);
             final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(hubUserItem, hubProjectMappings, startDate, runDate);
+            logger.debug("Finished running ticket generator. Last notification date: " + dateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
             return dateFormatter.format(nextRunDate);
         } catch (final Exception e) {
@@ -247,10 +248,7 @@ public class HubJiraTask {
             return null;
         }
 
-        logger.debug("Last run date: " + pluginConfigDetails.getLastRunDateString());
         logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
-        logger.debug("Interval: " + pluginConfigDetails.getIntervalString());
-
         final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
