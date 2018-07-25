@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>hub-jira</artifactId>
-  <version>3.8.1-SNAPSHOT</version>
+  <version>3.8.2-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>33.1.0</version>
+      <version>34.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>

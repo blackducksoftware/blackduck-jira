@@ -535,13 +535,10 @@ public class JiraIssueHandler {
     private boolean checkIfAlreadyProcessedAndUpdateLastBatch(final Long issueId, final EventData eventData) {
         final Date eventBatchStartDate = eventData.getLastBatchStartDate();
         if (eventBatchStartDate != null) {
-            final String eventBatchStartDateTimeString = getTimeString(eventBatchStartDate);
-            final String instanceUniqueTimeString = getTimeString(instanceUniqueDate);
-
             final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issueId, HubJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY);
             if (propResult.isValid() && propResult.getEntityProperty().isDefined()) {
                 final String lastBatchStartKey = propResult.getEntityProperty().get().getValue();
-                if (lastBatchStartKey.startsWith(eventBatchStartDateTimeString) && !lastBatchStartKey.endsWith(instanceUniqueTimeString)) {
+                if (isAlreadyProcessed(lastBatchStartKey, eventBatchStartDate)) {
                     // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
                     // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
                     logger.debug("Ignoring a notification that has already been processed: eventKey=" + eventData.getEventKey());
@@ -549,6 +546,20 @@ public class JiraIssueHandler {
                 }
             }
             addLastBatchStartKeyToIssue(issueId, eventData);
+        }
+        return false;
+    }
+
+    private boolean isAlreadyProcessed(final String lastBatchStartKey, final Date eventBatchStartDate) {
+        final String instanceUniqueDateString = getTimeString(instanceUniqueDate);
+        final String currentBatchStartDateString = getTimeString(eventBatchStartDate);
+        if (!lastBatchStartKey.endsWith(instanceUniqueDateString) && lastBatchStartKey.length() >= currentBatchStartDateString.length()) {
+            final String lastBatchStartDateString = lastBatchStartKey.substring(0, currentBatchStartDateString.length());
+            final Date lastBatchStartDate = new Date(Long.parseLong(lastBatchStartDateString));
+            logger.debug("Determined that this notification is from a new batch. Last batch time key: " + lastBatchStartDateString + ". Current batch time key: " + currentBatchStartDateString + ".");
+            if (lastBatchStartDate.compareTo(eventBatchStartDate) > 0) {
+                return true;
+            }
         }
         return false;
     }

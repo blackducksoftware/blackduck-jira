@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -37,6 +38,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.rest.RestConstants;
 
 public class HubMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
@@ -47,18 +49,19 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final PluginScheduler pluginScheduler; // provided by SAL
-    private final PluginSettingsFactory pluginSettingsFactory;
+    private final PluginSettings pluginSettings;
 
     @Inject
     public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
         logger.trace("HubMonitor ctor called.");
         this.pluginScheduler = pluginScheduler;
-        this.pluginSettingsFactory = pluginSettingsFactory;
+        this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
     @Override
     public void onStart() {
         logger.trace("HubMonitor onStart() called.");
+        updateInstallDate();
         reschedule(0L);
     }
 
@@ -87,7 +90,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
         }
         final HashMap<String, Object> classProperties = new HashMap<>();
         classProperties.put(KEY_INSTANCE, HubMonitor.this);
-        classProperties.put(KEY_SETTINGS, pluginSettingsFactory.createGlobalSettings());
+        classProperties.put(KEY_SETTINGS, pluginSettings);
         pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
                 JiraTask.class, // class of the job
                 classProperties, // data that needs to be passed to the job
@@ -106,12 +109,11 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
     }
 
     private long getIntervalMillisec() {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        if (settings == null) {
+        if (pluginSettings == null) {
             logger.error("Unable to get plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
         }
-        final String intervalString = (String) settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        final String intervalString = (String) pluginSettings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
         if (intervalString == null) {
             logger.error("Unable to get interval from plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
@@ -139,5 +141,29 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
     public void destroy() throws Exception {
         logger.debug("destroy() called; Unscheduling " + JOB_NAME);
         pluginScheduler.unscheduleJob(JOB_NAME);
+
+        final String installDate = (String) pluginSettings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        logger.debug("Install date was: " + installDate);
+        logger.debug("Removing install date...");
+        final Object removedSetting = pluginSettings.remove(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        if (removedSetting != null) {
+            logger.debug("Successfully removed install date.");
+        } else {
+            logger.debug("Failed to remove install date.");
+        }
     }
+
+    private void updateInstallDate() {
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+        final String installDate = dateFormatter.format(new Date());
+
+        logger.debug("Updating install date...");
+        final String oldInstallDate = (String) pluginSettings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, installDate);
+        logger.debug("The previous install date was: " + oldInstallDate);
+
+        final String newInstallDate = (String) pluginSettings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        logger.debug("The new install date is: " + newInstallDate);
+    }
+
 }
