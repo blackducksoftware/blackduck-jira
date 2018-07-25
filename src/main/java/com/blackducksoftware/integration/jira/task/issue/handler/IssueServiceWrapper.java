@@ -35,6 +35,13 @@ import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
+import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.entity.property.EntityProperty;
+import com.atlassian.jira.entity.property.EntityPropertyQuery;
+import com.atlassian.jira.entity.property.EntityPropertyService;
+import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
+import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
+import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
@@ -44,36 +51,65 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
+import com.google.gson.Gson;
 
 public class IssueServiceWrapper {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final IssueService jiraIssueService;
+    private final IssuePropertyService issuePropertyService;
     private final IssueFieldCopyMappingHandler issueFieldHandler;
     private final JiraUserContext jiraUserContext;
+    private final JsonEntityPropertyManager jsonEntityPropertyManager;
+    private final Gson gson;
     private final Map<PluginField, CustomField> customFieldsMap;
 
-    public IssueServiceWrapper(final IssueService jiraIssueService, final IssueFieldCopyMappingHandler issueFieldHandler, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFieldsMap) {
+    public IssueServiceWrapper(final IssueService jiraIssueService, final IssuePropertyService issuePropertyService, final IssueFieldCopyMappingHandler issueFieldHandler, final JiraUserContext jiraUserContext,
+            final JsonEntityPropertyManager jsonEntityPropertyManager, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
         this.jiraIssueService = jiraIssueService;
+        this.issuePropertyService = issuePropertyService;
         this.issueFieldHandler = issueFieldHandler;
         this.jiraUserContext = jiraUserContext;
+        this.jsonEntityPropertyManager = jsonEntityPropertyManager;
+        this.gson = gson;
         this.customFieldsMap = customFieldsMap;
     }
 
-    public Issue getIssue(final Long issueId) throws JiraException {
+    public Issue getIssue(final Long issueId) throws JiraIssueException {
         final IssueResult result = jiraIssueService.getIssue(jiraUserContext.getJiraIssueCreatorUser(), issueId);
         if (result.isValid()) {
             return result.getIssue();
         }
-        throw new JiraException("getIssue", result.getErrorCollection());
+        throw new JiraIssueException("getIssue", result.getErrorCollection());
     }
 
-    public Issue createIssue(final JiraIssueWrapper jiraIssueWrapper) throws JiraException {
+    public Issue findIssue(final EventCategory eventCategory, final String notificationUniqueKey) throws JiraIssueException {
+        logger.debug("Find issue: " + notificationUniqueKey);
+
+        final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
+        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(notificationUniqueKey);
+        final List<EntityProperty> props = executableQuery.maxResults(1).find();
+        if (props.size() == 0) {
+            logger.debug("No property found with that key");
+            return null;
+        }
+        final EntityProperty property = props.get(0);
+        final IssueProperties propertyValue = createIssuePropertiesFromJson(eventCategory, property.getValue());
+        logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
+
+        return getIssue(propertyValue.getJiraIssueId());
+    }
+
+    public Issue createIssue(final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
         logger.debug("Create issue: " + jiraIssueWrapper);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
 
@@ -97,18 +133,18 @@ public class IssueServiceWrapper {
                 issueFieldHandler.addLabels(jiraIssue.getId(), labels);
                 return jiraIssue;
             }
-            throw new JiraException("createIssue", errors);
+            throw new JiraIssueException("createIssue", errors);
         }
-        throw new JiraException("createIssue", validationResult.getErrorCollection());
+        throw new JiraIssueException("createIssue", validationResult.getErrorCollection());
     }
 
-    public Issue updateIssue(final Issue existingIssue, final JiraIssueWrapper jiraIssueWrapper) throws JiraException {
-        logger.debug("Update issue (" + existingIssue.getKey() + "): " + jiraIssueWrapper);
+    public Issue updateIssue(final Long existingIssueId, final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
+        logger.debug("Update issue (" + existingIssueId + "): " + jiraIssueWrapper);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
 
         // TODO set field copy mappings
 
-        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssue.getId(), issueInputParameters);
+        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssueId, issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;
             final IssueResult result = jiraIssueService.update(jiraUserContext.getJiraIssueCreatorUser(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
@@ -117,12 +153,12 @@ public class IssueServiceWrapper {
                 final Issue jiraIssue = result.getIssue();
                 return jiraIssue;
             }
-            throw new JiraException("updateIssue", errors);
+            throw new JiraIssueException("updateIssue", errors);
         }
-        throw new JiraException("updateIssue", validationResult.getErrorCollection());
+        throw new JiraIssueException("updateIssue", validationResult.getErrorCollection());
     }
 
-    public Issue transitionIssue(final Issue existingIssue, final int transitionActionId) throws JiraException {
+    public Issue transitionIssue(final Issue existingIssue, final int transitionActionId) throws JiraIssueException {
         logger.debug("Transition issue (" + existingIssue.getKey() + "): " + transitionActionId);
         final IssueInputParameters issueInputParameters = jiraIssueService.newIssueInputParameters();
         issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
@@ -137,12 +173,43 @@ public class IssueServiceWrapper {
                 logger.debug("New issue status: " + jiraIssue.getStatus().getName());
                 return jiraIssue;
             }
-            throw new JiraException("transitionIssue", errors);
+            throw new JiraIssueException("transitionIssue", errors);
         }
-        throw new JiraException("transitionIssue", validationResult.getErrorCollection());
+        throw new JiraIssueException("transitionIssue", validationResult.getErrorCollection());
     }
 
-    private void fixIssueAssignment(final MutableIssue mutableIssue, final String assigneeId) throws JiraException {
+    // TODO we should probably replace IssueProperties
+    public void addIssueProperty(final Long issueId, final String key, final IssueProperties value) throws JiraIssueException {
+        final String jsonValue = gson.toJson(value);
+        addIssuePropertyJson(issueId, key, jsonValue);
+    }
+
+    public void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
+        logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
+        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
+
+        final SetPropertyValidationResult validationResult = issuePropertyService.validateSetProperty(jiraUserContext.getJiraIssueCreatorUser(), issueId, propertyInput);
+        if (validationResult.isValid()) {
+            final PropertyResult result = issuePropertyService.setProperty(jiraUserContext.getJiraIssueCreatorUser(), validationResult);
+            final ErrorCollection errors = result.getErrorCollection();
+            if (errors.hasAnyErrors()) {
+                throw new JiraIssueException("addIssuePropertyJson", errors);
+            }
+        } else {
+            throw new JiraIssueException("addIssuePropertyJson", validationResult.getErrorCollection());
+        }
+    }
+
+    public IssueProperties createIssuePropertiesFromJson(final EventCategory eventCategory, final String json) throws JiraIssueException {
+        if (EventCategory.POLICY.equals(eventCategory)) {
+            return gson.fromJson(json, PolicyViolationIssueProperties.class);
+        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
+            return gson.fromJson(json, VulnerabilityIssueProperties.class);
+        }
+        throw new JiraIssueException("Did not recognize notification type: " + eventCategory.name(), "createIssuePropertiesFromJson");
+    }
+
+    private void fixIssueAssignment(final MutableIssue mutableIssue, final String assigneeId) throws JiraIssueException {
         if (mutableIssue.getAssignee() == null) {
             logger.debug("Created issue " + mutableIssue.getKey() + "; Assignee: null");
         } else {
@@ -152,13 +219,13 @@ public class IssueServiceWrapper {
             logger.debug("Issue needs to be UNassigned");
             assignIssue(mutableIssue, assigneeId);
         } else if (assigneeId != null && !mutableIssue.getAssigneeId().equals(assigneeId)) {
-            throw new JiraException("Issue assignment failed", "fixIssueAssignment");
+            throw new JiraIssueException("Issue assignment failed", "fixIssueAssignment");
         } else {
             logger.debug("Issue assignment is correct");
         }
     }
 
-    private void assignIssue(final MutableIssue mutableIssue, final String assigneeId) throws JiraException {
+    private void assignIssue(final MutableIssue mutableIssue, final String assigneeId) throws JiraIssueException {
         final ApplicationUser issueCreator = jiraUserContext.getJiraIssueCreatorUser();
         final AssignValidationResult assignValidationResult = jiraIssueService.validateAssign(jiraUserContext.getJiraIssueCreatorUser(), mutableIssue.getId(), assigneeId);
         final ErrorCollection errors = assignValidationResult.getErrorCollection();
@@ -173,7 +240,7 @@ public class IssueServiceWrapper {
                 errorMessageBuilder.append(errorMsg);
                 errorMessageBuilder.append("; ");
             }
-            throw new JiraException(errorMessageBuilder.toString(), "assignIssue");
+            throw new JiraIssueException(errorMessageBuilder.toString(), "assignIssue");
         }
     }
 
