@@ -23,12 +23,11 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
-import com.atlassian.jira.issue.Issue;
-
 public class HubIssueTrackerPropertyHandler {
     public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
 
-    public String createEntityPropertyKey(final Issue jiraIssue) {
-        return String.format("%s_%s", HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssue.getId());
+    public String createEntityPropertyKey(final Long jiraIssueId) {
+        return String.format("%s_%s", HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssueId);
     }
+
 }

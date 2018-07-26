@@ -228,12 +228,13 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraUserContext jiraContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService, final TicketInfoFromSetup ticketInfoFromSetup,
+    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService,
+            final TicketInfoFromSetup ticketInfoFromSetup,
             final List<String> linksOfRulesToMonitor, final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor, fieldCopyConfig);
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(),
+                pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 

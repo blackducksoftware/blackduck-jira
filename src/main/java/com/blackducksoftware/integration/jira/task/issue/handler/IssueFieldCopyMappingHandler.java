@@ -48,19 +48,19 @@ public class IssueFieldCopyMappingHandler {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
-    private final JiraUserContext jiraContext;
+    private final JiraUserContext jiraUserContext;
     private final Map<PluginField, CustomField> customFields;
 
-    public IssueFieldCopyMappingHandler(final JiraServices jiraServices, final JiraUserContext jiraContext, final Map<PluginField, CustomField> customFields) {
+    public IssueFieldCopyMappingHandler(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFields) {
         this.jiraServices = jiraServices;
-        this.jiraContext = jiraContext;
+        this.jiraUserContext = jiraUserContext;
         this.customFields = customFields;
     }
 
     public void addLabels(final Long issueId, final List<String> labels) {
         for (final String label : labels) {
             logger.debug("Adding label: " + label);
-            jiraServices.getLabelManager().addLabel(jiraContext.getJiraIssueCreatorUser(), issueId, label, false);
+            jiraServices.getLabelManager().addLabel(jiraUserContext.getJiraIssueCreatorUser(), issueId, label, false);
         }
     }
 

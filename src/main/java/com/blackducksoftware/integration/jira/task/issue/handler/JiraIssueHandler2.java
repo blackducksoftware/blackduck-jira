@@ -30,12 +30,9 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.entity.property.EntityPropertyService;
-import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
-import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
@@ -43,7 +40,6 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
-import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
@@ -56,28 +52,26 @@ import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTem
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
 import com.blackducksoftware.integration.jira.task.issue.model.PolicyIssueFieldTempate;
 import com.blackducksoftware.integration.jira.task.issue.model.VulnerabilityIssueFieldTemplate;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler2 {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraUserContext jiraContext;
-    private final JiraServices jiraServices;
-    private final JiraSettingsService jiraSettingsService;
-    private final HubIssueTrackerHandler hubIssueTrackerHandler;
     private final IssueServiceWrapper issueServiceWrapper;
+    private final JiraSettingsService jiraSettingsService;
+    private final JiraAuthenticationContext authContext;
+    private final JiraUserContext jiraUserContext;
+    private final HubIssueTrackerHandler hubIssueTrackerHandler;
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
     private final Date instanceUniqueDate;
 
-    public JiraIssueHandler2(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final IssueServiceWrapper issueServiceWrapper,
-            final HubIssueTrackerHandler hubIssueTrackerHandler) {
-        this.jiraServices = jiraServices;
-        this.jiraContext = jiraContext;
-        this.jiraSettingsService = jiraSettingsService;
-        this.hubIssueTrackerHandler = hubIssueTrackerHandler;
+    public JiraIssueHandler2(final IssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final HubIssueTrackerHandler hubIssueTrackerHandler,
+            final JiraAuthenticationContext authContext, final JiraUserContext jiraContext) {
         this.issueServiceWrapper = issueServiceWrapper;
+        this.jiraSettingsService = jiraSettingsService;
+        this.authContext = authContext;
+        this.jiraUserContext = jiraContext;
+        this.hubIssueTrackerHandler = hubIssueTrackerHandler;
         this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
         this.instanceUniqueDate = new Date();
     }
@@ -120,8 +114,8 @@ public class JiraIssueHandler2 {
     }
 
     private ExistenceAwareIssue openIssue(final EventData eventData) {
-        logger.debug("Setting logged in User : " + jiraContext.getJiraIssueCreatorUser().getDisplayName());
-        jiraServices.getAuthContext().setLoggedInUser(jiraContext.getJiraIssueCreatorUser());
+        logger.debug("Setting logged in User : " + jiraUserContext.getJiraIssueCreatorUser().getDisplayName());
+        authContext.setLoggedInUser(jiraUserContext.getJiraIssueCreatorUser());
         logger.debug("eventData: " + eventData);
 
         final String notificationUniqueKey = eventData.getEventKey();
@@ -138,7 +132,8 @@ public class JiraIssueHandler2 {
                     if (StringUtils.isNotBlank(hubIssueUrl)) {
                         final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(hubIssueUrl, issue.getId());
                         try {
-                            addHubIssueUrlIssueProperty(issueTrackerProperties, issue);
+                            final String key = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
+                            issueServiceWrapper.addProjectProperty(issue.getProjectId(), key, issueTrackerProperties);
                         } catch (final JiraIssueException e) {
                             handleJiraIssueException(e, eventData);
                         }
@@ -216,16 +211,16 @@ public class JiraIssueHandler2 {
     private void addComment(final EventData eventData, final String comment, final Issue issue) {
         logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
         if (comment != null && !checkIfAlreadyProcessedAndUpdateLastBatch(issue.getId(), eventData)) {
-            final String lastCommentKey = String.valueOf(comment.hashCode());
-            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY);
-            if (propResult.isValid() && propResult.getEntityProperty().isDefined() && lastCommentKey.equals(propResult.getEntityProperty().get().getValue())) {
+            final String newCommentKey = String.valueOf(comment.hashCode());
+            final String storedLastCommentKey = issueServiceWrapper.getIssueProperty(issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY);
+            if (storedLastCommentKey != null && newCommentKey.equals(storedLastCommentKey)) {
                 // This comment would be a duplicate of the previous one, so there is no need to add it.
+                logger.debug("Ignoring a comment that would be an exact duplicate of the previous comment.");
                 return;
             }
-            final CommentManager commentManager = jiraServices.getCommentManager();
-            commentManager.create(issue, jiraContext.getJiraIssueCreatorUser(), comment, true);
+            issueServiceWrapper.addComment(issue, comment);
             try {
-                issueServiceWrapper.addIssuePropertyJson(issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY, lastCommentKey);
+                issueServiceWrapper.addIssuePropertyJson(issue.getId(), HubJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY, newCommentKey);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, eventData);
             }
@@ -244,31 +239,6 @@ public class JiraIssueHandler2 {
         }
     }
 
-    private void addProjectPropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
-        logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
-        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
-
-        final SetPropertyValidationResult validationResult = jiraServices.getProjectPropertyService().validateSetProperty(jiraContext.getJiraIssueCreatorUser(), issueId, propertyInput);
-
-        if (validationResult.isValid()) {
-            final PropertyResult result = jiraServices.getProjectPropertyService().setProperty(jiraContext.getJiraIssueCreatorUser(), validationResult);
-            final ErrorCollection errorCollection = result.getErrorCollection();
-            if (errorCollection.hasAnyErrors()) {
-                throw new JiraIssueException("addProjectPropertyJson", errorCollection);
-            }
-        } else {
-            throw new JiraIssueException("addProjectPropertyJson", validationResult.getErrorCollection());
-        }
-    }
-
-    private void addHubIssueUrlIssueProperty(final HubIssueTrackerProperties value, final Issue issue) throws JiraIssueException {
-        final Gson gson = new GsonBuilder().create();
-        final String jsonValue = gson.toJson(value);
-        final String key = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
-
-        addProjectPropertyJson(issue.getProjectId(), key, jsonValue);
-    }
-
     private Issue findIssue(final EventData eventData) {
         try {
             final EventCategory eventCategory = EventCategory.fromNotificationType(eventData.getNotificationType());
@@ -282,7 +252,7 @@ public class JiraIssueHandler2 {
 
     private Issue createIssue(final EventData eventData) {
         try {
-            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(null, eventData, true, true);
+            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(eventData.getJiraProjectId(), eventData, true, true);
             return issueServiceWrapper.createIssue(jiraIssueWrapper);
         } catch (final JiraIssueException e) {
             handleJiraIssueException(e, eventData);
@@ -309,7 +279,7 @@ public class JiraIssueHandler2 {
             return issueToTransition;
         }
 
-        final JiraWorkflow workflow = jiraServices.getWorkflowManager().getWorkflow(issueToTransition);
+        final JiraWorkflow workflow = issueServiceWrapper.getWorkflow(issueToTransition);
 
         ActionDescriptor transitionAction = null;
         // https://answers.atlassian.com/questions/6985/how-do-i-change-status-of-issue
@@ -344,7 +314,7 @@ public class JiraIssueHandler2 {
     }
 
     private boolean issueUsesBdsWorkflow(final Issue oldIssue) {
-        final JiraWorkflow issueWorkflow = jiraServices.getWorkflowManager().getWorkflow(oldIssue);
+        final JiraWorkflow issueWorkflow = issueServiceWrapper.getWorkflow(oldIssue);
         logger.debug("Issue " + oldIssue.getKey() + " uses workflow " + issueWorkflow.getName());
         return HubJiraConstants.HUB_JIRA_WORKFLOW.equals(issueWorkflow.getName());
     }
@@ -352,15 +322,12 @@ public class JiraIssueHandler2 {
     private boolean checkIfAlreadyProcessedAndUpdateLastBatch(final Long issueId, final EventData eventData) {
         final Date eventBatchStartDate = eventData.getLastBatchStartDate();
         if (eventBatchStartDate != null) {
-            final PropertyResult propResult = jiraServices.getPropertyService().getProperty(jiraContext.getJiraIssueCreatorUser(), issueId, HubJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY);
-            if (propResult.isValid() && propResult.getEntityProperty().isDefined()) {
-                final String lastBatchStartKey = propResult.getEntityProperty().get().getValue();
-                if (isAlreadyProcessed(lastBatchStartKey, eventBatchStartDate)) {
-                    // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
-                    // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
-                    logger.debug("Ignoring a notification that has already been processed: eventKey=" + eventData.getEventKey());
-                    return true;
-                }
+            final String lastBatchStartKey = issueServiceWrapper.getIssueProperty(issueId, HubJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY);
+            if (lastBatchStartKey != null && isAlreadyProcessed(lastBatchStartKey, eventBatchStartDate)) {
+                // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
+                // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
+                logger.debug("Ignoring a notification that has already been processed: eventKey=" + eventData.getEventKey());
+                return true;
             }
             addLastBatchStartKeyToIssue(issueId, eventData);
         }

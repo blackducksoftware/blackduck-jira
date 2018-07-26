@@ -100,7 +100,7 @@
     </component>
     
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
-    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.event.IssueEventListener">
+    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.IssueEventListener">
         <description>Class that processes JIRA issue events to modify Hub Issues</description>
     </component>
     
@@ -139,8 +139,8 @@
 	
 	<web-panel name="Hub Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="150" >
         <label key="hub.issue.panel.title" />
-        <context-provider class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanel"/>
+        <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.HubIssuePanel"/>
 		<resource name="view" type="velocity" location="hub-issue-panel.vm"/>
-		<condition class="com.blackducksoftware.integration.jira.task.issue.HubIssuePanelCondition" />
+		<condition class="com.blackducksoftware.integration.jira.task.issue.ui.HubIssuePanelCondition" />
 	</web-panel>
 </atlassian-plugin>

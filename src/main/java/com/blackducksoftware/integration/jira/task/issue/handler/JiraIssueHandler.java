@@ -80,7 +80,8 @@ public class JiraIssueHandler {
     private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
     private final Date instanceUniqueDate;
 
-    public JiraIssueHandler(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final HubIssueTrackerHandler hubIssueTrackerHandler) {
+    public JiraIssueHandler(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup,
+            final HubIssueTrackerHandler hubIssueTrackerHandler) {
         this.jiraServices = jiraServices;
         this.jiraContext = jiraContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -145,7 +146,7 @@ public class JiraIssueHandler {
     private void addHubIssueUrlIssueProperty(final EventData eventData, final HubIssueTrackerProperties value, final Issue issue) {
         final Gson gson = new GsonBuilder().create();
         final String jsonValue = gson.toJson(value);
-        final String key = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
+        final String key = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
 
         addProjectPropertyJson(eventData, issue.getProjectId(), key, jsonValue);
     }

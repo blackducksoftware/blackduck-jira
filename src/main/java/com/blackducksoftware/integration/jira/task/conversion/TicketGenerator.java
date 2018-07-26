@@ -26,11 +26,13 @@ package com.blackducksoftware.integration.jira.task.conversion;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.fields.CustomField;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.api.generated.view.UserView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
@@ -44,14 +46,17 @@ import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.HubProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.IssueFieldCopyMappingHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.IssueServiceWrapper;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler2;
+import com.google.gson.GsonBuilder;
 
 /**
  * Collects recent notifications from the Hub, and generates JIRA tickets for them.
@@ -61,24 +66,24 @@ public class TicketGenerator {
 
     private final HubService hubService;
     private final NotificationService notificationService;
-    private final JiraUserContext jiraContext;
+    private final JiraUserContext jiraUserContext;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
-    private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final Map<PluginField, CustomField> customFields;
     private final HubIssueTrackerHandler hubIssueTrackerHandler;
     private final boolean shouldCreateVulnerabilityIssues;
     private final List<String> linksOfRulesToMonitor;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraContext,
-            final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup, final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor,
+    public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext,
+            final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields, final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.hubService = hubService;
         this.notificationService = notificationService;
         this.jiraServices = jiraServices;
-        this.jiraContext = jiraContext;
+        this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
-        this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.customFields = customFields;
         this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, issueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
@@ -98,8 +103,15 @@ public class TicketGenerator {
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
             if (!notificationDetailResults.isEmpty()) {
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
-                final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig, new EventDataFormatHelper(logger, hubService),
+                // TODO replace this: final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
+                // TODO inject
+                final IssueFieldCopyMappingHandler issueFieldHandler = new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFields);
+                final IssueServiceWrapper issueServiceWrapper = new IssueServiceWrapper(jiraServices.getIssueService(), jiraServices.getCommentManager(), jiraServices.getPropertyService(), jiraServices.getProjectPropertyService(),
+                        jiraServices.getWorkflowManager(), issueFieldHandler, jiraUserContext, jiraServices.getJsonEntityPropertyManager(), new GsonBuilder().create(), customFields);
+                final JiraIssueHandler2 issueHandler = new JiraIssueHandler2(issueServiceWrapper, jiraSettingsService, hubIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
+
+                final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig,
+                        new EventDataFormatHelper(logger, hubService),
                         linksOfRulesToMonitor, hubService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket, startDate);
             }
@@ -113,7 +125,7 @@ public class TicketGenerator {
         return startDate;
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket, final Date batchStartDate)
+    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler2 issueHandler, final HubBucket hubBucket, final Date batchStartDate)
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {

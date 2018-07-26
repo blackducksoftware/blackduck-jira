@@ -132,6 +132,7 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         return updatedTimeString;
     }
 
+    // TODO prefix with "create" rather than "get"
     public final Map<Long, String> getBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
         if (projectOwner != null) {

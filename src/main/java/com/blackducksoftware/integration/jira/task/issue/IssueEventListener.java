@@ -91,7 +91,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Event Type ID:    %s", eventTypeID));
                 logger.debug(String.format("Issue:            %s", issue));
 
-                final String propertyKey = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue);
+                final String propertyKey = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
                 final EntityProperty hubIssueUrlProperty = getHubIssueTrackerUrlProperty(propertyKey);
 
                 if (hubIssueUrlProperty == null) {
