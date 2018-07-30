@@ -61,12 +61,10 @@ public class JiraTaskTimed implements Callable<String> {
     private final PluginSettings settings;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
-    private final PluginConfigurationDetails configDetails;
 
-    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final PluginConfigurationDetails configDetails) {
+    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         this.settings = settings;
         this.jiraSettingsService = jiraSettingsService;
-        this.configDetails = configDetails;
         this.jiraServices = jiraServices;
     }
 
@@ -74,6 +72,8 @@ public class JiraTaskTimed implements Callable<String> {
     public String call() throws Exception {
         logger.info("Running the Hub JIRA periodic timed task.");
 
+        // This plugin configuration needs to be read during execution because the task could have been queued for an arbitrarily long time
+        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
@@ -91,7 +91,7 @@ public class JiraTaskTimed implements Callable<String> {
         final Duration diff = Duration.between(beforeSetup, afterSetup);
         logger.info("Hub JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
         final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
-        final String runResult = runHubJiraTaskAndSetLastRunDate(processor);
+        final String runResult = runHubJiraTaskAndSetLastRunDate(processor, configDetails);
         logger.info("hub-jira periodic timed task has completed");
         return runResult;
     }
@@ -147,7 +147,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
-    private String runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor) {
+    private String runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor, final PluginConfigurationDetails configDetails) {
         String runStatus = "error";
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();

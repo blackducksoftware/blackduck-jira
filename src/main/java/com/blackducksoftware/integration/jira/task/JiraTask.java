@@ -23,10 +23,10 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -47,6 +47,7 @@ import com.blackducksoftware.integration.jira.task.issue.JiraServices;
  *
  */
 public class JiraTask implements PluginJob {
+    public static final int MAX_QUEUED_TASKS = HubJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL + 1;
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     public JiraTask() {
@@ -57,6 +58,8 @@ public class JiraTask implements PluginJob {
         logger.info("Running the Hub JIRA task.");
         logger.info("hub-jira plugin version: " + PluginVersion.getVersion());
         final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
+        final ExecutorService executor = (ExecutorService) jobDataMap.get(HubMonitor.KEY_EXECUTOR);
+        final List<Future<String>> scheduledTasks = (List<Future<String>>) jobDataMap.get(HubMonitor.KEY_SCHEDULED_TASK_LIST);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
@@ -70,27 +73,24 @@ public class JiraTask implements PluginJob {
 
         logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        final Future<String> future = executor.submit(new JiraTaskTimed(settings, jiraSettingsService, new JiraServices(), configDetails));
-        String result;
-        try {
-            result = future.get(taskTimeoutMinutes, TimeUnit.MINUTES);
-            logger.info("The timed task completed with result: " + result);
-        } catch (final ExecutionException e) {
-            logger.error("The timed task threw an error: " + e.getMessage(), e);
-        } catch (final TimeoutException e) {
-            logger.error("The timed task timed out");
-        } catch (final InterruptedException e) {
-            // Since the exception was caught, the thread hasn't been interrupted yet; it will be manually interrupted (by future.cancel(true)) in the finally block.
-            logger.error("The timed task was interrupted");
-        } finally {
-            if (!future.isDone()) {
-                future.cancel(true);
-            }
+        if (scheduledTasks.size() < MAX_QUEUED_TASKS) {
+            final Future<String> future = executor.submit(new JiraTaskTimed(settings, jiraSettingsService, new JiraServices()));
+            scheduledTasks.add(future);
             try {
-                executor.shutdown();
-            } catch (final SecurityException e) {
-                logger.warn(e.getMessage());
+                final String result = future.get(taskTimeoutMinutes, TimeUnit.MINUTES);
+                logger.info("The timed task completed with result: " + result);
+            } catch (final ExecutionException e) {
+                logger.error("The timed task threw an error: " + e.getMessage(), e);
+            } catch (final TimeoutException e) {
+                logger.error("The timed task timed out");
+            } catch (final InterruptedException e) {
+                // Since the exception was caught, the thread hasn't been interrupted yet; it will be manually interrupted (by future.cancel(true)) in the finally block.
+                logger.error("The timed task was interrupted");
+            } finally {
+                scheduledTasks.remove(future);
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
             }
         }
         logger.info("hub-jira periodic task has completed");

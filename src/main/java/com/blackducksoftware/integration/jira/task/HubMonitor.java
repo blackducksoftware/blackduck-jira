@@ -24,8 +24,12 @@
 package com.blackducksoftware.integration.jira.task;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
@@ -44,12 +48,15 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
     /* package */static final String KEY_INSTANCE = HubMonitor.class.getName() + ":instance";
     public static final String KEY_SETTINGS = HubMonitor.class.getName() + ":settings";
+    public static final String KEY_EXECUTOR = HubMonitor.class.getName() + ":executor";
+    public static final String KEY_SCHEDULED_TASK_LIST = HubMonitor.class.getName() + ":scheduledTasks";
     private static final String JOB_NAME = HubMonitor.class.getName() + ":job";
     private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final PluginScheduler pluginScheduler; // provided by SAL
     private final PluginSettings pluginSettings;
+    private ExecutorService executor;
 
     @Inject
     public HubMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
@@ -61,6 +68,7 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
     @Override
     public void onStart() {
         logger.trace("HubMonitor onStart() called.");
+        this.executor = Executors.newSingleThreadExecutor();
         updateInstallDate();
         reschedule(0L);
     }
@@ -91,6 +99,8 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
         final HashMap<String, Object> classProperties = new HashMap<>();
         classProperties.put(KEY_INSTANCE, HubMonitor.this);
         classProperties.put(KEY_SETTINGS, pluginSettings);
+        classProperties.put(KEY_EXECUTOR, executor);
+        classProperties.put(KEY_SCHEDULED_TASK_LIST, new ArrayList<Future<String>>());
         pluginScheduler.scheduleJob(JOB_NAME, // unique name of the job
                 JiraTask.class, // class of the job
                 classProperties, // data that needs to be passed to the job
@@ -150,6 +160,12 @@ public class HubMonitor implements NotificationMonitor, LifecycleAware, Disposab
             logger.debug("Successfully removed install date.");
         } else {
             logger.debug("Failed to remove install date.");
+        }
+        try {
+            logger.debug("Shutting down executor service.");
+            executor.shutdown();
+        } catch (final SecurityException e) {
+            logger.error(e);
         }
     }
 

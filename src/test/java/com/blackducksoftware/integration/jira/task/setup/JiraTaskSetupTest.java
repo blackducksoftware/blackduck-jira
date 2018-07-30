@@ -108,7 +108,6 @@ import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManagerMock;
 import com.blackducksoftware.integration.jira.task.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.JiraTaskTimed;
-import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.issue.JiraServices;
 
 public class JiraTaskSetupTest {
@@ -327,9 +326,7 @@ public class JiraTaskSetupTest {
         HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settingsMock);
-        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices,
-                configDetails);
+        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices);
         jiraTask = Mockito.spy(jiraTask);
 
         mockCreationMethods(jiraTask, fieldScreenSchemeSetup);
