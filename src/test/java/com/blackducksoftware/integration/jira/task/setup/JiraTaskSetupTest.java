@@ -74,7 +74,6 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
@@ -327,9 +326,7 @@ public class JiraTaskSetupTest {
         HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settingsMock);
-        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices,
-                configDetails);
+        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices);
         jiraTask = Mockito.spy(jiraTask);
 
         mockCreationMethods(jiraTask, fieldScreenSchemeSetup);
