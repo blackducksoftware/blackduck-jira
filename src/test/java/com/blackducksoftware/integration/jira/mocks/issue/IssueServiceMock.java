@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira.mocks.issue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,11 +32,8 @@ import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.IssueService;
 
 public class IssueServiceMock extends IssueService {
-
     public final static String CREATION_SUCCESS_URL = "SUCCESS_URL";
-
     public final static String CREATION_FAILURE_URL = "";
-
     public Map<String, IssueView> issueMap = new HashMap<>();
 
     public IssueServiceMock(final HubService hubService) {

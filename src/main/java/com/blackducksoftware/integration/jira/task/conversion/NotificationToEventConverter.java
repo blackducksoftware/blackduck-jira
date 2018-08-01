@@ -82,7 +82,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 public class NotificationToEventConverter {
     private final HubJiraLogger logger;
     private final JiraServices jiraServices;
-    private final JiraUserContext jiraContext;
+    private final JiraUserContext jiraUserContext;
     private final JiraSettingsService jiraSettingsService;
     private final HubProjectMappings hubProjectMappings;
     private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
@@ -90,11 +90,11 @@ public class NotificationToEventConverter {
     private final List<String> linksOfRulesToMonitor;
     private final HubService hubService;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
+    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
             final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final HubJiraLogger logger)
             throws ConfigurationException {
         this.jiraServices = jiraServices;
-        this.jiraContext = jiraContext;
+        this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.hubProjectMappings = mappings;
         this.fieldCopyConfig = fieldCopyConfig;
@@ -137,8 +137,8 @@ public class NotificationToEventConverter {
                 }
             } catch (final Exception e) {
                 logger.error(e);
-                jiraSettingsService.addHubError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraContext.getJiraAdminUser().getName(),
-                        jiraContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
+                jiraSettingsService.addHubError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
+                        jiraUserContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
             }
         }
         return eventDataList;
@@ -178,7 +178,7 @@ public class NotificationToEventConverter {
             }
         }
 
-        eventDataBuilder.setPropertiesFromJiraContext(jiraContext);
+        eventDataBuilder.setPropertiesFromJiraUserContext(jiraUserContext);
         eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
         eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
         eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
@@ -377,7 +377,7 @@ public class NotificationToEventConverter {
                     }
                 }
             } catch (final Exception e) {
-                logger.warn("Unable to get the project owner for this notification from the hub: " + e.getMessage());
+                logger.warn("Unable to get the project owner for this notification: " + e.getMessage());
             }
         }
         return null;

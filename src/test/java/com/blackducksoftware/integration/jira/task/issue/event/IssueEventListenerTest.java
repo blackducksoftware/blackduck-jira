@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
@@ -66,7 +67,6 @@ import com.blackducksoftware.integration.jira.mocks.EntityPropertyMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyQueryMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
 import com.blackducksoftware.integration.jira.mocks.ExecutableQueryMock;
-import com.blackducksoftware.integration.jira.mocks.IssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JSonEntityPropertyManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -75,9 +75,12 @@ import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
+import com.blackducksoftware.integration.jira.mocks.issue.JiraIssuePropertyWrapperMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
 import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.Gson;
@@ -123,7 +126,8 @@ public class IssueEventListenerTest {
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
 
-        listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, jiraServices, hubServicesFactory);
+        final JiraIssuePropertyWrapper issuePropertyWrapper = new JiraIssuePropertyWrapperMock(jiraServices);
+        listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, issuePropertyWrapper, hubServicesFactory);
     }
 
     private PluginSettingsMock createPluginSettings() {
@@ -251,6 +255,7 @@ public class IssueEventListenerTest {
 
         final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
+        assertNotNull(hubIssue);
         assertEquals(issue.getKey(), hubIssue.issueId);
         assertEquals(issue.getDescription(), hubIssue.issueDescription);
         assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);

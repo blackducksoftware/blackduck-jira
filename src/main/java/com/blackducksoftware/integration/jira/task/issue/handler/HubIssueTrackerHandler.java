@@ -30,12 +30,13 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.rest.RestConstants;
 
@@ -44,15 +45,13 @@ public class HubIssueTrackerHandler {
 
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
-    private final IssueService issueService;
+    private final IssueService hubIssueService;
     private final DateFormat dateFormatter;
 
-    public HubIssueTrackerHandler(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final IssueService issueService) {
-        this.jiraServices = jiraServices;
+    public HubIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final IssueService hubIssueService) {
         this.jiraSettingsService = jiraSettingsService;
-        this.issueService = issueService;
+        this.hubIssueService = hubIssueService;
 
         dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -62,7 +61,7 @@ public class HubIssueTrackerHandler {
         String url = "";
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
-                url = issueService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+                url = hubIssueService.createIssue(createHubIssueView(jiraIssue), hubIssueUrl);
             } else {
                 final String message = "Error creating hub issue; no component or component version found.";
                 logger.error(message);
@@ -80,7 +79,7 @@ public class HubIssueTrackerHandler {
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
                 logger.debug(String.format("Updating issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                issueService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
+                hubIssueService.updateIssue(createHubIssueView(jiraIssue), hubIssueUrl);
             } else {
                 final String message = "Error updating hub issue; no component or component version found.";
                 logger.error(message);
@@ -96,7 +95,7 @@ public class HubIssueTrackerHandler {
         try {
             if (StringUtils.isNotBlank(hubIssueUrl)) {
                 logger.debug(String.format("Deleting issue %s from hub for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                issueService.deleteIssue(hubIssueUrl);
+                hubIssueService.deleteIssue(hubIssueUrl);
             } else {
                 final String message = "Error deleting hub issue; no component or component version found.";
                 logger.error(message);
@@ -125,14 +124,23 @@ public class HubIssueTrackerHandler {
             status = jiraIssue.getStatus().getName();
         }
 
-        status = jiraIssue.getStatus().getName();
         hubIssue.issueId = issueId;
         hubIssue.issueAssignee = assignee;
         hubIssue.issueStatus = status;
         hubIssue.issueCreatedAt = jiraIssue.getCreated();
         hubIssue.issueUpdatedAt = jiraIssue.getUpdated();
         hubIssue.issueDescription = jiraIssue.getSummary();
-        hubIssue.issueLink = String.format("%s/browse/%s", jiraServices.getJiraBaseUrl(), jiraIssue.getKey());
+        hubIssue.issueLink = String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey());
         return hubIssue;
+    }
+
+    // TODO think about preferable ways to do this
+    private String getJiraBaseUrl() {
+        try {
+            return ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
+        } catch (final Exception e) {
+            logger.error("Could not get the base url for JIRA", e);
+            return "";
+        }
     }
 }

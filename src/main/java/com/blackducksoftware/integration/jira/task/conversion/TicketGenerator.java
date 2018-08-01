@@ -54,8 +54,8 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.IssueFieldCopyMappingHandler;
-import com.blackducksoftware.integration.jira.task.issue.handler.IssueServiceWrapper;
-import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler2;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
 import com.google.gson.GsonBuilder;
 
 /**
@@ -84,7 +84,7 @@ public class TicketGenerator {
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, issueService);
+        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraSettingsService, issueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
@@ -103,12 +103,10 @@ public class TicketGenerator {
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
             if (!notificationDetailResults.isEmpty()) {
-                // TODO replace this: final JiraIssueHandler issueHandler = new JiraIssueHandler(jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, hubIssueTrackerHandler);
                 // TODO inject
                 final IssueFieldCopyMappingHandler issueFieldHandler = new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFields);
-                final IssueServiceWrapper issueServiceWrapper = new IssueServiceWrapper(jiraServices.getIssueService(), jiraServices.getCommentManager(), jiraServices.getPropertyService(), jiraServices.getProjectPropertyService(),
-                        jiraServices.getWorkflowManager(), issueFieldHandler, jiraUserContext, jiraServices.getJsonEntityPropertyManager(), new GsonBuilder().create(), customFields);
-                final JiraIssueHandler2 issueHandler = new JiraIssueHandler2(issueServiceWrapper, jiraSettingsService, hubIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
+                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, issueFieldHandler, jiraUserContext, new GsonBuilder().create(), customFields);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, hubIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
                 final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig,
                         new EventDataFormatHelper(logger, hubService),
@@ -125,7 +123,7 @@ public class TicketGenerator {
         return startDate;
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler2 issueHandler, final HubBucket hubBucket, final Date batchStartDate)
+    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket, final Date batchStartDate)
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {

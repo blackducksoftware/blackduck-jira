@@ -44,19 +44,12 @@ import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.user.ApplicationUser;
 
 public class IssueMock implements Issue {
-
     private Long id;
-
     private Timestamp created;
-
     private Timestamp updated;
-
     private Status status;
-
     private String description;
-
     private ApplicationUser assignee;
-
     private Project project;
 
     @Override

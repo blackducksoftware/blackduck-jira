@@ -35,18 +35,13 @@ import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.entity.property.EntityProperty;
-import com.atlassian.jira.entity.property.EntityPropertyQuery;
-import com.atlassian.jira.entity.property.EntityPropertyService;
-import com.atlassian.jira.entity.property.EntityPropertyService.PropertyResult;
-import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValidationResult;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
@@ -57,6 +52,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
@@ -66,34 +62,47 @@ import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTem
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
 import com.google.gson.Gson;
 
-public class IssueServiceWrapper {
+public class JiraIssueServiceWrapper {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final IssueService jiraIssueService;
+    private final IssueManager jiraIssueManager;
     private final CommentManager commentManager;
-    private final IssuePropertyService issuePropertyService;
-    private final ProjectPropertyService projectPropertyService;
     private final WorkflowManager workflowManager;
+    private final JiraIssuePropertyWrapper issuePropertyWrapper;
     private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
     private final JiraUserContext jiraUserContext;
-    private final JsonEntityPropertyManager jsonEntityPropertyManager;
     private final Gson gson;
     private final Map<PluginField, CustomField> customFieldsMap;
 
-    public IssueServiceWrapper(final IssueService jiraIssueService, final CommentManager commentManager, final IssuePropertyService issuePropertyService, final ProjectPropertyService projectPropertyService,
-            final WorkflowManager workflowManager, final IssueFieldCopyMappingHandler issueFieldCopyHandler, final JiraUserContext jiraUserContext, final JsonEntityPropertyManager jsonEntityPropertyManager, final Gson gson,
-            final Map<PluginField, CustomField> customFieldsMap) {
+    public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager, final JiraIssuePropertyWrapper issuePropertyWrapper,
+            final IssueFieldCopyMappingHandler issueFieldCopyHandler, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
         this.jiraIssueService = jiraIssueService;
+        this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
-        this.issuePropertyService = issuePropertyService;
-        this.projectPropertyService = projectPropertyService;
         this.workflowManager = workflowManager;
+        this.issuePropertyWrapper = issuePropertyWrapper;
         this.issueFieldCopyHandler = issueFieldCopyHandler;
         this.jiraUserContext = jiraUserContext;
-        this.jsonEntityPropertyManager = jsonEntityPropertyManager;
         this.gson = gson;
         this.customFieldsMap = customFieldsMap;
     }
+
+    // @formatter:off
+    public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final IssueFieldCopyMappingHandler issueFieldCopyHandler, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
+        return new JiraIssueServiceWrapper(
+                 jiraServices.getIssueService()
+                ,jiraServices.getIssueManager()
+                ,jiraServices.getCommentManager()
+                ,jiraServices.getWorkflowManager()
+                ,jiraServices.createIssuePropertyWrapper()
+                ,issueFieldCopyHandler
+                ,jiraUserContext
+                ,customFieldsMap
+                ,gson
+                );
+    }
+    // @formatter:on
 
     public Issue getIssue(final Long issueId) throws JiraIssueException {
         final IssueResult result = jiraIssueService.getIssue(jiraUserContext.getJiraIssueCreatorUser(), issueId);
@@ -105,19 +114,13 @@ public class IssueServiceWrapper {
 
     public Issue findIssue(final EventCategory eventCategory, final String notificationUniqueKey) throws JiraIssueException {
         logger.debug("Find issue: " + notificationUniqueKey);
-
-        final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
-        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(notificationUniqueKey);
-        final List<EntityProperty> props = executableQuery.maxResults(1).find();
-        if (props.size() == 0) {
-            logger.debug("No property found with that key");
-            return null;
+        final EntityProperty property = issuePropertyWrapper.findProperty(notificationUniqueKey);
+        if (property != null) {
+            final IssueProperties propertyValue = createIssuePropertiesFromJson(eventCategory, property.getValue());
+            logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
+            return getIssue(propertyValue.getJiraIssueId());
         }
-        final EntityProperty property = props.get(0);
-        final IssueProperties propertyValue = createIssuePropertiesFromJson(eventCategory, property.getValue());
-        logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
-
-        return getIssue(propertyValue.getJiraIssueId());
+        return null;
     }
 
     public Issue createIssue(final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
@@ -196,33 +199,16 @@ public class IssueServiceWrapper {
     }
 
     public String getIssueProperty(final Long issueId, final String propertyName) {
-        final PropertyResult propResult = issuePropertyService.getProperty(jiraUserContext.getJiraIssueCreatorUser(), issueId, propertyName);
-        if (propResult.isValid() && propResult.getEntityProperty().isDefined()) {
-            return propResult.getEntityProperty().get().getValue();
-        }
-        return null;
+        return issuePropertyWrapper.getIssueProperty(issueId, jiraUserContext.getJiraIssueCreatorUser(), propertyName);
     }
 
-    // TODO we should probably replace IssueProperties
-    public void addIssueProperty(final Long issueId, final String key, final IssueProperties value) throws JiraIssueException {
+    public void addIssueProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
         final String jsonValue = gson.toJson(value);
         addIssuePropertyJson(issueId, key, jsonValue);
     }
 
     public void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
-        logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
-        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
-
-        final SetPropertyValidationResult validationResult = issuePropertyService.validateSetProperty(jiraUserContext.getJiraIssueCreatorUser(), issueId, propertyInput);
-        if (validationResult.isValid()) {
-            final PropertyResult result = issuePropertyService.setProperty(jiraUserContext.getJiraIssueCreatorUser(), validationResult);
-            final ErrorCollection errors = result.getErrorCollection();
-            if (errors.hasAnyErrors()) {
-                throw new JiraIssueException("addIssuePropertyJson", errors);
-            }
-        } else {
-            throw new JiraIssueException("addIssuePropertyJson", validationResult.getErrorCollection());
-        }
+        issuePropertyWrapper.addIssuePropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
     }
 
     // TODO this doesn't really belong here
@@ -237,24 +223,7 @@ public class IssueServiceWrapper {
 
     public void addProjectProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
         final String jsonValue = gson.toJson(value);
-        addProjectPropertyJson(issueId, key, jsonValue);
-    }
-
-    public void addProjectPropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
-        logger.debug("addProjectPropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
-        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
-
-        final SetPropertyValidationResult validationResult = projectPropertyService.validateSetProperty(jiraUserContext.getJiraIssueCreatorUser(), issueId, propertyInput);
-
-        if (validationResult.isValid()) {
-            final PropertyResult result = projectPropertyService.setProperty(jiraUserContext.getJiraIssueCreatorUser(), validationResult);
-            final ErrorCollection errorCollection = result.getErrorCollection();
-            if (errorCollection.hasAnyErrors()) {
-                throw new JiraIssueException("addProjectPropertyJson", errorCollection);
-            }
-        } else {
-            throw new JiraIssueException("addProjectPropertyJson", validationResult.getErrorCollection());
-        }
+        issuePropertyWrapper.addProjectPropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
     }
 
     public JiraWorkflow getWorkflow(final Issue issue) {
@@ -277,16 +246,20 @@ public class IssueServiceWrapper {
         }
     }
 
-    private void assignIssue(final MutableIssue mutableIssue, final String assigneeId) throws JiraIssueException {
+    private void assignIssue(final MutableIssue issue, final String assigneeId) throws JiraIssueException {
         final ApplicationUser issueCreator = jiraUserContext.getJiraIssueCreatorUser();
-        final AssignValidationResult assignValidationResult = jiraIssueService.validateAssign(jiraUserContext.getJiraIssueCreatorUser(), mutableIssue.getId(), assigneeId);
+        final AssignValidationResult assignValidationResult = jiraIssueService.validateAssign(jiraUserContext.getJiraIssueCreatorUser(), issue.getId(), assigneeId);
         final ErrorCollection errors = assignValidationResult.getErrorCollection();
         if (assignValidationResult.isValid() && !errors.hasAnyErrors()) {
             logger.debug("Assigning issue to user ID: " + assigneeId);
             jiraIssueService.assign(issueCreator, assignValidationResult);
+
+            // Dispatch event to sync the new assignee with the hub
+            issue.setAssigneeId(assigneeId);
+            dispatchEvent(issue, EventDispatchOption.ISSUE_UPDATED, false);
         } else {
             final StringBuilder errorMessageBuilder = new StringBuilder("Unable to assign issue ");
-            errorMessageBuilder.append(mutableIssue.getKey());
+            errorMessageBuilder.append(issue.getKey());
             errorMessageBuilder.append(": ");
             for (final String errorMsg : errors.getErrorMessages()) {
                 errorMessageBuilder.append(errorMsg);
@@ -294,6 +267,11 @@ public class IssueServiceWrapper {
             }
             throw new JiraIssueException(errorMessageBuilder.toString(), "assignIssue");
         }
+    }
+
+    private void dispatchEvent(final MutableIssue modifiedIssue, final EventDispatchOption option, final boolean sendMail) {
+        final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(option).sendMail(sendMail).build();
+        jiraIssueManager.updateIssue(jiraUserContext.getJiraIssueCreatorUser(), modifiedIssue, issueUpdate);
     }
 
     private IssueInputParameters createPopulatedIssueInputParameters(final JiraIssueWrapper jiraIssueWrapper) {

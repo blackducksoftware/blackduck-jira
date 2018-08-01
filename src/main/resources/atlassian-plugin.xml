@@ -104,11 +104,14 @@
         <description>Class that processes JIRA issue events to modify Hub Issues</description>
     </component>
     
-    <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.task.HubMonitor"
-             system="true" public="true">
+    <component key="schedulerComponent" class="com.blackducksoftware.integration.jira.task.HubMonitor" system="true" public="true">
         <description>The plugin component that schedules the Hub notification check task.</description>
         <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
         <interface>com.blackducksoftware.integration.jira.task.NotificationMonitor</interface>
+    </component>
+    
+    <component key="issuePropertyAccessor" class="com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper">
+        <description>A wrapper component to access various issue properties.</description>
     </component>
     
     <component-import name="Application Properties" key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />

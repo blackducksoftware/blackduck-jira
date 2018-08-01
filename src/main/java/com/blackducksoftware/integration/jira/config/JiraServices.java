@@ -60,12 +60,15 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
+import com.atlassian.jira.util.InjectableComponent;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
+@InjectableComponent
 public class JiraServices {
     public ConstantsManager getConstantsManager() {
         return ComponentAccessor.getConstantsManager();
@@ -158,6 +161,11 @@ public class JiraServices {
 
     public IssueTypeScreenSchemeManager getIssueTypeScreenSchemeManager() {
         return ComponentAccessor.getIssueTypeScreenSchemeManager();
+    }
+
+    // TODO find a way to inject the same instance of this
+    public JiraIssuePropertyWrapper createIssuePropertyWrapper() {
+        return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
     }
 
     public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {

@@ -31,17 +31,19 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.mocks.issue.ExecutorServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueListenerWithMocks extends IssueEventListener {
     private final HubServicesFactory hubServicesFactory;
+    private final JiraIssuePropertyWrapper issuePropertyWrapper;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraServices jiraServices, final HubServicesFactory hubServicesFactory) {
-        super(eventPublisher, pluginSettingsFactory, jiraServices);
+    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper, final HubServicesFactory hubServicesFactory) {
+        super(eventPublisher, pluginSettingsFactory, issuePropertyWrapper);
         this.hubServicesFactory = hubServicesFactory;
+        this.issuePropertyWrapper = issuePropertyWrapper;
     }
 
     @Override
@@ -50,7 +52,9 @@ public class IssueListenerWithMocks extends IssueEventListener {
     }
 
     @Override
-    public IssueTrackerTask createTask(final Issue issue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
-        return new IssueTrackerTaskWithMocks(issue, eventTypeID, jiraServices, settings, propertyKey, property, this.hubServicesFactory);
+    // final Issue issue, final IssueServiceWrapper issueServiceWrapper, final Long eventTypeID, final String jiraBaseUrl, final PluginSettings settings, final String propertyKey, final EntityProperty property
+    public IssueTrackerTask createTask(final Issue issue, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
+        return new IssueTrackerTaskWithMocks(issue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property, this.hubServicesFactory);
     }
+
 }

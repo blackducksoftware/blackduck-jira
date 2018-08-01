@@ -29,18 +29,17 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
-
     private final HubServicesFactory hubServicesFactory;
 
-    public IssueTrackerTaskWithMocks(final Issue jiraIssue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property,
-            final HubServicesFactory hubServicesFactory) {
-        super(jiraIssue, eventTypeID, jiraServices, settings, propertyKey, property);
+    public IssueTrackerTaskWithMocks(final Issue jiraIssue, final JiraIssuePropertyWrapper issuePropertyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey,
+            final EntityProperty property, final HubServicesFactory hubServicesFactory) {
+        super(jiraIssue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
         this.hubServicesFactory = hubServicesFactory;
     }
 
