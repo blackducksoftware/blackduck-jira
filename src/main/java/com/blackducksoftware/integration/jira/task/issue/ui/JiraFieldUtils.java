@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.ui;
 
 import java.util.Set;
 
@@ -56,8 +56,7 @@ public class JiraFieldUtils {
         }
         for (final NavigableField field : navFields) {
             if (field.getId().startsWith(CustomFieldUtils.CUSTOM_FIELD_PREFIX)) {
-                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " +
-                        field.getNameKey());
+                logger.debug("Found custom field: Id: " + field.getId() + "; Name: " + field.getName() + "; nameKey: " + field.getNameKey());
                 if (!isBdsCustomField(field)) {
                     targetFields.add(new IdToNameMapping(field.getId(), field.getName()));
                 } else {
@@ -70,25 +69,33 @@ public class JiraFieldUtils {
     }
 
     private static boolean isBdsCustomField(final Field field) {
-        if (
         // @formatter:off
-                (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER.equals(field.getName()))
-                || (HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName()))
-                ) {
+        return HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER.equals(field.getName())
+
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_URL.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName())
+
+            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_URL.equals(field.getName())
+
+            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_URL.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.equals(field.getName())
+            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.equals(field.getName())
+
+
+         ;
          // @formatter:on
-            return true;
-        }
-        return false;
     }
 
     private static void addEligibleSystemFields(final HubJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) {

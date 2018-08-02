@@ -21,29 +21,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common.exception;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
-public class EventDataBuilderException extends Exception {
-    private static final long serialVersionUID = 7709990445225630347L;
+public class HubIssueTrackerPropertyHandler {
+    public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
 
-    public EventDataBuilderException() {
-    }
-
-    public EventDataBuilderException(final String message) {
-        super(message);
-    }
-
-    public EventDataBuilderException(final Throwable cause) {
-        super(cause);
-    }
-
-    public EventDataBuilderException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public EventDataBuilderException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public String createEntityPropertyKey(final Long jiraIssueId) {
+        return String.format("%s_%s", HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssueId);
     }
 
 }

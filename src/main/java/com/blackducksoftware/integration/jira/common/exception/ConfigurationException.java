@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.common.exception;
 
 public class ConfigurationException extends Exception {
-
     private static final long serialVersionUID = -9146861663735413869L;
 
     public ConfigurationException() {

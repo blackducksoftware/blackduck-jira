@@ -24,9 +24,7 @@
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
 public class HubIssueTrackerProperties {
-
     private final String hubIssueUrl;
-
     private final Long jiraIssueId;
 
     public HubIssueTrackerProperties(final String hubIssueUrl, final Long jiraIssueId) {
@@ -41,4 +39,5 @@ public class HubIssueTrackerProperties {
     public String getHubIssueUrl() {
         return hubIssueUrl;
     }
+
 }

@@ -27,13 +27,9 @@ import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.entity.property.EntityProperty;
-import com.atlassian.jira.entity.property.EntityPropertyService.DeletePropertyValidationResult;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -41,33 +37,34 @@ import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class IssueTrackerTask implements Callable<Boolean> {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final Long eventTypeID;
+
     private final Issue jiraIssue;
-    private final JiraServices jiraServices;
+    private final JiraIssuePropertyWrapper issueProperyWrapper;
+    private final Long eventTypeID;
     private final PluginSettings settings;
     private final String propertyKey;
     private final EntityProperty property;
 
     // TODO the issue service should be injected here, as should the jiraSettingsService
-    public IssueTrackerTask(final Issue jiraIssue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
-        this.eventTypeID = eventTypeID;
+    public IssueTrackerTask(final Issue jiraIssue, final JiraIssuePropertyWrapper issueProperyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
         this.jiraIssue = jiraIssue;
-        this.jiraServices = jiraServices;
+        this.issueProperyWrapper = issueProperyWrapper;
+        this.eventTypeID = eventTypeID;
         this.settings = settings;
         this.propertyKey = propertyKey;
         this.property = property;
@@ -86,15 +83,14 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
             } else {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
-                final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
                 final HubJiraConfigSerializable config = createJiraConfig(configDetails);
                 if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
                     logger.debug("Hub Jira configuration is incomplete");
                     return Boolean.FALSE;
                 }
 
-                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraServices, jiraSettingsService, servicesFactory.createIssueService());
-                handleIssue(jiraContext, eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
+                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
+                handleIssue(eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
             logger.error(String.format("Error occurred processing issue %s, caused by %s", jiraIssue, throwable));
@@ -170,17 +166,18 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return config;
     }
 
-    private void handleIssue(final JiraUserContext jiraContext, final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+    private void handleIssue(final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
         // final EntityProperty property = props.get(0);
         final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
             // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
             hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
             // the issue has been
-            final ProjectPropertyService projectPropertyService = jiraServices.getProjectPropertyService();
-            final ApplicationUser issueCreatorUser = jiraContext.getJiraIssueCreatorUser();
-            final DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(issueCreatorUser, property.getEntityId(), propertyKey);
-            jiraServices.getProjectPropertyService().deleteProperty(issueCreatorUser, validationResult);
+            try {
+                issueProperyWrapper.deleteIssueProperty(property.getEntityId(), jiraIssue.getCreator(), propertyKey);
+            } catch (final JiraIssueException e) {
+                logger.error("Problem deleting issue tracker property", e);
+            }
         } else {
             // issue updated.
             hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
@@ -192,28 +189,4 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return gson.fromJson(json, HubIssueTrackerProperties.class);
     }
 
-    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
-        logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
-        if (jiraIssueCreatorUsername == null) {
-            logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
-            jiraIssueCreatorUsername = jiraAdminUsername;
-        }
-        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);
-        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername);
-        if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
-            return null;
-        }
-        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
-        return jiraContext;
-    }
-
-    private ApplicationUser getJiraUser(final String jiraUsername) {
-        final UserManager jiraUserManager = jiraServices.getUserManager();
-        final ApplicationUser jiraUser = jiraUserManager.getUserByName(jiraUsername);
-        if (jiraUser == null) {
-            logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
-            return null;
-        }
-        return jiraUser;
-    }
 }

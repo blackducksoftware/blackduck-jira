@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +43,7 @@ import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -126,21 +127,16 @@ public class IssueFieldHandler {
     public List<String> setOtherFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {
         final List<String> labels = new ArrayList<>();
         final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = eventData.getJiraFieldCopyMappings();
-        if (projectFieldCopyMappings == null) {
-            logger.debug("projectFieldCopyMappings is null");
-            return labels;
-        }
-        if (projectFieldCopyMappings.size() == 0) {
-            logger.debug("projectFieldCopyMappings is null");
+        if (projectFieldCopyMappings == null || projectFieldCopyMappings.size() == 0) {
+            logger.debug("projectFieldCopyMappings is empty");
             return labels;
         }
 
         for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
-            logger.debug("projectFieldCopyMappings: " + projectFieldCopyMappings);
+            logger.debug("projectFieldCopyMapping: " + fieldCopyMapping);
             if ((!eventData.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
                     && (!HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
-                logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName()
-                        + "; skipping it");
+                logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName() + "; skipping it");
                 continue;
             }
             logger.debug("This field copy mapping is for this JIRA project (or all JIRA projects); using it");
@@ -232,8 +228,7 @@ public class IssueFieldHandler {
         }
     }
 
-    private void setAffectedVersion(final EventData eventData, final IssueInputParameters issueInputParameters,
-            final String targetFieldValue) {
+    private void setAffectedVersion(final EventData eventData, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
         Long versionId = null;
         final Collection<Version> versions = jiraServices.getJiraProjectManager()
                 .getProjectObj(eventData.getJiraProjectId()).getVersions();

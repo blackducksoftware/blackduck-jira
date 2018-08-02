@@ -92,11 +92,11 @@ public class EventDataBuilder extends Stringable {
         return eventCategory;
     }
 
-    public EventDataBuilder setPropertiesFromJiraContext(final JiraUserContext jiraContext) {
-        setJiraAdminUserName(jiraContext.getJiraAdminUser().getName());
-        setJiraAdminUserKey(jiraContext.getJiraAdminUser().getKey());
-        setJiraIssueCreatorUserName(jiraContext.getJiraIssueCreatorUser().getName());
-        setJiraIssueCreatorUserKey(jiraContext.getJiraIssueCreatorUser().getKey());
+    public EventDataBuilder setPropertiesFromJiraUserContext(final JiraUserContext jiraUserContext) {
+        setJiraAdminUserName(jiraUserContext.getJiraAdminUser().getName());
+        setJiraAdminUserKey(jiraUserContext.getJiraAdminUser().getKey());
+        setJiraIssueCreatorUserName(jiraUserContext.getJiraIssueCreatorUser().getName());
+        setJiraIssueCreatorUserKey(jiraUserContext.getJiraIssueCreatorUser().getKey());
         return this;
     }
 

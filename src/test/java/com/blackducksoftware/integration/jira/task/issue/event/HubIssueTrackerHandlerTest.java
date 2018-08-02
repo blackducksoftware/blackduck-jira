@@ -45,13 +45,12 @@ import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
-import com.blackducksoftware.integration.jira.mocks.IssueServiceMock;
-import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
-import com.blackducksoftware.integration.jira.task.issue.model.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
+import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
@@ -64,9 +63,7 @@ public class HubIssueTrackerHandlerTest {
     private static final String ASSIGNEE_USER_NAME = "assignedUser";
 
     private PluginSettingsMock settings;
-
     private IssueServiceMock issueServiceMock;
-
     private HubIssueTrackerHandler issueHandler;
 
     @Before
@@ -78,8 +75,7 @@ public class HubIssueTrackerHandlerTest {
         Mockito.when(hubService.getRestConnection()).thenReturn(restConnection);
 
         issueServiceMock = new IssueServiceMock(hubService);
-
-        issueHandler = new HubIssueTrackerHandler(new JiraServicesMock(), new JiraSettingsService(settings), issueServiceMock);
+        issueHandler = new HubIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {

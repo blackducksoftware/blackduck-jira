@@ -23,27 +23,36 @@
  */
 package com.blackducksoftware.integration.jira.common.exception;
 
-public class EventDataBuilderException extends Exception {
-    private static final long serialVersionUID = 7709990445225630347L;
+import com.atlassian.jira.util.ErrorCollection;
+import com.atlassian.jira.util.ErrorCollections;
 
-    public EventDataBuilderException() {
+public class JiraIssueException extends JiraException {
+    private static final long serialVersionUID = -2838852966435691111L;
+
+    private ErrorCollection errorCollection = ErrorCollections.empty();
+
+    public JiraIssueException(final String methodAttempt) {
+        super();
+        super.setMethodAttempt(methodAttempt);
     }
 
-    public EventDataBuilderException(final String message) {
+    public JiraIssueException(final String message, final String methodAttempt) {
         super(message);
+        super.setMethodAttempt(methodAttempt);
     }
 
-    public EventDataBuilderException(final Throwable cause) {
-        super(cause);
+    public JiraIssueException(final String methodAttempt, final ErrorCollection errorCollection) {
+        super();
+        super.setMethodAttempt(methodAttempt);
+        this.errorCollection = errorCollection;
     }
 
-    public EventDataBuilderException(final String message, final Throwable cause) {
-        super(message, cause);
+    public void setErrorCollection(final ErrorCollection errorCollection) {
+        this.errorCollection = errorCollection;
     }
 
-    public EventDataBuilderException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public ErrorCollection getErrorCollection() {
+        return errorCollection;
     }
 
 }

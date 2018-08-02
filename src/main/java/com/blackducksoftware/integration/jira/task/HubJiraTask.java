@@ -52,12 +52,12 @@ import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBody;
 import com.blackducksoftware.integration.rest.RestConstants;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
@@ -228,12 +228,13 @@ public class HubJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraUserContext jiraContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService, final TicketInfoFromSetup ticketInfoFromSetup,
+    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService,
+            final TicketInfoFromSetup ticketInfoFromSetup,
             final List<String> linksOfRulesToMonitor, final HubJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraContext, jiraSettingsService, ticketInfoFromSetup, pluginConfigDetails.isCreateVulnerabilityIssues(),
-                linksOfRulesToMonitor, fieldCopyConfig);
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(),
+                pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 

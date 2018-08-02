@@ -40,8 +40,8 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class HubFieldConfigurationSetup {
     private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));

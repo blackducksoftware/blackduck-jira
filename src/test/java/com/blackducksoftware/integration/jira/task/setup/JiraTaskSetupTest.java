@@ -72,6 +72,7 @@ import com.blackducksoftware.integration.jira.common.model.HubProject;
 import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -108,7 +109,6 @@ import com.blackducksoftware.integration.jira.mocks.workflow.AssignableWorkflowS
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManagerMock;
 import com.blackducksoftware.integration.jira.task.JiraTaskTimed;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraServices;
 
 public class JiraTaskSetupTest {
     private static final int NUM_SECURITY_SCREEN_FIELDS = PluginField.values().length;

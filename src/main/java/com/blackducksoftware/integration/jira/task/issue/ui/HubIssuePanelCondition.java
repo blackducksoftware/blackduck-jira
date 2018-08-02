@@ -21,14 +21,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.model;
+package com.blackducksoftware.integration.jira.task.issue.ui;
 
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.plugin.webfragment.conditions.AbstractWebCondition;
+import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
+import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.HubJiraConstants;
 
-public class HubIssueTrackerPropertyHandler {
-    public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
+public class HubIssuePanelCondition extends AbstractWebCondition {
 
-    public String createEntityPropertyKey(final Issue jiraIssue) {
-        return String.format("%s_%s", HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssue.getId());
+    @Override
+    public boolean shouldDisplay(final ApplicationUser applicationUser, final JiraHelper jiraHelper) {
+        final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
+        final String issueType = currentIssue.getIssueType().getName();
+        if (HubJiraConstants.HUB_VULNERABILITY_ISSUE.equals(issueType)) {
+            return true;
+        } else if (HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE.equals(issueType)) {
+            return true;
+        }
+        return false;
     }
+
 }
