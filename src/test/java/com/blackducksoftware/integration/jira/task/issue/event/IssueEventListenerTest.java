@@ -55,11 +55,11 @@ import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.model.HubProject;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.HubConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -77,9 +77,9 @@ import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.issue.JiraIssuePropertyWrapperMock;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
-import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
@@ -113,7 +113,7 @@ public class IssueEventListenerTest {
         userManager.setMockApplicationUser(createApplicationUser());
         jiraServices.setUserManager(userManager);
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
 
         final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
         Mockito.when(hubServicesFactory.getRestConnection()).thenReturn(restConnection);
@@ -145,17 +145,17 @@ public class IssueEventListenerTest {
         settings.put(HubConfigKeys.CONFIG_PROXY_PASS, "");
         settings.put(HubConfigKeys.CONFIG_PROXY_PASS_LENGTH, "");
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, "");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, "");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, "");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, "");
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
         return settings;
     }
 
@@ -165,7 +165,7 @@ public class IssueEventListenerTest {
         return user;
     }
 
-    private String createProjectJSon(final Set<HubProjectMapping> projectMappings) {
+    private String createProjectJSon(final Set<BlackDuckProjectMapping> projectMappings) {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(projectMappings);
     }
@@ -190,30 +190,30 @@ public class IssueEventListenerTest {
         return issue;
     }
 
-    private String createIssuePropertiesJSON(final HubIssueTrackerProperties issueProperties) {
+    private String createIssuePropertiesJSON(final BlackDuckIssueTrackerProperties issueProperties) {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(issueProperties);
     }
 
     private void populateProjectSettings() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
+        final Set<BlackDuckProjectMapping> projectSet = new HashSet<>();
+        final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
         final JiraProject jiraProject = new JiraProject();
         jiraProject.setProjectId(JIRA_PROJECT_ID);
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
+        final BlackDuckProject hubProject = new BlackDuckProject();
         hubProject.setProjectName(HUB_PROJECT_NAME);
         mapping.setHubProject(hubProject);
         projectSet.add(mapping);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+        settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
     }
 
     private void createEntityProperty() {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
-        entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
+        entityProperty.setEntityName(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
+        entityProperty.setKey(BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+        final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
         final List<EntityProperty> propList = new ArrayList<>(1);
         propList.add(entityProperty);

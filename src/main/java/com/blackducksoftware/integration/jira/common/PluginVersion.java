@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 public class PluginVersion {
     private static final String VERSION_UNKNOWN = "(unknown)";
 
-    private static final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(PluginVersion.class.getName()));
+    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(PluginVersion.class.getName()));
 
     public static String getVersion() {
         Properties prop = new Properties();

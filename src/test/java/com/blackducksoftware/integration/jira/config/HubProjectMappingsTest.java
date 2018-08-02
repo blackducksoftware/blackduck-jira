@@ -40,9 +40,9 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.jira.common.HubProjectMappings;
-import com.blackducksoftware.integration.jira.common.model.HubProject;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 
 public class HubProjectMappingsTest {
@@ -88,10 +88,10 @@ public class HubProjectMappingsTest {
             Mockito.when(jiraServices.getJiraProject(i)).thenReturn(jiraProject);
         }
 
-        final Set<HubProjectMapping> underlyingMappings = new HashSet<>();
+        final Set<BlackDuckProjectMapping> underlyingMappings = new HashSet<>();
         for (int i = 0; i < 10; i++) {
-            final HubProjectMapping mapping = new HubProjectMapping();
-            final HubProject hubProject = new HubProject();
+            final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
+            final BlackDuckProject hubProject = new BlackDuckProject();
             hubProject.setProjectName("projectName" + i);
             hubProject.setProjectUrl("projectUrl" + i);
             mapping.setHubProject(hubProject);
@@ -105,7 +105,7 @@ public class HubProjectMappingsTest {
             underlyingMappings.add(mapping);
         }
 
-        final HubProjectMappings mappings = new HubProjectMappings(jiraServices, underlyingMappings);
+        final BlackDuckProjectMappings mappings = new BlackDuckProjectMappings(jiraServices, underlyingMappings);
 
         final List<JiraProject> mappedJiraProjects = mappings.getJiraProjects("projectName7");
         assertEquals(1, mappedJiraProjects.size());

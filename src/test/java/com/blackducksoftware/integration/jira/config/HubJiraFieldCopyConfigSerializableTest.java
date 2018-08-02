@@ -31,7 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 
 public class HubJiraFieldCopyConfigSerializableTest {
@@ -50,7 +50,7 @@ public class HubJiraFieldCopyConfigSerializableTest {
 
     @Test
     public void test() {
-        HubJiraFieldCopyConfigSerializable config = new HubJiraFieldCopyConfigSerializable();
+        BlackDuckJiraFieldCopyConfigSerializable config = new BlackDuckJiraFieldCopyConfigSerializable();
         Set<ProjectFieldCopyMapping> mappings = new HashSet<>();
         ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping();
         mapping.setHubProjectName(HUB_PROJECT_NAME);

@@ -122,7 +122,7 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     }
 
     @Override
-    protected Map<Long, String> getAddtionalHubFieldMappings(final Map<PluginField, CustomField> customFields) {
+    protected Map<Long, String> getAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> policyFieldMappings = new HashMap<>();
         addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
         addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);

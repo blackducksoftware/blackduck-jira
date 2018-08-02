@@ -35,8 +35,8 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
@@ -49,29 +49,29 @@ import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
  *
  */
 public class JiraTask implements PluginJob {
-    public static final int MAX_QUEUED_TASKS = HubJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL + 1;
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    public static final int MAX_QUEUED_TASKS = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL + 1;
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     public JiraTask() {
     }
 
     @Override
     public void execute(final Map<String, Object> jobDataMap) {
-        logger.info("Running the Hub JIRA task.");
-        logger.info("hub-jira plugin version: " + PluginVersion.getVersion());
-        final PluginSettings settings = (PluginSettings) jobDataMap.get(HubMonitor.KEY_SETTINGS);
-        final ExecutorService executor = (ExecutorService) jobDataMap.get(HubMonitor.KEY_EXECUTOR);
-        final List<Future<String>> scheduledTasks = (List<Future<String>>) jobDataMap.get(HubMonitor.KEY_SCHEDULED_TASK_LIST);
+        logger.info("Running the Black Duck JIRA task.");
+        logger.info("blackduck-jira plugin version: " + PluginVersion.getVersion());
+        final PluginSettings settings = (PluginSettings) jobDataMap.get(BlackDuckMonitor.KEY_SETTINGS);
+        final ExecutorService executor = (ExecutorService) jobDataMap.get(BlackDuckMonitor.KEY_EXECUTOR);
+        final List<Future<String>> scheduledTasks = (List<Future<String>>) jobDataMap.get(BlackDuckMonitor.KEY_SCHEDULED_TASK_LIST);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
         final int taskIntervalMinutes = configDetails.getIntervalMinutes();
         logger.debug("Task interval (minutes): " + taskIntervalMinutes);
         if (taskIntervalMinutes < 1) {
-            logger.info("hub-jira periodic task has not been configured, or has a run interval < 1 minute");
+            logger.info("blackduck-jira periodic task has not been configured, or has a run interval < 1 minute");
             return;
         }
-        final int taskTimeoutMinutes = HubJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
+        final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
 
         logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
@@ -95,7 +95,7 @@ public class JiraTask implements PluginJob {
                 }
             }
         }
-        logger.info("hub-jira periodic task has completed");
+        logger.info("blackduck-jira periodic task has completed");
     }
 
 }

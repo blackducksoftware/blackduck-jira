@@ -36,22 +36,22 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
-import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class IssueTrackerTask implements Callable<Boolean> {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final Issue jiraIssue;
     private final JiraIssuePropertyWrapper issueProperyWrapper;
@@ -80,16 +80,16 @@ public class IssueTrackerTask implements Callable<Boolean> {
             // only execute if hub 3.7 or higher with the issue tracker capability
             final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
             if (hubServerConfig == null) {
-                logger.error("Hub Server Configuration is invalid.  Cannot update Hub issue tracking data.");
+                logger.error("Black Duck Server Configuration is invalid.  Cannot update Hub issue tracking data.");
             } else {
                 final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
-                final HubJiraConfigSerializable config = createJiraConfig(configDetails);
+                final BlackDuckJiraConfigSerializable config = createJiraConfig(configDetails);
                 if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
                     logger.debug("Hub Jira configuration is incomplete");
                     return Boolean.FALSE;
                 }
 
-                final HubIssueTrackerHandler hubIssueHandler = new HubIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
+                final BlackDuckIssueTrackerHandler hubIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
                 handleIssue(eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
@@ -106,28 +106,28 @@ public class IssueTrackerTask implements Callable<Boolean> {
         final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
         HubServerConfig hubServerConfig = null;
         if (configDetails.getProjectMappingJson() == null) {
-            logger.debug("HubNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
         }
 
         if (configDetails.getPolicyRulesJson() == null) {
-            logger.debug("HubNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
+            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
             return null;
         }
 
         try {
-            logger.debug("Building Hub configuration");
+            logger.debug("Building Black Duck configuration");
             hubServerConfig = hubConfigBuilder.build();
             logger.debug("Finished building Hub configuration");
         } catch (final IllegalStateException e) {
             logger.error(
-                    "Unable to connect to the Hub. This could mean the Hub is currently unreachable, or that at least one of the Black Duck plugins (either the Hub Admin plugin or the Hub JIRA plugin) is not (yet) configured correctly: "
+                    "Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck plugin is not (yet) configured correctly: "
                             + e.getMessage());
             return null;
         }
 
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
-        logger.debug("Hub url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Black Duck url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
         logger.debug("Interval: " + configDetails.getIntervalString());
 
         return hubServerConfig;
@@ -138,17 +138,17 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return new HubServicesFactory(restConnection);
     }
 
-    private HubJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
+    private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
         return deSerializeConfig(pluginConfigDetails);
     }
 
-    private HubJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
-        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+    private BlackDuckJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
         if (config.getHubProjectMappings() != null) {
             logger.debug("Mappings:");
-            for (final HubProjectMapping mapping : config.getHubProjectMappings()) {
+            for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
                 if (mapping != null) {
                     logger.debug(mapping.toString());
                 }
@@ -166,12 +166,12 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return config;
     }
 
-    private void handleIssue(final Long eventTypeID, final Issue issue, final HubIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+    private void handleIssue(final Long eventTypeID, final Issue issue, final BlackDuckIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
         // final EntityProperty property = props.get(0);
-        final HubIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+        final BlackDuckIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
             // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
-            hubIssueHandler.deleteHubIssue(properties.getHubIssueUrl(), issue);
+            hubIssueHandler.deleteBlackDuckIssue(properties.getHubIssueUrl(), issue);
             // the issue has been
             try {
                 issueProperyWrapper.deleteIssueProperty(property.getEntityId(), jiraIssue.getCreator(), propertyKey);
@@ -180,13 +180,13 @@ public class IssueTrackerTask implements Callable<Boolean> {
             }
         } else {
             // issue updated.
-            hubIssueHandler.updateHubIssue(properties.getHubIssueUrl(), issue);
+            hubIssueHandler.updateBlackDuckIssue(properties.getHubIssueUrl(), issue);
         }
     }
 
-    private HubIssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
+    private BlackDuckIssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
         final Gson gson = new GsonBuilder().create();
-        return gson.fromJson(json, HubIssueTrackerProperties.class);
+        return gson.fromJson(json, BlackDuckIssueTrackerProperties.class);
     }
 
 }

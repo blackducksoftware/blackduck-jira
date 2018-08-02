@@ -41,8 +41,8 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
@@ -50,7 +50,7 @@ import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
-import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
@@ -64,18 +64,18 @@ public class HubIssueTrackerHandlerTest {
 
     private PluginSettingsMock settings;
     private IssueServiceMock issueServiceMock;
-    private HubIssueTrackerHandler issueHandler;
+    private BlackDuckIssueTrackerHandler issueHandler;
 
     @Before
     public void initTest() throws Exception {
         settings = new PluginSettingsMock();
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
         final HubService hubService = Mockito.mock(HubService.class);
         Mockito.when(hubService.getRestConnection()).thenReturn(restConnection);
 
         issueServiceMock = new IssueServiceMock(hubService);
-        issueHandler = new HubIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
+        issueHandler = new BlackDuckIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {
@@ -102,7 +102,7 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        issueHandler.createHubIssue(ISSUE_URL, issue);
+        issueHandler.createBlackDuckIssue(ISSUE_URL, issue);
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
@@ -124,7 +124,7 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        issueHandler.updateHubIssue(ISSUE_URL, issue);
+        issueHandler.updateBlackDuckIssue(ISSUE_URL, issue);
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
@@ -155,7 +155,7 @@ public class HubIssueTrackerHandlerTest {
         hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
         issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);
-        issueHandler.deleteHubIssue(ISSUE_URL, issue);
+        issueHandler.deleteBlackDuckIssue(ISSUE_URL, issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
     }
@@ -168,10 +168,10 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        issueHandler.createHubIssue("", issue);
+        issueHandler.createBlackDuckIssue("", issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -182,10 +182,10 @@ public class HubIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        issueHandler.updateHubIssue("", issue);
+        issueHandler.updateBlackDuckIssue("", issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -205,9 +205,9 @@ public class HubIssueTrackerHandlerTest {
         hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
         issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);
-        issueHandler.deleteHubIssue("", issue);
+        issueHandler.deleteBlackDuckIssue("", issue);
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 }

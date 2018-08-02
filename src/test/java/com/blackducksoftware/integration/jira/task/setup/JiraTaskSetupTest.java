@@ -63,18 +63,18 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
-import com.blackducksoftware.integration.jira.common.model.HubProject;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.model.HubJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
@@ -143,9 +143,9 @@ public class JiraTaskSetupTest {
 
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -157,15 +157,15 @@ public class JiraTaskSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
         assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
-        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
 
         final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
@@ -198,9 +198,9 @@ public class JiraTaskSetupTest {
 
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -212,15 +212,15 @@ public class JiraTaskSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(HubJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(HubJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
         assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
-        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(HubJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
 
         final List<Avatar> avatarTemplatesUsed = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
@@ -288,14 +288,14 @@ public class JiraTaskSetupTest {
         fieldLayoutManager.setProjectFieldConfigScheme(projectFieldConfigScheme);
 
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-        fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
+        fieldLayout.setName(BlackDuckJiraConstants.HUB_FIELD_CONFIGURATION);
         fieldLayout.setDescription("mock");
         final List<FieldLayoutItem> fields = new ArrayList<>();
         final FieldLayoutItemMock field = new FieldLayoutItemMock();
         field.setIsRequired(false);
         final OrderableFieldMock orderableField = new OrderableFieldMock();
         orderableField.setId("1");
-        orderableField.setName(HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE);
+        orderableField.setName(BlackDuckJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE);
         field.setOrderableField(orderableField);
         fields.add(field);
         fieldLayout.setFieldLayoutItems(fields);
@@ -323,7 +323,7 @@ public class JiraTaskSetupTest {
                 fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
                 fieldManager, fieldScreenManager, fieldScreenSchemeManager);
 
-        HubFieldScreenSchemeSetup fieldScreenSchemeSetup = new HubFieldScreenSchemeSetup(settingService,
+        BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
                 jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
         JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices);
@@ -336,11 +336,11 @@ public class JiraTaskSetupTest {
         final Avatar avatarTemplate = Mockito.mock(Avatar.class);
         Mockito.when(avatarTemplate.getId()).thenReturn(123L);
         Mockito.when(avatarTemplate.getContentType()).thenReturn("image/png");
-        Mockito.when(avatarTemplate.getFileName()).thenReturn(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY);
+        Mockito.when(avatarTemplate.getFileName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY);
         Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
 
         Mockito.when(
-                jiraServices.createIssueTypeAvatarTemplate(HubJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY,
+                jiraServices.createIssueTypeAvatarTemplate(BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY,
                         "image/png", "Jira User"))
                 .thenReturn(avatarTemplate);
 
@@ -386,7 +386,7 @@ public class JiraTaskSetupTest {
         return fieldScreen;
     }
 
-    private void mockCreationMethods(final JiraTaskTimed jiraTask, final HubFieldScreenSchemeSetup fieldConfigSetup)
+    private void mockCreationMethods(final JiraTaskTimed jiraTask, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
             throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
         buildInfoUtil.setVersion("7.1.5");
@@ -459,15 +459,15 @@ public class JiraTaskSetupTest {
         final WorkflowSchemeManagerMock workflowSchemeManagerMock = new WorkflowSchemeManagerMock();
 
         final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(HubJiraConstants.HUB_JIRA_WORKFLOW);
+        hubWorkflow.setName(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
         if (workflowMappedToOurIssueTypes) {
-            hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
-                    HubJiraConstants.HUB_JIRA_WORKFLOW);
-            hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_VULNERABILITY_ISSUE,
-                    HubJiraConstants.HUB_JIRA_WORKFLOW);
+            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE,
+                    BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
+            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE,
+                    BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
         } else {
-            hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE, "Fake Workflow");
-            hubWorkflow.addMappingIssueToWorkflow(HubJiraConstants.HUB_VULNERABILITY_ISSUE, "Fake Workflow");
+            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE, "Fake Workflow");
+            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE, "Fake Workflow");
         }
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
         builder.setWorkflowScheme(hubWorkflow);
@@ -512,13 +512,13 @@ public class JiraTaskSetupTest {
         issueTypes.add(issueType);
         if (bdIssueTypesAlreadyAdded) {
             final IssueTypeMock policyViolationIssue = new IssueTypeMock();
-            policyViolationIssue.setName(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-            policyViolationIssue.setId(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+            policyViolationIssue.setName(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+            policyViolationIssue.setId(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
             policyViolationIssue.setValue(Mockito.mock(GenericValue.class));
             issueTypes.add(policyViolationIssue);
             final IssueTypeMock securityIssue = new IssueTypeMock();
-            securityIssue.setName(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
-            securityIssue.setId(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
+            securityIssue.setName(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE);
+            securityIssue.setId(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE);
             securityIssue.setValue(Mockito.mock(GenericValue.class));
             issueTypes.add(securityIssue);
         }
@@ -568,19 +568,19 @@ public class JiraTaskSetupTest {
 
     private String getProjectMappingJson(final boolean hasProjectMapping, final String jiraProjectName,
             final long jiraProjectId) {
-        final Set<HubProjectMapping> mappings = new HashSet<>();
+        final Set<BlackDuckProjectMapping> mappings = new HashSet<>();
         if (hasProjectMapping) {
-            final HubProjectMapping mapping = new HubProjectMapping();
+            final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
             final JiraProject jiraProject = new JiraProject();
             jiraProject.setProjectName(jiraProjectName);
             jiraProject.setProjectId(jiraProjectId);
             mapping.setJiraProject(jiraProject);
-            final HubProject hubProject = new HubProject();
+            final BlackDuckProject hubProject = new BlackDuckProject();
             hubProject.setProjectName(HUB_PROJECT_NAME);
             mapping.setHubProject(hubProject);
             mappings.add(mapping);
         }
-        final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappings(mappings);
 
         return config.getHubProjectMappingsJson();
@@ -613,7 +613,7 @@ public class JiraTaskSetupTest {
         private Collection<IssueType> issueTypes;
         private UserUtil userUtil;
         private JiraServices jiraServices;
-        private HubFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
+        private BlackDuckFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
         private JiraTaskTimed jiraTask;
         private String mappingJson;
         private Avatar avatarTemplate;
@@ -799,7 +799,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setHubFieldScreenSchemeSetup(
-                final HubFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
+                final BlackDuckFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
             HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
             return this;
         }

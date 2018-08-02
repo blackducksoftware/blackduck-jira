@@ -133,7 +133,7 @@ public class JiraEventInfoTest {
 
     private void checkCommonValues(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings, final IssuePropertiesGenerator issuePropertiesGenerator,
             final EventData eventData) {
-        assertEquals(HubEventAction.ADD_COMMENT, eventData.getAction());
+        assertEquals(BlackDuckEventAction.ADD_COMMENT, eventData.getAction());
         assertEquals("hubComponentName", eventData.getHubComponentName());
         assertEquals("hubComponentUrl", eventData.getHubComponentUrl());
         assertEquals("hubComponentVersion", eventData.getHubComponentVersion());
@@ -173,7 +173,7 @@ public class JiraEventInfoTest {
     private EventDataBuilder createEventDataBuilder(final EventCategory eventCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings,
             final IssuePropertiesGenerator issuePropertiesGenerator) {
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
-        eventDataBuilder.setAction(HubEventAction.ADD_COMMENT)
+        eventDataBuilder.setAction(BlackDuckEventAction.ADD_COMMENT)
                 .setHubComponentName("hubComponentName")
                 .setHubComponentUrl("hubComponentUrl")
                 .setHubComponentVersion("hubComponentVersion")

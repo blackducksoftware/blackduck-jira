@@ -37,15 +37,15 @@ import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.version.Version;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 
 public class IssueFieldCopyMappingHandler {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
@@ -74,7 +74,7 @@ public class IssueFieldCopyMappingHandler {
 
         for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMapping: " + fieldCopyMapping);
-            if (jiraProjectName.equals(fieldCopyMapping.getJiraProjectName()) && !HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName())) {
+            if (jiraProjectName.equals(fieldCopyMapping.getJiraProjectName()) && !BlackDuckJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName())) {
                 logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName() + "; skipping it");
                 continue;
             }
@@ -128,9 +128,9 @@ public class IssueFieldCopyMappingHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied to an issue during creation).
      */
     private String setSystemField(final Long jiraProjectId, final IssueInputParameters issueInputParameters, final Field targetField, final String targetFieldValue) {
-        if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
+        if (targetField.getId().equals(BlackDuckJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(jiraProjectId, issueInputParameters, targetFieldValue);
-        } else if (targetField.getId().equals(HubJiraConstants.COMPONENTS_FIELD_ID)) {
+        } else if (targetField.getId().equals(BlackDuckJiraConstants.COMPONENTS_FIELD_ID)) {
             setComponent(jiraProjectId, issueInputParameters, targetFieldValue);
         } else if (targetField.getId().equals("labels")) {
             logger.debug("Recording label to add after issue is created: " + targetFieldValue);

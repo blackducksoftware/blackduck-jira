@@ -73,21 +73,21 @@ import com.blackducksoftware.integration.hub.notification.content.VulnerabilityS
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.common.model.HubProject;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -106,23 +106,23 @@ public class NotificationConverterTest {
     private static final String VULNERABLE_COMPONENTS_URL = "http://localhost:8080/api/projects/x/versions/y/vulnerable-components";
     private static final String RULE_NAME = "Test Rule";
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=|hcv=1816144506|hr=1736320804";
-    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
-    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "Black Duck has detected a policy violation.  \n\n";
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
     private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-    private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE;
-    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
-    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE;
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
     private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
     private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-    private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
-    private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
-    private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
+    private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
+    private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
     private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
-    private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
+    private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
     private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
     private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Hub Security Vulnerability";
@@ -151,8 +151,8 @@ public class NotificationConverterTest {
     private static final String JIRA_PROJECT_NAME = "jiraProjectName";
     private static final String VULN_SOURCE = "NVD";
     private static final String VULN_EXPECTED_PROPERTY_KEY = "t=v|jp=123|hpv=-32224582|hc=|hcv=1816144506";
-    private static final String VULN_EXPECTED_RESOLVED_COMMENT = HubJiraConstants.HUB_VULNERABILITY_RESOLVE;
-    private static final String VULN_EXPECTED_REOPEN_COMMENT = HubJiraConstants.HUB_VULNERABILITY_REOPEN;
+    private static final String VULN_EXPECTED_RESOLVED_COMMENT = BlackDuckJiraConstants.HUB_VULNERABILITY_RESOLVE;
+    private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_VULNERABILITY_REOPEN;
     private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
@@ -165,9 +165,9 @@ public class NotificationConverterTest {
     private static JiraUserContext jiraContext;
     private static HubService mockHubSerivce;
     private static HubBucket mockHubBucket;
-    private static HubJiraLogger mockLogger;
-    private static HubProjectMappings projectMappingObject;
-    private static HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+    private static BlackDuckJiraLogger mockLogger;
+    private static BlackDuckProjectMappings projectMappingObject;
+    private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private static EventDataFormatHelper eventDataFormatHelper;
 
     @BeforeClass
@@ -190,9 +190,9 @@ public class NotificationConverterTest {
         Mockito.when(constantsManager.getAllIssueTypeObjects()).thenReturn(issueTypes);
         Mockito.when(jiraServices.getConstantsManager()).thenReturn(constantsManager);
 
-        final Set<HubProjectMapping> mappings = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
-        final HubProject hubProject = createHubProject();
+        final Set<BlackDuckProjectMapping> mappings = new HashSet<>();
+        final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
+        final BlackDuckProject hubProject = createHubProject();
         mapping.setHubProject(hubProject);
         final JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
@@ -217,10 +217,10 @@ public class NotificationConverterTest {
         mockHubServiceResponses(mockHubSerivce);
         mockHubBucket = Mockito.mock(HubBucket.class);
         mockHubBucketResponses(mockHubBucket);
-        mockLogger = new HubJiraLogger(Logger.getLogger(NotificationConverterTest.class));
+        mockLogger = new BlackDuckJiraLogger(Logger.getLogger(NotificationConverterTest.class));
 
         // Project Mappings
-        projectMappingObject = new HubProjectMappings(jiraServices, mappings);
+        projectMappingObject = new BlackDuckProjectMappings(jiraServices, mappings);
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
@@ -233,25 +233,25 @@ public class NotificationConverterTest {
 
     @Test
     public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.VULNERABILITY, HubEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+        test(NotificationType.VULNERABILITY, BlackDuckEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
                 VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testRuleViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.RULE_VIOLATION, HubEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
+        test(NotificationType.RULE_VIOLATION, BlackDuckEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
                 POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.POLICY_OVERRIDE, HubEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
+        test(NotificationType.POLICY_OVERRIDE, BlackDuckEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
                 POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testRuleViolationCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.RULE_VIOLATION_CLEARED, HubEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
+        test(NotificationType.RULE_VIOLATION_CLEARED, BlackDuckEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
                 POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
@@ -306,7 +306,7 @@ public class NotificationConverterTest {
         bomComps.add(bomComp);
     }
 
-    private void test(final NotificationType notifType, final HubEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
+    private void test(final NotificationType notifType, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
             final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
             throws URISyntaxException, IntegrationException, ConfigurationException {
         final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
@@ -367,7 +367,7 @@ public class NotificationConverterTest {
         return notif;
     }
 
-    private void verifyGeneratedEvents(final Collection<EventData> events, final String issueTypeId, final HubEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
+    private void verifyGeneratedEvents(final Collection<EventData> events, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
             final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
             throws HubIntegrationException, URISyntaxException {
         assertEquals(EXPECTED_EVENT_COUNT, events.size());
@@ -555,8 +555,8 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private static HubProject createHubProject() {
-        final HubProject hubProject = new HubProject();
+    private static BlackDuckProject createHubProject() {
+        final BlackDuckProject hubProject = new BlackDuckProject();
         hubProject.setProjectName(HUB_PROJECT_NAME);
         hubProject.setProjectUrl(HUB_PROJECT_URL);
         return hubProject;
@@ -570,8 +570,8 @@ public class NotificationConverterTest {
         return jiraProject;
     }
 
-    private static HubJiraFieldCopyConfigSerializable createFieldCopyMappings() {
-        final HubJiraFieldCopyConfigSerializable fieldCopyConfig = new HubJiraFieldCopyConfigSerializable();
+    private static BlackDuckJiraFieldCopyConfigSerializable createFieldCopyMappings() {
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = new BlackDuckJiraFieldCopyConfigSerializable();
         final Set<ProjectFieldCopyMapping> projectFieldCopyMappings = new HashSet<>();
         final ProjectFieldCopyMapping projectFieldCopyMapping = new ProjectFieldCopyMapping();
         projectFieldCopyMapping.setHubProjectName(WILDCARD_STRING);

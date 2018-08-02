@@ -27,7 +27,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
 
 public class PluginConfigurationDetails {
     private final String hubUrl;
@@ -70,17 +70,17 @@ public class PluginConfigurationDetails {
         hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
         hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        intervalString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-        projectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-        policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-        installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
-        lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+        intervalString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        projectMappingJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+        policyRulesJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+        installDateString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        lastRunDateString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
 
-        jiraIssueCreatorUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
-        jiraAdminUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER);
+        jiraIssueCreatorUserName = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+        jiraAdminUserName = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER);
 
-        fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
-        createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+        fieldCopyMappingJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+        createVulnerabilityIssues = getBooleanValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
     }
 
     public PluginSettings getSettings() {

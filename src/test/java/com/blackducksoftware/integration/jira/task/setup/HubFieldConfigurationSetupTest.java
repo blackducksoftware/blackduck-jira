@@ -36,7 +36,7 @@ import org.mockito.stubbing.Answer;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
@@ -60,16 +60,16 @@ public class HubFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        HubFieldConfigurationSetup fieldConfigSetup = new HubFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
-        fieldConfigSetup.addHubFieldConfigurationToJira();
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertEquals(1, fieldLayout.getFieldsToMakeOptional().size());
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -83,15 +83,15 @@ public class HubFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        HubFieldConfigurationSetup fieldConfigSetup = new HubFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
-        fieldConfigSetup.addHubFieldConfigurationToJira();
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertEquals(0, fieldLayout.getFieldsToMakeOptional().size());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -113,16 +113,16 @@ public class HubFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        HubFieldConfigurationSetup fieldConfigSetup = new HubFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
-        fieldConfigSetup.addHubFieldConfigurationToJira();
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 1);
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -130,7 +130,7 @@ public class HubFieldConfigurationSetupTest {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-        fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
+        fieldLayout.setName(BlackDuckJiraConstants.HUB_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
         addFieldLayoutItem(fieldLayout, "custom", true);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
@@ -138,15 +138,15 @@ public class HubFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        final HubFieldConfigurationSetup fieldConfigSetup = new HubFieldConfigurationSetup(settingService,
+        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService,
                 jiraServices);
 
-        fieldConfigSetup.addHubFieldConfigurationToJira();
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 1);
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -154,25 +154,25 @@ public class HubFieldConfigurationSetupTest {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-        fieldLayout.setName(HubJiraConstants.HUB_FIELD_CONFIGURATION);
+        fieldLayout.setName(BlackDuckJiraConstants.HUB_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
         fieldLayoutManager.addEditableFieldLayout(fieldLayout);
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        final HubFieldConfigurationSetup fieldConfigSetup = new HubFieldConfigurationSetup(settingService,
+        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService,
                 jiraServices);
 
-        fieldConfigSetup.addHubFieldConfigurationToJira();
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
         assertTrue(!fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 0);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     private EditableFieldLayoutMock mockCreateEditableFieldLayout(
-            final HubFieldConfigurationSetup fieldConfigSetupSpy) {
+            final BlackDuckFieldConfigurationSetup fieldConfigSetupSpy) {
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 
         Mockito.when(fieldConfigSetupSpy.createEditableFieldLayout(Mockito.anyList()))

@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class JiraSettingsServiceTest {
@@ -49,28 +49,28 @@ public class JiraSettingsServiceTest {
     @Test
     public void testNull() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
-        Mockito.when(pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR)).thenReturn(null);
+        Mockito.when(pluginSettings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR)).thenReturn(null);
         assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
     }
 
     @Test
     public void testOld() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
-        Mockito.when(pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR)).thenReturn(new HashMap<String, String>());
+        Mockito.when(pluginSettings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR)).thenReturn(new HashMap<String, String>());
         assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
     }
 
     @Test
     public void testInvalidJson() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
-        Mockito.when(pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR)).thenReturn("abc");
+        Mockito.when(pluginSettings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR)).thenReturn("abc");
         assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
     }
 
     @Test
     public void testEmptyJson() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
-        Mockito.when(pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR)).thenReturn("");
+        Mockito.when(pluginSettings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR)).thenReturn("");
         assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
     }
 }

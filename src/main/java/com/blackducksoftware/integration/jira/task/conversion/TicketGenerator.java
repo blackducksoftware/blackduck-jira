@@ -43,16 +43,16 @@ import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMappings;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.IssueFieldCopyMappingHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
@@ -62,7 +62,7 @@ import com.google.gson.GsonBuilder;
  * Collects recent notifications from the Hub, and generates JIRA tickets for them.
  */
 public class TicketGenerator {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final HubService hubService;
     private final NotificationService notificationService;
@@ -70,29 +70,29 @@ public class TicketGenerator {
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final Map<PluginField, CustomField> customFields;
-    private final HubIssueTrackerHandler hubIssueTrackerHandler;
+    private final BlackDuckIssueTrackerHandler hubIssueTrackerHandler;
     private final boolean shouldCreateVulnerabilityIssues;
     private final List<String> linksOfRulesToMonitor;
-    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+    private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext,
             final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields, final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig) {
+            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.hubService = hubService;
         this.notificationService = notificationService;
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.hubIssueTrackerHandler = new HubIssueTrackerHandler(jiraSettingsService, issueService);
+        this.hubIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, issueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView hubUser, final HubProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
+    public Date generateTicketsForNotificationsInDateRange(final UserView hubUser, final BlackDuckProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
         if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
-            logger.debug("The configuration does not specify any Hub projects to monitor");
+            logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
         }
         try {
@@ -118,7 +118,7 @@ public class TicketGenerator {
             }
         } catch (final Exception e) {
             logger.error(e);
-            jiraSettingsService.addHubError(e, "generateTicketsForRecentNotifications");
+            jiraSettingsService.addBlackDuckError(e, "generateTicketsForRecentNotifications");
         }
         return startDate;
     }
@@ -133,7 +133,7 @@ public class TicketGenerator {
                         issueHandler.handleEvent(event);
                     } catch (final Exception e) {
                         logger.error(e);
-                        jiraSettingsService.addHubError(e, "issueHandler.handleEvent(event)");
+                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleEvent(event)");
                     }
                 }
             }
@@ -150,10 +150,10 @@ public class TicketGenerator {
                             "WARNING: An error occurred while collecting supporting information from the Hub for a notification: %s; This can be caused by deletion of Hub data (project version, component, etc.) relevant to the notification soon after the notification was generated",
                             e.getMessage());
                     logger.warn(msg);
-                    jiraSettingsService.addHubError(msg, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(msg, "getAllNotifications");
                 } else {
                     logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                    jiraSettingsService.addHubError(e, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(e, "getAllNotifications");
                 }
             }
         });

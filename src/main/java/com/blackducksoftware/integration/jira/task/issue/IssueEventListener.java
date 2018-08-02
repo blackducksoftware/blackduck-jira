@@ -38,16 +38,16 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.task.issue.handler.HubIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final EventPublisher eventPublisher;
     private final PluginSettingsFactory pluginSettingsFactory;
     private final JiraIssuePropertyWrapper issueProperyWrapper;
-    private final HubIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
+    private final BlackDuckIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
 
     private final ExecutorService executorService;
 
@@ -55,7 +55,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.issueProperyWrapper = issueProperyWrapper;
-        this.hubIssueTrackerPropertyHandler = new HubIssueTrackerPropertyHandler();
+        this.hubIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
         this.executorService = createExecutorService();
     }
 
@@ -89,7 +89,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 final EntityProperty hubIssueUrlProperty = issueProperyWrapper.findProperty(propertyKey);
 
                 if (hubIssueUrlProperty == null) {
-                    logger.debug(String.format("Hub Issue Tracker URL not present. No further processing for issue: %s", issue));
+                    logger.debug(String.format("Black Duck Issue Tracker URL not present. No further processing for issue: %s", issue));
                 } else {
                     final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
                     executorService.submit(createTask(issue, eventTypeID, settings, propertyKey, hubIssueUrlProperty));

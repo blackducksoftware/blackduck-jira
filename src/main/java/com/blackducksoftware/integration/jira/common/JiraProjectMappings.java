@@ -29,30 +29,30 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.model.HubProject;
-import com.blackducksoftware.integration.jira.common.model.HubProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 
 public class JiraProjectMappings {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final Set<HubProjectMapping> mappings;
+    private final Set<BlackDuckProjectMapping> mappings;
 
-    public JiraProjectMappings(final Set<HubProjectMapping> mappings) {
+    public JiraProjectMappings(final Set<BlackDuckProjectMapping> mappings) {
         this.mappings = mappings;
     }
 
-    public List<HubProject> getHubProjects(final Long jiraProjectId) {
-        final List<HubProject> matchingHubProjects = new ArrayList<>();
+    public List<BlackDuckProject> getHubProjects(final Long jiraProjectId) {
+        final List<BlackDuckProject> matchingHubProjects = new ArrayList<>();
 
         if (mappings == null || mappings.isEmpty()) {
             logger.debug("There are no configured project mapping");
             return matchingHubProjects;
         }
 
-        for (final HubProjectMapping mapping : mappings) {
+        for (final BlackDuckProjectMapping mapping : mappings) {
             final JiraProject jiraProject = mapping.getJiraProject();
-            final HubProject hubProject = mapping.getHubProject();
+            final BlackDuckProject hubProject = mapping.getHubProject();
 
             // Check by name because the notifications may be for Hub projects
             // that the User doesnt have access to

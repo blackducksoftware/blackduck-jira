@@ -29,12 +29,12 @@ import java.util.Set;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.util.Stringable;
 
 public class EventData extends Stringable {
-    private HubEventAction action;
+    private BlackDuckEventAction action;
     private Date lastBatchStartDate;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
@@ -81,7 +81,7 @@ public class EventData extends Stringable {
     EventData() {
     }
 
-    EventData setAction(final HubEventAction action) {
+    EventData setAction(final BlackDuckEventAction action) {
         this.action = action;
         return this;
     }
@@ -295,7 +295,7 @@ public class EventData extends Stringable {
         return this;
     }
 
-    public HubEventAction getAction() {
+    public BlackDuckEventAction getAction() {
         return action;
     }
 

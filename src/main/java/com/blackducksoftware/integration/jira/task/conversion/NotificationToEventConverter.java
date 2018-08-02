@@ -61,18 +61,18 @@ import com.blackducksoftware.integration.hub.notification.content.VulnerabilityN
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMappings;
-import com.blackducksoftware.integration.jira.common.HubUrlParser;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
+import com.blackducksoftware.integration.jira.common.BlackDuckUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.model.HubJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
@@ -80,18 +80,18 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 
 public class NotificationToEventConverter {
-    private final HubJiraLogger logger;
+    private final BlackDuckJiraLogger logger;
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
     private final JiraSettingsService jiraSettingsService;
-    private final HubProjectMappings hubProjectMappings;
-    private final HubJiraFieldCopyConfigSerializable fieldCopyConfig;
+    private final BlackDuckProjectMappings hubProjectMappings;
+    private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private final EventDataFormatHelper dataFormatHelper;
     private final List<String> linksOfRulesToMonitor;
     private final HubService hubService;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final HubProjectMappings mappings,
-            final HubJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final HubJiraLogger logger)
+    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings mappings,
+            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final BlackDuckJiraLogger logger)
             throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
@@ -123,9 +123,9 @@ public class NotificationToEventConverter {
 
     private List<EventData> createEventDataForHubProjectMappings(final String hubProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
             final HubBucket hubBucket, final Date batchStartDate) {
-        logger.debug("Getting JIRA project(s) mapped to Hub project: " + hubProjectName);
+        logger.debug("Getting JIRA project(s) mapped to Black Duck project: " + hubProjectName);
         final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(hubProjectName);
-        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Hub project : " + hubProjectName);
+        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Black Duck project : " + hubProjectName);
 
         final List<EventData> eventDataList = new ArrayList<>();
         for (final JiraProject jiraProject : mappingJiraProjects) {
@@ -137,7 +137,7 @@ public class NotificationToEventConverter {
                 }
             } catch (final Exception e) {
                 logger.error(e);
-                jiraSettingsService.addHubError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
+                jiraSettingsService.addBlackDuckError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
                         jiraUserContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
             }
         }
@@ -146,7 +146,7 @@ public class NotificationToEventConverter {
 
     private Optional<EventData> createEventDataForJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
             final HubBucket hubBucket, final Date batchStartDate) throws EventDataBuilderException, IntegrationException, ConfigurationException {
-        HubEventAction action = HubEventAction.OPEN;
+        BlackDuckEventAction action = BlackDuckEventAction.OPEN;
         final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
         eventDataBuilder.setLastBatchStartDate(batchStartDate);
@@ -164,17 +164,17 @@ public class NotificationToEventConverter {
             }
             eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(notificationType);
 
-            action = HubEventAction.fromPolicyNotificationType(notificationType);
+            action = BlackDuckEventAction.fromPolicyNotificationType(notificationType);
         } else {
             final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
             final String comment = dataFormatHelper.generateVulnerabilitiesComment(vulnerabilityContent);
             eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
 
-            action = HubEventAction.ADD_COMMENT;
+            action = BlackDuckEventAction.ADD_COMMENT;
             if (!doesComponentVersionHaveVulnerabilities(vulnerabilityContent, versionBomComponent)) {
-                action = HubEventAction.RESOLVE;
+                action = BlackDuckEventAction.RESOLVE;
             } else if (doesNotificationOnlyHaveDeletes(vulnerabilityContent)) {
-                action = HubEventAction.ADD_COMMENT_IF_EXISTS;
+                action = BlackDuckEventAction.ADD_COMMENT_IF_EXISTS;
             }
         }
 
@@ -212,48 +212,48 @@ public class NotificationToEventConverter {
         final String hubComponentVersionUrl = eventDataBuilder.getHubComponentVersionUrl();
         final String hubComponentUrl = eventDataBuilder.getHubComponentUrl();
         final StringBuilder keyBuilder = new StringBuilder();
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
-            keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
         } else {
-            keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY);
         }
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         keyBuilder.append(jiraProjectId.toString());
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(hubProjectVersionUrl)));
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubProjectVersionUrl)));
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
-            keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(hubComponentUrl)));
+            keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubComponentUrl)));
         } else {
             // Vulnerabilities do not have a component URL
             keyBuilder.append("");
         }
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
-        keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(hubComponentVersionUrl)));
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubComponentVersionUrl)));
 
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
             final String policyRuleUrl = eventDataBuilder.getHubRuleUrl();
             if (policyRuleUrl == null) {
                 throw new HubIntegrationException("Policy Rule URL is null");
             }
-            keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-            keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
-            keyBuilder.append(HubJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-            keyBuilder.append(hashString(HubUrlParser.getRelativeUrl(policyRuleUrl)));
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+            keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(policyRuleUrl)));
         }
         // TODO before a MAJOR release, discuss how we should differentiate tickets based on origin
 
@@ -315,9 +315,9 @@ public class NotificationToEventConverter {
     }
 
     private final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
-        String issueType = HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE;
+        String issueType = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE;
         if (EventCategory.VULNERABILITY.equals(category)) {
-            issueType = HubJiraConstants.HUB_VULNERABILITY_ISSUE;
+            issueType = BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE;
         }
         return lookUpIssueTypeId(issueType);
     }

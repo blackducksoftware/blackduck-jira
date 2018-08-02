@@ -153,7 +153,7 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
 
-        blackDuckFieldMappings.putAll(getAddtionalHubFieldMappings(customFields));
+        blackDuckFieldMappings.putAll(getAddtionalBlackDuckFieldMappings(customFields));
 
         return blackDuckFieldMappings;
     }
@@ -168,6 +168,6 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         }
     }
 
-    protected abstract Map<Long, String> getAddtionalHubFieldMappings(final Map<PluginField, CustomField> customFields);
+    protected abstract Map<Long, String> getAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields);
 
 }

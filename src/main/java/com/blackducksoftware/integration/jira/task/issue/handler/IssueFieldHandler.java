@@ -38,8 +38,8 @@ import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
@@ -49,7 +49,7 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 
 public class IssueFieldHandler {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
@@ -114,7 +114,7 @@ public class IssueFieldHandler {
         } else {
             final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
             logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage,
+            jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
@@ -135,7 +135,7 @@ public class IssueFieldHandler {
         for (final ProjectFieldCopyMapping fieldCopyMapping : projectFieldCopyMappings) {
             logger.debug("projectFieldCopyMapping: " + fieldCopyMapping);
             if ((!eventData.getJiraProjectName().equals(fieldCopyMapping.getJiraProjectName()))
-                    && (!HubJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
+                    && (!BlackDuckJiraConstants.FIELD_COPY_MAPPING_WILDCARD.equals(fieldCopyMapping.getJiraProjectName()))) {
                 logger.debug("This field copy mapping is for JIRA project " + fieldCopyMapping.getJiraProjectName() + "; skipping it");
                 continue;
             }
@@ -149,7 +149,7 @@ public class IssueFieldHandler {
             if (targetField == null) {
                 final String errorMessage = "Custom field with ID " + targetFieldId + " not found; won't be set";
                 logger.error(errorMessage);
-                jiraSettingsService.addHubError(errorMessage,
+                jiraSettingsService.addBlackDuckError(errorMessage,
                         eventData.getHubProjectName(),
                         eventData.getHubProjectVersion(),
                         eventData.getJiraProjectName(),
@@ -183,9 +183,9 @@ public class IssueFieldHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied to an issue during creation).
      */
     private String setSystemField(final EventData eventData, final IssueInputParameters issueInputParameters, final Field targetField, final String targetFieldValue) {
-        if (targetField.getId().equals(HubJiraConstants.VERSIONS_FIELD_ID)) {
+        if (targetField.getId().equals(BlackDuckJiraConstants.VERSIONS_FIELD_ID)) {
             setAffectedVersion(eventData, issueInputParameters, targetFieldValue);
-        } else if (targetField.getId().equals(HubJiraConstants.COMPONENTS_FIELD_ID)) {
+        } else if (targetField.getId().equals(BlackDuckJiraConstants.COMPONENTS_FIELD_ID)) {
             setComponent(eventData, issueInputParameters, targetFieldValue);
         } else if (targetField.getId().equals("labels")) {
             logger.debug("Recording label to add after issue is created: " + targetFieldValue);
@@ -193,7 +193,7 @@ public class IssueFieldHandler {
         } else {
             final String errorMessage = "Unrecognized field id (" + targetField.getId() + "); field cannot be set";
             logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage,
+            jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
@@ -218,7 +218,7 @@ public class IssueFieldHandler {
         } else {
             final String errorMessage = "No component matching '" + targetFieldValue + "' found on project";
             logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage,
+            jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
@@ -243,7 +243,7 @@ public class IssueFieldHandler {
         } else {
             final String errorMessage = "No version matching '" + targetFieldValue + "' found on project";
             logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage,
+            jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),
@@ -289,7 +289,7 @@ public class IssueFieldHandler {
         } else {
             final String errorMessage = "Unrecognized plugin field ID: " + pluginFieldId;
             logger.error(errorMessage);
-            jiraSettingsService.addHubError(errorMessage,
+            jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getHubProjectName(),
                     eventData.getHubProjectVersion(),
                     eventData.getJiraProjectName(),

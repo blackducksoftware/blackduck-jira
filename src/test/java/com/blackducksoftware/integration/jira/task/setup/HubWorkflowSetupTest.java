@@ -36,7 +36,7 @@ import org.junit.Test;
 
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
@@ -71,11 +71,11 @@ public class HubWorkflowSetupTest {
         final String jiraUserName = "FakeUser";
         final ApplicationUserMock user = new ApplicationUserMock();
         user.setName(jiraUserName);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
-        assertNull(workflowSetup.addHubWorkflowToJira());
+        assertNull(workflowSetup.addBlackDuckWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class HubWorkflowSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final JiraWorkflowMock workflowExisitng = new JiraWorkflowMock();
-        workflowExisitng.setName(HubJiraConstants.HUB_JIRA_WORKFLOW);
+        workflowExisitng.setName(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
 
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
 
@@ -104,11 +104,11 @@ public class HubWorkflowSetupTest {
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
 
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
-        assertEquals(workflowExisitng, workflowSetup.addHubWorkflowToJira());
+        assertEquals(workflowExisitng, workflowSetup.addBlackDuckWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -131,13 +131,13 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
-        final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
 
         assertNotNull(workflow);
         assertTrue(workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -173,7 +173,7 @@ public class HubWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
 
         assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNotNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -218,7 +218,7 @@ public class HubWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
 
         assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -261,7 +261,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -272,7 +272,7 @@ public class HubWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
 
         assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -317,7 +317,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -333,7 +333,7 @@ public class HubWorkflowSetupTest {
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals("TestWorkflow", workflowNameMapped);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
     @Test
@@ -378,7 +378,7 @@ public class HubWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final HubWorkflowSetup workflowSetup = new HubWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -394,7 +394,7 @@ public class HubWorkflowSetupTest {
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals(workflowName, workflowNameMapped);
-        assertNull(settingsMock.get(HubJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
     }
 
 }

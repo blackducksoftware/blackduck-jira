@@ -29,19 +29,19 @@ import java.util.Set;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.util.Stringable;
 
 public class EventDataBuilder extends Stringable {
     private final EventCategory eventCategory;
 
-    private HubEventAction action;
+    private BlackDuckEventAction action;
     private Date lastBatchStartDate;
     private String jiraAdminUserName;
     private String jiraIssueCreatorUserName;
@@ -143,20 +143,20 @@ public class EventDataBuilder extends Stringable {
 
     public EventDataBuilder setPolicyIssueCommentPropertiesFromNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
-            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
         } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
-            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
-            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
-            setJiraIssueReOpenComment(HubJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
-            setJiraIssueResolveComment(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(HubJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT);
         } else {
 
         }
@@ -166,13 +166,13 @@ public class EventDataBuilder extends Stringable {
     public EventDataBuilder setVulnerabilityIssueCommentProperties(final String comment) {
         setJiraIssueComment(comment);
         setJiraIssueCommentForExistingIssue(comment);
-        setJiraIssueReOpenComment(HubJiraConstants.HUB_VULNERABILITY_REOPEN);
-        setJiraIssueResolveComment(HubJiraConstants.HUB_VULNERABILITY_RESOLVE);
+        setJiraIssueReOpenComment(BlackDuckJiraConstants.HUB_VULNERABILITY_REOPEN);
+        setJiraIssueResolveComment(BlackDuckJiraConstants.HUB_VULNERABILITY_RESOLVE);
         setJiraIssueCommentInLieuOfStateChange(comment);
         return this;
     }
 
-    public EventDataBuilder setAction(final HubEventAction action) {
+    public EventDataBuilder setAction(final BlackDuckEventAction action) {
         this.action = action;
         return this;
     }

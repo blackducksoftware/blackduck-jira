@@ -45,14 +45,14 @@ import com.blackducksoftware.integration.hub.notification.content.detail.Notific
 import com.blackducksoftware.integration.hub.service.ComponentService;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 
 public class EventDataFormatHelper {
-    private final HubJiraLogger logger;
+    private final BlackDuckJiraLogger logger;
     private final HubService hubService;
 
-    public EventDataFormatHelper(final HubJiraLogger logger, final HubService hubService) {
+    public EventDataFormatHelper(final BlackDuckJiraLogger logger, final HubService hubService) {
         this.logger = logger;
         this.hubService = hubService;
     }
@@ -242,7 +242,7 @@ public class EventDataFormatHelper {
             final StringBuilder sb = new StringBuilder();
 
             if (type != null) {
-                final String licenseJoinString = (ComplexLicenseType.CONJUNCTIVE.equals(type)) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
+                final String licenseJoinString = (ComplexLicenseType.CONJUNCTIVE.equals(type)) ? BlackDuckJiraConstants.LICENSE_NAME_JOINER_AND : BlackDuckJiraConstants.LICENSE_NAME_JOINER_OR;
                 int licenseIndex = 0;
                 for (final EventDataLicense license : eventDataLicense.licenses) {
                     if (licenseIndex++ > 0) {
