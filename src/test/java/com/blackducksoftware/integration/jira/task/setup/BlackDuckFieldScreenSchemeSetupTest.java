@@ -63,7 +63,7 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
-public class HubFieldScreenSchemeSetupTest {
+public class BlackDuckFieldScreenSchemeSetupTest {
     private static final int NUM_FIELDS_POLICY = PluginField.values().length;
     private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_POLICY - 2;
 

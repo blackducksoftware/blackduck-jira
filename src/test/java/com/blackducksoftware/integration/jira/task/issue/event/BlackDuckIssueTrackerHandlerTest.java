@@ -54,7 +54,7 @@ import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueT
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
-public class HubIssueTrackerHandlerTest {
+public class BlackDuckIssueTrackerHandlerTest {
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
     private static final Long JIRA_PROJECT_ID = new Long(1);
     private static final String ISSUE_URL = "ISSUE URL";

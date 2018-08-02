@@ -306,8 +306,7 @@ public class BlackDuckJiraConfigSerializableTest {
         config.setJiraProjectsError("jiraProjectsError");
         config.setHubProjectsError("hubProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Hub Project Error: hubProjectsError",
-                config.getHubProjectMappingError());
+        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Hub Project Error: hubProjectsError", config.getHubProjectMappingError());
     }
 
     @Test
@@ -335,8 +334,7 @@ public class BlackDuckJiraConfigSerializableTest {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectsError("HubProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("Hub Project Error: HubProjectsError",
-                config.getHubProjectMappingError());
+        assertEquals("Hub Project Error: HubProjectsError", config.getHubProjectMappingError());
     }
 
     @Test
@@ -344,8 +342,7 @@ public class BlackDuckJiraConfigSerializableTest {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setJiraProjectsError("JiraProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("JIRA Project Error: JiraProjectsError",
-                config.getHubProjectMappingError());
+        assertEquals("JIRA Project Error: JiraProjectsError", config.getHubProjectMappingError());
     }
 
     @Test
@@ -353,8 +350,7 @@ public class BlackDuckJiraConfigSerializableTest {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingError("mappingError");
         config.enhanceMappingErrorMessage();
-        assertEquals("mappingError",
-                config.getHubProjectMappingError());
+        assertEquals("mappingError", config.getHubProjectMappingError());
     }
 
 }

@@ -46,7 +46,7 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutItemMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.OrderableFieldMock;
 
-public class HubFieldConfigurationSetupTest {
+public class BlackDuckFieldConfigurationSetupTest {
 
     @Test
     public void testAddHubFieldConfigurationToJiraFirstTimeCreate() {

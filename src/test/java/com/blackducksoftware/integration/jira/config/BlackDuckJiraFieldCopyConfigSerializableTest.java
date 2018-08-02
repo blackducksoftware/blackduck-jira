@@ -34,11 +34,9 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 
-public class HubJiraFieldCopyConfigSerializableTest {
-
+public class BlackDuckJiraFieldCopyConfigSerializableTest {
     private static final String TARGET_FIELD_ID = "targetFieldId";
-
-    private static final String HUB_PROJECT_NAME = "hubProjectName";
+    private static final String BLACK_DUCK_PROJECT_NAME = "blackDuckProjectName";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -50,10 +48,10 @@ public class HubJiraFieldCopyConfigSerializableTest {
 
     @Test
     public void test() {
-        BlackDuckJiraFieldCopyConfigSerializable config = new BlackDuckJiraFieldCopyConfigSerializable();
-        Set<ProjectFieldCopyMapping> mappings = new HashSet<>();
-        ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping();
-        mapping.setHubProjectName(HUB_PROJECT_NAME);
+        final BlackDuckJiraFieldCopyConfigSerializable config = new BlackDuckJiraFieldCopyConfigSerializable();
+        final Set<ProjectFieldCopyMapping> mappings = new HashSet<>();
+        final ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping();
+        mapping.setHubProjectName(BLACK_DUCK_PROJECT_NAME);
         mapping.setJiraProjectName("jiraProjectName");
         mapping.setSourceFieldId(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId());
         mapping.setSourceFieldName(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());

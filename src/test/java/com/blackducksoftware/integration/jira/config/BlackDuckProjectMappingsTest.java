@@ -45,7 +45,7 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 
-public class HubProjectMappingsTest {
+public class BlackDuckProjectMappingsTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

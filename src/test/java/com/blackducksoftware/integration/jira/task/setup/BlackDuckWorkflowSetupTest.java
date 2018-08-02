@@ -50,17 +50,14 @@ import com.blackducksoftware.integration.jira.mocks.workflow.JiraWorkflowMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowManagerMock;
 import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManagerMock;
 
-public class HubWorkflowSetupTest {
+public class BlackDuckWorkflowSetupTest {
 
     @Test
     public void testAddHubWorkflowToJiraNoUser() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-
         final UserUtilMock userUtil = new UserUtilMock();
 
         final JiraServicesMock services = new JiraServicesMock();
@@ -115,9 +112,7 @@ public class HubWorkflowSetupTest {
     public void testAddHubWorkflowToJira() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
 
         final String jiraUserName = "FakeUser";
@@ -146,11 +141,8 @@ public class HubWorkflowSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final String workflowName = "TestWorkflow";
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-
         final String jiraUserName = "FakeUser";
 
         final UserUtilMock userUtil = new UserUtilMock();
@@ -180,9 +172,7 @@ public class HubWorkflowSetupTest {
     public void testAddWorkflowToProjectsWorkflowSchemeNoIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final String workflowName = "TestWorkflow";
 
         final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
@@ -225,11 +215,8 @@ public class HubWorkflowSetupTest {
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNotInScheme() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final String workflowName = "TestWorkflow";
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final String issueTypeName = "CustomIssueType";
         final String issueTypeId = "CustomIssueType";
 
@@ -279,11 +266,8 @@ public class HubWorkflowSetupTest {
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNeedUpdate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final String workflowName = "TestWorkflow";
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final String issueTypeName = "CustomIssueType";
         final String issueTypeId = "CustomIssueType";
 
@@ -340,11 +324,8 @@ public class HubWorkflowSetupTest {
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNoUpdate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
         final String workflowName = "TestWorkflow";
-
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
-
         final String issueTypeName = "CustomIssueType";
         final String issueTypeId = "CustomIssueType";
 
@@ -368,7 +349,6 @@ public class HubWorkflowSetupTest {
         workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
 
         final String jiraUser = "FakeUser";
-
         final UserUtilMock userUtil = new UserUtilMock();
         final ApplicationUserMock user = new ApplicationUserMock();
         user.setName(jiraUser);
