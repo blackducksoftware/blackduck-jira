@@ -25,11 +25,13 @@ package com.blackducksoftware.integration.jira.common;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
+
 public class PluginVersionTest {
 
     @Test
     public void test() {
-        System.out.println("Plugin Version: " + PluginVersion.getVersion());
+        System.out.println("Plugin Version: " + BlackDuckPluginVersion.getVersion());
     }
 
 }

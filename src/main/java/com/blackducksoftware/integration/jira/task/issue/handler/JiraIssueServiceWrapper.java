@@ -89,14 +89,14 @@ public class JiraIssueServiceWrapper {
     }
 
     // @formatter:off
-    public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final IssueFieldCopyMappingHandler issueFieldCopyHandler, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
+    public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
         return new JiraIssueServiceWrapper(
                  jiraServices.getIssueService()
                 ,jiraServices.getIssueManager()
                 ,jiraServices.getCommentManager()
                 ,jiraServices.getWorkflowManager()
                 ,jiraServices.createIssuePropertyWrapper()
-                ,issueFieldCopyHandler
+                ,new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFieldsMap)
                 ,jiraUserContext
                 ,customFieldsMap
                 ,gson

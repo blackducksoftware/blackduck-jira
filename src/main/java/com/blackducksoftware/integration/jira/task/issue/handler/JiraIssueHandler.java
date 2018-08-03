@@ -155,8 +155,8 @@ public class JiraIssueHandler {
                     return new ExistenceAwareIssue(oldIssue, true, true);
                 }
 
-                if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
-                    final Issue transitionedIssue = transitionIssue(eventData, oldIssue, BlackDuckJiraConstants.HUB_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, BlackDuckJiraConstants.HUB_WORKFLOW_STATUS_OPEN);
+                if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_STATUS_RESOLVED)) {
+                    final Issue transitionedIssue = transitionIssue(eventData, oldIssue, BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_STATUS_OPEN);
                     if (transitionedIssue != null) {
                         logger.info("Re-opened the already exisiting issue.");
                         addComment(eventData, eventData.getJiraIssueReOpenComment(), oldIssue);
@@ -180,14 +180,14 @@ public class JiraIssueHandler {
                 logger.debug("This issue has already been updated; plugin will not change issue's state");
             } else if (!issueUsesBdsWorkflow(oldIssue)) {
                 logger.debug("This is not the BDS workflow; plugin will not change issue's state");
-            } else if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.HUB_WORKFLOW_STATUS_CLOSED)) {
+            } else if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_STATUS_CLOSED)) {
                 logger.debug("This issue has been closed; plugin will not change issue's state");
-            } else if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED)) {
+            } else if (oldIssue.getStatus().getName().equals(BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_STATUS_RESOLVED)) {
                 logger.debug("This issue is already Resolved; plugin will not change issue's state");
             } else {
                 issueStateChangeBlocked = false;
                 updateHubFieldsAndDescription(oldIssue, eventData);
-                final Issue updatedIssue = transitionIssue(eventData, oldIssue, BlackDuckJiraConstants.HUB_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, BlackDuckJiraConstants.HUB_WORKFLOW_STATUS_RESOLVED);
+                final Issue updatedIssue = transitionIssue(eventData, oldIssue, BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE, BlackDuckJiraConstants.BLACK_DUCK_WORKFLOW_STATUS_RESOLVED);
                 if (updatedIssue != null) {
                     addComment(eventData, eventData.getJiraIssueResolveComment(), updatedIssue);
                     logger.info("Resolved the issue based on an override.");
@@ -212,7 +212,7 @@ public class JiraIssueHandler {
         logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
         if (comment != null && !checkIfAlreadyProcessedAndUpdateLastBatch(issue.getId(), eventData)) {
             final String newCommentKey = String.valueOf(comment.hashCode());
-            final String storedLastCommentKey = issueServiceWrapper.getIssueProperty(issue.getId(), BlackDuckJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY);
+            final String storedLastCommentKey = issueServiceWrapper.getIssueProperty(issue.getId(), BlackDuckJiraConstants.BLACK_DUCK_JIRA_ISSUE_LAST_COMMENT_KEY);
             if (storedLastCommentKey != null && newCommentKey.equals(storedLastCommentKey)) {
                 // This comment would be a duplicate of the previous one, so there is no need to add it.
                 logger.debug("Ignoring a comment that would be an exact duplicate of the previous comment.");
@@ -220,7 +220,7 @@ public class JiraIssueHandler {
             }
             issueServiceWrapper.addComment(issue, comment);
             try {
-                issueServiceWrapper.addIssuePropertyJson(issue.getId(), BlackDuckJiraConstants.HUB_JIRA_ISSUE_LAST_COMMENT_KEY, newCommentKey);
+                issueServiceWrapper.addIssuePropertyJson(issue.getId(), BlackDuckJiraConstants.BLACK_DUCK_JIRA_ISSUE_LAST_COMMENT_KEY, newCommentKey);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, eventData);
             }
@@ -316,13 +316,13 @@ public class JiraIssueHandler {
     private boolean issueUsesBdsWorkflow(final Issue oldIssue) {
         final JiraWorkflow issueWorkflow = issueServiceWrapper.getWorkflow(oldIssue);
         logger.debug("Issue " + oldIssue.getKey() + " uses workflow " + issueWorkflow.getName());
-        return BlackDuckJiraConstants.HUB_JIRA_WORKFLOW.equals(issueWorkflow.getName());
+        return BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW.equals(issueWorkflow.getName());
     }
 
     private boolean checkIfAlreadyProcessedAndUpdateLastBatch(final Long issueId, final EventData eventData) {
         final Date eventBatchStartDate = eventData.getLastBatchStartDate();
         if (eventBatchStartDate != null) {
-            final String lastBatchStartKey = issueServiceWrapper.getIssueProperty(issueId, BlackDuckJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY);
+            final String lastBatchStartKey = issueServiceWrapper.getIssueProperty(issueId, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ISSUE_LAST_BATCH_START_KEY);
             if (lastBatchStartKey != null && isAlreadyProcessed(lastBatchStartKey, eventBatchStartDate)) {
                 // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
                 // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
@@ -353,7 +353,7 @@ public class JiraIssueHandler {
         if (eventBatchStartDate != null) {
             final String newBatchStartKey = getTimeString(eventBatchStartDate) + getTimeString(instanceUniqueDate);
             try {
-                issueServiceWrapper.addIssuePropertyJson(issueId, BlackDuckJiraConstants.HUB_JIRA_ISSUE_LAST_BATCH_START_KEY, newBatchStartKey);
+                issueServiceWrapper.addIssuePropertyJson(issueId, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ISSUE_LAST_BATCH_START_KEY, newBatchStartKey);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, eventData);
             }

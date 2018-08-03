@@ -97,18 +97,18 @@ public class BlackDuckJiraTask {
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
-        final HubServerConfigBuilder hubConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
-        HubServerConfig hubServerConfig = null;
+        final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
+        HubServerConfig blackDuckServerConfig = null;
         try {
             logger.debug("Building Black Duck configuration");
-            hubServerConfig = hubConfigBuilder.build();
+            blackDuckServerConfig = blackDuckServerConfigBuilder.build();
             logger.debug("Finished building Black Duck configuration");
         } catch (final IllegalStateException e) {
-            logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that  Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
+            logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
             return previousStartDate;
         }
 
-        final BlackDuckJiraConfigSerializable config = deSerializeConfig(hubServerConfig);
+        final BlackDuckJiraConfigSerializable config = deSerializeConfig(blackDuckServerConfig);
         if (config == null) {
             return previousStartDate;
         }
@@ -122,37 +122,38 @@ public class BlackDuckJiraTask {
             return getRunDateString();
         }
 
-        HubServicesFactory hubServicesFactory = null;
+        HubServicesFactory blackDuckServicesFactory = null;
         try {
             try {
-                hubServicesFactory = createHubServicesFactory(hubServerConfig);
+                blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
             } catch (final EncryptionException e) {
                 logger.warn("Error handling password: " + e.getMessage());
                 return previousStartDate;
             }
 
             final boolean getOldestNotificationsFirst = true;
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, hubServicesFactory.createHubService(), hubServicesFactory.createNotificationService(getOldestNotificationsFirst), hubServicesFactory.createIssueService(),
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory.createHubService(), blackDuckServicesFactory.createNotificationService(getOldestNotificationsFirst),
+                    blackDuckServicesFactory.createIssueService(),
                     ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
             // Phone-Home
             final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
             if (LocalDate.now().isAfter(lastPhoneHome)) {
-                bdPhoneHome(hubServicesFactory.createPhoneHomeService());
+                bdPhoneHome(blackDuckServicesFactory.createPhoneHomeService());
             }
 
-            final BlackDuckProjectMappings hubProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
+            final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
 
-            final String hubUsername = hubServerConfig.getGlobalCredentials().getUsername();
-            logger.debug("Getting user item for user: " + hubUsername);
-            final UserView hubUserItem = getHubUserItem(hubServicesFactory, hubUsername);
-            if (hubUserItem == null) {
+            final String blackDuckUsername = blackDuckServerConfig.getGlobalCredentials().getUsername();
+            logger.debug("Getting user item for user: " + blackDuckUsername);
+            final UserView blackDuckUserItem = getBlackDuckUserItem(blackDuckServicesFactory, blackDuckUsername);
+            if (blackDuckUserItem == null) {
                 logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
                 return previousStartDate;
             }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Black Duck notifications from " + startDate + " to " + runDate);
-            final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(hubUserItem, hubProjectMappings, startDate, runDate);
+            final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUserItem, blackDuckProjectMappings, startDate, runDate);
             logger.debug("Finished running ticket generator. Last notification date: " + dateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
             return dateFormatter.format(nextRunDate);
@@ -161,8 +162,8 @@ public class BlackDuckJiraTask {
             jiraSettingsService.addBlackDuckError(e, "executeBlackDuckJiraTask");
             return previousStartDate;
         } finally {
-            if (hubServicesFactory != null) {
-                closeRestConnection(hubServicesFactory.getRestConnection());
+            if (blackDuckServicesFactory != null) {
+                closeRestConnection(blackDuckServicesFactory.getRestConnection());
             }
         }
     }
@@ -171,17 +172,17 @@ public class BlackDuckJiraTask {
         return dateFormatter.format(runDate);
     }
 
-    private UserView getHubUserItem(final HubServicesFactory hubServicesFactory, final String currentUsername) {
+    private UserView getBlackDuckUserItem(final HubServicesFactory blackDuckServicesFactory, final String currentUsername) {
         if (currentUsername == null) {
             final String msg = "Current username is null";
             logger.error(msg);
             jiraSettingsService.addBlackDuckError(msg, "getCurrentUser");
             return null;
         }
-        final HubService hubService = hubServicesFactory.createHubService();
+        final HubService blackDuckService = blackDuckServicesFactory.createHubService();
         List<UserView> users;
         try {
-            users = hubService.getAllResponses(ApiDiscovery.USERS_LINK_RESPONSE);
+            users = blackDuckService.getAllResponses(ApiDiscovery.USERS_LINK_RESPONSE);
         } catch (final IntegrationException e) {
             final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
             logger.error(msg);
@@ -199,10 +200,10 @@ public class BlackDuckJiraTask {
         return null;
     }
 
-    private HubServicesFactory createHubServicesFactory(final HubServerConfig hubServerConfig) throws EncryptionException {
-        final RestConnection restConnection = hubServerConfig.createRestConnection(logger);
-        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-        return hubServicesFactory;
+    private HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig blackDuckServerConfig) throws EncryptionException {
+        final RestConnection restConnection = blackDuckServerConfig.createRestConnection(logger);
+        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(restConnection);
+        return blackDuckServicesFactory;
     }
 
     void closeRestConnection(final RestConnection restConnection) {
@@ -226,17 +227,16 @@ public class BlackDuckJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubService hubService, final NotificationService notificationService, final IssueService issueService,
-            final TicketInfoFromSetup ticketInfoFromSetup,
-            final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
+    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubService blackDuckService, final NotificationService notificationService, final IssueService issueService,
+            final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubService, notificationService, issueService, jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(),
+        final TicketGenerator ticketGenerator = new TicketGenerator(blackDuckService, notificationService, issueService, jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(),
                 pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 
-    private BlackDuckJiraConfigSerializable deSerializeConfig(final HubServerConfig hubServerConfig) {
+    private BlackDuckJiraConfigSerializable deSerializeConfig(final HubServerConfig blackDuckServerConfig) {
         if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
@@ -247,7 +247,7 @@ public class BlackDuckJiraTask {
             return null;
         }
 
-        logger.debug("Black Duck url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Black Duck url / username: " + blackDuckServerConfig.getHubUrl().toString() + " / " + blackDuckServerConfig.getGlobalCredentials().getUsername());
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());

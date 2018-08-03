@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
 import com.blackducksoftware.integration.jira.config.controller.BlackDuckJiraServlet;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;
@@ -98,7 +97,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
@@ -124,7 +123,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
@@ -153,7 +152,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
@@ -182,7 +181,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);

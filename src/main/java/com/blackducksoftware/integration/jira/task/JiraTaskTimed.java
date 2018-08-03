@@ -40,14 +40,14 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
+import com.blackducksoftware.integration.jira.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -131,9 +131,9 @@ public class JiraTaskTimed implements Callable<String> {
 
         logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-        final BlackDuckFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService, jiraServices);
-        final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addBlackDuckFieldConfigurationToJira();
-        final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
+        final BlackDuckFieldConfigurationSetup blackDuckFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService, jiraServices);
+        final EditableFieldLayout fieldConfiguration = blackDuckFieldConfigurationSetup.addBlackDuckFieldConfigurationToJira();
+        final FieldLayoutScheme fieldConfigurationScheme = blackDuckFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
         final BlackDuckWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
         final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
@@ -154,11 +154,11 @@ public class JiraTaskTimed implements Callable<String> {
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();
         if (previousRunDateString != null && currentRunDateString != null) {
-            settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, currentRunDateString);
+            settings.put(PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, currentRunDateString);
         }
         final String newRunDateString = processor.execute(previousRunDateString);
         if (newRunDateString != null) {
-            settings.put(BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+            settings.put(PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
             runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
         }
         return runStatus;

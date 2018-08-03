@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
-public class BlackDuckUrlParser {
+public class UrlParser {
 
     public static String getBaseUrl(final String url) throws URISyntaxException {
         final URI uri = new URI(url);

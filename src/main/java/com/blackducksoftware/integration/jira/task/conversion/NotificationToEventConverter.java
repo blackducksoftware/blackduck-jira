@@ -64,8 +64,8 @@ import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
-import com.blackducksoftware.integration.jira.common.BlackDuckUrlParser;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.UrlParser;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
@@ -84,27 +84,27 @@ public class NotificationToEventConverter {
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
     private final JiraSettingsService jiraSettingsService;
-    private final BlackDuckProjectMappings hubProjectMappings;
+    private final BlackDuckProjectMappings blackDuckProjectMappings;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private final EventDataFormatHelper dataFormatHelper;
     private final List<String> linksOfRulesToMonitor;
-    private final HubService hubService;
+    private final HubService blackDuckService;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings mappings,
-            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService hubSerivce, final BlackDuckJiraLogger logger)
+    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
+            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger)
             throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
-        this.hubProjectMappings = mappings;
+        this.blackDuckProjectMappings = blackDuckProjectMappings;
         this.fieldCopyConfig = fieldCopyConfig;
         this.dataFormatHelper = dataFormatHelper;
         this.linksOfRulesToMonitor = linksOfRulesToMonitor;
-        this.hubService = hubSerivce;
+        this.blackDuckService = blackDuckSerivce;
         this.logger = logger;
     }
 
-    public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket hubBucket, final Date batchStartDate) throws HubIntegrationException {
+    public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket blackDuckBucket, final Date batchStartDate) throws HubIntegrationException {
         final NotificationType notificationType = detailResult.getType();
         logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
 
@@ -112,7 +112,7 @@ public class NotificationToEventConverter {
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             if (shouldHandle(detail) && detail.getProjectName().isPresent()) {
                 final String projectName = detail.getProjectName().get();
-                final List<EventData> projectEvents = createEventDataForHubProjectMappings(projectName, notificationType, detail, detailResult.getNotificationContent(), hubBucket, batchStartDate);
+                final List<EventData> projectEvents = createEventDataForBlackDuckProjectMappings(projectName, notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
                 allEvents.addAll(projectEvents);
             } else {
                 logger.debug(String.format("Ignoring the following notification detail: %s", detail));
@@ -121,23 +121,23 @@ public class NotificationToEventConverter {
         return allEvents;
     }
 
-    private List<EventData> createEventDataForHubProjectMappings(final String hubProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
-            final HubBucket hubBucket, final Date batchStartDate) {
-        logger.debug("Getting JIRA project(s) mapped to Black Duck project: " + hubProjectName);
-        final List<JiraProject> mappingJiraProjects = hubProjectMappings.getJiraProjects(hubProjectName);
-        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Black Duck project : " + hubProjectName);
+    private List<EventData> createEventDataForBlackDuckProjectMappings(final String blackDuckProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
+            final HubBucket blackDuckBucket, final Date batchStartDate) {
+        logger.debug("Getting JIRA project(s) mapped to Black Duck project: " + blackDuckProjectName);
+        final List<JiraProject> mappingJiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
+        logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Black Duck project : " + blackDuckProjectName);
 
         final List<EventData> eventDataList = new ArrayList<>();
         for (final JiraProject jiraProject : mappingJiraProjects) {
             logger.debug("JIRA Project: " + jiraProject);
             try {
-                final Optional<EventData> jiraProjectEventData = createEventDataForJiraProject(notificationType, detail, notificationContent, jiraProject, hubBucket, batchStartDate);
+                final Optional<EventData> jiraProjectEventData = createEventDataForJiraProject(notificationType, detail, notificationContent, jiraProject, blackDuckBucket, batchStartDate);
                 if (jiraProjectEventData.isPresent()) {
                     eventDataList.add(jiraProjectEventData.get());
                 }
             } catch (final Exception e) {
                 logger.error(e);
-                jiraSettingsService.addBlackDuckError(e, hubProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
+                jiraSettingsService.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
                         jiraUserContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
             }
         }
@@ -145,22 +145,22 @@ public class NotificationToEventConverter {
     }
 
     private Optional<EventData> createEventDataForJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
-            final HubBucket hubBucket, final Date batchStartDate) throws EventDataBuilderException, IntegrationException, ConfigurationException {
+            final HubBucket blackDuckBucket, final Date batchStartDate) throws EventDataBuilderException, IntegrationException, ConfigurationException {
         BlackDuckEventAction action = BlackDuckEventAction.OPEN;
         final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
         eventDataBuilder.setLastBatchStartDate(batchStartDate);
 
-        final VersionBomComponentView versionBomComponent = getBomComponent(detail, hubBucket);
+        final VersionBomComponentView versionBomComponent = getBomComponent(detail, blackDuckBucket);
         Optional<PolicyRuleViewV2> optionalPolicyRule = Optional.empty();
         if (detail.isPolicy()) {
             final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
-            optionalPolicyRule = Optional.ofNullable(hubBucket.get(policyRuleLink));
+            optionalPolicyRule = Optional.ofNullable(blackDuckBucket.get(policyRuleLink));
             if (optionalPolicyRule.isPresent()) {
-                eventDataBuilder.setHubRuleName(optionalPolicyRule.get().name);
-                eventDataBuilder.setHubRuleOverridable(optionalPolicyRule.get().overridable);
-                eventDataBuilder.setHubRuleDescription(optionalPolicyRule.get().description);
-                eventDataBuilder.setHubRuleUrl(policyRuleLink.uri);
+                eventDataBuilder.setBlackDuckRuleName(optionalPolicyRule.get().name);
+                eventDataBuilder.setBlackDuckRuleOverridable(optionalPolicyRule.get().overridable);
+                eventDataBuilder.setBlackDuckRuleDescription(optionalPolicyRule.get().description);
+                eventDataBuilder.setBlackDuckRuleUrl(policyRuleLink.uri);
             }
             eventDataBuilder.setPolicyIssueCommentPropertiesFromNotificationType(notificationType);
 
@@ -181,26 +181,26 @@ public class NotificationToEventConverter {
         eventDataBuilder.setPropertiesFromJiraUserContext(jiraUserContext);
         eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
         eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
-        eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail, hubBucket));
+        eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail.getProjectVersion(), blackDuckBucket));
         eventDataBuilder.setJiraFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
 
         eventDataBuilder.setJiraIssuePropertiesGenerator(new IssuePropertiesGenerator(detail, optionalPolicyRule));
         eventDataBuilder.setJiraIssueSummary(dataFormatHelper.getIssueSummary(detail, optionalPolicyRule));
-        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, hubBucket));
+        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(detail, blackDuckBucket));
         eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
 
-        final String licenseText = getLicenseText(detail, versionBomComponent, hubBucket);
-        eventDataBuilder.setHubLicenseNames(licenseText);
-        eventDataBuilder.setHubLicenseUrl(getLicenseTextLink(versionBomComponent, licenseText));
-        eventDataBuilder.setHubComponentUsage(getComponentUsage(versionBomComponent));
-        eventDataBuilder.setHubBaseUrl(hubService.getHubBaseUrl().toString());
+        final String licenseText = getLicenseText(detail, versionBomComponent, blackDuckBucket);
+        eventDataBuilder.setBlackDuckLicenseNames(licenseText);
+        eventDataBuilder.setBlackDuckLicenseUrl(getLicenseTextLink(versionBomComponent, licenseText));
+        eventDataBuilder.setBlackDuckComponentUsage(getComponentUsage(versionBomComponent));
+        eventDataBuilder.setBlackDuckBaseUrl(blackDuckService.getHubBaseUrl().toString());
 
         eventDataBuilder.setAction(action);
         eventDataBuilder.setNotificationType(notificationType);
         eventDataBuilder.setEventKey(generateEventKey(eventDataBuilder));
 
-        eventDataBuilder.setHubProjectVersionLastUpdated(getBomLastUpdated(detail, hubBucket));
-        eventDataBuilder.setHubProjectOwner(getJiraProjectOwner(jiraServices.getUserSearchService(), detail.getProjectVersion(), hubBucket));
+        eventDataBuilder.setBlackDuckProjectVersionLastUpdated(getBomLastUpdated(detail, blackDuckBucket));
+        eventDataBuilder.setBlackDuckProjectOwner(getJiraProjectOwner(jiraServices.getUserSearchService(), detail.getProjectVersion(), blackDuckBucket));
 
         return Optional.of(eventDataBuilder.build());
     }
@@ -208,9 +208,9 @@ public class NotificationToEventConverter {
     // This must remain consistent among non-major versions
     public String generateEventKey(final EventDataBuilder eventDataBuilder) throws HubIntegrationException {
         final Long jiraProjectId = eventDataBuilder.getJiraProjectId();
-        final String hubProjectVersionUrl = eventDataBuilder.getHubProjectVersionUrl();
-        final String hubComponentVersionUrl = eventDataBuilder.getHubComponentVersionUrl();
-        final String hubComponentUrl = eventDataBuilder.getHubComponentUrl();
+        final String blackDuckProjectVersionUrl = eventDataBuilder.getBlackDuckProjectVersionUrl();
+        final String blackDuckComponentVersionUrl = eventDataBuilder.getBlackDuckComponentVersionUrl();
+        final String blackDuckComponentUrl = eventDataBuilder.getBlackDuckComponentUrl();
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
@@ -228,13 +228,13 @@ public class NotificationToEventConverter {
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubProjectVersionUrl)));
+        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckProjectVersionUrl)));
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
-            keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubComponentUrl)));
+            keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
         } else {
             // Vulnerabilities do not have a component URL
             keyBuilder.append("");
@@ -243,17 +243,17 @@ public class NotificationToEventConverter {
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(hubComponentVersionUrl)));
+        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentVersionUrl)));
 
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
-            final String policyRuleUrl = eventDataBuilder.getHubRuleUrl();
+            final String policyRuleUrl = eventDataBuilder.getBlackDuckRuleUrl();
             if (policyRuleUrl == null) {
                 throw new HubIntegrationException("Policy Rule URL is null");
             }
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-            keyBuilder.append(hashString(BlackDuckUrlParser.getRelativeUrl(policyRuleUrl)));
+            keyBuilder.append(hashString(UrlParser.getRelativeUrl(policyRuleUrl)));
         }
         // TODO before a MAJOR release, discuss how we should differentiate tickets based on origin
 
@@ -315,9 +315,9 @@ public class NotificationToEventConverter {
     }
 
     private final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
-        String issueType = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE;
+        String issueType = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE;
         if (EventCategory.VULNERABILITY.equals(category)) {
-            issueType = BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE;
+            issueType = BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE;
         }
         return lookUpIssueTypeId(issueType);
     }
@@ -350,10 +350,10 @@ public class NotificationToEventConverter {
         return usagesText.toString();
     }
 
-    private String getProjectVersionNickname(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
-        if (detail.getProjectVersion().isPresent()) {
+    private String getProjectVersionNickname(final Optional<UriSingleResponse<ProjectVersionView>> optionalProjectVersion, final HubBucket blackDuckBucket) throws HubIntegrationException {
+        if (optionalProjectVersion.isPresent()) {
             try {
-                final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+                final ProjectVersionView projectVersion = blackDuckBucket.get(optionalProjectVersion.get());
                 return projectVersion.nickname;
             } catch (final NullPointerException npe) {
                 logger.debug("Caught NPE in getProjectVersionNickname()", npe);
@@ -362,13 +362,13 @@ public class NotificationToEventConverter {
         return "";
     }
 
-    private ApplicationUser getJiraProjectOwner(final UserSearchService userSearchService, final Optional<UriSingleResponse<ProjectVersionView>> projectVersionOptional, final HubBucket hubBucket) {
+    private ApplicationUser getJiraProjectOwner(final UserSearchService userSearchService, final Optional<UriSingleResponse<ProjectVersionView>> projectVersionOptional, final HubBucket blackDuckBucket) {
         if (projectVersionOptional.isPresent()) {
             try {
-                final ProjectVersionView projectVersion = hubBucket.get(projectVersionOptional.get());
-                final ProjectView project = hubService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
+                final ProjectVersionView projectVersion = blackDuckBucket.get(projectVersionOptional.get());
+                final ProjectView project = blackDuckService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
                 if (project.projectOwner != null) {
-                    final UserView projectOwner = hubService.getResponse(project.projectOwner, UserView.class);
+                    final UserView projectOwner = blackDuckService.getResponse(project.projectOwner, UserView.class);
                     if (projectOwner != null) {
                         for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.email)) {
                             // We will assume that if users are configured correctly, they will have unique email addresses.
@@ -383,11 +383,11 @@ public class NotificationToEventConverter {
         return null;
     }
 
-    private String getBomLastUpdated(final NotificationContentDetail detail, final HubBucket hubBucket) {
+    private String getBomLastUpdated(final NotificationContentDetail detail, final HubBucket blackDuckBucket) {
         if (detail.getProjectVersion().isPresent()) {
-            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+            final ProjectVersionView projectVersion = blackDuckBucket.get(detail.getProjectVersion().get());
             try {
-                final VersionRiskProfileView riskProfile = hubService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
+                final VersionRiskProfileView riskProfile = blackDuckService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
                 final SimpleDateFormat dateFormat = new SimpleDateFormat();
                 return dateFormat.format(riskProfile.bomLastUpdatedAt);
             } catch (final IntegrationException intException) {
@@ -400,7 +400,7 @@ public class NotificationToEventConverter {
         return "";
     }
 
-    private VersionBomComponentView getBomComponent(final NotificationContentDetail detail, final HubBucket hubBucket) throws HubIntegrationException {
+    private VersionBomComponentView getBomComponent(final NotificationContentDetail detail, final HubBucket blackDuckBucket) throws HubIntegrationException {
         VersionBomComponentView targetBomComp = null;
         if (!detail.getProjectVersion().isPresent()) {
             logger.debug("No project version uri was available from the current notification detail.");
@@ -412,23 +412,23 @@ public class NotificationToEventConverter {
         final String componentName = detail.getComponentName().orElse("?");
         final String componentVersionName = detail.getComponentVersionName().orElse("?");
         try {
-            final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
-            bomComps = hubService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
+            final ProjectVersionView projectVersion = blackDuckBucket.get(detail.getProjectVersion().get());
+            bomComps = blackDuckService.getAllResponses(projectVersion, ProjectVersionView.COMPONENTS_LINK_RESPONSE);
         } catch (final IntegrationException intException) {
             logger.debug(String.format("Error getting BOM for project %s / %s; perhaps the BOM is now empty.", projectName, projectVersionName));
             return null;
         } catch (final NullPointerException npe) {
-            logger.debug(String.format("The hub resource (%s / %s, %s / %s) sought could not be found; perhaps it was deleted.", projectName, projectVersionName, componentName, componentVersionName));
+            logger.debug(String.format("The Black Duck resource (%s / %s, %s / %s) sought could not be found; perhaps it was deleted.", projectName, projectVersionName, componentName, componentVersionName));
             logger.trace("Caught NPE in getBomComponent()", npe);
             return null;
         }
         ComponentView notificationComponent = null;
         ComponentVersionView notificationComponentVersion = null;
         if (detail.getComponent().isPresent()) {
-            notificationComponent = hubBucket.get(detail.getComponent().get());
+            notificationComponent = blackDuckBucket.get(detail.getComponent().get());
         }
         if (detail.getComponentVersion().isPresent()) {
-            notificationComponentVersion = hubBucket.get(detail.getComponentVersion().get());
+            notificationComponentVersion = blackDuckBucket.get(detail.getComponentVersion().get());
         }
         targetBomComp = findCompInBom(bomComps, notificationComponent, notificationComponentVersion);
         if (targetBomComp == null) {
@@ -442,9 +442,9 @@ public class NotificationToEventConverter {
         String urlSought;
         try {
             if (actualCompVer != null) {
-                urlSought = hubService.getHref(actualCompVer);
+                urlSought = blackDuckService.getHref(actualCompVer);
             } else {
-                urlSought = hubService.getHref(actualComp);
+                urlSought = blackDuckService.getHref(actualComp);
             }
             for (final VersionBomComponentView bomComp : bomComps) {
                 String urlToTest;
@@ -463,13 +463,13 @@ public class NotificationToEventConverter {
         return null;
     }
 
-    private String getLicenseText(final NotificationContentDetail detail, final VersionBomComponentView versionBomComponent, final HubBucket hubBucket) throws IntegrationException {
+    private String getLicenseText(final NotificationContentDetail detail, final VersionBomComponentView versionBomComponent, final HubBucket blackDuckBucket) throws IntegrationException {
         String licensesString = "";
         if (versionBomComponent != null) {
             licensesString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent);
             logger.debug("Component " + versionBomComponent.componentName + " (version: " + versionBomComponent.componentVersionName + "): License: " + licensesString);
         } else if (detail.getComponentVersion().isPresent()) {
-            final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
+            final ComponentVersionView componentVersion = blackDuckBucket.get(detail.getComponentVersion().get());
             licensesString = dataFormatHelper.getComponentLicensesStringPlainText(componentVersion);
             logger.debug("Component " + detail.getComponentName().orElse("?") + " (version: " + detail.getComponentVersionName().orElse("?") + "): License: " + licensesString);
         }
@@ -488,9 +488,9 @@ public class NotificationToEventConverter {
                 versionBomLicense = versionBomComponent.licenses.get(0);
             }
             try {
-                final LicenseView genericLicense = hubService.getResponse(versionBomLicense.license, LicenseView.class);
-                final LicenseView kbLicense = hubService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
-                return hubService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
+                final LicenseView genericLicense = blackDuckService.getResponse(versionBomLicense.license, LicenseView.class);
+                final LicenseView kbLicense = blackDuckService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
+                return blackDuckService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
             } catch (final Exception e) {
                 logger.debug("Unable to get the BOM component license text.");
             }

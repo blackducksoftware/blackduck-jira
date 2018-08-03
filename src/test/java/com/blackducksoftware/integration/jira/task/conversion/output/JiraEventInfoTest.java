@@ -73,7 +73,7 @@ public class JiraEventInfoTest {
         final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubProjectVersionUrl(null);
+        eventDataBuilder.setBlackDuckProjectVersionUrl(null);
 
         try {
             eventDataBuilder.build();
@@ -89,8 +89,8 @@ public class JiraEventInfoTest {
         final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleName("hubRuleName");
-        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+        eventDataBuilder.setBlackDuckRuleName("hubRuleName");
+        eventDataBuilder.setBlackDuckRuleUrl("hubRuleUrl");
 
         final EventData eventData = eventDataBuilder.build();
 
@@ -105,7 +105,7 @@ public class JiraEventInfoTest {
         final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleName("hubRuleName");
+        eventDataBuilder.setBlackDuckRuleName("hubRuleName");
 
         try {
             eventDataBuilder.build();
@@ -121,7 +121,7 @@ public class JiraEventInfoTest {
         final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
         final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+        eventDataBuilder.setBlackDuckRuleUrl("hubRuleUrl");
 
         try {
             eventDataBuilder.build();
@@ -174,18 +174,18 @@ public class JiraEventInfoTest {
             final IssuePropertiesGenerator issuePropertiesGenerator) {
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
         eventDataBuilder.setAction(BlackDuckEventAction.ADD_COMMENT)
-                .setHubComponentName("hubComponentName")
-                .setHubComponentUrl("hubComponentUrl")
-                .setHubComponentVersion("hubComponentVersion")
-                .setHubComponentVersionUrl("hubComponentVersionUrl")
-                .setHubComponentUsage("hubComponentUsage")
-                .setHubComponentOrigin("hubComponentOrigin")
-                .setHubComponentOriginId("hubComponentOriginId")
-                .setHubProjectName("hubProjectName")
-                .setHubProjectVersion("hubProjectVersion")
-                .setHubProjectVersionUrl("hubProjectVersionUrl")
+                .setBlackDuckComponentName("hubComponentName")
+                .setBlackDuckComponentUrl("hubComponentUrl")
+                .setBlackDuckComponentVersion("hubComponentVersion")
+                .setBlackDuckComponentVersionUrl("hubComponentVersionUrl")
+                .setBlackDuckComponentUsage("hubComponentUsage")
+                .setBlackDuckComponentOrigin("hubComponentOrigin")
+                .setBlackDuckComponentOriginId("hubComponentOriginId")
+                .setBlackDuckProjectName("hubProjectName")
+                .setBlackDuckProjectVersion("hubProjectVersion")
+                .setBlackDuckProjectVersionUrl("hubProjectVersionUrl")
                 .setHubProjectVersionNickname("hubProjectVersionNickname")
-                .setHubLicenseNames("hubLicenseNames")
+                .setBlackDuckLicenseNames("hubLicenseNames")
                 .setJiraFieldCopyMappings(jiraFieldCopyMappings)
                 .setJiraIssueAssigneeUserId("jiraIssueAssigneeUserId")
                 .setJiraIssueComment("jiraIssueComment")

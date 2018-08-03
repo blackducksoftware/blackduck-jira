@@ -208,8 +208,8 @@ public class JiraServices {
     }
 
     public String getPluginVersion() {
-        return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
-                .getPluginInformation().getVersion();
+        // TODO update this string when hub-jira becomes blackduck-jira
+        return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira").getPluginInformation().getVersion();
     }
 
     public LabelManager getLabelManager() {

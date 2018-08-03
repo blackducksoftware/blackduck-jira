@@ -21,9 +21,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.config;
 
-public class BlackDuckJiraConfigKeys {
+public class PluginConfigKeys {
     public static final String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
     public static final String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX + ".intervalBetweenChecks";
     public static final String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubProjectMappings";

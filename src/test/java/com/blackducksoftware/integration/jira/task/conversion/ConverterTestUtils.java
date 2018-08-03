@@ -49,11 +49,11 @@ public class ConverterTestUtils {
         final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         final Collection<IssueType> issueTypes = new ArrayList<>();
         final IssueType policyIssueType = Mockito.mock(IssueType.class);
-        Mockito.when(policyIssueType.getName()).thenReturn(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        Mockito.when(policyIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE);
         Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
         issueTypes.add(policyIssueType);
         final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
-        Mockito.when(vulnerabilityIssueType.getName()).thenReturn(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE);
+        Mockito.when(vulnerabilityIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE);
         Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
         issueTypes.add(vulnerabilityIssueType);
 

@@ -38,7 +38,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 
 public class BlackDuckJiraServlet extends HttpServlet {
     private static final long serialVersionUID = 8293922701957754642L;
@@ -68,12 +68,12 @@ public class BlackDuckJiraServlet extends HttpServlet {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         // Used for backwards compatibility
         @SuppressWarnings("deprecation")
-        final String oldHubJiraGroupsString = (String) settings.get(BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String oldHubJiraGroupsString = (String) settings.get(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String blackDuckJiraGroupsString;
         if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
             blackDuckJiraGroupsString = oldHubJiraGroupsString;
         } else {
-            blackDuckJiraGroupsString = (String) settings.get(BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS);
+            blackDuckJiraGroupsString = (String) settings.get(PluginConfigKeys.HUB_CONFIG_GROUPS);
         }
 
         if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {

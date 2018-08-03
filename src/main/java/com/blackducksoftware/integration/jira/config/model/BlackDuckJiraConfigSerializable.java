@@ -127,7 +127,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         final StringBuilder sb = new StringBuilder();
         addMsg(sb, null, getHubProjectMappingError());
         addMsg(sb, "JIRA Project Error", getJiraProjectsError());
-        addMsg(sb, "Hub Project Error", getHubProjectsError());
+        addMsg(sb, "Black Duck Project Error", getHubProjectsError());
         final String msg = sb.toString();
         if (!StringUtils.isBlank(msg)) {
             setHubProjectMappingError(msg);

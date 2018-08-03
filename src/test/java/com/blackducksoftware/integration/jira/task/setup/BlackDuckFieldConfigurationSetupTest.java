@@ -69,7 +69,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertEquals(1, fieldLayout.getFieldsToMakeOptional().size());
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class BlackDuckFieldConfigurationSetupTest {
 
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertEquals(0, fieldLayout.getFieldsToMakeOptional().size());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 1);
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -130,7 +130,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-        fieldLayout.setName(BlackDuckJiraConstants.HUB_FIELD_CONFIGURATION);
+        fieldLayout.setName(BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
         addFieldLayoutItem(fieldLayout, "custom", true);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
@@ -146,7 +146,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         assertTrue(fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 1);
         assertTrue(fieldLayout.getFieldsToMakeOptional().get(0).getOrderableField().getName().equals("custom"));
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
-        fieldLayout.setName(BlackDuckJiraConstants.HUB_FIELD_CONFIGURATION);
+        fieldLayout.setName(BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
         fieldLayoutManager.addEditableFieldLayout(fieldLayout);
@@ -168,7 +168,7 @@ public class BlackDuckFieldConfigurationSetupTest {
 
         assertTrue(!fieldLayoutManager.getAttemptedToPersistFieldLayout());
         assertTrue(fieldLayout.getFieldsToMakeOptional().size() == 0);
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     private EditableFieldLayoutMock mockCreateEditableFieldLayout(

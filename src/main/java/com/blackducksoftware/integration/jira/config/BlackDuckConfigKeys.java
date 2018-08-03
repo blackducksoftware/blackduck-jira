@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.config;
 
-public class HubConfigKeys {
+public class BlackDuckConfigKeys {
     public static final String HUB_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.configuration";
 
     public static final String CONFIG_HUB_URL = HUB_CONFIG_KEY_PREFIX + ".huburl";

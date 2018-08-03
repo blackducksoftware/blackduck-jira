@@ -97,8 +97,8 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         // Create a custom field
         jiraServices.setCustomFieldManager(customFieldManagerMock);
-        final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(BlackDuckJiraConstants.HUB_CUSTOM_FIELD_PROJECT,
-                BlackDuckJiraConstants.HUB_CUSTOM_FIELD_PROJECT, null,
+        final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(BlackDuckJiraConstants.BLACK_DUCK_CUSTOM_FIELD_PROJECT,
+                BlackDuckJiraConstants.BLACK_DUCK_CUSTOM_FIELD_PROJECT, null,
                 null, null, null);
         final List<IssueType> hubIssueTypes = getHubIssueTypes();
         final CustomFieldMock customFieldMock = (CustomFieldMock) customField;
@@ -112,7 +112,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(hubIssueTypes);
 
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                 .contains("The custom field BDS Hub Project is missing one or more IssueType associations"));
     }
 
@@ -126,7 +126,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(null);
 
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
                 jiraServices);
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(new ArrayList<IssueType>());
 
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -200,9 +200,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_VULNERABILITY, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -213,15 +213,15 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
         assertEquals(6, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
     }
 
@@ -279,9 +279,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(expectedPolicyFields, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(expectedVulnerabilityFields, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -292,20 +292,20 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
         if (includeSomeNullCustomFields) {
             assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                     .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
         } else {
             assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                     .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
         }
     }
@@ -346,9 +346,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -360,15 +360,15 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
 
         // User edits
@@ -389,9 +389,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
-            if (screenName.equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)) {
+            if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
-            } else if (screenName.equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME)) {
+            } else if (screenName.equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
             }
         }
@@ -402,15 +402,15 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME)
+                        .equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME)
                         || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME));
+                                .equals(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
         assertEquals(7, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR))
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR))
                 .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
     }
 
@@ -478,16 +478,16 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
     private void addVulnIssueType(final List<IssueType> issueTypes) {
         final IssueTypeMock securityIssueType = new IssueTypeMock();
-        securityIssueType.setName(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE);
-        securityIssueType.setId(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE);
+        securityIssueType.setName(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE);
+        securityIssueType.setId(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE);
         securityIssueType.setValue(Mockito.mock(GenericValue.class));
         issueTypes.add(securityIssueType);
     }
 
     private void addPolicyIssueType(final List<IssueType> issueTypes) {
         final IssueTypeMock policyIssueType = new IssueTypeMock();
-        policyIssueType.setName(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
-        policyIssueType.setId(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        policyIssueType.setName(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE);
+        policyIssueType.setId(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE);
         policyIssueType.setValue(Mockito.mock(GenericValue.class));
         issueTypes.add(policyIssueType);
     }

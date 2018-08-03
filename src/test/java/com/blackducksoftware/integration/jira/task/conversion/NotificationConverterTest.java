@@ -106,23 +106,23 @@ public class NotificationConverterTest {
     private static final String VULNERABLE_COMPONENTS_URL = "http://localhost:8080/api/projects/x/versions/y/vulnerable-components";
     private static final String RULE_NAME = "Test Rule";
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=|hcv=1816144506|hr=1736320804";
-    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
-    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "Black Duck has detected a policy violation.  \n\n";
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-    private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-    private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_CLEARED_RESOLVE;
-    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
-    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
+    private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Black Duck Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
+    private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_RESOLVE;
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
+    private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
     private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-    private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
-    private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
-    private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_RESOLVE;
-    private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck policy violation detected on Hub project 'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
-    private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.HUB_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
+    private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Black Duck Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion' [Rule: 'Test Rule']";
+    private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_RESOLVE;
+    private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_RESOLVE;
+    private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN;
+    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
+    private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
     private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
     private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Hub Security Vulnerability";
@@ -151,14 +151,14 @@ public class NotificationConverterTest {
     private static final String JIRA_PROJECT_NAME = "jiraProjectName";
     private static final String VULN_SOURCE = "NVD";
     private static final String VULN_EXPECTED_PROPERTY_KEY = "t=v|jp=123|hpv=-32224582|hc=|hcv=1816144506";
-    private static final String VULN_EXPECTED_RESOLVED_COMMENT = BlackDuckJiraConstants.HUB_VULNERABILITY_RESOLVE;
-    private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.HUB_VULNERABILITY_REOPEN;
-    private final static String VULN_EXPECTED_COMMENT = "(Black Duck Hub JIRA plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
+    private static final String VULN_EXPECTED_RESOLVED_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_RESOLVE;
+    private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_REOPEN;
+    private final static String VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
-    private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in the Hub.  \n\n";
-    private final static String VULN_EXPECTED_SUMMARY = "Black Duck vulnerability status changes on Hub project " + "'hubProjectName' / 'projectVersionName', component 'componentName' / 'componentVersion'";
+    private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
+    private final static String VULN_EXPECTED_SUMMARY = "Black Duck Vulnerability: Project " + "'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion'";
 
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;

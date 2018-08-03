@@ -72,7 +72,7 @@ public class BlackDuckWorkflowSetupTest {
 
         assertNull(workflowSetup.addBlackDuckWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class BlackDuckWorkflowSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final JiraWorkflowMock workflowExisitng = new JiraWorkflowMock();
-        workflowExisitng.setName(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
+        workflowExisitng.setName(BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW);
 
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
 
@@ -105,7 +105,7 @@ public class BlackDuckWorkflowSetupTest {
 
         assertEquals(workflowExisitng, workflowSetup.addBlackDuckWorkflowToJira());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class BlackDuckWorkflowSetupTest {
 
         assertNotNull(workflow);
         assertTrue(workflowManager.getAttemptedCreateWorkflow());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class BlackDuckWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
 
         assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNotNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class BlackDuckWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, null);
 
         assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -259,7 +259,7 @@ public class BlackDuckWorkflowSetupTest {
         workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, project, issueTypes);
 
         assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -317,7 +317,7 @@ public class BlackDuckWorkflowSetupTest {
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals("TestWorkflow", workflowNameMapped);
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -374,7 +374,7 @@ public class BlackDuckWorkflowSetupTest {
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals(workflowName, workflowNameMapped);
-        assertNull(settingsMock.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNull(settingsMock.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
 }

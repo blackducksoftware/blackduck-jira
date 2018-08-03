@@ -53,7 +53,6 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCop
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
-import com.blackducksoftware.integration.jira.task.issue.handler.IssueFieldCopyMappingHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
 import com.google.gson.GsonBuilder;
@@ -64,27 +63,27 @@ import com.google.gson.GsonBuilder;
 public class TicketGenerator {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final HubService hubService;
+    private final HubService blackDuckService;
     private final NotificationService notificationService;
     private final JiraUserContext jiraUserContext;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final Map<PluginField, CustomField> customFields;
-    private final BlackDuckIssueTrackerHandler hubIssueTrackerHandler;
+    private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
     private final boolean shouldCreateVulnerabilityIssues;
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public TicketGenerator(final HubService hubService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext,
+    public TicketGenerator(final HubService blackDuckService, final NotificationService notificationService, final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext,
             final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields, final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor,
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
-        this.hubService = hubService;
+        this.blackDuckService = blackDuckService;
         this.notificationService = notificationService;
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.hubIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, issueService);
+        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, issueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
@@ -103,14 +102,12 @@ public class TicketGenerator {
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
             if (!notificationDetailResults.isEmpty()) {
-                // TODO inject
-                final IssueFieldCopyMappingHandler issueFieldHandler = new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFields);
-                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, issueFieldHandler, jiraUserContext, new GsonBuilder().create(), customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, hubIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
+                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
                 final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig,
-                        new EventDataFormatHelper(logger, hubService),
-                        linksOfRulesToMonitor, hubService, logger);
+                        new EventDataFormatHelper(logger, blackDuckService),
+                        linksOfRulesToMonitor, blackDuckService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {

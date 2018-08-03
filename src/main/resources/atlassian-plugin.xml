@@ -79,7 +79,7 @@
     <resource type="i18n" name="i18n" location="com.blackducksoftware.integration.jira.i18n" />
     
      <!-- add our web resources -->
-    <web-resource key="hub-jira-resources" name="Black Duck Jira Web Resources">
+    <web-resource key="blackduck-jira-resources" name="Black Duck Jira Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
         <resource type="download" name="blackduck-jira.css" location="/css/blackduck-jira.css"/>
@@ -91,13 +91,10 @@
     </web-resource>
     
     <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.BlackDuckJiraServlet">
-  		<url-pattern>/hub-jira-integration</url-pattern>
+  		<url-pattern>/blackduck-jira-integration</url-pattern>
 	</servlet>
     
     <!-- publish our component -->
-    <component name="Black Duck Jira Component" key="hubJiraComponent" class="com.blackducksoftware.integration.jira.BlackDuckJiraComponentImpl" public="true">
-        <interface>com.blackducksoftware.integration.jira.BlackDuckJiraComponent</interface>
-    </component>
     
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
     <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.IssueEventListener">
@@ -122,17 +119,17 @@
 	<component-import name="Template Renderer" key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
 	<component-import name="SAL Scheduler" key="pluginScheduler" interface="com.atlassian.sal.api.scheduling.PluginScheduler" />
     
-	<rest name="Black Duck Jira Rest" key="rest" path="/hub-jira-integration" version="1.0">
+	<rest name="Black Duck Jira Rest" key="rest" path="/blackduck-jira-integration" version="1.0">
 	  <description>Provides REST resources for the admin UI.</description>
 	</rest>
 	
 	<web-item key="jira-menu-item" name="Black Duck Jira" section="system.admin/globalsettings" weight="10" application="jira">
-	  <description>Link to hub jira page.</description> 
-	  <label key="hub.integration.jira.label" /> 
-	  <link linkId="hub-admin-link">/plugins/servlet/hub-jira-integration</link> 
+	  <description>Link to Black Duck JIRA page.</description> 
+	  <label key="blackduck.integration.jira.label" /> 
+	  <link linkId="hub-admin-link">/plugins/servlet/blackduck-jira-integration</link> 
 	</web-item>
 	
-	<web-resource key="hub-jira-web-panel-resources" name="Black Duck Jira Web Panel Resources">
+	<web-resource key="blackduck-jira-web-panel-resources" name="Black Duck Jira Web Panel Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="blackduck-jira-issue-panel.css" location="/css/blackduck-jira-issue-panel.css"/>
         <resource type="download" name="blackduck-jira-issue-panel.js" location="/js/blackduck-jira-issue-panel.js"/>
@@ -141,7 +138,7 @@
     </web-resource>
 	
 	<web-panel name="Black Duck Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="150" >
-        <label key="hub.issue.panel.title" />
+        <label key="blackduck.issue.panel.title" />
         <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
 		<resource name="view" type="velocity" location="blackduck-issue-panel.vm"/>
 		<condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition" />

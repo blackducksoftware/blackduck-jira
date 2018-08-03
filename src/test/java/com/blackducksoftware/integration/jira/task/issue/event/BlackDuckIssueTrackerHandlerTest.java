@@ -171,7 +171,7 @@ public class BlackDuckIssueTrackerHandlerTest {
         issueHandler.createBlackDuckIssue("", issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class BlackDuckIssueTrackerHandlerTest {
         issueHandler.updateBlackDuckIssue("", issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 
     @Test
@@ -208,6 +208,6 @@ public class BlackDuckIssueTrackerHandlerTest {
         issueHandler.deleteBlackDuckIssue("", issue);
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
-        assertNotNull(settings.get(BlackDuckJiraConstants.HUB_JIRA_ERROR));
+        assertNotNull(settings.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR));
     }
 }

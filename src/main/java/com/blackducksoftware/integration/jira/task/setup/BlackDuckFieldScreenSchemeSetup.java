@@ -89,10 +89,10 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             if (blackDuckIssueTypes != null && !blackDuckIssueTypes.isEmpty()) {
                 for (final IssueType issueType : blackDuckIssueTypes) {
-                    if (issueType.getName().equals(BlackDuckJiraConstants.HUB_POLICY_VIOLATION_ISSUE)) {
+                    if (issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE)) {
                         final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType, blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
-                    } else if (issueType.getName().equals(BlackDuckJiraConstants.HUB_VULNERABILITY_ISSUE)) {
+                    } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE)) {
                         final FieldScreenScheme fss = createSecurityScreenScheme(blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
                     }
@@ -262,7 +262,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         FieldScreenTab myTab = null;
         if (hubScreen != null && hubScreen.getTabs() != null && !hubScreen.getTabs().isEmpty()) {
             for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
-                if (screenTab.getName().equals(BlackDuckJiraConstants.HUB_SCREEN_TAB)) {
+                if (screenTab.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_SCREEN_TAB)) {
                     myTab = screenTab;
                     break;
                 }
@@ -271,7 +271,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         boolean needToUpdateTabAndScreen = false;
         if (myTab == null) {
             logger.debug("addBlackDuckTabToScreen(): did not find Black Duck screen tab; adding it");
-            myTab = hubScreen.addTab(BlackDuckJiraConstants.HUB_SCREEN_TAB);
+            myTab = hubScreen.addTab(BlackDuckJiraConstants.BLACK_DUCK_SCREEN_TAB);
             needToUpdateTabAndScreen = true;
         }
         if (blackDuckCustomFields != null && !blackDuckCustomFields.isEmpty()) {
@@ -338,13 +338,13 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private FieldScreen createPolicyViolationScreen(final IssueType issueType, final List<IssueType> issueTypeList) {
         final List<OrderableField> hubCustomFields = createPolicyViolationFields(issueType, issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.HUB_POLICY_SCREEN_NAME, hubCustomFields);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME, hubCustomFields);
         return screen;
     }
 
     private FieldScreen createSecurityScreen(final List<IssueType> issueTypeList) {
         final List<OrderableField> hubCustomFields = createSecurityFields(issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_NAME, hubCustomFields);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME, hubCustomFields);
         return screen;
     }
 
@@ -419,13 +419,13 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType, final List<IssueType> issueTypeList) {
         final FieldScreen screen = createPolicyViolationScreen(issueType, issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.HUB_POLICY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 
     private FieldScreenScheme createSecurityScreenScheme(final List<IssueType> issueTypeList) {
         final FieldScreen screen = createSecurityScreen(issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.HUB_SECURITY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 

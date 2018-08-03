@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common.jiraversion;
+package com.blackducksoftware.integration.jira;
 
 import org.apache.log4j.Logger;
 

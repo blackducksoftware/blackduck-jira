@@ -306,7 +306,7 @@ public class BlackDuckJiraConfigSerializableTest {
         config.setJiraProjectsError("jiraProjectsError");
         config.setHubProjectsError("hubProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Hub Project Error: hubProjectsError", config.getHubProjectMappingError());
+        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Black Duck Project Error: hubProjectsError", config.getHubProjectMappingError());
     }
 
     @Test
@@ -332,9 +332,9 @@ public class BlackDuckJiraConfigSerializableTest {
     @Test
     public void testMessagesHubOnly() {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        config.setHubProjectsError("HubProjectsError");
+        config.setHubProjectsError("BlackDuckProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("Hub Project Error: HubProjectsError", config.getHubProjectMappingError());
+        assertEquals("Black Duck Project Error: BlackDuckProjectsError", config.getHubProjectMappingError());
     }
 
     @Test

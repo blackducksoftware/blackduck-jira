@@ -1,8 +1,8 @@
 <html>
   <head>
-    <title>$i18n.getText("hub.integration.jira.label")</title>
+    <title>$i18n.getText("blackduck.integration.jira.label")</title>
     <meta name="decorator" content="atl.admin" />
-   		$webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:hub-jira-resources")
+   		$webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:blackduck-jira-resources")
    		
   </head>
   <body>
@@ -28,12 +28,12 @@
 
 	<div id="Admin" class="tabcontent">
 	<fieldset class="fieldSection">
-      	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("hub.integration.jira.admin.label")</legend>
+      	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("blackduck.integration.jira.admin.label")</legend>
       	 <div id="adminArea">
 		      <div class="field-group">
-		        <label class="label" for="hubJiraGroups">$i18n.getText("hub.integration.jira.hubJiraGroups.label")</label>
-		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hubJiraGroupsDescription.label')"></span>
+		        <label class="label" for="hubJiraGroups">$i18n.getText("blackduck.integration.jira.pluginGroups.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.pluginGroupsDescription.label')"></span>
 				<select class="aui longInput" id="hubJiraGroups" multiple=""> </select>
 		      </div>
 		      <div class="field-group">
@@ -44,7 +44,7 @@
 		      <div style="display: inline-block; width: 100%;">
 		   	   		<div class="buttonContainer">
 			       		<div id="adminSaveSpinner" style="display: inline-block;"></div>
-			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAccessConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+			  	   		<input id="hubJiraAdminConfigSaveButton" onclick="updateAccessConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.save.label')" class="aui-button aui-button-primary" />
 			  	   </div>
 			  </div>
 	      </div>
@@ -66,12 +66,12 @@
       </div>
       
       <fieldset class="fieldSection">
-      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'serverConfigArea');"> </i> $i18n.getText("hub.integration.jira.hub.details.serverConfig.label")</legend>
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'serverConfigArea');"> </i> $i18n.getText("blackduck.integration.jira.server.details.serverConfig.label")</legend>
       	  <div id="serverConfigArea">
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubServerUrl">$i18n.getText("hub.integration.jira.hub.details.url.label")<span class="error"> *</span></label>
+		        <label class="hubDetailsLabel" for="hubServerUrl">$i18n.getText("blackduck.integration.jira.server.details.url.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubServerUrl" name="hubServerUrl" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.url.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.url.description')"></span>
 		      </div>
 		      <div id="hubServerUrlErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -79,9 +79,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubUsername">$i18n.getText("hub.integration.jira.hub.details.username.label")<span class="error"> *</span></label>
+		        <label class="hubDetailsLabel" for="hubUsername">$i18n.getText("blackduck.integration.jira.server.details.username.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.username.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.username.description')"></span>
 		      </div>
 		      <div id="hubUsernameErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -89,9 +89,9 @@
 		      </div>
 		        
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubPassword">$i18n.getText("hub.integration.jira.hub.details.password.label")<span class="error"> *</span></label>
+		        <label class="hubDetailsLabel" for="hubPassword">$i18n.getText("blackduck.integration.jira.server.details.password.label")<span class="error"> *</span></label>
 		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.password.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.password.description')"></span>
 		      </div>
 		       <div id="hubPasswordErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -99,9 +99,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubTimeout">$i18n.getText("hub.integration.jira.hub.details.timeout.label")<span class="error"> *</span></label>
+		        <label class="hubDetailsLabel" for="hubTimeout">$i18n.getText("blackduck.integration.jira.server.details.timeout.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubTimeout" name="hubTimeout" class="longInput textStyle" default="120" />
-		         <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.timeout.description')"></span>
+		         <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.timeout.description')"></span>
 		      </div>
 		       <div id="hubTimeoutErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -109,9 +109,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-                <label class="hubDetailsLabel" for="hubTrustCert">$i18n.getText("hub.integration.jira.hub.details.trust.cert.label")<span class="error"></span></label>
+                <label class="hubDetailsLabel" for="hubTrustCert">$i18n.getText("blackduck.integration.jira.server.details.trust.cert.label")<span class="error"></span></label>
                 <input type="checkbox" id="hubTrustCert" name="hubTrustCert" />
-                 <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.trust.cert.description')"></span>
+                 <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.trust.cert.description')"></span>
               </div>
                <div id="hubTrustCertErrorRow" class="hub-details-field-group hidden">
                 <label> </label>
@@ -121,12 +121,12 @@
       </fieldset>
       
       <fieldset class="fieldSection">
-      	  <legend class="legend"><i id="proxyConfigDisplayIcon" class="fa fa-angle-down" onclick="toggleDisplay(this,'proxyConfigArea');"> </i> $i18n.getText("hub.integration.jira.hub.details.proxyConfig.label")</legend>
+      	  <legend class="legend"><i id="proxyConfigDisplayIcon" class="fa fa-angle-down" onclick="toggleDisplay(this,'proxyConfigArea');"> </i> $i18n.getText("blackduck.integration.jira.server.details.proxyConfig.label")</legend>
       	  <div id="proxyConfigArea">
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.host.label")</label>
+		        <label class="hubDetailsLabel" for="proxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.host.label")</label>
 		        <input type="text" id="proxyHost" name="proxyHost" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.host.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.host.description')"></span>
 		      </div>
 		       <div id="proxyHostErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -134,9 +134,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyPort">$i18n.getText("hub.integration.jira.hub.details.proxy.port.label")</label>
+		        <label class="hubDetailsLabel" for="proxyPort">$i18n.getText("blackduck.integration.jira.server.details.proxy.port.label")</label>
 		        <input type="text" id="proxyPort" name="proxyPort" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.port.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.port.description')"></span>
 		      </div>
 		       <div id="proxyPortErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -144,9 +144,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="noProxyHost">$i18n.getText("hub.integration.jira.hub.details.proxy.noproxyhost.label")</label>
+		        <label class="hubDetailsLabel" for="noProxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.noproxyhost.label")</label>
 		        <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.noproxyhost.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.noproxyhost.description')"></span>
 		      </div>
 		       <div id="noProxyHostErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -154,9 +154,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyUsername">$i18n.getText("hub.integration.jira.hub.details.proxy.username.label")</label>
+		        <label class="hubDetailsLabel" for="proxyUsername">$i18n.getText("blackduck.integration.jira.server.details.proxy.username.label")</label>
 		        <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.username.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.username.description')"></span>
 		      </div>
 		       <div id="proxyUsernameErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -164,9 +164,9 @@
 		      </div>
 		      
 		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyPassword">$i18n.getText("hub.integration.jira.hub.details.proxy.password.label")</label>
+		        <label class="hubDetailsLabel" for="proxyPassword">$i18n.getText("blackduck.integration.jira.server.details.proxy.password.label")</label>
 		        <input type="password" id="proxyPassword" name="proxyPassword" class="longInput password textStyle" />
-		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('hub.integration.jira.hub.details.proxy.password.description')"></span>
+		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.password.description')"></span>
 		      </div>
 		      <div id="proxyPasswordErrorRow" class="hub-details-field-group hidden">
 		      	<label> </label>
@@ -180,31 +180,31 @@
       	  <div id="hubDetailsProgressSpinner" style="display: inline-block;">
 		  	<i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
 		  </div>
-		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.test.label")" class="aui-button aui-button-primary" />
-		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("hub.integration.jira.hub.details.save.label")" class="aui-button aui-button-primary" />
+		  <input id="testConnectionButton" onclick="testConnection(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("blackduck.integration.jira.server.details.test.label")" class="aui-button aui-button-primary" />
+		  <input id="saveConfigButton" onclick="updateHubDetails(); startProgressSpinner('hubDetailsProgressSpinner');" type="button" value="$i18n.getText("blackduck.integration.jira.server.details.save.label")" class="aui-button aui-button-primary" />
 	  </div>
 	  </div>
 	</div>
 
 	<div id="Basic" class="tabcontent">
   		<fieldset class="fieldSection">
-      	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("hub.integration.jira.intervalSection.label")</legend>
+      	 <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("blackduck.integration.jira.intervalSection.label")</legend>
       	 <div id="intervalArea">
 		      <div class="field-group">
 		      
 		        <table width="100%">
 		        <tr>
 		        <td>
-		        <label class="label" for="intervalBetweenChecks">$i18n.getText("hub.integration.jira.intervalBetweenChecks.label")</label>
-		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <label class="label" for="intervalBetweenChecks">$i18n.getText("blackduck.integration.jira.intervalBetweenChecks.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
 		        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput" />
 		        </td>
 		        <td width="25px"></td>
 		        <td id="creatorCell">
-		        <label class="label" for="creator">$i18n.getText("hub.integration.jira.creator.label")</label>
-		        <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+		        <label class="label" for="creator">$i18n.getText("blackduck.integration.jira.creator.label")</label>
+		        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
 		        <input type="text" id="creatorInput" name="creator" class="intervalInput" 
-		        	placeholder="$i18n.getText('hub.integration.jira.creator.placeholder')"
+		        	placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
 		        	list="creatorCandidates" oninput="onCreatorInputChange(this);" />
 		        <datalist id="creatorCandidates">
 				</datalist>
@@ -221,10 +221,10 @@
       	</fieldset>
       
       	<fieldset class="fieldSection">
-      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText('hub.integration.jira.hubProjectMappingSection.label') </legend>
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText('blackduck.integration.jira.blackduckProjectMappingSection.label') </legend>
 			<div id="mappingArea" class="mappingContainer">
-			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.hubProjectMappings.label")</label>
-			  <span class="aui-icon icon-required"> $i18n.getText("hub.integration.jira.required")</span>
+			  <label class="label" for="hubProjectMappingContainer">$i18n.getText("blackduck.integration.jira.blackduckProjectMappings.label")</label>
+			  <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
 			  <div class="field-group">
 					<div id="hubProjectMappingsError" class="error hidden"></div>
 			  </div>
@@ -243,11 +243,11 @@
 			  			<tr>
 			  				<td class="mappingTableCell"/>
 			  				<td class="mappingTableCell">
-			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
+			  					$i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
 						    </td>
 						    <td class="mappingTableCell"/>
 						    <td class="mappingTableCell">
-						    	$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')
+						    	$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')
 						    </td>
 						    <td class="mappingTableCell"/>
 			  			</tr>
@@ -257,7 +257,7 @@
 						    <td class="mappingTableCell" id="mappingStatus">
 						    </td>
 						    <td class="mappingTableCell">
-						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
 								</input>
@@ -266,31 +266,31 @@
 						    </td>
 						    <td class="mappingTableCell" width="25px"> = </td>
 						    <td class="mappingTableCell">
-						    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.hubProjectPlaceHolder.label')">
+						    	<input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
 								<datalist id="hubProjects">
 								</datalist>
 								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
-						    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeProjectMapping.label')"></div>
+						    	<div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('blackduck.integration.jira.removeProjectMapping.label')"></div>
 						  	</td>
 						  </tr>
 				  </tbody>
 				</table>
 			</div>
 			<div class="buttonContainer">
-				<input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addProjectMapping.label')" class="aui-button" />
+				<input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('blackduck.integration.jira.addProjectMapping.label')" class="aui-button" />
 			</div>
 		</fieldset>
       
 		<fieldset class="fieldSection">
-			<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText("hub.integration.jira.ticketCriteriaSection.label")</legend>
+			<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText("blackduck.integration.jira.ticketCriteriaSection.label")</legend>
 			<div id="ticketCriteriaArea">
 			<table class="ticketCriteriaTable">
 				<thead>
 					<tr>
-						<th class="label">$i18n.getText('hub.integration.jira.policyConditions.label')</th>
-						<th class="label">$i18n.getText('hub.integration.jira.createVulnerabilityIssues.label')</th>
+						<th class="label">$i18n.getText('blackduck.integration.jira.policyConditions.label')</th>
+						<th class="label">$i18n.getText('blackduck.integration.jira.createVulnerabilityIssues.label')</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -302,8 +302,8 @@
 				  		</td>
 				  		<td>
 				  			<div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
-					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes" />$i18n.getText("hub.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
-					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No" />$i18n.getText("hub.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes" />$i18n.getText("blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
+					  			<input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No" />$i18n.getText("blackduck.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
 							</div>
 				  		</td>
 	      			</tr>
@@ -323,30 +323,30 @@
 	   <div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+	  	   		<input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.save.label')" class="aui-button aui-button-primary" />
 	  	   </div>
 	   </div>
 	</div>
 
 	<div id="Advanced" class="tabcontent">
-  		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("hub.integration.jira.fieldCopy.label")</legend>
+  		<legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'fieldCopyArea');"> </i> $i18n.getText("blackduck.integration.jira.fieldCopy.label")</legend>
   		<div id="fieldCopyArea">
   		<fieldset class="fieldSection">
-  		<label class="label" for="hubProjectMappingContainer">$i18n.getText("hub.integration.jira.fieldMappings.label")</label>
+  		<label class="label" for="hubProjectMappingContainer">$i18n.getText("blackduck.integration.jira.fieldMappings.label")</label>
   		<!-- project pulldown -->
   		<!--
   			<table width="100%">
 			  		<thead>
 			  			<tr>
 			  				<td class="fieldCopyJiraProjectCell">
-			  					$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')
+			  					$i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
 						    </td>
 			  			</tr>
 			  		</thead>
 			  		<tbody id="fieldCopyJiraProjectContainer">
 					  	  <tr class="" name="fieldCopyJiraProjectChoice" id="fieldCopyJiraProjectChoice">
 						    <td class="fieldCopyJiraProjectCell" id="fieldCopyJiraProjectCell">
-						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.jiraProjectPlaceHolder.label')">
+						    	<input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);" placeholder="$i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')">
 								<datalist id="jiraProjects">
 								</datalist>
 								</input>
@@ -370,11 +370,11 @@
 			  			<tr>
 			  				<td class="mappingTableCell"/>
 			  				<td class="mappingTableCell">
-			  					$i18n.getText('hub.integration.jira.sourceFieldName.label')
+			  					$i18n.getText('blackduck.integration.jira.sourceFieldName.label')
 						    </td>
 						    <td class="mappingTableCell"/>
 						    <td class="mappingTableCell">
-						    	$i18n.getText('hub.integration.jira.targetFieldName.label')
+						    	$i18n.getText('blackduck.integration.jira.targetFieldName.label')
 						    </td>
 						    <td class="mappingTableCell"/>
 			  			</tr>
@@ -384,7 +384,7 @@
 						    <td class="mappingTableCell" id="fieldCopyMappingStatus">
 						    </td>
 						    <td class="mappingTableCell">
-						    	<input class="longInput textStyle" type="text" name="sourceField" list="sourceFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.sourceFieldName.label')">
+						    	<input class="longInput textStyle" type="text" name="sourceField" list="sourceFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('blackduck.integration.jira.sourceFieldName.label')">
 								<datalist id="sourceFields">
 								</datalist>
 								</input>
@@ -393,19 +393,19 @@
 						    </td>
 						    <td class="mappingTableCell" width="25px"> = </td>
 						    <td class="mappingTableCell">
-						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('hub.integration.jira.targetFieldName.label')">
+						    	<input class="longInput textStyle" type="text" name="targetField" list="targetFields" oninput="onFieldCopyMappingInputChange(this);" placeholder="$i18n.getText('blackduck.integration.jira.targetFieldName.label')">
 								<datalist id="targetFields">
 								</datalist>
 								</input>
 						    </td>
 						    <td class="mappingTableCell" width="100px">
-						    	<div class="largeIcon fa fa-trash-o" onclick="removeFieldCopyMappingElement(this);" title="$i18n.getText('hub.integration.jira.removeFieldCopyMapping.label')"></div>
+						    	<div class="largeIcon fa fa-trash-o" onclick="removeFieldCopyMappingElement(this);" title="$i18n.getText('blackduck.integration.jira.removeFieldCopyMapping.label')"></div>
 						  	</td>
 						  </tr>
 				  </tbody>
 				</table>
 			<div class="buttonContainer">
-				<input id="fieldCopyAddMappingButton" onclick="addNewFieldCopyMappingElement('fieldCopyMappingElement');" type="button" value="$i18n.getText('hub.integration.jira.addFieldCopyMapping.label')" class="aui-button" />
+				<input id="fieldCopyAddMappingButton" onclick="addNewFieldCopyMappingElement('fieldCopyMappingElement');" type="button" value="$i18n.getText('blackduck.integration.jira.addFieldCopyMapping.label')" class="aui-button" />
 			</div>
 		</fieldset>
 	</div>
@@ -413,13 +413,13 @@
 	<div style="display: inline-block; width: 100%;">
 	   	   <div class="buttonContainer">
 	       		<div id="saveSpinner" style="display: inline-block;"></div>
-	  	   		<input id="fieldCopySaveButton" onclick="updateFieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('hub.integration.jira.save.label')" class="aui-button aui-button-primary" />
+	  	   		<input id="fieldCopySaveButton" onclick="updateFieldCopyConfig(); startProgressSpinner('fieldCopySaveSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.save.label')" class="aui-button aui-button-primary" />
 	  	   </div>
 	</div>
 </div>
 
 	  <fieldset class="errorSection hidden" id="ticketCreationFieldSet">
-      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('hub.integration.jira.ticketCreationError.label') </legend>
+      	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('blackduck.integration.jira.ticketCreationError.label') </legend>
       	  <div id="ticketCreationErrors">
 	      	  <table id="ticketCreationErrorsTable" style="width : 100%;">
 	      	  		<tr class="hidden" id="ticketCreationErrorRow" name="ticketCreationErrorRow">
@@ -444,7 +444,7 @@
 	      	   <div style="display: inline-block; width: 100%;">
 		   	   		<div class="buttonContainer">
 			       		<div id="resetSpinner" style="display: inline-block;"></div>
-			  	   		<input onclick="resetSalKeys(); startProgressSpinner('resetSpinner');" type="button" value="$i18n.getText('hub.integration.jira.reset.label')" class="aui-button aui-button-primary" />
+			  	   		<input onclick="resetSalKeys(); startProgressSpinner('resetSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.reset.label')" class="aui-button aui-button-primary" />
 			  	   </div>
 			  </div>
       	  </div>

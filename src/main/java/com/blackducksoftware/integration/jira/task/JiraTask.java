@@ -35,9 +35,9 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.scheduling.PluginJob;
+import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -58,7 +58,7 @@ public class JiraTask implements PluginJob {
     @Override
     public void execute(final Map<String, Object> jobDataMap) {
         logger.info("Running the Black Duck JIRA task.");
-        logger.info("blackduck-jira plugin version: " + PluginVersion.getVersion());
+        logger.info("blackduck-jira plugin version: " + BlackDuckPluginVersion.getVersion());
         final PluginSettings settings = (PluginSettings) jobDataMap.get(BlackDuckMonitor.KEY_SETTINGS);
         final ExecutorService executor = (ExecutorService) jobDataMap.get(BlackDuckMonitor.KEY_EXECUTOR);
         final List<Future<String>> scheduledTasks = (List<Future<String>>) jobDataMap.get(BlackDuckMonitor.KEY_SCHEDULED_TASK_LIST);

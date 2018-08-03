@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,14 +29,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-public class PluginVersion {
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+
+public class BlackDuckPluginVersion {
     private static final String VERSION_UNKNOWN = "(unknown)";
 
-    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(PluginVersion.class.getName()));
+    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(BlackDuckPluginVersion.class.getName()));
 
     public static String getVersion() {
         Properties prop = new Properties();
-        InputStream is = PluginVersion.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
+        InputStream is = BlackDuckPluginVersion.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
         try {
             prop.load(is);
         } catch (IOException e) {

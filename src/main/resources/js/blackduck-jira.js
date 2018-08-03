@@ -144,24 +144,24 @@ function openTab(evt, tabId) {
 }
 
 function testConnection() {
-	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/hubdetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
 }
 
 function updateHubDetails() {
-	putHubDetails(AJS.contextPath() + '/rest/hub-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
+	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
 }
 
 function updateConfig() {
-		putConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
+		putConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
 	}
 	
 function updateAccessConfig() {
-		putAccessConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+		putAccessConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
 	}
 
 function updateFieldCopyConfig() {
 	console.log("updateFieldCopyConfig()");
-	putFieldCopyConfig(AJS.contextPath() + '/rest/hub-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
+	putFieldCopyConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
@@ -255,7 +255,7 @@ function handleErrorHubDetails(fieldRowId, fieldId, configField) {
 
 function populateForm() {
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/admin/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/admin/",
 	    dataType: "json",
 	    success: function(admin) {
 	      fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
@@ -271,7 +271,7 @@ function populateForm() {
 	  });
 	
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubdetails/read",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubdetails/read",
 	    dataType: "json",
 	    success: function(config) {
 	      console.log("Successful get of hub details for " + config.hubUrl);
@@ -313,7 +313,7 @@ function populateForm() {
 	  });
 
 	  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/interval/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/interval/",
 	    dataType: "json",
 	    success: function(config) {
 	      updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
@@ -329,7 +329,7 @@ function populateForm() {
 	  });
 
 	  AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creator/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/creator/",
 	    dataType: "json",
 	    success: function(config) {
 	      updateValue("creatorInput", config.creator);
@@ -347,7 +347,7 @@ function populateForm() {
 	  initCreatorCandidates();
 	  
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/jiraProjects/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/jiraProjects/",
 		    dataType: "json",
 		    success: function(config) {
 		      fillInJiraProjects(config.jiraProjects);
@@ -366,7 +366,7 @@ function populateForm() {
 		  });
 	  
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/sourceFields/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/sourceFields/",
 		    dataType: "json",
 		    success: function(sourceFieldNames) {
 		      fillInSourceFields(sourceFieldNames);
@@ -380,7 +380,7 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/targetFields/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/targetFields/",
 		    dataType: "json",
 		    success: function(targetFields) {
 		      fillInTargetFields(targetFields);
@@ -398,7 +398,7 @@ function populateForm() {
 		  });
 	  
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/fieldCopyMappings/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/fieldCopyMappings/",
 		    dataType: "json",
 		    success: function(config) {
 		    	console.log("Success getting field copy mappings");
@@ -417,7 +417,7 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubJiraTicketErrors/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubJiraTicketErrors/",
 		    dataType: "json",
 		    success: function(creationError) {
 		    	updateTicketCreationErrors(creationError.hubJiraTicketErrors);
@@ -436,7 +436,7 @@ function populateForm() {
 		    }
 	  });
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/pluginInfo/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/pluginInfo/",
 		    dataType: "json",
 		    success: function(pluginInfo) {
 		    	console.log("pluginVersion: " + pluginInfo.pluginVersion);
@@ -459,7 +459,7 @@ function populateForm() {
 function initCreatorCandidates() {
 	console.log("Initializing issue creator candidate list");
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/creatorCandidates/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/creatorCandidates/",
 	    dataType: "json",
 	    success: function(config) {
 	      fillInCreatorCandidates(config.creatorCandidates);
@@ -482,7 +482,7 @@ function populateFormHubData() {
 	gotProjectMappings = false;
 	
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubProjects/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubProjects/",
 	    dataType: "json",
 	    success: function(config) {
 	      fillInHubProjects(config.hubProjects);
@@ -500,7 +500,7 @@ function populateFormHubData() {
 	    }
 	  });
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/hubPolicies/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubPolicies/",
 	    dataType: "json",
 	    success: function(config) {
 	      addPolicyViolationRules(config.policyRules);
@@ -517,7 +517,7 @@ function populateFormHubData() {
 	    }
 	  });
   AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/createVulnerabilityTicketsChoice/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/createVulnerabilityTicketsChoice/",
 	    dataType: "json",
 	    success: function(config) {
 	      console.log("success: get of ticketsChoice");
@@ -536,7 +536,7 @@ function populateFormHubData() {
 	    }
 	  });
   AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/hub-jira-integration/1.0/mappings/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/mappings/",
 	    dataType: "json",
 	    success: function(config) {
 	      fillInMappings(config.hubProjectMappings);
@@ -584,7 +584,7 @@ function toggleDisplayById(iconId, fieldId){
 }
 
 function resetSalKeys(){
-	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/reset';
+	var restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/reset';
 	AJS.$.ajax({
 	    url: restUrl,
 	    type: "PUT",
@@ -721,7 +721,7 @@ function handleErrorRemoval(trashIcon){
 	var currentIcon = AJS.$(trashIcon);
 	var errorRow = currentIcon.closest("tr");
 
-	var restUrl = AJS.contextPath() + '/rest/hub-jira-integration/1.0/removeErrors';
+	var restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
 	
 	var hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
 	AJS.$.ajax({

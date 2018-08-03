@@ -76,18 +76,18 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.ProjectService;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConfigKeys;
+import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginVersion;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.ErrorTracking;
-import com.blackducksoftware.integration.jira.config.HubConfigKeys;
+import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -179,12 +179,12 @@ public class BlackDuckJiraConfigController {
         }
         // Deprecated property used to update new property
         @SuppressWarnings("deprecation")
-        final String oldHubJiraGroupsString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+        final String oldHubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
         final String hubJiraGroupsString;
         if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
             hubJiraGroupsString = oldHubJiraGroupsString;
         } else {
-            hubJiraGroupsString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS);
+            hubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
         }
         if (StringUtils.isNotBlank(hubJiraGroupsString)) {
             final String[] hubJiraGroups = hubJiraGroupsString.split(",");
@@ -216,14 +216,14 @@ public class BlackDuckJiraConfigController {
             }
             final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final String oldHubJiraGroupsString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS);
+            final String oldHubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
             final String hubJiraGroupsString;
             if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
                 hubJiraGroupsString = oldHubJiraGroupsString;
-                setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
-                setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
+                setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
+                setValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
             } else {
-                hubJiraGroupsString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS);
+                hubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
             }
             if (!userIsSysAdmin) {
                 if (StringUtils.isBlank(hubJiraGroupsString)) {
@@ -315,7 +315,7 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
-                    final String intervalBetweenChecks = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    final String intervalBetweenChecks = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
                     txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
 
@@ -348,7 +348,7 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String creator = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+                    final String creator = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
                     txConfig.setCreator(creator);
                     validateCreator(txConfig);
                     return txConfig;
@@ -459,7 +459,7 @@ public class BlackDuckJiraConfigController {
                     final PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
 
                     logger.debug("Getting plugin version string");
-                    final String pluginVersion = PluginVersion.getVersion();
+                    final String pluginVersion = BlackDuckPluginVersion.getVersion();
                     logger.debug("pluginVersion: " + pluginVersion);
                     txPluginInfo.setPluginVersion(pluginVersion);
                     return txPluginInfo;
@@ -572,7 +572,7 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
 
-                    final String policyRulesJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
+                    final String policyRulesJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
 
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
@@ -617,7 +617,7 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     logger.debug("GET createVulnerabilityTicketsChoice transaction");
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String createVulnIssuesChoiceString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+                    final String createVulnIssuesChoiceString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
                     logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
                     boolean choice = true;
                     if ("false".equalsIgnoreCase(createVulnIssuesChoiceString)) {
@@ -655,7 +655,7 @@ public class BlackDuckJiraConfigController {
 
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
-                    final String hubProjectMappingsJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+                    final String hubProjectMappingsJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 
                     txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
 
@@ -690,7 +690,7 @@ public class BlackDuckJiraConfigController {
 
                     final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
 
-                    final String hubFieldCopyMappingsJson = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+                    final String hubFieldCopyMappingsJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
 
                     logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
                     txConfig.setJson(hubFieldCopyMappingsJson);
@@ -750,7 +750,7 @@ public class BlackDuckJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
         final SortedSet<String> jiraUsernames = new TreeSet<>();
-        final String groupList = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS);
+        final String groupList = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
             final String[] groupNames = groupList.split(",");
             for (final String groupName : groupNames) {
@@ -788,24 +788,24 @@ public class BlackDuckJiraConfigController {
                     validateInterval(config);
                     validateCreator(config, settings);
                     validateMapping(config);
-                    if (getValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
+                    if (getValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
+                        setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
                     }
-                    final String previousInterval = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
+                    final String previousInterval = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
                     final String issueCreatorJiraUser = config.getCreator();
                     logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, issueCreatorJiraUser);
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, issueCreatorJiraUser);
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
                     updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
 
                     return null;
                 }
@@ -836,7 +836,7 @@ public class BlackDuckJiraConfigController {
             @Override
             public Object doInTransaction() {
 
-                final Object errorObject = getValue(settings, BlackDuckJiraConstants.HUB_JIRA_ERROR);
+                final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR);
 
                 List<TicketCreationError> ticketErrors = null;
                 if (errorObject != null) {
@@ -867,7 +867,7 @@ public class BlackDuckJiraConfigController {
                         }
                     }
                 }
-                setValue(settings, BlackDuckJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+                setValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
                 return null;
             }
         });
@@ -900,7 +900,7 @@ public class BlackDuckJiraConfigController {
                         txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
                         return txResponseObject;
                     } else {
-                        setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
+                        setValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
                     }
                     return null;
                 }
@@ -942,7 +942,7 @@ public class BlackDuckJiraConfigController {
                         return null;
                     }
 
-                    setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
+                    setValue(settings, PluginConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
                     return null;
                 }
             });
@@ -1007,11 +1007,11 @@ public class BlackDuckJiraConfigController {
 
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        final String oldLastRunDateString = getStringValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+                        final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
                         final String newLastRunDateString = dateFormatter.format(now);
                         logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
-                        setValue(settings, BlackDuckJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newLastRunDateString);
-                        setValue(settings, BlackDuckJiraConstants.HUB_JIRA_ERROR, null);
+                        setValue(settings, PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newLastRunDateString);
+                        setValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, null);
                     } catch (final Exception e) {
                         return e.getMessage();
                     }
@@ -1168,13 +1168,13 @@ public class BlackDuckJiraConfigController {
     }
 
     private RestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
-        final String hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
-        final String hubUser = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
+        final String hubUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_URL);
+        final String hubUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_USER);
         logger.debug(String.format("Establishing connection to hub server: %s as %s", hubUrl, hubUser));
-        final String encHubPassword = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
-        final String encHubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
-        final String hubTimeout = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
-        final String hubTrustCert = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
+        final String encHubPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS);
+        final String encHubPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH);
+        final String hubTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TIMEOUT);
+        final String hubTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TRUST_CERT);
 
         if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword) && StringUtils.isBlank(hubTimeout)) {
             config.setErrorMessage(JiraConfigErrorStrings.HUB_CONFIG_PLUGIN_MISSING);
@@ -1184,12 +1184,12 @@ public class BlackDuckJiraConfigController {
             return null;
         }
 
-        final String hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
-        final String hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
-        final String hubNoProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
-        final String hubProxyUser = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_USER);
-        final String encHubProxyPassword = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
-        final String hubProxyPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        final String hubProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
+        final String hubProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
+        final String hubNoProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
+        final String hubProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
+        final String encHubProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        final String hubProxyPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
         RestConnection restConnection = null;
         try {

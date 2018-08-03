@@ -69,17 +69,17 @@ public class BlackDuckWorkflowSetup {
 
     public JiraWorkflow addBlackDuckWorkflowToJira() {
         try {
-            JiraWorkflow hubWorkflow = jiraServices.getWorkflowManager().getWorkflow(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
+            JiraWorkflow hubWorkflow = jiraServices.getWorkflowManager().getWorkflow(BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW);
             if (hubWorkflow == null) {
                 final WorkflowDescriptor workflowDescriptor = getWorkflowDescriptorFromResource();
-                hubWorkflow = new ConfigurableJiraWorkflow(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW, workflowDescriptor, jiraServices.getWorkflowManager());
+                hubWorkflow = new ConfigurableJiraWorkflow(BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW, workflowDescriptor, jiraServices.getWorkflowManager());
                 final ApplicationUser jiraAppUser = getJiraSystemAdmin();
                 if (jiraAppUser == null) {
                     logger.error("Could not find any JIRA System Admins to create the workflow.");
                     return null;
                 }
                 jiraServices.getWorkflowManager().createWorkflow(jiraAppUser, hubWorkflow);
-                logger.debug("Created the Black Duck Workflow : " + BlackDuckJiraConstants.HUB_JIRA_WORKFLOW);
+                logger.debug("Created the Black Duck Workflow : " + BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW);
             }
             return hubWorkflow;
         } catch (final Exception e) {
@@ -92,7 +92,7 @@ public class BlackDuckWorkflowSetup {
     private WorkflowDescriptor getWorkflowDescriptorFromResource() throws IOException, FactoryException {
         // https://developer.atlassian.com/confdev/development-resources/confluence-developer-faq/what-is-the-best-way-to-load-a-class-or-resource-from-a-plugin
         final InputStream inputStream = ClassLoaderUtils
-                .getResourceAsStream(BlackDuckJiraConstants.HUB_JIRA_WORKFLOW_RESOURCE, this.getClass());
+                .getResourceAsStream(BlackDuckJiraConstants.BLACK_DUCK_JIRA_WORKFLOW_RESOURCE, this.getClass());
         if (inputStream == null) {
             logger.error("Could not find the Black Duck JIRA workflow resource.");
             settingService.addBlackDuckError("Could not find the Black Duck JIRA workflow resource.", "addBlackDuckWorkflow");
