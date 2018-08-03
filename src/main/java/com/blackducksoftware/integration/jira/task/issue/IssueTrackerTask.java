@@ -60,7 +60,6 @@ public class IssueTrackerTask implements Callable<Boolean> {
     private final String propertyKey;
     private final EntityProperty property;
 
-    // TODO the issue service should be injected here, as should the jiraSettingsService
     public IssueTrackerTask(final Issue jiraIssue, final JiraIssuePropertyWrapper issueProperyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
         this.jiraIssue = jiraIssue;
         this.issueProperyWrapper = issueProperyWrapper;
@@ -78,19 +77,19 @@ public class IssueTrackerTask implements Callable<Boolean> {
             final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
             // only execute if hub 3.7 or higher with the issue tracker capability
-            final HubServerConfig hubServerConfig = createHubServerConfig(configDetails);
-            if (hubServerConfig == null) {
-                logger.error("Black Duck Server Configuration is invalid.  Cannot update Hub issue tracking data.");
+            final HubServerConfig blackDuckServerConfig = createBlackDuckServerConfig(configDetails);
+            if (blackDuckServerConfig == null) {
+                logger.error("Black Duck Server Configuration is invalid.  Cannot update Black Duck issue tracking data.");
             } else {
-                final HubServicesFactory servicesFactory = createHubServicesFactory(hubServerConfig);
+                final HubServicesFactory servicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
                 final BlackDuckJiraConfigSerializable config = createJiraConfig(configDetails);
                 if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
-                    logger.debug("Hub Jira configuration is incomplete");
+                    logger.debug("Black Duck JIRA configuration is incomplete");
                     return Boolean.FALSE;
                 }
 
-                final BlackDuckIssueTrackerHandler hubIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
-                handleIssue(eventTypeID, jiraIssue, hubIssueHandler, property, propertyKey);
+                final BlackDuckIssueTrackerHandler blackDuckIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
+                handleIssue(eventTypeID, jiraIssue, blackDuckIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
             logger.error(String.format("Error occurred processing issue %s, caused by %s", jiraIssue, throwable));
@@ -102,9 +101,9 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return Boolean.TRUE;
     }
 
-    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
-        final HubServerConfigBuilder hubConfigBuilder = configDetails.createHubServerConfigBuilder();
-        HubServerConfig hubServerConfig = null;
+    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
+        final HubServerConfigBuilder blackDuckConfigBuilder = configDetails.createHubServerConfigBuilder();
+        HubServerConfig blackDuckServerConfig = null;
         if (configDetails.getProjectMappingJson() == null) {
             logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
@@ -117,8 +116,8 @@ public class IssueTrackerTask implements Callable<Boolean> {
 
         try {
             logger.debug("Building Black Duck configuration");
-            hubServerConfig = hubConfigBuilder.build();
-            logger.debug("Finished building Hub configuration");
+            blackDuckServerConfig = blackDuckConfigBuilder.build();
+            logger.debug("Finished building Black Duck configuration");
         } catch (final IllegalStateException e) {
             logger.error(
                     "Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck plugin is not (yet) configured correctly: "
@@ -127,13 +126,13 @@ public class IssueTrackerTask implements Callable<Boolean> {
         }
 
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
-        logger.debug("Black Duck url / username: " + hubServerConfig.getHubUrl().toString() + " / " + hubServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Black Duck url / username: " + blackDuckServerConfig.getHubUrl().toString() + " / " + blackDuckServerConfig.getGlobalCredentials().getUsername());
         logger.debug("Interval: " + configDetails.getIntervalString());
 
-        return hubServerConfig;
+        return blackDuckServerConfig;
     }
 
-    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
+    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
         final RestConnection restConnection = config.createCredentialsRestConnection(logger);
         return new HubServicesFactory(restConnection);
     }
@@ -166,21 +165,19 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return config;
     }
 
-    private void handleIssue(final Long eventTypeID, final Issue issue, final BlackDuckIssueTrackerHandler hubIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+    private void handleIssue(final Long eventTypeID, final Issue issue, final BlackDuckIssueTrackerHandler blackDuckIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
         // final EntityProperty property = props.get(0);
         final BlackDuckIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
             // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
-            hubIssueHandler.deleteBlackDuckIssue(properties.getHubIssueUrl(), issue);
-            // the issue has been
+            blackDuckIssueHandler.deleteBlackDuckIssue(properties.getBlackDuckIssueUrl(), issue);
             try {
                 issueProperyWrapper.deleteIssueProperty(property.getEntityId(), jiraIssue.getCreator(), propertyKey);
             } catch (final JiraIssueException e) {
                 logger.error("Problem deleting issue tracker property", e);
             }
         } else {
-            // issue updated.
-            hubIssueHandler.updateBlackDuckIssue(properties.getHubIssueUrl(), issue);
+            blackDuckIssueHandler.updateBlackDuckIssue(properties.getBlackDuckIssueUrl(), issue);
         }
     }
 

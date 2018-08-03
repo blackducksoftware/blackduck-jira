@@ -417,7 +417,7 @@ function populateForm() {
 		    }
 		  });
 	  AJS.$.ajax({
-		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubJiraTicketErrors/",
+		    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckJiraTicketErrors/",
 		    dataType: "json",
 		    success: function(creationError) {
 		    	updateTicketCreationErrors(creationError.hubJiraTicketErrors);
@@ -482,7 +482,7 @@ function populateFormHubData() {
 	gotProjectMappings = false;
 	
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubProjects/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckProjects/",
 	    dataType: "json",
 	    success: function(config) {
 	      fillInHubProjects(config.hubProjects);
@@ -500,7 +500,7 @@ function populateFormHubData() {
 	    }
 	  });
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubPolicies/",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckPolicies/",
 	    dataType: "json",
 	    success: function(config) {
 	      addPolicyViolationRules(config.policyRules);
@@ -509,11 +509,11 @@ function populateFormHubData() {
 	      handleError('policyRulesError', config.policyRulesError, true, false);
 	    },
 	    error: function(response){
-	    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Hub Policy Rules.", "Hub Policy Rules Error");
+	    	handleDataRetrievalError(response, "policyRulesError", "There was a problem retrieving the Black Duck Policy Rules.", "Black Duck Policy Rules Error");
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	 AJS.$('#policyRuleSpinner').remove();
-	    	 console.log("Completed get of Hub policies: " + textStatus);
+	    	 console.log("Completed get of Black Duck policies: " + textStatus);
 	    }
 	  });
   AJS.$.ajax({
@@ -529,7 +529,7 @@ function populateFormHubData() {
 	    },
 	    error: function(response){
 	    	console.log("error: get of ticketsChoice");
-	    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Hub Create Vulnerability Issues Choice Error");
+	    	handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Black Duck Create Vulnerability Issues Choice Error");
 	    },
 	    complete: function(jqXHR, textStatus){
 	    	console.log("Completed get of ticketsChoice: " + textStatus);
@@ -593,7 +593,7 @@ function resetSalKeys(){
 	    data: '{}',
 	    processData: false,
 	    success: function() {
-	    	alert('Hub JIRA keys reset!');
+	    	alert('Black Duck JIRA keys reset!');
 	    },
 	    error: function(response){
 	    	alert(response.responseText);
@@ -852,7 +852,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 			  var hubProjectError = true;
 			  if(currentHubProject != null){
 				  var key = String(currentHubProject.attr("projectkey"));
-				  console.log("ajaxComplete(): hub project key: " + key);
+				  console.log("ajaxComplete(): Black Duck project key: " + key);
 				  if(key){
 					  var hubProject = hubProjectMap.get(key);
 					  if(hubProject) {
@@ -862,7 +862,7 @@ AJS.$(document).ajaxComplete(function( event, xhr, settings ) {
 				  }
 			  }
 			  if(hubProjectError){
-				    console.log("ajaxComplete(): this hub project is in error");
+				    console.log("ajaxComplete(): this Black Duck project is in error");
 					if(!currentHubProject.hasClass('error')){
 						currentHubProject.addClass('error');
 					}

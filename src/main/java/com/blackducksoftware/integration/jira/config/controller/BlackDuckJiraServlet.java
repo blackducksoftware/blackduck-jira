@@ -66,16 +66,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
         }
 
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        // Used for backwards compatibility
-        @SuppressWarnings("deprecation")
-        final String oldHubJiraGroupsString = (String) settings.get(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
-        final String blackDuckJiraGroupsString;
-        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
-            blackDuckJiraGroupsString = oldHubJiraGroupsString;
-        } else {
-            blackDuckJiraGroupsString = (String) settings.get(PluginConfigKeys.HUB_CONFIG_GROUPS);
-        }
-
+        final String blackDuckJiraGroupsString = (String) settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
         if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
             final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
             boolean userIsInGroups = false;

@@ -35,9 +35,9 @@ public class BlackDuckIssuePanelCondition extends AbstractWebCondition {
     public boolean shouldDisplay(final ApplicationUser applicationUser, final JiraHelper jiraHelper) {
         final Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
         final String issueType = currentIssue.getIssueType().getName();
-        if (BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE.equals(issueType)) {
+        if (BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE.equals(issueType)) {
             return true;
-        } else if (BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE.equals(issueType)) {
+        } else if (BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE.equals(issueType)) {
             return true;
         }
         return false;

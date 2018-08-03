@@ -281,7 +281,7 @@ public class BlackDuckJiraTask {
 
     public void bdPhoneHome(final PhoneHomeService phService) {
         try {
-            final PhoneHomeRequestBody.Builder phBodyBuilder = phService.createInitialPhoneHomeRequestBodyBuilder("hub-jira", jiraServices.getPluginVersion());
+            final PhoneHomeRequestBody.Builder phBodyBuilder = phService.createInitialPhoneHomeRequestBodyBuilder("blackduck-jira", jiraServices.getPluginVersion());
             phBodyBuilder.addToMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
             final PhoneHomeRequestBody phBody = phBodyBuilder.build();
             phService.phoneHome(phBody);

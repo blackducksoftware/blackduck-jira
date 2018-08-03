@@ -47,7 +47,7 @@ public class BlackDuckProjectMappings {
         this.mappings = mappings;
     }
 
-    public List<JiraProject> getJiraProjects(final String hubProjectName) {
+    public List<JiraProject> getJiraProjects(final String blackDuckProjectName) {
         final List<JiraProject> matchingJiraProjects = new ArrayList<>();
         if (mappings == null || mappings.isEmpty()) {
             logger.debug("There are no configured project mapping");
@@ -67,12 +67,12 @@ public class BlackDuckProjectMappings {
                 logger.error(jiraProject.getProjectError());
             } else {
                 logger.debug("JIRA Project: " + jiraProject);
-                final BlackDuckProject hubProject = mapping.getHubProject();
+                final BlackDuckProject blackDuckProject = mapping.getHubProject();
 
-                // Check by name because the notifications may be for Hub projects that the User doesn't have access to
-                logger.debug("hubProject.getProjectName() (from config mapping): " + hubProject.getProjectName());
-                logger.debug("hubProjectName (from notification content)       : " + hubProjectName);
-                if ((!StringUtils.isBlank(hubProject.getProjectName()) && (hubProject.getProjectName().equals(hubProjectName)))) {
+                // Check by name because the notifications may be for Black Duck projects that the User doesn't have access to
+                logger.debug("blackDuckProject.getProjectName() (from config mapping): " + blackDuckProject.getProjectName());
+                logger.debug("blackDuckProjectName (from notification content)       : " + blackDuckProjectName);
+                if ((!StringUtils.isBlank(blackDuckProject.getProjectName()) && (blackDuckProject.getProjectName().equals(blackDuckProjectName)))) {
                     logger.debug("Match!");
                     matchingJiraProjects.add(jiraProject);
                 }

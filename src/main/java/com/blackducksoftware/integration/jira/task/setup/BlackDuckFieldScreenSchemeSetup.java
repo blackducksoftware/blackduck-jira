@@ -89,10 +89,10 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             if (blackDuckIssueTypes != null && !blackDuckIssueTypes.isEmpty()) {
                 for (final IssueType issueType : blackDuckIssueTypes) {
-                    if (issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE)) {
+                    if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)) {
                         final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType, blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
-                    } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE)) {
+                    } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
                         final FieldScreenScheme fss = createSecurityScreenScheme(blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
                     }
@@ -105,8 +105,8 @@ public class BlackDuckFieldScreenSchemeSetup {
         return fieldScreenSchemes;
     }
 
-    private IssueType getIssueTypeObject(final IssueType hubIssueType) {
-        return hubIssueType;
+    private IssueType getIssueTypeObject(final IssueType blackDuckIssueType) {
+        return blackDuckIssueType;
     }
 
     private CustomField createCustomTextField(final List<IssueType> issueTypeList, final String fieldName) throws RuntimeException {
@@ -183,23 +183,23 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private List<OrderableField> createCommonFields(final List<IssueType> issueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL));
-        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL));
+        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME));
 
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL));
 
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;
     }
@@ -208,10 +208,10 @@ public class BlackDuckFieldScreenSchemeSetup {
         final List<OrderableField> customFields = new ArrayList<>();
         final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
         policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
+        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;
     }
@@ -226,21 +226,21 @@ public class BlackDuckFieldScreenSchemeSetup {
         return new FieldScreenImpl(fieldScreenManager);
     }
 
-    private FieldScreen createScreen(final String screenName, final List<OrderableField> hubCustomFields) {
+    private FieldScreen createScreen(final String screenName, final List<OrderableField> blackDuckCustomFields) {
         final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
-        FieldScreen hubScreen = null;
+        FieldScreen blackDuckScreen = null;
         if (fieldScreens != null && !fieldScreens.isEmpty()) {
             for (final FieldScreen fieldScreen : fieldScreens) {
                 if (fieldScreen.getName().equals(screenName)) {
-                    hubScreen = fieldScreen;
+                    blackDuckScreen = fieldScreen;
                     break;
                 }
             }
         }
-        if (hubScreen == null) {
-            hubScreen = createNewScreenImpl(jiraServices.getFieldScreenManager());
-            hubScreen.setName(screenName);
-            hubScreen.store();
+        if (blackDuckScreen == null) {
+            blackDuckScreen = createNewScreenImpl(jiraServices.getFieldScreenManager());
+            blackDuckScreen.setName(screenName);
+            blackDuckScreen.store();
         }
         final FieldScreen defaultScreen = jiraServices.getFieldScreenManager().getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
 
@@ -249,20 +249,20 @@ public class BlackDuckFieldScreenSchemeSetup {
             defaultTabs = defaultScreen.getTabs();
         }
 
-        final boolean needToUpdateScreen = addBlackDuckTabToScreen(hubScreen, hubCustomFields, defaultTabs);
+        final boolean needToUpdateScreen = addBlackDuckTabToScreen(blackDuckScreen, blackDuckCustomFields, defaultTabs);
 
         if (needToUpdateScreen) {
-            jiraServices.getFieldScreenManager().updateFieldScreen(hubScreen);
+            jiraServices.getFieldScreenManager().updateFieldScreen(blackDuckScreen);
         }
 
-        return hubScreen;
+        return blackDuckScreen;
     }
 
-    private boolean addBlackDuckTabToScreen(final FieldScreen hubScreen, final List<OrderableField> blackDuckCustomFields, final List<FieldScreenTab> defaultTabs) {
+    private boolean addBlackDuckTabToScreen(final FieldScreen blackDuckScreen, final List<OrderableField> blackDuckCustomFields, final List<FieldScreenTab> defaultTabs) {
         FieldScreenTab myTab = null;
-        if (hubScreen != null && hubScreen.getTabs() != null && !hubScreen.getTabs().isEmpty()) {
-            for (final FieldScreenTab screenTab : hubScreen.getTabs()) {
-                if (screenTab.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_SCREEN_TAB)) {
+        if (blackDuckScreen != null && blackDuckScreen.getTabs() != null && !blackDuckScreen.getTabs().isEmpty()) {
+            for (final FieldScreenTab screenTab : blackDuckScreen.getTabs()) {
+                if (screenTab.getName().equals(BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB)) {
                     myTab = screenTab;
                     break;
                 }
@@ -271,7 +271,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         boolean needToUpdateTabAndScreen = false;
         if (myTab == null) {
             logger.debug("addBlackDuckTabToScreen(): did not find Black Duck screen tab; adding it");
-            myTab = hubScreen.addTab(BlackDuckJiraConstants.BLACK_DUCK_SCREEN_TAB);
+            myTab = blackDuckScreen.addTab(BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB);
             needToUpdateTabAndScreen = true;
         }
         if (blackDuckCustomFields != null && !blackDuckCustomFields.isEmpty()) {
@@ -337,14 +337,14 @@ public class BlackDuckFieldScreenSchemeSetup {
     }
 
     private FieldScreen createPolicyViolationScreen(final IssueType issueType, final List<IssueType> issueTypeList) {
-        final List<OrderableField> hubCustomFields = createPolicyViolationFields(issueType, issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_NAME, hubCustomFields);
+        final List<OrderableField> blackDuckCustomFields = createPolicyViolationFields(issueType, issueTypeList);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME, blackDuckCustomFields);
         return screen;
     }
 
     private FieldScreen createSecurityScreen(final List<IssueType> issueTypeList) {
-        final List<OrderableField> hubCustomFields = createSecurityFields(issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_NAME, hubCustomFields);
+        final List<OrderableField> blackDuckCustomFields = createSecurityFields(issueTypeList);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME, blackDuckCustomFields);
         return screen;
     }
 
@@ -359,19 +359,19 @@ public class BlackDuckFieldScreenSchemeSetup {
     private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
         final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
                 .getFieldScreenSchemes();
-        FieldScreenScheme hubScreenScheme = null;
+        FieldScreenScheme blackDuckScreenScheme = null;
         if (fieldScreenSchemes != null && !fieldScreenSchemes.isEmpty()) {
             for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {
                 if (fieldScreenScheme.getName().equals(screenSchemeName)) {
-                    hubScreenScheme = fieldScreenScheme;
+                    blackDuckScreenScheme = fieldScreenScheme;
                     break;
                 }
             }
         }
-        if (hubScreenScheme == null) {
-            hubScreenScheme = createNewScreenSchemeImpl(jiraServices.getFieldScreenSchemeManager());
-            hubScreenScheme.setName(screenSchemeName);
-            hubScreenScheme.store();
+        if (blackDuckScreenScheme == null) {
+            blackDuckScreenScheme = createNewScreenSchemeImpl(jiraServices.getFieldScreenSchemeManager());
+            blackDuckScreenScheme.setName(screenSchemeName);
+            blackDuckScreenScheme.store();
         }
 
         final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
@@ -384,48 +384,48 @@ public class BlackDuckFieldScreenSchemeSetup {
         final List<ScreenableIssueOperation> issueOpertationsForDefaultScreen = new ArrayList<>();
         issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
 
-        final boolean hubScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, hubScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, hubScreenScheme, defaultScreen);
+        final boolean blackDuckScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen);
 
-        if (hubScreenSchemeNeedsUpdate) {
-            jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(hubScreenScheme);
+        if (blackDuckScreenSchemeNeedsUpdate) {
+            jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(blackDuckScreenScheme);
         }
-        return hubScreenScheme;
+        return blackDuckScreenScheme;
     }
 
-    private boolean settingScreenForIssueOperation(final List<ScreenableIssueOperation> issueOpertations, final FieldScreenScheme hubScreenScheme, final FieldScreen screen) {
-        boolean hubScreenSchemeNeedsUpdate = false;
+    private boolean settingScreenForIssueOperation(final List<ScreenableIssueOperation> issueOpertations, final FieldScreenScheme blackDuckScreenScheme, final FieldScreen screen) {
+        boolean blackDuckScreenSchemeNeedsUpdate = false;
         for (final ScreenableIssueOperation issueOperation : issueOpertations) {
-            FieldScreenSchemeItem hubScreenSchemeItem = hubScreenScheme.getFieldScreenSchemeItem(issueOperation);
+            FieldScreenSchemeItem blackDuckScreenSchemeItem = blackDuckScreenScheme.getFieldScreenSchemeItem(issueOperation);
             boolean screenSchemeItemNeedsUpdate = false;
-            if (hubScreenSchemeItem == null) {
-                hubScreenSchemeItem = createNewFieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(), jiraServices.getFieldScreenManager());
-                hubScreenSchemeItem.setIssueOperation(issueOperation);
-                hubScreenSchemeItem.setFieldScreen(screen);
-                hubScreenScheme.addFieldScreenSchemeItem(hubScreenSchemeItem);
-                hubScreenSchemeNeedsUpdate = true;
+            if (blackDuckScreenSchemeItem == null) {
+                blackDuckScreenSchemeItem = createNewFieldScreenSchemeItemImpl(jiraServices.getFieldScreenSchemeManager(), jiraServices.getFieldScreenManager());
+                blackDuckScreenSchemeItem.setIssueOperation(issueOperation);
+                blackDuckScreenSchemeItem.setFieldScreen(screen);
+                blackDuckScreenScheme.addFieldScreenSchemeItem(blackDuckScreenSchemeItem);
+                blackDuckScreenSchemeNeedsUpdate = true;
                 screenSchemeItemNeedsUpdate = true;
             } else {
-                if (hubScreenSchemeItem.getFieldScreen() == null || !hubScreenSchemeItem.getFieldScreen().equals(screen)) {
-                    hubScreenSchemeItem.setFieldScreen(screen);
+                if (blackDuckScreenSchemeItem.getFieldScreen() == null || !blackDuckScreenSchemeItem.getFieldScreen().equals(screen)) {
+                    blackDuckScreenSchemeItem.setFieldScreen(screen);
                     screenSchemeItemNeedsUpdate = true;
                 }
             }
             if (screenSchemeItemNeedsUpdate) {
-                jiraServices.getFieldScreenSchemeManager().updateFieldScreenSchemeItem(hubScreenSchemeItem);
+                jiraServices.getFieldScreenSchemeManager().updateFieldScreenSchemeItem(blackDuckScreenSchemeItem);
             }
         }
-        return hubScreenSchemeNeedsUpdate;
+        return blackDuckScreenSchemeNeedsUpdate;
     }
 
     private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType, final List<IssueType> issueTypeList) {
         final FieldScreen screen = createPolicyViolationScreen(issueType, issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACK_DUCK_POLICY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 
     private FieldScreenScheme createSecurityScreenScheme(final List<IssueType> issueTypeList) {
         final FieldScreen screen = createSecurityScreen(issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACK_DUCK_SECURITY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 

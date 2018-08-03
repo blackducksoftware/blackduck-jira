@@ -9,21 +9,21 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     }
 </script>
 
-#if ($bdsHubProject || $bdsHubProjectVersion || $bdsHubProjectVersionNickname)
+#if ($bdsProject || $bdsProjectVersion || $bdsProjectVersionNickname)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.project.label")</h5></div>
         <ul class="property-list two-cols">
-            #if ($bdsHubProject)
+            #if ($bdsProject)
                 #set( $side = "left" )
                 	<li class="item">
                 		<div class="hubWrap">
                 			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.label"):</strong>
-                			<div id="hubProjectName" class="value"><a href="$bdsHubProjectVersionUrl" target="_blank">$bdsHubProject</a></div>
+                			<div id="hubProjectName" class="value"><a href="$bdsProjectVersionUrl" target="_blank">$bdsProject</a></div>
                 		</div>
                 	</li>
                 	#set( $side = "right" )
             #end
-            #if ($bdsHubProjectVersion)
+            #if ($bdsProjectVersion)
                 	#if ($side == "left")
                 	   <li class="item">
                 	   #set( $side = "right" )
@@ -33,11 +33,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
             		<div class="hubWrap">
             			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.label"):</strong>
-            			<div id="hubProjectVersionName" class="value">$bdsHubProjectVersion</div>
+            			<div id="hubProjectVersionName" class="value">$bdsProjectVersion</div>
             		</div>
                 	</li>
             #end
-            #if ($bdsHubProjectVersionNickname)
+            #if ($bdsProjectVersionNickname)
                 	#if ($side == "left")
                 	   <li class="item">
                 	   #set( $side = "right" )
@@ -47,7 +47,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 		<div class="hubWrap">
                 			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.nickname.label"):</strong>
-                			<div id="hubProjectVersionNickname" class="value">$bdsHubProjectVersionNickname</div>
+                			<div id="hubProjectVersionNickname" class="value">$bdsProjectVersionNickname</div>
                 		</div>
                 	</li>
             #end
@@ -56,27 +56,27 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     <div class="fieldSectionSeparator"/>
 #end          
             
-#if ($bdsHubComponent || $bdsHubComponentVersion || $bdsHubComponentUsage || $bdsHubComponentOrigin || $bdsHubComponentOriginId || $bdsHubLicenses || $bdsHubProjectVersionLastUpdated)
+#if ($bdsComponent || $bdsComponentVersion || $bdsComponentUsage || $bdsComponentOrigin || $bdsComponentOriginId || $bdsLicenses || $bdsProjectVersionLastUpdated)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.component.label")</h5></div>
             <ul class="property-list two-cols">
             
             #set( $side = "left" )
             
-            #if ($bdsHubComponent)
+            #if ($bdsComponent)
                 	<li class="item">
                     	<div class="hubWrap">
                     		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.label"):</strong>
-                    		#if ($bdsHubComponentVersionUrl)
-                    		    <div id="hubComponentName" class="value"><a href="$bdsHubComponentVersionUrl" target="_blank">$bdsHubComponent</a></div>
+                    		#if ($bdsComponentVersionUrl)
+                    		    <div id="hubComponentName" class="value"><a href="$bdsComponentVersionUrl" target="_blank">$bdsComponent</a></div>
                     		#else
-                            <div id="hubComponentName" class="value"><a href="$bdsHubComponentUrl" target="_blank">$bdsHubComponent</a></div>
+                            <div id="hubComponentName" class="value"><a href="$bdsComponentUrl" target="_blank">$bdsComponent</a></div>
                     	    #end
                     	</div>
                 	</li>
                 	#set( $side = "right" )
             #end
-            #if ($bdsHubComponentVersion)
+            #if ($bdsComponentVersion)
                 	#if ($side == "left")
                     	<li class="item">
                     	#set( $side = "right" )
@@ -86,11 +86,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.version.label"):</strong>
-                		<div id="hubComponentVersionName" class="value">$bdsHubComponentVersion</div>
+                		<div id="hubComponentVersionName" class="value">$bdsComponentVersion</div>
                 	</div>
                 	</li>
             #end
-            #if ($bdsHubComponentOrigin)
+            #if ($bdsComponentOrigin)
                 	#if ($side == "left")
                     	<li class="item">
                     	#set( $side = "right" )
@@ -100,11 +100,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.label"):</strong>
-                		<div id="hubComponentOrigin" class="value">$bdsHubComponentOrigin</div>
+                		<div id="hubComponentOrigin" class="value">$bdsComponentOrigin</div>
                 	</div>
                 	</li>
             #end
-            #if ($bdsHubComponentOriginId)
+            #if ($bdsComponentOriginId)
                 	#if ($side == "left")
                     	<li class="item">
                     	#set( $side = "right" )
@@ -114,11 +114,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.id.label"):</strong>
-                		<div id="hubComponentOriginId" class="value">$bdsHubComponentOriginId</div>
+                		<div id="hubComponentOriginId" class="value">$bdsComponentOriginId</div>
                 	</div>
                 	</li>
             #end
-            #if ($bdsHubComponentUsage)
+            #if ($bdsComponentUsage)
                 #if ($side == "left")
                     <li class="item">
                     #set( $side = "right" )
@@ -128,11 +128,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 #end
                 <div class="hubWrap">
                     <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.usage.label"):</strong>
-                    <div id="hubComponentUsage" class="value">$bdsHubComponentUsage</div>
+                    <div id="hubComponentUsage" class="value">$bdsComponentUsage</div>
                 </div>
                 </li>
             #end
-            #if ($bdsHubLicenses)
+            #if ($bdsLicenses)
                 	#if ($side == "left")
                     	<li class="item">
                     	#set( $side = "right" )
@@ -142,15 +142,15 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.licenses.label"):</strong>
-                		#if ($bdsHubLicenseUrl)
-                		    <div id="hubPolicyLicenses" class="value"><a href="$bdsHubLicenseUrl" target="_blank">$bdsHubLicenses</a></div>
+                		#if ($bdsLicenseUrl)
+                		    <div id="hubPolicyLicenses" class="value"><a href="$bdsLicenseUrl" target="_blank">$bdsLicenses</a></div>
                 		#else
-                         <div id="hubPolicyLicenses" class="value">$bdsHubLicenses</div>
+                         <div id="hubPolicyLicenses" class="value">$bdsLicenses</div>
                 		#end
                 	</div>
                 	</li>
             #end
-            #if ($bdsHubProjectVersionLastUpdated)
+            #if ($bdsProjectVersionLastUpdated)
                 	#if ($side == "left")
                     	<li class="item">
                     	#set( $side = "right" )
@@ -160,7 +160,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	#end
                 	<div class="hubWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
-                		<div id="hubProjectVersionLastUpdated" class="value">$bdsHubProjectVersionLastUpdated</div>
+                		<div id="hubProjectVersionLastUpdated" class="value">$bdsProjectVersionLastUpdated</div>
                 	</div>
             	</li>
             #end
@@ -169,14 +169,14 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     <div class="fieldSectionSeparator"/>
 #end
             
-#if ($bdsHubPolicyRule || $bdsHubPolicyRuleOverridable)
+#if ($bdsPolicyRule || $bdsPolicyRuleOverridable)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.policy.label")</h5></div>
         <ul class="property-list two-cols">
             
             #set( $side = "left" )
         
-            #if ($bdsHubPolicyRule)
+            #if ($bdsPolicyRule)
                 #if ($side == "left")
                     <li class="item">
                     #set( $side = "right" )
@@ -186,11 +186,11 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 #end
                 <div class="hubWrap">
                     <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.label"):</strong>
-                    <div id="hubPolicyRuleName" class="value" title="$bdsHubPolicyRuleDescription"><a href="$bdsHubPolicyRuleUrl" target="_blank">$bdsHubPolicyRule</a></div>
+                    <div id="hubPolicyRuleName" class="value" title="$bdsPolicyRuleDescription"><a href="$bdsPolicyRuleUrl" target="_blank">$bdsPolicyRule</a></div>
                 </div>
                 	</li>
              #end
-            	#if ($bdsHubPolicyRuleOverridable)
+            	#if ($bdsPolicyRuleOverridable)
                     #if ($side == "left")
                         <li class="item">
                         #set( $side = "right" )
@@ -200,7 +200,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     #end
                     <div class="hubWrap">
                         <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.overridable.label"):</strong>
-                        <div id="hubPolicyRuleOverridable" class="value">$bdsHubPolicyRuleOverridable</div>
+                        <div id="hubPolicyRuleOverridable" class="value">$bdsPolicyRuleOverridable</div>
                     </div>
                 </li>
             #end

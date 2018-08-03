@@ -141,7 +141,7 @@ public class EventDataFormatHelper {
     }
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
-        // TODO use the HubService once the Hub APIs have the link.
+        // TODO use the HubService once the Black Duck APIs have the link.
         final ComponentService componentService = new ComponentService(blackDuckService);
         RemediationOptionsView remediationOptions;
         try {

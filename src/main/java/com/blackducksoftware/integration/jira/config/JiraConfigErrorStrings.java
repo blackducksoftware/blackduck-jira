@@ -24,15 +24,15 @@
 package com.blackducksoftware.integration.jira.config;
 
 public class JiraConfigErrorStrings {
-    public static final String HUB_SERVER_MISCONFIGURATION = "There was a problem with the Black Duck server configuration. ";
-    public static final String CHECK_HUB_SERVER_CONFIGURATION = "Please verify the Black Duck server information is configured correctly. ";
-    public static final String HUB_CONFIG_PLUGIN_MISSING = "The Black Duck server connection details have not been configured.";
+    public static final String BLACKDUCK_SERVER_MISCONFIGURATION = "There was a problem with the Black Duck server configuration. ";
+    public static final String CHECK_BLACKDUCK_SERVER_CONFIGURATION = "Please verify the Black Duck server information is configured correctly. ";
+    public static final String BLACKDUCK_CONFIG_PLUGIN_MISSING = "The Black Duck server connection details have not been configured.";
 
     public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
     public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any JIRA Projects.";
-    public static final String NO_HUB_PROJECTS_FOUND = "Could not find any Black Duck Projects for this User. This Black Duck user may not be assigned to any projects.";
+    public static final String NO_BLACKDUCK_PROJECTS_FOUND = "Could not find any Black Duck Projects for this User. This Black Duck user may not be assigned to any projects.";
 
-    public static final String HUB_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of Black Duck does not support Policies.";
+    public static final String BLACKDUCK_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of Black Duck does not support Policies.";
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Black Duck server.";
     public static final String NO_POLICY_LICENSE_FOUND = "Valid Policy License was not found";
     public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";

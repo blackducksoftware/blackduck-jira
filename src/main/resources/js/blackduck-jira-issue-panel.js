@@ -80,7 +80,7 @@ function checkPropertyAndHideHubField(property) {
 }
 
 function replaceProjectOwnerField() {
-	changeHubFieldInModule("BDS Hub Project Owner", "Hub Project Owner", "peoplemodule", "li.people-details", "dt");
+	changeHubFieldInModule("BDS Hub Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
 }
 
 function changeHubFieldInModule(fieldName, newValue, moduleId, innerListId, innerTagPropertyString) {

@@ -72,32 +72,32 @@ public class IssueFieldHandler {
 
     public void setPluginFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getHubProjectName());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getHubProjectVersion());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL, issueInputParameters, eventData.getHubProjectVersionUrl());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getHubProjectVersionNickname());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getBlackDuckProjectName());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getBlackDuckProjectVersion());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, issueInputParameters, eventData.getBlackDuckProjectVersionUrl());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getBlackDuckProjectVersionNickname());
 
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getHubComponentName());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL, issueInputParameters, eventData.getHubComponentUrl());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getHubComponentVersion());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, issueInputParameters, eventData.getHubComponentVersionUrl());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getHubLicenseNames());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL, issueInputParameters, eventData.getHubLicenseUrl());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getBlackDuckComponentName());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL, issueInputParameters, eventData.getBlackDuckComponentUrl());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getBlackDuckComponentVersion());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL, issueInputParameters, eventData.getBlackDuckComponentVersionUrl());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getBlackDuckLicenseNames());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL, issueInputParameters, eventData.getBlackDuckLicenseUrl());
 
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getHubComponentUsage());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getHubComponentOrigin());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getHubComponentOriginId());
-            addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, issueInputParameters, eventData.getHubProjectVersionLastUpdated());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE, issueInputParameters, eventData.getBlackDuckComponentUsage());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN, issueInputParameters, eventData.getBlackDuckComponentOrigin());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, issueInputParameters, eventData.getBlackDuckComponentOriginId());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, issueInputParameters, eventData.getBlackDuckProjectVersionLastUpdated());
 
             if (eventData.isPolicy()) {
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getHubRuleName());
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, issueInputParameters, eventData.getHubRuleOverridable());
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, issueInputParameters, eventData.getHubRuleDescription());
+                addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getBlackDuckRuleName());
+                addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, issueInputParameters, eventData.getBlackDuckRuleOverridable());
+                addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, issueInputParameters, eventData.getBlackDuckRuleDescription());
                 // TODO use this when the Hub supports policy redirect: addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubBaseUrl() + "/ui/policy-management");
+                addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getBlackDuckBaseUrl() + "/ui/policy-management");
             }
-            if (eventData.getHubProjectOwner() != null) {
-                addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getHubProjectOwner());
+            if (eventData.getBlackDuckProjectOwner() != null) {
+                addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER, issueInputParameters, eventData.getBlackDuckProjectOwner());
             }
         }
     }
@@ -115,8 +115,8 @@ public class IssueFieldHandler {
             final String errorMessage = "JIRA custom field " + pluginField.getName() + " not found";
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
-                    eventData.getHubProjectName(),
-                    eventData.getHubProjectVersion(),
+                    eventData.getBlackDuckProjectName(),
+                    eventData.getBlackDuckProjectVersion(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -150,8 +150,8 @@ public class IssueFieldHandler {
                 final String errorMessage = "Custom field with ID " + targetFieldId + " not found; won't be set";
                 logger.error(errorMessage);
                 jiraSettingsService.addBlackDuckError(errorMessage,
-                        eventData.getHubProjectName(),
-                        eventData.getHubProjectVersion(),
+                        eventData.getBlackDuckProjectName(),
+                        eventData.getBlackDuckProjectVersion(),
                         eventData.getJiraProjectName(),
                         eventData.getJiraAdminUsername(),
                         eventData.getJiraIssueCreatorUsername(),
@@ -194,8 +194,8 @@ public class IssueFieldHandler {
             final String errorMessage = "Unrecognized field id (" + targetField.getId() + "); field cannot be set";
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
-                    eventData.getHubProjectName(),
-                    eventData.getHubProjectVersion(),
+                    eventData.getBlackDuckProjectName(),
+                    eventData.getBlackDuckProjectVersion(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -219,8 +219,8 @@ public class IssueFieldHandler {
             final String errorMessage = "No component matching '" + targetFieldValue + "' found on project";
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
-                    eventData.getHubProjectName(),
-                    eventData.getHubProjectVersion(),
+                    eventData.getBlackDuckProjectName(),
+                    eventData.getBlackDuckProjectVersion(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -244,8 +244,8 @@ public class IssueFieldHandler {
             final String errorMessage = "No version matching '" + targetFieldValue + "' found on project";
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
-                    eventData.getHubProjectName(),
-                    eventData.getHubProjectVersion(),
+                    eventData.getBlackDuckProjectName(),
+                    eventData.getBlackDuckProjectVersion(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -255,43 +255,43 @@ public class IssueFieldHandler {
 
     private String getPluginFieldValue(final EventData eventData, final String pluginFieldId) {
         String fieldValue = null;
-        if (PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubComponentName();
-        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubComponentUrl();
-        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubComponentVersion();
-        } else if (PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubComponentVersionUrl();
-        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubLicenseNames();
-        } else if (PluginField.HUB_CUSTOM_FIELD_LICENSE_URL.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubLicenseUrl();
-        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
-            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleName());
-        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.getId().equals(pluginFieldId)) {
-            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleOverridable());
-        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.getId().equals(pluginFieldId)) {
-            fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleDescription());
-        } else if (PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL.getId().equals(pluginFieldId)) {
+        if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckComponentName();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckComponentUrl();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckComponentVersion();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckComponentVersionUrl();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckLicenseNames();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckLicenseUrl();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getBlackDuckRuleName());
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getBlackDuckRuleOverridable());
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.getId().equals(pluginFieldId)) {
+            fieldValue = getPolicyFieldValue(eventData, eventData.getBlackDuckRuleDescription());
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL.getId().equals(pluginFieldId)) {
             // TODO use this when the Hub supports policy redirect: fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
-            fieldValue = eventData.getHubBaseUrl() + "/ui/policy-management";
-        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectName();
-        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectVersion();
-        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectVersionUrl();
-        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectOwner() != null ? eventData.getHubProjectOwner().getUsername() : "";
-        } else if (PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getHubProjectVersionLastUpdated();
+            fieldValue = eventData.getBlackDuckBaseUrl() + "/ui/policy-management";
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckProjectName();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckProjectVersion();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckProjectVersionUrl();
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckProjectOwner() != null ? eventData.getBlackDuckProjectOwner().getUsername() : "";
+        } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId().equals(pluginFieldId)) {
+            fieldValue = eventData.getBlackDuckProjectVersionLastUpdated();
         } else {
             final String errorMessage = "Unrecognized plugin field ID: " + pluginFieldId;
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
-                    eventData.getHubProjectName(),
-                    eventData.getHubProjectVersion(),
+                    eventData.getBlackDuckProjectName(),
+                    eventData.getBlackDuckProjectVersion(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -305,7 +305,7 @@ public class IssueFieldHandler {
         if (eventData.isPolicy()) {
             return value;
         }
-        logger.debug("Skipping field " + PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
+        logger.debug("Skipping field " + PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getName() + " for vulnerability issue");
         return null;
     }
 

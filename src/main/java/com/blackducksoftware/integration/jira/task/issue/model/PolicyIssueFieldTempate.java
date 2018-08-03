@@ -124,11 +124,11 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     @Override
     protected Map<Long, String> getAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> policyFieldMappings = new HashMap<>();
-        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
-        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
-        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
-        // TODO use: <hubBaseUrl> + "/ui/policy-management"
-        addCustomField(customFields, policyFieldMappings, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
+        addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
+        addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
+        addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
+        // TODO use: <blackDuckBaseUrl> + "/ui/policy-management"
+        addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
         return policyFieldMappings;
     }
 

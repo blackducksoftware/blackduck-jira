@@ -23,12 +23,16 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
+import com.google.gson.annotations.SerializedName;
+
 public class BlackDuckIssueTrackerProperties {
-    private final String hubIssueUrl;
+    // TODO this might break backwards compatibility with the issue tracker
+    @SerializedName("hubIssueUrl")
+    private final String blackDuckIssueUrl;
     private final Long jiraIssueId;
 
-    public BlackDuckIssueTrackerProperties(final String hubIssueUrl, final Long jiraIssueId) {
-        this.hubIssueUrl = hubIssueUrl;
+    public BlackDuckIssueTrackerProperties(final String blackDuckIssueUrl, final Long jiraIssueId) {
+        this.blackDuckIssueUrl = blackDuckIssueUrl;
         this.jiraIssueId = jiraIssueId;
     }
 
@@ -36,8 +40,8 @@ public class BlackDuckIssueTrackerProperties {
         return jiraIssueId;
     }
 
-    public String getHubIssueUrl() {
-        return hubIssueUrl;
+    public String getBlackDuckIssueUrl() {
+        return blackDuckIssueUrl;
     }
 
 }

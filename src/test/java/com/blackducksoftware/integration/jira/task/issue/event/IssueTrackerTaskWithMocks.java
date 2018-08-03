@@ -44,13 +44,13 @@ public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
     }
 
     @Override
-    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
+    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
         return hubServicesFactory;
     }
 
     @Override
-    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
         final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
-        return super.createHubServerConfig(testConfigDetails);
+        return super.createBlackDuckServerConfig(testConfigDetails);
     }
 }

@@ -24,10 +24,10 @@
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
 public class BlackDuckIssueTrackerPropertyHandler {
-    public final static String JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL = "bdsHubIssueURL";
+    public final static String JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL = "bdsHubIssueURL";
 
     public String createEntityPropertyKey(final Long jiraIssueId) {
-        return String.format("%s_%s", BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL, jiraIssueId);
+        return String.format("%s_%s", BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL, jiraIssueId);
     }
 
 }

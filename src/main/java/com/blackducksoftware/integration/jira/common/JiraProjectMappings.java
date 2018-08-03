@@ -43,30 +43,28 @@ public class JiraProjectMappings {
     }
 
     public List<BlackDuckProject> getHubProjects(final Long jiraProjectId) {
-        final List<BlackDuckProject> matchingHubProjects = new ArrayList<>();
+        final List<BlackDuckProject> matchingBlackDuckProjects = new ArrayList<>();
 
         if (mappings == null || mappings.isEmpty()) {
             logger.debug("There are no configured project mapping");
-            return matchingHubProjects;
+            return matchingBlackDuckProjects;
         }
 
         for (final BlackDuckProjectMapping mapping : mappings) {
             final JiraProject jiraProject = mapping.getJiraProject();
-            final BlackDuckProject hubProject = mapping.getHubProject();
+            final BlackDuckProject blackDuckProject = mapping.getHubProject();
 
-            // Check by name because the notifications may be for Hub projects
-            // that the User doesnt have access to
-            logger.debug("Hub Project                                       : " + hubProject.getProjectName());
+            // Check by name because the notifications may be for Black Duck projects that the User doesnt have access to
+            logger.debug("Black Duck Project:                                 " + blackDuckProject.getProjectName());
             logger.debug("jiraProject.getProjectName() (from config mapping): " + jiraProject.getProjectName());
-            logger.debug("jiraProject Id                                    : " + jiraProjectId);
-            if ((jiraProject.getProjectId() != null)
-                    && (jiraProject.getProjectId().equals(jiraProjectId))) {
+            logger.debug("jiraProject Id:                                     " + jiraProjectId);
+            if ((jiraProject.getProjectId() != null) && (jiraProject.getProjectId().equals(jiraProjectId))) {
                 logger.debug("Match!");
-                matchingHubProjects.add(hubProject);
+                matchingBlackDuckProjects.add(blackDuckProject);
             }
         }
-        logger.debug("Number of matches found: " + matchingHubProjects.size());
-        return matchingHubProjects;
+        logger.debug("Number of matches found: " + matchingBlackDuckProjects.size());
+        return matchingBlackDuckProjects;
     }
 
     public int size() {

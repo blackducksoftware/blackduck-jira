@@ -93,7 +93,7 @@ public class BlackDuckAvatars {
     }
 
     private String getAvatarImagePath(final String issueTypeName) {
-        if (BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE.equals(issueTypeName)) {
+        if (BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE.equals(issueTypeName)) {
             return BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY;
         } else {
             return BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_PATH_POLICY;
@@ -101,7 +101,7 @@ public class BlackDuckAvatars {
     }
 
     private String getAvatarImageFilename(final String issueTypeName) {
-        if (BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE.equals(issueTypeName)) {
+        if (BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE.equals(issueTypeName)) {
             return BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
         } else {
             return BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY;

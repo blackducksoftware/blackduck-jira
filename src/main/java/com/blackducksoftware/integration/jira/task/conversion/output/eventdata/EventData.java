@@ -339,35 +339,35 @@ public class EventData extends Stringable {
         return jiraFieldCopyMappings;
     }
 
-    public String getHubBaseUrl() {
+    public String getBlackDuckBaseUrl() {
         return blackDuckBaseUrl;
     }
 
-    public String getHubProjectName() {
+    public String getBlackDuckProjectName() {
         return blackDuckProjectName;
     }
 
-    public String getHubProjectVersion() {
+    public String getBlackDuckProjectVersion() {
         return blackDuckProjectVersion;
     }
 
-    public String getHubProjectVersionUrl() {
+    public String getBlackDuckProjectVersionUrl() {
         return blackDuckProjectVersionUrl;
     }
 
-    public String getHubComponentName() {
+    public String getBlackDuckComponentName() {
         return blackDuckComponentName;
     }
 
-    public String getHubComponentUrl() {
+    public String getBlackDuckComponentUrl() {
         return blackDuckComponentUrl;
     }
 
-    public String getHubComponentVersion() {
+    public String getBlackDuckComponentVersion() {
         return blackDuckComponentVersion;
     }
 
-    public String getHubComponentVersionUrl() {
+    public String getBlackDuckComponentVersionUrl() {
         return blackDuckComponentVersionUrl;
     }
 
@@ -403,43 +403,43 @@ public class EventData extends Stringable {
         return jiraIssuePropertiesGenerator;
     }
 
-    public String getHubRuleName() {
+    public String getBlackDuckRuleName() {
         return blackDuckRuleName;
     }
 
-    public String getHubRuleOverridable() {
+    public String getBlackDuckRuleOverridable() {
         return blackDuckRuleOverridable;
     }
 
-    public String getHubRuleDescription() {
+    public String getBlackDuckRuleDescription() {
         return blackDuckRuleDescription;
     }
 
-    public String getHubRuleUrl() {
+    public String getBlackDuckRuleUrl() {
         return blackDuckRuleUrl;
     }
 
-    public String getHubLicenseNames() {
+    public String getBlackDuckLicenseNames() {
         return blackDuckLicenseNames;
     }
 
-    public String getHubLicenseUrl() {
+    public String getBlackDuckLicenseUrl() {
         return blackDuckLicenseUrl;
     }
 
-    public String getHubComponentUsage() {
+    public String getBlackDuckComponentUsage() {
         return blackDuckComponentUsage;
     }
 
-    public String getHubComponentOrigin() {
+    public String getBlackDuckComponentOrigin() {
         return blackDuckComponentOrigin;
     }
 
-    public String getHubComponentOriginId() {
+    public String getBlackDuckComponentOriginId() {
         return blackDuckComponentOriginId;
     }
 
-    public String getHubProjectVersionNickname() {
+    public String getBlackDuckProjectVersionNickname() {
         return blackDuckProjectVersionNickname;
     }
 
@@ -447,11 +447,11 @@ public class EventData extends Stringable {
         return componentIssueUrl;
     }
 
-    public ApplicationUser getHubProjectOwner() {
+    public ApplicationUser getBlackDuckProjectOwner() {
         return blackDuckProjectOwner;
     }
 
-    public String getHubProjectVersionLastUpdated() {
+    public String getBlackDuckProjectVersionLastUpdated() {
         return blackDuckProjectVersionLastUpdated;
     }
 

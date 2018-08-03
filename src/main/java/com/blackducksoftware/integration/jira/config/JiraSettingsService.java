@@ -116,19 +116,19 @@ public class JiraSettingsService {
             ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
         }
         logger.debug("Saving " + ticketErrors.size() + " error messages to settings");
-        settings.put(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        settings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
 
     public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
         logger.debug("Pulling error messages from settings");
-        final Object errorObject = pluginSettings.get(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR);
+        final Object errorObject = pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
         if (errorObject == null) {
             logger.debug("No error messages found in settings");
             return null;
         }
         if (!(errorObject instanceof String)) {
             logger.warn("The error object in settings is invalid (probably stored by an older version of the plugin); discarding it");
-            pluginSettings.remove(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR);
+            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
             return null;
         }
 
@@ -138,7 +138,7 @@ public class JiraSettingsService {
             ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
         } catch (final Exception e) {
             logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
-            pluginSettings.remove(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR);
+            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
             return null;
         }
         if ((ticketErrors == null) || ticketErrors.isEmpty()) {
@@ -158,7 +158,7 @@ public class JiraSettingsService {
             }
         }
         logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
-        pluginSettings.put(BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        pluginSettings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
         return ticketErrors;
     }
 

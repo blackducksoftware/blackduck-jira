@@ -24,21 +24,17 @@
 package com.blackducksoftware.integration.jira.config;
 
 public class PluginConfigKeys {
-    public static final String HUB_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
-    public static final String HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = HUB_CONFIG_JIRA_KEY_PREFIX + ".intervalBetweenChecks";
-    public static final String HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubProjectMappings";
-    public static final String HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".fieldCopyMappings";
-    public static final String HUB_CONFIG_JIRA_FIRST_SAVE_TIME = HUB_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
-    public static final String HUB_CONFIG_JIRA_POLICY_RULES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
-    public static final String HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE = HUB_CONFIG_JIRA_KEY_PREFIX + ".createVulnIssuesChoice";
-    public static final String HUB_CONFIG_LAST_RUN_DATE = HUB_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
-    public static final String HUB_CONFIG_JIRA_ADMIN_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
-    public static final String HUB_CONFIG_JIRA_ISSUE_CREATOR_USER = HUB_CONFIG_JIRA_KEY_PREFIX + ".creator";
-    public static final String HUB_CONFIG_CREATOR_CANDIDATES_JSON = HUB_CONFIG_JIRA_KEY_PREFIX + ".creatorCandidates";
-    public static final String HUB_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
-
-    @Deprecated
-    // TODO investigate the deprecation strategy for this and find its replacement
-    public static final String HUB_CONFIG_JIRA_GROUPS = HUB_CONFIG_JIRA_KEY_PREFIX + ".hubJiraGroups";
+    public static final String BLACKDUCK_CONFIG_JIRA_KEY_PREFIX = "com.blackducksoftware.integration.hub.jira";
+    public static final String BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".intervalBetweenChecks";
+    public static final String BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".hubProjectMappings";
+    public static final String BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".fieldCopyMappings";
+    public static final String BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
+    public static final String BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
+    public static final String BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".createVulnIssuesChoice";
+    public static final String BLACKDUCK_CONFIG_LAST_RUN_DATE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
+    public static final String BLACKDUCK_CONFIG_JIRA_ADMIN_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
+    public static final String BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".creator";
+    public static final String BLACKDUCK_CONFIG_CREATOR_CANDIDATES_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".creatorCandidates";
+    public static final String BLACKDUCK_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
 
 }

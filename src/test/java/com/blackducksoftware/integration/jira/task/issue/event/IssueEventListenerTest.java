@@ -132,11 +132,11 @@ public class IssueEventListenerTest {
 
     private PluginSettingsMock createPluginSettings() {
         final PluginSettingsMock settings = new PluginSettingsMock();
-        settings.put(BlackDuckConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
-        settings.put(BlackDuckConfigKeys.CONFIG_HUB_USER, JIRA_USER);
-        settings.put(BlackDuckConfigKeys.CONFIG_HUB_PASS, "apassword");
-        settings.put(BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH, "");
-        settings.put(BlackDuckConfigKeys.CONFIG_HUB_TIMEOUT, "120");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, "http://www.google.com");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, JIRA_USER);
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, "apassword");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, "120");
 
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_HOST, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PORT, "");
@@ -145,17 +145,17 @@ public class IssueEventListenerTest {
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, "");
 
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, "");
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, "");
-        settings.put(PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, "");
 
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
 
-        settings.put(PluginConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
-        settings.put(PluginConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
         return settings;
     }
 
@@ -206,13 +206,13 @@ public class IssueEventListenerTest {
         hubProject.setProjectName(HUB_PROJECT_NAME);
         mapping.setHubProject(hubProject);
         projectSet.add(mapping);
-        settings.put(PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
     }
 
     private void createEntityProperty() {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
         entityProperty.setEntityName(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
+        entityProperty.setKey(BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL);
         final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
         final List<EntityProperty> propList = new ArrayList<>(1);

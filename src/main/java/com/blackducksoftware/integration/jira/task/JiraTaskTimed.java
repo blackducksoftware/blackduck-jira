@@ -154,11 +154,11 @@ public class JiraTaskTimed implements Callable<String> {
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();
         if (previousRunDateString != null && currentRunDateString != null) {
-            settings.put(PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, currentRunDateString);
+            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, currentRunDateString);
         }
         final String newRunDateString = processor.execute(previousRunDateString);
         if (newRunDateString != null) {
-            settings.put(PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDateString);
             runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
         }
         return runStatus;

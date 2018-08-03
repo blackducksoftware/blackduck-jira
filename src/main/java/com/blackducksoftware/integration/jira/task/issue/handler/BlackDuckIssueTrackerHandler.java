@@ -46,22 +46,22 @@ public class BlackDuckIssueTrackerHandler {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraSettingsService jiraSettingsService;
-    private final IssueService hubIssueService;
+    private final IssueService blackDuckIssueService;
     private final DateFormat dateFormatter;
 
-    public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final IssueService hubIssueService) {
+    public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final IssueService blackDuckIssueService) {
         this.jiraSettingsService = jiraSettingsService;
-        this.hubIssueService = hubIssueService;
+        this.blackDuckIssueService = blackDuckIssueService;
 
         dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public String createBlackDuckIssue(final String hubIssueUrl, final Issue jiraIssue) {
+    public String createBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {
         String url = "";
         try {
-            if (StringUtils.isNotBlank(hubIssueUrl)) {
-                url = hubIssueService.createIssue(createBlackDuckIssueView(jiraIssue), hubIssueUrl);
+            if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
+                url = blackDuckIssueService.createIssue(createBlackDuckIssueView(jiraIssue), blackDuckIssueUrl);
             } else {
                 final String message = "Error creating Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -75,11 +75,11 @@ public class BlackDuckIssueTrackerHandler {
         return url;
     }
 
-    public void updateBlackDuckIssue(final String hubIssueUrl, final Issue jiraIssue) {
+    public void updateBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {
         try {
-            if (StringUtils.isNotBlank(hubIssueUrl)) {
-                logger.debug(String.format("Updating issue %s from Black Duck for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                hubIssueService.updateIssue(createBlackDuckIssueView(jiraIssue), hubIssueUrl);
+            if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
+                logger.debug(String.format("Updating issue %s from Black Duck for jira issue %s", blackDuckIssueUrl, jiraIssue.getKey()));
+                blackDuckIssueService.updateIssue(createBlackDuckIssueView(jiraIssue), blackDuckIssueUrl);
             } else {
                 final String message = "Error updating Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -91,11 +91,11 @@ public class BlackDuckIssueTrackerHandler {
         }
     }
 
-    public void deleteBlackDuckIssue(final String hubIssueUrl, final Issue jiraIssue) {
+    public void deleteBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {
         try {
-            if (StringUtils.isNotBlank(hubIssueUrl)) {
-                logger.debug(String.format("Deleting issue %s from Black Duck for jira issue %s", hubIssueUrl, jiraIssue.getKey()));
-                hubIssueService.deleteIssue(hubIssueUrl);
+            if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
+                logger.debug(String.format("Deleting issue %s from Black Duck for jira issue %s", blackDuckIssueUrl, jiraIssue.getKey()));
+                blackDuckIssueService.deleteIssue(blackDuckIssueUrl);
             } else {
                 final String message = "Error deleting Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -108,7 +108,7 @@ public class BlackDuckIssueTrackerHandler {
     }
 
     private IssueView createBlackDuckIssueView(final Issue jiraIssue) {
-        final IssueView hubIssue = new IssueView();
+        final IssueView blackDuckIssue = new IssueView();
         final String issueId = jiraIssue.getKey();
         String assignee = "";
 
@@ -124,14 +124,14 @@ public class BlackDuckIssueTrackerHandler {
             status = jiraIssue.getStatus().getName();
         }
 
-        hubIssue.issueId = issueId;
-        hubIssue.issueAssignee = assignee;
-        hubIssue.issueStatus = status;
-        hubIssue.issueCreatedAt = jiraIssue.getCreated();
-        hubIssue.issueUpdatedAt = jiraIssue.getUpdated();
-        hubIssue.issueDescription = jiraIssue.getSummary();
-        hubIssue.issueLink = String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey());
-        return hubIssue;
+        blackDuckIssue.issueId = issueId;
+        blackDuckIssue.issueAssignee = assignee;
+        blackDuckIssue.issueStatus = status;
+        blackDuckIssue.issueCreatedAt = jiraIssue.getCreated();
+        blackDuckIssue.issueUpdatedAt = jiraIssue.getUpdated();
+        blackDuckIssue.issueDescription = jiraIssue.getSummary();
+        blackDuckIssue.issueLink = String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey());
+        return blackDuckIssue;
     }
 
     // TODO think about preferable ways to do this

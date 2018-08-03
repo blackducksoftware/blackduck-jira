@@ -93,6 +93,31 @@
     <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.BlackDuckJiraServlet">
   		<url-pattern>/blackduck-jira-integration</url-pattern>
 	</servlet>
+	
+	<rest name="Black Duck Jira Rest" key="rest" path="/blackduck-jira-integration" version="1.0">
+      <description>Provides REST resources for the admin UI.</description>
+    </rest>
+    
+    <web-item key="jira-menu-item" name="Black Duck Jira" section="system.admin/globalsettings" weight="10" application="jira">
+      <description>Link to Black Duck JIRA page.</description> 
+      <label key="blackduck.integration.jira.label" /> 
+      <link linkId="blackduck-admin-link">/plugins/servlet/blackduck-jira-integration</link> 
+    </web-item>
+    
+    <web-resource key="blackduck-jira-web-panel-resources" name="Black Duck Jira Web Panel Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="blackduck-jira-issue-panel.css" location="/css/blackduck-jira-issue-panel.css"/>
+        <resource type="download" name="blackduck-jira-issue-panel.js" location="/js/blackduck-jira-issue-panel.js"/>
+        <context>jira.view.issue</context>
+        <context>panel-module-loader</context>
+    </web-resource>
+    
+    <web-panel name="Black Duck Issue Panel" key="blackDuckIssuePanel" location="atl.jira.view.issue.left.context" weight="150" >
+        <label key="blackduck.issue.panel.title" />
+        <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
+        <resource name="view" type="velocity" location="blackduck-issue-panel.vm"/>
+        <condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition" />
+    </web-panel>
     
     <!-- publish our component -->
     
@@ -118,29 +143,5 @@
 	<component-import name="Login Uri Provider" key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
 	<component-import name="Template Renderer" key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
 	<component-import name="SAL Scheduler" key="pluginScheduler" interface="com.atlassian.sal.api.scheduling.PluginScheduler" />
-    
-	<rest name="Black Duck Jira Rest" key="rest" path="/blackduck-jira-integration" version="1.0">
-	  <description>Provides REST resources for the admin UI.</description>
-	</rest>
 	
-	<web-item key="jira-menu-item" name="Black Duck Jira" section="system.admin/globalsettings" weight="10" application="jira">
-	  <description>Link to Black Duck JIRA page.</description> 
-	  <label key="blackduck.integration.jira.label" /> 
-	  <link linkId="hub-admin-link">/plugins/servlet/blackduck-jira-integration</link> 
-	</web-item>
-	
-	<web-resource key="blackduck-jira-web-panel-resources" name="Black Duck Jira Web Panel Resources">
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <resource type="download" name="blackduck-jira-issue-panel.css" location="/css/blackduck-jira-issue-panel.css"/>
-        <resource type="download" name="blackduck-jira-issue-panel.js" location="/js/blackduck-jira-issue-panel.js"/>
-        <context>jira.view.issue</context>
-        <context>panel-module-loader</context>
-    </web-resource>
-	
-	<web-panel name="Black Duck Issue Panel" key="hubIssuePanel" location="atl.jira.view.issue.left.context" weight="150" >
-        <label key="blackduck.issue.panel.title" />
-        <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
-		<resource name="view" type="velocity" location="blackduck-issue-panel.vm"/>
-		<condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition" />
-	</web-panel>
 </atlassian-plugin>

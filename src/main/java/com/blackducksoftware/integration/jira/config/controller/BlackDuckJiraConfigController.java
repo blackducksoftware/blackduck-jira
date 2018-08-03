@@ -85,18 +85,18 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.config.ErrorTracking;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.config.ErrorTracking;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
-import com.blackducksoftware.integration.jira.config.model.Fields;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.Fields;
 import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
 import com.blackducksoftware.integration.jira.config.model.PluginInfoSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
@@ -120,16 +120,16 @@ public class BlackDuckJiraConfigController {
 
     private final UserManager userManager;
     private final TransactionTemplate transactionTemplate;
-    private final BlackDuckMonitor hubMonitor;
+    private final BlackDuckMonitor blackDuckMonitor;
     private final Properties i18nProperties;
 
-    public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager, final BlackDuckMonitor hubMonitor,
-            final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
+    public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
+            final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
         this.projectManager = projectManager;
-        this.hubMonitor = hubMonitor;
+        this.blackDuckMonitor = blackDuckMonitor;
         this.groupPickerSearchService = groupPickerSearchService;
         this.fieldManager = fieldManager;
 
@@ -177,20 +177,12 @@ public class BlackDuckJiraConfigController {
         if (userManager.isSystemAdmin(username)) {
             return true;
         }
-        // Deprecated property used to update new property
-        @SuppressWarnings("deprecation")
-        final String oldHubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
-        final String hubJiraGroupsString;
-        if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
-            hubJiraGroupsString = oldHubJiraGroupsString;
-        } else {
-            hubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
-        }
-        if (StringUtils.isNotBlank(hubJiraGroupsString)) {
-            final String[] hubJiraGroups = hubJiraGroupsString.split(",");
+        final String blackDuckJiraGroupsString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+        if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
+            final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
             boolean userIsInGroups = false;
-            for (final String hubJiraGroup : hubJiraGroups) {
-                if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
+            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
+                if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
                     userIsInGroups = true;
                     break;
                 }
@@ -205,9 +197,7 @@ public class BlackDuckJiraConfigController {
     @Path("/admin")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    // Deprecated property used to update new property
-    @SuppressWarnings("deprecation")
-    public Response getHubJiraAdminConfiguration(@Context final HttpServletRequest request) {
+    public Response getPluginAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
             final String username = userManager.getRemoteUsername(request);
@@ -216,23 +206,16 @@ public class BlackDuckJiraConfigController {
             }
             final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final String oldHubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS);
-            final String hubJiraGroupsString;
-            if (StringUtils.isNotBlank(oldHubJiraGroupsString)) {
-                hubJiraGroupsString = oldHubJiraGroupsString;
-                setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, null);
-                setValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS, hubJiraGroupsString);
-            } else {
-                hubJiraGroupsString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
-            }
+            final String blackDuckJiraGroupsString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+
             if (!userIsSysAdmin) {
-                if (StringUtils.isBlank(hubJiraGroupsString)) {
+                if (StringUtils.isBlank(blackDuckJiraGroupsString)) {
                     return Response.status(Status.UNAUTHORIZED).build();
                 } else {
-                    final String[] hubJiraGroups = hubJiraGroupsString.split(",");
+                    final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
                     boolean userIsInGroups = false;
-                    for (final String hubJiraGroup : hubJiraGroups) {
-                        if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
+                    for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
+                        if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
                             userIsInGroups = true;
                             break;
                         }
@@ -247,7 +230,7 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
-                    txAdminConfig.setHubJiraGroups(hubJiraGroupsString);
+                    txAdminConfig.setHubJiraGroups(blackDuckJiraGroupsString);
                     if (userIsSysAdmin) {
                         final List<String> jiraGroups = new ArrayList<>();
 
@@ -272,10 +255,10 @@ public class BlackDuckJiraConfigController {
         return Response.ok(adminConfig).build();
     }
 
-    @Path("/hubJiraTicketErrors")
+    @Path("/blackDuckJiraTicketErrors")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHubJiraTicketErrors(@Context final HttpServletRequest request) {
+    public Response getBlackDuckJiraTicketErrors(@Context final HttpServletRequest request) {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         final Response response = checkUserPermissions(request, settings);
         if (response != null) {
@@ -315,7 +298,7 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
-                    final String intervalBetweenChecks = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    final String intervalBetweenChecks = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
 
                     txConfig.setIntervalBetweenChecks(intervalBetweenChecks);
 
@@ -348,7 +331,7 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String creator = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
+                    final String creator = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
                     txConfig.setCreator(creator);
                     validateCreator(txConfig);
                     return txConfig;
@@ -399,11 +382,11 @@ public class BlackDuckJiraConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    @Path("/hubProjects")
+    @Path("/blackDuckProjects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHubProjects(@Context final HttpServletRequest request) {
-        logger.debug("getHubProjects()");
+    public Response getBlackDuckProjects(@Context final HttpServletRequest request) {
+        logger.debug("getBlackDuckProjects()");
         final Object projectsConfig;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -417,24 +400,24 @@ public class BlackDuckJiraConfigController {
                     final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
                     config.setHubProjects(new ArrayList<>(0));
 
-                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, config);
-                    if (hubServicesFactory == null) {
+                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
+                    if (blackDuckServicesFactory == null) {
                         return config;
                     }
 
-                    final List<BlackDuckProject> hubProjects = getHubProjects(hubServicesFactory, config);
-                    config.setHubProjects(hubProjects);
+                    final List<BlackDuckProject> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory, config);
+                    config.setHubProjects(blackDuckProjects);
 
-                    if (hubProjects.size() == 0) {
-                        config.setHubProjectsError(JiraConfigErrorStrings.NO_HUB_PROJECTS_FOUND);
+                    if (blackDuckProjects.size() == 0) {
+                        config.setHubProjectsError(JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND);
                     }
-                    closeRestConnection(hubServicesFactory.getRestConnection());
+                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
                     return config;
                 }
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
-            final String msg = "Error getting Hub projects config: " + e.getMessage();
+            final String msg = "Error getting Black Duck projects config: " + e.getMessage();
             logger.error(msg, e);
             errorConfig.setHubProjectsError(msg);
             return Response.ok(errorConfig).build();
@@ -492,18 +475,18 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     final Fields txSourceFields = new Fields();
                     logger.debug("Adding source fields");
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
                     Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
                     logger.debug("sourceFields: " + txSourceFields);
                     return txSourceFields;
@@ -557,10 +540,10 @@ public class BlackDuckJiraConfigController {
         return Response.ok(targetFields).build();
     }
 
-    @Path("/hubPolicies")
+    @Path("/blackDuckPolicies")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHubPolicies(@Context final HttpServletRequest request) {
+    public Response getBlackDuckPolicies(@Context final HttpServletRequest request) {
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -571,9 +554,7 @@ public class BlackDuckJiraConfigController {
             config = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
-                    final String policyRulesJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-
+                    final String policyRulesJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
                     if (StringUtils.isNotBlank(policyRulesJson)) {
@@ -582,12 +563,12 @@ public class BlackDuckJiraConfigController {
                         txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, txConfig);
-                    if (hubServicesFactory == null) {
+                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, txConfig);
+                    if (blackDuckServicesFactory == null) {
                         return txConfig;
                     }
-                    setHubPolicyRules(hubServicesFactory, txConfig);
-                    closeRestConnection(hubServicesFactory.getRestConnection());
+                    setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
+                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
                     return txConfig;
                 }
             });
@@ -617,7 +598,7 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     logger.debug("GET createVulnerabilityTicketsChoice transaction");
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String createVulnIssuesChoiceString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+                    final String createVulnIssuesChoiceString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
                     logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
                     boolean choice = true;
                     if ("false".equalsIgnoreCase(createVulnIssuesChoiceString)) {
@@ -652,12 +633,10 @@ public class BlackDuckJiraConfigController {
             config = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                    final String blackDuckProjectMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
 
-                    final String hubProjectMappingsJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-
-                    txConfig.setHubProjectMappingsJson(hubProjectMappingsJson);
+                    txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 
                     validateMapping(txConfig);
                     return txConfig;
@@ -687,14 +666,12 @@ public class BlackDuckJiraConfigController {
             config = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-
                     final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
+                    final String blackDuckFieldCopyMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
 
-                    final String hubFieldCopyMappingsJson = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
-
-                    logger.debug("Get /fieldCopyMappings returning JSON: " + hubFieldCopyMappingsJson);
-                    txConfig.setJson(hubFieldCopyMappingsJson);
-                    logger.debug("HubJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
+                    logger.debug("Get /fieldCopyMappings returning JSON: " + blackDuckFieldCopyMappingsJson);
+                    txConfig.setJson(blackDuckFieldCopyMappingsJson);
+                    logger.debug("BlackDuckJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
                     return txConfig;
                 }
             });
@@ -750,7 +727,7 @@ public class BlackDuckJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     SortedSet<String> getIssueCreatorCandidates(final PluginSettings settings) {
         final SortedSet<String> jiraUsernames = new TreeSet<>();
-        final String groupList = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS);
+        final String groupList = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
         if (!StringUtils.isBlank(groupList)) {
             final String[] groupNames = groupList.split(",");
             for (final String groupName : groupNames) {
@@ -776,36 +753,36 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
                     config.setJiraProjects(jiraProjects);
-                    final HubServicesFactory hubServicesFactory = createHubServicesFactory(settings, config);
-                    if (hubServicesFactory == null) {
+                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
+                    if (blackDuckServicesFactory == null) {
                         return config;
                     }
-                    final List<BlackDuckProject> hubProjects = getHubProjects(hubServicesFactory, config);
-                    closeRestConnection(hubServicesFactory.getRestConnection());
+                    final List<BlackDuckProject> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory, config);
+                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
 
-                    config.setHubProjects(hubProjects);
+                    config.setHubProjects(blackDuckProjects);
                     config.setJiraProjects(jiraProjects);
                     validateInterval(config);
                     validateCreator(config, settings);
                     validateMapping(config);
-                    if (getValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
+                    if (getValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
+                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
                     }
-                    final String previousInterval = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
+                    final String previousInterval = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
                     final String issueCreatorJiraUser = config.getCreator();
                     logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, issueCreatorJiraUser);
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, username);
-                    updateHubTaskInterval(previousInterval, config.getIntervalBetweenChecks());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER, issueCreatorJiraUser);
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON, config.getPolicyRulesJson());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER, username);
+                    updatePluginTaskInterval(previousInterval, config.getIntervalBetweenChecks());
                     logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
 
                     return null;
                 }
@@ -836,7 +813,7 @@ public class BlackDuckJiraConfigController {
             @Override
             public Object doInTransaction() {
 
-                final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR);
+                final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
 
                 List<TicketCreationError> ticketErrors = null;
                 if (errorObject != null) {
@@ -867,7 +844,7 @@ public class BlackDuckJiraConfigController {
                         }
                     }
                 }
-                setValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+                setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
                 return null;
             }
         });
@@ -880,7 +857,7 @@ public class BlackDuckJiraConfigController {
     @Path("/admin")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateHubAdminConfiguration(final BlackDuckAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
+    public Response updateBlackDuckAdminConfiguration(final BlackDuckAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
         final Object responseObject;
         try {
             final String username = userManager.getRemoteUsername(request);
@@ -893,14 +870,13 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-
                     final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();
 
                     if (!userIsSysAdmin) {
                         txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
                         return txResponseObject;
                     } else {
-                        setValue(settings, PluginConfigKeys.HUB_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
+                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
                     }
                     return null;
                 }
@@ -942,7 +918,7 @@ public class BlackDuckJiraConfigController {
                         return null;
                     }
 
-                    setValue(settings, PluginConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
                     return null;
                 }
             });
@@ -988,7 +964,7 @@ public class BlackDuckJiraConfigController {
     @Path("/reset")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response resetHubJiraKeys(final Object object, @Context final HttpServletRequest request) {
+    public Response resetPluginKeys(final Object object, @Context final HttpServletRequest request) {
         logger.debug("Reset called with parameter: " + object);
         final Object responseString;
         try {
@@ -1007,11 +983,11 @@ public class BlackDuckJiraConfigController {
 
                         final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
                         dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+                        final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
                         final String newLastRunDateString = dateFormatter.format(now);
                         logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
-                        setValue(settings, PluginConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newLastRunDateString);
-                        setValue(settings, BlackDuckJiraConstants.BLACK_DUCK_JIRA_ERROR, null);
+                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newLastRunDateString);
+                        setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
                     } catch (final Exception e) {
                         return e.getMessage();
                     }
@@ -1030,13 +1006,13 @@ public class BlackDuckJiraConfigController {
     }
 
     // This must be "package protected" to avoid synthetic access
-    void updateHubTaskInterval(final String previousIntervalString, final String newIntervalString) {
+    void updatePluginTaskInterval(final String previousIntervalString, final String newIntervalString) {
         final int previousInterval = NumberUtils.toInt(previousIntervalString);
         int newInterval;
         try {
             newInterval = stringToInteger(newIntervalString);
             if (newInterval > 0 && newInterval != previousInterval) {
-                hubMonitor.changeInterval();
+                blackDuckMonitor.changeInterval();
             }
         } catch (final IllegalArgumentException e) {
             logger.error("The specified interval is not an integer.");
@@ -1084,7 +1060,7 @@ public class BlackDuckJiraConfigController {
             boolean hasEmptyMapping = false;
             for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
                 boolean jiraProjectBlank = true;
-                boolean hubProjectBlank = true;
+                boolean blackDuckProjectBlank = true;
                 if (mapping.getJiraProject() != null) {
                     if (mapping.getJiraProject().getProjectId() != null) {
                         jiraProjectBlank = false;
@@ -1092,12 +1068,12 @@ public class BlackDuckJiraConfigController {
                 }
                 if (mapping.getHubProject() != null) {
                     if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
-                        hubProjectBlank = false;
+                        blackDuckProjectBlank = false;
                     } else if (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
-                        hubProjectBlank = false;
+                        blackDuckProjectBlank = false;
                     }
                 }
-                if (jiraProjectBlank || hubProjectBlank) {
+                if (jiraProjectBlank || blackDuckProjectBlank) {
                     hasEmptyMapping = true;
                 }
             }
@@ -1150,69 +1126,69 @@ public class BlackDuckJiraConfigController {
     }
 
     // This must be "package protected" to avoid synthetic access
-    HubServicesFactory createHubServicesFactory(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
+    HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
         final RestConnection restConnection = createRestConnection(settings, config);
         if (config.hasErrors()) {
             return null;
         }
-        final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
-        return hubServicesFactory;
+        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(restConnection);
+        return blackDuckServicesFactory;
     }
 
     void closeRestConnection(final RestConnection restConnection) {
         try {
             restConnection.close();
         } catch (final IOException e) {
-            logger.error("There was a problem trying to close the connection to the Hub server.", e);
+            logger.error("There was a problem trying to close the connection to the Black Duck server.", e);
         }
     }
 
     private RestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
-        final String hubUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_URL);
-        final String hubUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_USER);
-        logger.debug(String.format("Establishing connection to hub server: %s as %s", hubUrl, hubUser));
-        final String encHubPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS);
-        final String encHubPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH);
-        final String hubTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TIMEOUT);
-        final String hubTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TRUST_CERT);
+        final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+        final String blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
+        logger.debug(String.format("Establishing connection to Black Duck server: %s as %s", blackDuckUrl, blackDuckUser));
+        final String encBlackDuckPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
+        final String encBlackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
+        final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
+        final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        if (StringUtils.isBlank(hubUrl) && StringUtils.isBlank(hubUser) && StringUtils.isBlank(encHubPassword) && StringUtils.isBlank(hubTimeout)) {
-            config.setErrorMessage(JiraConfigErrorStrings.HUB_CONFIG_PLUGIN_MISSING);
+        if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
+            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
             return null;
-        } else if (StringUtils.isBlank(hubUrl) || StringUtils.isBlank(hubUser) || StringUtils.isBlank(encHubPassword) || StringUtils.isBlank(hubTimeout)) {
-            config.setErrorMessage(JiraConfigErrorStrings.HUB_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION);
+        } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
+            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
             return null;
         }
 
-        final String hubProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
-        final String hubProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        final String hubNoProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
-        final String hubProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
-        final String encHubProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
-        final String hubProxyPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        final String blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
+        final String blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
+        final String blackDuckNoProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
+        final String blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
+        final String encBlackDuckProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        final String blackDuckProxyPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
         RestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
-            configBuilder.setUrl(hubUrl);
-            configBuilder.setUsername(hubUser);
-            configBuilder.setPassword(encHubPassword);
-            configBuilder.setPasswordLength(NumberUtils.toInt(encHubPasswordLength));
-            configBuilder.setTimeout(hubTimeout);
-            configBuilder.setTrustCert(hubTrustCert);
-            configBuilder.setProxyHost(hubProxyHost);
-            configBuilder.setProxyPort(hubProxyPort);
-            configBuilder.setIgnoredProxyHosts(hubNoProxyHost);
-            configBuilder.setProxyUsername(hubProxyUser);
-            configBuilder.setProxyPassword(encHubProxyPassword);
-            configBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPasswordLength));
+            configBuilder.setUrl(blackDuckUrl);
+            configBuilder.setUsername(blackDuckUser);
+            configBuilder.setPassword(encBlackDuckPassword);
+            configBuilder.setPasswordLength(NumberUtils.toInt(encBlackDuckPasswordLength));
+            configBuilder.setTimeout(blackDuckTimeout);
+            configBuilder.setTrustCert(blackDuckTrustCert);
+            configBuilder.setProxyHost(blackDuckProxyHost);
+            configBuilder.setProxyPort(blackDuckProxyPort);
+            configBuilder.setIgnoredProxyHosts(blackDuckNoProxyHost);
+            configBuilder.setProxyUsername(blackDuckProxyUser);
+            configBuilder.setProxyPassword(encBlackDuckProxyPassword);
+            configBuilder.setProxyPasswordLength(NumberUtils.toInt(blackDuckProxyPasswordLength));
 
             final HubServerConfig serverConfig;
             try {
                 serverConfig = configBuilder.build();
             } catch (final IllegalStateException e) {
-                logger.error("Error in Hub server configuration: " + e.getMessage());
-                config.setErrorMessage(JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION);
+                logger.error("Error in Black Duck server configuration: " + e.getMessage());
+                config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
                 return null;
             }
 
@@ -1220,58 +1196,58 @@ public class BlackDuckJiraConfigController {
             restConnection.connect();
 
         } catch (IllegalArgumentException | IntegrationException e) {
-            config.setErrorMessage(JiraConfigErrorStrings.CHECK_HUB_SERVER_CONFIGURATION + " :: " + e.getMessage());
+            config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }
         return restConnection;
     }
 
     // This must be "package protected" to avoid synthetic access
-    List<BlackDuckProject> getHubProjects(final HubServicesFactory hubServicesFactory, final ErrorTracking config) {
-        final List<BlackDuckProject> hubProjects = new ArrayList<>();
-        final ProjectService projectRequestService = hubServicesFactory.createProjectService();
-        List<ProjectView> hubProjectItems = null;
+    List<BlackDuckProject> getBlackDuckProjects(final HubServicesFactory blackDuckServicesFactory, final ErrorTracking config) {
+        final List<BlackDuckProject> blackDuckProjects = new ArrayList<>();
+        final ProjectService projectRequestService = blackDuckServicesFactory.createProjectService();
+        List<ProjectView> blackDuckProjectItems = null;
         try {
-            hubProjectItems = projectRequestService.getAllProjectMatches(null);
+            blackDuckProjectItems = projectRequestService.getAllProjectMatches(null);
         } catch (final IntegrationException e) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
-            return hubProjects;
+            return blackDuckProjects;
         }
 
         final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
         final MetaHandler metaHandler = new MetaHandler(logger);
         try {
-            hubProjectItems = filter.getAccessibleItems(metaHandler, hubProjectItems);
+            blackDuckProjectItems = filter.getAccessibleItems(metaHandler, blackDuckProjectItems);
         } catch (final HubIntegrationException e1) {
             config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
-            return hubProjects;
+            return blackDuckProjects;
         }
 
-        if (hubProjectItems != null && !hubProjectItems.isEmpty()) {
-            for (final ProjectView project : hubProjectItems) {
-                final BlackDuckProject newHubProject = new BlackDuckProject();
-                newHubProject.setProjectName(project.name);
+        if (blackDuckProjectItems != null && !blackDuckProjectItems.isEmpty()) {
+            for (final ProjectView project : blackDuckProjectItems) {
+                final BlackDuckProject newBlackDuckProject = new BlackDuckProject();
+                newBlackDuckProject.setProjectName(project.name);
                 try {
-                    newHubProject.setProjectUrl(metaHandler.getHref(project));
+                    newBlackDuckProject.setProjectUrl(metaHandler.getHref(project));
                 } catch (final HubIntegrationException e) {
                     config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
                     continue;
                 }
-                hubProjects.add(newHubProject);
+                blackDuckProjects.add(newBlackDuckProject);
             }
         }
-        return hubProjects;
+        return blackDuckProjects;
     }
 
     // This must be "package protected" to avoid synthetic access
-    void setHubPolicyRules(final HubServicesFactory hubServicesFactory, final BlackDuckJiraConfigSerializable config) {
+    void setBlackDuckPolicyRules(final HubServicesFactory blackDuckServicesFactory, final BlackDuckJiraConfigSerializable config) {
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
-        if (hubServicesFactory != null) {
-            final HubService hubService = hubServicesFactory.createHubService();
+        if (blackDuckServicesFactory != null) {
+            final HubService blackDuckService = blackDuckServicesFactory.createHubService();
             try {
                 List<PolicyRuleViewV2> policyRules = null;
                 try {
-                    policyRules = hubService.getAllResponses(ApiDiscovery.POLICY_RULES_LINK_RESPONSE);
+                    policyRules = blackDuckService.getAllResponses(ApiDiscovery.POLICY_RULES_LINK_RESPONSE);
                 } catch (final HubIntegrationException e) {
                     config.setPolicyRulesError(e.getMessage());
                 } catch (final IntegrationRestException ire) {

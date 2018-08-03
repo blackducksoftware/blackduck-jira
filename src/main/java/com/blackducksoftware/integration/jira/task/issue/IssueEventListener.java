@@ -47,7 +47,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private final EventPublisher eventPublisher;
     private final PluginSettingsFactory pluginSettingsFactory;
     private final JiraIssuePropertyWrapper issueProperyWrapper;
-    private final BlackDuckIssueTrackerPropertyHandler hubIssueTrackerPropertyHandler;
+    private final BlackDuckIssueTrackerPropertyHandler blackDuckIssueTrackerPropertyHandler;
 
     private final ExecutorService executorService;
 
@@ -55,7 +55,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.issueProperyWrapper = issueProperyWrapper;
-        this.hubIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
+        this.blackDuckIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
         this.executorService = createExecutorService();
     }
 
@@ -85,14 +85,14 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Event Type ID:    %s", eventTypeID));
                 logger.debug(String.format("Issue:            %s", issue));
 
-                final String propertyKey = hubIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
-                final EntityProperty hubIssueUrlProperty = issueProperyWrapper.findProperty(propertyKey);
+                final String propertyKey = blackDuckIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
+                final EntityProperty blackDuckIssueUrlProperty = issueProperyWrapper.findProperty(propertyKey);
 
-                if (hubIssueUrlProperty == null) {
+                if (blackDuckIssueUrlProperty == null) {
                     logger.debug(String.format("Black Duck Issue Tracker URL not present. No further processing for issue: %s", issue));
                 } else {
                     final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                    executorService.submit(createTask(issue, eventTypeID, settings, propertyKey, hubIssueUrlProperty));
+                    executorService.submit(createTask(issue, eventTypeID, settings, propertyKey, blackDuckIssueUrlProperty));
                 }
             }
         } catch (final Exception ex) {

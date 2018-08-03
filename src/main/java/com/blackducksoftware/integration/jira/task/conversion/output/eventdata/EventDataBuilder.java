@@ -143,20 +143,20 @@ public class EventDataBuilder extends Stringable {
 
     public EventDataBuilder setPolicyIssueCommentPropertiesFromNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
-            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
-            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
         } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
-            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
-            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
-            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_REOPEN);
-            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_COMMENT);
-            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_RESOLVE);
-            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
         } else {
 
         }
@@ -166,8 +166,8 @@ public class EventDataBuilder extends Stringable {
     public EventDataBuilder setVulnerabilityIssueCommentProperties(final String comment) {
         setJiraIssueComment(comment);
         setJiraIssueCommentForExistingIssue(comment);
-        setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_REOPEN);
-        setJiraIssueResolveComment(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_RESOLVE);
+        setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN);
+        setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_RESOLVE);
         setJiraIssueCommentInLieuOfStateChange(comment);
         return this;
     }
@@ -312,8 +312,8 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
-    public EventDataBuilder setBlackDuckRuleName(final String hubblackDuckRuleName) {
-        this.blackDuckRuleName = hubblackDuckRuleName;
+    public EventDataBuilder setBlackDuckRuleName(final String blackDuckRuleName) {
+        this.blackDuckRuleName = blackDuckRuleName;
         return this;
     }
 
@@ -352,7 +352,7 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
-    public EventDataBuilder setHubProjectVersionNickname(final String blackDuckProjectVersionNickname) {
+    public EventDataBuilder setBlackDuckProjectVersionNickname(final String blackDuckProjectVersionNickname) {
         this.blackDuckProjectVersionNickname = blackDuckProjectVersionNickname;
         return this;
     }

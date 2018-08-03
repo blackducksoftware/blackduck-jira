@@ -136,32 +136,32 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
     public final Map<Long, String> getBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
         if (projectOwner != null) {
-            addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
+            addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
         }
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT, projectName);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION, projectVersionName);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL, projectVersionUri);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, projectVersionNickname);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT, projectName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, projectVersionName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, projectVersionUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, projectVersionNickname);
 
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT, componentName);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_URL, componentUri);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION, componentVersionName);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL, componentVersionUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT, componentName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL, componentUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, componentVersionName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL, componentVersionUri);
 
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_LICENSE_NAMES, licenseString);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_LICENSE_URL, licenseLink);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES, licenseString);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL, licenseLink);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
 
         blackDuckFieldMappings.putAll(getAddtionalBlackDuckFieldMappings(customFields));
 
         return blackDuckFieldMappings;
     }
 
-    protected final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> hubFieldMappings, final PluginField pluginField, final String fieldValue) {
+    protected final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> blackDuckFieldMappings, final PluginField pluginField, final String fieldValue) {
         final CustomField customField = customFields.get(pluginField);
         if (customField != null) {
-            hubFieldMappings.put(customField.getIdAsLong(), fieldValue);
+            blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);
         } else {
             // TODO should this class have logging at all?
             // logger.warn("JIRA custom field " + pluginField.getName() + " not found");

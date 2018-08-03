@@ -97,7 +97,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
                 classProperties, // data that needs to be passed to the job
                 new Date(), // the time the job is to start
                 actualInterval); // interval between repeats, in milliseconds
-        logger.info(String.format("Hub Notification check task scheduled to run every %dms", actualInterval));
+        logger.info(String.format("Black Duck Notification check task scheduled to run every %dms", actualInterval));
     }
 
     public String getName() {
@@ -114,10 +114,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         logger.debug("destroy() called; Unscheduling " + CURRENT_JOB_NAME);
         pluginScheduler.unscheduleJob(CURRENT_JOB_NAME);
 
-        final String installDate = (String) pluginSettings.get(PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final String installDate = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
         logger.debug("Install date was: " + installDate);
         logger.debug("Removing install date...");
-        final Object removedSetting = pluginSettings.remove(PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final Object removedSetting = pluginSettings.remove(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
         if (removedSetting != null) {
             logger.debug("Successfully removed install date.");
         } else {
@@ -157,7 +157,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
             logger.error("Unable to get plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
         }
-        final String intervalString = (String) pluginSettings.get(PluginConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        final String intervalString = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
         if (intervalString == null) {
             logger.error("Unable to get interval from plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
@@ -187,10 +187,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         final String installDate = dateFormatter.format(new Date());
 
         logger.debug("Updating install date...");
-        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, installDate);
+        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, installDate);
         logger.debug("The previous install date was: " + oldInstallDate);
 
-        final String newInstallDate = (String) pluginSettings.get(PluginConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final String newInstallDate = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
         logger.debug("The new install date is: " + newInstallDate);
     }
 

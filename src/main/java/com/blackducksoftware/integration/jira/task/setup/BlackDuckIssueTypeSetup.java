@@ -86,8 +86,8 @@ public class BlackDuckIssueTypeSetup {
         final List<IssueType> bdIssueTypes = new ArrayList<>();
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
-            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE);
-            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE);
+            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         } catch (final Exception e) {
             logger.error(e);
             settingService.addBlackDuckError(e, "addIssueTypesToJira()");
@@ -98,7 +98,7 @@ public class BlackDuckIssueTypeSetup {
     private List<String> collectExistingBdsIssueTypeNames(final List<IssueType> bdIssueTypes) {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
-            if (issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE)) {
+            if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
                 existingBdIssueTypeNames.add(issueType.getName());
             }
@@ -118,7 +118,7 @@ public class BlackDuckIssueTypeSetup {
         }
     }
 
-    public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> hubIssueTypes) {
+    public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> blackDuckIssueTypes) {
         // Get Project's Issue Type Scheme
         try {
             final FieldConfigScheme issueTypeScheme = jiraServices.getIssueTypeSchemeManager().getConfigScheme(jiraProject);
@@ -131,7 +131,7 @@ public class BlackDuckIssueTypeSetup {
 
             // Add BDS Issue Types to it
             boolean changesMadeToIssueTypeScheme = false;
-            for (final IssueType bdIssueType : hubIssueTypes) {
+            for (final IssueType bdIssueType : blackDuckIssueTypes) {
                 if (!origIssueTypeObjects.contains(bdIssueType)) {
                     logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme "
                             + issueTypeScheme.getName());

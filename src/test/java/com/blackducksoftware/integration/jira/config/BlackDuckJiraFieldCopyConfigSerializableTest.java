@@ -36,7 +36,7 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 
 public class BlackDuckJiraFieldCopyConfigSerializableTest {
     private static final String TARGET_FIELD_ID = "targetFieldId";
-    private static final String BLACK_DUCK_PROJECT_NAME = "blackDuckProjectName";
+    private static final String BLACKDUCK_PROJECT_NAME = "blackDuckProjectName";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -51,10 +51,10 @@ public class BlackDuckJiraFieldCopyConfigSerializableTest {
         final BlackDuckJiraFieldCopyConfigSerializable config = new BlackDuckJiraFieldCopyConfigSerializable();
         final Set<ProjectFieldCopyMapping> mappings = new HashSet<>();
         final ProjectFieldCopyMapping mapping = new ProjectFieldCopyMapping();
-        mapping.setHubProjectName(BLACK_DUCK_PROJECT_NAME);
+        mapping.setHubProjectName(BLACKDUCK_PROJECT_NAME);
         mapping.setJiraProjectName("jiraProjectName");
-        mapping.setSourceFieldId(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getId());
-        mapping.setSourceFieldName(PluginField.HUB_CUSTOM_FIELD_COMPONENT.getName());
+        mapping.setSourceFieldId(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId());
+        mapping.setSourceFieldName(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getName());
         mapping.setTargetFieldId(TARGET_FIELD_ID);
         mappings.add(mapping);
         config.setProjectFieldCopyMappings(mappings);

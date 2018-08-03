@@ -65,8 +65,8 @@ public class BlackDuckFieldConfigurationSetup {
         final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
         if (fieldLayoutSchemes != null) {
             for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
-                if (BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
-                    logger.debug("Field Configuration Scheme " + BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
+                if (BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
+                    logger.debug("Field Configuration Scheme " + BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
                     fieldConfigurationScheme = existingFieldConfigurationScheme;
                     break;
                 }
@@ -74,7 +74,7 @@ public class BlackDuckFieldConfigurationSetup {
         }
 
         if (fieldConfigurationScheme == null) {
-            fieldConfigurationScheme = jiraServices.getFieldLayoutManager().createFieldLayoutScheme(BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION_SCHEME_NAME, BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION_SCHEME_NAME);
+            fieldConfigurationScheme = jiraServices.getFieldLayoutManager().createFieldLayoutScheme(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME, BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
             changesToStore = true;
         }
 
@@ -120,30 +120,30 @@ public class BlackDuckFieldConfigurationSetup {
     }
 
     public EditableFieldLayout addBlackDuckFieldConfigurationToJira() {
-        EditableFieldLayout hubFieldLayout = null;
+        EditableFieldLayout blackDuckFieldLayout = null;
         try {
             final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager().getEditableFieldLayouts();
             if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
                 for (final EditableFieldLayout layout : fieldLayouts) {
-                    if (layout.getName().equals(BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION)) {
+                    if (layout.getName().equals(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION)) {
                         logger.debug("addBlackDuckFieldConfigurationToJira(): found Black Duck field configuration: " + layout.getName());
-                        hubFieldLayout = layout;
+                        blackDuckFieldLayout = layout;
                         break;
                     }
                 }
             }
             boolean fieldConfigurationNeedsUpdate = false;
-            if (hubFieldLayout == null) {
+            if (blackDuckFieldLayout == null) {
                 final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager()
                         .getEditableDefaultFieldLayout();
 
                 // Creates a copy of the default field layout
-                hubFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
+                blackDuckFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
 
-                hubFieldLayout.setName(BlackDuckJiraConstants.BLACK_DUCK_FIELD_CONFIGURATION);
+                blackDuckFieldLayout.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION);
                 fieldConfigurationNeedsUpdate = true;
             }
-            final List<FieldLayoutItem> fields = hubFieldLayout.getFieldLayoutItems();
+            final List<FieldLayoutItem> fields = blackDuckFieldLayout.getFieldLayoutItems();
             if (fields != null && !fields.isEmpty()) {
                 for (final FieldLayoutItem field : fields) {
                     final String fieldName = field.getOrderableField().getName();
@@ -153,7 +153,7 @@ public class BlackDuckFieldConfigurationSetup {
                     if (!requiredDefaultFields.contains(normalizedFieldName) && field.isRequired()) {
                         logger.debug("addBlackDuckFieldConfigurationToJira(): Making field optional");
                         try {
-                            hubFieldLayout.makeOptional(field);
+                            blackDuckFieldLayout.makeOptional(field);
                             fieldConfigurationNeedsUpdate = true;
                         } catch (final IllegalArgumentException e) {
                             final String msg = String.format("Unable to make field %s optional: %s", fieldName, e.getMessage());
@@ -161,7 +161,7 @@ public class BlackDuckFieldConfigurationSetup {
                                 logger.debug(msg);
                             } else {
                                 logger.error(msg);
-                                settingService.addBlackDuckError(msg, "addHubFieldConfigurationToJira");
+                                settingService.addBlackDuckError(msg, "addBlackDuckFieldConfigurationToJira");
                             }
                         }
                     }
@@ -169,14 +169,14 @@ public class BlackDuckFieldConfigurationSetup {
             }
             if (fieldConfigurationNeedsUpdate) {
                 // Persists our field configuration, creates it if it doesn't exist, updates it if it does exist
-                logger.debug("addBlackDuckFieldConfigurationToJira(): Updating Hub field configuration");
-                jiraServices.getFieldLayoutManager().storeEditableFieldLayout(hubFieldLayout);
+                logger.debug("addBlackDuckFieldConfigurationToJira(): Updating Black Duck field configuration");
+                jiraServices.getFieldLayoutManager().storeEditableFieldLayout(blackDuckFieldLayout);
             }
         } catch (final Exception e) {
             logger.error(e);
             settingService.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
         }
-        return hubFieldLayout;
+        return blackDuckFieldLayout;
     }
 
     public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {

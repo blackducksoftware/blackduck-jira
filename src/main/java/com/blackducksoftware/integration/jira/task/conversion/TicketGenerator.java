@@ -58,7 +58,7 @@ import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServic
 import com.google.gson.GsonBuilder;
 
 /**
- * Collects recent notifications from the Hub, and generates JIRA tickets for them.
+ * Collects recent notifications from Black Duck, and generates JIRA tickets for them.
  */
 public class TicketGenerator {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -89,26 +89,26 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView hubUser, final BlackDuckProjectMappings hubProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
-        if ((hubProjectMappings == null) || (hubProjectMappings.size() == 0)) {
+    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
+        if ((blackDuckProjectMappings == null) || (blackDuckProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
         }
         try {
-            final HubBucket hubBucket = new HubBucket();
-            final NotificationDetailResults results = notificationService.getAllUserNotificationDetailResultsPopulated(hubBucket, hubUser, startDate, endDate);
+            final HubBucket blackDuckBucket = new HubBucket();
+            final NotificationDetailResults results = notificationService.getAllUserNotificationDetailResultsPopulated(blackDuckBucket, blackDuckUser, startDate, endDate);
             final List<NotificationDetailResult> notificationDetailResults = results.getResults();
-            reportAnyErrors(hubBucket);
+            reportAnyErrors(blackDuckBucket);
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
-                final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, hubProjectMappings, fieldCopyConfig,
+                final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
                         new EventDataFormatHelper(logger, blackDuckService),
                         linksOfRulesToMonitor, blackDuckService, logger);
-                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, hubBucket, startDate);
+                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {
                 return results.getLatestNotificationCreatedAtDate().get();
@@ -120,11 +120,11 @@ public class TicketGenerator {
         return startDate;
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket hubBucket, final Date batchStartDate)
+    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket blackDuckBucket, final Date batchStartDate)
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, hubBucket, batchStartDate);
+                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, blackDuckBucket, batchStartDate);
                 for (final EventData event : events) {
                     try {
                         issueHandler.handleEvent(event);
@@ -144,7 +144,7 @@ public class TicketGenerator {
                 final Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
                     final String msg = String.format(
-                            "WARNING: An error occurred while collecting supporting information from the Hub for a notification: %s; This can be caused by deletion of Hub data (project version, component, etc.) relevant to the notification soon after the notification was generated",
+                            "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
                             e.getMessage());
                     logger.warn(msg);
                     jiraSettingsService.addBlackDuckError(msg, "getAllNotifications");

@@ -27,56 +27,56 @@ public class BlackDuckJiraConstants {
     private static final String HUB_JIRA_GROUP = "hub-jira";
 
     public static final int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
-    public static final String BLACK_DUCK_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
-    public static final String BLACK_DUCK_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
+    public static final String BLACKDUCK_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
+    public static final String BLACKDUCK_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
 
     // Issue type names (user visible)
-    public static final String BLACK_DUCK_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
-    public static final String BLACK_DUCK_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
+    public static final String BLACKDUCK_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
+    public static final String BLACKDUCK_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
 
     // Field names (user visible)
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "BDS Hub Project Version Nickname";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_OWNER = "BDS Hub Project Owner";
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "BDS Hub Project Version Last Updated";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "BDS Hub Project Version Nickname";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER = "BDS Hub Project Owner";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "BDS Hub Project Version Last Updated";
 
     // Configuration object names visible only to administrators
-    public static final String BLACK_DUCK_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
-    public static final String BLACK_DUCK_FIELD_CONFIGURATION_SCHEME_NAME = "BDS Hub PlugIn Field Configuration Scheme";
-    public static final String BLACK_DUCK_FIELD_CONFIGURATION = "BDS Hub PlugIn Field Configuration";
-    public static final String BLACK_DUCK_POLICY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Policy Screen Scheme";
-    public static final String BLACK_DUCK_SECURITY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Security Screen Scheme";
-    public static final String BLACK_DUCK_POLICY_SCREEN_NAME = "BDS Hub PlugIn Policy Screen";
-    public static final String BLACK_DUCK_SECURITY_SCREEN_NAME = "BDS Hub PlugIn Security Screen";
-    public static final String BLACK_DUCK_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
-    public static final String BLACK_DUCK_WORKFLOW_STATUS_OPEN = "Open";
-    public static final String BLACK_DUCK_WORKFLOW_STATUS_RESOLVED = "Resolved";
-    public static final String BLACK_DUCK_WORKFLOW_STATUS_CLOSED = "Closed";
-    public static final String BLACK_DUCK_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
-    public static final String BLACK_DUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Policy Violation on this project / component / rule";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Policy Override on this project / component / rule";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Policy Violation Cleared event on this project / component / rule";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT = "This Policy Violation was detected again by Black Duck.";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_CLEARED_COMMENT = "This Policy Violation was cleared in Black Duck.";
-    public static final String BLACK_DUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in Black Duck.";
-    public static final String BLACK_DUCK_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck vulnerabilities on this project from this component";
-    public static final String BLACK_DUCK_VULNERABILITY_RESOLVE = "Automatically resolved; Black Duck reports no remaining vulnerabilities on this project from this component";
+    public static final String BLACKDUCK_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
+    public static final String BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME = "BDS Hub PlugIn Field Configuration Scheme";
+    public static final String BLACKDUCK_FIELD_CONFIGURATION = "BDS Hub PlugIn Field Configuration";
+    public static final String BLACKDUCK_POLICY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Policy Screen Scheme";
+    public static final String BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Security Screen Scheme";
+    public static final String BLACKDUCK_POLICY_SCREEN_NAME = "BDS Hub PlugIn Policy Screen";
+    public static final String BLACKDUCK_SECURITY_SCREEN_NAME = "BDS Hub PlugIn Security Screen";
+    public static final String BLACKDUCK_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
+    public static final String BLACKDUCK_WORKFLOW_STATUS_OPEN = "Open";
+    public static final String BLACKDUCK_WORKFLOW_STATUS_RESOLVED = "Resolved";
+    public static final String BLACKDUCK_WORKFLOW_STATUS_CLOSED = "Closed";
+    public static final String BLACKDUCK_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
+    public static final String BLACKDUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
+    public static final String BLACKDUCK_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Policy Violation on this project / component / rule";
+    public static final String BLACKDUCK_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Policy Override on this project / component / rule";
+    public static final String BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Policy Violation Cleared event on this project / component / rule";
+    public static final String BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT = "This Policy Violation was detected again by Black Duck.";
+    public static final String BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT = "This Policy Violation was cleared in Black Duck.";
+    public static final String BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in Black Duck.";
+    public static final String BLACKDUCK_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck vulnerabilities on this project from this component";
+    public static final String BLACKDUCK_VULNERABILITY_RESOLVE = "Automatically resolved; Black Duck reports no remaining vulnerabilities on this project from this component";
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY = "180 - duck_vulnerability.png";
     public static final String BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY = "180 - duck_policy.png";
@@ -87,10 +87,10 @@ public class BlackDuckJiraConstants {
     public static final String ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY = "p";
     public static final String ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY = "v";
     public static final String ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME = "jp";
-    public static final String ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME = "hpv";
-    public static final String ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME = "hc";
-    public static final String ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME = "hcv";
-    public static final String ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME = "hr";
+    public static final String ISSUE_PROPERTY_KEY_BLACKDUCK_PROJECT_VERSION_REL_URL_HASHED_NAME = "hpv";
+    public static final String ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME = "hc";
+    public static final String ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_VERSION_REL_URL_HASHED_NAME = "hcv";
+    public static final String ISSUE_PROPERTY_KEY_BLACKDUCK_POLICY_RULE_REL_URL_HASHED_NAME = "hr";
     public static final String ISSUE_PROPERTY_ENTITY_NAME = "IssueProperty";
     public static final String VULNERABLE_COMPONENTS_LINK_NAME = "vulnerable-components";
     public static final String FIELD_COPY_MAPPING_WILDCARD = "*";
@@ -101,39 +101,39 @@ public class BlackDuckJiraConstants {
     public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n.properties";
 
     // JIRA Custom Field display name labels
-    private static final String BLACK_DUCK_CUSTOM_FIELD_PREFIX = "blackduck.integration.jira.issue.custom";
-    private static final String BLACK_DUCK_CUSTOM_FIELD_SUFFIX = ".label";
+    private static final String BLACKDUCK_CUSTOM_FIELD_PREFIX = "blackduck.integration.jira.issue.custom";
+    private static final String BLACKDUCK_CUSTOM_FIELD_SUFFIX = ".label";
 
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".project" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".project.version" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".component" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".component.version" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".policy.rule" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".policy.rule.overridable" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".licenses" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".component.usage" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".component.origin" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".component.origin.id" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".project.version.nickname" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".project.owner" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY = BLACK_DUCK_CUSTOM_FIELD_PREFIX + ".project.version.last.updated" + BLACK_DUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".project" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".project.version" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".component" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".component.version" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".policy.rule" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".policy.rule.overridable" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".licenses" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".component.usage" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".component.origin" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".component.origin.id" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".project.version.nickname" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".project.owner" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY = BLACKDUCK_CUSTOM_FIELD_PREFIX + ".project.version.last.updated" + BLACKDUCK_CUSTOM_FIELD_SUFFIX;
 
     // Long names for fields
-    private static final String BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX = ".long";
+    private static final String BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX = ".long";
 
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
-    public static final String BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY_LONG = BLACK_DUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY + BLACK_DUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_PROJECT_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_COMPONENT_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY_LONG = BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED_DISPLAYNAMEPROPERTY + BLACKDUCK_CUSTOM_FIELD_LONG_SUFFIX;
 
     // String used to join conjunctive and adjunctive licenses together into a string for display
     public static final String LICENSE_NAME_JOINER_OR = " OR ";
@@ -144,7 +144,7 @@ public class BlackDuckJiraConstants {
 
     // Miscellaneous persistent data keys
     public static final String DATE_LAST_PHONED_HOME = "dateLastPhonedHome";
-    public static final String BLACK_DUCK_JIRA_ISSUE_LAST_COMMENT_KEY = "hubJiraLastCommentKey";
-    public static final String BLACK_DUCK_JIRA_ISSUE_LAST_BATCH_START_KEY = "hubJiralastBatchStartKey";
+    public static final String BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY = "hubJiraLastCommentKey";
+    public static final String BLACKDUCK_JIRA_ISSUE_LAST_BATCH_START_KEY = "hubJiralastBatchStartKey";
 
 }

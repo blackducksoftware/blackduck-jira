@@ -181,7 +181,7 @@ public class NotificationToEventConverter {
         eventDataBuilder.setPropertiesFromJiraUserContext(jiraUserContext);
         eventDataBuilder.setPropertiesFromJiraProject(jiraProject);
         eventDataBuilder.setPropertiesFromNotificationContentDetail(detail);
-        eventDataBuilder.setHubProjectVersionNickname(getProjectVersionNickname(detail.getProjectVersion(), blackDuckBucket));
+        eventDataBuilder.setBlackDuckProjectVersionNickname(getProjectVersionNickname(detail.getProjectVersion(), blackDuckBucket));
         eventDataBuilder.setJiraFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
 
         eventDataBuilder.setJiraIssuePropertiesGenerator(new IssuePropertiesGenerator(detail, optionalPolicyRule));
@@ -226,12 +226,12 @@ public class NotificationToEventConverter {
         keyBuilder.append(jiraProjectId.toString());
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_PROJECT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_PROJECT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckProjectVersionUrl)));
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         if (EventCategory.POLICY.equals(eventDataBuilder.getEventCategory())) {
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
@@ -241,7 +241,7 @@ public class NotificationToEventConverter {
         }
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_VERSION_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentVersionUrl)));
 
@@ -251,7 +251,7 @@ public class NotificationToEventConverter {
                 throw new HubIntegrationException("Policy Rule URL is null");
             }
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_HUB_POLICY_RULE_REL_URL_HASHED_NAME);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_POLICY_RULE_REL_URL_HASHED_NAME);
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(policyRuleUrl)));
         }
@@ -315,9 +315,9 @@ public class NotificationToEventConverter {
     }
 
     private final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
-        String issueType = BlackDuckJiraConstants.BLACK_DUCK_POLICY_VIOLATION_ISSUE;
+        String issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
         if (EventCategory.VULNERABILITY.equals(category)) {
-            issueType = BlackDuckJiraConstants.BLACK_DUCK_VULNERABILITY_ISSUE;
+            issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
         }
         return lookUpIssueTypeId(issueType);
     }

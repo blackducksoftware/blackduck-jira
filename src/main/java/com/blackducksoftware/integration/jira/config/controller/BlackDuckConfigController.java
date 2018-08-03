@@ -85,7 +85,7 @@ public class BlackDuckConfigController {
             return null;
         }
 
-        final String hubJiraGroupsString = getValue(settings, BlackDuckConfigKeys.HUB_CONFIG_GROUPS);
+        final String hubJiraGroupsString = getValue(settings, BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
 
         if (StringUtils.isNotBlank(hubJiraGroupsString)) {
             final String[] hubJiraGroups = hubJiraGroupsString.split(",");
@@ -116,13 +116,13 @@ public class BlackDuckConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final String hubUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_URL);
+                final String hubUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
                 logger.debug(String.format("Returning Black Duck details for %s", hubUrl));
-                final String username = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_USER);
-                final String password = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS);
-                final String passwordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH);
-                final String timeout = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TIMEOUT);
-                final String trustCert = getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TRUST_CERT);
+                final String username = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
+                final String password = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
+                final String passwordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
+                final String timeout = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
+                final String trustCert = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
                 final String proxyHost = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
                 final String proxyPort = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
                 final String noProxyHosts = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
@@ -203,8 +203,8 @@ public class BlackDuckConfigController {
                 setConfigFromResult(config, serverConfigBuilder.createValidator());
 
                 logger.debug(String.format("Saving connection to %s as %s", config.getHubUrl(), config.getUsername()));
-                setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_URL, config.getHubUrl());
-                setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_USER, config.getUsername());
+                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, config.getHubUrl());
+                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, config.getUsername());
 
                 final String password = config.getPassword();
                 if (StringUtils.isNotBlank(password) && !config.isPasswordMasked()) {
@@ -212,18 +212,18 @@ public class BlackDuckConfigController {
                     // password used for display
                     try {
                         final String encPassword = PasswordEncrypter.encrypt(password);
-                        setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS, encPassword);
-                        setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH, String.valueOf(password.length()));
+                        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, encPassword);
+                        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, String.valueOf(password.length()));
                     } catch (IllegalArgumentException | EncryptionException e) {
                         // This error was swallowed; not sure why. Adding a log message
                         logger.error("Error encrypting password: " + e.getMessage());
                     }
                 } else if (StringUtils.isBlank(password)) {
-                    setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS, null);
-                    setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH, null);
+                    setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, null);
+                    setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, null);
                 }
-                setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TIMEOUT, config.getTimeout());
-                setValue(settings, BlackDuckConfigKeys.CONFIG_HUB_TRUST_CERT, config.getTrustCert());
+                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, config.getTimeout());
+                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, config.getTrustCert());
                 setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST, config.getHubProxyHost());
                 setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT, config.getHubProxyPort());
                 setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST, config.getHubNoProxyHosts());
@@ -325,9 +325,9 @@ public class BlackDuckConfigController {
             serverConfigBuilder.setPassword(config.getPassword());
             serverConfigBuilder.setPasswordLength(0);
         } else {
-            serverConfigBuilder.setPassword(getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS));
+            serverConfigBuilder.setPassword(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS));
             serverConfigBuilder
-                    .setPasswordLength(NumberUtils.toInt(getValue(settings, BlackDuckConfigKeys.CONFIG_HUB_PASS_LENGTH)));
+                    .setPasswordLength(NumberUtils.toInt(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH)));
         }
         serverConfigBuilder.setProxyHost(config.getHubProxyHost());
         serverConfigBuilder.setProxyPort(config.getHubProxyPort());

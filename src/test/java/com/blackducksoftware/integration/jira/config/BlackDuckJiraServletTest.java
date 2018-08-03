@@ -82,7 +82,6 @@ public class BlackDuckJiraServletTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     public void testDoGetUserNotAdminNotInOldGroup() throws Exception {
         final String userName = "TestUser";
         final String redirectUrl = "http://testRedirect";
@@ -97,7 +96,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put("com.blackducksoftware.integration.hub.jira.hubJiraGroups", "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
@@ -123,7 +122,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
@@ -134,36 +133,6 @@ public class BlackDuckJiraServletTest {
         servlet.doGet(requestMock, responseMock);
 
         assertEquals(redirectUrl, responseMock.getRedirectedLocation());
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testDoGetUserNotAdminInOldGroup() throws Exception {
-        final String userName = "TestUser";
-        final String redirectUrl = "http://testRedirect";
-        final StringBuffer requestUrl = new StringBuffer();
-        requestUrl.append(redirectUrl);
-
-        final UserManagerUIMock managerMock = new UserManagerUIMock();
-        managerMock.setRemoteUsername(userName);
-        managerMock.addGroup("Group1");
-
-        final LoginUriProviderMock loginProviderMock = new LoginUriProviderMock();
-        final TemplateRendererMock rendererMock = new TemplateRendererMock();
-        final HttpServletResponseMock responseMock = new HttpServletResponseMock();
-        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_JIRA_GROUPS, "Group1, Group2");
-
-        final HttpServletRequestMock requestMock = new HttpServletRequestMock();
-        requestMock.setRequestURL(requestUrl);
-
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock,
-                pluginSettingsFactory);
-
-        servlet.doGet(requestMock, responseMock);
-
-        assertEquals("text/html;charset=utf-8", responseMock.getContentType());
-        assertEquals(TEMPLATE_NAME, rendererMock.getRenderedString());
     }
 
     @Test
@@ -181,7 +150,7 @@ public class BlackDuckJiraServletTest {
         final TemplateRendererMock rendererMock = new TemplateRendererMock();
         final HttpServletResponseMock responseMock = new HttpServletResponseMock();
         final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock();
-        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.HUB_CONFIG_GROUPS, "Group1, Group2");
+        pluginSettingsFactory.createGlobalSettings().put(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, "Group1, Group2");
 
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
