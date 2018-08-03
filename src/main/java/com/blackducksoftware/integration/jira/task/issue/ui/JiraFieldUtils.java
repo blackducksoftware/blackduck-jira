@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -92,8 +92,6 @@ public class JiraFieldUtils {
             || BlackDuckJiraConstants.BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_URL.equals(field.getName())
             || BlackDuckJiraConstants.BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.equals(field.getName())
             || BlackDuckJiraConstants.BLACK_DUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.equals(field.getName())
-
-
          ;
          // @formatter:on
     }
