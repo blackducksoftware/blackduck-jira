@@ -42,6 +42,7 @@ import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarManager;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
@@ -83,6 +84,7 @@ import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
+import com.blackducksoftware.integration.jira.mocks.SearchServiceMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.UserUtilMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
@@ -263,8 +265,7 @@ public class JiraTaskSetupTest {
         fieldLayoutScheme.setName("Field Layout Scheme");
 
         final Collection<FieldLayoutSchemeEntity> fieldLayoutSchemeEntities = new ArrayList<>();
-        FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
-                fieldLayoutManager, null, constantsManager);
+        FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(fieldLayoutManager, null, constantsManager);
         issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldLayoutScheme);
         issueTypeToFieldConfiguration.setFieldLayoutId(1L);
         issueTypeToFieldConfiguration.setIssueTypeId("mockIssueTypeId2");
@@ -310,18 +311,16 @@ public class JiraTaskSetupTest {
         final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
         final FieldScreenManagerMock fieldScreenManager = new FieldScreenManagerMock();
         final FieldScreenSchemeManagerMock fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
+        final SearchService searchService = new SearchServiceMock();
 
         fieldScreenManager.setDefaultFieldScreen(getDefaultFieldScreen());
 
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
-
-        final JiraServices jiraServices = getJiraServices(workflowManager,
-                workflowSchemeManager,
+        final JiraServices jiraServices = getJiraServices(workflowManager, workflowSchemeManager,
                 userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
                 fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
-                fieldManager, fieldScreenManager, fieldScreenSchemeManager);
+                fieldManager, fieldScreenManager, fieldScreenSchemeManager, searchService);
 
         BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
                 jiraServices);
@@ -419,7 +418,7 @@ public class JiraTaskSetupTest {
                     }
                 });
 
-        Mockito.doReturn(fieldConfigSetup).when(jiraTask).getHubFieldScreenSchemeSetup(
+        Mockito.doReturn(fieldConfigSetup).when(jiraTask).getBlackDuckFieldScreenSchemeSetup(
                 Mockito.any(JiraSettingsService.class), Mockito.any(JiraServices.class));
     }
 
@@ -533,7 +532,7 @@ public class JiraTaskSetupTest {
             final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager, final Collection<IssueType> issueTypes,
             final UserUtil userUtil, final CustomFieldManagerMock customFieldManager,
             final FieldManagerMock fieldManager, final FieldScreenManagerMock fieldScreenManager,
-            final FieldScreenSchemeManagerMock fieldScreenSchemeManager) {
+            final FieldScreenSchemeManagerMock fieldScreenSchemeManager, final SearchService searchService) {
 
         JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setWorkflowManager(workflowManager);
@@ -551,6 +550,7 @@ public class JiraTaskSetupTest {
         jiraServices.setFieldManager(fieldManager);
         jiraServices.setFieldScreenManager(fieldScreenManager);
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
+        jiraServices.setSearchService(searchService);
 
         jiraServices = Mockito.spy(jiraServices);
 

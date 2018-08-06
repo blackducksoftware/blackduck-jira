@@ -29,6 +29,7 @@ import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
@@ -72,6 +73,7 @@ public class JiraServicesMock extends JiraServices {
     private CustomFieldManager customFieldManager;
     private FieldLayoutManager fieldLayoutManager;
     private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
+    private SearchService searchService;
 
     @Override
     public UserUtil getUserUtil() {
@@ -267,6 +269,15 @@ public class JiraServicesMock extends JiraServices {
 
     public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
         this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
+    }
+
+    @Override
+    public SearchService getSearchService() {
+        return searchService;
+    }
+
+    public void setSearchService(final SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override

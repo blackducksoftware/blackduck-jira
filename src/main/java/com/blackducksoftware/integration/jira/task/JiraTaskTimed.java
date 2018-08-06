@@ -98,30 +98,28 @@ public class JiraTaskTimed implements Callable<String> {
         return runResult;
     }
 
-    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-            final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup,
-            final JiraUserContext jiraContext)
+    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
             throws ConfigurationException, JiraException {
-
         // Make sure current JIRA version is supported
         getJiraVersionCheck(); // throws exception if not
 
         // Create Issue Types, workflow, etc.
         BlackDuckIssueTypeSetup issueTypeSetup;
         try {
-            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
+            issueTypeSetup = getBlackDuckIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
         } catch (final ConfigurationException e) {
             logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
             return;
         }
-        final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
+        final List<IssueType> issueTypes = issueTypeSetup.addBdsIssueTypesToJira();
         if (issueTypes == null || issueTypes.isEmpty()) {
             logger.error("No Black Duck Issue Types found or created");
             return;
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
+        issueTypeSetup.replaceOldIssueTypes(issueTypes);
 
-        final BlackDuckFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+        final BlackDuckFieldScreenSchemeSetup fieldConfigurationSetup = getBlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
 
         final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
         if (screenSchemesByIssueType.isEmpty()) {
@@ -131,11 +129,11 @@ public class JiraTaskTimed implements Callable<String> {
 
         logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-        final BlackDuckFieldConfigurationSetup blackDuckFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService, jiraServices);
+        final BlackDuckFieldConfigurationSetup blackDuckFieldConfigurationSetup = getBlackDuckFieldConfigurationSetup(jiraSettingsService, jiraServices);
         final EditableFieldLayout fieldConfiguration = blackDuckFieldConfigurationSetup.addBlackDuckFieldConfigurationToJira();
         final FieldLayoutScheme fieldConfigurationScheme = blackDuckFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-        final BlackDuckWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
+        final BlackDuckWorkflowSetup workflowSetup = getBlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
         final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
@@ -196,22 +194,19 @@ public class JiraTaskTimed implements Callable<String> {
         }
     }
 
-    private BlackDuckIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
+    private BlackDuckIssueTypeSetup getBlackDuckIssueTypeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
         return new BlackDuckIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
     }
 
-    public BlackDuckFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+    public BlackDuckFieldScreenSchemeSetup getBlackDuckFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
     }
 
-    private BlackDuckFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices) {
+    private BlackDuckFieldConfigurationSetup getBlackDuckFieldConfigurationSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckFieldConfigurationSetup(jiraSettingsService, jiraServices);
     }
 
-    private BlackDuckWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices) {
+    private BlackDuckWorkflowSetup getBlackDuckWorkflowSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
     }
 

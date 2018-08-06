@@ -27,11 +27,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
@@ -43,8 +50,13 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenScheme;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntity;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.jql.builder.JqlClauseBuilder;
+import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.web.bean.PagerFilter;
+import com.atlassian.query.Query;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
@@ -53,6 +65,9 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckIssueTypeSetup {
+    public static final String V3_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
+    public static final String V3_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
+
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
@@ -82,7 +97,7 @@ public class BlackDuckIssueTypeSetup {
         blackDuckAvatars = new BlackDuckAvatars(jiraServices, jiraUser);
     }
 
-    public List<IssueType> addIssueTypesToJira() throws JiraException {
+    public List<IssueType> addBdsIssueTypesToJira() throws JiraException {
         final List<IssueType> bdIssueTypes = new ArrayList<>();
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
@@ -92,28 +107,88 @@ public class BlackDuckIssueTypeSetup {
             logger.error(e);
             settingService.addBlackDuckError(e, "addIssueTypesToJira()");
         }
+
         return bdIssueTypes;
+    }
+
+    public void replaceOldIssueTypes(final List<IssueType> issueTypes) {
+        logger.debug("Determining if issue types should be upgraded...");
+        final Optional<IssueType> optionalPolicyIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)).findFirst();
+        if (optionalPolicyIssueType.isPresent()) {
+            final Optional<IssueType> optionalV3PolicyIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(V3_POLICY_VIOLATION_ISSUE)).findFirst();
+            if (optionalV3PolicyIssueType.isPresent()) {
+                findAndReplaceIssueType(optionalV3PolicyIssueType.get(), optionalPolicyIssueType.get());
+            }
+        }
+
+        final Optional<IssueType> optionalVulnIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)).findFirst();
+        if (optionalVulnIssueType.isPresent()) {
+            final Optional<IssueType> optionalV3VulnIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(V3_VULNERABILITY_ISSUE)).findFirst();
+            if (optionalV3VulnIssueType.isPresent()) {
+                findAndReplaceIssueType(optionalV3VulnIssueType.get(), optionalVulnIssueType.get());
+            }
+        }
+    }
+
+    private void findAndReplaceIssueType(final IssueType oldIssueType, final IssueType newIssueType) {
+        logger.debug(String.format("Upgrading old issues from type '%s' to '%s' (if necessary) ...", oldIssueType.getName(), newIssueType.getName()));
+        final SearchService searchService = jiraServices.getSearchService();
+        final IssueManager jiraIssueManager = jiraServices.getIssueManager();
+
+        final String oldIssueTypeId = oldIssueType.getId();
+        final JqlClauseBuilder queryBuiler = JqlQueryBuilder.newClauseBuilder();
+        final Query query = queryBuiler.issueType(oldIssueTypeId).buildQuery();
+
+        // iterate over a maximum of 1 million issues
+        int index = 0;
+        final int maxPageSize = 100;
+        do {
+            try {
+                final SearchResults results = searchService.search(jiraUser, query, PagerFilter.newPageAlignedFilter(index, maxPageSize));
+                // expected: index + maxPageSize + 1
+                index = results.getNextStart();
+                final List<Issue> foundIssues = results.getIssues();
+                if (foundIssues.size() == 0) {
+                    break;
+                }
+                for (final Issue issue : foundIssues) {
+                    if (jiraIssueManager.isEditable(issue, jiraUser)) {
+                        final MutableIssue mutableIssue = (MutableIssue) issue;
+                        mutableIssue.setIssueType(newIssueType);
+                        final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
+                        jiraIssueManager.updateIssue(jiraUser, mutableIssue, issueUpdate);
+                    }
+                }
+            } catch (final Exception e) {
+                logger.error(String.format("Failed to upgrade from old issue type '%s' to new issue type '%s'.", oldIssueType.getName(), newIssueType.getName()), e);
+                break;
+            }
+        } while (index >= 0 && index <= 10000);
+
+        jiraServices.getIssueTypeSchemeManager().removeOptionFromAllSchemes(oldIssueType.getId());
     }
 
     private List<String> collectExistingBdsIssueTypeNames(final List<IssueType> bdIssueTypes) {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
-            if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
+            final String issueTypeName = issueType.getName();
+            if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)
+                    || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)
+                    || issueTypeName.equals(V3_POLICY_VIOLATION_ISSUE)
+                    || issueTypeName.equals(V3_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
-                existingBdIssueTypeNames.add(issueType.getName());
+                existingBdIssueTypeNames.add(issueTypeName);
             }
         }
         return existingBdIssueTypeNames;
     }
 
-    private void addBdsIssueType(final List<IssueType> bdIssueTypes, final List<String> existingBdIssueTypeNames, final String issueTypeName)
-            throws JiraException {
+    private void addBdsIssueType(final List<IssueType> bdIssueTypes, final List<String> existingBdIssueTypeNames, final String issueTypeName) throws JiraException {
         Long avatarId;
         if (!existingBdIssueTypeNames.contains(issueTypeName)) {
             avatarId = blackDuckAvatars.getAvatarId(issueTypeName);
             logger.debug("Creating issue type " + issueTypeName + " with avatar ID " + avatarId);
-            final IssueType issueType = createIssueType(issueTypeName,
-                    issueTypeName, avatarId);
+            final IssueType issueType = createIssueType(issueTypeName, issueTypeName, avatarId);
             bdIssueTypes.add(issueType);
         }
     }
@@ -133,22 +208,19 @@ public class BlackDuckIssueTypeSetup {
             boolean changesMadeToIssueTypeScheme = false;
             for (final IssueType bdIssueType : blackDuckIssueTypes) {
                 if (!origIssueTypeObjects.contains(bdIssueType)) {
-                    logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme "
-                            + issueTypeScheme.getName());
+                    logger.debug("Adding issue type " + bdIssueType.getName() + " to issue type scheme " + issueTypeScheme.getName());
                     issueTypeIds.add(bdIssueType.getId());
                     changesMadeToIssueTypeScheme = true;
 
                 } else {
-                    logger.debug("Issue type " + bdIssueType.getName() + " is already on issue type scheme "
-                            + issueTypeScheme.getName());
+                    logger.debug("Issue type " + bdIssueType.getName() + " is already on issue type scheme " + issueTypeScheme.getName());
                 }
             }
             if (changesMadeToIssueTypeScheme) {
                 logger.debug("Updating Issue Type Scheme " + issueTypeScheme.getName());
                 jiraServices.getIssueTypeSchemeManager().update(issueTypeScheme, issueTypeIds);
             } else {
-                logger.debug(
-                        "Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
+                logger.debug("Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
             }
         } catch (final Exception e) {
             logger.error(e);
@@ -160,12 +232,9 @@ public class BlackDuckIssueTypeSetup {
         }
     }
 
-    public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project,
-            final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType) {
-        final IssueTypeScreenScheme issueTypeScreenScheme = jiraServices.getIssueTypeScreenSchemeManager()
-                .getIssueTypeScreenScheme(project);
-        logger.debug("addIssueTypesToProjectIssueTypeScreenSchemes(): Project " + project.getName()
-                + ": Issue Type Screen Scheme: " + issueTypeScreenScheme.getName());
+    public void addIssueTypesToProjectIssueTypeScreenSchemes(final Project project, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType) {
+        final IssueTypeScreenScheme issueTypeScreenScheme = jiraServices.getIssueTypeScreenSchemeManager().getIssueTypeScreenScheme(project);
+        logger.debug("addIssueTypesToProjectIssueTypeScreenSchemes(): Project " + project.getName() + ": Issue Type Screen Scheme: " + issueTypeScreenScheme.getName());
         final List<IssueType> origIssueTypes = getExistingIssueTypes(issueTypeScreenScheme);
         final List<IssueTypeScreenSchemeEntity> entitiesToRemove = new ArrayList<>();
         final List<IssueTypeScreenSchemeEntity> entitiesToAdd = new ArrayList<>();
@@ -192,9 +261,7 @@ public class BlackDuckIssueTypeSetup {
         }
     }
 
-    private boolean adjustEntities(final IssueTypeScreenScheme issueTypeScreenScheme,
-            final List<IssueTypeScreenSchemeEntity> entitiesToRemove,
-            final List<IssueTypeScreenSchemeEntity> entitiesToAdd) {
+    private boolean adjustEntities(final IssueTypeScreenScheme issueTypeScreenScheme, final List<IssueTypeScreenSchemeEntity> entitiesToRemove, final List<IssueTypeScreenSchemeEntity> entitiesToAdd) {
         boolean changesMade = false;
         for (final IssueTypeScreenSchemeEntity entityToRemove : entitiesToRemove) {
             logger.debug("Removing entity for issueTypeId " + entityToRemove.getIssueTypeId());
@@ -211,9 +278,7 @@ public class BlackDuckIssueTypeSetup {
     /**
      * See if entity exists. If it does, returns true. If it exists but is wrong, returns false but adds it to entitiesToRemove.
      */
-    private boolean checkForExistingEntity(final FieldScreenScheme fieldScreenScheme,
-            final Collection<IssueTypeScreenSchemeEntity> existingEntities, final IssueType issueType,
-            final List<IssueTypeScreenSchemeEntity> entitiesToRemove) {
+    private boolean checkForExistingEntity(final FieldScreenScheme fieldScreenScheme, final Collection<IssueTypeScreenSchemeEntity> existingEntities, final IssueType issueType, final List<IssueTypeScreenSchemeEntity> entitiesToRemove) {
         boolean entityExists = false;
         if (existingEntities != null) {
             for (final IssueTypeScreenSchemeEntity existingEntity : existingEntities) {
@@ -372,4 +437,5 @@ public class BlackDuckIssueTypeSetup {
 
         return newIssueType;
     }
+
 }

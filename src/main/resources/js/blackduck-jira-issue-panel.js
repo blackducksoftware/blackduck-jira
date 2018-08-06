@@ -25,7 +25,7 @@ var detailsModuleId = "details-module";
 var peopleModuleId = "peoplemodule";
 var customFieldsModuleId = "customfieldmodule";
 
-var hubCustomFields = [
+var blackDuckCustomFields = [
     "BDS Hub Project", "BDS Hub Project Version", "BDS Hub Project Version Url", "BDS Hub Component", 
 	"BDS Hub Component Url", "BDS Hub Component Version", "BDS Hub Component Version Url", "BDS Hub Policy Rule", 
 	"BDS Hub Policy Rule Description", "BDS Hub Policy Rule Overridable", "BDS Hub Policy Rule Url", "BDS Hub Component Licenses", 
@@ -33,7 +33,7 @@ var hubCustomFields = [
 	"BDS Hub Project Owner", "BDS Hub Project Version Last Updated", "BDS Hub Component License Url"
 	];
 
-function hideHubCustomFields() {
+function hideBlackDuckCustomFields() {
 	var detailsModule = AJS.$('#' + detailsModuleId);
 	if (detailsModule.length > 0) {
 	var customFieldsModule = AJS.$(detailsModule).find('#' + customFieldsModuleId);
@@ -46,16 +46,16 @@ function hideHubCustomFields() {
 						checkPropertyAndHideHubField(properties[i]);
 					}
 				} else {
-					setTimeout(hideHubCustomFields, 100);
+					setTimeout(hideBlackDuckCustomFields, 100);
 				}
 			} else {
-				setTimeout(hideHubCustomFields, 100);
+				setTimeout(hideBlackDuckCustomFields, 100);
 			}
 		} else {
-			setTimeout(hideHubCustomFields, 100);
+			setTimeout(hideBlackDuckCustomFields, 100);
 		}
 	} else {
-		setTimeout(hideHubCustomFields, 100);
+		setTimeout(hideBlackDuckCustomFields, 100);
 	}
 }
 
@@ -65,7 +65,7 @@ function checkPropertyAndHideHubField(property) {
 	var customFieldPropertyValueField =  AJS.$(property).find("div.value");
 	
 	var customFieldName = AJS.$(customFieldPropertyLabel).prop("title");
-	var arrayIndex = hubCustomFields.indexOf(customFieldName);
+	var arrayIndex = blackDuckCustomFields.indexOf(customFieldName);
 	if (arrayIndex >= 0) {
 		var displayStyle = AJS.$(property).css("display");
 		if(displayStyle && displayStyle != "none") {
@@ -80,10 +80,10 @@ function checkPropertyAndHideHubField(property) {
 }
 
 function replaceProjectOwnerField() {
-	changeHubFieldInModule("BDS Hub Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
+	changeBlackDuckFieldInModule("BDS Hub Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
 }
 
-function changeHubFieldInModule(fieldName, newValue, moduleId, innerListId, innerTagPropertyString) {
+function changeBlackDuckFieldInModule(fieldName, newValue, moduleId, innerListId, innerTagPropertyString) {
 	var moduleObject = AJS.$('#' + moduleId);
 	if (moduleObject != null) {
 		var tagObject = AJS.$(moduleObject).find(innerListId);
@@ -97,12 +97,12 @@ function changeHubFieldInModule(fieldName, newValue, moduleId, innerListId, inne
 					}
 				}
 			} else {
-				setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
+				setTimeout(changeBlackDuckFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 			}
 		} else {
-			setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
+			setTimeout(changeBlackDuckFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 		}
 	} else {
-		setTimeout(changeHubFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
+		setTimeout(changeBlackDuckFieldInModule, 100, fieldName, newValue, moduleId, innerListId, innerTagPropertyString);
 	}
 }

@@ -32,6 +32,7 @@ import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.bc.user.search.DefaultUserPickerSearchService;
 import com.atlassian.jira.bc.user.search.UserSearchService;
@@ -227,4 +228,9 @@ public class JiraServices {
     public ProjectPropertyService getProjectPropertyService() {
         return ComponentAccessor.getComponentOfType(ProjectPropertyService.class);
     }
+
+    public SearchService getSearchService() {
+        return ComponentAccessor.getComponent(SearchService.class);
+    }
+
 }

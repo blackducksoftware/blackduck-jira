@@ -124,10 +124,10 @@ public class NotificationConverterTest {
     private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Black Duck Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion' [Rule: '" + RULE_NAME + "']";
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
-    private static final String VULNERABILITY_ISSUE_TYPE_ID = "Hub Security Vulnerability ID";
-    private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Hub Security Vulnerability";
-    private static final String POLICY_ISSUE_TYPE_ID = "Hub Policy Violation ID";
-    private static final String POLICY_ISSUE_TYPE_NAME = "Hub Policy Violation";
+    private static final String VULNERABILITY_ISSUE_TYPE_ID = "Black Duck Security Vulnerability ID";
+    private static final String VULNERABILITY_ISSUE_TYPE_NAME = "Black Duck Security Vulnerability";
+    private static final String POLICY_ISSUE_TYPE_ID = "Black Duck Policy Violation ID";
+    private static final String POLICY_ISSUE_TYPE_NAME = "Black Duck Policy Violation";
     private static final String TARGET_FIELD_NAME = "targetFieldName";
     private static final String TARGET_FIELD_ID = "targetFieldId";
     private static final String SOURCE_FIELD_NAME = "sourceFieldName";

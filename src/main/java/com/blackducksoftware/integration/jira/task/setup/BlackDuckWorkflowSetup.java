@@ -49,6 +49,8 @@ import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 public class BlackDuckWorkflowSetup {
+    public static final String V3_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
+
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraSettingsService settingService;
