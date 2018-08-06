@@ -47,9 +47,9 @@ import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldConfigurationSetup;
@@ -161,6 +161,7 @@ public class JiraTaskTimed implements Callable<String> {
             settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDateString);
             runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
         }
+        // TODO determine if an else case is needed to revert to old last run date
         return runStatus;
     }
 
