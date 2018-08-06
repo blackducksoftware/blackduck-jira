@@ -101,8 +101,20 @@ public class BlackDuckIssueTypeSetup {
         final List<IssueType> bdIssueTypes = new ArrayList<>();
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
-            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+            final int indexOfV3PolicyType = existingBdIssueTypeNames.indexOf(V3_POLICY_VIOLATION_ISSUE);
+            if (indexOfV3PolicyType >= 0) {
+                renameBdsIssueType(bdIssueTypes.get(indexOfV3PolicyType), BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+            } else {
+                addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+            }
+
+            final int indexOfV3VulnType = existingBdIssueTypeNames.indexOf(V3_VULNERABILITY_ISSUE);
+            if (indexOfV3VulnType >= 0) {
+                renameBdsIssueType(bdIssueTypes.get(indexOfV3VulnType), BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+            } else {
+                addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+            }
+
         } catch (final Exception e) {
             logger.error(e);
             settingService.addBlackDuckError(e, "addIssueTypesToJira()");
@@ -111,6 +123,7 @@ public class BlackDuckIssueTypeSetup {
         return bdIssueTypes;
     }
 
+    // FIXME remove this once the logic is implemented for workflow management
     public void replaceOldIssueTypes(final List<IssueType> issueTypes) {
         logger.debug("Determining if issue types should be upgraded...");
         final Optional<IssueType> optionalPolicyIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)).findFirst();
@@ -191,6 +204,10 @@ public class BlackDuckIssueTypeSetup {
             final IssueType issueType = createIssueType(issueTypeName, issueTypeName, avatarId);
             bdIssueTypes.add(issueType);
         }
+    }
+
+    private void renameBdsIssueType(final IssueType oldIssueType, final String newName, final String newDescription) {
+        jiraServices.getConstantsManager().updateIssueType(oldIssueType.getId(), newName, oldIssueType.getSequence(), null, newDescription, oldIssueType.getAvatar().getId());
     }
 
     public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> blackDuckIssueTypes) {

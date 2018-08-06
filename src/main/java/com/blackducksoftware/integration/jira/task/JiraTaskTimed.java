@@ -117,7 +117,7 @@ public class JiraTaskTimed implements Callable<String> {
             return;
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
-        issueTypeSetup.replaceOldIssueTypes(issueTypes);
+        // FIXME remove: issueTypeSetup.replaceOldIssueTypes(issueTypes);
 
         final BlackDuckFieldScreenSchemeSetup fieldConfigurationSetup = getBlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
 
