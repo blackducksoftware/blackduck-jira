@@ -167,8 +167,7 @@ public class JiraTaskSetupTest {
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
         assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
-        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE + " has no IssueType associations"));
 
         final List<Avatar> avatarTemplates = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
         assertEquals(0, avatarTemplates.size());
@@ -222,8 +221,7 @@ public class JiraTaskSetupTest {
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
         assertEquals(6, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemeItems().size());
         assertNotNull(jiraEnv.getPluginSettingsMock());
-        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+        assertTrue(((String) jiraEnv.getPluginSettingsMock().get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE + " has no IssueType associations"));
 
         final List<Avatar> avatarTemplatesUsed = jiraEnv.getAvatarManagerMock().getAvatarTemplatesUsedToCreateAvatars();
         assertEquals(2, avatarTemplatesUsed.size());

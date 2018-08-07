@@ -64,6 +64,8 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
 public class BlackDuckFieldScreenSchemeSetupTest {
+    private static final String POLICY_RULE_ERROR_MESSAGE = "The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE + " has no IssueType associations";
+
     private static final int NUM_FIELDS_TOTAL = PluginField.values().length;
     private static final int NUM_FIELDS_POLICY = NUM_FIELDS_TOTAL - 2;
     private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_TOTAL - 3;
@@ -111,8 +113,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(hubIssueTypes);
 
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Project is missing one or more IssueType associations"));
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing one or more IssueType associations"));
     }
 
     @Test
@@ -121,6 +122,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
+        jiraServices.setCustomFieldManager(new CustomFieldManagerMock());
 
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(null);
@@ -134,9 +136,8 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
-
-        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+        jiraServices.setCustomFieldManager(new CustomFieldManagerMock());
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(new ArrayList<IssueType>());
 
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
@@ -220,8 +221,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
         assertEquals(6, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
     }
 
     @Test
@@ -300,12 +300,10 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
         if (includeSomeNullCustomFields) {
             assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                    .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
         } else {
             assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                    .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
         }
     }
 
@@ -367,8 +365,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
 
         // User edits
         final FieldScreenScheme scheme = fieldScreenSchemeManager.getFieldScreenSchemes().iterator().next();
@@ -409,8 +406,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
         assertEquals(7, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR))
-                .contains("The custom field BDS Hub Policy Rule has no IssueType associations"));
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
     }
 
     private void mockCreationMethods(final BlackDuckFieldScreenSchemeSetup fieldConfigSetup) {

@@ -24,10 +24,10 @@
 package com.blackducksoftware.integration.jira.common;
 
 public class BlackDuckJiraConstants {
-    private static final String HUB_JIRA_GROUP = "hub-jira";
+    private static final String BLACKDUCK_JIRA_GROUP = "hub-jira";
 
     public static final int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
-    public static final String BLACKDUCK_JIRA_ERROR = HUB_JIRA_GROUP + "-ticket-error";
+    public static final String BLACKDUCK_JIRA_ERROR = BLACKDUCK_JIRA_GROUP + "-ticket-error";
     public static final String BLACKDUCK_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
 
     // Issue type names (user visible)
@@ -35,25 +35,25 @@ public class BlackDuckJiraConstants {
     public static final String BLACKDUCK_VULNERABILITY_ISSUE = "Black Duck Security Vulnerability";
 
     // Field names (user visible)
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT = "BDS Hub Project";
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION = "BDS Hub Project Version";
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL = "BDS Hub Project Version Url";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT = "BDS Hub Component";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL = "BDS Hub Component Url";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION = "BDS Hub Component Version";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL = "BDS Hub Component Version Url";
-    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE = "BDS Hub Policy Rule";
-    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "BDS Hub Policy Rule Overridable";
-    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "BDS Hub Policy Rule Description";
-    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL = "BDS Hub Policy Rule Url";
-    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES = "BDS Hub Component Licenses";
-    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_URL = "BDS Hub Component License Url";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE = "BDS Hub Component Usage";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN = "BDS Hub Component Origin";
-    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "BDS Hub Component Origin ID";
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "BDS Hub Project Version Nickname";
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER = "BDS Hub Project Owner";
-    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "BDS Hub Project Version Last Updated";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT = "Black Duck Project";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION = "Black Duck Project Version";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL = "Black Duck Project Version Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT = "Black Duck Component";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL = "Black Duck Component Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION = "Black Duck Component Version";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL = "Black Duck Component Version Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE = "Black Duck Policy Rule";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE = "Black Duck Policy Rule Overridable";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION = "Black Duck Policy Rule Description";
+    public static final String BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL = "Black Duck Policy Rule Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES = "Black Duck Component Licenses";
+    public static final String BLACKDUCK_CUSTOM_FIELD_LICENSE_URL = "Black Duck Component License Url";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE = "Black Duck Component Usages";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN = "Black Duck Component Origins";
+    public static final String BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID = "Black Duck Component Origin IDs";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME = "Black Duck Project Version Nickname";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER = "Black Duck Project Owner";
+    public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED = "Black Duck Project Version Last Updated";
 
     // Configuration object names visible only to administrators
     public static final String BLACKDUCK_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
@@ -98,7 +98,7 @@ public class BlackDuckJiraConstants {
     public static final String COMPONENTS_FIELD_ID = "components";
 
     // i18n.properties file location
-    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n.properties";
+    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n_4.properties";
 
     // JIRA Custom Field display name labels
     private static final String BLACKDUCK_CUSTOM_FIELD_PREFIX = "blackduck.integration.jira.issue.custom";

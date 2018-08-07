@@ -144,11 +144,11 @@ function openTab(evt, tabId) {
 }
 
 function testConnection() {
-	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/hubdetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
 }
 
 function updateHubDetails() {
-	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/hubdetails/save', 'Save successful.', 'The Hub details are not valid.');
+	putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/save', 'Save successful.', 'The Hub details are not valid.');
 }
 
 function updateConfig() {
@@ -271,7 +271,7 @@ function populateForm() {
 	  });
 	
 	AJS.$.ajax({
-	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/hubdetails/read",
+	    url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckDetails/read",
 	    dataType: "json",
 	    success: function(config) {
 	      console.log("Successful get of hub details for " + config.hubUrl);

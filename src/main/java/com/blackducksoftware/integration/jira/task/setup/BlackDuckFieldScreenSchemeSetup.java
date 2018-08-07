@@ -33,6 +33,7 @@ import java.util.function.BiFunction;
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.context.GlobalIssueContext;
 import com.atlassian.jira.issue.context.JiraContextNode;
 import com.atlassian.jira.issue.customfields.CustomFieldSearcher;
@@ -62,7 +63,32 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 // TODO investigate why the JIRA API returns raw types
 @SuppressWarnings("rawtypes")
 public class BlackDuckFieldScreenSchemeSetup {
+    public static Map<String, String> V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP = new HashMap<>();
+    static {
+        // This should never be modified
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Version", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Version Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Overridable", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Description", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Licenses", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component License Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Usage", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin ID", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Nickname", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Owner", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Last Updated", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED);
+    }
+
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+
     private final JiraSettingsService settingService;
     private final JiraServices jiraServices;
     private final Map<PluginField, CustomField> customFields = new HashMap<>();
@@ -87,6 +113,7 @@ public class BlackDuckFieldScreenSchemeSetup {
     public Map<IssueType, FieldScreenScheme> addBlackDuckFieldConfigurationToJira(final List<IssueType> blackDuckIssueTypes) {
         final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
         try {
+            renameCustomFields();
             if (blackDuckIssueTypes != null && !blackDuckIssueTypes.isEmpty()) {
                 for (final IssueType issueType : blackDuckIssueTypes) {
                     if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)) {
@@ -119,6 +146,22 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private IssueType getIssueTypeObject(final IssueType blackDuckIssueType) {
         return blackDuckIssueType;
+    }
+
+    private void renameCustomFields() {
+        final CustomFieldManager customFieldManager = jiraServices.getCustomFieldManager();
+        for (final String customFieldName : V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.keySet()) {
+            final Collection<CustomField> foundCustomFields = customFieldManager.getCustomFieldObjectsByName(customFieldName);
+            if (foundCustomFields != null && !foundCustomFields.isEmpty()) {
+                final CustomField firstCustomField = foundCustomFields.iterator().next();
+                if (firstCustomField.isEditable()) {
+                    final String newCustomFieldName = V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.get(firstCustomField.getName());
+                    customFieldManager.updateCustomField(firstCustomField.getIdAsLong(), newCustomFieldName, newCustomFieldName, firstCustomField.getCustomFieldSearcher());
+                } else {
+                    logger.debug("Unable to update custom field: " + firstCustomField.getName());
+                }
+            }
+        }
     }
 
     private CustomField createCustomTextField(final List<IssueType> issueTypeList, final String fieldName) throws RuntimeException {

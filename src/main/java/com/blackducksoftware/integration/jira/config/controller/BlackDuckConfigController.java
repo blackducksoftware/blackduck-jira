@@ -60,7 +60,7 @@ import com.blackducksoftware.integration.rest.proxy.ProxyInfoField;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
-@Path("/hubdetails")
+@Path("/blackDuckDetails")
 public class BlackDuckConfigController {
     // This variable must be "package protected" to avoid synthetic access
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));

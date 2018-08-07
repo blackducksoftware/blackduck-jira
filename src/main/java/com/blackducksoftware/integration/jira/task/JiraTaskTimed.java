@@ -137,8 +137,7 @@ public class JiraTaskTimed implements Callable<String> {
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
         // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration,
-                fieldConfigurationScheme, workflowSetup, workflow);
+        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {

@@ -26,11 +26,11 @@ var peopleModuleId = "peoplemodule";
 var customFieldsModuleId = "customfieldmodule";
 
 var blackDuckCustomFields = [
-    "BDS Hub Project", "BDS Hub Project Version", "BDS Hub Project Version Url", "BDS Hub Component", 
-	"BDS Hub Component Url", "BDS Hub Component Version", "BDS Hub Component Version Url", "BDS Hub Policy Rule", 
-	"BDS Hub Policy Rule Description", "BDS Hub Policy Rule Overridable", "BDS Hub Policy Rule Url", "BDS Hub Component Licenses", 
-	"BDS Hub Component Usage", "BDS Hub Component Origin", "BDS Hub Component Origin ID", "BDS Hub Project Version Nickname", 
-	"BDS Hub Project Owner", "BDS Hub Project Version Last Updated", "BDS Hub Component License Url"
+    "Black Duck Project", "Black Duck Project Version", "Black Duck Project Version Url", "Black Duck Component", 
+	"Black Duck Component Url", "Black Duck Component Version", "Black Duck Component Version Url", "Black Duck Policy Rule", 
+	"Black Duck Policy Rule Description", "Black Duck Policy Rule Overridable", "Black Duck Policy Rule Url", "Black Duck Component Licenses", 
+	"Black Duck Component Usages", "Black Duck Component Origins", "Black Duck Component Origin IDs", "Black Duck Project Version Nickname", 
+	"Black Duck Project Owner", "Black Duck Project Version Last Updated", "Black Duck Component License Url"
 	];
 
 function hideBlackDuckCustomFields() {
@@ -80,7 +80,7 @@ function checkPropertyAndHideHubField(property) {
 }
 
 function replaceProjectOwnerField() {
-	changeBlackDuckFieldInModule("BDS Hub Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
+	changeBlackDuckFieldInModule("Black Duck Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
 }
 
 function changeBlackDuckFieldInModule(fieldName, newValue, moduleId, innerListId, innerTagPropertyString) {
