@@ -11,4 +11,5 @@
 *.log.*
 /target/
 .DS_Store
+*.iml
 
