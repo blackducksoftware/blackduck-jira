@@ -146,7 +146,7 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
             }
@@ -201,7 +201,7 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 4, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
                 assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
             }

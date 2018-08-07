@@ -152,8 +152,7 @@ public class EventDataFormatHelper {
             return;
         }
         if (remediationOptions != null) {
-            // TODO This has "Beta" text. Change that text when confidence in the information is high.
-            stringBuilder.append("\nRemediation Information (Beta):\n");
+            stringBuilder.append("\nRemediation Information:\n");
             if (remediationOptions.fixesPreviousVulnerabilities != null) {
                 appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
             }

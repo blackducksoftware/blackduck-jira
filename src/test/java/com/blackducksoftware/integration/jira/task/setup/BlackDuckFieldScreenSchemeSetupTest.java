@@ -64,8 +64,9 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
 
 public class BlackDuckFieldScreenSchemeSetupTest {
-    private static final int NUM_FIELDS_POLICY = PluginField.values().length;
-    private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_POLICY - 2;
+    private static final int NUM_FIELDS_TOTAL = PluginField.values().length;
+    private static final int NUM_FIELDS_POLICY = NUM_FIELDS_TOTAL - 2;
+    private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_TOTAL - 3;
 
     @Test
     public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
@@ -189,7 +190,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
-        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_TOTAL, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -268,7 +269,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
-        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_TOTAL, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -335,7 +336,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         mockCreationMethods(fieldConfigSetup);
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
-        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_TOTAL, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -347,7 +348,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -378,7 +379,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
-        assertEquals(NUM_FIELDS_POLICY, customFieldManager.getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS_TOTAL, customFieldManager.getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : fieldScreenManager.getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -390,7 +391,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_VULNERABILITY + 2, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertEquals(2, fieldScreenManager.getUpdatedScreens().size());

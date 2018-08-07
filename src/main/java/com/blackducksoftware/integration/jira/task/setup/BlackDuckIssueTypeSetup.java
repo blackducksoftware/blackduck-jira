@@ -27,18 +27,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.jira.bc.issue.search.SearchService;
-import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.exception.CreateException;
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueManager;
-import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
@@ -50,13 +43,8 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenScheme;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntity;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.issue.search.SearchResults;
-import com.atlassian.jira.jql.builder.JqlClauseBuilder;
-import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.web.bean.PagerFilter;
-import com.atlassian.query.Query;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
@@ -123,64 +111,6 @@ public class BlackDuckIssueTypeSetup {
         return bdIssueTypes;
     }
 
-    // FIXME remove this once the logic is implemented for workflow management
-    public void replaceOldIssueTypes(final List<IssueType> issueTypes) {
-        logger.debug("Determining if issue types should be upgraded...");
-        final Optional<IssueType> optionalPolicyIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)).findFirst();
-        if (optionalPolicyIssueType.isPresent()) {
-            final Optional<IssueType> optionalV3PolicyIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(V3_POLICY_VIOLATION_ISSUE)).findFirst();
-            if (optionalV3PolicyIssueType.isPresent()) {
-                findAndReplaceIssueType(optionalV3PolicyIssueType.get(), optionalPolicyIssueType.get());
-            }
-        }
-
-        final Optional<IssueType> optionalVulnIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)).findFirst();
-        if (optionalVulnIssueType.isPresent()) {
-            final Optional<IssueType> optionalV3VulnIssueType = issueTypes.stream().filter(issueType -> issueType.getName().equals(V3_VULNERABILITY_ISSUE)).findFirst();
-            if (optionalV3VulnIssueType.isPresent()) {
-                findAndReplaceIssueType(optionalV3VulnIssueType.get(), optionalVulnIssueType.get());
-            }
-        }
-    }
-
-    private void findAndReplaceIssueType(final IssueType oldIssueType, final IssueType newIssueType) {
-        logger.debug(String.format("Upgrading old issues from type '%s' to '%s' (if necessary) ...", oldIssueType.getName(), newIssueType.getName()));
-        final SearchService searchService = jiraServices.getSearchService();
-        final IssueManager jiraIssueManager = jiraServices.getIssueManager();
-
-        final String oldIssueTypeId = oldIssueType.getId();
-        final JqlClauseBuilder queryBuiler = JqlQueryBuilder.newClauseBuilder();
-        final Query query = queryBuiler.issueType(oldIssueTypeId).buildQuery();
-
-        // iterate over a maximum of 1 million issues
-        int index = 0;
-        final int maxPageSize = 100;
-        do {
-            try {
-                final SearchResults results = searchService.search(jiraUser, query, PagerFilter.newPageAlignedFilter(index, maxPageSize));
-                // expected: index + maxPageSize + 1
-                index = results.getNextStart();
-                final List<Issue> foundIssues = results.getIssues();
-                if (foundIssues.size() == 0) {
-                    break;
-                }
-                for (final Issue issue : foundIssues) {
-                    if (jiraIssueManager.isEditable(issue, jiraUser)) {
-                        final MutableIssue mutableIssue = (MutableIssue) issue;
-                        mutableIssue.setIssueType(newIssueType);
-                        final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(EventDispatchOption.ISSUE_UPDATED).sendMail(false).build();
-                        jiraIssueManager.updateIssue(jiraUser, mutableIssue, issueUpdate);
-                    }
-                }
-            } catch (final Exception e) {
-                logger.error(String.format("Failed to upgrade from old issue type '%s' to new issue type '%s'.", oldIssueType.getName(), newIssueType.getName()), e);
-                break;
-            }
-        } while (index >= 0 && index <= 10000);
-
-        jiraServices.getIssueTypeSchemeManager().removeOptionFromAllSchemes(oldIssueType.getId());
-    }
-
     private List<String> collectExistingBdsIssueTypeNames(final List<IssueType> bdIssueTypes) {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
@@ -206,6 +136,7 @@ public class BlackDuckIssueTypeSetup {
         }
     }
 
+    // This method is to simplify upgrading
     private void renameBdsIssueType(final IssueType oldIssueType, final String newName, final String newDescription) {
         jiraServices.getConstantsManager().updateIssueType(oldIssueType.getId(), newName, oldIssueType.getSequence(), null, newDescription, oldIssueType.getAvatar().getId());
     }

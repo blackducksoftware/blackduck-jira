@@ -132,8 +132,7 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         return updatedTimeString;
     }
 
-    // TODO prefix with "create" rather than "get"
-    public final Map<Long, String> getBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
+    public final Map<Long, String> createBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
         if (projectOwner != null) {
             addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
@@ -153,7 +152,7 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
 
-        blackDuckFieldMappings.putAll(getAddtionalBlackDuckFieldMappings(customFields));
+        blackDuckFieldMappings.putAll(createAddtionalBlackDuckFieldMappings(customFields));
 
         return blackDuckFieldMappings;
     }
@@ -163,11 +162,11 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         if (customField != null) {
             blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);
         } else {
-            // TODO should this class have logging at all?
+            // TODO should this class have logging at all? probably not, but then again, it probably shouldn't have this logic in it either
             // logger.warn("JIRA custom field " + pluginField.getName() + " not found");
         }
     }
 
-    protected abstract Map<Long, String> getAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields);
+    protected abstract Map<Long, String> createAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields);
 
 }

@@ -105,6 +105,18 @@ public class BlackDuckFieldScreenSchemeSetup {
         return fieldScreenSchemes;
     }
 
+    public FieldScreen createNewScreenImpl(final FieldScreenManager fieldScreenManager) {
+        return new FieldScreenImpl(fieldScreenManager);
+    }
+
+    public FieldScreenScheme createNewScreenSchemeImpl(final FieldScreenSchemeManager fieldScreenSchemeManager) {
+        return new FieldScreenSchemeImpl(fieldScreenSchemeManager);
+    }
+
+    public FieldScreenSchemeItem createNewFieldScreenSchemeItemImpl(final FieldScreenSchemeManager fieldScreenSchemeManager, final FieldScreenManager fieldScreenManager) {
+        return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
+    }
+
     private IssueType getIssueTypeObject(final IssueType blackDuckIssueType) {
         return blackDuckIssueType;
     }
@@ -196,8 +208,6 @@ public class BlackDuckFieldScreenSchemeSetup {
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL));
 
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
@@ -218,12 +228,10 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private List<OrderableField> createSecurityFields(final List<IssueType> issueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN));
+        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;
-    }
-
-    public FieldScreen createNewScreenImpl(final FieldScreenManager fieldScreenManager) {
-        return new FieldScreenImpl(fieldScreenManager);
     }
 
     private FieldScreen createScreen(final String screenName, final List<OrderableField> blackDuckCustomFields) {
@@ -348,14 +356,6 @@ public class BlackDuckFieldScreenSchemeSetup {
         return screen;
     }
 
-    public FieldScreenScheme createNewScreenSchemeImpl(final FieldScreenSchemeManager fieldScreenSchemeManager) {
-        return new FieldScreenSchemeImpl(fieldScreenSchemeManager);
-    }
-
-    public FieldScreenSchemeItem createNewFieldScreenSchemeItemImpl(final FieldScreenSchemeManager fieldScreenSchemeManager, final FieldScreenManager fieldScreenManager) {
-        return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
-    }
-
     private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
         final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
                 .getFieldScreenSchemes();
@@ -384,7 +384,8 @@ public class BlackDuckFieldScreenSchemeSetup {
         final List<ScreenableIssueOperation> issueOpertationsForDefaultScreen = new ArrayList<>();
         issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
 
-        final boolean blackDuckScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen);
+        final boolean blackDuckScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen)
+                || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen);
 
         if (blackDuckScreenSchemeNeedsUpdate) {
             jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(blackDuckScreenScheme);

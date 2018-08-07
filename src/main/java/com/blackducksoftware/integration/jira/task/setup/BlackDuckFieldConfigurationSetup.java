@@ -88,8 +88,7 @@ public class BlackDuckFieldConfigurationSetup {
                 if (entity.getIssueTypeObject().getName().equals(issueType.getName())) {
                     logger.debug("IssueType " + issueType.getName() + " is already associated with Field Configuration ID: " + entity.getFieldLayoutId());
                     logger.debug("\tTarget field configuration ID is: " + fieldConfiguration.getId());
-                    if ((entity.getFieldLayoutId() != null)
-                            && (entity.getFieldLayoutId().equals(fieldConfiguration.getId()))) {
+                    if (entity.getFieldLayoutId() != null && entity.getFieldLayoutId().equals(fieldConfiguration.getId())) {
                         issueTypeAlreadyAssociated = true;
                         break;
                     } else {
@@ -100,10 +99,8 @@ public class BlackDuckFieldConfigurationSetup {
             }
 
             if (!issueTypeAlreadyAssociated) {
-                logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration "
-                        + fieldConfiguration.getName());
-                final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(
-                        jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
+                logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration " + fieldConfiguration.getName());
+                final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
                 issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
                 issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
                 issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
@@ -134,8 +131,7 @@ public class BlackDuckFieldConfigurationSetup {
             }
             boolean fieldConfigurationNeedsUpdate = false;
             if (blackDuckFieldLayout == null) {
-                final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager()
-                        .getEditableDefaultFieldLayout();
+                final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager().getEditableDefaultFieldLayout();
 
                 // Creates a copy of the default field layout
                 blackDuckFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());

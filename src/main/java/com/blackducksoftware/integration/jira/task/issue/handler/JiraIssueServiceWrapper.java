@@ -132,7 +132,7 @@ public class JiraIssueServiceWrapper {
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): " + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
         // TODO set field copy mappings
-        final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().getBlackDuckFieldMappings(customFieldsMap);
+        final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
                 jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
@@ -296,7 +296,7 @@ public class JiraIssueServiceWrapper {
     }
 
     private void populateIssueInputParameters(final IssueInputParameters issueInputParameters, final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate) {
-        final Map<Long, String> blackDuckFieldMap = blackDuckIssueFieldTemplate.getBlackDuckFieldMappings(customFieldsMap);
+        final Map<Long, String> blackDuckFieldMap = blackDuckIssueFieldTemplate.createBlackDuckFieldMappings(customFieldsMap);
         for (final Entry<Long, String> blackDuckFieldEntry : blackDuckFieldMap.entrySet()) {
             issueInputParameters.addCustomFieldValue(blackDuckFieldEntry.getKey(), blackDuckFieldEntry.getValue());
         }
