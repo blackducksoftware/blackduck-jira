@@ -49,11 +49,11 @@ public class BlackDuckJiraConfigSerializableTest {
     private static final String USER2 = "user2";
 
     @Test
-    public void testHubJiraConfigSerializable() {
+    public void testBlackDuckJiraConfigSerializable() {
         final String errorMessage1 = "errorMessage1";
         final String intervalBetweenChecks1 = "intervalBetweenChecks1";
         final String generalSettingsError1 = "generalSettingsError1";
-        final String hubProjectMappingError1 = "hubProjectMappingError1";
+        final String blackDuckProjectMappingError1 = "blackDuckProjectMappingError1";
         final String policyRulesError1 = "policyRulesError1";
 
         final String policyName1 = "name1";
@@ -78,17 +78,17 @@ public class BlackDuckJiraConfigSerializableTest {
         jira1.setProjectKey(jiraKey1);
         jira1.setProjectError(jiraProjectError1);
 
-        final String hubName1 = "name1";
-        final String hubProjectUrl1 = "projectUrl1";
+        final String blackDuckName1 = "name1";
+        final String blackDuckProjectUrl1 = "projectUrl1";
 
-        final BlackDuckProject hub1 = new BlackDuckProject();
-        hub1.setProjectName(hubName1);
-        hub1.setProjectUrl(hubProjectUrl1);
+        final BlackDuckProject blackDuck1 = new BlackDuckProject();
+        blackDuck1.setProjectName(blackDuckName1);
+        blackDuck1.setProjectUrl(blackDuckProjectUrl1);
 
         final String errorMessage2 = "";
         final String intervalBetweenChecks2 = "";
         final String generalSettingsError2 = "";
-        final String hubProjectMappingError2 = "";
+        final String blackDuckProjectMappingError2 = "";
         final String policyRulesError2 = "";
 
         final String policyName2 = "name2";
@@ -113,29 +113,29 @@ public class BlackDuckJiraConfigSerializableTest {
         jira2.setProjectKey(jiraKey2);
         jira2.setProjectError(jiraProjectError2);
 
-        final String hubName2 = "name2";
-        final String hubProjectUrl2 = "projectUrl2";
+        final String blackDuckName2 = "name2";
+        final String blackDuckProjectUrl2 = "projectUrl2";
 
-        final BlackDuckProject hub2 = new BlackDuckProject();
-        hub2.setProjectName(hubName2);
-        hub2.setProjectUrl(hubProjectUrl2);
+        final BlackDuckProject blackDuck2 = new BlackDuckProject();
+        blackDuck2.setProjectName(blackDuckName2);
+        blackDuck2.setProjectUrl(blackDuckProjectUrl2);
 
         final BlackDuckProjectMapping mapping1 = new BlackDuckProjectMapping();
         mapping1.setJiraProject(jira1);
-        mapping1.setHubProject(hub1);
+        mapping1.setHubProject(blackDuck1);
         final BlackDuckProjectMapping mapping2 = new BlackDuckProjectMapping();
         mapping2.setJiraProject(jira2);
-        mapping2.setHubProject(hub2);
+        mapping2.setHubProject(blackDuck2);
 
         final List<JiraProject> jiraProjects1 = new ArrayList<>();
         jiraProjects1.add(jira1);
 
         final String jiraProjectsError1 = "jiraProjectsError1";
 
-        final List<BlackDuckProject> hubProjects1 = new ArrayList<>();
-        hubProjects1.add(hub1);
+        final List<BlackDuckProject> blackDuckProjects1 = new ArrayList<>();
+        blackDuckProjects1.add(blackDuck1);
 
-        final String hubProjectsError1 = "hubProjectsError1";
+        final String blackDuckProjectsError1 = "blackDuckProjectsError1";
 
         final Set<BlackDuckProjectMapping> mappings1 = new HashSet<>();
         mappings1.add(mapping1);
@@ -148,10 +148,10 @@ public class BlackDuckJiraConfigSerializableTest {
 
         final String jiraProjectsError2 = "jiraProjectsError2";
 
-        final List<BlackDuckProject> hubProjects2 = new ArrayList<>();
-        hubProjects2.add(hub2);
+        final List<BlackDuckProject> blackDuckProjects2 = new ArrayList<>();
+        blackDuckProjects2.add(blackDuck2);
 
-        final String hubProjectsError2 = "hubProjectsError2";
+        final String blackDuckProjectsError2 = "blackDuckProjectsError2";
 
         final Set<BlackDuckProjectMapping> mappings2 = new HashSet<>();
         mappings2.add(mapping2);
@@ -175,11 +175,11 @@ public class BlackDuckJiraConfigSerializableTest {
 
         final BlackDuckJiraConfigSerializable item1 = new BlackDuckJiraConfigSerializable();
         item1.setErrorMessage(errorMessage1);
-        item1.setHubProjectMappingError(hubProjectMappingError1);
+        item1.setHubProjectMappingError(blackDuckProjectMappingError1);
         item1.setHubProjectMappings(mappings1);
         item1.setJiraProjectsError(jiraProjectsError1);
-        item1.setHubProjects(hubProjects1);
-        item1.setHubProjectsError(hubProjectsError1);
+        item1.setHubProjects(blackDuckProjects1);
+        item1.setHubProjectsError(blackDuckProjectsError1);
         item1.setIntervalBetweenChecks(intervalBetweenChecks1);
         item1.setGeneralSettingsError(generalSettingsError1);
         item1.setJiraProjects(jiraProjects1);
@@ -190,11 +190,11 @@ public class BlackDuckJiraConfigSerializableTest {
 
         final BlackDuckJiraConfigSerializable item2 = new BlackDuckJiraConfigSerializable();
         item2.setErrorMessage(errorMessage2);
-        item2.setHubProjectMappingError(hubProjectMappingError2);
+        item2.setHubProjectMappingError(blackDuckProjectMappingError2);
         item2.setJiraProjectsError(jiraProjectsError2);
         item2.setHubProjectMappings(mappings2);
-        item2.setHubProjects(hubProjects2);
-        item2.setHubProjectsError(hubProjectsError2);
+        item2.setHubProjects(blackDuckProjects2);
+        item2.setHubProjectsError(blackDuckProjectsError2);
         item2.setIntervalBetweenChecks(intervalBetweenChecks2);
         item2.setGeneralSettingsError(generalSettingsError2);
         item2.setJiraProjects(jiraProjects2);
@@ -210,11 +210,11 @@ public class BlackDuckJiraConfigSerializableTest {
 
         final BlackDuckJiraConfigSerializable item3 = new BlackDuckJiraConfigSerializable();
         item3.setErrorMessage(errorMessage1);
-        item3.setHubProjectMappingError(hubProjectMappingError1);
+        item3.setHubProjectMappingError(blackDuckProjectMappingError1);
         item3.setJiraProjectsError(jiraProjectsError1);
         item3.setHubProjectMappingsJson(mappingJson);
-        item3.setHubProjects(hubProjects1);
-        item3.setHubProjectsError(hubProjectsError1);
+        item3.setHubProjects(blackDuckProjects1);
+        item3.setHubProjectsError(blackDuckProjectsError1);
         item3.setIntervalBetweenChecks(intervalBetweenChecks1);
         item3.setGeneralSettingsError(generalSettingsError1);
         item3.setJiraProjects(jiraProjects1);
@@ -224,11 +224,11 @@ public class BlackDuckJiraConfigSerializableTest {
         item3.setCreator(USER1);
 
         assertEquals(errorMessage1, item1.getErrorMessage());
-        assertEquals(hubProjectMappingError1, item1.getHubProjectMappingError());
+        assertEquals(blackDuckProjectMappingError1, item1.getHubProjectMappingError());
         assertEquals(mappings1, item1.getHubProjectMappings());
         assertEquals(jiraProjectsError1, item1.getJiraProjectsError());
-        assertEquals(hubProjects1, item1.getHubProjects());
-        assertEquals(hubProjectsError1, item1.getHubProjectsError());
+        assertEquals(blackDuckProjects1, item1.getHubProjects());
+        assertEquals(blackDuckProjectsError1, item1.getHubProjectsError());
         assertEquals(intervalBetweenChecks1, item1.getIntervalBetweenChecks());
         assertEquals(generalSettingsError1, item1.getGeneralSettingsError());
         assertEquals(jiraProjects1, item1.getJiraProjects());
@@ -236,11 +236,11 @@ public class BlackDuckJiraConfigSerializableTest {
         assertEquals(policyRulesError1, item1.getPolicyRulesError());
 
         assertEquals(errorMessage2, item2.getErrorMessage());
-        assertEquals(hubProjectMappingError2, item2.getHubProjectMappingError());
+        assertEquals(blackDuckProjectMappingError2, item2.getHubProjectMappingError());
         assertEquals(mappings2, item2.getHubProjectMappings());
         assertEquals(jiraProjectsError2, item2.getJiraProjectsError());
-        assertEquals(hubProjects2, item2.getHubProjects());
-        assertEquals(hubProjectsError2, item2.getHubProjectsError());
+        assertEquals(blackDuckProjects2, item2.getHubProjects());
+        assertEquals(blackDuckProjectsError2, item2.getHubProjectsError());
         assertEquals(intervalBetweenChecks2, item2.getIntervalBetweenChecks());
         assertEquals(generalSettingsError2, item2.getGeneralSettingsError());
         assertEquals(jiraProjects2, item2.getJiraProjects());
@@ -248,12 +248,12 @@ public class BlackDuckJiraConfigSerializableTest {
         assertEquals(policyRulesError2, item2.getPolicyRulesError());
 
         assertEquals(errorMessage1, item3.getErrorMessage());
-        assertEquals(hubProjectMappingError1, item3.getHubProjectMappingError());
+        assertEquals(blackDuckProjectMappingError1, item3.getHubProjectMappingError());
         assertEquals(mappings1, item3.getHubProjectMappings());
         assertEquals(jiraProjectsError1, item3.getJiraProjectsError());
         assertEquals(mappingJson, item3.getHubProjectMappingsJson());
-        assertEquals(hubProjects1, item3.getHubProjects());
-        assertEquals(hubProjectsError1, item3.getHubProjectsError());
+        assertEquals(blackDuckProjects1, item3.getHubProjects());
+        assertEquals(blackDuckProjectsError1, item3.getHubProjectsError());
         assertEquals(intervalBetweenChecks1, item3.getIntervalBetweenChecks());
         assertEquals(generalSettingsError1, item3.getGeneralSettingsError());
         assertEquals(jiraProjects1, item3.getJiraProjects());
@@ -302,11 +302,11 @@ public class BlackDuckJiraConfigSerializableTest {
     @Test
     public void testMessagesAllThree() {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        config.setHubProjectMappingError("hubProjectMappingError");
+        config.setHubProjectMappingError("blackDuckProjectMappingError");
         config.setJiraProjectsError("jiraProjectsError");
-        config.setHubProjectsError("hubProjectsError");
+        config.setHubProjectsError("blackDuckProjectsError");
         config.enhanceMappingErrorMessage();
-        assertEquals("hubProjectMappingError; JIRA Project Error: jiraProjectsError; Black Duck Project Error: hubProjectsError", config.getHubProjectMappingError());
+        assertEquals("blackDuckProjectMappingError; JIRA Project Error: jiraProjectsError; Black Duck Project Error: blackDuckProjectsError", config.getHubProjectMappingError());
     }
 
     @Test
@@ -330,7 +330,7 @@ public class BlackDuckJiraConfigSerializableTest {
     }
 
     @Test
-    public void testMessagesHubOnly() {
+    public void testMessagesBlackDuckOnly() {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectsError("BlackDuckProjectsError");
         config.enhanceMappingErrorMessage();

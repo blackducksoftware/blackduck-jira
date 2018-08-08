@@ -49,7 +49,7 @@ import com.blackducksoftware.integration.jira.mocks.field.OrderableFieldMock;
 public class BlackDuckFieldConfigurationSetupTest {
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreate() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
@@ -73,7 +73,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreateNoCustomRequiredFields() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNoCustomRequiredFields() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
@@ -95,7 +95,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraNotFound() {
+    public void testAddBlackDuckFieldConfigurationToJiraNotFound() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
@@ -103,7 +103,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         addDefaultFieldLayoutItem(defaultFieldLayout, "custom", true);
 
         final EditableFieldLayoutMock otherFieldLayout = new EditableFieldLayoutMock();
-        otherFieldLayout.setName("NotHubFieldConfiguration");
+        otherFieldLayout.setName("NotBlackDuckFieldConfiguration");
         addFieldLayoutItems(otherFieldLayout);
         addFieldLayoutItem(otherFieldLayout, "custom", true);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
@@ -126,7 +126,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraAlreadyAdded() {
+    public void testAddBlackDuckFieldConfigurationToJiraAlreadyAdded() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
@@ -150,7 +150,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraAlreadyAddedNoCustomRequiredFields() {
+    public void testAddBlackDuckFieldConfigurationToJiraAlreadyAddedNoCustomRequiredFields() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();

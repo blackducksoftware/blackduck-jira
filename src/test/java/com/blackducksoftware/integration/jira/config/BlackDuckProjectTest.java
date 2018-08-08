@@ -33,7 +33,7 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 public class BlackDuckProjectTest {
 
     @Test
-    public void testHubProject() {
+    public void testBlackDuckProject() {
         final String name1 = "name1";
         final String projectUrl1 = "projectUrl1";
 

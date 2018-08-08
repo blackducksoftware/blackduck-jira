@@ -71,10 +71,10 @@ public class BlackDuckIssueTrackerHandlerTest {
         settings = new PluginSettingsMock();
         final URL url = new URL("http://www.google.com");
         final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
-        final HubService hubService = Mockito.mock(HubService.class);
-        Mockito.when(hubService.getRestConnection()).thenReturn(restConnection);
+        final HubService blackDuckService = Mockito.mock(HubService.class);
+        Mockito.when(blackDuckService.getRestConnection()).thenReturn(restConnection);
 
-        issueServiceMock = new IssueServiceMock(hubService);
+        issueServiceMock = new IssueServiceMock(blackDuckService);
         issueHandler = new BlackDuckIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 
@@ -106,14 +106,14 @@ public class BlackDuckIssueTrackerHandlerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
-        assertEquals(issue.getKey(), hubIssue.issueId);
-        assertEquals(issue.getDescription(), hubIssue.issueDescription);
-        assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
-        assertEquals(issue.getCreated(), hubIssue.issueCreatedAt);
-        assertEquals(issue.getUpdated(), hubIssue.issueUpdatedAt);
-        assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
+        assertEquals(issue.getKey(), blackDuckIssue.issueId);
+        assertEquals(issue.getDescription(), blackDuckIssue.issueDescription);
+        assertEquals(issue.getStatus().getName(), blackDuckIssue.issueStatus);
+        assertEquals(issue.getCreated(), blackDuckIssue.issueCreatedAt);
+        assertEquals(issue.getUpdated(), blackDuckIssue.issueUpdatedAt);
+        assertEquals(issue.getAssignee().getDisplayName(), blackDuckIssue.issueAssignee);
     }
 
     @Test
@@ -128,14 +128,14 @@ public class BlackDuckIssueTrackerHandlerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
-        assertEquals(issue.getKey(), hubIssue.issueId);
-        assertEquals(issue.getDescription(), hubIssue.issueDescription);
-        assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
-        assertEquals(issue.getCreated(), hubIssue.issueCreatedAt);
-        assertEquals(issue.getUpdated(), hubIssue.issueUpdatedAt);
-        assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
+        assertEquals(issue.getKey(), blackDuckIssue.issueId);
+        assertEquals(issue.getDescription(), blackDuckIssue.issueDescription);
+        assertEquals(issue.getStatus().getName(), blackDuckIssue.issueStatus);
+        assertEquals(issue.getCreated(), blackDuckIssue.issueCreatedAt);
+        assertEquals(issue.getUpdated(), blackDuckIssue.issueUpdatedAt);
+        assertEquals(issue.getAssignee().getDisplayName(), blackDuckIssue.issueAssignee);
     }
 
     @Test
@@ -146,15 +146,15 @@ public class BlackDuckIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        final IssueView hubIssue = new IssueView();
-        hubIssue.issueId = issue.getKey();
-        hubIssue.issueDescription = issue.getDescription();
-        hubIssue.issueStatus = issue.getStatus().getName();
-        hubIssue.issueCreatedAt = issue.getCreated();
-        hubIssue.issueUpdatedAt = issue.getUpdated();
-        hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
+        final IssueView blackDuckIssue = new IssueView();
+        blackDuckIssue.issueId = issue.getKey();
+        blackDuckIssue.issueDescription = issue.getDescription();
+        blackDuckIssue.issueStatus = issue.getStatus().getName();
+        blackDuckIssue.issueCreatedAt = issue.getCreated();
+        blackDuckIssue.issueUpdatedAt = issue.getUpdated();
+        blackDuckIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
-        issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);
+        issueServiceMock.issueMap.put(ISSUE_URL, blackDuckIssue);
         issueHandler.deleteBlackDuckIssue(ISSUE_URL, issue);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -196,15 +196,15 @@ public class BlackDuckIssueTrackerHandlerTest {
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
 
-        final IssueView hubIssue = new IssueView();
-        hubIssue.issueId = issue.getKey();
-        hubIssue.issueDescription = issue.getDescription();
-        hubIssue.issueStatus = issue.getStatus().getName();
-        hubIssue.issueCreatedAt = issue.getCreated();
-        hubIssue.issueUpdatedAt = issue.getUpdated();
-        hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
+        final IssueView blackDuckIssue = new IssueView();
+        blackDuckIssue.issueId = issue.getKey();
+        blackDuckIssue.issueDescription = issue.getDescription();
+        blackDuckIssue.issueStatus = issue.getStatus().getName();
+        blackDuckIssue.issueCreatedAt = issue.getCreated();
+        blackDuckIssue.issueUpdatedAt = issue.getUpdated();
+        blackDuckIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
-        issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);
+        issueServiceMock.issueMap.put(ISSUE_URL, blackDuckIssue);
         issueHandler.deleteBlackDuckIssue("", issue);
 
         assertFalse(issueServiceMock.issueMap.isEmpty());

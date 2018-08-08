@@ -68,52 +68,52 @@
       <fieldset class="fieldSection">
       	  <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'serverConfigArea');"> </i> $i18n.getText("blackduck.integration.jira.server.details.serverConfig.label")</legend>
       	  <div id="serverConfigArea">
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubServerUrl">$i18n.getText("blackduck.integration.jira.server.details.url.label")<span class="error"> *</span></label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="hubServerUrl">$i18n.getText("blackduck.integration.jira.server.details.url.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubServerUrl" name="hubServerUrl" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.url.description')"></span>
 		      </div>
-		      <div id="hubServerUrlErrorRow" class="hub-details-field-group hidden">
+		      <div id="hubServerUrlErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubServerUrlError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubUsername">$i18n.getText("blackduck.integration.jira.server.details.username.label")<span class="error"> *</span></label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="hubUsername">$i18n.getText("blackduck.integration.jira.server.details.username.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.username.description')"></span>
 		      </div>
-		      <div id="hubUsernameErrorRow" class="hub-details-field-group hidden">
+		      <div id="hubUsernameErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubUsernameError" class="error "></div>
 		      </div>
 		        
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubPassword">$i18n.getText("blackduck.integration.jira.server.details.password.label")<span class="error"> *</span></label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="hubPassword">$i18n.getText("blackduck.integration.jira.server.details.password.label")<span class="error"> *</span></label>
 		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.password.description')"></span>
 		      </div>
-		       <div id="hubPasswordErrorRow" class="hub-details-field-group hidden">
+		       <div id="hubPasswordErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubPasswordError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="hubTimeout">$i18n.getText("blackduck.integration.jira.server.details.timeout.label")<span class="error"> *</span></label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="hubTimeout">$i18n.getText("blackduck.integration.jira.server.details.timeout.label")<span class="error"> *</span></label>
 		        <input type="text" id="hubTimeout" name="hubTimeout" class="longInput textStyle" default="120" />
 		         <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.timeout.description')"></span>
 		      </div>
-		       <div id="hubTimeoutErrorRow" class="hub-details-field-group hidden">
+		       <div id="hubTimeoutErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="hubTimeoutError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-                <label class="hubDetailsLabel" for="hubTrustCert">$i18n.getText("blackduck.integration.jira.server.details.trust.cert.label")<span class="error"></span></label>
+		      <div class="blackduck-details-field-group">
+                <label class="blackDuckDetailsLabel" for="hubTrustCert">$i18n.getText("blackduck.integration.jira.server.details.trust.cert.label")<span class="error"></span></label>
                 <input type="checkbox" id="hubTrustCert" name="hubTrustCert" />
                  <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.trust.cert.description')"></span>
               </div>
-               <div id="hubTrustCertErrorRow" class="hub-details-field-group hidden">
+               <div id="hubTrustCertErrorRow" class="blackduck-details-field-group hidden">
                 <label> </label>
                 <div id="hubTrustCertError" class="error "></div>
               </div>
@@ -123,52 +123,52 @@
       <fieldset class="fieldSection">
       	  <legend class="legend"><i id="proxyConfigDisplayIcon" class="fa fa-angle-down" onclick="toggleDisplay(this,'proxyConfigArea');"> </i> $i18n.getText("blackduck.integration.jira.server.details.proxyConfig.label")</legend>
       	  <div id="proxyConfigArea">
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.host.label")</label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="proxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.host.label")</label>
 		        <input type="text" id="proxyHost" name="proxyHost" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.host.description')"></span>
 		      </div>
-		       <div id="proxyHostErrorRow" class="hub-details-field-group hidden">
+		       <div id="proxyHostErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyHostError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyPort">$i18n.getText("blackduck.integration.jira.server.details.proxy.port.label")</label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="proxyPort">$i18n.getText("blackduck.integration.jira.server.details.proxy.port.label")</label>
 		        <input type="text" id="proxyPort" name="proxyPort" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.port.description')"></span>
 		      </div>
-		       <div id="proxyPortErrorRow" class="hub-details-field-group hidden">
+		       <div id="proxyPortErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyPortError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="noProxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.noproxyhost.label")</label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="noProxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.noproxyhost.label")</label>
 		        <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.noproxyhost.description')"></span>
 		      </div>
-		       <div id="noProxyHostErrorRow" class="hub-details-field-group hidden">
+		       <div id="noProxyHostErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="noProxyHostError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyUsername">$i18n.getText("blackduck.integration.jira.server.details.proxy.username.label")</label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="proxyUsername">$i18n.getText("blackduck.integration.jira.server.details.proxy.username.label")</label>
 		        <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.username.description')"></span>
 		      </div>
-		       <div id="proxyUsernameErrorRow" class="hub-details-field-group hidden">
+		       <div id="proxyUsernameErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyUsernameError" class="error "></div>
 		      </div>
 		      
-		      <div class="hub-details-field-group">
-		        <label class="hubDetailsLabel" for="proxyPassword">$i18n.getText("blackduck.integration.jira.server.details.proxy.password.label")</label>
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="proxyPassword">$i18n.getText("blackduck.integration.jira.server.details.proxy.password.label")</label> 
 		        <input type="password" id="proxyPassword" name="proxyPassword" class="longInput password textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.password.description')"></span>
 		      </div>
-		      <div id="proxyPasswordErrorRow" class="hub-details-field-group hidden">
+		      <div id="proxyPasswordErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
 		      	<div id="proxyPasswordError" class="error "></div>
 		      </div>

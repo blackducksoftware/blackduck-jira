@@ -53,7 +53,7 @@ import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManag
 public class BlackDuckWorkflowSetupTest {
 
     @Test
-    public void testAddHubWorkflowToJiraNoUser() {
+    public void testAddBlackDuckWorkflowToJiraNoUser() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
@@ -76,7 +76,7 @@ public class BlackDuckWorkflowSetupTest {
     }
 
     @Test
-    public void testAddHubWorkflowToJiraAlreadyExisting() {
+    public void testAddBlackDuckWorkflowToJiraAlreadyExisting() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -109,7 +109,7 @@ public class BlackDuckWorkflowSetupTest {
     }
 
     @Test
-    public void testAddHubWorkflowToJira() {
+    public void testAddBlackDuckWorkflowToJira() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
@@ -175,16 +175,16 @@ public class BlackDuckWorkflowSetupTest {
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final String workflowName = "TestWorkflow";
 
-        final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(workflowName);
+        final AssignableWorkflowSchemeMock blackDuckWorkflow = new AssignableWorkflowSchemeMock();
+        blackDuckWorkflow.setName(workflowName);
 
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
-        builder.setWorkflowScheme(hubWorkflow);
+        builder.setWorkflowScheme(blackDuckWorkflow);
 
-        hubWorkflow.setBuilder(builder);
+        blackDuckWorkflow.setBuilder(builder);
 
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-        workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+        workflowSchemeManager.setAssignableWorkflowScheme(blackDuckWorkflow);
 
         final String jiraUserName = "FakeUser";
 
@@ -226,16 +226,16 @@ public class BlackDuckWorkflowSetupTest {
         issueType.setId(issueTypeId);
         issueTypes.add(issueType);
 
-        final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(workflowName);
+        final AssignableWorkflowSchemeMock blackDuckWorkflow = new AssignableWorkflowSchemeMock();
+        blackDuckWorkflow.setName(workflowName);
 
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
-        builder.setWorkflowScheme(hubWorkflow);
+        builder.setWorkflowScheme(blackDuckWorkflow);
 
-        hubWorkflow.setBuilder(builder);
+        blackDuckWorkflow.setBuilder(builder);
 
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-        workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+        workflowSchemeManager.setAssignableWorkflowScheme(blackDuckWorkflow);
 
         final String jiraUserName = "FakeUser";
 
@@ -277,18 +277,18 @@ public class BlackDuckWorkflowSetupTest {
         issueType.setId(issueTypeId);
         issueTypes.add(issueType);
 
-        final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(workflowName);
+        final AssignableWorkflowSchemeMock blackDuckWorkflow = new AssignableWorkflowSchemeMock();
+        blackDuckWorkflow.setName(workflowName);
 
-        hubWorkflow.addMappingIssueToWorkflow(issueTypeName, "FakeWorkflow");
+        blackDuckWorkflow.addMappingIssueToWorkflow(issueTypeName, "FakeWorkflow");
 
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
-        builder.setWorkflowScheme(hubWorkflow);
+        builder.setWorkflowScheme(blackDuckWorkflow);
 
-        hubWorkflow.setBuilder(builder);
+        blackDuckWorkflow.setBuilder(builder);
 
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-        workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+        workflowSchemeManager.setAssignableWorkflowScheme(blackDuckWorkflow);
 
         final String jiraUser = "FakeUser";
 
@@ -313,7 +313,7 @@ public class BlackDuckWorkflowSetupTest {
 
         assertTrue(workflowSchemeManager.getAttemptedWorkflowUpdate());
 
-        final Map<String, String> mappings = hubWorkflow.getMappings();
+        final Map<String, String> mappings = blackDuckWorkflow.getMappings();
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals("TestWorkflow", workflowNameMapped);
@@ -335,18 +335,18 @@ public class BlackDuckWorkflowSetupTest {
         issueType.setId(issueTypeId);
         issueTypes.add(issueType);
 
-        final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(workflowName);
+        final AssignableWorkflowSchemeMock blackDuckWorkflow = new AssignableWorkflowSchemeMock();
+        blackDuckWorkflow.setName(workflowName);
 
-        hubWorkflow.addMappingIssueToWorkflow(issueTypeName, workflowName);
+        blackDuckWorkflow.addMappingIssueToWorkflow(issueTypeName, workflowName);
 
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
-        builder.setWorkflowScheme(hubWorkflow);
+        builder.setWorkflowScheme(blackDuckWorkflow);
 
-        hubWorkflow.setBuilder(builder);
+        blackDuckWorkflow.setBuilder(builder);
 
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
-        workflowSchemeManager.setAssignableWorkflowScheme(hubWorkflow);
+        workflowSchemeManager.setAssignableWorkflowScheme(blackDuckWorkflow);
 
         final String jiraUser = "FakeUser";
         final UserUtilMock userUtil = new UserUtilMock();
@@ -370,7 +370,7 @@ public class BlackDuckWorkflowSetupTest {
 
         assertTrue(!workflowSchemeManager.getAttemptedWorkflowUpdate());
 
-        final Map<String, String> mappings = hubWorkflow.getMappings();
+        final Map<String, String> mappings = blackDuckWorkflow.getMappings();
 
         final String workflowNameMapped = mappings.get(issueTypeName);
         assertEquals(workflowName, workflowNameMapped);

@@ -43,7 +43,7 @@ function hideBlackDuckCustomFields() {
 				var properties = customFieldPropertyList.children();
 				if (properties.length > 0) {
 					for (i=0; i < properties.length; i++) {
-						checkPropertyAndHideHubField(properties[i]);
+						checkPropertyAndHideBlackDuckField(properties[i]);
 					}
 				} else {
 					setTimeout(hideBlackDuckCustomFields, 100);
@@ -60,7 +60,7 @@ function hideBlackDuckCustomFields() {
 }
 
 
-function checkPropertyAndHideHubField(property) {
+function checkPropertyAndHideBlackDuckField(property) {
 	var customFieldPropertyLabel =  AJS.$(property).find("strong.name");
 	var customFieldPropertyValueField =  AJS.$(property).find("div.value");
 	

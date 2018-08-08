@@ -36,21 +36,21 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
     }
 
     @Override
-    public HubServerConfigBuilder createHubServerConfigBuilder() {
+    public HubServerConfigBuilder createServerConfigBuilder() {
         final HubServerConfigBuilderMock configBuilder = new HubServerConfigBuilderMock();
 
-        configBuilder.setUrl(getHubUrl());
-        configBuilder.setUsername(getHubUsername());
-        configBuilder.setPassword(getHubPasswordEncrypted());
-        configBuilder.setPasswordLength(NumberUtils.toInt(getHubPasswordLength()));
-        configBuilder.setTimeout(getHubTimeoutString());
+        configBuilder.setUrl(getBlackDuckUrl());
+        configBuilder.setUsername(getBlackDuckUsername());
+        configBuilder.setPassword(getBlackDuckPasswordEncrypted());
+        configBuilder.setPasswordLength(NumberUtils.toInt(getBlackDuckPasswordLength()));
+        configBuilder.setTimeout(getBlackDuckTimeoutString());
 
-        configBuilder.setProxyHost(getHubProxyHost());
-        configBuilder.setProxyPort(getHubProxyPort());
-        configBuilder.setIgnoredProxyHosts(getHubProxyNoHost());
-        configBuilder.setProxyUsername(getHubProxyUser());
-        configBuilder.setProxyPassword(getHubProxyPassEncrypted());
-        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getHubProxyPassLength()));
+        configBuilder.setProxyHost(getBlackDuckProxyHost());
+        configBuilder.setProxyPort(getBlackDuckProxyPort());
+        configBuilder.setIgnoredProxyHosts(getBlackDuckProxyNoHost());
+        configBuilder.setProxyUsername(getBlackDuckProxyUser());
+        configBuilder.setProxyPassword(getBlackDuckProxyPassEncrypted());
+        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));
 
         return configBuilder;
     }

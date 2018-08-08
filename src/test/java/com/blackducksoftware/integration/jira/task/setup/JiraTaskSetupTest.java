@@ -115,8 +115,8 @@ import com.blackducksoftware.integration.jira.task.JiraTaskTimed;
 public class JiraTaskSetupTest {
     private static final int NUM_SECURITY_SCREEN_FIELDS = PluginField.values().length;
 
-    private final static String HUB_JIRA_GROUP = "hub-jira";
-    private static final String HUB_PROJECT_NAME = "Test Hub Project";
+    private final static String BLACKDUCK_JIRA_GROUP = "hub-jira";
+    private static final String BLACKDUCK_PROJECT_NAME = "Test Black Duck Project";
     private static final String JIRA_PROJECT_NAME = ProjectManagerMock.JIRA_PROJECT_PREFIX;
     private static final long JIRA_PROJECT_ID = ProjectManagerMock.JIRA_PROJECT_ID_BASE;
     private static final String JIRA_USER = "Jira User";
@@ -348,7 +348,7 @@ public class JiraTaskSetupTest {
                 .setFieldLayoutSchemeMock(fieldLayoutScheme).setFieldManagerMock(fieldManager)
                 .setFieldScreenManagerMock(fieldScreenManager).setFieldScreenSchemeManagerMock(fieldScreenSchemeManager)
                 .setGroupPickerSearchServiceMock(groupPickerSearchService)
-                .setHubFieldScreenSchemeSetup(fieldScreenSchemeSetup)
+                .setBlackDuckFieldScreenSchemeSetup(fieldScreenSchemeSetup)
                 .setIssueTypes(issueTypes).setIssueTypes(issueTypes)
                 .setIssueTypeSchemeManagerMock(issueTypeSchemeManager)
                 .setIssueTypeScreenSchemeManagerMock(issueTypeScreenSchemeManager)
@@ -455,23 +455,23 @@ public class JiraTaskSetupTest {
     private WorkflowSchemeManagerMock getWorkflowSchemeManagerMock(final boolean workflowMappedToOurIssueTypes) {
         final WorkflowSchemeManagerMock workflowSchemeManagerMock = new WorkflowSchemeManagerMock();
 
-        final AssignableWorkflowSchemeMock hubWorkflow = new AssignableWorkflowSchemeMock();
-        hubWorkflow.setName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+        final AssignableWorkflowSchemeMock blackDuckWorkflow = new AssignableWorkflowSchemeMock();
+        blackDuckWorkflow.setName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         if (workflowMappedToOurIssueTypes) {
-            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE,
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE,
                     BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
-            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE,
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE,
                     BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         } else {
-            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, "Fake Workflow");
-            hubWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, "Fake Workflow");
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, "Fake Workflow");
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, "Fake Workflow");
         }
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
-        builder.setWorkflowScheme(hubWorkflow);
+        builder.setWorkflowScheme(blackDuckWorkflow);
 
-        hubWorkflow.setBuilder(builder);
+        blackDuckWorkflow.setBuilder(builder);
 
-        workflowSchemeManagerMock.setAssignableWorkflowScheme(hubWorkflow);
+        workflowSchemeManagerMock.setAssignableWorkflowScheme(blackDuckWorkflow);
 
         return workflowSchemeManagerMock;
     }
@@ -495,7 +495,7 @@ public class JiraTaskSetupTest {
     private GroupPickerSearchServiceMock getGroupPickerSearchServiceMock(final boolean groupAlreadyExists) {
         final GroupPickerSearchServiceMock groupPickerSearchService = new GroupPickerSearchServiceMock();
         if (groupAlreadyExists) {
-            groupPickerSearchService.addGroupByName(HUB_JIRA_GROUP);
+            groupPickerSearchService.addGroupByName(BLACKDUCK_JIRA_GROUP);
         }
         return groupPickerSearchService;
     }
@@ -573,9 +573,9 @@ public class JiraTaskSetupTest {
             jiraProject.setProjectName(jiraProjectName);
             jiraProject.setProjectId(jiraProjectId);
             mapping.setJiraProject(jiraProject);
-            final BlackDuckProject hubProject = new BlackDuckProject();
-            hubProject.setProjectName(HUB_PROJECT_NAME);
-            mapping.setHubProject(hubProject);
+            final BlackDuckProject blackDuckProject = new BlackDuckProject();
+            blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
+            mapping.setHubProject(blackDuckProject);
             mappings.add(mapping);
         }
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
@@ -611,7 +611,7 @@ public class JiraTaskSetupTest {
         private Collection<IssueType> issueTypes;
         private UserUtil userUtil;
         private JiraServices jiraServices;
-        private BlackDuckFieldScreenSchemeSetup HubFieldScreenSchemeSetup;
+        private BlackDuckFieldScreenSchemeSetup blackDuckFieldScreenSchemeSetup;
         private JiraTaskTimed jiraTask;
         private String mappingJson;
         private Avatar avatarTemplate;
@@ -796,9 +796,8 @@ public class JiraTaskSetupTest {
             return this;
         }
 
-        JiraEnvironment setHubFieldScreenSchemeSetup(
-                final BlackDuckFieldScreenSchemeSetup hubFieldScreenSchemeSetup) {
-            HubFieldScreenSchemeSetup = hubFieldScreenSchemeSetup;
+        JiraEnvironment setBlackDuckFieldScreenSchemeSetup(final BlackDuckFieldScreenSchemeSetup blackDuckFieldScreenSchemeSetup) {
+            this.blackDuckFieldScreenSchemeSetup = blackDuckFieldScreenSchemeSetup;
             return this;
         }
 

@@ -91,10 +91,10 @@ public class BlackDuckProjectMappingsTest {
         final Set<BlackDuckProjectMapping> underlyingMappings = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
-            final BlackDuckProject hubProject = new BlackDuckProject();
-            hubProject.setProjectName("projectName" + i);
-            hubProject.setProjectUrl("projectUrl" + i);
-            mapping.setHubProject(hubProject);
+            final BlackDuckProject blackDuckProject = new BlackDuckProject();
+            blackDuckProject.setProjectName("projectName" + i);
+            blackDuckProject.setProjectUrl("projectUrl" + i);
+            mapping.setHubProject(blackDuckProject);
             final JiraProject jiraProject = new JiraProject();
             // jiraProject.setAssigneeUserId("assigneeUserId" + i);
             jiraProject.setProjectError("");

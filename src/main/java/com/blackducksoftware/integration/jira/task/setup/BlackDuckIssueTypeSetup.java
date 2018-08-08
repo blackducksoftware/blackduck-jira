@@ -88,7 +88,6 @@ public class BlackDuckIssueTypeSetup {
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
             final int indexOfV3PolicyType = existingBdIssueTypeNames.indexOf(V3PluginConstants.V3_POLICY_VIOLATION_ISSUE);
-            // TODO update bdIssueTypes
             if (indexOfV3PolicyType >= 0) {
                 renameBdsIssueType(bdIssueTypes, indexOfV3PolicyType, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
             } else {

@@ -134,7 +134,7 @@ public class BlackDuckIssueTrackerHandler {
         return blackDuckIssue;
     }
 
-    // TODO think about preferable ways to do this
+    // TODO find a better way to do this
     private String getJiraBaseUrl() {
         try {
             return ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);

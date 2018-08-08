@@ -36,8 +36,8 @@ public class IssueServiceMock extends IssueService {
     public final static String CREATION_FAILURE_URL = "";
     public Map<String, IssueView> issueMap = new HashMap<>();
 
-    public IssueServiceMock(final HubService hubService) {
-        super(hubService);
+    public IssueServiceMock(final HubService blackDuckService) {
+        super(blackDuckService);
     }
 
     @Override

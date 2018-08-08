@@ -97,7 +97,7 @@ public class BlackDuckJiraTask {
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
-        final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createHubServerConfigBuilder();
+        final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
         HubServerConfig blackDuckServerConfig = null;
         try {
             logger.debug("Building Black Duck configuration");

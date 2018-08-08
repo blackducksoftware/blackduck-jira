@@ -95,7 +95,7 @@ ul.tab li a:focus, .active {background-color: #ccc;}
     padding: 0 0 5px 10px;
 }
 
-.hub-details-field-group {
+.blackduck-details-field-group {
 	clear: both;
     display: block;
     margin-bottom: 5px;
@@ -148,7 +148,7 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 	text-align : left !important;
 }
 
-.hubDetailsLabel {
+.blackDuckDetailsLabel {
 	color : #707070;
 	float : left;
 	margin-left: -160px;
@@ -157,17 +157,7 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 	text-align : left !important;
 	white-space : nowrap !important;
 }
-
-.hubDetailslabel {
-	color : #707070;
-	float : left;
-	margin-left: -160px;
-	font-weight : bold;
-	width : auto !important;
-	text-align : left !important;
-	white-space : nowrap !important;
-}
-
+ 
 .fieldSection {
 	border : 1px solid !important;
 	padding : 10px 5px 5px 15px !important; 

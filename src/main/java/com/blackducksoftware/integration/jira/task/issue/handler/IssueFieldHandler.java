@@ -93,7 +93,7 @@ public class IssueFieldHandler {
                 addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, issueInputParameters, eventData.getBlackDuckRuleName());
                 addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, issueInputParameters, eventData.getBlackDuckRuleOverridable());
                 addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, issueInputParameters, eventData.getBlackDuckRuleDescription());
-                // TODO use this when the Hub supports policy redirect: addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
+                // TODO use this when the Black Duck supports policy redirect: addIssueInputParameter(eventData, PluginField.HUB_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getHubRuleUrl());
                 addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, issueInputParameters, eventData.getBlackDuckBaseUrl() + "/ui/policy-management");
             }
             if (eventData.getBlackDuckProjectOwner() != null) {
@@ -274,7 +274,7 @@ public class IssueFieldHandler {
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.getId().equals(pluginFieldId)) {
             fieldValue = getPolicyFieldValue(eventData, eventData.getBlackDuckRuleDescription());
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL.getId().equals(pluginFieldId)) {
-            // TODO use this when the Hub supports policy redirect: fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
+            // TODO use this when the Black Duck supports policy redirect: fieldValue = getPolicyFieldValue(eventData, eventData.getHubRuleUrl());
             fieldValue = eventData.getBlackDuckBaseUrl() + "/ui/policy-management";
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getBlackDuckProjectName();

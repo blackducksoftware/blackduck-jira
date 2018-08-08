@@ -133,7 +133,7 @@ public class NotificationConverterTest {
     private static final String SOURCE_FIELD_NAME = "sourceFieldName";
     private static final String SOURCE_FIELD_ID = "sourceFieldId";
     private static final String WILDCARD_STRING = "*";
-    private static final String HUB_PROJECT_URL = "hubProjectUrl";
+    private static final String BLACKDUCK_PROJECT_URL = "hubProjectUrl";
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
     private static final String PROJECT_VERSION_URL = "http://localhost:8080/api/projects/projectId/versions/versionId";
     private static final String COMPONENT_VERSION_URL = "http://localhost:8080/api/components/componentId/versions/versionId";
@@ -141,7 +141,7 @@ public class NotificationConverterTest {
     private static final String COMPONENT_VERSION_NAME = "componentVersion";
     private static final String COMPONENT_NAME = "componentName";
     private static final String ASSIGNEE_USER_ID = "assigneeUserId";
-    private static final String HUB_PROJECT_NAME = "hubProjectName";
+    private static final String BLACKDUCK_PROJECT_NAME = "hubProjectName";
     private static final long JIRA_PROJECT_ID = 123L;
     private static final int EXPECTED_EVENT_COUNT = 1;
     private static final String JIRA_ADMIN_USERNAME = "jiraAdminUsername";
@@ -163,8 +163,8 @@ public class NotificationConverterTest {
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;
     private static JiraUserContext jiraContext;
-    private static HubService mockHubSerivce;
-    private static HubBucket mockHubBucket;
+    private static HubService mockBlackDuckSerivce;
+    private static HubBucket mockBlackDuckBucket;
     private static BlackDuckJiraLogger mockLogger;
     private static BlackDuckProjectMappings projectMappingObject;
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
@@ -192,8 +192,8 @@ public class NotificationConverterTest {
 
         final Set<BlackDuckProjectMapping> mappings = new HashSet<>();
         final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
-        final BlackDuckProject hubProject = createHubProject();
-        mapping.setHubProject(hubProject);
+        final BlackDuckProject blackDuckProject = createBlackDuckProject();
+        mapping.setHubProject(blackDuckProject);
         final JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
         mappings.add(mapping);
@@ -212,11 +212,11 @@ public class NotificationConverterTest {
         jiraIssueCreatorUser.setKey(JIRA_ISSUE_CREATOR_USER_KEY);
         jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
 
-        // Hub Services
-        mockHubSerivce = Mockito.mock(HubService.class);
-        mockHubServiceResponses(mockHubSerivce);
-        mockHubBucket = Mockito.mock(HubBucket.class);
-        mockHubBucketResponses(mockHubBucket);
+        // Black Duck Services
+        mockBlackDuckSerivce = Mockito.mock(HubService.class);
+        mockHubServiceResponses(mockBlackDuckSerivce);
+        mockBlackDuckBucket = Mockito.mock(HubBucket.class);
+        mockBlackDuckBucketResponses(mockBlackDuckBucket);
         mockLogger = new BlackDuckJiraLogger(Logger.getLogger(NotificationConverterTest.class));
 
         // Project Mappings
@@ -224,7 +224,7 @@ public class NotificationConverterTest {
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
-        eventDataFormatHelper = new EventDataFormatHelper(mockLogger, mockHubSerivce);
+        eventDataFormatHelper = new EventDataFormatHelper(mockLogger, mockBlackDuckSerivce);
     }
 
     @AfterClass
@@ -257,7 +257,7 @@ public class NotificationConverterTest {
 
     @Test
     public void testFindCompInBom() throws ConfigurationException, HubIntegrationException {
-        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
+        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
                 mockLogger);
         final String compVer1Url = "comp1version1Url";
         final String compVer2Url = "comp2version1Url";
@@ -277,9 +277,9 @@ public class NotificationConverterTest {
         actualCompVer2.versionName = compVer2Url;
         actualComp3.name = comp3Url;
 
-        Mockito.when(mockHubSerivce.getHref(actualCompVer1)).thenReturn(compVer1Url);
-        Mockito.when(mockHubSerivce.getHref(actualCompVer2)).thenReturn(compVer2Url);
-        Mockito.when(mockHubSerivce.getHref(actualComp3)).thenReturn(comp3Url);
+        Mockito.when(mockBlackDuckSerivce.getHref(actualCompVer1)).thenReturn(compVer1Url);
+        Mockito.when(mockBlackDuckSerivce.getHref(actualCompVer2)).thenReturn(compVer2Url);
+        Mockito.when(mockBlackDuckSerivce.getHref(actualComp3)).thenReturn(comp3Url);
 
         assertEquals("comp1", conv.findCompInBom(bomComps, null, actualCompVer1).componentName);
         assertEquals("comp2", conv.findCompInBom(bomComps, null, actualCompVer2).componentName);
@@ -290,8 +290,8 @@ public class NotificationConverterTest {
         final ComponentView nonComp1 = new ComponentView();
         nonComp1.name = "y";
 
-        Mockito.when(mockHubSerivce.getHref(nonCompVer1)).thenReturn("x");
-        Mockito.when(mockHubSerivce.getHref(nonComp1)).thenReturn("y");
+        Mockito.when(mockBlackDuckSerivce.getHref(nonCompVer1)).thenReturn("x");
+        Mockito.when(mockBlackDuckSerivce.getHref(nonComp1)).thenReturn("y");
 
         assertEquals(null, conv.findCompInBom(bomComps, null, nonCompVer1));
         assertEquals(null, conv.findCompInBom(bomComps, nonComp1, null));
@@ -306,61 +306,62 @@ public class NotificationConverterTest {
         bomComps.add(bomComp);
     }
 
-    private void test(final NotificationType notifType, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
+    private void test(final NotificationType notifType, final BlackDuckEventAction expectedBlackDuckEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
             final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
             throws URISyntaxException, IntegrationException, ConfigurationException {
-        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockHubSerivce,
+        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
                 mockLogger);
         final Date startDate = new Date();
-        final NotificationDetailResult notif = createNotif(mockHubBucket, notifType, startDate);
-        final Collection<EventData> events = conv.createEventDataForNotificationDetailResult(notif, mockHubBucket, startDate);
+        final NotificationDetailResult notif = createNotif(mockBlackDuckBucket, notifType, startDate);
+        final Collection<EventData> events = conv.createEventDataForNotificationDetailResult(notif, mockBlackDuckBucket, startDate);
 
         // Verify the generated event
-        verifyGeneratedEvents(events, issueTypeId, expectedHubEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment, expectedResolveComment,
+        verifyGeneratedEvents(events, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
+                expectedResolveComment,
                 expectedPropertyKey);
     }
 
-    private static void mockHubServiceResponses(final HubService mockHubService) throws IntegrationException, MalformedURLException {
+    private static void mockHubServiceResponses(final HubService mockBlackDuckService) throws IntegrationException, MalformedURLException {
         final PrintStreamIntLogger mockLogger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG);
         final RestConnection mockRestConnection = new UnauthenticatedRestConnection(mockLogger, null, 120, ProxyInfo.NO_PROXY_INFO);
-        Mockito.when(mockHubService.getRestConnection()).thenReturn(mockRestConnection);
+        Mockito.when(mockBlackDuckService.getRestConnection()).thenReturn(mockRestConnection);
 
         final URL hubBaseUrl = new URL("https://localhost:8080");
-        Mockito.when(mockHubService.getHubBaseUrl()).thenReturn(hubBaseUrl);
+        Mockito.when(mockBlackDuckService.getHubBaseUrl()).thenReturn(hubBaseUrl);
 
         final VersionRiskProfileView riskProfile = new VersionRiskProfileView();
         riskProfile.bomLastUpdatedAt = new Date();
-        Mockito.when(mockHubService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.RISKPROFILE_LINK_RESPONSE))).thenReturn(riskProfile);
+        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.RISKPROFILE_LINK_RESPONSE))).thenReturn(riskProfile);
 
         final ProjectView project = new ProjectView();
         project.projectOwner = "Shmario Bear";
-        Mockito.when(mockHubService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
+        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
 
-        Mockito.when(mockHubService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
-        Mockito.when(mockHubService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
+        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
+        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
     }
 
-    private static void mockHubBucketResponses(final HubBucket mockHubBucket) {
+    private static void mockBlackDuckBucketResponses(final HubBucket mockBlackDuckBucket) {
         final UriSingleResponse<ProjectVersionView> mockUriSingleResponseProjectVersionView = new UriSingleResponse<>(PROJECT_VERSION_URL, ProjectVersionView.class);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponseProjectVersionView)).thenReturn(createProjectVersionView());
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseProjectVersionView)).thenReturn(createProjectVersionView());
 
         final UriSingleResponse<ComponentView> mockUriSingleResponseComponentView = new UriSingleResponse<>(COMPONENT_URL, ComponentView.class);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponseComponentView)).thenReturn(createComponentView());
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseComponentView)).thenReturn(createComponentView());
 
         final UriSingleResponse<ComponentVersionView> mockUriSingleResponseComponentVersionView = new UriSingleResponse<>(COMPONENT_VERSION_URL, ComponentVersionView.class);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponseComponentVersionView)).thenReturn(createComponentVersionView());
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseComponentVersionView)).thenReturn(createComponentVersionView());
     }
 
-    private NotificationDetailResult createNotif(final HubBucket mockHubBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
+    private NotificationDetailResult createNotif(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
         NotificationDetailResult notif;
         if (NotificationType.VULNERABILITY.equals(notifType)) {
             notif = createVulnerabilityNotif(now);
         } else if (NotificationType.RULE_VIOLATION.equals(notifType)) {
-            notif = createRuleViolationNotif(mockHubBucket, now);
+            notif = createRuleViolationNotif(mockBlackDuckBucket, now);
         } else if (NotificationType.POLICY_OVERRIDE.equals(notifType)) {
-            notif = createPolicyOverrideNotif(mockHubBucket, now);
+            notif = createPolicyOverrideNotif(mockBlackDuckBucket, now);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notifType)) {
-            notif = createRuleViolationClearedNotif(mockHubBucket, now);
+            notif = createRuleViolationClearedNotif(mockBlackDuckBucket, now);
         } else {
             throw new IllegalArgumentException("Unrecognized notification type");
         }
@@ -403,7 +404,7 @@ public class NotificationConverterTest {
         final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
 
         final IssueProperties issueProperties = issuePropertiesGenerator.createIssueProperties(Long.valueOf(JIRA_ISSUE_ID));
-        assertEquals(HUB_PROJECT_NAME, issueProperties.getProjectName());
+        assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());
         assertEquals(COMPONENT_VERSION_NAME, issueProperties.getComponentVersion());
@@ -432,12 +433,12 @@ public class NotificationConverterTest {
         content.deletedVulnerabilityCount = deletedVulnList.size();
 
         final AffectedProjectVersion affected = new AffectedProjectVersion();
-        affected.projectName = HUB_PROJECT_NAME;
+        affected.projectName = BLACKDUCK_PROJECT_NAME;
         affected.projectVersion = PROJECT_VERSION_URL;
         affected.projectVersionName = PROJECT_VERSION_NAME;
         content.affectedProjectVersions = Arrays.asList(affected);
 
-        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
         final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
 
@@ -453,9 +454,9 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
         final ComponentVersionStatus componentVersionStatus = createComponentVersionStatus();
@@ -464,11 +465,11 @@ public class NotificationConverterTest {
         content.componentVersionStatuses = Arrays.asList(componentVersionStatus);
         content.componentVersionsInViolation = content.componentVersionStatuses.size();
         content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = HUB_PROJECT_NAME;
+        content.projectName = BLACKDUCK_PROJECT_NAME;
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
         final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
 
@@ -486,9 +487,9 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationClearedNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationClearedNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_CLEARED_EXPECTED_DESCRIPTION);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
         final ComponentVersionStatus componentVersionStatus = createComponentVersionStatus();
@@ -497,11 +498,11 @@ public class NotificationConverterTest {
         content.componentVersionStatuses = Arrays.asList(componentVersionStatus);
         content.componentVersionsCleared = content.componentVersionStatuses.size();
         content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = HUB_PROJECT_NAME;
+        content.projectName = BLACKDUCK_PROJECT_NAME;
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
         final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
 
@@ -519,9 +520,9 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION_CLEARED, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createPolicyOverrideNotif(final HubBucket mockHubBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createPolicyOverrideNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_OVERRIDE_EXPECTED_DESCRIPTION);
-        Mockito.when(mockHubBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
+        Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
 
@@ -535,11 +536,11 @@ public class NotificationConverterTest {
         content.lastName = OVERRIDER_LAST_NAME;
         content.policies = Arrays.asList(policyInfo.policyName);
         content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = HUB_PROJECT_NAME;
+        content.projectName = BLACKDUCK_PROJECT_NAME;
         content.projectVersion = PROJECT_VERSION_URL;
         content.projectVersionName = PROJECT_VERSION_NAME;
 
-        final Optional<String> projectName = Optional.of(HUB_PROJECT_NAME);
+        final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
         final Optional<String> projectVersionUri = Optional.of(PROJECT_VERSION_URL);
 
@@ -555,11 +556,11 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private static BlackDuckProject createHubProject() {
-        final BlackDuckProject hubProject = new BlackDuckProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        hubProject.setProjectUrl(HUB_PROJECT_URL);
-        return hubProject;
+    private static BlackDuckProject createBlackDuckProject() {
+        final BlackDuckProject blackDuckProject = new BlackDuckProject();
+        blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
+        blackDuckProject.setProjectUrl(BLACKDUCK_PROJECT_URL);
+        return blackDuckProject;
     }
 
     private static JiraProject createJiraProject() {

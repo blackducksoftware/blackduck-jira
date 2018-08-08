@@ -35,7 +35,7 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 public class BlackDuckProjectMappingTest {
 
     @Test
-    public void testHubProjectMapping() {
+    public void testBlackDuckProjectMapping() {
         final String jiraName1 = "name1";
         final Long jiraId1 = 0L;
         final String jiraKey1 = "key1";
@@ -47,12 +47,12 @@ public class BlackDuckProjectMappingTest {
         jira1.setProjectKey(jiraKey1);
         jira1.setProjectError(jiraProjectError1);
 
-        final String hubName1 = "name1";
-        final String hubProjectUrl1 = "projectUrl1";
+        final String blackDuckName1 = "name1";
+        final String blackDuckProjectUrl1 = "projectUrl1";
 
-        final BlackDuckProject hub1 = new BlackDuckProject();
-        hub1.setProjectName(hubName1);
-        hub1.setProjectUrl(hubProjectUrl1);
+        final BlackDuckProject blackDuck1 = new BlackDuckProject();
+        blackDuck1.setProjectName(blackDuckName1);
+        blackDuck1.setProjectUrl(blackDuckProjectUrl1);
 
         final String jiraName2 = "name2";
         final Long jiraId2 = 2L;
@@ -65,28 +65,28 @@ public class BlackDuckProjectMappingTest {
         jira2.setProjectKey(jiraKey2);
         jira2.setProjectError(jiraProjectError2);
 
-        final String hubName2 = "name2";
-        final String hubProjectUrl2 = "projectUrl2";
+        final String blackDuckName2 = "name2";
+        final String blackDuckProjectUrl2 = "projectUrl2";
 
-        final BlackDuckProject hub2 = new BlackDuckProject();
-        hub2.setProjectName(hubName2);
-        hub2.setProjectUrl(hubProjectUrl2);
+        final BlackDuckProject blackDuck2 = new BlackDuckProject();
+        blackDuck2.setProjectName(blackDuckName2);
+        blackDuck2.setProjectUrl(blackDuckProjectUrl2);
 
         final BlackDuckProjectMapping item1 = new BlackDuckProjectMapping();
         item1.setJiraProject(jira1);
-        item1.setHubProject(hub1);
+        item1.setHubProject(blackDuck1);
         final BlackDuckProjectMapping item2 = new BlackDuckProjectMapping();
         item2.setJiraProject(jira2);
-        item2.setHubProject(hub2);
+        item2.setHubProject(blackDuck2);
         final BlackDuckProjectMapping item3 = new BlackDuckProjectMapping();
         item3.setJiraProject(jira1);
-        item3.setHubProject(hub1);
+        item3.setHubProject(blackDuck1);
 
         assertEquals(jira1, item1.getJiraProject());
-        assertEquals(hub1, item1.getHubProject());
+        assertEquals(blackDuck1, item1.getHubProject());
 
         assertEquals(jira2, item2.getJiraProject());
-        assertEquals(hub2, item2.getHubProject());
+        assertEquals(blackDuck2, item2.getHubProject());
 
         assertTrue(!item1.equals(item2));
         assertTrue(item1.equals(item3));

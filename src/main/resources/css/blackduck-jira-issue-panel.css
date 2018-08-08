@@ -27,7 +27,7 @@
     text-align: left;
 }
 
-.hubWrap {
+.blackDuckWrap {
 	padding: 0 10px 0 0px;
 }
 
@@ -38,8 +38,4 @@
 
 div.fieldSectionSeparator {
 	clear: both;
-}
-
-#hubFields > div {
- float: left;
 }

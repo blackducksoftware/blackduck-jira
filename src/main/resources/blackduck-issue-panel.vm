@@ -16,7 +16,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
             #if ($bdsProject)
                 #set( $side = "left" )
                 	<li class="item">
-                		<div class="hubWrap">
+                		<div class="blackDuckWrap">
                 			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.label"):</strong>
                 			<div id="hubProjectName" class="value"><a href="$bdsProjectVersionUrl" target="_blank">$bdsProject</a></div>
                 		</div>
@@ -31,7 +31,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	   <li class="item-right fiftyPercent">
                 	   #set( $side = "left" )
                 	#end
-            		<div class="hubWrap">
+            		<div class="blackDuckWrap">
             			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.label"):</strong>
             			<div id="hubProjectVersionName" class="value">$bdsProjectVersion</div>
             		</div>
@@ -45,7 +45,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                 	   <li class="item-right fiftyPercent">
                 	   #set( $side = "left" )
                 	#end
-                		<div class="hubWrap">
+                		<div class="blackDuckWrap">
                 			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.nickname.label"):</strong>
                 			<div id="hubProjectVersionNickname" class="value">$bdsProjectVersionNickname</div>
                 		</div>
@@ -65,7 +65,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
             
             #if ($bdsComponent)
                 	<li class="item">
-                    	<div class="hubWrap">
+                    	<div class="blackDuckWrap">
                     		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.label"):</strong>
                     		#if ($bdsComponentVersionUrl)
                     		    <div id="hubComponentName" class="value"><a href="$bdsComponentVersionUrl" target="_blank">$bdsComponent</a></div>
@@ -84,7 +84,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     	<li class="item-right fiftyPercent">
                     	#set( $side = "left" )
                 	#end
-                	<div class="hubWrap">
+                	<div class="blackDuckWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.version.label"):</strong>
                 		<div id="hubComponentVersionName" class="value">$bdsComponentVersion</div>
                 	</div>
@@ -98,7 +98,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     	<li class="item-right fiftyPercent">
                     	#set( $side = "left" )
                 	#end
-                	<div class="hubWrap">
+                	<div class="blackDuckWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.label"):</strong>
                 		<div id="hubComponentOrigin" class="value">$bdsComponentOrigin</div>
                 	</div>
@@ -112,7 +112,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     	<li class="item-right fiftyPercent">
                     	#set( $side = "left" )
                 	#end
-                	<div class="hubWrap">
+                	<div class="blackDuckWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.id.label"):</strong>
                 		<div id="hubComponentOriginId" class="value">$bdsComponentOriginId</div>
                 	</div>
@@ -126,7 +126,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     <li class="item-right fiftyPercent">
                     #set( $side = "left" )
                 #end
-                <div class="hubWrap">
+                <div class="blackDuckWrap">
                     <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.usage.label"):</strong>
                     <div id="hubComponentUsage" class="value">$bdsComponentUsage</div>
                 </div>
@@ -140,7 +140,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     	<li class="item-right fiftyPercent">
                     	#set( $side = "left" )
                 	#end
-                	<div class="hubWrap">
+                	<div class="blackDuckWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.licenses.label"):</strong>
                 		#if ($bdsLicenseUrl)
                 		    <div id="hubPolicyLicenses" class="value"><a href="$bdsLicenseUrl" target="_blank">$bdsLicenses</a></div>
@@ -158,7 +158,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     	<li class="item-right fiftyPercent">
                     	#set( $side = "left" )
                 	#end
-                	<div class="hubWrap">
+                	<div class="blackDuckWrap">
                 		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
                 		<div id="hubProjectVersionLastUpdated" class="value">$bdsProjectVersionLastUpdated</div>
                 	</div>
@@ -184,7 +184,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                     <li class="item-right fiftyPercent">
                     #set( $side = "left" )
                 #end
-                <div class="hubWrap">
+                <div class="blackDuckWrap">
                     <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.label"):</strong>
                     <div id="hubPolicyRuleName" class="value" title="$bdsPolicyRuleDescription"><a href="$bdsPolicyRuleUrl" target="_blank">$bdsPolicyRule</a></div>
                 </div>
@@ -198,7 +198,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                         <li class="item-right fiftyPercent">
                         #set( $side = "left" )
                     #end
-                    <div class="hubWrap">
+                    <div class="blackDuckWrap">
                         <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.overridable.label"):</strong>
                         <div id="hubPolicyRuleOverridable" class="value">$bdsPolicyRuleOverridable</div>
                     </div>

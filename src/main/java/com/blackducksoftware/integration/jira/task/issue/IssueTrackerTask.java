@@ -102,7 +102,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
     }
 
     public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
-        final HubServerConfigBuilder blackDuckConfigBuilder = configDetails.createHubServerConfigBuilder();
+        final HubServerConfigBuilder blackDuckConfigBuilder = configDetails.createServerConfigBuilder();
         HubServerConfig blackDuckServerConfig = null;
         if (configDetails.getProjectMappingJson() == null) {
             logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");

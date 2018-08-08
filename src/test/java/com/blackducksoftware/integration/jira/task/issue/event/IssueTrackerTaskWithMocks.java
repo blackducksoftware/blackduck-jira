@@ -35,17 +35,17 @@ import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
-    private final HubServicesFactory hubServicesFactory;
+    private final HubServicesFactory blackDuckServicesFactory;
 
     public IssueTrackerTaskWithMocks(final Issue jiraIssue, final JiraIssuePropertyWrapper issuePropertyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey,
-            final EntityProperty property, final HubServicesFactory hubServicesFactory) {
+            final EntityProperty property, final HubServicesFactory blackDuckServicesFactory) {
         super(jiraIssue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
-        this.hubServicesFactory = hubServicesFactory;
+        this.blackDuckServicesFactory = blackDuckServicesFactory;
     }
 
     @Override
     public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
-        return hubServicesFactory;
+        return blackDuckServicesFactory;
     }
 
     @Override

@@ -71,7 +71,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_TOTAL - 3;
 
     @Test
-    public void testAddHubFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
+    public void testAddBlackDuckFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -101,23 +101,23 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         // Create a custom field
         jiraServices.setCustomFieldManager(customFieldManagerMock);
         final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, null, null, null, null);
-        final List<IssueType> hubIssueTypes = getHubIssueTypes();
+        final List<IssueType> blackDuckIssueTypes = getBlackDuckIssueTypes();
         final CustomFieldMock customFieldMock = (CustomFieldMock) customField;
 
-        // Associated only ONE Hub IssueType with it (an incomplete/broken config)
+        // Associated only ONE Black Duck IssueType with it (an incomplete/broken config)
         final List<IssueType> associatedIssueTypes = new ArrayList<>();
-        associatedIssueTypes.add(hubIssueTypes.get(0));
+        associatedIssueTypes.add(blackDuckIssueTypes.get(0));
         customFieldMock.setAssociatedIssueTypes(associatedIssueTypes);
 
         // See how this handles the incomplete config
-        fieldConfigSetup.addBlackDuckFieldConfigurationToJira(hubIssueTypes);
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira(blackDuckIssueTypes);
 
         assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing one or more IssueType associations"));
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreateNullIssueTypes() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNullIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -131,7 +131,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreateNoIssueTypes() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNoIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -144,7 +144,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreate() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -159,7 +159,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         jiraServices.setFieldScreenManager(fieldScreenManager);
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
 
-        final List<IssueType> issueTypes = getHubIssueTypes();
+        final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
                 jiraServices);
@@ -225,12 +225,12 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsAndFields() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsAndFields() {
         doBasicTest(false);
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsWithNullFields() {
+    public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateWithDefaultTabsWithNullFields() {
         doBasicTest(true);
     }
 
@@ -259,7 +259,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         jiraServices.setFieldScreenManager(fieldScreenManager);
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
 
-        final List<IssueType> issueTypes = getHubIssueTypes();
+        final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
                 jiraServices);
@@ -308,7 +308,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     @Test
-    public void testAddHubFieldConfigurationToJiraWithUserChanges() throws Exception {
+    public void testAddBlackDuckFieldConfigurationToJiraWithUserChanges() throws Exception {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
 
@@ -325,7 +325,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         jiraServices.setFieldScreenManager(fieldScreenManager);
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
 
-        final List<IssueType> issueTypes = getHubIssueTypes();
+        final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
                 jiraServices);
@@ -464,7 +464,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         return fieldScreen;
     }
 
-    private List<IssueType> getHubIssueTypes() {
+    private List<IssueType> getBlackDuckIssueTypes() {
         final List<IssueType> issueTypes = new ArrayList<>();
         addPolicyIssueType(issueTypes);
         addVulnIssueType(issueTypes);
