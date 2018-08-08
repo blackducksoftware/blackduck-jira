@@ -85,13 +85,13 @@ public class BlackDuckConfigController {
             return null;
         }
 
-        final String hubJiraGroupsString = getValue(settings, BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+        final String blackDuckJiraGroupsString = getValue(settings, BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
 
-        if (StringUtils.isNotBlank(hubJiraGroupsString)) {
-            final String[] hubJiraGroups = hubJiraGroupsString.split(",");
+        if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
+            final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
             boolean userIsInGroups = false;
-            for (final String hubJiraGroup : hubJiraGroups) {
-                if (userManager.isUserInGroup(username, hubJiraGroup.trim())) {
+            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
+                if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
                     userIsInGroups = true;
                     break;
                 }
@@ -116,8 +116,8 @@ public class BlackDuckConfigController {
         final Object obj = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                final String hubUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
-                logger.debug(String.format("Returning Black Duck details for %s", hubUrl));
+                final String blackDuckUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+                logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
                 final String username = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
                 final String password = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
                 final String passwordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
@@ -133,7 +133,7 @@ public class BlackDuckConfigController {
                 final BlackDuckServerConfigSerializable config = new BlackDuckServerConfigSerializable();
 
                 final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
-                serverConfigBuilder.setUrl(hubUrl);
+                serverConfigBuilder.setUrl(blackDuckUrl);
                 serverConfigBuilder.setTimeout(timeout);
                 serverConfigBuilder.setTrustCert(trustCert);
                 serverConfigBuilder.setUsername(username);
@@ -148,7 +148,7 @@ public class BlackDuckConfigController {
 
                 setConfigFromResult(config, serverConfigBuilder.createValidator());
 
-                config.setHubUrl(hubUrl);
+                config.setHubUrl(blackDuckUrl);
                 config.setUsername(username);
                 if (StringUtils.isNotBlank(password)) {
                     final int passwordLengthInt = getIntFromObject(passwordLength);
@@ -164,9 +164,9 @@ public class BlackDuckConfigController {
                 config.setHubNoProxyHosts(noProxyHosts);
                 config.setHubProxyUser(proxyUser);
                 if (StringUtils.isNotBlank(proxyPassword)) {
-                    final int hubProxyPasswordLength = getIntFromObject(proxyPasswordLength);
-                    if (hubProxyPasswordLength > 0) {
-                        config.setHubProxyPasswordLength(hubProxyPasswordLength);
+                    final int blackDuckProxyPasswordLength = getIntFromObject(proxyPasswordLength);
+                    if (blackDuckProxyPasswordLength > 0) {
+                        config.setHubProxyPasswordLength(blackDuckProxyPasswordLength);
                         config.setHubProxyPassword(config.getMaskedProxyPassword());
                     }
                 }

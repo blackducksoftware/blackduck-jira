@@ -137,9 +137,9 @@ public class TicketGenerator {
         }
     }
 
-    private void reportAnyErrors(final HubBucket hubBucket) {
-        hubBucket.getAvailableUris().parallelStream().forEach(uri -> {
-            final Optional<Exception> uriError = hubBucket.getError(uri);
+    private void reportAnyErrors(final HubBucket blackDuckBucket) {
+        blackDuckBucket.getAvailableUris().parallelStream().forEach(uri -> {
+            final Optional<Exception> uriError = blackDuckBucket.getError(uri);
             if (uriError.isPresent()) {
                 final Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {

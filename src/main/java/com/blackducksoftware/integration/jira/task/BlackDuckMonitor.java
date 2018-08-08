@@ -52,7 +52,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
     public static final String KEY_SCHEDULED_TASK_LIST = BlackDuckMonitor.class.getName() + ":scheduledTasks";
     private static final String CURRENT_JOB_NAME = BlackDuckMonitor.class.getName() + ":job";
     private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
-    private static final String V2_JOB_NAME = "com.blackducksoftware.integration.jira.task.HubMonitor:job";
+    private static final String V3_JOB_NAME = "com.blackducksoftware.integration.jira.task.HubMonitor:job";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final PluginScheduler pluginScheduler; // provided by SAL
@@ -139,10 +139,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
             logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
         }
         try {
-            pluginScheduler.unscheduleJob(V2_JOB_NAME);
-            logger.debug("Unscheduled job " + V2_JOB_NAME);
+            pluginScheduler.unscheduleJob(V3_JOB_NAME);
+            logger.debug("Unscheduled job " + V3_JOB_NAME);
         } catch (final Exception e) {
-            logger.debug("Job " + V2_JOB_NAME + " wasn't scheduled");
+            logger.debug("Job " + V3_JOB_NAME + " wasn't scheduled");
         }
         try {
             pluginScheduler.unscheduleJob(CURRENT_JOB_NAME);

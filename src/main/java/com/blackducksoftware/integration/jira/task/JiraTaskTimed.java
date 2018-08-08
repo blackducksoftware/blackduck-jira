@@ -93,7 +93,7 @@ public class JiraTaskTimed implements Callable<String> {
         final Duration diff = Duration.between(beforeSetup, afterSetup);
         logger.info("Black Duck JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
         final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
-        final String runResult = runHubJiraTaskAndSetLastRunDate(processor, configDetails);
+        final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, configDetails);
         logger.info("blackduck-jira periodic timed task has completed");
         return runResult;
     }
@@ -146,7 +146,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
-    private String runHubJiraTaskAndSetLastRunDate(final BlackDuckJiraTask processor, final PluginConfigurationDetails configDetails) {
+    private String runBlackDuckJiraTaskAndSetLastRunDate(final BlackDuckJiraTask processor, final PluginConfigurationDetails configDetails) {
         String runStatus = "error";
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();

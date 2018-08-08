@@ -170,8 +170,7 @@ public class JiraServices {
     }
 
     public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
-        final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
-                .getProjectObj(jiraProjectId);
+        final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
             throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
         }
