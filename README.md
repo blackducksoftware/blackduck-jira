@@ -1,5 +1,5 @@
 ## Overview ##
-Hub plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA issues based on Policy violations in the Hub, and close them based on violation overrides.  Tickets will only be created for the Hub projects that are mapped to JIRA projects and only for the violations that are selected.
+Black Duck plugin for Atlassian JIRA.  This plugin provides the ability to create JIRA issues based on Policy violations in Black Duck, and close them based on violation overrides.  Tickets will only be created for the Black Duck projects that are mapped to JIRA projects and only for the violations that are selected.
 
 ## Build ##
 
@@ -16,4 +16,4 @@ Alternatively, you can download the latest from GitHub: https://github.com/black
 
 
 ## Documentation ##
-All documentation for hub-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/)
+All documentation for blackduck-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/)

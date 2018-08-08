@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -35,22 +35,22 @@ import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
-    private final HubServicesFactory hubServicesFactory;
+    private final HubServicesFactory blackDuckServicesFactory;
 
     public IssueTrackerTaskWithMocks(final Issue jiraIssue, final JiraIssuePropertyWrapper issuePropertyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey,
-            final EntityProperty property, final HubServicesFactory hubServicesFactory) {
+            final EntityProperty property, final HubServicesFactory blackDuckServicesFactory) {
         super(jiraIssue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
-        this.hubServicesFactory = hubServicesFactory;
+        this.blackDuckServicesFactory = blackDuckServicesFactory;
     }
 
     @Override
-    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
-        return hubServicesFactory;
+    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
+        return blackDuckServicesFactory;
     }
 
     @Override
-    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
         final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
-        return super.createHubServerConfig(testConfigDetails);
+        return super.createBlackDuckServerConfig(testConfigDetails);
     }
 }

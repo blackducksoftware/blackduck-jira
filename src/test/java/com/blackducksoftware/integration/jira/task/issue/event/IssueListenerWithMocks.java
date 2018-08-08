@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -37,12 +37,12 @@ import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueListenerWithMocks extends IssueEventListener {
-    private final HubServicesFactory hubServicesFactory;
+    private final HubServicesFactory blackDuckServicesFactory;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper, final HubServicesFactory hubServicesFactory) {
+    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper, final HubServicesFactory blackDuckServicesFactory) {
         super(eventPublisher, pluginSettingsFactory, issuePropertyWrapper);
-        this.hubServicesFactory = hubServicesFactory;
+        this.blackDuckServicesFactory = blackDuckServicesFactory;
         this.issuePropertyWrapper = issuePropertyWrapper;
     }
 
@@ -54,7 +54,7 @@ public class IssueListenerWithMocks extends IssueEventListener {
     @Override
     // final Issue issue, final IssueServiceWrapper issueServiceWrapper, final Long eventTypeID, final String jiraBaseUrl, final PluginSettings settings, final String propertyKey, final EntityProperty property
     public IssueTrackerTask createTask(final Issue issue, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
-        return new IssueTrackerTaskWithMocks(issue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property, this.hubServicesFactory);
+        return new IssueTrackerTaskWithMocks(issue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property, this.blackDuckServicesFactory);
     }
 
 }

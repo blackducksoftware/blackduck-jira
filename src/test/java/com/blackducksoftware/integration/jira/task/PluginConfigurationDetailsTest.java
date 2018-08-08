@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 
 public class PluginConfigurationDetailsTest {
@@ -37,7 +37,7 @@ public class PluginConfigurationDetailsTest {
     @Test
     public void test() {
         final PluginSettings settings = Mockito.mock(PluginSettings.class);
-        Mockito.when(settings.get(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS)).thenReturn("3");
+        Mockito.when(settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS)).thenReturn("3");
         PluginConfigurationDetails details = new PluginConfigurationDetails(settings);
         assertEquals(3, details.getIntervalMinutes());
     }

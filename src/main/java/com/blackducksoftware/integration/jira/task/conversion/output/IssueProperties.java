@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -23,10 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import com.blackducksoftware.integration.util.Stringable;
 
-public abstract class IssueProperties {
+public abstract class IssueProperties extends Stringable {
     private final String projectName;
     private final String projectVersionName;
     private final String componentName;
@@ -39,11 +38,6 @@ public abstract class IssueProperties {
         this.componentName = componentName;
         this.componentVersionName = componentVersionName;
         this.jiraIssueId = jiraIssueId;
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
     }
 
     public String getProjectName() {

@@ -1,0 +1,209 @@
+$webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:blackduck-jira-web-panel-resources")
+
+<script language="JavaScript" type="text/javascript">
+    try {
+        hideBlackDuckCustomFields();
+        replaceProjectOwnerField();
+    } catch (error) {
+        
+    }
+</script>
+
+#if ($bdsProject || $bdsProjectVersion || $bdsProjectVersionNickname)
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.project.label")</h5></div>
+        <ul class="property-list two-cols">
+            #if ($bdsProject)
+                #set( $side = "left" )
+                	<li class="item">
+                		<div class="blackDuckWrap">
+                			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.label"):</strong>
+                			<div id="hubProjectName" class="value"><a href="$bdsProjectVersionUrl" target="_blank">$bdsProject</a></div>
+                		</div>
+                	</li>
+                	#set( $side = "right" )
+            #end
+            #if ($bdsProjectVersion)
+                	#if ($side == "left")
+                	   <li class="item">
+                	   #set( $side = "right" )
+                	#else
+                	   <li class="item-right fiftyPercent">
+                	   #set( $side = "left" )
+                	#end
+            		<div class="blackDuckWrap">
+            			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.label"):</strong>
+            			<div id="hubProjectVersionName" class="value">$bdsProjectVersion</div>
+            		</div>
+                	</li>
+            #end
+            #if ($bdsProjectVersionNickname)
+                	#if ($side == "left")
+                	   <li class="item">
+                	   #set( $side = "right" )
+                	#else
+                	   <li class="item-right fiftyPercent">
+                	   #set( $side = "left" )
+                	#end
+                		<div class="blackDuckWrap">
+                			<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.nickname.label"):</strong>
+                			<div id="hubProjectVersionNickname" class="value">$bdsProjectVersionNickname</div>
+                		</div>
+                	</li>
+            #end
+        </ul>
+    </div>
+    <div class="fieldSectionSeparator"/>
+#end          
+            
+#if ($bdsComponent || $bdsComponentVersion || $bdsComponentUsage || $bdsComponentOrigin || $bdsComponentOriginId || $bdsLicenses || $bdsProjectVersionLastUpdated)
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.component.label")</h5></div>
+            <ul class="property-list two-cols">
+            
+            #set( $side = "left" )
+            
+            #if ($bdsComponent)
+                	<li class="item">
+                    	<div class="blackDuckWrap">
+                    		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.label"):</strong>
+                    		#if ($bdsComponentVersionUrl)
+                    		    <div id="hubComponentName" class="value"><a href="$bdsComponentVersionUrl" target="_blank">$bdsComponent</a></div>
+                    		#else
+                            <div id="hubComponentName" class="value"><a href="$bdsComponentUrl" target="_blank">$bdsComponent</a></div>
+                    	    #end
+                    	</div>
+                	</li>
+                	#set( $side = "right" )
+            #end
+            #if ($bdsComponentVersion)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="blackDuckWrap">
+                		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.version.label"):</strong>
+                		<div id="hubComponentVersionName" class="value">$bdsComponentVersion</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsComponentOrigin)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="blackDuckWrap">
+                		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.label"):</strong>
+                		<div id="hubComponentOrigin" class="value">$bdsComponentOrigin</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsComponentOriginId)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="blackDuckWrap">
+                		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.id.label"):</strong>
+                		<div id="hubComponentOriginId" class="value">$bdsComponentOriginId</div>
+                	</div>
+                	</li>
+            #end
+            #if ($bdsComponentUsage)
+                #if ($side == "left")
+                    <li class="item">
+                    #set( $side = "right" )
+                #else
+                    <li class="item-right fiftyPercent">
+                    #set( $side = "left" )
+                #end
+                <div class="blackDuckWrap">
+                    <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.component.usage.label"):</strong>
+                    <div id="hubComponentUsage" class="value">$bdsComponentUsage</div>
+                </div>
+                </li>
+            #end
+            #if ($bdsLicenses)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="blackDuckWrap">
+                		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.licenses.label"):</strong>
+                		#if ($bdsLicenseUrl)
+                		    <div id="hubPolicyLicenses" class="value"><a href="$bdsLicenseUrl" target="_blank">$bdsLicenses</a></div>
+                		#else
+                         <div id="hubPolicyLicenses" class="value">$bdsLicenses</div>
+                		#end
+                	</div>
+                	</li>
+            #end
+            #if ($bdsProjectVersionLastUpdated)
+                	#if ($side == "left")
+                    	<li class="item">
+                    	#set( $side = "right" )
+                	#else
+                    	<li class="item-right fiftyPercent">
+                    	#set( $side = "left" )
+                	#end
+                	<div class="blackDuckWrap">
+                		<strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.project.version.last.updated.label"):</strong>
+                		<div id="hubProjectVersionLastUpdated" class="value">$bdsProjectVersionLastUpdated</div>
+                	</div>
+            	</li>
+            #end
+        </ul>
+    </div>
+    <div class="fieldSectionSeparator"/>
+#end
+            
+#if ($bdsPolicyRule || $bdsPolicyRuleOverridable)
+    <div class="module">
+        <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.policy.label")</h5></div>
+        <ul class="property-list two-cols">
+            
+            #set( $side = "left" )
+        
+            #if ($bdsPolicyRule)
+                #if ($side == "left")
+                    <li class="item">
+                    #set( $side = "right" )
+                #else
+                    <li class="item-right fiftyPercent">
+                    #set( $side = "left" )
+                #end
+                <div class="blackDuckWrap">
+                    <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.label"):</strong>
+                    <div id="hubPolicyRuleName" class="value" title="$bdsPolicyRuleDescription"><a href="$bdsPolicyRuleUrl" target="_blank">$bdsPolicyRule</a></div>
+                </div>
+                	</li>
+             #end
+            	#if ($bdsPolicyRuleOverridable)
+                    #if ($side == "left")
+                        <li class="item">
+                        #set( $side = "right" )
+                    #else
+                        <li class="item-right fiftyPercent">
+                        #set( $side = "left" )
+                    #end
+                    <div class="blackDuckWrap">
+                        <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.overridable.label"):</strong>
+                        <div id="hubPolicyRuleOverridable" class="value">$bdsPolicyRuleOverridable</div>
+                    </div>
+                </li>
+            #end
+        </ul>
+    </div>
+#end

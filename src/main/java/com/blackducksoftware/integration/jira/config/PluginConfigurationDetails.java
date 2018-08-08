@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -27,21 +27,20 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
 
 public class PluginConfigurationDetails {
-    private final String hubUrl;
-    private final String hubUsername;
-    private final String hubPasswordEncrypted;
-    private final String hubPasswordLength;
-    private final String hubTimeoutString;
-    private final boolean hubTrustCert;
-    private final String hubProxyHost;
-    private final String hubProxyPort;
-    private final String hubProxyNoHost;
-    private final String hubProxyUser;
-    private final String hubProxyPassEncrypted;
-    private final String hubProxyPassLength;
+    private final String blackDuckUrl;
+    private final String blackDuckUsername;
+    private final String blackDuckPasswordEncrypted;
+    private final String blackDuckPasswordLength;
+    private final String blackDuckTimeoutString;
+    private final boolean blackDuckTrustCert;
+    private final String blackDuckProxyHost;
+    private final String blackDuckProxyPort;
+    private final String blackDuckProxyNoHost;
+    private final String blackDuckProxyUser;
+    private final String blackDuckProxyPassEncrypted;
+    private final String blackDuckProxyPassLength;
     private final String intervalString;
     private final String projectMappingJson;
     private final String policyRulesJson;
@@ -56,79 +55,79 @@ public class PluginConfigurationDetails {
 
     public PluginConfigurationDetails(final PluginSettings settings) {
         this.settings = settings;
-        hubUrl = getStringValue(settings, HubConfigKeys.CONFIG_HUB_URL);
-        hubUsername = getStringValue(settings, HubConfigKeys.CONFIG_HUB_USER);
-        hubPasswordEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS);
-        hubPasswordLength = getStringValue(settings, HubConfigKeys.CONFIG_HUB_PASS_LENGTH);
-        hubTimeoutString = getStringValue(settings, HubConfigKeys.CONFIG_HUB_TIMEOUT);
-        hubTrustCert = getBooleanValue(settings, HubConfigKeys.CONFIG_HUB_TRUST_CERT);
+        blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+        blackDuckUsername = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
+        blackDuckPasswordEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
+        blackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
+        blackDuckTimeoutString = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
+        blackDuckTrustCert = getBooleanValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        hubProxyHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_HOST);
-        hubProxyPort = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PORT);
-        hubProxyNoHost = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_NO_HOST);
-        hubProxyUser = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_USER);
-        hubProxyPassEncrypted = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS);
-        hubProxyPassLength = getStringValue(settings, HubConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
+        blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
+        blackDuckProxyNoHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
+        blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
+        blackDuckProxyPassEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        blackDuckProxyPassLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        intervalString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-        projectMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-        policyRulesJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON);
-        installDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME);
-        lastRunDateString = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE);
+        intervalString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+        projectMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+        policyRulesJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+        installDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+        lastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
 
-        jiraIssueCreatorUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER);
-        jiraAdminUserName = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER);
+        jiraIssueCreatorUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
+        jiraAdminUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER);
 
-        fieldCopyMappingJson = getStringValue(settings, HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON);
-        createVulnerabilityIssues = getBooleanValue(settings, HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+        fieldCopyMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+        createVulnerabilityIssues = getBooleanValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
     }
 
     public PluginSettings getSettings() {
         return settings;
     }
 
-    public String getHubUrl() {
-        return hubUrl;
+    public String getBlackDuckUrl() {
+        return blackDuckUrl;
     }
 
-    public String getHubUsername() {
-        return hubUsername;
+    public String getBlackDuckUsername() {
+        return blackDuckUsername;
     }
 
-    public String getHubPasswordEncrypted() {
-        return hubPasswordEncrypted;
+    public String getBlackDuckPasswordEncrypted() {
+        return blackDuckPasswordEncrypted;
     }
 
-    public String getHubPasswordLength() {
-        return hubPasswordLength;
+    public String getBlackDuckPasswordLength() {
+        return blackDuckPasswordLength;
     }
 
-    public String getHubTimeoutString() {
-        return hubTimeoutString;
+    public String getBlackDuckTimeoutString() {
+        return blackDuckTimeoutString;
     }
 
-    public String getHubProxyHost() {
-        return hubProxyHost;
+    public String getBlackDuckProxyHost() {
+        return blackDuckProxyHost;
     }
 
-    public String getHubProxyPort() {
-        return hubProxyPort;
+    public String getBlackDuckProxyPort() {
+        return blackDuckProxyPort;
     }
 
-    public String getHubProxyNoHost() {
-        return hubProxyNoHost;
+    public String getBlackDuckProxyNoHost() {
+        return blackDuckProxyNoHost;
     }
 
-    public String getHubProxyUser() {
-        return hubProxyUser;
+    public String getBlackDuckProxyUser() {
+        return blackDuckProxyUser;
     }
 
-    public String getHubProxyPassEncrypted() {
-        return hubProxyPassEncrypted;
+    public String getBlackDuckProxyPassEncrypted() {
+        return blackDuckProxyPassEncrypted;
     }
 
-    public String getHubProxyPassLength() {
-        return hubProxyPassLength;
+    public String getBlackDuckProxyPassLength() {
+        return blackDuckProxyPassLength;
     }
 
     public String getIntervalString() {
@@ -171,23 +170,23 @@ public class PluginConfigurationDetails {
         return createVulnerabilityIssues;
     }
 
-    public HubServerConfigBuilder createHubServerConfigBuilder() {
-        final HubServerConfigBuilder hubConfigBuilder = new HubServerConfigBuilder();
-        hubConfigBuilder.setUrl(hubUrl);
-        hubConfigBuilder.setUsername(hubUsername);
-        hubConfigBuilder.setPassword(hubPasswordEncrypted);
-        hubConfigBuilder.setPasswordLength(NumberUtils.toInt(hubPasswordLength));
-        hubConfigBuilder.setTimeout(hubTimeoutString);
-        hubConfigBuilder.setTrustCert(hubTrustCert);
+    public HubServerConfigBuilder createServerConfigBuilder() {
+        final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
+        serverConfigBuilder.setUrl(blackDuckUrl);
+        serverConfigBuilder.setUsername(blackDuckUsername);
+        serverConfigBuilder.setPassword(blackDuckPasswordEncrypted);
+        serverConfigBuilder.setPasswordLength(NumberUtils.toInt(blackDuckPasswordLength));
+        serverConfigBuilder.setTimeout(blackDuckTimeoutString);
+        serverConfigBuilder.setTrustCert(blackDuckTrustCert);
 
-        hubConfigBuilder.setProxyHost(hubProxyHost);
-        hubConfigBuilder.setProxyPort(hubProxyPort);
-        hubConfigBuilder.setIgnoredProxyHosts(hubProxyNoHost);
-        hubConfigBuilder.setProxyUsername(hubProxyUser);
-        hubConfigBuilder.setProxyPassword(hubProxyPassEncrypted);
-        hubConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(hubProxyPassLength));
+        serverConfigBuilder.setProxyHost(blackDuckProxyHost);
+        serverConfigBuilder.setProxyPort(blackDuckProxyPort);
+        serverConfigBuilder.setIgnoredProxyHosts(blackDuckProxyNoHost);
+        serverConfigBuilder.setProxyUsername(blackDuckProxyUser);
+        serverConfigBuilder.setProxyPassword(blackDuckProxyPassEncrypted);
+        serverConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(blackDuckProxyPassLength));
 
-        return hubConfigBuilder;
+        return serverConfigBuilder;
     }
 
     private Object getValue(final PluginSettings settings, final String key) {

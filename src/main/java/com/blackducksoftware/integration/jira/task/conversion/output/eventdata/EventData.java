@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -29,12 +29,12 @@ import java.util.Set;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.util.Stringable;
 
 public class EventData extends Stringable {
-    private HubEventAction action;
+    private BlackDuckEventAction action;
     private Date lastBatchStartDate;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
@@ -45,20 +45,20 @@ public class EventData extends Stringable {
     private String jiraProjectName;
     private Long jiraProjectId;
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
-    private String hubBaseUrl;
-    private String hubProjectName;
-    private String hubProjectVersion;
-    private String hubProjectVersionUrl;
-    private String hubComponentName;
-    private String hubComponentUrl;
-    private String hubComponentVersion;
-    private String hubComponentVersionUrl;
-    private String hubLicenseNames;
-    private String hubLicenseUrl;
-    private String hubComponentUsage;
-    private String hubComponentOrigin;
-    private String hubComponentOriginId;
-    private String hubProjectVersionNickname;
+    private String blackDuckBaseUrl;
+    private String blackDuckProjectName;
+    private String blackDuckProjectVersion;
+    private String blackDuckProjectVersionUrl;
+    private String blackDuckComponentName;
+    private String blackDuckComponentUrl;
+    private String blackDuckComponentVersion;
+    private String blackDuckComponentVersionUrl;
+    private String blackDuckLicenseNames;
+    private String blackDuckLicenseUrl;
+    private String blackDuckComponentUsage;
+    private String blackDuckComponentOrigin;
+    private String blackDuckComponentOriginId;
+    private String blackDuckProjectVersionNickname;
     private String jiraIssueSummary;
     private String jiraIssueDescription;
     private String jiraIssueComment;
@@ -67,13 +67,13 @@ public class EventData extends Stringable {
     private String jiraIssueResolveComment;
     private String jiraIssueCommentInLieuOfStateChange;
     private IssuePropertiesGenerator jiraIssuePropertiesGenerator;
-    private String hubRuleName;
-    private String hubRuleOverridable;
-    private String hubRuleDescription;
-    private String hubRuleUrl;
+    private String blackDuckRuleName;
+    private String blackDuckRuleOverridable;
+    private String blackDuckRuleDescription;
+    private String blackDuckRuleUrl;
     private String componentIssueUrl;
-    private ApplicationUser hubProjectOwner;
-    private String hubProjectVersionLastUpdated;
+    private ApplicationUser blackDuckProjectOwner;
+    private String blackDuckProjectVersionLastUpdated;
     private NotificationType notificationType;
     private String eventKey;
 
@@ -81,7 +81,7 @@ public class EventData extends Stringable {
     EventData() {
     }
 
-    EventData setAction(final HubEventAction action) {
+    EventData setAction(final BlackDuckEventAction action) {
         this.action = action;
         return this;
     }
@@ -140,43 +140,43 @@ public class EventData extends Stringable {
         return this;
     }
 
-    EventData setHubBaseUrl(final String hubBaseUrl) {
-        this.hubBaseUrl = hubBaseUrl;
+    EventData setBlackDuckBaseUrl(final String blackDuckBaseUrl) {
+        this.blackDuckBaseUrl = blackDuckBaseUrl;
         return this;
     }
 
-    EventData setHubProjectName(final String hubProjectName) {
-        this.hubProjectName = hubProjectName;
+    EventData setBlackDuckProjectName(final String blackDuckProjectName) {
+        this.blackDuckProjectName = blackDuckProjectName;
         return this;
     }
 
-    EventData setHubProjectVersion(final String hubProjectVersion) {
-        this.hubProjectVersion = hubProjectVersion;
+    EventData setBlackDuckProjectVersion(final String blackDuckProjectVersion) {
+        this.blackDuckProjectVersion = blackDuckProjectVersion;
         return this;
     }
 
-    EventData setHubProjectVersionUrl(final String hubProjectVersionUrl) {
-        this.hubProjectVersionUrl = hubProjectVersionUrl;
+    EventData setBlackDuckProjectVersionUrl(final String blackDuckProjectVersionUrl) {
+        this.blackDuckProjectVersionUrl = blackDuckProjectVersionUrl;
         return this;
     }
 
-    EventData setHubComponentName(final String hubComponentName) {
-        this.hubComponentName = hubComponentName;
+    EventData setBlackDuckComponentName(final String blackDuckComponentName) {
+        this.blackDuckComponentName = blackDuckComponentName;
         return this;
     }
 
-    EventData setHubComponentUrl(final String hubComponentUrl) {
-        this.hubComponentUrl = hubComponentUrl;
+    EventData setBlackDuckComponentUrl(final String blackDuckComponentUrl) {
+        this.blackDuckComponentUrl = blackDuckComponentUrl;
         return this;
     }
 
-    EventData setHubComponentVersion(final String hubComponentVersion) {
-        this.hubComponentVersion = hubComponentVersion;
+    EventData setBlackDuckComponentVersion(final String blackDuckComponentVersion) {
+        this.blackDuckComponentVersion = blackDuckComponentVersion;
         return this;
     }
 
-    EventData setHubComponentVersionUrl(final String hubComponentVersionUrl) {
-        this.hubComponentVersionUrl = hubComponentVersionUrl;
+    EventData setBlackDuckComponentVersionUrl(final String blackDuckComponentVersionUrl) {
+        this.blackDuckComponentVersionUrl = blackDuckComponentVersionUrl;
         return this;
     }
 
@@ -220,53 +220,53 @@ public class EventData extends Stringable {
         return this;
     }
 
-    EventData setHubRuleName(final String hubRuleName) {
-        this.hubRuleName = hubRuleName;
+    EventData setBlackDuckRuleName(final String blackDuckRuleName) {
+        this.blackDuckRuleName = blackDuckRuleName;
         return this;
     }
 
-    EventData setHubRuleOverridable(final String hubRuleOverridable) {
-        this.hubRuleOverridable = hubRuleOverridable;
+    EventData setBlackDuckRuleOverridable(final String blackDuckRuleOverridable) {
+        this.blackDuckRuleOverridable = blackDuckRuleOverridable;
         return this;
     }
 
-    EventData setHubRuleDescription(final String hubRuleDescription) {
-        this.hubRuleDescription = hubRuleDescription;
+    EventData setBlackDuckRuleDescription(final String blackDuckRuleDescription) {
+        this.blackDuckRuleDescription = blackDuckRuleDescription;
         return this;
     }
 
-    EventData setHubRuleUrl(final String hubRuleUrl) {
-        this.hubRuleUrl = hubRuleUrl;
+    EventData setBlackDuckRuleUrl(final String blackDuckRuleUrl) {
+        this.blackDuckRuleUrl = blackDuckRuleUrl;
         return this;
     }
 
-    EventData setHubLicenseNames(final String hubLicenseNames) {
-        this.hubLicenseNames = hubLicenseNames;
+    EventData setBlackDuckLicenseNames(final String blackDuckLicenseNames) {
+        this.blackDuckLicenseNames = blackDuckLicenseNames;
         return this;
     }
 
-    EventData setHubLicenseUrl(final String hubLicenseUrl) {
-        this.hubLicenseUrl = hubLicenseUrl;
+    EventData setBlackDuckLicenseUrl(final String blackDuckLicenseUrl) {
+        this.blackDuckLicenseUrl = blackDuckLicenseUrl;
         return this;
     }
 
-    EventData setHubComponentUsage(final String hubComponentUsage) {
-        this.hubComponentUsage = hubComponentUsage;
+    EventData setBlackDuckComponentUsage(final String blackDuckComponentUsage) {
+        this.blackDuckComponentUsage = blackDuckComponentUsage;
         return this;
     }
 
-    EventData setHubComponentOrigin(final String hubComponentOrigin) {
-        this.hubComponentOrigin = hubComponentOrigin;
+    EventData setBlackDuckComponentOrigin(final String blackDuckComponentOrigin) {
+        this.blackDuckComponentOrigin = blackDuckComponentOrigin;
         return this;
     }
 
-    EventData setHubComponentOriginId(final String hubComponentOriginId) {
-        this.hubComponentOriginId = hubComponentOriginId;
+    EventData setBlackDuckComponentOriginId(final String blackDuckComponentOriginId) {
+        this.blackDuckComponentOriginId = blackDuckComponentOriginId;
         return this;
     }
 
-    EventData setHubProjectVersionNickname(final String hubProjectVersionNickname) {
-        this.hubProjectVersionNickname = hubProjectVersionNickname;
+    EventData setBlackDuckProjectVersionNickname(final String blackDuckProjectVersionNickname) {
+        this.blackDuckProjectVersionNickname = blackDuckProjectVersionNickname;
         return this;
     }
 
@@ -275,13 +275,13 @@ public class EventData extends Stringable {
         return this;
     }
 
-    EventData setHubProjectOwner(final ApplicationUser hubProjectOwner) {
-        this.hubProjectOwner = hubProjectOwner;
+    EventData setBlackDuckProjectOwner(final ApplicationUser blackDuckProjectOwner) {
+        this.blackDuckProjectOwner = blackDuckProjectOwner;
         return this;
     }
 
-    EventData setHubProjectVersionLastUpdated(final String hubProjectVersionLastUpdated) {
-        this.hubProjectVersionLastUpdated = hubProjectVersionLastUpdated;
+    EventData setBlackDuckProjectVersionLastUpdated(final String blackDuckProjectVersionLastUpdated) {
+        this.blackDuckProjectVersionLastUpdated = blackDuckProjectVersionLastUpdated;
         return this;
     }
 
@@ -295,7 +295,7 @@ public class EventData extends Stringable {
         return this;
     }
 
-    public HubEventAction getAction() {
+    public BlackDuckEventAction getAction() {
         return action;
     }
 
@@ -339,36 +339,36 @@ public class EventData extends Stringable {
         return jiraFieldCopyMappings;
     }
 
-    public String getHubBaseUrl() {
-        return hubBaseUrl;
+    public String getBlackDuckBaseUrl() {
+        return blackDuckBaseUrl;
     }
 
-    public String getHubProjectName() {
-        return hubProjectName;
+    public String getBlackDuckProjectName() {
+        return blackDuckProjectName;
     }
 
-    public String getHubProjectVersion() {
-        return hubProjectVersion;
+    public String getBlackDuckProjectVersion() {
+        return blackDuckProjectVersion;
     }
 
-    public String getHubProjectVersionUrl() {
-        return hubProjectVersionUrl;
+    public String getBlackDuckProjectVersionUrl() {
+        return blackDuckProjectVersionUrl;
     }
 
-    public String getHubComponentName() {
-        return hubComponentName;
+    public String getBlackDuckComponentName() {
+        return blackDuckComponentName;
     }
 
-    public String getHubComponentUrl() {
-        return hubComponentUrl;
+    public String getBlackDuckComponentUrl() {
+        return blackDuckComponentUrl;
     }
 
-    public String getHubComponentVersion() {
-        return hubComponentVersion;
+    public String getBlackDuckComponentVersion() {
+        return blackDuckComponentVersion;
     }
 
-    public String getHubComponentVersionUrl() {
-        return hubComponentVersionUrl;
+    public String getBlackDuckComponentVersionUrl() {
+        return blackDuckComponentVersionUrl;
     }
 
     public String getJiraIssueSummary() {
@@ -403,56 +403,56 @@ public class EventData extends Stringable {
         return jiraIssuePropertiesGenerator;
     }
 
-    public String getHubRuleName() {
-        return hubRuleName;
+    public String getBlackDuckRuleName() {
+        return blackDuckRuleName;
     }
 
-    public String getHubRuleOverridable() {
-        return hubRuleOverridable;
+    public String getBlackDuckRuleOverridable() {
+        return blackDuckRuleOverridable;
     }
 
-    public String getHubRuleDescription() {
-        return hubRuleDescription;
+    public String getBlackDuckRuleDescription() {
+        return blackDuckRuleDescription;
     }
 
-    public String getHubRuleUrl() {
-        return hubRuleUrl;
+    public String getBlackDuckRuleUrl() {
+        return blackDuckRuleUrl;
     }
 
-    public String getHubLicenseNames() {
-        return hubLicenseNames;
+    public String getBlackDuckLicenseNames() {
+        return blackDuckLicenseNames;
     }
 
-    public String getHubLicenseUrl() {
-        return hubLicenseUrl;
+    public String getBlackDuckLicenseUrl() {
+        return blackDuckLicenseUrl;
     }
 
-    public String getHubComponentUsage() {
-        return hubComponentUsage;
+    public String getBlackDuckComponentUsage() {
+        return blackDuckComponentUsage;
     }
 
-    public String getHubComponentOrigin() {
-        return hubComponentOrigin;
+    public String getBlackDuckComponentOrigin() {
+        return blackDuckComponentOrigin;
     }
 
-    public String getHubComponentOriginId() {
-        return hubComponentOriginId;
+    public String getBlackDuckComponentOriginId() {
+        return blackDuckComponentOriginId;
     }
 
-    public String getHubProjectVersionNickname() {
-        return hubProjectVersionNickname;
+    public String getBlackDuckProjectVersionNickname() {
+        return blackDuckProjectVersionNickname;
     }
 
     public String getComponentIssueUrl() {
         return componentIssueUrl;
     }
 
-    public ApplicationUser getHubProjectOwner() {
-        return hubProjectOwner;
+    public ApplicationUser getBlackDuckProjectOwner() {
+        return blackDuckProjectOwner;
     }
 
-    public String getHubProjectVersionLastUpdated() {
-        return hubProjectVersionLastUpdated;
+    public String getBlackDuckProjectVersionLastUpdated() {
+        return blackDuckProjectVersionLastUpdated;
     }
 
     public NotificationType getNotificationType() {

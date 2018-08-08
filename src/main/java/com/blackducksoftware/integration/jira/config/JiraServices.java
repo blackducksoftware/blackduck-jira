@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -32,6 +32,7 @@ import com.atlassian.jira.avatar.AvatarImpl;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.bc.user.search.DefaultUserPickerSearchService;
 import com.atlassian.jira.bc.user.search.UserSearchService;
@@ -169,8 +170,7 @@ public class JiraServices {
     }
 
     public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
-        final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager()
-                .getProjectObj(jiraProjectId);
+        final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
             throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
         }
@@ -208,8 +208,8 @@ public class JiraServices {
     }
 
     public String getPluginVersion() {
-        return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira")
-                .getPluginInformation().getVersion();
+        // TODO update this string when hub-jira becomes blackduck-jira
+        return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira").getPluginInformation().getVersion();
     }
 
     public LabelManager getLabelManager() {
@@ -227,4 +227,9 @@ public class JiraServices {
     public ProjectPropertyService getProjectPropertyService() {
         return ComponentAccessor.getComponentOfType(ProjectPropertyService.class);
     }
+
+    public SearchService getSearchService() {
+        return ComponentAccessor.getComponent(SearchService.class);
+    }
+
 }

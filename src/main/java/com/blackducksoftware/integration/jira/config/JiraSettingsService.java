@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -37,33 +37,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 
 public class JiraSettingsService {
-    private final static HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));
+    private final static BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));
     private final PluginSettings settings;
 
     public JiraSettingsService(final PluginSettings settings) {
         this.settings = settings;
     };
 
-    public void addHubError(final Throwable throwable, final String methodAttempt) {
-        addHubError(throwable, null, null, null, null, null, methodAttempt);
+    public void addBlackDuckError(final Throwable throwable, final String methodAttempt) {
+        addBlackDuckError(throwable, null, null, null, null, null, methodAttempt);
     }
 
-    public void addHubError(final String errorMessage, final String methodAttempt) {
-        addHubError(errorMessage, null, null, null, null, null, methodAttempt);
+    public void addBlackDuckError(final String errorMessage, final String methodAttempt) {
+        addBlackDuckError(errorMessage, null, null, null, null, null, methodAttempt);
     }
 
-    public void addHubError(final Throwable throwable, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
+    public void addBlackDuckError(final Throwable throwable, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
             final String methodAttempt) {
         final StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
-        addHubError(sw.toString(), hubProjectName, hubProjectVersionName, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+        addBlackDuckError(sw.toString(), blackDuckProjectName, blackDuckProjectVersionName, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
     }
 
-    public void addHubError(final String errorMessage, final String hubProjectName, final String hubProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
+    public void addBlackDuckError(final String errorMessage, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
             final String methodAttempt) {
         logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
@@ -72,14 +72,14 @@ public class JiraSettingsService {
         }
 
         final StringBuilder suffixBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(hubProjectName)) {
-            suffixBuilder.append("Hub Project : ");
-            suffixBuilder.append(hubProjectName);
+        if (StringUtils.isNotBlank(blackDuckProjectName)) {
+            suffixBuilder.append("Black Duck Project : ");
+            suffixBuilder.append(blackDuckProjectName);
             suffixBuilder.append(" / ");
         }
-        if (StringUtils.isNotBlank(hubProjectVersionName)) {
+        if (StringUtils.isNotBlank(blackDuckProjectVersionName)) {
             suffixBuilder.append("Version : ");
-            suffixBuilder.append(hubProjectVersionName);
+            suffixBuilder.append(blackDuckProjectVersionName);
             suffixBuilder.append(" / ");
         }
         if (StringUtils.isNotBlank(jiraProject)) {
@@ -116,19 +116,19 @@ public class JiraSettingsService {
             ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
         }
         logger.debug("Saving " + ticketErrors.size() + " error messages to settings");
-        settings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        settings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
 
     public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
         logger.debug("Pulling error messages from settings");
-        final Object errorObject = pluginSettings.get(HubJiraConstants.HUB_JIRA_ERROR);
+        final Object errorObject = pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
         if (errorObject == null) {
             logger.debug("No error messages found in settings");
             return null;
         }
         if (!(errorObject instanceof String)) {
             logger.warn("The error object in settings is invalid (probably stored by an older version of the plugin); discarding it");
-            pluginSettings.remove(HubJiraConstants.HUB_JIRA_ERROR);
+            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
             return null;
         }
 
@@ -138,7 +138,7 @@ public class JiraSettingsService {
             ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
         } catch (final Exception e) {
             logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
-            pluginSettings.remove(HubJiraConstants.HUB_JIRA_ERROR);
+            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
             return null;
         }
         if ((ticketErrors == null) || ticketErrors.isEmpty()) {
@@ -158,13 +158,13 @@ public class JiraSettingsService {
             }
         }
         logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
-        pluginSettings.put(HubJiraConstants.HUB_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        pluginSettings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
         return ticketErrors;
     }
 
     public LocalDate getLastPhoneHome() {
         try {
-            final String stringDate = (String) settings.get(HubJiraConstants.DATE_LAST_PHONED_HOME);
+            final String stringDate = (String) settings.get(BlackDuckJiraConstants.DATE_LAST_PHONED_HOME);
             return LocalDate.parse(stringDate);
         } catch (final Exception e) {
             logger.warn("Cannot find the date of last phone-home: " + e.getMessage());
@@ -174,7 +174,7 @@ public class JiraSettingsService {
 
     public void setLastPhoneHome(final LocalDate date) {
         if (date != null) {
-            settings.put(HubJiraConstants.DATE_LAST_PHONED_HOME, date.toString());
+            settings.put(BlackDuckJiraConstants.DATE_LAST_PHONED_HOME, date.toString());
         }
     }
 

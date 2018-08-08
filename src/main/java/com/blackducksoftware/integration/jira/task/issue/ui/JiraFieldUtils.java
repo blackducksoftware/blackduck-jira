@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -30,14 +30,14 @@ import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldException;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.NavigableField;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.config.model.Fields;
 import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
 
 public class JiraFieldUtils {
-    public static Fields getTargetFields(final HubJiraLogger logger, final FieldManager fieldManager) throws JiraException {
+    public static Fields getTargetFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
         addEligibleSystemFields(logger, fieldManager, targetFields);
         addNonBdsCustomFields(logger, fieldManager, targetFields);
@@ -45,7 +45,7 @@ public class JiraFieldUtils {
         return targetFields;
     }
 
-    private static void addNonBdsCustomFields(final HubJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) throws JiraException {
+    private static void addNonBdsCustomFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) throws JiraException {
         Set<NavigableField> navFields;
         try {
             navFields = fieldManager.getAllAvailableNavigableFields();
@@ -70,47 +70,45 @@ public class JiraFieldUtils {
 
     private static boolean isBdsCustomField(final Field field) {
         // @formatter:off
-        return HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_URL.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_OWNER.equals(field.getName())
+        return BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.equals(field.getName())
 
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_URL.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_VERSION_URL.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName())
 
-            || HubJiraConstants.HUB_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_LICENSE_URL.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL.equals(field.getName())
 
-            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_URL.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.equals(field.getName())
-            || HubJiraConstants.HUB_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.equals(field.getName())
-
-
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.equals(field.getName())
          ;
          // @formatter:on
     }
 
-    private static void addEligibleSystemFields(final HubJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) {
-        final Field componentsField = fieldManager.getField(HubJiraConstants.COMPONENTS_FIELD_ID);
+    private static void addEligibleSystemFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) {
+        final Field componentsField = fieldManager.getField(BlackDuckJiraConstants.COMPONENTS_FIELD_ID);
         if (componentsField == null) {
-            logger.error("Error getting components field (field id: " + HubJiraConstants.COMPONENTS_FIELD_ID + ") for field copy target field list");
+            logger.error("Error getting components field (field id: " + BlackDuckJiraConstants.COMPONENTS_FIELD_ID + ") for field copy target field list");
         } else {
-            targetFields.add(new IdToNameMapping(HubJiraConstants.COMPONENTS_FIELD_ID, componentsField.getName()));
+            targetFields.add(new IdToNameMapping(BlackDuckJiraConstants.COMPONENTS_FIELD_ID, componentsField.getName()));
         }
 
-        final Field versionsField = fieldManager.getField(HubJiraConstants.VERSIONS_FIELD_ID);
+        final Field versionsField = fieldManager.getField(BlackDuckJiraConstants.VERSIONS_FIELD_ID);
         if (versionsField == null) {
-            logger.error("Error getting versions field (field id: " + HubJiraConstants.VERSIONS_FIELD_ID + ") for field copy target field list");
+            logger.error("Error getting versions field (field id: " + BlackDuckJiraConstants.VERSIONS_FIELD_ID + ") for field copy target field list");
         } else {
-            targetFields.add(new IdToNameMapping(HubJiraConstants.VERSIONS_FIELD_ID, versionsField.getName()));
+            targetFields.add(new IdToNameMapping(BlackDuckJiraConstants.VERSIONS_FIELD_ID, versionsField.getName()));
         }
     }
 }

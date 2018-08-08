@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -25,11 +25,13 @@ package com.blackducksoftware.integration.jira.common;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
+
 public class PluginVersionTest {
 
     @Test
     public void test() {
-        System.out.println("Plugin Version: " + PluginVersion.getVersion());
+        System.out.println("Plugin Version: " + BlackDuckPluginVersion.getVersion());
     }
 
 }

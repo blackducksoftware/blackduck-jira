@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -45,16 +45,16 @@ import com.blackducksoftware.integration.hub.notification.content.detail.Notific
 import com.blackducksoftware.integration.hub.service.ComponentService;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 
 public class EventDataFormatHelper {
-    private final HubJiraLogger logger;
-    private final HubService hubService;
+    private final BlackDuckJiraLogger logger;
+    private final HubService blackDuckService;
 
-    public EventDataFormatHelper(final HubJiraLogger logger, final HubService hubService) {
+    public EventDataFormatHelper(final BlackDuckJiraLogger logger, final HubService blackDuckService) {
         this.logger = logger;
-        this.hubService = hubService;
+        this.blackDuckService = blackDuckService;
     }
 
     public String getIssueSummary(final NotificationContentDetail detail, final Optional<PolicyRuleViewV2> optionalPolicyRule) {
@@ -63,15 +63,15 @@ public class EventDataFormatHelper {
         if (detail.isPolicy()) {
             final String componentString = getComponentString(detail.getComponentName(), detail.getComponentVersionName());
             final String ruleName = optionalPolicyRule.isPresent() ? optionalPolicyRule.get().name : "?";
-            final String issueSummaryTemplate = "Black Duck policy violation detected on Hub project '%s' / '%s', component '%s' [Rule: '%s']";
+            final String issueSummaryTemplate = "Black Duck Policy Violation: Project '%s' / '%s', Component '%s' [Rule: '%s']";
             return String.format(issueSummaryTemplate, projectName, projectVersionName, componentString, ruleName);
         } else if (detail.isVulnerability()) {
             final StringBuilder issueSummary = new StringBuilder();
-            issueSummary.append("Black Duck vulnerability status changes on Hub project '");
+            issueSummary.append("Black Duck Vulnerability: Project '");
             issueSummary.append(projectName);
             issueSummary.append("' / '");
             issueSummary.append(projectVersionName);
-            issueSummary.append("', component '");
+            issueSummary.append("', Component '");
             issueSummary.append(detail.getComponentName().orElse("?"));
             issueSummary.append("' / '");
             issueSummary.append(detail.getComponentVersionName().orElse("?"));
@@ -92,7 +92,7 @@ public class EventDataFormatHelper {
         return componentString;
     }
 
-    public String getIssueDescription(final NotificationContentDetail detail, final HubBucket hubBucket) {
+    public String getIssueDescription(final NotificationContentDetail detail, final HubBucket blackDuckBucket) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
@@ -102,9 +102,9 @@ public class EventDataFormatHelper {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;
             if (detail.getProjectVersion().isPresent()) {
-                final ProjectVersionView projectVersion = hubBucket.get(detail.getProjectVersion().get());
+                final ProjectVersionView projectVersion = blackDuckBucket.get(detail.getProjectVersion().get());
                 if (projectVersion != null) {
-                    vulnerableComponentsLink = hubService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+                    vulnerableComponentsLink = blackDuckService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
                 }
             }
             if (vulnerableComponentsLink != null) {
@@ -114,11 +114,11 @@ public class EventDataFormatHelper {
             } else {
                 issueDescription.append("vulnerabilities");
             }
-            issueDescription.append(" in the Hub.  \n\n");
+            issueDescription.append(" in Black Duck.  \n\n");
         }
 
         if (detail.getComponentVersion().isPresent()) {
-            final ComponentVersionView componentVersion = hubBucket.get(detail.getComponentVersion().get());
+            final ComponentVersionView componentVersion = blackDuckBucket.get(detail.getComponentVersion().get());
             final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
             if (StringUtils.isNotBlank(licenseText)) {
                 issueDescription.append("KB Component license(s): ");
@@ -133,7 +133,7 @@ public class EventDataFormatHelper {
 
     public String generateVulnerabilitiesComment(final VulnerabilityNotificationContent vulnerabilityContent) {
         final StringBuilder commentText = new StringBuilder();
-        commentText.append("(Black Duck Hub JIRA plugin auto-generated comment)\n");
+        commentText.append("(Black Duck plugin auto-generated comment)\n");
         appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
         appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
         appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
@@ -141,8 +141,8 @@ public class EventDataFormatHelper {
     }
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
-        // TODO use the HubService once the Hub APIs have the link.
-        final ComponentService componentService = new ComponentService(hubService);
+        // TODO use the HubService once the Black Duck APIs have the link.
+        final ComponentService componentService = new ComponentService(blackDuckService);
         RemediationOptionsView remediationOptions;
         try {
             remediationOptions = componentService.getRemediationInformation(componentVersionView);
@@ -152,8 +152,7 @@ public class EventDataFormatHelper {
             return;
         }
         if (remediationOptions != null) {
-            // TODO This has "Beta" text. Change that text when confidence in the information is high.
-            stringBuilder.append("\nRemediation Information (Beta):\n");
+            stringBuilder.append("\nRemediation Information:\n");
             if (remediationOptions.fixesPreviousVulnerabilities != null) {
                 appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
             }
@@ -242,7 +241,7 @@ public class EventDataFormatHelper {
             final StringBuilder sb = new StringBuilder();
 
             if (type != null) {
-                final String licenseJoinString = (ComplexLicenseType.CONJUNCTIVE.equals(type)) ? HubJiraConstants.LICENSE_NAME_JOINER_AND : HubJiraConstants.LICENSE_NAME_JOINER_OR;
+                final String licenseJoinString = (ComplexLicenseType.CONJUNCTIVE.equals(type)) ? BlackDuckJiraConstants.LICENSE_NAME_JOINER_AND : BlackDuckJiraConstants.LICENSE_NAME_JOINER_OR;
                 int licenseIndex = 0;
                 for (final EventDataLicense license : eventDataLicense.licenses) {
                     if (licenseIndex++ > 0) {
@@ -277,12 +276,12 @@ public class EventDataFormatHelper {
     private String getLicenseTextUrl(final EventDataLicense license) {
         final String licenseUrl = license.licenseUrl;
         try {
-            final ComplexLicenseView fullLicense = hubService.getResponse(licenseUrl, ComplexLicenseView.class);
-            return hubService.getFirstLink(fullLicense, "text");
+            final ComplexLicenseView fullLicense = blackDuckService.getResponse(licenseUrl, ComplexLicenseView.class);
+            return blackDuckService.getFirstLink(fullLicense, "text");
         } catch (final Exception e) {
             logger.debug("Error getting license text url.");
         }
-        return hubService.getHubBaseUrl().toString();
+        return blackDuckService.getHubBaseUrl().toString();
     }
 
     class EventDataLicense {
