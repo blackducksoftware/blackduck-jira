@@ -57,13 +57,13 @@ public class BlackDuckJiraConstants {
 
     // Configuration object names visible only to administrators
     public static final String BLACKDUCK_JIRA_WORKFLOW = "BDS Hub PlugIn Workflow";
-    public static final String BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME = "BDS Hub PlugIn Field Configuration Scheme";
-    public static final String BLACKDUCK_FIELD_CONFIGURATION = "BDS Hub PlugIn Field Configuration";
-    public static final String BLACKDUCK_POLICY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Policy Screen Scheme";
-    public static final String BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME = "BDS Hub PlugIn Security Screen Scheme";
-    public static final String BLACKDUCK_POLICY_SCREEN_NAME = "BDS Hub PlugIn Policy Screen";
-    public static final String BLACKDUCK_SECURITY_SCREEN_NAME = "BDS Hub PlugIn Security Screen";
-    public static final String BLACKDUCK_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
+    public static final String BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME = "Black Duck Field Configuration Scheme";
+    public static final String BLACKDUCK_FIELD_CONFIGURATION = "Black Duck Field Configuration";
+    public static final String BLACKDUCK_POLICY_SCREEN_SCHEME_NAME = "Black Duck Policy Screen Scheme";
+    public static final String BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME = "Black Duck Security Screen Scheme";
+    public static final String BLACKDUCK_POLICY_SCREEN_NAME = "Black Duck Policy Screen";
+    public static final String BLACKDUCK_SECURITY_SCREEN_NAME = "Black Duck Security Screen";
+    public static final String BLACKDUCK_SCREEN_TAB = "Black Duck PlugIn Screen Tab";
     public static final String BLACKDUCK_WORKFLOW_STATUS_OPEN = "Open";
     public static final String BLACKDUCK_WORKFLOW_STATUS_RESOLVED = "Resolved";
     public static final String BLACKDUCK_WORKFLOW_STATUS_CLOSED = "Closed";

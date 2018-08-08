@@ -63,30 +63,6 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 // TODO investigate why the JIRA API returns raw types
 @SuppressWarnings("rawtypes")
 public class BlackDuckFieldScreenSchemeSetup {
-    public static Map<String, String> V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP = new HashMap<>();
-    static {
-        // This should never be modified
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Version", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Version Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Overridable", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Description", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Policy Rule Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Licenses", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component License Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Usage", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin ID", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Nickname", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Owner", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER);
-        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Last Updated", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED);
-    }
-
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraSettingsService settingService;
@@ -150,12 +126,13 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private void renameCustomFields() {
         final CustomFieldManager customFieldManager = jiraServices.getCustomFieldManager();
-        for (final String customFieldName : V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.keySet()) {
+        for (final String customFieldName : V3PluginConstants.V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.keySet()) {
             final Collection<CustomField> foundCustomFields = customFieldManager.getCustomFieldObjectsByName(customFieldName);
             if (foundCustomFields != null && !foundCustomFields.isEmpty()) {
+                // If we have configured everything correctly, this only have one entry. If the customer has duplicated a custom field name, we have a different problem.
                 final CustomField firstCustomField = foundCustomFields.iterator().next();
                 if (firstCustomField.isEditable()) {
-                    final String newCustomFieldName = V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.get(firstCustomField.getName());
+                    final String newCustomFieldName = V3PluginConstants.V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.get(firstCustomField.getName());
                     customFieldManager.updateCustomField(firstCustomField.getIdAsLong(), newCustomFieldName, newCustomFieldName, firstCustomField.getCustomFieldSearcher());
                 } else {
                     logger.debug("Unable to update custom field: " + firstCustomField.getName());
@@ -277,13 +254,22 @@ public class BlackDuckFieldScreenSchemeSetup {
         return customFields;
     }
 
-    private FieldScreen createScreen(final String screenName, final List<OrderableField> blackDuckCustomFields) {
+    private FieldScreen createScreen(final String screenName, final String v3ScreenName, final List<OrderableField> blackDuckCustomFields) {
         final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
+
+        boolean needToUpdateScreen = false;
         FieldScreen blackDuckScreen = null;
         if (fieldScreens != null && !fieldScreens.isEmpty()) {
             for (final FieldScreen fieldScreen : fieldScreens) {
-                if (fieldScreen.getName().equals(screenName)) {
+                final String fieldScreenName = fieldScreen.getName();
+                if (screenName.equals(fieldScreenName)) {
                     blackDuckScreen = fieldScreen;
+                    break;
+                } else if (v3ScreenName.equals(fieldScreenName)) {
+                    needToUpdateScreen = true;
+                    blackDuckScreen = fieldScreen;
+                    blackDuckScreen.setName(screenName);
+                    blackDuckScreen.setDescription(screenName);
                     break;
                 }
             }
@@ -300,9 +286,8 @@ public class BlackDuckFieldScreenSchemeSetup {
             defaultTabs = defaultScreen.getTabs();
         }
 
-        final boolean needToUpdateScreen = addBlackDuckTabToScreen(blackDuckScreen, blackDuckCustomFields, defaultTabs);
-
-        if (needToUpdateScreen) {
+        final boolean wasTabUpdated = addBlackDuckTabToScreen(blackDuckScreen, blackDuckCustomFields, defaultTabs);
+        if (needToUpdateScreen || wasTabUpdated) {
             jiraServices.getFieldScreenManager().updateFieldScreen(blackDuckScreen);
         }
 
@@ -310,16 +295,22 @@ public class BlackDuckFieldScreenSchemeSetup {
     }
 
     private boolean addBlackDuckTabToScreen(final FieldScreen blackDuckScreen, final List<OrderableField> blackDuckCustomFields, final List<FieldScreenTab> defaultTabs) {
+        boolean needToUpdateTabAndScreen = false;
         FieldScreenTab myTab = null;
         if (blackDuckScreen != null && blackDuckScreen.getTabs() != null && !blackDuckScreen.getTabs().isEmpty()) {
             for (final FieldScreenTab screenTab : blackDuckScreen.getTabs()) {
-                if (screenTab.getName().equals(BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB)) {
+                final String screenTabName = screenTab.getName();
+                if (BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB.equals(screenTabName)) {
                     myTab = screenTab;
+                    break;
+                } else if (V3PluginConstants.V3_SCREEN_TAB.equals(screenTabName)) {
+                    needToUpdateTabAndScreen = true;
+                    myTab = screenTab;
+                    myTab.setName(BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB);
                     break;
                 }
             }
         }
-        boolean needToUpdateTabAndScreen = false;
         if (myTab == null) {
             logger.debug("addBlackDuckTabToScreen(): did not find Black Duck screen tab; adding it");
             myTab = blackDuckScreen.addTab(BlackDuckJiraConstants.BLACKDUCK_SCREEN_TAB);
@@ -389,24 +380,32 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private FieldScreen createPolicyViolationScreen(final IssueType issueType, final List<IssueType> issueTypeList) {
         final List<OrderableField> blackDuckCustomFields = createPolicyViolationFields(issueType, issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME, blackDuckCustomFields);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME, V3PluginConstants.V3_POLICY_SCREEN_NAME, blackDuckCustomFields);
         return screen;
     }
 
     private FieldScreen createSecurityScreen(final List<IssueType> issueTypeList) {
         final List<OrderableField> blackDuckCustomFields = createSecurityFields(issueTypeList);
-        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME, blackDuckCustomFields);
+        final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME, V3PluginConstants.V3_SECURITY_SCREEN_NAME, blackDuckCustomFields);
         return screen;
     }
 
-    private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
-        final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager()
-                .getFieldScreenSchemes();
+    private FieldScreenScheme createScreenScheme(final String screenSchemeName, final String v3ScreenSchemeName, final FieldScreen screen) {
+        final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager().getFieldScreenSchemes();
+
+        boolean blackDuckScreenSchemeNeedsUpdate = false;
         FieldScreenScheme blackDuckScreenScheme = null;
         if (fieldScreenSchemes != null && !fieldScreenSchemes.isEmpty()) {
             for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {
-                if (fieldScreenScheme.getName().equals(screenSchemeName)) {
+                final String foundFieldScreenSchemeName = fieldScreenScheme.getName();
+                if (screenSchemeName.equals(foundFieldScreenSchemeName)) {
                     blackDuckScreenScheme = fieldScreenScheme;
+                    break;
+                } else if (v3ScreenSchemeName.equals(foundFieldScreenSchemeName)) {
+                    blackDuckScreenSchemeNeedsUpdate = true;
+                    blackDuckScreenScheme = fieldScreenScheme;
+                    blackDuckScreenScheme.setName(screenSchemeName);
+                    blackDuckScreenScheme.setDescription(screenSchemeName);
                     break;
                 }
             }
@@ -417,8 +416,7 @@ public class BlackDuckFieldScreenSchemeSetup {
             blackDuckScreenScheme.store();
         }
 
-        final FieldScreen defaultScreen = jiraServices.getFieldScreenManager()
-                .getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
+        final FieldScreen defaultScreen = jiraServices.getFieldScreenManager().getFieldScreen(FieldScreen.DEFAULT_SCREEN_ID);
 
         final List<ScreenableIssueOperation> issueOpertations = new ArrayList<>();
         issueOpertations.add(IssueOperations.CREATE_ISSUE_OPERATION);
@@ -427,10 +425,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         final List<ScreenableIssueOperation> issueOpertationsForDefaultScreen = new ArrayList<>();
         issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
 
-        final boolean blackDuckScreenSchemeNeedsUpdate = settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen)
-                || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen);
-
-        if (blackDuckScreenSchemeNeedsUpdate) {
+        if (blackDuckScreenSchemeNeedsUpdate || settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen)) {
             jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(blackDuckScreenScheme);
         }
         return blackDuckScreenScheme;
@@ -463,13 +458,13 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType, final List<IssueType> issueTypeList) {
         final FieldScreen screen = createPolicyViolationScreen(issueType, issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_SCHEME_NAME, V3PluginConstants.V3_POLICY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 
     private FieldScreenScheme createSecurityScreenScheme(final List<IssueType> issueTypeList) {
         final FieldScreen screen = createSecurityScreen(issueTypeList);
-        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME, screen);
+        final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_SCHEME_NAME, V3PluginConstants.V3_SECURITY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }
 

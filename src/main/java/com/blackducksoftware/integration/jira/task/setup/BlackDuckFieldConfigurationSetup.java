@@ -34,6 +34,7 @@ import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayoutImpl;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
+import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
@@ -62,11 +63,17 @@ public class BlackDuckFieldConfigurationSetup {
         FieldLayoutScheme fieldConfigurationScheme = null;
 
         // Check to see if it already exists
-        final List<FieldLayoutScheme> fieldLayoutSchemes = jiraServices.getFieldLayoutManager().getFieldLayoutSchemes();
+        final FieldLayoutManager fieldLayoutManager = jiraServices.getFieldLayoutManager();
+        final List<FieldLayoutScheme> fieldLayoutSchemes = fieldLayoutManager.getFieldLayoutSchemes();
         if (fieldLayoutSchemes != null) {
             for (final FieldLayoutScheme existingFieldConfigurationScheme : fieldLayoutSchemes) {
-                if (BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingFieldConfigurationScheme.getName())) {
+                final String existingName = existingFieldConfigurationScheme.getName();
+                if (BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingName)) {
                     logger.debug("Field Configuration Scheme " + BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
+                    fieldConfigurationScheme = existingFieldConfigurationScheme;
+                    break;
+                } else if (V3PluginConstants.V3_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingName)) {
+                    renameFieldConfigurationScheme(fieldLayoutManager, existingFieldConfigurationScheme);
                     fieldConfigurationScheme = existingFieldConfigurationScheme;
                     break;
                 }
@@ -74,7 +81,7 @@ public class BlackDuckFieldConfigurationSetup {
         }
 
         if (fieldConfigurationScheme == null) {
-            fieldConfigurationScheme = jiraServices.getFieldLayoutManager().createFieldLayoutScheme(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME, BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
+            fieldConfigurationScheme = fieldLayoutManager.createFieldLayoutScheme(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME, BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
             changesToStore = true;
         }
 
@@ -100,7 +107,7 @@ public class BlackDuckFieldConfigurationSetup {
 
             if (!issueTypeAlreadyAssociated) {
                 logger.debug("Associating issue type " + issueType.getName() + " with Field Configuration " + fieldConfiguration.getName());
-                final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(jiraServices.getFieldLayoutManager(), null, jiraServices.getConstantsManager());
+                final FieldLayoutSchemeEntity issueTypeToFieldConfiguration = new FieldLayoutSchemeEntityImpl(fieldLayoutManager, null, jiraServices.getConstantsManager());
                 issueTypeToFieldConfiguration.setFieldLayoutScheme(fieldConfigurationScheme);
                 issueTypeToFieldConfiguration.setFieldLayoutId(fieldConfiguration.getId());
                 issueTypeToFieldConfiguration.setIssueTypeId(issueType.getId());
@@ -117,21 +124,29 @@ public class BlackDuckFieldConfigurationSetup {
     }
 
     public EditableFieldLayout addBlackDuckFieldConfigurationToJira() {
+        boolean fieldConfigurationNeedsUpdate = false;
         EditableFieldLayout blackDuckFieldLayout = null;
         try {
-            final List<EditableFieldLayout> fieldLayouts = jiraServices.getFieldLayoutManager().getEditableFieldLayouts();
+            final FieldLayoutManager layoutManager = jiraServices.getFieldLayoutManager();
+            final List<EditableFieldLayout> fieldLayouts = layoutManager.getEditableFieldLayouts();
             if (fieldLayouts != null && !fieldLayouts.isEmpty()) {
                 for (final EditableFieldLayout layout : fieldLayouts) {
-                    if (layout.getName().equals(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION)) {
+                    final String layoutName = layout.getName();
+                    if (BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION.equals(layoutName)) {
                         logger.debug("addBlackDuckFieldConfigurationToJira(): found Black Duck field configuration: " + layout.getName());
                         blackDuckFieldLayout = layout;
+                        break;
+                    } else if (V3PluginConstants.V3_FIELD_CONFIGURATION.equals(layoutName)) {
+                        logger.debug("Updating Field Layout name...");
+                        layout.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION);
+                        blackDuckFieldLayout = layout;
+                        fieldConfigurationNeedsUpdate = true;
                         break;
                     }
                 }
             }
-            boolean fieldConfigurationNeedsUpdate = false;
             if (blackDuckFieldLayout == null) {
-                final EditableDefaultFieldLayout editableFieldLayout = jiraServices.getFieldLayoutManager().getEditableDefaultFieldLayout();
+                final EditableDefaultFieldLayout editableFieldLayout = layoutManager.getEditableDefaultFieldLayout();
 
                 // Creates a copy of the default field layout
                 blackDuckFieldLayout = createEditableFieldLayout(editableFieldLayout.getFieldLayoutItems());
@@ -166,7 +181,7 @@ public class BlackDuckFieldConfigurationSetup {
             if (fieldConfigurationNeedsUpdate) {
                 // Persists our field configuration, creates it if it doesn't exist, updates it if it does exist
                 logger.debug("addBlackDuckFieldConfigurationToJira(): Updating Black Duck field configuration");
-                jiraServices.getFieldLayoutManager().storeEditableFieldLayout(blackDuckFieldLayout);
+                layoutManager.storeEditableFieldLayout(blackDuckFieldLayout);
             }
         } catch (final Exception e) {
             logger.error(e);
@@ -178,4 +193,12 @@ public class BlackDuckFieldConfigurationSetup {
     public EditableFieldLayout createEditableFieldLayout(final List<FieldLayoutItem> fields) {
         return new EditableFieldLayoutImpl(null, fields);
     }
+
+    private void renameFieldConfigurationScheme(final FieldLayoutManager fieldLayoutManager, final FieldLayoutScheme oldFieldConfigurationScheme) {
+        logger.debug("Updating Field Configuration Scheme name and description...");
+        oldFieldConfigurationScheme.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
+        oldFieldConfigurationScheme.setDescription(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
+        fieldLayoutManager.updateFieldLayoutScheme(oldFieldConfigurationScheme);
+    }
+
 }

@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
 import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
@@ -53,9 +54,6 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckIssueTypeSetup {
-    public static final String V3_POLICY_VIOLATION_ISSUE = "Hub Policy Violation";
-    public static final String V3_VULNERABILITY_ISSUE = "Hub Security Vulnerability";
-
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
@@ -89,20 +87,20 @@ public class BlackDuckIssueTypeSetup {
         final List<IssueType> bdIssueTypes = new ArrayList<>();
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
-            final int indexOfV3PolicyType = existingBdIssueTypeNames.indexOf(V3_POLICY_VIOLATION_ISSUE);
+            final int indexOfV3PolicyType = existingBdIssueTypeNames.indexOf(V3PluginConstants.V3_POLICY_VIOLATION_ISSUE);
+            // TODO update bdIssueTypes
             if (indexOfV3PolicyType >= 0) {
-                renameBdsIssueType(bdIssueTypes.get(indexOfV3PolicyType), BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+                renameBdsIssueType(bdIssueTypes, indexOfV3PolicyType, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
             } else {
                 addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
             }
 
-            final int indexOfV3VulnType = existingBdIssueTypeNames.indexOf(V3_VULNERABILITY_ISSUE);
+            final int indexOfV3VulnType = existingBdIssueTypeNames.indexOf(V3PluginConstants.V3_VULNERABILITY_ISSUE);
             if (indexOfV3VulnType >= 0) {
-                renameBdsIssueType(bdIssueTypes.get(indexOfV3VulnType), BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+                renameBdsIssueType(bdIssueTypes, indexOfV3VulnType, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
             } else {
                 addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
             }
-
         } catch (final Exception e) {
             logger.error(e);
             settingService.addBlackDuckError(e, "addIssueTypesToJira()");
@@ -117,8 +115,8 @@ public class BlackDuckIssueTypeSetup {
             final String issueTypeName = issueType.getName();
             if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)
                     || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)
-                    || issueTypeName.equals(V3_POLICY_VIOLATION_ISSUE)
-                    || issueTypeName.equals(V3_VULNERABILITY_ISSUE)) {
+                    || issueTypeName.equals(V3PluginConstants.V3_POLICY_VIOLATION_ISSUE)
+                    || issueTypeName.equals(V3PluginConstants.V3_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
                 existingBdIssueTypeNames.add(issueTypeName);
             }
@@ -137,8 +135,13 @@ public class BlackDuckIssueTypeSetup {
     }
 
     // This method is to simplify upgrading
-    private void renameBdsIssueType(final IssueType oldIssueType, final String newName, final String newDescription) {
+    private void renameBdsIssueType(final List<IssueType> bdIssueTypes, final int index, final String newName, final String newDescription) {
+        final IssueType oldIssueType = bdIssueTypes.get(index);
         jiraServices.getConstantsManager().updateIssueType(oldIssueType.getId(), newName, oldIssueType.getSequence(), null, newDescription, oldIssueType.getAvatar().getId());
+        final String constantType = ConstantsManager.CONSTANT_TYPE.ISSUE_TYPE.getType();
+        final IssueType updatedIssueType = (IssueType) jiraServices.getConstantsManager().getIssueConstantByName(constantType, newName);
+        bdIssueTypes.remove(index);
+        bdIssueTypes.add(index, updatedIssueType);
     }
 
     public void addIssueTypesToProjectIssueTypeScheme(final Project jiraProject, final List<IssueType> blackDuckIssueTypes) {

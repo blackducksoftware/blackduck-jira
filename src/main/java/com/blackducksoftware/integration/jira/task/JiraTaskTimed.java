@@ -108,13 +108,11 @@ public class JiraTaskTimed implements Callable<String> {
         try {
             issueTypeSetup = getBlackDuckIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
         } catch (final ConfigurationException e) {
-            logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
-            return;
+            throw new JiraException("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
         }
         final List<IssueType> issueTypes = issueTypeSetup.addBdsIssueTypesToJira();
         if (issueTypes == null || issueTypes.isEmpty()) {
-            logger.error("No Black Duck Issue Types found or created");
-            return;
+            throw new JiraException("No Black Duck Issue Types found or created");
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
@@ -122,7 +120,7 @@ public class JiraTaskTimed implements Callable<String> {
 
         final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
         if (screenSchemesByIssueType.isEmpty()) {
-            logger.error("No Black Duck Screen Schemes found or created");
+            throw new JiraException("No Black Duck Screen Schemes found or created");
         }
         ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
 
@@ -134,6 +132,9 @@ public class JiraTaskTimed implements Callable<String> {
 
         final BlackDuckWorkflowSetup workflowSetup = getBlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
         final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
+        if (workflow == null) {
+            throw new JiraException("Unable to add Black Duck workflow to JIRA.");
+        }
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
         // Associate these config objects with mapped projects
