@@ -320,10 +320,9 @@ public class JiraTaskSetupTest {
                 fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
                 fieldManager, fieldScreenManager, fieldScreenSchemeManager, searchService);
 
-        BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+        BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, settingService, jiraServices);
+        JiraTaskTimed jiraTask = new JiraTaskTimed(settingsMock, jiraServices);
         jiraTask = Mockito.spy(jiraTask);
 
         mockCreationMethods(jiraTask, fieldScreenSchemeSetup);

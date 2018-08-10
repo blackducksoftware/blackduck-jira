@@ -134,6 +134,14 @@
         <interface>com.blackducksoftware.integration.jira.task.NotificationMonitor</interface>
     </component>
     
+    <component key="threadManager" class="com.blackducksoftware.integration.jira.task.thread.PluginExecutorService">
+        <description>A thread manager for scheduled tasks.</description>
+    </component>
+    
+    <component key="blackDuckJobRunner" class="com.blackducksoftware.integration.jira.task.BlackDuckJobRunner">
+        <interface>com.atlassian.scheduler.JobRunner</interface>
+    </component>
+    
     <component key="issuePropertyAccessor" class="com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper">
         <description>A wrapper component to access various issue properties.</description>
     </component>
@@ -144,6 +152,7 @@
 	<component-import name="User Manager" key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
 	<component-import name="Login Uri Provider" key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
 	<component-import name="Template Renderer" key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
-	<component-import name="SAL Scheduler" key="pluginScheduler" interface="com.atlassian.sal.api.scheduling.PluginScheduler" />
+	<component-import name="Scheduler Service" key="schedulerService" interface="com.atlassian.scheduler.SchedulerService" />
+    <component-import name="Backwards Compatible Scheduler" key="pluginScheduler" interface="com.atlassian.sal.api.scheduling.PluginScheduler" />
 	
 </atlassian-plugin>
