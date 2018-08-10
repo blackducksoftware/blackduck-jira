@@ -28,12 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.scheduler.JobRunner;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
@@ -54,9 +51,8 @@ public class BlackDuckJobRunner implements JobRunner {
     private final PluginSettings pluginSettings;
     private final PluginExecutorService executorService;
 
-    @Inject
-    public BlackDuckJobRunner(final PluginSettingsFactory pluginSettingsFactory, final PluginExecutorService executorService) {
-        this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
+    public BlackDuckJobRunner(final PluginSettings pluginSettings, final PluginExecutorService executorService) {
+        this.pluginSettings = pluginSettings;
         this.executorService = executorService;
     }
 

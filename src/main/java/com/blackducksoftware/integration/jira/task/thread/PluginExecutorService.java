@@ -63,27 +63,32 @@ public class PluginExecutorService {
     public PluginFuture submit(final Callable<String> task) throws RejectedExecutionException {
         if (canAcceptNewTasks()) {
             final Future<String> future = executorService.submit(task);
+            queuedTasks.add(future);
             return new PluginFuture(future);
         } else {
             throw new RejectedExecutionException("The number of queued tasks is already at capacity.");
         }
     }
 
+    public boolean isShutdown() {
+        return executorService.isShutdown();
+    }
+
     public boolean canAcceptNewTasks() {
-        return queuedTasks.size() < MAX_QUEUED_TASKS;
+        return !isShutdown() && queuedTasks.size() < MAX_QUEUED_TASKS;
     }
 
     private void start() throws IllegalStateException {
         if (executorService == null || executorService.isShutdown()) {
             executorService = Executors.newSingleThreadExecutor();
         } else {
-            throw new IllegalStateException();
+            throw new IllegalStateException("The executor service is already running.");
         }
     }
 
-    private void shutdown(final Runnable function) {
+    private void shutdown(final Runnable shutdownFunction) {
         if (!executorService.isShutdown()) {
-            function.run();
+            shutdownFunction.run();
         }
         queuedTasks.clear();
     }
@@ -109,6 +114,7 @@ public class PluginExecutorService {
 
         public void cancel() {
             future.cancel(true);
+            queuedTasks.remove(future);
         }
 
     }

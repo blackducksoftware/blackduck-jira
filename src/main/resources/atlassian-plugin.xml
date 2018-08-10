@@ -138,10 +138,6 @@
         <description>A thread manager for scheduled tasks.</description>
     </component>
     
-    <component key="blackDuckJobRunner" class="com.blackducksoftware.integration.jira.task.BlackDuckJobRunner">
-        <interface>com.atlassian.scheduler.JobRunner</interface>
-    </component>
-    
     <component key="issuePropertyAccessor" class="com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper">
         <description>A wrapper component to access various issue properties.</description>
     </component>

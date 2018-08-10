@@ -46,6 +46,7 @@ import com.blackducksoftware.integration.jira.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
 public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
     public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
@@ -59,21 +60,26 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
     private final SchedulerService schedulerService;
     private final PluginScheduler pluginSchedulerDeprecated;
     private final PluginSettings pluginSettings;
+    private final PluginExecutorService executorService;
 
     @Inject
-    public BlackDuckMonitor(final SchedulerService schedulerService, final PluginScheduler pluginSchedulerDeprecated, final BlackDuckJobRunner blackDuckJobRunner, final PluginSettingsFactory pluginSettingsFactory) {
+    public BlackDuckMonitor(final SchedulerService schedulerService, final PluginScheduler pluginSchedulerDeprecated, final PluginSettingsFactory pluginSettingsFactory, final PluginExecutorService executorService) {
         logger.trace(BlackDuckMonitor.class.getName() + " ctor called.");
         this.schedulerService = schedulerService;
         this.pluginSchedulerDeprecated = pluginSchedulerDeprecated;
         this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
+        this.executorService = executorService;
 
-        schedulerService.registerJobRunner(BlackDuckJobRunner.JOB_RUNNER_KEY, blackDuckJobRunner);
+        schedulerService.registerJobRunner(BlackDuckJobRunner.JOB_RUNNER_KEY, new BlackDuckJobRunner(pluginSettings, executorService));
     }
 
     @Override
     public void onStart() {
         logger.trace(BlackDuckMonitor.class.getName() + " onStart() called.");
         updateInstallDate(new Date());
+        if (executorService.isShutdown()) {
+            executorService.restart();
+        }
         reschedule(0L);
     }
 
@@ -140,6 +146,11 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
             logger.debug("Successfully removed install date.");
         } else {
             logger.debug("Failed to remove install date.");
+        }
+        try {
+            executorService.shutdown();
+        } catch (final Exception e) {
+            logger.warn("Failed to properly shutdown the Black Duck threadManager: " + e.getMessage());
         }
     }
 
