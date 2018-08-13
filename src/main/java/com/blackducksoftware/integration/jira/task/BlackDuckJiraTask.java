@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.jira.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +46,7 @@ import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.hub.service.NotificationService;
 import com.blackducksoftware.integration.hub.service.PhoneHomeService;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
@@ -59,7 +59,6 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSe
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
 import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBody;
-import com.blackducksoftware.integration.rest.RestConstants;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 
 public class BlackDuckJiraTask {
@@ -68,7 +67,6 @@ public class BlackDuckJiraTask {
     private final PluginConfigurationDetails pluginConfigDetails;
     private final JiraUserContext jiraContext;
     private final Date runDate;
-    private final SimpleDateFormat dateFormatter;
     private final JiraServices jiraServices = new JiraServices();
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
@@ -79,8 +77,6 @@ public class BlackDuckJiraTask {
         this.jiraContext = jiraContext;
 
         this.runDate = new Date();
-        dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
         logger.info("Install date: " + configDetails.getInstallDateString());
         logger.info("Last run date: " + configDetails.getLastRunDateString());
 
@@ -154,9 +150,9 @@ public class BlackDuckJiraTask {
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Black Duck notifications from " + startDate + " to " + runDate);
             final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUserItem, blackDuckProjectMappings, startDate, runDate);
-            logger.debug("Finished running ticket generator. Last notification date: " + dateFormatter.format(lastNotificationDate));
+            logger.debug("Finished running ticket generator. Last notification date: " + BlackDuckPluginDateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
-            return dateFormatter.format(nextRunDate);
+            return BlackDuckPluginDateFormatter.format(nextRunDate);
         } catch (final Exception e) {
             logger.error("Error processing Black Duck notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addBlackDuckError(e, "executeBlackDuckJiraTask");
@@ -169,7 +165,7 @@ public class BlackDuckJiraTask {
     }
 
     public String getRunDateString() {
-        return dateFormatter.format(runDate);
+        return BlackDuckPluginDateFormatter.format(runDate);
     }
 
     private UserView getBlackDuckUserItem(final HubServicesFactory blackDuckServicesFactory, final String currentUsername) {
@@ -272,9 +268,9 @@ public class BlackDuckJiraTask {
         final Date startDate;
         if (lastRunDateString == null) {
             logger.info("No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: " + installDateString);
-            startDate = dateFormatter.parse(installDateString);
+            startDate = BlackDuckPluginDateFormatter.parse(installDateString);
         } else {
-            startDate = dateFormatter.parse(lastRunDateString);
+            startDate = BlackDuckPluginDateFormatter.parse(lastRunDateString);
         }
         return startDate;
     }

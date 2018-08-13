@@ -62,11 +62,9 @@ public class JiraTaskTimed implements Callable<String> {
 
     private final PluginSettings settings;
     private final JiraServices jiraServices;
-    private final JiraSettingsService jiraSettingsService;
 
-    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+    public JiraTaskTimed(final PluginSettings settings, final JiraServices jiraServices) {
         this.settings = settings;
-        this.jiraSettingsService = jiraSettingsService;
         this.jiraServices = jiraServices;
     }
 
@@ -74,8 +72,10 @@ public class JiraTaskTimed implements Callable<String> {
     public String call() throws Exception {
         logger.info("Running the Black Duck JIRA periodic timed task.");
 
-        // This plugin configuration needs to be read during execution because the task could have been queued for an arbitrarily long time
+        // These need to be created during execution because the task could have been queued for an arbitrarily long time
+        final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+
         final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
@@ -100,8 +100,8 @@ public class JiraTaskTimed implements Callable<String> {
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
             throws ConfigurationException, JiraException {
-        // Make sure current JIRA version is supported
-        getJiraVersionCheck(); // throws exception if not
+        // Make sure current JIRA version is supported throws exception if not
+        getJiraVersionCheck();
 
         // Create Issue Types, workflow, etc.
         BlackDuckIssueTypeSetup issueTypeSetup;
@@ -193,12 +193,12 @@ public class JiraTaskTimed implements Callable<String> {
         }
     }
 
-    private BlackDuckIssueTypeSetup getBlackDuckIssueTypeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
-        return new BlackDuckIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
-    }
-
     public BlackDuckFieldScreenSchemeSetup getBlackDuckFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+    }
+
+    private BlackDuckIssueTypeSetup getBlackDuckIssueTypeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
+        return new BlackDuckIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
     }
 
     private BlackDuckFieldConfigurationSetup getBlackDuckFieldConfigurationSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {

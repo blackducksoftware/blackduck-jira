@@ -23,10 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -38,7 +34,6 @@ import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
 import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.rest.RestConstants;
 
 public class BlackDuckIssueTrackerHandler {
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
@@ -47,14 +42,10 @@ public class BlackDuckIssueTrackerHandler {
 
     private final JiraSettingsService jiraSettingsService;
     private final IssueService blackDuckIssueService;
-    private final DateFormat dateFormatter;
 
     public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final IssueService blackDuckIssueService) {
         this.jiraSettingsService = jiraSettingsService;
         this.blackDuckIssueService = blackDuckIssueService;
-
-        dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     public String createBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {

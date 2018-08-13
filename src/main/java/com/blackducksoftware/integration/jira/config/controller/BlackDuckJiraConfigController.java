@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,6 +78,7 @@ import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
@@ -103,7 +103,6 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
-import com.blackducksoftware.integration.rest.RestConstants;
 import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
 
@@ -766,9 +765,7 @@ public class BlackDuckJiraConfigController {
                     validateCreator(config, settings);
                     validateMapping(config);
                     if (getValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME) == null) {
-                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, dateFormatter.format(new Date()));
+                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, BlackDuckPluginDateFormatter.format(new Date()));
                     }
                     final String previousInterval = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
                     setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, config.getIntervalBetweenChecks());
@@ -980,11 +977,8 @@ public class BlackDuckJiraConfigController {
                     try {
                         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
                         final Date now = new Date();
-
-                        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-                        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
                         final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
-                        final String newLastRunDateString = dateFormatter.format(now);
+                        final String newLastRunDateString = BlackDuckPluginDateFormatter.format(now);
                         logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
                         setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newLastRunDateString);
                         setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);

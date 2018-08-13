@@ -23,13 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
@@ -40,37 +36,50 @@ import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
+import com.atlassian.scheduler.SchedulerService;
+import com.atlassian.scheduler.SchedulerServiceException;
+import com.atlassian.scheduler.config.JobConfig;
+import com.atlassian.scheduler.config.JobId;
+import com.atlassian.scheduler.config.RunMode;
+import com.atlassian.scheduler.config.Schedule;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
-import com.blackducksoftware.integration.rest.RestConstants;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
 public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
+    public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
+
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
-    /* package */static final String KEY_INSTANCE = BlackDuckMonitor.class.getName() + ":instance";
-    public static final String KEY_SETTINGS = BlackDuckMonitor.class.getName() + ":settings";
-    public static final String KEY_EXECUTOR = BlackDuckMonitor.class.getName() + ":executor";
-    public static final String KEY_SCHEDULED_TASK_LIST = BlackDuckMonitor.class.getName() + ":scheduledTasks";
     private static final String CURRENT_JOB_NAME = BlackDuckMonitor.class.getName() + ":job";
     private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
     private static final String V3_JOB_NAME = "com.blackducksoftware.integration.jira.task.HubMonitor:job";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginScheduler pluginScheduler; // provided by SAL
+    private final SchedulerService schedulerService;
+    private final PluginScheduler pluginSchedulerDeprecated;
     private final PluginSettings pluginSettings;
-    private ExecutorService executor;
+    private final PluginExecutorService executorService;
 
     @Inject
-    public BlackDuckMonitor(final PluginScheduler pluginScheduler, final PluginSettingsFactory pluginSettingsFactory) {
+    public BlackDuckMonitor(final SchedulerService schedulerService, final PluginScheduler pluginSchedulerDeprecated, final PluginSettingsFactory pluginSettingsFactory, final PluginExecutorService executorService) {
         logger.trace(BlackDuckMonitor.class.getName() + " ctor called.");
-        this.pluginScheduler = pluginScheduler;
+        this.schedulerService = schedulerService;
+        this.pluginSchedulerDeprecated = pluginSchedulerDeprecated;
         this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
+        this.executorService = executorService;
+
+        schedulerService.registerJobRunner(BlackDuckJobRunner.JOB_RUNNER_KEY, new BlackDuckJobRunner(pluginSettings, executorService));
     }
 
     @Override
     public void onStart() {
         logger.trace(BlackDuckMonitor.class.getName() + " onStart() called.");
-        this.executor = Executors.newSingleThreadExecutor();
-        updateInstallDate();
+        updateInstallDate(new Date());
+        if (executorService.isShutdown()) {
+            executorService.restart();
+        }
         reschedule(0L);
     }
 
@@ -83,27 +92,42 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
     public void reschedule(final long intervalIgnored) {
         logger.trace(BlackDuckMonitor.class.getName() + " reschedule() called.");
 
-        final long actualInterval = getIntervalMillisec();
-
         unscheduleOldJobs();
 
-        final HashMap<String, Object> classProperties = new HashMap<>();
-        classProperties.put(KEY_INSTANCE, BlackDuckMonitor.this);
-        classProperties.put(KEY_SETTINGS, pluginSettings);
-        classProperties.put(KEY_EXECUTOR, executor);
-        classProperties.put(KEY_SCHEDULED_TASK_LIST, new ArrayList<Future<String>>());
-        pluginScheduler.scheduleJob(CURRENT_JOB_NAME, // unique name of the job
-                JiraTask.class, // class of the job
-                classProperties, // data that needs to be passed to the job
-                new Date(), // the time the job is to start
-                actualInterval); // interval between repeats, in milliseconds
-        logger.info(String.format("Black Duck Notification check task scheduled to run every %dms", actualInterval));
+        final long actualInterval = getIntervalMillisec();
+        Schedule schedule;
+        try {
+            final String installDateString = getInstallDateString();
+            schedule = Schedule.forInterval(actualInterval, BlackDuckPluginDateFormatter.parse(installDateString));
+        } catch (final Exception e) {
+            logger.error("Could not get the install date. Please disable, and then reenable, this plugin or restart Jira.", e);
+            return;
+        }
+
+        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(pluginSettings);
+        final int configuredIntervalMinutes = configDetails.getIntervalMinutes();
+
+        final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
+        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, new Integer(configuredIntervalMinutes));
+
+        final JobConfig jobConfig = JobConfig
+                .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)
+                .withRunMode(RunMode.RUN_LOCALLY)
+                .withParameters(blackDuckJobRunnerProperties)
+                .withSchedule(schedule);
+
+        try {
+            schedulerService.scheduleJob(JobId.of(CURRENT_JOB_NAME), jobConfig);
+            logger.info(String.format("%s scheduled to run every %dms", BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, actualInterval));
+        } catch (final SchedulerServiceException e) {
+            logger.error(String.format("Could not schedule %s." + BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME), e);
+        }
     }
 
     public String getName() {
         logger.trace(BlackDuckMonitor.class.getName() + ".getName() called");
-        if (pluginScheduler != null) {
-            return "blackDuckMonitor with pluginScheduler:" + pluginScheduler.toString();
+        if (pluginSchedulerDeprecated != null) {
+            return "blackDuckMonitor with pluginScheduler:" + pluginSchedulerDeprecated.toString();
         }
 
         return "blackDuckMonitor";
@@ -112,9 +136,9 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
     @Override
     public void destroy() throws Exception {
         logger.debug("destroy() called; Unscheduling " + CURRENT_JOB_NAME);
-        pluginScheduler.unscheduleJob(CURRENT_JOB_NAME);
+        schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
 
-        final String installDate = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final String installDate = getInstallDateString();
         logger.debug("Install date was: " + installDate);
         logger.debug("Removing install date...");
         final Object removedSetting = pluginSettings.remove(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
@@ -124,29 +148,27 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
             logger.debug("Failed to remove install date.");
         }
         try {
-            logger.debug("Shutting down executor service.");
-            executor.shutdown();
-        } catch (final SecurityException e) {
-            logger.error(e);
+            executorService.shutdown();
+        } catch (final Exception e) {
+            logger.warn("Failed to properly shutdown the Black Duck threadManager: " + e.getMessage());
         }
     }
 
     private void unscheduleOldJobs() {
         try {
-            pluginScheduler.unscheduleJob(V1_JOB_NAME);
+            pluginSchedulerDeprecated.unscheduleJob(V1_JOB_NAME);
             logger.debug("Unscheduled job " + V1_JOB_NAME);
         } catch (final Exception e) {
             logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
         }
         try {
-            pluginScheduler.unscheduleJob(V3_JOB_NAME);
+            pluginSchedulerDeprecated.unscheduleJob(V3_JOB_NAME);
             logger.debug("Unscheduled job " + V3_JOB_NAME);
         } catch (final Exception e) {
             logger.debug("Job " + V3_JOB_NAME + " wasn't scheduled");
         }
         try {
-            pluginScheduler.unscheduleJob(CURRENT_JOB_NAME);
-            logger.debug("Unscheduled job " + CURRENT_JOB_NAME);
+            schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
         } catch (final Exception e) {
             logger.debug("Job " + CURRENT_JOB_NAME + " wasn't scheduled");
         }
@@ -181,17 +203,19 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         return intervalMillisec;
     }
 
-    private void updateInstallDate() {
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        dateFormatter.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
-        final String installDate = dateFormatter.format(new Date());
+    private void updateInstallDate(final Date installDate) {
+        final String installDateString = BlackDuckPluginDateFormatter.format(installDate);
 
         logger.debug("Updating install date...");
-        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, installDate);
+        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, installDateString);
         logger.debug("The previous install date was: " + oldInstallDate);
 
-        final String newInstallDate = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final String newInstallDate = getInstallDateString();
         logger.debug("The new install date is: " + newInstallDate);
+    }
+
+    private String getInstallDateString() {
+        return (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
     }
 
 }
