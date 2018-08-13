@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.Set;
 
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.util.Stringable;
 
 public class EventData extends Stringable {
     private BlackDuckEventAction action;

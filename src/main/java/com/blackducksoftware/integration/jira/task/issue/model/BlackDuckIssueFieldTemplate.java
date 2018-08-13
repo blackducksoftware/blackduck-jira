@@ -29,7 +29,7 @@ import java.util.Map;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 public abstract class BlackDuckIssueFieldTemplate extends Stringable {
     private final ApplicationUser projectOwner;

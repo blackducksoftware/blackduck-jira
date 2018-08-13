@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
 
 public enum EventCategory {
     POLICY,

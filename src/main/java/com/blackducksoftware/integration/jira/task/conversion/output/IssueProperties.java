@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 public abstract class IssueProperties extends Stringable {
     private final String projectName;

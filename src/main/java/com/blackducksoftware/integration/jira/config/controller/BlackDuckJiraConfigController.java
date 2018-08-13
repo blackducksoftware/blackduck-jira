@@ -63,18 +63,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
-import com.blackducksoftware.integration.hub.api.view.HubViewFilter;
-import com.blackducksoftware.integration.hub.api.view.MetaHandler;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -103,8 +91,21 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
-import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.api.generated.discovery.ApiDiscovery;
+import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.hub.api.generated.view.ProjectView;
+import com.synopsys.integration.hub.api.view.HubViewFilter;
+import com.synopsys.integration.hub.api.view.MetaHandler;
+import com.synopsys.integration.hub.configuration.HubServerConfig;
+import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.hub.rest.BlackduckRestConnection;
+import com.synopsys.integration.hub.service.HubService;
+import com.synopsys.integration.hub.service.HubServicesFactory;
+import com.synopsys.integration.hub.service.ProjectService;
+import com.synopsys.integration.rest.connection.RestConnection;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 @Path("/")
 public class BlackDuckJiraConfigController {
@@ -1121,11 +1122,11 @@ public class BlackDuckJiraConfigController {
 
     // This must be "package protected" to avoid synthetic access
     HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
-        final RestConnection restConnection = createRestConnection(settings, config);
+        final BlackduckRestConnection restConnection = createRestConnection(settings, config);
         if (config.hasErrors()) {
             return null;
         }
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(restConnection);
+        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
         return blackDuckServicesFactory;
     }
 
@@ -1137,7 +1138,7 @@ public class BlackDuckJiraConfigController {
         }
     }
 
-    private RestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
+    private BlackduckRestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
         final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
         final String blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
         logger.debug(String.format("Establishing connection to Black Duck server: %s as %s", blackDuckUrl, blackDuckUser));
@@ -1161,7 +1162,7 @@ public class BlackDuckJiraConfigController {
         final String encBlackDuckProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
         final String blackDuckProxyPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        RestConnection restConnection = null;
+        BlackduckRestConnection restConnection = null;
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
@@ -1172,7 +1173,7 @@ public class BlackDuckJiraConfigController {
             configBuilder.setTrustCert(blackDuckTrustCert);
             configBuilder.setProxyHost(blackDuckProxyHost);
             configBuilder.setProxyPort(blackDuckProxyPort);
-            configBuilder.setIgnoredProxyHosts(blackDuckNoProxyHost);
+            configBuilder.setProxyIgnoredHosts(blackDuckNoProxyHost);
             configBuilder.setProxyUsername(blackDuckProxyUser);
             configBuilder.setProxyPassword(encBlackDuckProxyPassword);
             configBuilder.setProxyPasswordLength(NumberUtils.toInt(blackDuckProxyPasswordLength));

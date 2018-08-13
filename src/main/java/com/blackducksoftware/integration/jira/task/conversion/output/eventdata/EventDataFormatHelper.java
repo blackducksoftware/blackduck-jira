@@ -29,24 +29,24 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.component.RemediatingVersionView;
-import com.blackducksoftware.integration.hub.api.generated.component.RemediationOptionsView;
-import com.blackducksoftware.integration.hub.api.generated.component.VersionBomLicenseView;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.ComplexLicenseType;
-import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.ComponentService;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.api.generated.component.RemediatingVersionView;
+import com.synopsys.integration.hub.api.generated.component.RemediationOptionsView;
+import com.synopsys.integration.hub.api.generated.component.VersionBomLicenseView;
+import com.synopsys.integration.hub.api.generated.enumeration.ComplexLicenseType;
+import com.synopsys.integration.hub.api.generated.view.ComplexLicenseView;
+import com.synopsys.integration.hub.api.generated.view.ComponentVersionView;
+import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.hub.api.generated.view.ProjectVersionView;
+import com.synopsys.integration.hub.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.hub.notification.content.VulnerabilityNotificationContent;
+import com.synopsys.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.hub.service.ComponentService;
+import com.synopsys.integration.hub.service.HubService;
+import com.synopsys.integration.hub.service.bucket.HubBucket;
 
 public class EventDataFormatHelper {
     private final BlackDuckJiraLogger logger;
@@ -142,7 +142,7 @@ public class EventDataFormatHelper {
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
         // TODO use the HubService once the Black Duck APIs have the link.
-        final ComponentService componentService = new ComponentService(blackDuckService);
+        final ComponentService componentService = new ComponentService(blackDuckService, logger);
         RemediationOptionsView remediationOptions;
         try {
             remediationOptions = componentService.getRemediationInformation(componentVersionView);

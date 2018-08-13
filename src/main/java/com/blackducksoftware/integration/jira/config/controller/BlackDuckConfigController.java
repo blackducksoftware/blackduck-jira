@@ -45,20 +45,20 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.encryption.PasswordEncrypter;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigFieldEnum;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
-import com.blackducksoftware.integration.rest.credentials.CredentialsField;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfoField;
-import com.blackducksoftware.integration.validator.AbstractValidator;
-import com.blackducksoftware.integration.validator.ValidationResults;
+import com.synopsys.integration.encryption.PasswordEncrypter;
+import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.configuration.HubServerConfig;
+import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.hub.configuration.HubServerConfigFieldEnum;
+import com.synopsys.integration.hub.rest.CredentialsRestConnection;
+import com.synopsys.integration.rest.credentials.CredentialsField;
+import com.synopsys.integration.rest.proxy.ProxyInfoField;
+import com.synopsys.integration.validator.AbstractValidator;
+import com.synopsys.integration.validator.ValidationResults;
 
 @Path("/blackDuckDetails")
 public class BlackDuckConfigController {
@@ -141,7 +141,7 @@ public class BlackDuckConfigController {
                 serverConfigBuilder.setPasswordLength(NumberUtils.toInt(passwordLength));
                 serverConfigBuilder.setProxyHost(proxyHost);
                 serverConfigBuilder.setProxyPort(proxyPort);
-                serverConfigBuilder.setIgnoredProxyHosts(noProxyHosts);
+                serverConfigBuilder.setProxyIgnoredHosts(noProxyHosts);
                 serverConfigBuilder.setProxyUsername(proxyUser);
                 serverConfigBuilder.setProxyPassword(proxyPassword);
                 serverConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(proxyPasswordLength));
@@ -331,7 +331,7 @@ public class BlackDuckConfigController {
         }
         serverConfigBuilder.setProxyHost(config.getHubProxyHost());
         serverConfigBuilder.setProxyPort(config.getHubProxyPort());
-        serverConfigBuilder.setIgnoredProxyHosts(config.getHubNoProxyHosts());
+        serverConfigBuilder.setProxyIgnoredHosts(config.getHubNoProxyHosts());
         serverConfigBuilder.setProxyUsername(config.getHubProxyUser());
 
         if (StringUtils.isBlank(config.getHubProxyPassword())) {

@@ -26,7 +26,7 @@ package com.blackducksoftware.integration.jira.config;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
 
 public class PluginConfigurationDetails {
     private final String blackDuckUrl;
@@ -181,7 +181,7 @@ public class PluginConfigurationDetails {
 
         serverConfigBuilder.setProxyHost(blackDuckProxyHost);
         serverConfigBuilder.setProxyPort(blackDuckProxyPort);
-        serverConfigBuilder.setIgnoredProxyHosts(blackDuckProxyNoHost);
+        serverConfigBuilder.setProxyIgnoredHosts(blackDuckProxyNoHost);
         serverConfigBuilder.setProxyUsername(blackDuckProxyUser);
         serverConfigBuilder.setProxyPassword(blackDuckProxyPassEncrypted);
         serverConfigBuilder.setProxyPasswordLength(NumberUtils.toInt(blackDuckProxyPassLength));

@@ -35,7 +35,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
@@ -53,6 +52,7 @@ import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
 import com.blackducksoftware.integration.jira.task.issue.model.PolicyIssueFieldTempate;
 import com.blackducksoftware.integration.jira.task.issue.model.VulnerabilityIssueFieldTemplate;
 import com.opensymphony.workflow.loader.ActionDescriptor;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
 
 public class JiraIssueHandler {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -288,7 +288,8 @@ public class JiraIssueHandler {
         if (actions.size() == 0) {
             final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey() + ", from status : " + currentStatus.getName() + ". There are no steps from this status to any other status.";
             logger.error(errorMessage);
-            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(), eventData.getJiraIssueCreatorUsername(),
+            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
@@ -307,7 +308,8 @@ public class JiraIssueHandler {
         } else {
             final String errorMessage = "Could not find the action : " + stepName + " to transition this issue: " + issueToTransition.getKey();
             logger.error(errorMessage);
-            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(), eventData.getJiraIssueCreatorUsername(),
+            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(),
+                    eventData.getJiraIssueCreatorUsername(),
                     "transitionIssue");
         }
         return null;
@@ -387,9 +389,12 @@ public class JiraIssueHandler {
         final NotificationType type = eventData.getNotificationType();
         final EventCategory eventCategory = EventCategory.fromNotificationType(type);
         if (EventCategory.POLICY.equals(eventCategory)) {
-            blackDuckIssueTemplate = new PolicyIssueFieldTempate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getBlackDuckProjectVersionUrl(), eventData.getBlackDuckProjectVersionNickname(),
-                    eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersion(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(),
-                    eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(), eventData.getBlackDuckRuleUrl(), eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription());
+            blackDuckIssueTemplate = new PolicyIssueFieldTempate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getBlackDuckProjectVersionUrl(),
+                    eventData.getBlackDuckProjectVersionNickname(),
+                    eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersion(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckLicenseNames(),
+                    eventData.getBlackDuckLicenseUrl(),
+                    eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(), eventData.getBlackDuckRuleUrl(), eventData.getBlackDuckRuleOverridable(),
+                    eventData.getBlackDuckRuleDescription());
         } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
             blackDuckIssueTemplate = new VulnerabilityIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersion(), eventData.getBlackDuckProjectVersionUrl(),
                     eventData.getBlackDuckProjectVersionNickname(),

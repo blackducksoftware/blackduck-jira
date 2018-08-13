@@ -46,33 +46,6 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.UriSingleResponse;
-import com.blackducksoftware.integration.hub.api.component.AffectedProjectVersion;
-import com.blackducksoftware.integration.hub.api.generated.component.PolicyRuleExpressionSetView;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.OriginSourceType;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.ProjectVersionPhaseType;
-import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskProfileView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComplexLicenseView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
-import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
-import com.blackducksoftware.integration.hub.notification.content.ComponentVersionStatus;
-import com.blackducksoftware.integration.hub.notification.content.PolicyInfo;
-import com.blackducksoftware.integration.hub.notification.content.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.RuleViolationClearedNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -92,11 +65,36 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.log.LogLevel;
-import com.blackducksoftware.integration.log.PrintStreamIntLogger;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
-import com.blackducksoftware.integration.rest.connection.UnauthenticatedRestConnection;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.api.UriSingleResponse;
+import com.synopsys.integration.hub.api.component.AffectedProjectVersion;
+import com.synopsys.integration.hub.api.generated.component.PolicyRuleExpressionSetView;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.hub.api.generated.enumeration.OriginSourceType;
+import com.synopsys.integration.hub.api.generated.enumeration.ProjectVersionPhaseType;
+import com.synopsys.integration.hub.api.generated.response.VersionRiskProfileView;
+import com.synopsys.integration.hub.api.generated.view.ComplexLicenseView;
+import com.synopsys.integration.hub.api.generated.view.ComponentVersionView;
+import com.synopsys.integration.hub.api.generated.view.ComponentView;
+import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.hub.api.generated.view.ProjectVersionView;
+import com.synopsys.integration.hub.api.generated.view.ProjectView;
+import com.synopsys.integration.hub.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.hub.notification.NotificationDetailResult;
+import com.synopsys.integration.hub.notification.content.ComponentVersionStatus;
+import com.synopsys.integration.hub.notification.content.PolicyInfo;
+import com.synopsys.integration.hub.notification.content.PolicyOverrideNotificationContent;
+import com.synopsys.integration.hub.notification.content.RuleViolationClearedNotificationContent;
+import com.synopsys.integration.hub.notification.content.RuleViolationNotificationContent;
+import com.synopsys.integration.hub.notification.content.VulnerabilityNotificationContent;
+import com.synopsys.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.hub.rest.BlackduckRestConnection;
+import com.synopsys.integration.hub.rest.CredentialsRestConnection;
+import com.synopsys.integration.hub.service.HubService;
+import com.synopsys.integration.hub.service.bucket.HubBucket;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class NotificationConverterTest {
     private static final long JIRA_ISSUE_ID = 456L;
@@ -322,12 +320,11 @@ public class NotificationConverterTest {
     }
 
     private static void mockHubServiceResponses(final HubService mockBlackDuckService) throws IntegrationException, MalformedURLException {
-        final PrintStreamIntLogger mockLogger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG);
-        final RestConnection mockRestConnection = new UnauthenticatedRestConnection(mockLogger, null, 120, ProxyInfo.NO_PROXY_INFO);
-        Mockito.when(mockBlackDuckService.getRestConnection()).thenReturn(mockRestConnection);
+        final URL blackDuckBaseUrl = new URL("https://localhost:8080");
 
-        final URL hubBaseUrl = new URL("https://localhost:8080");
-        Mockito.when(mockBlackDuckService.getHubBaseUrl()).thenReturn(hubBaseUrl);
+        final BlackduckRestConnection mockRestConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), blackDuckBaseUrl, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        Mockito.when(mockBlackDuckService.getRestConnection()).thenReturn(mockRestConnection);
+        Mockito.when(mockBlackDuckService.getHubBaseUrl()).thenReturn(blackDuckBaseUrl);
 
         final VersionRiskProfileView riskProfile = new VersionRiskProfileView();
         riskProfile.bomLastUpdatedAt = new Date();

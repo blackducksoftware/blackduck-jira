@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckAdminConfigSerializable extends Stringable implements Serializable {

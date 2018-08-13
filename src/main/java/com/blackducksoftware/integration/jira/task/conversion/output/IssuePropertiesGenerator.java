@@ -25,8 +25,8 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.util.Optional;
 
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
 
 public class IssuePropertiesGenerator {
     private static final String UNKNOWN = "<unknown>";

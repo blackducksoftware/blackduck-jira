@@ -27,7 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.blackducksoftware.integration.rest.RestConstants;
+import com.synopsys.integration.rest.RestConstants;
 
 public final class BlackDuckPluginDateFormatter {
     private static final String INTERNAL_PLUGIN_TIME_ZONE = "Zulu";

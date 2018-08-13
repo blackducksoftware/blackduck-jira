@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
 
 public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
@@ -47,7 +47,7 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
         configBuilder.setProxyHost(getBlackDuckProxyHost());
         configBuilder.setProxyPort(getBlackDuckProxyPort());
-        configBuilder.setIgnoredProxyHosts(getBlackDuckProxyNoHost());
+        configBuilder.setProxyIgnoredHosts(getBlackDuckProxyNoHost());
         configBuilder.setProxyUsername(getBlackDuckProxyUser());
         configBuilder.setProxyPassword(getBlackDuckProxyPassEncrypted());
         configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));

@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.Set;
 
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
@@ -36,7 +34,9 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.util.Stringable;
 
 public class EventDataBuilder extends Stringable {
     private final EventCategory eventCategory;

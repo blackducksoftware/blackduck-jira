@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira;
 
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 public class JiraVersion extends Stringable {
     private final String name;

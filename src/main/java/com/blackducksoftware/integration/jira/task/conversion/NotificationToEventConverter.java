@@ -37,30 +37,6 @@ import org.apache.commons.collections.CollectionUtils;
 import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.UriSingleResponse;
-import com.blackducksoftware.integration.hub.api.core.LinkSingleResponse;
-import com.blackducksoftware.integration.hub.api.generated.component.RiskCountView;
-import com.blackducksoftware.integration.hub.api.generated.component.VersionBomLicenseView;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.MatchedFileUsagesType;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.api.generated.enumeration.RiskCountType;
-import com.blackducksoftware.integration.hub.api.generated.response.VersionRiskProfileView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.ComponentView;
-import com.blackducksoftware.integration.hub.api.generated.view.LicenseView;
-import com.blackducksoftware.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.api.generated.view.ProjectView;
-import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.api.generated.view.VersionBomComponentView;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.notification.NotificationDetailResult;
-import com.blackducksoftware.integration.hub.notification.content.NotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.bucket.HubBucket;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -78,6 +54,30 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.api.UriSingleResponse;
+import com.synopsys.integration.hub.api.core.LinkSingleResponse;
+import com.synopsys.integration.hub.api.generated.component.RiskCountView;
+import com.synopsys.integration.hub.api.generated.component.VersionBomLicenseView;
+import com.synopsys.integration.hub.api.generated.enumeration.MatchedFileUsagesType;
+import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.hub.api.generated.enumeration.RiskCountType;
+import com.synopsys.integration.hub.api.generated.response.VersionRiskProfileView;
+import com.synopsys.integration.hub.api.generated.view.ComponentVersionView;
+import com.synopsys.integration.hub.api.generated.view.ComponentView;
+import com.synopsys.integration.hub.api.generated.view.LicenseView;
+import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.hub.api.generated.view.ProjectVersionView;
+import com.synopsys.integration.hub.api.generated.view.ProjectView;
+import com.synopsys.integration.hub.api.generated.view.UserView;
+import com.synopsys.integration.hub.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.hub.notification.NotificationDetailResult;
+import com.synopsys.integration.hub.notification.content.NotificationContent;
+import com.synopsys.integration.hub.notification.content.VulnerabilityNotificationContent;
+import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.hub.service.HubService;
+import com.synopsys.integration.hub.service.bucket.HubBucket;
 
 public class NotificationToEventConverter {
     private final BlackDuckJiraLogger logger;
@@ -106,7 +106,7 @@ public class NotificationToEventConverter {
 
     public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket blackDuckBucket, final Date batchStartDate) throws HubIntegrationException {
         final NotificationType notificationType = detailResult.getType();
-        logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
+        logger.debug(notificationType + " Notification: " + detailResult.getNotificationContent());
 
         final Set<EventData> allEvents = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {

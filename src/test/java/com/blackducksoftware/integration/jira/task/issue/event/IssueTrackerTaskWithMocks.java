@@ -26,13 +26,13 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.hub.configuration.HubServerConfig;
+import com.synopsys.integration.hub.service.HubServicesFactory;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
     private final HubServicesFactory blackDuckServicesFactory;

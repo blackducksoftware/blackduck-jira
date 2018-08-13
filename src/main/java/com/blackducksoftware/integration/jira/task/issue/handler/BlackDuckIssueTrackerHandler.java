@@ -29,11 +29,11 @@ import org.apache.log4j.Logger;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
-import com.blackducksoftware.integration.hub.service.IssueService;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.api.generated.view.IssueView;
+import com.synopsys.integration.hub.service.IssueService;
 
 public class BlackDuckIssueTrackerHandler {
     public final static String USER_NOT_ASSIGNED = "Not Assigned";

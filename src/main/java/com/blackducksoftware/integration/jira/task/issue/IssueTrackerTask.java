@@ -31,11 +31,6 @@ import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
@@ -46,9 +41,14 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSe
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.hub.configuration.HubServerConfig;
+import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.hub.rest.BlackduckRestConnection;
+import com.synopsys.integration.hub.service.HubServicesFactory;
 
 public class IssueTrackerTask implements Callable<Boolean> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -133,8 +133,8 @@ public class IssueTrackerTask implements Callable<Boolean> {
     }
 
     public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final RestConnection restConnection = config.createCredentialsRestConnection(logger);
-        return new HubServicesFactory(restConnection);
+        final BlackduckRestConnection restConnection = config.createCredentialsRestConnection(logger);
+        return new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
     }
 
     private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
