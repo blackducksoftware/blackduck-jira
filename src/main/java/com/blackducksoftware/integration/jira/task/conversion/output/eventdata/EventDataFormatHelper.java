@@ -133,11 +133,15 @@ public class EventDataFormatHelper {
     }
 
     public String generateVulnerabilitiesComment(final VulnerabilityNotificationContent vulnerabilityContent) {
+        return generateVulnerabilitiesComment(vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds);
+    }
+
+    public String generateVulnerabilitiesComment(final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck plugin auto-generated comment)\n");
-        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.newVulnerabilityIds, "added");
-        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.updatedVulnerabilityIds, "updated");
-        appendVulnerabilitiesCommentText(commentText, vulnerabilityContent.deletedVulnerabilityIds, "deleted");
+        appendVulnerabilitiesCommentText(commentText, addedIds, "added");
+        appendVulnerabilitiesCommentText(commentText, updatedIds, "updated");
+        appendVulnerabilitiesCommentText(commentText, deletedIds, "deleted");
         return commentText.toString();
     }
 

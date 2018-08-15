@@ -623,6 +623,12 @@ public class EventDataBuilder extends Stringable {
             setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
             setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE);
             setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
+        } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
+            final String noComment = "";
+            setJiraIssueReOpenComment(noComment);
+            setJiraIssueCommentForExistingIssue(noComment);
+            setJiraIssueResolveComment(noComment);
+            setJiraIssueCommentInLieuOfStateChange(noComment);
         }
         return this;
     }

@@ -138,6 +138,7 @@ public class NotificationConverterTest {
     private static final String COMPONENT_URL = "http://localhost:8080/api/components/componentId";
     private static final String COMPONENT_VERSION_NAME = "componentVersion";
     private static final String COMPONENT_NAME = "componentName";
+    private static final String BOM_COMPONENT_URI = "http://localhost:8080/api/projects/projectId/versions/versionId/components/componentId";
     private static final String ASSIGNEE_USER_ID = "assigneeUserId";
     private static final String BLACKDUCK_PROJECT_NAME = "hubProjectName";
     private static final long JIRA_PROJECT_ID = 123L;
@@ -156,8 +157,7 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
-    private final static String VULN_EXPECTED_SUMMARY = "Black Duck Vulnerability: Project " + "'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion'";
-
+    private final static String VULN_EXPECTED_SUMMARY = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE + ": Project " + "'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion'";
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;
     private static JiraUserContext jiraContext;
@@ -315,8 +315,7 @@ public class NotificationConverterTest {
 
         // Verify the generated event
         verifyGeneratedEvents(events, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
-                expectedResolveComment,
-                expectedPropertyKey);
+                expectedResolveComment, expectedPropertyKey);
     }
 
     private static void mockHubServiceResponses(final HubService mockBlackDuckService) throws IntegrationException, MalformedURLException {
@@ -333,6 +332,7 @@ public class NotificationConverterTest {
         final ProjectView project = new ProjectView();
         project.projectOwner = "Shmario Bear";
         Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
+        Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
 
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
@@ -341,12 +341,14 @@ public class NotificationConverterTest {
     private static void mockBlackDuckBucketResponses(final HubBucket mockBlackDuckBucket) {
         final UriSingleResponse<ProjectVersionView> mockUriSingleResponseProjectVersionView = new UriSingleResponse<>(PROJECT_VERSION_URL, ProjectVersionView.class);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseProjectVersionView)).thenReturn(createProjectVersionView());
+        Mockito.when(mockBlackDuckBucket.get(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
 
         final UriSingleResponse<ComponentView> mockUriSingleResponseComponentView = new UriSingleResponse<>(COMPONENT_URL, ComponentView.class);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseComponentView)).thenReturn(createComponentView());
 
         final UriSingleResponse<ComponentVersionView> mockUriSingleResponseComponentVersionView = new UriSingleResponse<>(COMPONENT_VERSION_URL, ComponentVersionView.class);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseComponentVersionView)).thenReturn(createComponentVersionView());
+        Mockito.when(mockBlackDuckBucket.get(COMPONENT_VERSION_URL, ComponentVersionView.class)).thenReturn(createComponentVersionView());
     }
 
     private NotificationDetailResult createNotif(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
@@ -433,6 +435,7 @@ public class NotificationConverterTest {
         affected.projectName = BLACKDUCK_PROJECT_NAME;
         affected.projectVersion = PROJECT_VERSION_URL;
         affected.projectVersionName = PROJECT_VERSION_NAME;
+        affected.bomComponent = BOM_COMPONENT_URI;
         content.affectedProjectVersions = Arrays.asList(affected);
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
@@ -444,9 +447,10 @@ public class NotificationConverterTest {
         final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
         final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
         final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
+        final Optional<String> bomComponent = Optional.of(BOM_COMPONENT_URI);
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
-                componentVersionName, componentVersionUri, Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.empty());
+                componentVersionName, componentVersionUri, Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId, bomComponent);
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }

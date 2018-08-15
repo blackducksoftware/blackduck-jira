@@ -183,20 +183,19 @@ public class NotificationToEventConverter {
         eventDataBuilder.setBlackDuckProjectVersionNickname(getProjectVersionNickname(detail.getProjectVersion(), blackDuckBucket));
         eventDataBuilder.setJiraFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
 
-        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(eventDataBuilder, blackDuckBucket));
-        eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
-
         final String licenseText = getLicenseText(detail, versionBomComponent, blackDuckBucket);
         eventDataBuilder.setBlackDuckLicenseNames(licenseText);
         eventDataBuilder.setBlackDuckLicenseUrl(getLicenseTextLink(versionBomComponent, licenseText));
         eventDataBuilder.setBlackDuckComponentUsages(getComponentUsage(versionBomComponent));
         eventDataBuilder.setBlackDuckBaseUrl(blackDuckService.getHubBaseUrl().toString());
+        eventDataBuilder.setBlackDuckProjectVersionLastUpdated(getBomLastUpdated(detail, blackDuckBucket));
+        eventDataBuilder.setBlackDuckProjectOwner(getJiraProjectOwner(jiraServices.getUserSearchService(), detail.getProjectVersion(), blackDuckBucket));
 
         eventDataBuilder.setAction(action);
         eventDataBuilder.setNotificationType(notificationType);
 
-        eventDataBuilder.setBlackDuckProjectVersionLastUpdated(getBomLastUpdated(detail, blackDuckBucket));
-        eventDataBuilder.setBlackDuckProjectOwner(getJiraProjectOwner(jiraServices.getUserSearchService(), detail.getProjectVersion(), blackDuckBucket));
+        eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
+        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(eventDataBuilder, blackDuckBucket));
 
         final EventData eventData = eventDataBuilder.build();
         logger.debug("Event key: " + eventData.getEventKey());
