@@ -67,7 +67,7 @@ import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.synopsys.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 @InjectableComponent
 public class JiraServices {

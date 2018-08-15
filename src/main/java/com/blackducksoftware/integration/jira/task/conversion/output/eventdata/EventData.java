@@ -30,11 +30,12 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
-import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.util.Stringable;
 
 public class EventData extends Stringable {
     private BlackDuckEventAction action;
+    private EventCategory category;
     private Date lastBatchStartDate;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
@@ -59,6 +60,7 @@ public class EventData extends Stringable {
     private String blackDuckComponentOrigin;
     private String blackDuckComponentOriginId;
     private String blackDuckProjectVersionNickname;
+    private String blackDuckBomComponentUri;
     private String jiraIssueSummary;
     private String jiraIssueDescription;
     private String jiraIssueComment;
@@ -86,8 +88,25 @@ public class EventData extends Stringable {
         return this;
     }
 
+    public void overrideAction(final BlackDuckEventAction action) {
+        this.action = action;
+    }
+
+    public EventCategory getCategory() {
+        return category;
+    }
+
+    EventData setCategory(final EventCategory category) {
+        this.category = category;
+        return this;
+    }
+
     public boolean isPolicy() {
-        return NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType);
+        return EventCategory.POLICY.equals(category);
+    }
+
+    public boolean isVulnerability() {
+        return EventCategory.VULNERABILITY.equals(category);
     }
 
     EventData setLastBatchStartDate(final Date lastBatchStartDate) {
@@ -270,6 +289,11 @@ public class EventData extends Stringable {
         return this;
     }
 
+    EventData setBlackDuckBomComponentUri(final String blackDuckBomComponentUri) {
+        this.blackDuckBomComponentUri = blackDuckBomComponentUri;
+        return this;
+    }
+
     EventData setComponentIssueUrl(final String componentIssueUrl) {
         this.componentIssueUrl = componentIssueUrl;
         return this;
@@ -347,7 +371,7 @@ public class EventData extends Stringable {
         return blackDuckProjectName;
     }
 
-    public String getBlackDuckProjectVersion() {
+    public String getBlackDuckProjectVersionName() {
         return blackDuckProjectVersion;
     }
 
@@ -363,7 +387,7 @@ public class EventData extends Stringable {
         return blackDuckComponentUrl;
     }
 
-    public String getBlackDuckComponentVersion() {
+    public String getBlackDuckComponentVersionName() {
         return blackDuckComponentVersion;
     }
 
@@ -441,6 +465,10 @@ public class EventData extends Stringable {
 
     public String getBlackDuckProjectVersionNickname() {
         return blackDuckProjectVersionNickname;
+    }
+
+    public String getBlackDuckBomComponentUri() {
+        return blackDuckBomComponentUri;
     }
 
     public String getComponentIssueUrl() {

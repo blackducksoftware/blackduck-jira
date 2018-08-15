@@ -48,10 +48,10 @@ import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
-import com.synopsys.integration.hub.api.generated.view.IssueView;
-import com.synopsys.integration.hub.rest.BlackduckRestConnection;
-import com.synopsys.integration.hub.rest.CredentialsRestConnection;
-import com.synopsys.integration.hub.service.HubService;
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
+import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class BlackDuckIssueTrackerHandlerTest {

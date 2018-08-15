@@ -47,20 +47,20 @@ import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueT
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
 import com.google.gson.GsonBuilder;
-import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
-import com.synopsys.integration.hub.api.generated.view.NotificationUserView;
-import com.synopsys.integration.hub.api.generated.view.UserView;
-import com.synopsys.integration.hub.exception.HubIntegrationException;
-import com.synopsys.integration.hub.exception.HubItemTransformException;
-import com.synopsys.integration.hub.notification.CommonNotificationView;
-import com.synopsys.integration.hub.notification.NotificationDetailResult;
-import com.synopsys.integration.hub.notification.NotificationDetailResults;
-import com.synopsys.integration.hub.service.CommonNotificationService;
-import com.synopsys.integration.hub.service.HubService;
-import com.synopsys.integration.hub.service.IssueService;
-import com.synopsys.integration.hub.service.NotificationService;
-import com.synopsys.integration.hub.service.bucket.HubBucket;
-import com.synopsys.integration.hub.service.bucket.HubBucketService;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.view.NotificationUserView;
+import com.synopsys.integration.blackduck.api.generated.view.UserView;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.HubItemTransformException;
+import com.synopsys.integration.blackduck.notification.CommonNotificationView;
+import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
+import com.synopsys.integration.blackduck.notification.NotificationDetailResults;
+import com.synopsys.integration.blackduck.service.CommonNotificationService;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.IssueService;
+import com.synopsys.integration.blackduck.service.NotificationService;
+import com.synopsys.integration.blackduck.service.bucket.HubBucket;
+import com.synopsys.integration.blackduck.service.bucket.HubBucketService;
 
 /**
  * Collects recent notifications from Black Duck, and generates JIRA tickets for them.
@@ -82,7 +82,7 @@ public class TicketGenerator {
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final HubService blackDuckService, final HubBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-            final IssueService issueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
+            final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
             final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
@@ -92,7 +92,7 @@ public class TicketGenerator {
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, issueService);
+        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckIssueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
@@ -104,8 +104,7 @@ public class TicketGenerator {
             return startDate;
         }
         try {
-            final List<String> notificationTypesToInclude = getNotificationTypesToInclude();
-            final List<NotificationUserView> userNotifications = notificationService.getFilteredUserNotifications(blackDuckUser, startDate, endDate, notificationTypesToInclude);
+            final List<NotificationUserView> userNotifications = notificationService.getFilteredUserNotifications(blackDuckUser, startDate, endDate, getAllNotificationTypes());
             final List<CommonNotificationView> commonNotifications = commonNotificationService.getCommonUserNotifications(userNotifications);
             final NotificationDetailResults results = commonNotificationService.getNotificationDetailResults(commonNotifications);
             final List<NotificationDetailResult> notificationDetailResults = results.getResults();
@@ -134,13 +133,11 @@ public class TicketGenerator {
         return startDate;
     }
 
-    private List<String> getNotificationTypesToInclude() {
+    private List<String> getAllNotificationTypes() {
         final List<String> types = new ArrayList<>();
         for (final NotificationType notificationType : NotificationType.values()) {
             types.add(notificationType.name());
         }
-        // FIXME this should be included in the NotificationType enum in the future
-        types.add("BOM_EDIT");
         return types;
     }
 

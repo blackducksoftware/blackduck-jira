@@ -73,13 +73,13 @@ public class IssueFieldHandler {
     public void setPluginFieldValues(final EventData eventData, final IssueInputParameters issueInputParameters) {
         if (ticketInfoFromSetup != null && ticketInfoFromSetup.getCustomFields() != null && !ticketInfoFromSetup.getCustomFields().isEmpty()) {
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT, issueInputParameters, eventData.getBlackDuckProjectName());
-            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getBlackDuckProjectVersion());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, issueInputParameters, eventData.getBlackDuckProjectVersionName());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, issueInputParameters, eventData.getBlackDuckProjectVersionUrl());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, issueInputParameters, eventData.getBlackDuckProjectVersionNickname());
 
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT, issueInputParameters, eventData.getBlackDuckComponentName());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL, issueInputParameters, eventData.getBlackDuckComponentUrl());
-            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getBlackDuckComponentVersion());
+            addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, issueInputParameters, eventData.getBlackDuckComponentVersionName());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL, issueInputParameters, eventData.getBlackDuckComponentVersionUrl());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES, issueInputParameters, eventData.getBlackDuckLicenseNames());
             addIssueInputParameter(eventData, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL, issueInputParameters, eventData.getBlackDuckLicenseUrl());
@@ -116,7 +116,7 @@ public class IssueFieldHandler {
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getBlackDuckProjectName(),
-                    eventData.getBlackDuckProjectVersion(),
+                    eventData.getBlackDuckProjectVersionName(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -151,7 +151,7 @@ public class IssueFieldHandler {
                 logger.error(errorMessage);
                 jiraSettingsService.addBlackDuckError(errorMessage,
                         eventData.getBlackDuckProjectName(),
-                        eventData.getBlackDuckProjectVersion(),
+                        eventData.getBlackDuckProjectVersionName(),
                         eventData.getJiraProjectName(),
                         eventData.getJiraAdminUsername(),
                         eventData.getJiraIssueCreatorUsername(),
@@ -195,7 +195,7 @@ public class IssueFieldHandler {
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getBlackDuckProjectName(),
-                    eventData.getBlackDuckProjectVersion(),
+                    eventData.getBlackDuckProjectVersionName(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -220,7 +220,7 @@ public class IssueFieldHandler {
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getBlackDuckProjectName(),
-                    eventData.getBlackDuckProjectVersion(),
+                    eventData.getBlackDuckProjectVersionName(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -245,7 +245,7 @@ public class IssueFieldHandler {
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getBlackDuckProjectName(),
-                    eventData.getBlackDuckProjectVersion(),
+                    eventData.getBlackDuckProjectVersionName(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),
@@ -260,7 +260,7 @@ public class IssueFieldHandler {
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getBlackDuckComponentUrl();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getBlackDuckComponentVersion();
+            fieldValue = eventData.getBlackDuckComponentVersionName();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION_URL.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getBlackDuckComponentVersionUrl();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId().equals(pluginFieldId)) {
@@ -279,7 +279,7 @@ public class IssueFieldHandler {
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getBlackDuckProjectName();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId().equals(pluginFieldId)) {
-            fieldValue = eventData.getBlackDuckProjectVersion();
+            fieldValue = eventData.getBlackDuckProjectVersionName();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL.getId().equals(pluginFieldId)) {
             fieldValue = eventData.getBlackDuckProjectVersionUrl();
         } else if (PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId().equals(pluginFieldId)) {
@@ -291,7 +291,7 @@ public class IssueFieldHandler {
             logger.error(errorMessage);
             jiraSettingsService.addBlackDuckError(errorMessage,
                     eventData.getBlackDuckProjectName(),
-                    eventData.getBlackDuckProjectVersion(),
+                    eventData.getBlackDuckProjectVersionName(),
                     eventData.getJiraProjectName(),
                     eventData.getJiraAdminUsername(),
                     eventData.getJiraIssueCreatorUsername(),

@@ -212,10 +212,8 @@ public class JiraTaskSetupTest {
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
-                assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                assertTrue(
+                        currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME) || currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
@@ -385,8 +383,8 @@ public class JiraTaskSetupTest {
     private void mockCreationMethods(final JiraTaskTimed jiraTask, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
             throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
-        buildInfoUtil.setVersion("7.1.5");
-        final int[] versionNumbers = { 7, 1, 5 };
+        buildInfoUtil.setVersion("7.3.0");
+        final int[] versionNumbers = { 7, 3, 0 };
         buildInfoUtil.setVersionNumbers(versionNumbers);
         final JiraVersionCheck jiraVersionCheck = new JiraVersionCheck(buildInfoUtil);
         Mockito.when(jiraTask.getJiraVersionCheck()).thenReturn(jiraVersionCheck);

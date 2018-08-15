@@ -27,7 +27,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
-import com.synopsys.integration.hub.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
 
 public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 

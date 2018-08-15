@@ -26,10 +26,10 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.IssueService;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.hub.api.generated.view.IssueView;
-import com.synopsys.integration.hub.service.HubService;
-import com.synopsys.integration.hub.service.IssueService;
 import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.log.PrintStreamIntLogger;
 

@@ -23,13 +23,14 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 
 public enum BlackDuckEventAction {
     RESOLVE,
     OPEN,
     ADD_COMMENT,
-    ADD_COMMENT_IF_EXISTS;
+    ADD_COMMENT_IF_EXISTS,
+    UPDATE_IF_EXISTS;
 
     public static BlackDuckEventAction fromPolicyNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {

@@ -65,35 +65,35 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.synopsys.integration.blackduck.api.UriSingleResponse;
+import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
+import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.OriginSourceType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.ProjectVersionPhaseType;
+import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProfileView;
+import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
+import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
+import com.synopsys.integration.blackduck.api.generated.view.ComponentView;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
+import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
+import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
+import com.synopsys.integration.blackduck.notification.content.ComponentVersionStatus;
+import com.synopsys.integration.blackduck.notification.content.PolicyInfo;
+import com.synopsys.integration.blackduck.notification.content.PolicyOverrideNotificationContent;
+import com.synopsys.integration.blackduck.notification.content.RuleViolationClearedNotificationContent;
+import com.synopsys.integration.blackduck.notification.content.RuleViolationNotificationContent;
+import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
+import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.hub.api.UriSingleResponse;
-import com.synopsys.integration.hub.api.component.AffectedProjectVersion;
-import com.synopsys.integration.hub.api.generated.component.PolicyRuleExpressionSetView;
-import com.synopsys.integration.hub.api.generated.enumeration.NotificationType;
-import com.synopsys.integration.hub.api.generated.enumeration.OriginSourceType;
-import com.synopsys.integration.hub.api.generated.enumeration.ProjectVersionPhaseType;
-import com.synopsys.integration.hub.api.generated.response.VersionRiskProfileView;
-import com.synopsys.integration.hub.api.generated.view.ComplexLicenseView;
-import com.synopsys.integration.hub.api.generated.view.ComponentVersionView;
-import com.synopsys.integration.hub.api.generated.view.ComponentView;
-import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.synopsys.integration.hub.api.generated.view.ProjectVersionView;
-import com.synopsys.integration.hub.api.generated.view.ProjectView;
-import com.synopsys.integration.hub.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.hub.exception.HubIntegrationException;
-import com.synopsys.integration.hub.notification.NotificationDetailResult;
-import com.synopsys.integration.hub.notification.content.ComponentVersionStatus;
-import com.synopsys.integration.hub.notification.content.PolicyInfo;
-import com.synopsys.integration.hub.notification.content.PolicyOverrideNotificationContent;
-import com.synopsys.integration.hub.notification.content.RuleViolationClearedNotificationContent;
-import com.synopsys.integration.hub.notification.content.RuleViolationNotificationContent;
-import com.synopsys.integration.hub.notification.content.VulnerabilityNotificationContent;
-import com.synopsys.integration.hub.notification.content.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
-import com.synopsys.integration.hub.rest.BlackduckRestConnection;
-import com.synopsys.integration.hub.rest.CredentialsRestConnection;
-import com.synopsys.integration.hub.service.HubService;
-import com.synopsys.integration.hub.service.bucket.HubBucket;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class NotificationConverterTest {
@@ -446,7 +446,7 @@ public class NotificationConverterTest {
         final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
-                componentVersionName, componentVersionUri, Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+                componentVersionName, componentVersionUri, Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.empty());
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }
@@ -479,7 +479,7 @@ public class NotificationConverterTest {
         final Optional<String> policyUri = Optional.of(policyInfo.policy);
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
-                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.empty());
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
@@ -512,7 +512,7 @@ public class NotificationConverterTest {
         final Optional<String> policyUri = Optional.of(policyInfo.policy);
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
-                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId);
+                componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.empty());
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION_CLEARED, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
@@ -548,7 +548,7 @@ public class NotificationConverterTest {
         final Optional<String> policyUri = Optional.of(policyInfo.policy);
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
-                componentVersionName, componentVersionUri, policyName, policyUri, Optional.empty(), Optional.empty(), Optional.empty());
+                componentVersionName, componentVersionUri, policyName, policyUri, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }

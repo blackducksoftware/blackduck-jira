@@ -25,8 +25,10 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.util.Optional;
 
-import com.synopsys.integration.hub.api.generated.view.PolicyRuleViewV2;
-import com.synopsys.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
 
 public class IssuePropertiesGenerator {
     private static final String UNKNOWN = "<unknown>";
@@ -47,11 +49,27 @@ public class IssuePropertiesGenerator {
         this.ruleName = optionalPolicyRule.isPresent() ? optionalPolicyRule.get().name : UNKNOWN;
     }
 
-    public IssueProperties createIssueProperties(final Long issueId) {
-        // TODO do we want to add origin info?
-        if (isPolicy) {
-            return new PolicyViolationIssueProperties(projectName, projectVersionName, componentName, componentVersionName, issueId, ruleName);
-        }
-        return new VulnerabilityIssueProperties(projectName, projectVersionName, componentName, componentVersionName, issueId);
+    public IssuePropertiesGenerator(final EventDataBuilder eventDataBuilder) {
+        this.isPolicy = EventCategory.POLICY.equals(eventDataBuilder.getEventCategory());
+        this.projectName = eventDataBuilder.getBlackDuckProjectName();
+        this.projectVersionName = eventDataBuilder.getBlackDuckProjectVersionName();
+        this.componentName = eventDataBuilder.getBlackDuckComponentName();
+        this.componentVersionName = eventDataBuilder.getBlackDuckComponentVersionName();
+        this.ruleName = eventDataBuilder.getBlackDuckRuleName();
     }
+
+    public IssueProperties createIssueProperties(final Long issueId) {
+        if (isPolicy) {
+            return new PolicyViolationIssueProperties(projectName, projectVersionName, componentName, getComponentVersionName(), issueId, ruleName);
+        }
+        return new VulnerabilityIssueProperties(projectName, projectVersionName, componentName, getComponentVersionName(), issueId);
+    }
+
+    private String getComponentVersionName() {
+        if (componentVersionName != null) {
+            return componentVersionName;
+        }
+        return UNKNOWN;
+    }
+
 }

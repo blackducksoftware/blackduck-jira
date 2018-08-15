@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class UrlParser {
 
