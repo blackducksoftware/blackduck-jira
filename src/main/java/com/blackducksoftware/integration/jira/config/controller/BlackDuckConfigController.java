@@ -69,8 +69,7 @@ public class BlackDuckConfigController {
     private final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
 
-    public BlackDuckConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
-            final TransactionTemplate transactionTemplate) {
+    public BlackDuckConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;

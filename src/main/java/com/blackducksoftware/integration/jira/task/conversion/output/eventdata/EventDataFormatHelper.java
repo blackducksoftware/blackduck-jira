@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.synopsys.integration.blackduck.api.core.HubResponse;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
 import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;
@@ -104,7 +105,7 @@ public class EventDataFormatHelper {
         } else if (EventCategory.VULNERABILITY.equals(builder.getEventCategory())) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;
-            final ProjectVersionView projectVersion = blackDuckBucket.get(builder.getBlackDuckProjectVersionUrl(), ProjectVersionView.class);
+            final ProjectVersionView projectVersion = getView(builder.getBlackDuckProjectVersionUrl(), ProjectVersionView.class, blackDuckBucket);
             if (projectVersion != null) {
                 vulnerableComponentsLink = blackDuckService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
@@ -119,7 +120,7 @@ public class EventDataFormatHelper {
         }
 
         if (builder.getBlackDuckComponentVersionUrl() != null) {
-            final ComponentVersionView componentVersion = blackDuckBucket.get(builder.getBlackDuckComponentVersionUrl(), ComponentVersionView.class);
+            final ComponentVersionView componentVersion = getView(builder.getBlackDuckComponentVersionUrl(), ComponentVersionView.class, blackDuckBucket);
             final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
             if (StringUtils.isNotBlank(licenseText)) {
                 issueDescription.append("KB Component license(s): ");
@@ -230,13 +231,38 @@ public class EventDataFormatHelper {
     }
 
     public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) {
-        final EventDataLicense license = new EventDataLicense(componentVersion.license);
-        return getComponentLicensesString(license, false);
+        if (componentVersion != null) {
+            final EventDataLicense license = new EventDataLicense(componentVersion.license);
+            return getComponentLicensesString(license, false);
+        }
+        return "";
     }
 
     public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) {
-        final EventDataLicense license = new EventDataLicense(componentVersion.license);
-        return getComponentLicensesString(license, true);
+        if (componentVersion != null) {
+            final EventDataLicense license = new EventDataLicense(componentVersion.license);
+            return getComponentLicensesString(license, true);
+        }
+        return "";
+    }
+
+    public String getLicenseTextLink(final List<VersionBomLicenseView> licenses, final String licenseName) {
+        if (CollectionUtils.isNotEmpty(licenses)) {
+            VersionBomLicenseView versionBomLicense = licenses.get(0);
+            for (final VersionBomLicenseView license : licenses) {
+                if (licenseName.equals(license.licenseDisplay)) {
+                    versionBomLicense = license;
+                }
+            }
+            try {
+                final LicenseView genericLicense = blackDuckService.getResponse(versionBomLicense.license, LicenseView.class);
+                final LicenseView kbLicense = blackDuckService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
+                return blackDuckService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
+            } catch (final Exception e) {
+                logger.debug("Unable to get the BOM component license text.");
+            }
+        }
+        return "";
     }
 
     private String getComponentLicensesString(final EventDataLicense eventDataLicense, final boolean includeLinks) {
@@ -289,23 +315,16 @@ public class EventDataFormatHelper {
         return blackDuckService.getHubBaseUrl().toString();
     }
 
-    public String getLicenseTextLink(final List<VersionBomLicenseView> licenses, final String licenseName) {
-        if (CollectionUtils.isNotEmpty(licenses)) {
-            VersionBomLicenseView versionBomLicense = licenses.get(0);
-            for (final VersionBomLicenseView license : licenses) {
-                if (licenseName.equals(license.licenseDisplay)) {
-                    versionBomLicense = license;
-                }
-            }
+    private <T extends HubResponse> T getView(final String uri, final Class<T> clazz, final HubBucket blackDuckBucket) {
+        T view = blackDuckBucket.get(uri, clazz);
+        if (view == null) {
             try {
-                final LicenseView genericLicense = blackDuckService.getResponse(versionBomLicense.license, LicenseView.class);
-                final LicenseView kbLicense = blackDuckService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
-                return blackDuckService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
-            } catch (final Exception e) {
-                logger.debug("Unable to get the BOM component license text.");
+                view = blackDuckService.getResponse(uri, clazz);
+            } catch (final IntegrationException e) {
+                logger.debug("Could not get view from Black Duck.", e);
             }
         }
-        return "";
+        return view;
     }
 
     class EventDataLicense {

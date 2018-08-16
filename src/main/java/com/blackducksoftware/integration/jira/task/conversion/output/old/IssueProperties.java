@@ -21,22 +21,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.conversion.output;
+package com.blackducksoftware.integration.jira.task.conversion.output.old;
 
+import java.util.Optional;
+
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.synopsys.integration.util.Stringable;
 
-public abstract class IssueProperties extends Stringable {
+// TODO update this for BOM_EDIT
+public class IssueProperties extends Stringable {
     private final String projectName;
     private final String projectVersionName;
     private final String componentName;
     private final String componentVersionName;
+    private final String ruleName;
+
+    private final String bomComponentUri;
+
     private final Long jiraIssueId;
 
-    public IssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final Long jiraIssueId) {
+    // @formatter:off
+    public static IssueProperties fromEventData(final EventData eventData, final Long jiraIssueId) {
+        return new IssueProperties(
+                 eventData.getBlackDuckProjectName()
+                ,eventData.getBlackDuckProjectVersionName()
+                ,eventData.getBlackDuckComponentName()
+                ,eventData.getBlackDuckComponentVersionName()
+                ,eventData.getBlackDuckRuleName()
+                ,eventData.getBlackDuckBomComponentUri()
+                ,jiraIssueId);
+    }
+    // @formatter:on
+
+    public IssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName, final String bomComponentUri, final Long jiraIssueId) {
         this.projectName = projectName;
         this.projectVersionName = projectVersionName;
         this.componentName = componentName;
         this.componentVersionName = componentVersionName;
+        this.ruleName = ruleName;
+
+        this.bomComponentUri = bomComponentUri;
+
         this.jiraIssueId = jiraIssueId;
     }
 
@@ -54,6 +79,14 @@ public abstract class IssueProperties extends Stringable {
 
     public String getComponentVersion() {
         return componentVersionName;
+    }
+
+    public Optional<String> getRuleName() {
+        return Optional.ofNullable(ruleName);
+    }
+
+    public String getBomComponentUri() {
+        return bomComponentUri;
     }
 
     public Long getJiraIssueId() {

@@ -61,10 +61,9 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.old.IssueProperties;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
@@ -400,9 +399,8 @@ public class NotificationConverterTest {
 
         assertEquals(expectedReOpenComment, eventData.getJiraIssueReOpenComment());
         assertEquals(expectedResolveComment, eventData.getJiraIssueResolveComment());
-        final IssuePropertiesGenerator issuePropertiesGenerator = eventData.getJiraIssuePropertiesGenerator();
 
-        final IssueProperties issueProperties = issuePropertiesGenerator.createIssueProperties(Long.valueOf(JIRA_ISSUE_ID));
+        final IssueProperties issueProperties = IssueProperties.fromEventData(eventData, Long.valueOf(JIRA_ISSUE_ID));
         assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());

@@ -35,7 +35,6 @@ import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderE
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.IssuePropertiesGenerator;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
@@ -56,6 +55,7 @@ public class EventDataBuilder extends Stringable {
     private String jiraProjectName;
     private Long jiraProjectId;
     private Set<ProjectFieldCopyMapping> jiraFieldCopyMappings;
+
     private String blackDuckBaseUrl;
     private String blackDuckProjectName;
     private String blackDuckProjectVersionName;
@@ -70,18 +70,22 @@ public class EventDataBuilder extends Stringable {
     private String blackDuckComponentOrigin;
     private String blackDuckComponentOriginId;
     private String blackDuckProjectVersionNickname;
-    private String jiraIssueDescription;
-    private String jiraIssueComment;
-    private String jiraIssueReOpenComment;
-    private String jiraIssueCommentForExistingIssue;
-    private String jiraIssueResolveComment;
-    private String jiraIssueCommentInLieuOfStateChange;
+    private String blackDuckBomComponentUri;
+
     private String blackDuckRuleName;
     private String blackDuckRuleOverridable;
     private String blackDuckRuleDescription;
     private String blackDuckRuleUrl;
     private String componentIssueUrl;
     private ApplicationUser blackDuckProjectOwner;
+
+    private String jiraIssueDescription;
+    private String jiraIssueComment;
+    private String jiraIssueReOpenComment;
+    private String jiraIssueCommentForExistingIssue;
+    private String jiraIssueResolveComment;
+    private String jiraIssueCommentInLieuOfStateChange;
+
     private String blackDuckProjectVersionLastUpdated;
     private NotificationType notificationType;
 
@@ -357,6 +361,11 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
+    public EventDataBuilder setBlackDuckBomComponentUri(final String blackDuckBomComponentUri) {
+        this.blackDuckBomComponentUri = blackDuckBomComponentUri;
+        return this;
+    }
+
     public EventDataBuilder setComponentIssueUrl(final String componentIssueUrl) {
         this.componentIssueUrl = componentIssueUrl;
         return this;
@@ -389,12 +398,16 @@ public class EventDataBuilder extends Stringable {
         return blackDuckProjectVersionUrl;
     }
 
+    public String getBlackDuckComponentUrl() {
+        return blackDuckComponentUrl;
+    }
+
     public String getBlackDuckComponentVersionUrl() {
         return blackDuckComponentVersionUrl;
     }
 
-    public String getBlackDuckComponentUrl() {
-        return blackDuckComponentUrl;
+    public String getBomComponentUri() {
+        return blackDuckBomComponentUri;
     }
 
     public String getBlackDuckRuleUrl() {
@@ -403,12 +416,9 @@ public class EventDataBuilder extends Stringable {
 
     public EventData build() throws EventDataBuilderException {
         // Use available data to complete
-        setPolicyIssueCommentPropertiesFromNotificationType();
-
         final EventData eventData = new EventData();
-        eventData
-                .setJiraIssueSummary(getIssueSummary())
-                .setJiraIssuePropertiesGenerator(new IssuePropertiesGenerator(this));
+        eventData.setJiraIssueSummary(getIssueSummary());
+        setPolicyIssueCommentPropertiesFromNotificationType();
 
         if (jiraAdminUserName == null) {
             throw new EventDataBuilderException("jiraAdminUserName not set");
@@ -518,6 +528,7 @@ public class EventDataBuilder extends Stringable {
                 .setBlackDuckComponentOrigin(blackDuckComponentOrigin)
                 .setBlackDuckComponentOriginId(blackDuckComponentOriginId)
                 .setBlackDuckProjectVersionNickname(blackDuckProjectVersionNickname)
+                .setBlackDuckBomComponentUri(blackDuckBomComponentUri)
                 .setJiraIssueDescription(jiraIssueDescription)
                 .setJiraIssueComment(jiraIssueComment)
                 .setJiraIssueReOpenComment(jiraIssueReOpenComment)

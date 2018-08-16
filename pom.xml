@@ -71,6 +71,14 @@
       <version>37.0.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>hub-common-reporting</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.blackducksoftware.integration</groupId>
+          <artifactId>integration-bdio</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>com.thoughtworks.xstream</groupId>
           <artifactId>xstream</artifactId>
         </exclusion>

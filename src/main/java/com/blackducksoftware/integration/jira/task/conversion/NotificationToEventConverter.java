@@ -150,6 +150,10 @@ public class NotificationToEventConverter {
         eventDataBuilder.setLastBatchStartDate(batchStartDate);
 
         final VersionBomComponentView versionBomComponent = getBomComponent(detail, blackDuckBucket);
+        if (versionBomComponent != null) {
+            eventDataBuilder.setBlackDuckBomComponentUri(blackDuckService.getHref(versionBomComponent));
+        }
+
         Optional<PolicyRuleViewV2> optionalPolicyRule = Optional.empty();
         if (detail.isPolicy()) {
             final UriSingleResponse<PolicyRuleViewV2> policyRuleLink = detail.getPolicy().get();
@@ -161,7 +165,7 @@ public class NotificationToEventConverter {
                 eventDataBuilder.setBlackDuckRuleUrl(policyRuleLink.uri);
             }
 
-            action = BlackDuckEventAction.fromPolicyNotificationType(notificationType);
+            action = BlackDuckEventAction.fromNotificationType(notificationType);
         } else if (detail.isVulnerability()) {
             final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
             final String comment = dataFormatHelper.generateVulnerabilitiesComment(vulnerabilityContent);

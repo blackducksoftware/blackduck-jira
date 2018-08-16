@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,10 +54,7 @@ import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.PolicyViolationIssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.VulnerabilityIssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.conversion.output.old.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
@@ -112,11 +110,25 @@ public class JiraIssueServiceWrapper {
         throw new JiraIssueException("getIssue", result.getErrorCollection());
     }
 
-    public Issue findIssue(final EventCategory eventCategory, final String notificationUniqueKey) throws JiraIssueException {
+    public List<Issue> findIssuesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
+        logger.debug("Find issue by Bom Component URI: " + bomComponentUri);
+        final List<Issue> foundIssues = new ArrayList<>();
+
+        final List<EntityProperty> properties = issuePropertyWrapper.findProperties(bomComponentUri);
+        for (final EntityProperty property : properties) {
+            final IssueProperties propertyValue = createIssuePropertiesFromJson(property.getValue());
+            logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
+            final Issue foundIssue = getIssue(propertyValue.getJiraIssueId());
+            foundIssues.add(foundIssue);
+        }
+        return foundIssues;
+    }
+
+    public Issue findIssueByContentKey(final String notificationUniqueKey) throws JiraIssueException {
         logger.debug("Find issue: " + notificationUniqueKey);
         final EntityProperty property = issuePropertyWrapper.findProperty(notificationUniqueKey);
         if (property != null) {
-            final IssueProperties propertyValue = createIssuePropertiesFromJson(eventCategory, property.getValue());
+            final IssueProperties propertyValue = createIssuePropertiesFromJson(property.getValue());
             logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
             return getIssue(propertyValue.getJiraIssueId());
         }
@@ -131,7 +143,6 @@ public class JiraIssueServiceWrapper {
         logger.debug("issueInputParameters.applyDefaultValuesWhenParameterNotProvided(): " + issueInputParameters.applyDefaultValuesWhenParameterNotProvided());
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): " + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        // TODO set field copy mappings
         final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
@@ -156,7 +167,10 @@ public class JiraIssueServiceWrapper {
         logger.debug("Update issue (" + existingIssueId + "): " + jiraIssueWrapper);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
 
-        // TODO set field copy mappings
+        final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
+        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
+                jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
 
         final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssueId, issueInputParameters);
         if (validationResult.isValid()) {
@@ -166,6 +180,7 @@ public class JiraIssueServiceWrapper {
             if (!errors.hasAnyErrors()) {
                 final MutableIssue jiraIssue = result.getIssue();
                 fixIssueAssignment(jiraIssue, jiraIssueWrapper.getJiraIssueFieldTemplate().getAssigneeId());
+                issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
                 return jiraIssue;
             }
             throw new JiraIssueException("updateIssue", errors);
@@ -202,23 +217,18 @@ public class JiraIssueServiceWrapper {
         return issuePropertyWrapper.getIssueProperty(issueId, jiraUserContext.getJiraIssueCreatorUser(), propertyName);
     }
 
-    public void addIssueProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
-        final String jsonValue = gson.toJson(value);
+    public Map<String, String> getIssueProperties(final Long issueId) throws JiraIssueException {
+        final Map<String, String> properties = issuePropertyWrapper.getIssueProperties(issueId, jiraUserContext.getJiraIssueCreatorUser());
+        return properties;
+    }
+
+    public void addIssueProperty(final Long issueId, final String key, final IssueProperties propertiesObject) throws JiraIssueException {
+        final String jsonValue = gson.toJson(propertiesObject);
         addIssuePropertyJson(issueId, key, jsonValue);
     }
 
     public void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
         issuePropertyWrapper.addIssuePropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
-    }
-
-    // TODO this doesn't really belong here
-    public IssueProperties createIssuePropertiesFromJson(final EventCategory eventCategory, final String json) throws JiraIssueException {
-        if (EventCategory.POLICY.equals(eventCategory)) {
-            return gson.fromJson(json, PolicyViolationIssueProperties.class);
-        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
-            return gson.fromJson(json, VulnerabilityIssueProperties.class);
-        }
-        throw new JiraIssueException("Did not recognize notification type: " + eventCategory.name(), "createIssuePropertiesFromJson");
     }
 
     public void addProjectProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
@@ -272,6 +282,14 @@ public class JiraIssueServiceWrapper {
     private void dispatchEvent(final MutableIssue modifiedIssue, final EventDispatchOption option, final boolean sendMail) {
         final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(option).sendMail(sendMail).build();
         jiraIssueManager.updateIssue(jiraUserContext.getJiraIssueCreatorUser(), modifiedIssue, issueUpdate);
+    }
+
+    private IssueProperties createIssuePropertiesFromJson(final String json) throws JiraIssueException {
+        try {
+            return gson.fromJson(json, IssueProperties.class);
+        } catch (final Exception e) {
+            throw new JiraIssueException("Could not deserialize issue properties.", "createIssuePropertiesFromJson");
+        }
     }
 
     private IssueInputParameters createPopulatedIssueInputParameters(final JiraIssueWrapper jiraIssueWrapper) {

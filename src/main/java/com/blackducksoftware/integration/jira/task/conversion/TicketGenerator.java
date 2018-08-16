@@ -61,6 +61,7 @@ import com.synopsys.integration.blackduck.service.IssueService;
 import com.synopsys.integration.blackduck.service.NotificationService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.blackduck.service.bucket.HubBucketService;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 /**
  * Collects recent notifications from Black Duck, and generates JIRA tickets for them.
@@ -118,9 +119,8 @@ public class TicketGenerator {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
-                final NotificationToEventConverter notificationConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                        new EventDataFormatHelper(logger, blackDuckService),
-                        linksOfRulesToMonitor, blackDuckService, logger);
+                final BomNotificationToEventConverter notificationConverter = new BomNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
+                        new EventDataFormatHelper(logger, blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {
@@ -141,11 +141,12 @@ public class TicketGenerator {
         return types;
     }
 
-    private void handleEachIssue(final NotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket blackDuckBucket, final Date batchStartDate)
+    private void handleEachIssue(final BomNotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket blackDuckBucket,
+            final Date batchStartDate)
             throws HubIntegrationException {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<EventData> events = converter.createEventDataForNotificationDetailResult(detailResult, blackDuckBucket, batchStartDate);
+                final Collection<EventData> events = converter.convertToEventData(detailResult, blackDuckBucket, batchStartDate);
                 for (final EventData event : events) {
                     try {
                         issueHandler.handleEvent(event);
@@ -169,6 +170,8 @@ public class TicketGenerator {
                             e.getMessage());
                     logger.warn(msg);
                     jiraSettingsService.addBlackDuckError(msg, "getAllNotifications");
+                } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
+                    logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else {
                     logger.error("Error retrieving notifications: " + e.getMessage(), e);
                     jiraSettingsService.addBlackDuckError(e, "getAllNotifications");

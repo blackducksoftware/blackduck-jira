@@ -62,6 +62,7 @@ import com.synopsys.integration.blackduck.api.generated.component.VersionBomLice
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomOriginView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.MatchedFileUsagesType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.PolicySummaryStatusType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.RiskCountType;
 import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
@@ -134,7 +135,7 @@ public class BomNotificationToEventConverter {
         final ProjectVersionWrapper projectVersionWrapper = getProjectVersionWrapper(detail, blackDuckBucket);
         final String blackDuckProjectName = projectVersionWrapper.getProjectView().name;
         final List<JiraProject> jiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
-        logger.debug(String.format("There are %d jira projects configured", jiraProjects));
+        logger.debug(String.format("There are %d jira projects configured", jiraProjects.size()));
         for (final JiraProject jiraProject : jiraProjects) {
             try {
                 final Collection<EventData> createdEventData = createEventDataFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, blackDuckBucket, batchStartDate);
@@ -162,7 +163,6 @@ public class BomNotificationToEventConverter {
                 }
                 throw restException;
             }
-
             if (detail.isPolicy()) {
                 final EventData eventData = createEventDataForPolicy(jiraProject, detail.getPolicy().get(), projectVersionWrapper, versionBomComponent, notificationType, blackDuckBucket, batchStartDate);
                 if (eventData != null) {
@@ -175,7 +175,7 @@ public class BomNotificationToEventConverter {
                 if (eventData != null) {
                     return Arrays.asList(eventData);
                 }
-            } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
+            } else if (detail.isBomEdit()) {
                 return createEventDataForBomEdit(jiraProject, projectVersionWrapper, versionBomComponent, blackDuckBucket, batchStartDate);
             }
         } else {
@@ -217,7 +217,7 @@ public class BomNotificationToEventConverter {
         eventDataBuilder.setBlackDuckRuleOverridable(policyRule.overridable);
         // TODO eventDataBuilder.setBlackDuckRuleSeverity(policyRule.severity);
 
-        final BlackDuckEventAction action = BlackDuckEventAction.fromPolicyNotificationType(eventDataBuilder.getNotificationType());
+        final BlackDuckEventAction action = BlackDuckEventAction.fromNotificationType(eventDataBuilder.getNotificationType());
         eventDataBuilder.setAction(action);
 
         return addRemainingFieldsToEventDataAndBuild(eventDataBuilder, blackDuckBucket);
@@ -234,7 +234,7 @@ public class BomNotificationToEventConverter {
         eventDataBuilder.setVulnerabilityIssueCommentProperties(comment);
 
         BlackDuckEventAction action = BlackDuckEventAction.ADD_COMMENT;
-        if (!doesComponentVersionHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
+        if (!doesSecurityRiskProfileHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
             action = BlackDuckEventAction.RESOLVE;
         } else if (doesNotificationOnlyHaveDeletes(addedIds, updatedIds, deletedIds)) {
             action = BlackDuckEventAction.ADD_COMMENT_IF_EXISTS;
@@ -249,20 +249,24 @@ public class BomNotificationToEventConverter {
             final Date batchStartDate) throws IntegrationException, EventDataBuilderException, ConfigurationException {
 
         final List<EventData> editEvents = new ArrayList<>();
-        if (doesComponentVersionHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
+        if (doesSecurityRiskProfileHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
             final EventData vulnerabilityEventData = createEventDataForVulnerability(
                     jiraProject, projectVersionWrapper, versionBomComponent, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), blackDuckBucket, batchStartDate);
+            vulnerabilityEventData.overrideAction(BlackDuckEventAction.UPDATE_IF_EXISTS);
             editEvents.add(vulnerabilityEventData);
         }
 
-        final List<PolicyRuleViewV2> policyRules = blackDuckService.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
-        if (!policyRules.isEmpty()) {
+        if (PolicySummaryStatusType.IN_VIOLATION.equals(versionBomComponent.policyStatus)) {
+            final List<PolicyRuleViewV2> policyRules = blackDuckService.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
             for (final PolicyRuleViewV2 rule : policyRules) {
                 final EventDataBuilder eventDataBuilder = createCommonEventDataBuilder(jiraProject, EventCategory.POLICY, batchStartDate);
                 addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
                 eventDataBuilder.setNotificationType(NotificationType.BOM_EDIT);
                 final EventData policyEventData = createEventDataForPolicy(eventDataBuilder, rule, blackDuckBucket);
-                editEvents.add(policyEventData);
+                if (policyEventData != null) {
+                    policyEventData.overrideAction(BlackDuckEventAction.UPDATE_IF_EXISTS);
+                    editEvents.add(policyEventData);
+                }
             }
         }
         return editEvents;
@@ -304,16 +308,19 @@ public class BomNotificationToEventConverter {
 
         eventDataBuilder.setBlackDuckProjectName(project.name);
         eventDataBuilder.setBlackDuckProjectVersionName(projectVersion.versionName);
+        eventDataBuilder.setBlackDuckProjectVersionUrl(blackDuckService.getHref(projectVersion));
         eventDataBuilder.setBlackDuckProjectVersionLastUpdated(getBomLastUpdated(projectVersion, project.name));
         eventDataBuilder.setBlackDuckProjectVersionNickname(projectVersion.nickname);
         eventDataBuilder.setBlackDuckProjectOwner(getJiraProjectOwner(project.projectOwner, blackDuckBucket));
     }
 
-    private void addComponentSectionData(final EventDataBuilder eventDataBuilder, final VersionBomComponentView versionBomComponent) {
+    private void addComponentSectionData(final EventDataBuilder eventDataBuilder, final VersionBomComponentView versionBomComponent) throws IntegrationException {
         eventDataBuilder.setBlackDuckComponentName(versionBomComponent.componentName);
         eventDataBuilder.setBlackDuckComponentUrl(versionBomComponent.component);
         eventDataBuilder.setBlackDuckComponentVersionName(versionBomComponent.componentName);
         eventDataBuilder.setBlackDuckComponentVersionUrl(versionBomComponent.componentVersion);
+
+        eventDataBuilder.setBlackDuckBomComponentUri(blackDuckService.getHref(versionBomComponent));
 
         addComponentVersionOriginData(eventDataBuilder, versionBomComponent.origins);
         addLicenseData(eventDataBuilder, versionBomComponent.licenses);
@@ -399,9 +406,9 @@ public class BomNotificationToEventConverter {
         return wrapper;
     }
 
-    private boolean doesComponentVersionHaveVulnerabilities(final RiskProfileView securityRiskProfile) {
+    private boolean doesSecurityRiskProfileHaveVulnerabilities(final RiskProfileView securityRiskProfile) {
         logger.debug("Checking if the component still has vulnerabilities...");
-        final int vulnerablitiesCount = getSumOfCounts(securityRiskProfile.counts);
+        final int vulnerablitiesCount = getSumOfRiskCounts(securityRiskProfile.counts);
         logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
         if (vulnerablitiesCount > 0) {
             logger.debug("This component still has vulnerabilities");
@@ -410,7 +417,7 @@ public class BomNotificationToEventConverter {
         return false;
     }
 
-    private int getSumOfCounts(final List<RiskCountView> vulnerabilityCounts) {
+    private int getSumOfRiskCounts(final List<RiskCountView> vulnerabilityCounts) {
         int count = 0;
         for (final RiskCountView riskCount : vulnerabilityCounts) {
             if (!RiskCountType.OK.equals(riskCount.countType)) {
