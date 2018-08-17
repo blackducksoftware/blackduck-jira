@@ -77,7 +77,7 @@ import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.exception.IntegrationException;
 
-public class NotificationToEventConverter {
+public class OldNotificationToEventConverter {
     private final BlackDuckJiraLogger logger;
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
@@ -88,7 +88,7 @@ public class NotificationToEventConverter {
     private final List<String> linksOfRulesToMonitor;
     private final HubService blackDuckService;
 
-    public NotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
+    public OldNotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger)
             throws ConfigurationException {
         this.jiraServices = jiraServices;

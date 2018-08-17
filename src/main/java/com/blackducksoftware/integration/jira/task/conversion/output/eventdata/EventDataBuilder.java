@@ -501,7 +501,10 @@ public class EventDataBuilder extends Stringable {
                 throw new EventDataBuilderException("blackDuckRuleUrl not set");
             }
         }
+        return build(eventData);
+    }
 
+    private EventData build(final EventData eventData) throws EventDataBuilderException {
         eventData.setAction(action)
                 .setCategory(eventCategory)
                 .setLastBatchStartDate(lastBatchStartDate)
@@ -552,8 +555,26 @@ public class EventDataBuilder extends Stringable {
         return eventData;
     }
 
+    public EventData buildSpecialEventData(final JiraProject jiraProject, final NotificationContentDetail detail, final Date batchStartDate) throws EventDataBuilderException {
+        setAction(BlackDuckEventAction.RESOLVE_ALL);
+
+        setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId());
+        setJiraProjectName(jiraProject.getProjectName());
+        setJiraProjectId(jiraProject.getProjectId());
+        setPropertiesFromNotificationContentDetail(detail);
+
+        if (detail.getBomComponent().isPresent()) {
+            setBlackDuckBomComponentUri(detail.getBomComponent().get().uri);
+        }
+
+        setLastBatchStartDate(batchStartDate);
+        final EventData specialEventData = new EventData();
+
+        return build(specialEventData);
+    }
+
     // This must remain consistent among non-major versions
-    public final String generateEventKey() throws IntegrationException {
+    private final String generateEventKey() throws IntegrationException {
         final Long jiraProjectId = this.getJiraProjectId();
         final String blackDuckProjectVersionUrl = this.getBlackDuckProjectVersionUrl();
         final String blackDuckComponentVersionUrl = this.getBlackDuckComponentVersionUrl();
@@ -663,6 +684,8 @@ public class EventDataBuilder extends Stringable {
             issueSummary.append(blackDuckComponentVersionName != null ? blackDuckComponentVersionName : "?");
             issueSummary.append("'");
             return issueSummary.toString();
+        } else if (EventCategory.SPECIAL.equals(eventCategory)) {
+            return null;
         } else {
             throw new EventDataBuilderException("Invalid event category: " + eventCategory);
         }

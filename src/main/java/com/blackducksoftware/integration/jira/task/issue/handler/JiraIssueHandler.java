@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.task.issue.handler;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,9 +44,9 @@ import com.blackducksoftware.integration.jira.common.exception.JiraIssueExceptio
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
-import com.blackducksoftware.integration.jira.task.conversion.output.old.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
@@ -111,6 +111,8 @@ public class JiraIssueHandler {
             if (openedIssue != null && !openedIssue.isExisted()) {
                 addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
             }
+        } else if (BlackDuckEventAction.RESOLVE_ALL.equals(actionToTake)) {
+            resolveAllRelatedIssues(eventData);
         } else {
             logger.warn("No action to take for event data: " + eventData);
         }
@@ -141,7 +143,7 @@ public class JiraIssueHandler {
                             handleJiraIssueException(e, eventData);
                         }
                     }
-                    addDefaultIssueProperties(issue.getId(), eventData);
+                    updateDefaultIssueProperties(issue.getId(), eventData);
                     addLastBatchStartKeyToIssue(issue.getId(), eventData);
                 }
                 return new ExistenceAwareIssue(issue, false, false);
@@ -178,6 +180,27 @@ public class JiraIssueHandler {
 
     private ExistenceAwareIssue closeIssue(final EventData eventData) {
         final Issue oldIssue = findIssue(eventData);
+        return closeIssue(eventData, oldIssue);
+    }
+
+    private void resolveAllRelatedIssues(final EventData eventData) {
+        try {
+            final String bomComponentUri = eventData.getBlackDuckBomComponentUri();
+            logger.debug("Resolving all issues associated with the missing component: " + bomComponentUri);
+            final List<IssueProperties> foundProperties = findIssuePropertiesByBomComponentUri(bomComponentUri);
+            for (final IssueProperties properties : foundProperties) {
+                final Issue matchingIssue = issueServiceWrapper.getIssue(properties.getJiraIssueId());
+                final ExistenceAwareIssue closedIssue = closeIssue(eventData, matchingIssue);
+                if (closedIssue != null && closedIssue.isIssueStateChangeBlocked()) {
+                    addComment(eventData, eventData.getJiraIssueCommentInLieuOfStateChange(), closedIssue.getIssue());
+                }
+            }
+        } catch (final JiraIssueException e) {
+            handleJiraIssueException(e, eventData);
+        }
+    }
+
+    private ExistenceAwareIssue closeIssue(final EventData eventData, final Issue oldIssue) {
         if (oldIssue != null) {
             final boolean issueStateChangeBlocked = blockStateChange(oldIssue, eventData);
             if (!issueStateChangeBlocked) {
@@ -251,25 +274,26 @@ public class JiraIssueHandler {
         }
     }
 
-    private void addDefaultIssueProperties(final Long issueId, final EventData eventData) {
-        final IssueProperties properties = IssueProperties.fromEventData(eventData, issueId);
-        logger.debug("Adding default properties to issue: " + properties);
-        try {
-            issueServiceWrapper.addIssueProperty(issueId, eventData.getEventKey(), properties);
-            issueServiceWrapper.addIssuePropertyJson(issueId, BlackDuckJiraConstants.BLACKDUCK_ISSUE_PROPERTY_BOM_COMPONENT_KEY, eventData.getBlackDuckBomComponentUri());
-            issueServiceWrapper.addIssuePropertyJson(issueId, BlackDuckJiraConstants.BLACKDUCK_ISSUE_PROPERTY_POLICY_RULE_KEY, eventData.getBlackDuckRuleUrl());
-        } catch (final JiraIssueException e) {
-            handleJiraIssueException(e, eventData);
+    private void updateDefaultIssueProperties(final Long issueId, final EventData eventData) {
+        final EventCategory category = eventData.getCategory();
+        if (!EventCategory.SPECIAL.equals(category)) {
+            final IssueProperties properties = new IssueProperties(category, eventData.getBlackDuckBomComponentUri(), eventData.getBlackDuckRuleName(), issueId);
+            logger.debug("Setting default properties on issue: " + properties);
+            try {
+                issueServiceWrapper.addIssueProperties(issueId, eventData.getBlackDuckBomComponentUri(), properties);
+            } catch (final JiraIssueException e) {
+                handleJiraIssueException(e, eventData);
+            }
         }
     }
 
     private Issue findIssue(final EventData eventData) {
         try {
-            Issue foundIssue = findIssueByComponentUri(eventData);
+            Issue foundIssue = findIssueByBomComponentUri(eventData);
             if (foundIssue == null) {
                 foundIssue = issueServiceWrapper.findIssueByContentKey(eventData.getEventKey());
                 if (foundIssue != null) {
-                    addDefaultIssueProperties(foundIssue.getId(), eventData);
+                    updateDefaultIssueProperties(foundIssue.getId(), eventData);
                 }
             }
             return foundIssue;
@@ -279,29 +303,27 @@ public class JiraIssueHandler {
         return null;
     }
 
-    private Issue findIssueByComponentUri(final EventData eventData) throws JiraIssueException {
-        final List<Issue> issueCandidates = findIssuesByComponentUri(eventData.getBlackDuckBomComponentUri());
-        if (issueCandidates.size() == 1) {
-            return issueCandidates.get(0);
-        }
-        for (final Issue candidate : issueCandidates) {
-            if (EventCategory.VULNERABILITY.equals(eventData.getCategory())) {
+    private Issue findIssueByBomComponentUri(final EventData eventData) throws JiraIssueException {
+        final List<IssueProperties> propertyCandidates = findIssuePropertiesByBomComponentUri(eventData.getBlackDuckBomComponentUri());
+        for (final IssueProperties candidate : propertyCandidates) {
+            final Long candidateIssueId = candidate.getJiraIssueId();
+            final EventCategory candidateIssueType = candidate.getType();
+            if (EventCategory.VULNERABILITY.equals(candidateIssueType)) {
                 // There should only be one vulnerability issue per bomComponent
-                return candidate;
-            } else {
-                final Map<String, String> issueProperties = issueServiceWrapper.getIssueProperties(candidate.getId());
-                final String ruleUrl = issueProperties.get(BlackDuckJiraConstants.BLACKDUCK_ISSUE_PROPERTY_POLICY_RULE_KEY);
-                if (ruleUrl != null && ruleUrl.equals(eventData.getBlackDuckRuleUrl())) {
-                    return candidate;
+                return issueServiceWrapper.getIssue(candidateIssueId);
+            } else if (EventCategory.POLICY.equals(candidateIssueType)) {
+                final Optional<String> optionalRuleName = candidate.getRuleName();
+                if (optionalRuleName.isPresent() && optionalRuleName.get().equals(eventData.getBlackDuckRuleName())) {
+                    return issueServiceWrapper.getIssue(candidateIssueId);
                 }
             }
         }
         return null;
     }
 
-    private List<Issue> findIssuesByComponentUri(final String bomComponentUri) throws JiraIssueException {
+    private List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
         if (bomComponentUri != null) {
-            return issueServiceWrapper.findIssuesByBomComponentUri(bomComponentUri);
+            return issueServiceWrapper.findIssuePropertiesByBomComponentUri(bomComponentUri);
         }
         return Collections.emptyList();
     }
@@ -320,7 +342,6 @@ public class JiraIssueHandler {
         try {
             final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(existingIssue.getId(), eventData, false, true);
             return issueServiceWrapper.updateIssue(existingIssue.getId(), jiraIssueWrapper);
-            // TODO also update issue properties
         } catch (final JiraIssueException e) {
             handleJiraIssueException(e, eventData);
         }
@@ -442,21 +463,21 @@ public class JiraIssueHandler {
         jiraIssueFieldTemplate.setRetainExistingValuesWhenParameterNotProvided(retainExisting);
 
         BlackDuckIssueFieldTemplate blackDuckIssueTemplate;
-
         if (eventData.isPolicy()) {
+            // TODO create a user-friendly link until Black Duck supports policy redirects
+            final String policyPageLink = eventData.getBlackDuckBaseUrl() + "/ui/policy-management";
             blackDuckIssueTemplate = new PolicyIssueFieldTempate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
-                    eventData.getBlackDuckProjectVersionNickname(),
-                    eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckLicenseNames(),
-                    eventData.getBlackDuckLicenseUrl(),
-                    eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(), eventData.getBlackDuckRuleUrl(), eventData.getBlackDuckRuleOverridable(),
-                    eventData.getBlackDuckRuleDescription());
+                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
+                    eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(),
+                    policyPageLink, eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription());
         } else if (eventData.isVulnerability()) {
             blackDuckIssueTemplate = new VulnerabilityIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
-                    eventData.getBlackDuckProjectVersionNickname(),
-                    eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckComponentOrigin(), eventData.getBlackDuckComponentOriginId(),
-                    eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
+                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckComponentOrigin(),
+                    eventData.getBlackDuckComponentOriginId(), eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         } else {
-            throw new JiraIssueException("Could not correctly wrap event data: " + eventData, "createJiraIssueWrapperFromEventData");
+            blackDuckIssueTemplate = new BlackDuckIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
+                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
+                    eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         }
 
         return new JiraIssueWrapper(jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings());

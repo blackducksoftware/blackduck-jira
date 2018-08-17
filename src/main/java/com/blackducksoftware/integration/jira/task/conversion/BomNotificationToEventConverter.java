@@ -54,7 +54,6 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.E
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.SpecialEventData;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.core.HubResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
@@ -93,7 +92,7 @@ public class BomNotificationToEventConverter {
     private final List<String> linksOfRulesToMonitor;
     private final HubService blackDuckService;
 
-    private final NotificationToEventConverter oldConverter;
+    private final OldNotificationToEventConverter oldConverter;
 
     public BomNotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger)
@@ -108,7 +107,7 @@ public class BomNotificationToEventConverter {
         this.blackDuckService = blackDuckSerivce;
         this.logger = logger;
 
-        this.oldConverter = new NotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckSerivce, logger);
+        this.oldConverter = new OldNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckSerivce, logger);
     }
 
     public Collection<EventData> convertToEventData(final NotificationDetailResult detailResult, final HubBucket blackDuckBucket, final Date batchStartDate) {
@@ -118,8 +117,13 @@ public class BomNotificationToEventConverter {
         final Set<EventData> allEvents = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             try {
-                final Collection<EventData> eventsFromDetail = createEventDataFromContentDetail(notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
-                allEvents.addAll(eventsFromDetail);
+                try {
+                    final Collection<EventData> eventsFromDetail = createEventDataFromContentDetail(notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
+                    allEvents.addAll(eventsFromDetail);
+                } catch (final IntegrationRestException restException) {
+                    logger.warn(String.format("The Black Duck resource requested was not found. It was probably deleted: %s. Caused by: %s", restException.getMessage(), restException.getCause().toString()));
+                    allEvents.addAll(create404EventData(restException, (JiraProject) null, detail, batchStartDate));
+                }
             } catch (final Exception e) {
                 logger.error(e);
                 jiraSettingsService.addBlackDuckError(e.getMessage(), "convertToEventData");
@@ -132,6 +136,7 @@ public class BomNotificationToEventConverter {
             final HubBucket blackDuckBucket, final Date batchStartDate) throws IntegrationException {
         final List<EventData> eventDataList = new ArrayList<>();
 
+        // FIXME if the project/version does not exist, then we can't close the associated ticket
         final ProjectVersionWrapper projectVersionWrapper = getProjectVersionWrapper(detail, blackDuckBucket);
         final String blackDuckProjectName = projectVersionWrapper.getProjectView().name;
         final List<JiraProject> jiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
@@ -143,7 +148,7 @@ public class BomNotificationToEventConverter {
             } catch (final Exception e) {
                 logger.error(e);
                 jiraSettingsService.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
-                        jiraUserContext.getJiraIssueCreatorUser().getName(), "convertToEventData");
+                        jiraUserContext.getJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
             }
         }
         return eventDataList;
@@ -158,10 +163,7 @@ public class BomNotificationToEventConverter {
             try {
                 versionBomComponent = getBomComponent(bomComponentUriSingleResponse, blackDuckBucket);
             } catch (final IntegrationRestException restException) {
-                if (restException.getHttpStatusCode() == 404) {
-                    return create404EventData(jiraProject, notificationType, detail, bomComponentUriSingleResponse.uri, batchStartDate);
-                }
-                throw restException;
+                return create404EventData(restException, jiraProject, detail, batchStartDate);
             }
             if (detail.isPolicy()) {
                 final EventData eventData = createEventDataForPolicy(jiraProject, detail.getPolicy().get(), projectVersionWrapper, versionBomComponent, notificationType, blackDuckBucket, batchStartDate);
@@ -272,10 +274,13 @@ public class BomNotificationToEventConverter {
         return editEvents;
     }
 
-    // TODO implement this
-    private Collection<EventData> create404EventData(final JiraProject jiraProject, final NotificationType notificationType, final NotificationContentDetail detail, final String notFoundUri, final Date batchStartDate) {
-        final SpecialEventData specialEventData = SpecialEventData.create404EventData(jiraProject, notFoundUri, batchStartDate);
-        return Arrays.asList(specialEventData);
+    private Collection<EventData> create404EventData(final IntegrationRestException restException, final JiraProject jiraProject, final NotificationContentDetail detail, final Date batchStartDate)
+            throws EventDataBuilderException, IntegrationRestException {
+        if (restException.getHttpStatusCode() == 404) {
+            final EventData specialEventData = new EventDataBuilder(EventCategory.SPECIAL).buildSpecialEventData(jiraProject, detail, batchStartDate);
+            return Arrays.asList(specialEventData);
+        }
+        throw restException;
     }
 
     // ==========================
@@ -292,9 +297,7 @@ public class BomNotificationToEventConverter {
     }
 
     private EventData addRemainingFieldsToEventDataAndBuild(final EventDataBuilder eventDataBuilder, final HubBucket blackDuckBucket) throws EventDataBuilderException {
-        // TODO
         eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(eventDataBuilder, blackDuckBucket));
-
         return eventDataBuilder.build();
     }
 
@@ -317,8 +320,9 @@ public class BomNotificationToEventConverter {
     private void addComponentSectionData(final EventDataBuilder eventDataBuilder, final VersionBomComponentView versionBomComponent) throws IntegrationException {
         eventDataBuilder.setBlackDuckComponentName(versionBomComponent.componentName);
         eventDataBuilder.setBlackDuckComponentUrl(versionBomComponent.component);
-        eventDataBuilder.setBlackDuckComponentVersionName(versionBomComponent.componentName);
+        eventDataBuilder.setBlackDuckComponentVersionName(versionBomComponent.componentVersionName);
         eventDataBuilder.setBlackDuckComponentVersionUrl(versionBomComponent.componentVersion);
+        eventDataBuilder.setComponentIssueUrl(blackDuckService.getFirstLinkSafely(versionBomComponent, VersionBomComponentView.COMPONENT_ISSUES_LINK));
 
         eventDataBuilder.setBlackDuckBomComponentUri(blackDuckService.getHref(versionBomComponent));
 

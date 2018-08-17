@@ -54,7 +54,7 @@ import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.task.conversion.output.old.IssueProperties;
+import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
@@ -110,26 +110,12 @@ public class JiraIssueServiceWrapper {
         throw new JiraIssueException("getIssue", result.getErrorCollection());
     }
 
-    public List<Issue> findIssuesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
-        logger.debug("Find issue by Bom Component URI: " + bomComponentUri);
-        final List<Issue> foundIssues = new ArrayList<>();
-
-        final List<EntityProperty> properties = issuePropertyWrapper.findProperties(bomComponentUri);
-        for (final EntityProperty property : properties) {
-            final IssueProperties propertyValue = createIssuePropertiesFromJson(property.getValue());
-            logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
-            final Issue foundIssue = getIssue(propertyValue.getJiraIssueId());
-            foundIssues.add(foundIssue);
-        }
-        return foundIssues;
-    }
-
     public Issue findIssueByContentKey(final String notificationUniqueKey) throws JiraIssueException {
         logger.debug("Find issue: " + notificationUniqueKey);
         final EntityProperty property = issuePropertyWrapper.findProperty(notificationUniqueKey);
         if (property != null) {
             final IssueProperties propertyValue = createIssuePropertiesFromJson(property.getValue());
-            logger.debug("findIssue(): propertyValue (converted from JSON): " + propertyValue);
+            logger.debug("findIssueByContentKey(): propertyValue (converted from JSON): " + propertyValue);
             return getIssue(propertyValue.getJiraIssueId());
         }
         return null;
@@ -217,12 +203,20 @@ public class JiraIssueServiceWrapper {
         return issuePropertyWrapper.getIssueProperty(issueId, jiraUserContext.getJiraIssueCreatorUser(), propertyName);
     }
 
-    public Map<String, String> getIssueProperties(final Long issueId) throws JiraIssueException {
-        final Map<String, String> properties = issuePropertyWrapper.getIssueProperties(issueId, jiraUserContext.getJiraIssueCreatorUser());
-        return properties;
+    public List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
+        logger.debug("Find issue by Bom Component URI: " + bomComponentUri);
+        final List<IssueProperties> foundProperties = new ArrayList<>();
+
+        final List<EntityProperty> properties = issuePropertyWrapper.findProperties(bomComponentUri);
+        for (final EntityProperty property : properties) {
+            final IssueProperties issueProperties = createIssuePropertiesFromJson(property.getValue());
+            logger.debug("findIssuesByBomComponentUri(): propertyValue (converted from JSON): " + issueProperties);
+            foundProperties.add(issueProperties);
+        }
+        return foundProperties;
     }
 
-    public void addIssueProperty(final Long issueId, final String key, final IssueProperties propertiesObject) throws JiraIssueException {
+    public void addIssueProperties(final Long issueId, final String key, final IssueProperties propertiesObject) throws JiraIssueException {
         final String jsonValue = gson.toJson(propertiesObject);
         addIssuePropertyJson(issueId, key, jsonValue);
     }

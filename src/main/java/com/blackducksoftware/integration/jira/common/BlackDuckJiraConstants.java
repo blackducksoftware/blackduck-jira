@@ -139,10 +139,6 @@ public class BlackDuckJiraConstants {
     public static final String LICENSE_NAME_JOINER_OR = " OR ";
     public static final String LICENSE_NAME_JOINER_AND = " AND ";
 
-    // Issue Property keys
-    public static final String BLACKDUCK_ISSUE_PROPERTY_BOM_COMPONENT_KEY = "jiraPluginBomComponentKey";
-    public static final String BLACKDUCK_ISSUE_PROPERTY_POLICY_RULE_KEY = "jiraPluginPolicyRuleKey";
-
     // Event Data Set key
     public static final String EVENT_DATA_SET_KEY_JIRA_EVENT_DATA = "jiraEventData";
 

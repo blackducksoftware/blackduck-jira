@@ -27,7 +27,8 @@ import com.synopsys.integration.blackduck.api.generated.enumeration.Notification
 
 public enum EventCategory {
     POLICY,
-    VULNERABILITY;
+    VULNERABILITY,
+    SPECIAL;
 
     public static EventCategory fromNotificationType(final NotificationType notificationType) {
         EventCategory category = EventCategory.POLICY;

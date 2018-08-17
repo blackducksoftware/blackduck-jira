@@ -21,48 +21,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.conversion.output.old;
+package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import java.util.Optional;
-
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
-import com.synopsys.integration.util.Stringable;
 
-// TODO update this for BOM_EDIT
-public class IssueProperties extends Stringable {
+public class OldIssueProperties extends IssueProperties {
     private final String projectName;
     private final String projectVersionName;
     private final String componentName;
     private final String componentVersionName;
-    private final String ruleName;
-
-    private final String bomComponentUri;
-
-    private final Long jiraIssueId;
 
     // @formatter:off
-    public static IssueProperties fromEventData(final EventData eventData, final Long jiraIssueId) {
-        return new IssueProperties(
+    public static OldIssueProperties fromEventData(final EventData eventData, final Long jiraIssueId) {
+        return new OldIssueProperties(
                  eventData.getBlackDuckProjectName()
                 ,eventData.getBlackDuckProjectVersionName()
                 ,eventData.getBlackDuckComponentName()
                 ,eventData.getBlackDuckComponentVersionName()
                 ,eventData.getBlackDuckRuleName()
+                ,eventData.getCategory()
                 ,eventData.getBlackDuckBomComponentUri()
                 ,jiraIssueId);
     }
     // @formatter:on
 
-    public IssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName, final String bomComponentUri, final Long jiraIssueId) {
+    public OldIssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName, final EventCategory type, final String bomComponentUri,
+            final Long jiraIssueId) {
+        super(type, bomComponentUri, ruleName, jiraIssueId);
         this.projectName = projectName;
         this.projectVersionName = projectVersionName;
         this.componentName = componentName;
         this.componentVersionName = componentVersionName;
-        this.ruleName = ruleName;
-
-        this.bomComponentUri = bomComponentUri;
-
-        this.jiraIssueId = jiraIssueId;
     }
 
     public String getProjectName() {
@@ -79,18 +69,6 @@ public class IssueProperties extends Stringable {
 
     public String getComponentVersion() {
         return componentVersionName;
-    }
-
-    public Optional<String> getRuleName() {
-        return Optional.ofNullable(ruleName);
-    }
-
-    public String getBomComponentUri() {
-        return bomComponentUri;
-    }
-
-    public Long getJiraIssueId() {
-        return jiraIssueId;
     }
 
 }

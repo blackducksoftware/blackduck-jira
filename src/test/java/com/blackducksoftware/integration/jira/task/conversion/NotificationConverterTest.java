@@ -61,9 +61,9 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
-import com.blackducksoftware.integration.jira.task.conversion.output.old.IssueProperties;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
@@ -254,7 +254,7 @@ public class NotificationConverterTest {
 
     @Test
     public void testFindCompInBom() throws ConfigurationException, HubIntegrationException {
-        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
+        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
                 mockLogger);
         final String compVer1Url = "comp1version1Url";
         final String compVer2Url = "comp2version1Url";
@@ -306,7 +306,7 @@ public class NotificationConverterTest {
     private void test(final NotificationType notifType, final BlackDuckEventAction expectedBlackDuckEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
             final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
             throws URISyntaxException, IntegrationException, ConfigurationException {
-        final NotificationToEventConverter conv = new NotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
+        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
                 mockLogger);
         final Date startDate = new Date();
         final NotificationDetailResult notif = createNotif(mockBlackDuckBucket, notifType, startDate);
@@ -400,7 +400,7 @@ public class NotificationConverterTest {
         assertEquals(expectedReOpenComment, eventData.getJiraIssueReOpenComment());
         assertEquals(expectedResolveComment, eventData.getJiraIssueResolveComment());
 
-        final IssueProperties issueProperties = IssueProperties.fromEventData(eventData, Long.valueOf(JIRA_ISSUE_ID));
+        final OldIssueProperties issueProperties = OldIssueProperties.fromEventData(eventData, Long.valueOf(JIRA_ISSUE_ID));
         assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());

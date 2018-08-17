@@ -28,11 +28,15 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -46,6 +50,7 @@ import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
+import com.google.gson.Gson;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.configuration.HubServerConfig;
@@ -55,6 +60,7 @@ import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
 import com.synopsys.integration.blackduck.service.CommonNotificationService;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.service.model.BlackDuckPhoneHomeCallable;
 import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.phonehome.PhoneHomeCallable;
@@ -71,6 +77,8 @@ public class BlackDuckJiraTask {
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
     private final String fieldCopyMappingJson;
+
+    private final Gson gson = HubServicesFactory.createDefaultGson();
 
     public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
@@ -134,7 +142,7 @@ public class BlackDuckJiraTask {
             final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
             if (LocalDate.now().isAfter(lastPhoneHome)) {
                 final PhoneHomeCallable phCallable = blackDuckServicesFactory.createBlackDuckPhoneHomeCallable(blackDuckServicesFactory.createHubService().getHubBaseUrl(), "blackduck-jira", jiraServices.getPluginVersion());
-                bdPhoneHome(phCallable);
+                bdPhoneHome((BlackDuckPhoneHomeCallable) phCallable);
             }
 
             final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
@@ -197,7 +205,7 @@ public class BlackDuckJiraTask {
 
     private HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig blackDuckServerConfig) throws EncryptionException {
         final BlackduckRestConnection restConnection = blackDuckServerConfig.createRestConnection(logger);
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
+        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(gson, HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
         return blackDuckServicesFactory;
     }
 
@@ -277,22 +285,23 @@ public class BlackDuckJiraTask {
         return startDate;
     }
 
-    public void bdPhoneHome(final PhoneHomeCallable phCallable) {
-        final PhoneHomeService phService = new PhoneHomeService(logger, null);
+    public void bdPhoneHome(final BlackDuckPhoneHomeCallable phCallable) {
         try {
-            // FIXME find a way to pass meta data and environment variables into the body
-            // Map<String, String> environmentVariables;
-            // try {
-            // final Map<String, String> systemEnv = System.getenv();
-            // environmentVariables = new HashMap<>();
-            // environmentVariables.putAll(systemEnv);
-            // } catch (final Exception e) {
-            // environmentVariables = Collections.emptyMap();
-            // }
-            // phBodyBuilder.addToMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
-            // final PhoneHomeRequestBody phBody = phBodyBuilder.build();
-            // phClient.postPhoneHomeRequest(phBody, environmentVariables);
+            phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
 
+            Map<String, String> environmentVariables;
+            try {
+                final Map<String, String> systemEnv = System.getenv();
+                environmentVariables = new HashMap<>();
+                environmentVariables.putAll(systemEnv);
+            } catch (final Exception e) {
+                environmentVariables = Collections.emptyMap();
+            }
+            for (final Map.Entry<String, String> entry : environmentVariables.entrySet()) {
+                phCallable.addMetaData(entry.getKey(), entry.getValue());
+            }
+
+            final PhoneHomeService phService = new PhoneHomeService(logger, null);
             phService.phoneHome(phCallable);
             jiraSettingsService.setLastPhoneHome(LocalDate.now());
         } catch (final Exception phException) {

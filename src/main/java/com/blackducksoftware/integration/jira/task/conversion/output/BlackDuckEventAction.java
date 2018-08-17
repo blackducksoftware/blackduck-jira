@@ -26,10 +26,11 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 
 public enum BlackDuckEventAction {
-    RESOLVE,
-    OPEN,
     ADD_COMMENT,
     ADD_COMMENT_IF_EXISTS,
+    OPEN,
+    RESOLVE,
+    RESOLVE_ALL,
     UPDATE_IF_EXISTS;
 
     public static BlackDuckEventAction fromNotificationType(final NotificationType notificationType) {
