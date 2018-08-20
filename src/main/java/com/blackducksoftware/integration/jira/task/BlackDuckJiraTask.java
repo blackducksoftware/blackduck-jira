@@ -106,13 +106,13 @@ public class BlackDuckJiraTask {
         try {
             logger.debug("Building Black Duck configuration");
             blackDuckServerConfig = blackDuckServerConfigBuilder.build();
-            logger.debug("Finished building Black Duck configuration");
+            logger.debug("Finished building Black Duck configuration for " + blackDuckServerConfig.getHubUrl());
         } catch (final IllegalStateException e) {
             logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
             return previousStartDate;
         }
 
-        final BlackDuckJiraConfigSerializable config = deSerializeConfig(blackDuckServerConfig);
+        final BlackDuckJiraConfigSerializable config = deSerializeConfig();
         if (config == null) {
             return previousStartDate;
         }
@@ -147,9 +147,8 @@ public class BlackDuckJiraTask {
 
             final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
 
-            final String blackDuckUsername = blackDuckServerConfig.getGlobalCredentials().getUsername();
-            logger.debug("Getting user item for user: " + blackDuckUsername);
-            final UserView blackDuckUserItem = getBlackDuckUserItem(blackDuckServicesFactory, blackDuckUsername);
+            logger.debug("Attempting to get the Black Duck user...");
+            final UserView blackDuckUserItem = getBlackDuckUser(blackDuckServicesFactory.createHubService());
             if (blackDuckUserItem == null) {
                 logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
                 return previousStartDate;
@@ -175,31 +174,14 @@ public class BlackDuckJiraTask {
         return BlackDuckPluginDateFormatter.format(runDate);
     }
 
-    private UserView getBlackDuckUserItem(final HubServicesFactory blackDuckServicesFactory, final String currentUsername) {
-        if (currentUsername == null) {
-            final String msg = "Current username is null";
-            logger.error(msg);
-            jiraSettingsService.addBlackDuckError(msg, "getCurrentUser");
-            return null;
-        }
-        final HubService blackDuckService = blackDuckServicesFactory.createHubService();
-        List<UserView> users;
+    private UserView getBlackDuckUser(final HubService blackDuckService) {
         try {
-            users = blackDuckService.getAllResponses(ApiDiscovery.USERS_LINK_RESPONSE);
+            return blackDuckService.getResponse(ApiDiscovery.CURRENT_USER_LINK_RESPONSE);
         } catch (final IntegrationException e) {
-            final String msg = "Error getting user item for current user: " + currentUsername + ": " + e.getMessage();
-            logger.error(msg);
-            jiraSettingsService.addBlackDuckError(msg, "getCurrentUser");
-            return null;
+            final String message = "Could not get the logged in user for Black Duck.";
+            logger.error(message, e);
+            jiraSettingsService.addBlackDuckError(message, "getCurrentUser");
         }
-        for (final UserView user : users) {
-            if (currentUsername.equalsIgnoreCase(user.userName)) {
-                return user;
-            }
-        }
-        final String msg = "Current user: " + currentUsername + " not found in list of all users";
-        logger.error(msg);
-        jiraSettingsService.addBlackDuckError(msg, "getCurrentUser");
         return null;
     }
 
@@ -242,7 +224,7 @@ public class BlackDuckJiraTask {
         return ticketGenerator;
     }
 
-    private BlackDuckJiraConfigSerializable deSerializeConfig(final HubServerConfig blackDuckServerConfig) {
+    private BlackDuckJiraConfigSerializable deSerializeConfig() {
         if (pluginConfigDetails.getProjectMappingJson() == null) {
             logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
@@ -253,7 +235,6 @@ public class BlackDuckJiraTask {
             return null;
         }
 
-        logger.debug("Black Duck url / username: " + blackDuckServerConfig.getHubUrl().toString() + " / " + blackDuckServerConfig.getGlobalCredentials().getUsername());
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());

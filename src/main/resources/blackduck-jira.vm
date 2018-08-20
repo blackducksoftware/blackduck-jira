@@ -79,17 +79,27 @@
 		      </div>
 		      
 		      <div class="blackduck-details-field-group">
-		        <label class="blackDuckDetailsLabel" for="hubUsername">$i18n.getText("blackduck.integration.jira.server.details.username.label")<span class="error"> *</span></label>
+                <label class="blackDuckDetailsLabel" for="bdApiToken">$i18n.getText("blackduck.integration.jira.server.details.api.token.label")</label>
+                <input type="text" id="bdApiToken" name="bdApiToken" class="longInput textStyle" />
+                <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.api.token.description')"></span>
+              </div>
+              <div id="bdApiTokenErrorRow" class="blackduck-details-field-group hidden">
+                <label> </label>
+                <div id="bdApiTokenError" class="error "></div>
+              </div>
+		      
+		      <div class="blackduck-details-field-group">
+		        <label class="blackDuckDetailsLabel" for="hubUsername">$i18n.getText("blackduck.integration.jira.server.details.username.label")</label>
 		        <input type="text" id="hubUsername" name="hubUsername" class="longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.username.description')"></span>
 		      </div>
 		      <div id="hubUsernameErrorRow" class="blackduck-details-field-group hidden">
 		      	<label> </label>
-		      	<div id="hubUsernameError" class="error "></div>
+		      	<div id="hubUsernameError" class="error "></div> 
 		      </div>
 		        
 		      <div class="blackduck-details-field-group">
-		        <label class="blackDuckDetailsLabel" for="hubPassword">$i18n.getText("blackduck.integration.jira.server.details.password.label")<span class="error"> *</span></label>
+		        <label class="blackDuckDetailsLabel" for="hubPassword">$i18n.getText("blackduck.integration.jira.server.details.password.label")</label>
 		        <input type="password" id="hubPassword" name="hubPassword" class="password longInput textStyle" />
 		        <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.password.description')"></span>
 		      </div>

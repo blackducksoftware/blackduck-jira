@@ -56,6 +56,14 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
     private String timeoutError;
 
     @XmlElement
+    private String apiToken;
+
+    private int apiTokenLength;
+
+    @XmlElement
+    private String apiTokenError;
+
+    @XmlElement
     private String username;
 
     @XmlElement
@@ -119,6 +127,8 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getTrustCertError())) {
             hasErrors = true;
+        } else if (StringUtils.isNotBlank(getApiTokenError())) {
+            hasErrors = true;
         } else if (StringUtils.isNotBlank(getUsernameError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getPasswordError())) {
@@ -154,6 +164,14 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
 
     public boolean isProxyPasswordMasked() {
         return isStringMasked(hubProxyPassword);
+    }
+
+    public String getMaskedApiToken() {
+        return getMaskedString(apiTokenLength);
+    }
+
+    public boolean isApiTokenMasked() {
+        return isStringMasked(apiToken);
     }
 
     public static String getMaskedString(final int length) {
@@ -230,6 +248,30 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
 
     public void setTrustCertError(final String trustCertError) {
         this.trustCertError = trustCertError;
+    }
+
+    public String getApiToken() {
+        return apiToken;
+    }
+
+    public void setApiToken(final String apiToken) {
+        this.apiToken = apiToken;
+    }
+
+    public int getApiTokenLength() {
+        return apiTokenLength;
+    }
+
+    public void setApiTokenLength(final int apiTokenLength) {
+        this.apiTokenLength = apiTokenLength;
+    }
+
+    public String getApiTokenError() {
+        return apiTokenError;
+    }
+
+    public void setApiTokenError(final String apiTokenError) {
+        this.apiTokenError = apiTokenError;
     }
 
     public String getUsername() {
@@ -385,6 +427,10 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         builder.append(trustCert);
         builder.append(", trustCertError=");
         builder.append(trustCertError);
+        builder.append(", apiToken=");
+        builder.append(apiToken);
+        builder.append(", apiTokenError=");
+        builder.append(apiTokenError);
         builder.append(", username=");
         builder.append(username);
         builder.append(", usernameError=");

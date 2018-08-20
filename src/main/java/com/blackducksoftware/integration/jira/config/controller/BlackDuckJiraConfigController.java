@@ -1140,18 +1140,29 @@ public class BlackDuckJiraConfigController {
 
     private BlackduckRestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
         final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
-        final String blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
-        logger.debug(String.format("Establishing connection to Black Duck server: %s as %s", blackDuckUrl, blackDuckUser));
-        final String encBlackDuckPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
-        final String encBlackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
+        final String blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
         final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
-            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
-            return null;
-        } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
-            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
+        String blackDuckUser = null;
+        String encBlackDuckPassword = null;
+        String encBlackDuckPasswordLength = null;
+
+        if (blackDuckApiToken == null) {
+            blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
+            logger.debug(String.format("Establishing connection to Black Duck server: %s...", blackDuckUrl));
+            encBlackDuckPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
+            encBlackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
+
+            if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
+                config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
+                return null;
+            } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
+                config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
+                return null;
+            }
+        } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckApiToken) || StringUtils.isBlank(blackDuckTimeout)) {
+            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
             return null;
         }
 
@@ -1166,6 +1177,7 @@ public class BlackDuckJiraConfigController {
         try {
             final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
+            configBuilder.setApiToken(blackDuckApiToken);
             configBuilder.setUsername(blackDuckUser);
             configBuilder.setPassword(encBlackDuckPassword);
             configBuilder.setPasswordLength(NumberUtils.toInt(encBlackDuckPasswordLength));
@@ -1187,9 +1199,8 @@ public class BlackDuckJiraConfigController {
                 return null;
             }
 
-            restConnection = serverConfig.createCredentialsRestConnection(logger);
+            restConnection = serverConfig.createRestConnection(logger);
             restConnection.connect();
-
         } catch (IllegalArgumentException | IntegrationException e) {
             config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
