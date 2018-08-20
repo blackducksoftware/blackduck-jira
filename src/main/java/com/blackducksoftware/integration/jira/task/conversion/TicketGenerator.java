@@ -120,7 +120,7 @@ public class TicketGenerator {
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
                 final BomNotificationToEventConverter notificationConverter = new BomNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                        new EventDataFormatHelper(logger, blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
+                        new EventDataFormatHelper(blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {

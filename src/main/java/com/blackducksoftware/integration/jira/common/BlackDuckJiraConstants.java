@@ -77,6 +77,7 @@ public class BlackDuckJiraConstants {
     public static final String BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT = "This Policy Violation was overridden in Black Duck.";
     public static final String BLACKDUCK_VULNERABILITY_REOPEN = "Automatically re-opened in response to new Black Duck vulnerabilities on this project from this component";
     public static final String BLACKDUCK_VULNERABILITY_RESOLVE = "Automatically resolved; Black Duck reports no remaining vulnerabilities on this project from this component";
+    public static final String BLACKDUCK_COMPONENT_DELETED = "(Black Duck plugin auto-generated comment)  \nThe component associated with this ticket no longer exists in the Black Duck project/version.";
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY = "180 - duck_vulnerability.png";
     public static final String BLACKDUCK_AVATAR_IMAGE_PATH_VULNERABILITY = "/images/" + BLACKDUCK_AVATAR_IMAGE_FILENAME_VULNERABILITY;
     public static final String BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY = "180 - duck_policy.png";

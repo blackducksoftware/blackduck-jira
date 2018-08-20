@@ -282,6 +282,15 @@ public class EventDataBuilder extends Stringable {
         return this;
     }
 
+    public EventDataBuilder setAllJiraIssueComments(final String jiraIssueComment) {
+        setJiraIssueComment(jiraIssueComment);
+        setJiraIssueCommentForExistingIssue(jiraIssueComment);
+        setJiraIssueCommentInLieuOfStateChange(jiraIssueComment);
+        setJiraIssueResolveComment(jiraIssueComment);
+        setJiraIssueReOpenComment(jiraIssueComment);
+        return this;
+    }
+
     public EventDataBuilder setJiraIssueComment(final String jiraIssueComment) {
         this.jiraIssueComment = jiraIssueComment;
         return this;
@@ -555,19 +564,16 @@ public class EventDataBuilder extends Stringable {
         return eventData;
     }
 
-    public EventData buildSpecialEventData(final JiraProject jiraProject, final NotificationContentDetail detail, final Date batchStartDate) throws EventDataBuilderException {
+    public EventData build404EventData(final NotificationContentDetail detail, final Date batchStartDate) throws EventDataBuilderException {
         setAction(BlackDuckEventAction.RESOLVE_ALL);
-
-        setJiraIssueAssigneeUserId(jiraProject.getAssigneeUserId());
-        setJiraProjectName(jiraProject.getProjectName());
-        setJiraProjectId(jiraProject.getProjectId());
-        setPropertiesFromNotificationContentDetail(detail);
 
         if (detail.getBomComponent().isPresent()) {
             setBlackDuckBomComponentUri(detail.getBomComponent().get().uri);
         }
 
+        setPropertiesFromNotificationContentDetail(detail);
         setLastBatchStartDate(batchStartDate);
+        setAllJiraIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
         final EventData specialEventData = new EventData();
 
         return build(specialEventData);
@@ -591,7 +597,7 @@ public class EventDataBuilder extends Stringable {
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(jiraProjectId.toString());
+        keyBuilder.append(jiraProjectId);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_PROJECT_VERSION_REL_URL_HASHED_NAME);

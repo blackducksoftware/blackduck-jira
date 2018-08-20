@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -52,11 +53,10 @@ import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class EventDataFormatHelper {
-    private final BlackDuckJiraLogger logger;
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final HubService blackDuckService;
 
-    public EventDataFormatHelper(final BlackDuckJiraLogger logger, final HubService blackDuckService) {
-        this.logger = logger;
+    public EventDataFormatHelper(final HubService blackDuckService) {
         this.blackDuckService = blackDuckService;
     }
 

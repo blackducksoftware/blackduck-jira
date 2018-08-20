@@ -221,7 +221,7 @@ public class NotificationConverterTest {
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
-        eventDataFormatHelper = new EventDataFormatHelper(mockLogger, mockBlackDuckSerivce);
+        eventDataFormatHelper = new EventDataFormatHelper(mockBlackDuckSerivce);
     }
 
     @AfterClass
@@ -254,7 +254,8 @@ public class NotificationConverterTest {
 
     @Test
     public void testFindCompInBom() throws ConfigurationException, HubIntegrationException {
-        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
+        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
+                mockBlackDuckSerivce,
                 mockLogger);
         final String compVer1Url = "comp1version1Url";
         final String compVer2Url = "comp2version1Url";
@@ -306,7 +307,8 @@ public class NotificationConverterTest {
     private void test(final NotificationType notifType, final BlackDuckEventAction expectedBlackDuckEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
             final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
             throws URISyntaxException, IntegrationException, ConfigurationException {
-        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL), mockBlackDuckSerivce,
+        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
+                mockBlackDuckSerivce,
                 mockLogger);
         final Date startDate = new Date();
         final NotificationDetailResult notif = createNotif(mockBlackDuckBucket, notifType, startDate);

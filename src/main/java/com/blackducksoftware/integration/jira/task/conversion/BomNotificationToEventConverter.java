@@ -121,8 +121,8 @@ public class BomNotificationToEventConverter {
                     final Collection<EventData> eventsFromDetail = createEventDataFromContentDetail(notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
                     allEvents.addAll(eventsFromDetail);
                 } catch (final IntegrationRestException restException) {
-                    logger.warn(String.format("The Black Duck resource requested was not found. It was probably deleted: %s. Caused by: %s", restException.getMessage(), restException.getCause().toString()));
-                    allEvents.addAll(create404EventData(restException, (JiraProject) null, detail, batchStartDate));
+                    logger.warn(String.format("The Black Duck resource requested was not found. It was probably deleted: %s. Caused by: %s", restException.getMessage(), restException.getCause()));
+                    allEvents.addAll(create404EventData(restException, detail, batchStartDate));
                 }
             } catch (final Exception e) {
                 logger.error(e);
@@ -163,7 +163,7 @@ public class BomNotificationToEventConverter {
             try {
                 versionBomComponent = getBomComponent(bomComponentUriSingleResponse, blackDuckBucket);
             } catch (final IntegrationRestException restException) {
-                return create404EventData(restException, jiraProject, detail, batchStartDate);
+                return create404EventData(restException, detail, batchStartDate);
             }
             if (detail.isPolicy()) {
                 final EventData eventData = createEventDataForPolicy(jiraProject, detail.getPolicy().get(), projectVersionWrapper, versionBomComponent, notificationType, blackDuckBucket, batchStartDate);
@@ -274,10 +274,10 @@ public class BomNotificationToEventConverter {
         return editEvents;
     }
 
-    private Collection<EventData> create404EventData(final IntegrationRestException restException, final JiraProject jiraProject, final NotificationContentDetail detail, final Date batchStartDate)
+    private Collection<EventData> create404EventData(final IntegrationRestException restException, final NotificationContentDetail detail, final Date batchStartDate)
             throws EventDataBuilderException, IntegrationRestException {
         if (restException.getHttpStatusCode() == 404) {
-            final EventData specialEventData = new EventDataBuilder(EventCategory.SPECIAL).buildSpecialEventData(jiraProject, detail, batchStartDate);
+            final EventData specialEventData = new EventDataBuilder(EventCategory.SPECIAL).build404EventData(detail, batchStartDate);
             return Arrays.asList(specialEventData);
         }
         throw restException;

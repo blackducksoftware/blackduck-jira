@@ -149,16 +149,15 @@ public class JiraIssueServiceWrapper {
         throw new JiraIssueException("createIssue", validationResult.getErrorCollection());
     }
 
-    public Issue updateIssue(final Long existingIssueId, final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
-        logger.debug("Update issue (" + existingIssueId + "): " + jiraIssueWrapper);
+    public Issue updateIssue(final Issue existingIssue, final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
+        logger.debug("Update issue (" + existingIssue.getKey() + "): " + jiraIssueWrapper);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
 
         final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
                 jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
-
-        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssueId, issueInputParameters);
+        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssue.getId(), issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;
             final IssueResult result = jiraIssueService.update(jiraUserContext.getJiraIssueCreatorUser(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
@@ -295,13 +294,19 @@ public class JiraIssueServiceWrapper {
     }
 
     private void populateIssueInputParameters(final IssueInputParameters issueInputParameters, final JiraIssueFieldTemplate jiraIssueFieldTemplate) {
-        issueInputParameters
-                .setProjectId(jiraIssueFieldTemplate.getJiraProjectId())
-                .setIssueTypeId(jiraIssueFieldTemplate.getJiraIssueTypeId())
-                .setSummary(jiraIssueFieldTemplate.getSummary())
-                .setReporterId(jiraIssueFieldTemplate.getIssueCreatorUsername())
-                .setDescription(jiraIssueFieldTemplate.getIssueDescription())
-                .setAssigneeId(jiraIssueFieldTemplate.getAssigneeId());
+        issueInputParameters.setProjectId(jiraIssueFieldTemplate.getJiraProjectId()).setIssueTypeId(jiraIssueFieldTemplate.getJiraIssueTypeId());
+        if (jiraIssueFieldTemplate.getSummary() != null) {
+            issueInputParameters.setSummary(jiraIssueFieldTemplate.getSummary());
+        }
+        if (jiraIssueFieldTemplate.getIssueCreatorUsername() != null) {
+            issueInputParameters.setReporterId(jiraIssueFieldTemplate.getIssueCreatorUsername());
+        }
+        if (jiraIssueFieldTemplate.getIssueDescription() != null) {
+            issueInputParameters.setDescription(jiraIssueFieldTemplate.getIssueDescription());
+        }
+        if (jiraIssueFieldTemplate.getAssigneeId() != null) {
+            issueInputParameters.setAssigneeId(jiraIssueFieldTemplate.getAssigneeId());
+        }
 
         issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(jiraIssueFieldTemplate.shouldRetainExistingValuesWhenParameterNotProvided());
         issueInputParameters.setApplyDefaultValuesWhenParameterNotProvided(jiraIssueFieldTemplate.shouldApplyDefaultValuesWhenParameterNotProvided());
@@ -310,7 +315,10 @@ public class JiraIssueServiceWrapper {
     private void populateIssueInputParameters(final IssueInputParameters issueInputParameters, final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate) {
         final Map<Long, String> blackDuckFieldMap = blackDuckIssueFieldTemplate.createBlackDuckFieldMappings(customFieldsMap);
         for (final Entry<Long, String> blackDuckFieldEntry : blackDuckFieldMap.entrySet()) {
-            issueInputParameters.addCustomFieldValue(blackDuckFieldEntry.getKey(), blackDuckFieldEntry.getValue());
+            final String fieldValue = blackDuckFieldEntry.getValue();
+            if (fieldValue != null) {
+                issueInputParameters.addCustomFieldValue(blackDuckFieldEntry.getKey(), blackDuckFieldEntry.getValue());
+            }
         }
     }
 

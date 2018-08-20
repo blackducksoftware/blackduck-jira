@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
@@ -308,13 +309,15 @@ public class JiraIssueHandler {
         for (final IssueProperties candidate : propertyCandidates) {
             final Long candidateIssueId = candidate.getJiraIssueId();
             final EventCategory candidateIssueType = candidate.getType();
-            if (EventCategory.VULNERABILITY.equals(candidateIssueType)) {
-                // There should only be one vulnerability issue per bomComponent
-                return issueServiceWrapper.getIssue(candidateIssueId);
-            } else if (EventCategory.POLICY.equals(candidateIssueType)) {
-                final Optional<String> optionalRuleName = candidate.getRuleName();
-                if (optionalRuleName.isPresent() && optionalRuleName.get().equals(eventData.getBlackDuckRuleName())) {
+            if (candidateIssueType.equals(eventData.getCategory())) {
+                if (EventCategory.VULNERABILITY.equals(candidateIssueType)) {
+                    // There should only be one vulnerability issue per bomComponent
                     return issueServiceWrapper.getIssue(candidateIssueId);
+                } else if (EventCategory.POLICY.equals(candidateIssueType)) {
+                    final Optional<String> optionalRuleName = candidate.getRuleName();
+                    if (optionalRuleName.isPresent() && optionalRuleName.get().equals(eventData.getBlackDuckRuleName())) {
+                        return issueServiceWrapper.getIssue(candidateIssueId);
+                    }
                 }
             }
         }
@@ -340,8 +343,8 @@ public class JiraIssueHandler {
 
     private Issue updateBlackDuckFieldsAndDescription(final Issue existingIssue, final EventData eventData) {
         try {
-            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(existingIssue.getId(), eventData, false, true);
-            return issueServiceWrapper.updateIssue(existingIssue.getId(), jiraIssueWrapper);
+            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(existingIssue.getProjectId(), eventData, false, true);
+            return issueServiceWrapper.updateIssue(existingIssue, jiraIssueWrapper);
         } catch (final JiraIssueException e) {
             handleJiraIssueException(e, eventData);
         }
@@ -366,9 +369,9 @@ public class JiraIssueHandler {
         if (actions.size() == 0) {
             final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey() + ", from status : " + currentStatus.getName() + ". There are no steps from this status to any other status.";
             logger.error(errorMessage);
-            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(),
-                    eventData.getJiraIssueCreatorUsername(),
-                    "transitionIssue");
+            final Project jiraProject = issueToTransition.getProjectObject();
+            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
+                    jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -386,9 +389,9 @@ public class JiraIssueHandler {
         } else {
             final String errorMessage = "Could not find the action : " + stepName + " to transition this issue: " + issueToTransition.getKey();
             logger.error(errorMessage);
-            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(),
-                    eventData.getJiraIssueCreatorUsername(),
-                    "transitionIssue");
+            final Project jiraProject = issueToTransition.getProjectObject();
+            jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
+                    jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         return null;
     }
@@ -484,7 +487,8 @@ public class JiraIssueHandler {
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final EventData eventData) {
-        handleJiraIssueException(issueException, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getJiraProjectName(), eventData.getJiraAdminUsername(), eventData.getJiraIssueCreatorUsername());
+        handleJiraIssueException(issueException, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getJiraProjectName(),
+                jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getJiraIssueCreatorUser().getUsername());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProjectName, final String jiraAdminUsername,
