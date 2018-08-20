@@ -42,8 +42,8 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
  */
 public class JiraVersionCheck {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final JiraVersion minJiraVersion = new JiraVersion("7.1", 7, 1);
-    private final JiraVersion maxJiraVersion = new JiraVersion("7.7", 7, 7);
+    private final JiraVersion minJiraVersion = new JiraVersion("7.3", 7, 3);
+    private final JiraVersion maxJiraVersion = new JiraVersion("7.11", 7, 11);
     private final JiraVersion currentJiraVersion;
 
     private final boolean supported;
@@ -64,8 +64,7 @@ public class JiraVersionCheck {
         final int[] jiraVersionNumberComponents = currentJiraVersionInfo.getVersionNumbers();
         final int jiraVersionMajor = getVersionComponent(jiraVersionNumberComponents, 0);
         final int jiraVersionMinor = getVersionComponent(jiraVersionNumberComponents, 1);
-        currentJiraVersion = new JiraVersion(currentJiraVersionInfo.getVersion(),
-                jiraVersionMajor, jiraVersionMinor);
+        currentJiraVersion = new JiraVersion(currentJiraVersionInfo.getVersion(), jiraVersionMajor, jiraVersionMinor);
 
         final JiraVersionComparator comparator = new JiraVersionComparator();
         if (comparator.compare(currentJiraVersion, minJiraVersion) >= 0) {

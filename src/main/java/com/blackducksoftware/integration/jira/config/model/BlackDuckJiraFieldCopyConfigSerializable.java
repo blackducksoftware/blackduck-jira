@@ -38,10 +38,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.jira.config.ErrorTracking;
-import com.blackducksoftware.integration.util.Stringable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.synopsys.integration.util.Stringable;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

@@ -30,11 +30,11 @@ import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.jira.mocks.issue.ExecutorServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.synopsys.integration.blackduck.service.HubServicesFactory;
 
 public class IssueListenerWithMocks extends IssueEventListener {
     private final HubServicesFactory blackDuckServicesFactory;

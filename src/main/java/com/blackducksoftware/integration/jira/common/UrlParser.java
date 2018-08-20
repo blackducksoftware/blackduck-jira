@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class UrlParser {
 
@@ -48,7 +48,7 @@ public class UrlParser {
             final URI origUri = new URI(url);
             final URI relativeUri = baseUri.relativize(origUri);
             return relativeUri.toString();
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             throw new HubIntegrationException("Invalid URI syntax exception on " + url + ": " + e.getMessage());
         }
     }

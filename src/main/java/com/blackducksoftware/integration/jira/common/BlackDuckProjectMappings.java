@@ -24,17 +24,19 @@
 package com.blackducksoftware.integration.jira.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class BlackDuckProjectMappings {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -47,10 +49,19 @@ public class BlackDuckProjectMappings {
         this.mappings = mappings;
     }
 
+    public Collection<JiraProject> getJiraProjects(final List<String> blackDuckProjectNames) {
+        final Set<JiraProject> matchingJiraProjects = new HashSet<>();
+        for (final String blackDuckProjectName : blackDuckProjectNames) {
+            final List<JiraProject> matches = getJiraProjects(blackDuckProjectName);
+            matchingJiraProjects.addAll(matches);
+        }
+        return matchingJiraProjects;
+    }
+
     public List<JiraProject> getJiraProjects(final String blackDuckProjectName) {
         final List<JiraProject> matchingJiraProjects = new ArrayList<>();
         if (mappings == null || mappings.isEmpty()) {
-            logger.debug("There are no configured project mapping");
+            logger.debug("There are no configured project mappings");
             return matchingJiraProjects;
         }
 

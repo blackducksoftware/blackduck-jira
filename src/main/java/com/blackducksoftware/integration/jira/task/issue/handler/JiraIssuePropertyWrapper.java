@@ -23,7 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -62,6 +64,15 @@ public class JiraIssuePropertyWrapper {
         return null;
     }
 
+    public Map<String, String> getIssueProperties(final Long issueId, final ApplicationUser user) {
+        final Map<String, String> properties = new HashMap<>();
+        final List<EntityProperty> entityProperties = issuePropertyService.getProperties(user, issueId);
+        for (final EntityProperty entityProp : entityProperties) {
+            properties.put(entityProp.getKey(), entityProp.getValue());
+        }
+        return properties;
+    }
+
     public void addIssuePropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
         logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
         final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
@@ -88,15 +99,20 @@ public class JiraIssuePropertyWrapper {
     }
 
     public EntityProperty findProperty(final String queryString) {
-        logger.debug("Querying for property: " + queryString);
-        final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
-        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(queryString);
-        final List<EntityProperty> props = executableQuery.maxResults(1).find();
-        if (props.size() == 0) {
+        final List<EntityProperty> results = findProperties(queryString);
+        if (results.isEmpty()) {
             logger.debug("No property found with that query string");
             return null;
         }
-        return props.get(0);
+        return results.get(0);
+    }
+
+    public List<EntityProperty> findProperties(final String queryString) {
+        logger.debug("Querying for property: " + queryString);
+        final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
+        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(queryString);
+        final List<EntityProperty> props = executableQuery.find();
+        return props;
     }
 
     public void addProjectPropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {

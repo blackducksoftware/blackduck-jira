@@ -38,9 +38,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.blackducksoftware.integration.util.Stringable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.synopsys.integration.util.Stringable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TicketCreationError extends Stringable implements Serializable, Comparable<TicketCreationError> {

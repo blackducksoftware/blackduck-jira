@@ -383,7 +383,7 @@ public class BlackDuckIssueTypeSetup {
         } catch (final CreateException e) {
             throw new JiraException("Error creating Issue Type " + name + ": " + e.getMessage(), e);
         }
-        logger.info("Created new issue type: " + newIssueType.getName() + " (id: " + newIssueType.getId());
+        logger.info("Created new issue type: " + newIssueType.getName() + " (id: " + newIssueType.getId() + ")");
 
         return newIssueType;
     }

@@ -28,23 +28,15 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.discovery.ApiDiscovery;
-import com.blackducksoftware.integration.hub.api.generated.view.UserView;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.hub.service.IssueService;
-import com.blackducksoftware.integration.hub.service.NotificationService;
-import com.blackducksoftware.integration.hub.service.PhoneHomeService;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -58,8 +50,22 @@ import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
-import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBody;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.google.gson.Gson;
+import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
+import com.synopsys.integration.blackduck.api.generated.view.UserView;
+import com.synopsys.integration.blackduck.configuration.HubServerConfig;
+import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetailFactory;
+import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.service.CommonNotificationService;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.service.model.BlackDuckPhoneHomeCallable;
+import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.phonehome.PhoneHomeCallable;
+import com.synopsys.integration.phonehome.PhoneHomeService;
+import com.synopsys.integration.rest.connection.RestConnection;
 
 public class BlackDuckJiraTask {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -71,6 +77,8 @@ public class BlackDuckJiraTask {
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
     private final String fieldCopyMappingJson;
+
+    private final Gson gson = HubServicesFactory.createDefaultGson();
 
     public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
@@ -128,14 +136,13 @@ public class BlackDuckJiraTask {
             }
 
             final boolean getOldestNotificationsFirst = true;
-            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory.createHubService(), blackDuckServicesFactory.createNotificationService(getOldestNotificationsFirst),
-                    blackDuckServicesFactory.createIssueService(),
-                    ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
+            final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory, getOldestNotificationsFirst, ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
             // Phone-Home
             final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
             if (LocalDate.now().isAfter(lastPhoneHome)) {
-                bdPhoneHome(blackDuckServicesFactory.createPhoneHomeService());
+                final PhoneHomeCallable phCallable = blackDuckServicesFactory.createBlackDuckPhoneHomeCallable(blackDuckServicesFactory.createHubService().getHubBaseUrl(), "blackduck-jira", jiraServices.getPluginVersion());
+                bdPhoneHome((BlackDuckPhoneHomeCallable) phCallable);
             }
 
             final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
@@ -197,8 +204,8 @@ public class BlackDuckJiraTask {
     }
 
     private HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig blackDuckServerConfig) throws EncryptionException {
-        final RestConnection restConnection = blackDuckServerConfig.createRestConnection(logger);
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(restConnection);
+        final BlackduckRestConnection restConnection = blackDuckServerConfig.createRestConnection(logger);
+        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(gson, HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
         return blackDuckServicesFactory;
     }
 
@@ -223,12 +230,15 @@ public class BlackDuckJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubService blackDuckService, final NotificationService notificationService, final IssueService issueService,
+    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubServicesFactory hubServicesFactory, final boolean notificationsOldestFirst,
             final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(blackDuckService, notificationService, issueService, jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(),
-                pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
+        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(hubServicesFactory.getGson(), HubServicesFactory.createDefaultJsonParser());
+        final CommonNotificationService commonNotificationService = hubServicesFactory.createCommonNotificationService(contentDetailFactory, notificationsOldestFirst);
+
+        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), hubServicesFactory.createNotificationService(), commonNotificationService,
+                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 
@@ -275,12 +285,24 @@ public class BlackDuckJiraTask {
         return startDate;
     }
 
-    public void bdPhoneHome(final PhoneHomeService phService) {
+    public void bdPhoneHome(final BlackDuckPhoneHomeCallable phCallable) {
         try {
-            final PhoneHomeRequestBody.Builder phBodyBuilder = phService.createInitialPhoneHomeRequestBodyBuilder("blackduck-jira", jiraServices.getPluginVersion());
-            phBodyBuilder.addToMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
-            final PhoneHomeRequestBody phBody = phBodyBuilder.build();
-            phService.phoneHome(phBody);
+            phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
+
+            Map<String, String> environmentVariables;
+            try {
+                final Map<String, String> systemEnv = System.getenv();
+                environmentVariables = new HashMap<>();
+                environmentVariables.putAll(systemEnv);
+            } catch (final Exception e) {
+                environmentVariables = Collections.emptyMap();
+            }
+            for (final Map.Entry<String, String> entry : environmentVariables.entrySet()) {
+                phCallable.addMetaData(entry.getKey(), entry.getValue());
+            }
+
+            final PhoneHomeService phService = new PhoneHomeService(logger, null);
+            phService.phoneHome(phCallable);
             jiraSettingsService.setLastPhoneHome(LocalDate.now());
         } catch (final Exception phException) {
             logger.debug("Unable to phone home: " + phException.getMessage());

@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.common;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.log.IntLogger;
-import com.blackducksoftware.integration.log.LogLevel;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.LogLevel;
 
 public class BlackDuckJiraLogger extends IntLogger {
     private final Logger jiraLogger;

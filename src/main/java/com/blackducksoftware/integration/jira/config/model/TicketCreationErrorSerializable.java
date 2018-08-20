@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TicketCreationErrorSerializable extends Stringable implements Serializable {

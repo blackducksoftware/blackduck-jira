@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
 public class JiraIssueFieldTemplate extends Stringable {
     private final Long jiraProjectId;

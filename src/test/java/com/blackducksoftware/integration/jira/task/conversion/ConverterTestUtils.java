@@ -32,11 +32,11 @@ import org.mockito.Mockito;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class ConverterTestUtils {
 

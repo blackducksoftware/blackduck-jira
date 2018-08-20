@@ -115,7 +115,7 @@ public class JiraSettingsService {
             Collections.sort(ticketErrors);
             ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
         }
-        logger.debug("Saving " + ticketErrors.size() + " error messages to settings");
+        logger.info("Saving " + ticketErrors.size() + " error messages to settings");
         settings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
 

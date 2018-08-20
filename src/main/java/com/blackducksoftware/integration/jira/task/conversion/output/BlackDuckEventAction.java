@@ -23,19 +23,26 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 
 public enum BlackDuckEventAction {
-    RESOLVE,
-    OPEN,
     ADD_COMMENT,
-    ADD_COMMENT_IF_EXISTS;
+    ADD_COMMENT_IF_EXISTS,
+    OPEN,
+    RESOLVE,
+    RESOLVE_ALL,
+    UPDATE_IF_EXISTS;
 
-    public static BlackDuckEventAction fromPolicyNotificationType(final NotificationType notificationType) {
+    public static BlackDuckEventAction fromNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
             return RESOLVE;
         } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
             return OPEN;
+        } else if (NotificationType.VULNERABILITY.equals(notificationType)) {
+            // This seems to be the safest option of the many possibilities for vulnerability notifications
+            return ADD_COMMENT_IF_EXISTS;
+        } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
+            return UPDATE_IF_EXISTS;
         } else {
             throw new IllegalArgumentException(String.format("Cannot determine an action from non-policy NotificationType: %s", notificationType));
         }

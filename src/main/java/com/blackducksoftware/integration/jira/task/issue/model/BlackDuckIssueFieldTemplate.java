@@ -23,15 +23,16 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.util.Stringable;
+import com.synopsys.integration.util.Stringable;
 
-public abstract class BlackDuckIssueFieldTemplate extends Stringable {
+public class BlackDuckIssueFieldTemplate extends Stringable {
     private final ApplicationUser projectOwner;
     private final String projectName;
     private final String projectVersionName;
@@ -161,12 +162,11 @@ public abstract class BlackDuckIssueFieldTemplate extends Stringable {
         final CustomField customField = customFields.get(pluginField);
         if (customField != null) {
             blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);
-        } else {
-            // TODO should this class have logging at all? probably not, but then again, it probably shouldn't have this logic in it either
-            // logger.warn("JIRA custom field " + pluginField.getName() + " not found");
         }
     }
 
-    protected abstract Map<Long, String> createAddtionalBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields);
+    protected Map<Long, String> createAddtionalBlackDuckFieldMappings(@SuppressWarnings("unused") final Map<PluginField, CustomField> customFields) {
+        return Collections.emptyMap();
+    }
 
 }

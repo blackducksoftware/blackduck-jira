@@ -127,7 +127,6 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
         addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
         addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
         addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
-        // TODO use: <blackDuckBaseUrl> + "/ui/policy-management"
         addCustomField(customFields, policyFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
         return policyFieldMappings;
     }

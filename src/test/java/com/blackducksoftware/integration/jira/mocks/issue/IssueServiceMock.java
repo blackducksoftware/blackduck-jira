@@ -26,10 +26,12 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.IssueService;
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.IssueService;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.LogLevel;
+import com.synopsys.integration.log.PrintStreamIntLogger;
 
 public class IssueServiceMock extends IssueService {
     public final static String CREATION_SUCCESS_URL = "SUCCESS_URL";
@@ -37,7 +39,7 @@ public class IssueServiceMock extends IssueService {
     public Map<String, IssueView> issueMap = new HashMap<>();
 
     public IssueServiceMock(final HubService blackDuckService) {
-        super(blackDuckService);
+        super(blackDuckService, new PrintStreamIntLogger(System.out, LogLevel.DEBUG));
     }
 
     @Override

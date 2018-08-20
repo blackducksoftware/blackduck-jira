@@ -36,6 +36,9 @@ import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.label.LabelManager;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.project.version.Version;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -47,21 +50,19 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 public class IssueFieldCopyMappingHandler {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraServices jiraServices;
+    private final ProjectManager projectManager;
+    private final FieldManager fieldManager;
+    private final LabelManager labelManager;
+
     private final JiraUserContext jiraUserContext;
     private final Map<PluginField, CustomField> customFields;
 
     public IssueFieldCopyMappingHandler(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFields) {
-        this.jiraServices = jiraServices;
+        this.projectManager = jiraServices.getJiraProjectManager();
+        this.fieldManager = jiraServices.getFieldManager();
+        this.labelManager = jiraServices.getLabelManager();
         this.jiraUserContext = jiraUserContext;
         this.customFields = customFields;
-    }
-
-    public void addLabels(final Long issueId, final List<String> labels) {
-        for (final String label : labels) {
-            logger.debug("Adding label: " + label);
-            jiraServices.getLabelManager().addLabel(jiraUserContext.getJiraIssueCreatorUser(), issueId, label, false);
-        }
     }
 
     public List<String> setFieldCopyMappings(final IssueInputParameters issueInputParameters, final Set<ProjectFieldCopyMapping> projectFieldCopyMappings, final Map<Long, String> blackDuckFieldMappings,
@@ -83,7 +84,7 @@ public class IssueFieldCopyMappingHandler {
             final String targetFieldId = fieldCopyMapping.getTargetFieldId();
             logger.debug("Setting field with ID " + targetFieldId + " from field " + fieldCopyMapping.getSourceFieldName());
 
-            final Field targetField = jiraServices.getFieldManager().getField(targetFieldId);
+            final Field targetField = fieldManager.getField(targetFieldId);
             logger.debug("\ttargetField: " + targetField);
             if (targetField == null) {
                 final String errorMessage = "Custom field with ID " + targetFieldId + " not found; won't be set";
@@ -92,12 +93,9 @@ public class IssueFieldCopyMappingHandler {
             }
 
             final String fieldValue = getFieldValue(blackDuckFieldMappings, fieldCopyMapping.getSourceFieldId());
-            if (fieldValue == null) {
-                continue;
-            }
             logger.debug("New target field value: " + fieldValue);
 
-            if (targetField.getId().startsWith(FieldManager.CUSTOM_FIELD_PREFIX)) {
+            if (targetField.getId() != null && targetField.getId().startsWith(FieldManager.CUSTOM_FIELD_PREFIX)) {
                 logger.debug("Setting custom field " + targetField.getName() + " to " + fieldValue);
                 issueInputParameters.addCustomFieldValue(targetField.getId(), fieldValue);
             } else {
@@ -111,13 +109,22 @@ public class IssueFieldCopyMappingHandler {
         return labels;
     }
 
+    public void addLabels(final Long issueId, final List<String> labels) {
+        for (final String label : labels) {
+            logger.debug("Adding label: " + label);
+            labelManager.addLabel(jiraUserContext.getJiraIssueCreatorUser(), issueId, label, false);
+        }
+    }
+
     private String getFieldValue(final Map<Long, String> blackDuckFieldMappings, final String sourceFieldId) {
-        for (final PluginField pluginField : PluginField.values()) {
-            if (pluginField.getId().equals(sourceFieldId)) {
-                final CustomField customField = customFields.get(pluginField);
-                if (customField != null) {
-                    final String mappedValue = blackDuckFieldMappings.get(customField.getIdAsLong());
-                    return mappedValue;
+        if (sourceFieldId != null) {
+            for (final PluginField pluginField : PluginField.values()) {
+                if (sourceFieldId.equals(pluginField.getId())) {
+                    final CustomField customField = customFields.get(pluginField);
+                    if (customField != null) {
+                        final String mappedValue = blackDuckFieldMappings.get(customField.getIdAsLong());
+                        return mappedValue;
+                    }
                 }
             }
         }
@@ -128,11 +135,12 @@ public class IssueFieldCopyMappingHandler {
      * If target field is labels field, the label value is returned (labels cannot be applied to an issue during creation).
      */
     private String setSystemField(final Long jiraProjectId, final IssueInputParameters issueInputParameters, final Field targetField, final String targetFieldValue) {
-        if (targetField.getId().equals(BlackDuckJiraConstants.VERSIONS_FIELD_ID)) {
-            setAffectedVersion(jiraProjectId, issueInputParameters, targetFieldValue);
-        } else if (targetField.getId().equals(BlackDuckJiraConstants.COMPONENTS_FIELD_ID)) {
-            setComponent(jiraProjectId, issueInputParameters, targetFieldValue);
-        } else if (targetField.getId().equals("labels")) {
+        final Project jiraProject = projectManager.getProjectObj(jiraProjectId);
+        if (BlackDuckJiraConstants.VERSIONS_FIELD_ID.equals(targetField.getId())) {
+            setAffectedVersion(jiraProject, issueInputParameters, targetFieldValue);
+        } else if (BlackDuckJiraConstants.COMPONENTS_FIELD_ID.equals(targetField.getId())) {
+            setComponent(jiraProject, issueInputParameters, targetFieldValue);
+        } else if ("labels".equals(targetField.getId())) {
             logger.debug("Recording label to add after issue is created: " + targetFieldValue);
             return targetFieldValue;
         } else {
@@ -142,13 +150,15 @@ public class IssueFieldCopyMappingHandler {
         return null;
     }
 
-    private void setComponent(final Long jiraProjectId, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
+    private void setComponent(final Project jiraProject, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
         Long compId = null;
-        final Collection<ProjectComponent> components = jiraServices.getJiraProjectManager().getProjectObj(jiraProjectId).getComponents();
-        for (final ProjectComponent component : components) {
-            if (targetFieldValue.equals(component.getName())) {
-                compId = component.getId();
-                break;
+        if (targetFieldValue != null) {
+            final Collection<ProjectComponent> components = jiraProject.getComponents();
+            for (final ProjectComponent component : components) {
+                if (targetFieldValue.equals(component.getName())) {
+                    compId = component.getId();
+                    break;
+                }
             }
         }
         if (compId != null) {
@@ -158,13 +168,15 @@ public class IssueFieldCopyMappingHandler {
         }
     }
 
-    private void setAffectedVersion(final Long jiraProjectId, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
+    private void setAffectedVersion(final Project jiraProject, final IssueInputParameters issueInputParameters, final String targetFieldValue) {
         Long versionId = null;
-        final Collection<Version> versions = jiraServices.getJiraProjectManager().getProjectObj(jiraProjectId).getVersions();
-        for (final Version version : versions) {
-            if (targetFieldValue.equals(version.getName())) {
-                versionId = version.getId();
-                break;
+        if (targetFieldValue != null) {
+            final Collection<Version> versions = jiraProject.getVersions();
+            for (final Version version : versions) {
+                if (targetFieldValue.equals(version.getName())) {
+                    versionId = version.getId();
+                    break;
+                }
             }
         }
         if (versionId != null) {

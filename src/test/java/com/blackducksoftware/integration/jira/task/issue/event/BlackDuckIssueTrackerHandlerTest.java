@@ -38,9 +38,6 @@ import org.mockito.Mockito;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
@@ -51,8 +48,11 @@ import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class BlackDuckIssueTrackerHandlerTest {
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
@@ -70,7 +70,7 @@ public class BlackDuckIssueTrackerHandlerTest {
     public void initTest() throws Exception {
         settings = new PluginSettingsMock();
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        final BlackduckRestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
         final HubService blackDuckService = Mockito.mock(HubService.class);
         Mockito.when(blackDuckService.getRestConnection()).thenReturn(restConnection);
 
