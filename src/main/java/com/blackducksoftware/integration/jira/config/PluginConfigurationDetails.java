@@ -30,6 +30,7 @@ import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
 
 public class PluginConfigurationDetails {
     private final String blackDuckUrl;
+    private final String blackDuckApiToken;
     private final String blackDuckUsername;
     private final String blackDuckPasswordEncrypted;
     private final String blackDuckPasswordLength;
@@ -56,6 +57,7 @@ public class PluginConfigurationDetails {
     public PluginConfigurationDetails(final PluginSettings settings) {
         this.settings = settings;
         blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+        blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
         blackDuckUsername = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
         blackDuckPasswordEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
         blackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
@@ -173,6 +175,7 @@ public class PluginConfigurationDetails {
     public HubServerConfigBuilder createServerConfigBuilder() {
         final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
         serverConfigBuilder.setUrl(blackDuckUrl);
+        serverConfigBuilder.setApiToken(blackDuckApiToken);
         serverConfigBuilder.setUsername(blackDuckUsername);
         serverConfigBuilder.setPassword(blackDuckPasswordEncrypted);
         serverConfigBuilder.setPasswordLength(NumberUtils.toInt(blackDuckPasswordLength));

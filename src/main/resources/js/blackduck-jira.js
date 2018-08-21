@@ -174,6 +174,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    data: '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
 		    + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
 		    + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
+		    + '", "apiToken": "' + encodeURI(AJS.$("#bdApiToken").val()) 
 		    + '", "username": "' + encodeURI(AJS.$("#hubUsername").val())
 		    + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
 		    + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
@@ -188,6 +189,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	hideError('hubServerUrlErrorRow', 'hubServerUrlError');
 		    	hideError('hubTimeoutErrorRow', 'hubTimeoutError');
 		    	hideError('hubTrustCertErrorRow', 'hubTrustCertError');
+		    	hideError('bdApiTokenErrorRow', 'bdApiTokenError'); 
 		    	hideError('hubUsernameErrorRow', 'hubUsernameError');
 		    	hideError('hubPasswordErrorRow', 'hubPasswordError');
 		    	hideError('proxyHostErrorRow', 'proxyHostError');
@@ -212,6 +214,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 		    	handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
 		    	handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
+		    	handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
 		    	handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
 		    	handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
 		    	handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
@@ -279,6 +282,7 @@ function populateForm() {
 	      updateValue("hubServerUrl", config.hubUrl);
 	      updateValue("hubTimeout", config.timeout);
 	      updateValue("hubTrustCert", config.trustCert);
+	      updateValue("bdApiToken", config.apiToken);
 	      updateValue("hubUsername", config.username);
 	      updateValue("hubPassword", config.password);
 	      updateValue("proxyHost", config.hubProxyHost);
@@ -293,6 +297,7 @@ function populateForm() {
 	      handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 	      handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
 	      handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
+	      handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.bdApiTokenError); 
 	      handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
 	      handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
 	      handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);

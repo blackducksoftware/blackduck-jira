@@ -27,6 +27,7 @@ public class BlackDuckConfigKeys {
     public static final String BLACKDUCK_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.configuration";
 
     public static final String CONFIG_BLACKDUCK_URL = BLACKDUCK_CONFIG_KEY_PREFIX + ".huburl";
+    public static final String CONFIG_BLACKDUCK_API_TOKEN = BLACKDUCK_CONFIG_KEY_PREFIX + ".bdApiToken";
     public static final String CONFIG_BLACKDUCK_USER = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubuser";
     public static final String CONFIG_BLACKDUCK_PASS = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubpassword";
     public static final String CONFIG_BLACKDUCK_PASS_LENGTH = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubpasswordlength";

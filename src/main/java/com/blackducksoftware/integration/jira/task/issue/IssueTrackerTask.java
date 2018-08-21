@@ -119,21 +119,19 @@ public class IssueTrackerTask implements Callable<Boolean> {
             blackDuckServerConfig = blackDuckConfigBuilder.build();
             logger.debug("Finished building Black Duck configuration");
         } catch (final IllegalStateException e) {
-            logger.error(
-                    "Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck plugin is not (yet) configured correctly: "
-                            + e.getMessage());
+            logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck plugin is not (yet) configured correctly: " + e.getMessage());
             return null;
         }
 
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
-        logger.debug("Black Duck url / username: " + blackDuckServerConfig.getHubUrl().toString() + " / " + blackDuckServerConfig.getGlobalCredentials().getUsername());
+        logger.debug("Black Duck url: " + blackDuckServerConfig.getHubUrl().toString());
         logger.debug("Interval: " + configDetails.getIntervalString());
 
         return blackDuckServerConfig;
     }
 
     public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final BlackduckRestConnection restConnection = config.createCredentialsRestConnection(logger);
+        final BlackduckRestConnection restConnection = config.createRestConnection(logger);
         return new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
     }
 
