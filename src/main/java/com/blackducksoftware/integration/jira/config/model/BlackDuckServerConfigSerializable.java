@@ -38,7 +38,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckServerConfigSerializable extends Stringable implements Serializable {
-    private static final long serialVersionUID = -584431072779943022L;
+    private static final long serialVersionUID = -8136935284749275566L;
 
     @XmlElement
     private String testConnectionError;

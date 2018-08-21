@@ -214,7 +214,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 		    	handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
 		    	handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
 		    	handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
-		    	handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.usernameError);
+		    	handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
 		    	handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
 		    	handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
 		    	handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);

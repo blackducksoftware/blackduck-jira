@@ -151,7 +151,10 @@ public class BlackDuckConfigController {
                 setConfigFromResult(config, serverConfigBuilder.createValidator());
 
                 config.setHubUrl(blackDuckUrl);
-                config.setApiToken(apiToken); // TODO mask API Token
+                if (StringUtils.isNotBlank(apiToken)) {
+                    config.setApiTokenLength(apiToken.length());
+                    config.setApiToken(config.getMaskedApiToken());
+                }
                 config.setUsername(username);
                 if (StringUtils.isNotBlank(password)) {
                     final int passwordLengthInt = getIntFromObject(passwordLength);
@@ -207,7 +210,9 @@ public class BlackDuckConfigController {
 
                 logger.debug(String.format("Saving connection to %s...", config.getHubUrl()));
                 setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, config.getHubUrl());
-                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, config.getApiToken());
+                if (StringUtils.isNotBlank(config.getApiToken()) && !config.isApiTokenMasked()) {
+                    setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, config.getApiToken());
+                }
                 setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, config.getUsername());
 
                 final String password = config.getPassword();
@@ -322,8 +327,12 @@ public class BlackDuckConfigController {
         serverConfigBuilder.setTrustCert(config.getTrustCert());
 
         final String apiToken = config.getApiToken();
-        if (apiToken != null) {
-            serverConfigBuilder.setApiToken(apiToken);
+        if (StringUtils.isNotBlank(apiToken)) {
+            if (config.isApiTokenMasked()) {
+                serverConfigBuilder.setApiToken(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN));
+            } else {
+                serverConfigBuilder.setApiToken(apiToken);
+            }
         } else {
             serverConfigBuilder.setUsername(config.getUsername());
 
