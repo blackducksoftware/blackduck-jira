@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>37.0.0-SNAPSHOT</version>
+      <version>37.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.blackducksoftware.integration</groupId>
