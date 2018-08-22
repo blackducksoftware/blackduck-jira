@@ -164,7 +164,6 @@ public class JiraServices {
         return ComponentAccessor.getIssueTypeScreenSchemeManager();
     }
 
-    // TODO find a way to inject the same instance of this
     public JiraIssuePropertyWrapper createIssuePropertyWrapper() {
         return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
     }
@@ -192,8 +191,7 @@ public class JiraServices {
         } else if (assigneeType.equals(AssigneeTypes.UNASSIGNED)) {
             return null;
         }
-        // There other AssigneeTypes, but we use Project Lead for all of
-        // them
+        // There other AssigneeTypes, but we use Project Lead for all of them
         return jiraProject.getProjectLead().getKey();
     }
 

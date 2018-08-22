@@ -397,7 +397,7 @@ public class BomNotificationToEventConverter {
     }
 
     private ProjectVersionWrapper getProjectVersionWrapper(final VersionBomComponentView versionBomComponent, final HubBucket blackDuckBucket) throws IntegrationException {
-        // TODO Fix this when Black Duck supports going back to the project-version
+        // TODO Stop using this when Black Duck supports going back to the project-version
         final String versionBomComponentHref = blackDuckService.getHref(versionBomComponent);
         final int componentsIndex = versionBomComponentHref.indexOf(ProjectVersionView.COMPONENTS_LINK);
         final String projectVersionUri = versionBomComponentHref.substring(0, componentsIndex - 1);

@@ -629,7 +629,6 @@ public class EventDataBuilder extends Stringable {
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(policyRuleUrl)));
         }
-        // TODO before a MAJOR release, discuss how we should differentiate tickets based on origin
 
         final String key = keyBuilder.toString();
         return key;
