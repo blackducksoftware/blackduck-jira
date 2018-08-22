@@ -607,7 +607,7 @@ public class EventDataBuilder extends Stringable {
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        if (EventCategory.POLICY.equals(this.getEventCategory())) {
+        if (blackDuckComponentVersionUrl == null && EventCategory.POLICY.equals(this.getEventCategory())) {
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
         } else {
             // Vulnerabilities do not have a component URL
