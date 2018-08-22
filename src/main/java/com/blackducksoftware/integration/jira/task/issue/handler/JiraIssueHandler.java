@@ -78,7 +78,8 @@ public class JiraIssueHandler {
     }
 
     public void handleEvent(final EventData eventData) {
-        logger.info("Handling event: " + eventData.getEventKey());
+        logger.info("Handling event for BOM Component: " + eventData.getBlackDuckBomComponentUri());
+        logger.debug("Handling event. Old key: " + eventData.getEventKey());
 
         final BlackDuckEventAction actionToTake = eventData.getAction();
         if (BlackDuckEventAction.OPEN.equals(actionToTake)) {

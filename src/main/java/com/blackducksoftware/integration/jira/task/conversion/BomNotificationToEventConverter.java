@@ -111,6 +111,7 @@ public class BomNotificationToEventConverter {
     }
 
     public Collection<EventData> convertToEventData(final NotificationDetailResult detailResult, final HubBucket blackDuckBucket, final Date batchStartDate) {
+        logger.debug("Using BOM Notification Converter");
         final NotificationType notificationType = detailResult.getType();
         logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
 
@@ -118,7 +119,7 @@ public class BomNotificationToEventConverter {
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             try {
                 try {
-                    final Collection<EventData> eventsFromDetail = createEventDataFromContentDetail(notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
+                    final Collection<EventData> eventsFromDetail = populateEventDataFromContentDetail(notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
                     allEvents.addAll(eventsFromDetail);
                 } catch (final IntegrationRestException restException) {
                     logger.warn(String.format("The Black Duck resource requested was not found. It was probably deleted: %s. Caused by: %s", restException.getMessage(), restException.getCause()));
@@ -132,18 +133,17 @@ public class BomNotificationToEventConverter {
         return allEvents;
     }
 
-    private Collection<EventData> createEventDataFromContentDetail(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
+    private Collection<EventData> populateEventDataFromContentDetail(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
             final HubBucket blackDuckBucket, final Date batchStartDate) throws IntegrationException {
         final List<EventData> eventDataList = new ArrayList<>();
 
-        // FIXME if the project/version does not exist, then we can't close the associated ticket
         final ProjectVersionWrapper projectVersionWrapper = getProjectVersionWrapper(detail, blackDuckBucket);
         final String blackDuckProjectName = projectVersionWrapper.getProjectView().name;
         final List<JiraProject> jiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
         logger.debug(String.format("There are %d jira projects configured", jiraProjects.size()));
         for (final JiraProject jiraProject : jiraProjects) {
             try {
-                final Collection<EventData> createdEventData = createEventDataFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, blackDuckBucket, batchStartDate);
+                final Collection<EventData> createdEventData = populateEventDataFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, blackDuckBucket, batchStartDate);
                 eventDataList.addAll(createdEventData);
             } catch (final Exception e) {
                 logger.error(e);
@@ -154,11 +154,12 @@ public class BomNotificationToEventConverter {
         return eventDataList;
     }
 
-    private Collection<EventData> createEventDataFromContentDetail(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final NotificationType notificationType, final NotificationContentDetail detail,
+    private Collection<EventData> populateEventDataFromContentDetail(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final NotificationType notificationType, final NotificationContentDetail detail,
             final NotificationContent notificationContent, final HubBucket blackDuckBucket, final Date batchStartDate) throws IntegrationException, EventDataBuilderException, ConfigurationException {
 
         if (detail.getBomComponent().isPresent()) {
             final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = detail.getBomComponent().get();
+            logger.debug("BOM Component was present: " + bomComponentUriSingleResponse.uri);
             VersionBomComponentView versionBomComponent;
             try {
                 versionBomComponent = getBomComponent(bomComponentUriSingleResponse, blackDuckBucket);
@@ -166,23 +167,23 @@ public class BomNotificationToEventConverter {
                 return create404EventData(restException, detail, batchStartDate);
             }
             if (detail.isPolicy()) {
-                final EventData eventData = createEventDataForPolicy(jiraProject, detail.getPolicy().get(), projectVersionWrapper, versionBomComponent, notificationType, blackDuckBucket, batchStartDate);
+                final EventData eventData = populateEventDataForPolicy(jiraProject, detail.getPolicy().get(), projectVersionWrapper, versionBomComponent, notificationType, blackDuckBucket, batchStartDate);
                 if (eventData != null) {
                     return Arrays.asList(eventData);
                 }
             } else if (detail.isVulnerability()) {
                 final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
-                final EventData eventData = createEventDataForVulnerability(jiraProject, projectVersionWrapper, versionBomComponent,
+                final EventData eventData = populateEventDataForVulnerability(jiraProject, projectVersionWrapper, versionBomComponent,
                         vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds, blackDuckBucket, batchStartDate);
                 if (eventData != null) {
                     return Arrays.asList(eventData);
                 }
             } else if (detail.isBomEdit()) {
-                return createEventDataForBomEdit(jiraProject, projectVersionWrapper, versionBomComponent, blackDuckBucket, batchStartDate);
+                return populateEventDataForBomEdit(jiraProject, projectVersionWrapper, versionBomComponent, blackDuckBucket, batchStartDate);
             }
         } else {
             logger.warn("No bom component information provided by the notification: " + detail);
-            logger.warn("Falling back to old converter...");
+            logger.warn("Falling back to old converter (this is deprecated and may not work with old versions of Black Duck)");
             final Optional<EventData> optionalEventData = oldConverter.createEventDataForJiraProject(notificationType, detail, notificationContent, jiraProject, blackDuckBucket, batchStartDate);
             if (optionalEventData.isPresent()) {
                 return Arrays.asList(optionalEventData.get());
@@ -196,7 +197,7 @@ public class BomNotificationToEventConverter {
     // NOTIFICATION EVENT DATA METHODS
     // ===============================
 
-    private EventData createEventDataForPolicy(final JiraProject jiraProject, final UriSingleResponse<PolicyRuleViewV2> policyRuleUriSingleResponse, final ProjectVersionWrapper projectVersionWrapper,
+    private EventData populateEventDataForPolicy(final JiraProject jiraProject, final UriSingleResponse<PolicyRuleViewV2> policyRuleUriSingleResponse, final ProjectVersionWrapper projectVersionWrapper,
             final VersionBomComponentView versionBomComponent, final NotificationType notificationType, final HubBucket blackDuckBucket, final Date batchStartDate)
             throws IntegrationException, EventDataBuilderException, ConfigurationException {
 
@@ -208,11 +209,12 @@ public class BomNotificationToEventConverter {
         final EventDataBuilder eventDataBuilder = createCommonEventDataBuilder(jiraProject, EventCategory.POLICY, batchStartDate);
         addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
         eventDataBuilder.setNotificationType(notificationType);
-        return createEventDataForPolicy(eventDataBuilder, policyRule, blackDuckBucket);
+        return populateEventDataForPolicy(eventDataBuilder, policyRule, blackDuckBucket);
     }
 
-    private EventData createEventDataForPolicy(final EventDataBuilder eventDataBuilder, final PolicyRuleViewV2 policyRule, final HubBucket blackDuckBucket)
+    private EventData populateEventDataForPolicy(final EventDataBuilder eventDataBuilder, final PolicyRuleViewV2 policyRule, final HubBucket blackDuckBucket)
             throws IntegrationException, EventDataBuilderException {
+        logger.debug("Populating event data for policy: " + policyRule.name);
         eventDataBuilder.setBlackDuckRuleUrl(blackDuckService.getHref(policyRule));
         eventDataBuilder.setBlackDuckRuleName(policyRule.name);
         eventDataBuilder.setBlackDuckRuleDescription(policyRule.description);
@@ -225,10 +227,10 @@ public class BomNotificationToEventConverter {
         return addRemainingFieldsToEventDataAndBuild(eventDataBuilder, blackDuckBucket);
     }
 
-    private EventData createEventDataForVulnerability(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent,
+    private EventData populateEventDataForVulnerability(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent,
             final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds,
             final HubBucket blackDuckBucket, final Date batchStartDate) throws IntegrationException, EventDataBuilderException, ConfigurationException {
-
+        logger.debug("Populating event data for vulnerability");
         final EventDataBuilder eventDataBuilder = createCommonEventDataBuilder(jiraProject, EventCategory.VULNERABILITY, batchStartDate);
         addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
 
@@ -247,24 +249,26 @@ public class BomNotificationToEventConverter {
     }
 
     // TODO add tests for this
-    private Collection<EventData> createEventDataForBomEdit(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent, final HubBucket blackDuckBucket,
+    private Collection<EventData> populateEventDataForBomEdit(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent, final HubBucket blackDuckBucket,
             final Date batchStartDate) throws IntegrationException, EventDataBuilderException, ConfigurationException {
-
+        logger.debug("Populating event data for BOM Component");
         final List<EventData> editEvents = new ArrayList<>();
         if (doesSecurityRiskProfileHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
-            final EventData vulnerabilityEventData = createEventDataForVulnerability(
+            logger.debug("This component has vulnerabilities.");
+            final EventData vulnerabilityEventData = populateEventDataForVulnerability(
                     jiraProject, projectVersionWrapper, versionBomComponent, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), blackDuckBucket, batchStartDate);
             vulnerabilityEventData.overrideAction(BlackDuckEventAction.UPDATE_IF_EXISTS);
             editEvents.add(vulnerabilityEventData);
         }
 
         if (PolicySummaryStatusType.IN_VIOLATION.equals(versionBomComponent.policyStatus)) {
+            logger.debug("This component is in violation of at least one policy.");
             final List<PolicyRuleViewV2> policyRules = blackDuckService.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
             for (final PolicyRuleViewV2 rule : policyRules) {
                 final EventDataBuilder eventDataBuilder = createCommonEventDataBuilder(jiraProject, EventCategory.POLICY, batchStartDate);
                 addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
                 eventDataBuilder.setNotificationType(NotificationType.BOM_EDIT);
-                final EventData policyEventData = createEventDataForPolicy(eventDataBuilder, rule, blackDuckBucket);
+                final EventData policyEventData = populateEventDataForPolicy(eventDataBuilder, rule, blackDuckBucket);
                 if (policyEventData != null) {
                     policyEventData.overrideAction(BlackDuckEventAction.UPDATE_IF_EXISTS);
                     editEvents.add(policyEventData);
@@ -276,6 +280,7 @@ public class BomNotificationToEventConverter {
 
     private Collection<EventData> create404EventData(final IntegrationRestException restException, final NotificationContentDetail detail, final Date batchStartDate)
             throws EventDataBuilderException, IntegrationRestException {
+        logger.debug("HTTP Status Code 404: Creating event for notification with missing resources on Black Duck server.");
         if (restException.getHttpStatusCode() == 404) {
             final EventData specialEventData = new EventDataBuilder(EventCategory.SPECIAL).build404EventData(detail, batchStartDate);
             return Arrays.asList(specialEventData);

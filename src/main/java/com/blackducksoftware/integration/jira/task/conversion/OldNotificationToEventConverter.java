@@ -103,12 +103,13 @@ public class OldNotificationToEventConverter {
     }
 
     public Collection<EventData> createEventDataForNotificationDetailResult(final NotificationDetailResult detailResult, final HubBucket blackDuckBucket, final Date batchStartDate) throws HubIntegrationException {
+        logger.debug("Using Old Notification Converter");
         final NotificationType notificationType = detailResult.getType();
         logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
 
         final Set<EventData> allEvents = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
-            if ((NotificationType.BOM_EDIT.equals(notificationType) || shouldHandle(detail)) && detail.getProjectName().isPresent()) {
+            if (shouldHandle(detail) && detail.getProjectName().isPresent()) {
                 final String projectName = detail.getProjectName().get();
                 final List<EventData> projectEvents = createEventDataForBlackDuckProjectMappings(projectName, notificationType, detail, detailResult.getNotificationContent(), blackDuckBucket, batchStartDate);
                 allEvents.addAll(projectEvents);
@@ -164,7 +165,6 @@ public class OldNotificationToEventConverter {
                 eventDataBuilder.setBlackDuckRuleDescription(optionalPolicyRule.get().description);
                 eventDataBuilder.setBlackDuckRuleUrl(policyRuleLink.uri);
             }
-
             action = BlackDuckEventAction.fromNotificationType(notificationType);
         } else if (detail.isVulnerability()) {
             final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
@@ -177,8 +177,6 @@ public class OldNotificationToEventConverter {
             } else if (doesNotificationOnlyHaveDeletes(vulnerabilityContent)) {
                 action = BlackDuckEventAction.ADD_COMMENT_IF_EXISTS;
             }
-        } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
-            action = BlackDuckEventAction.UPDATE_IF_EXISTS;
         }
 
         eventDataBuilder.setPropertiesFromJiraUserContext(jiraUserContext);
