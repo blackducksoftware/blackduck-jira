@@ -25,7 +25,6 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,11 +41,9 @@ import com.synopsys.integration.blackduck.api.generated.enumeration.ComplexLicen
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
-import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
 import com.synopsys.integration.blackduck.service.ComponentService;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
@@ -58,42 +55,6 @@ public class EventDataFormatHelper {
 
     public EventDataFormatHelper(final HubService blackDuckService) {
         this.blackDuckService = blackDuckService;
-    }
-
-    public String getIssueSummary(final NotificationContentDetail detail, final Optional<PolicyRuleViewV2> optionalPolicyRule) {
-        final String projectName = detail.getProjectName().orElse("?");
-        final String projectVersionName = detail.getProjectVersionName().orElse("?");
-        if (detail.isPolicy()) {
-            final String componentString = getComponentString(detail.getComponentName(), detail.getComponentVersionName());
-            final String ruleName = optionalPolicyRule.isPresent() ? optionalPolicyRule.get().name : "?";
-            final String issueSummaryTemplate = "%s: Project '%s' / '%s', Component '%s' [Rule: '%s']";
-            return String.format(issueSummaryTemplate, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, projectName, projectVersionName, componentString, ruleName);
-        } else if (detail.isVulnerability()) {
-            final StringBuilder issueSummary = new StringBuilder();
-            issueSummary.append(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-            issueSummary.append(": Project '");
-            issueSummary.append(projectName);
-            issueSummary.append("' / '");
-            issueSummary.append(projectVersionName);
-            issueSummary.append("', Component '");
-            issueSummary.append(detail.getComponentName().orElse("?"));
-            issueSummary.append("' / '");
-            issueSummary.append(detail.getComponentVersionName().orElse("?"));
-            issueSummary.append("'");
-            return issueSummary.toString();
-        }
-        return "";
-    }
-
-    private String getComponentString(final Optional<String> componentName, final Optional<String> componentVersionName) {
-        String componentString = "?";
-        if (componentName.isPresent()) {
-            componentString = componentName.get();
-            if (componentVersionName.isPresent()) {
-                componentString += "' / '" + componentVersionName.get();
-            }
-        }
-        return componentString;
     }
 
     public String getIssueDescription(final EventDataBuilder builder, final HubBucket blackDuckBucket) {

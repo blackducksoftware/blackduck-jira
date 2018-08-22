@@ -48,8 +48,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
     private final TemplateRenderer renderer;
     private final PluginSettingsFactory pluginSettingsFactory;
 
-    public BlackDuckJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider,
-            final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
+    public BlackDuckJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider, final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.renderer = renderer;
@@ -84,8 +83,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
         if (!isUserAuthorized(request)) {
             redirectToLogin(request, response);
             return;
@@ -95,8 +93,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
         renderer.render("blackduck-jira.vm", response.getWriter());
     }
 
-    private void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException {
+    private void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         response.sendRedirect(loginUriProvider.getLoginUri(getUri(request)).toASCIIString());
     }
 
