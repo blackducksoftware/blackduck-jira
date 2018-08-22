@@ -1731,6 +1731,33 @@ function toggleDisplay(icon, fieldId){
 	}
 }
 
+function toggleAuthenticationType() {
+	var apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
+
+	var apiTokenRowId = 'bdApiTokenRow';
+	var apiTokenErrorRowId = 'bdApiTokenErrorRow';
+
+	var usernameRowId = 'bdUsernameRow';
+	var usernameErrorRowId = 'hubUsernameErrorRow';
+	var passwordRowId = 'bdPasswordRow';
+	var passwordErrorRowId = 'hubPasswordErrorRow';
+
+	if (apiTokenInput && apiTokenInput.checked) {
+		removeClassFromFieldById(apiTokenRowId, "hidden");
+
+		addClassToFieldById(usernameRowId, "hidden");
+		addClassToFieldById(usernameErrorRowId, "hidden");
+		addClassToFieldById(passwordRowId, "hidden");
+		addClassToFieldById(passwordErrorRowId, "hidden");
+	} else {
+		addClassToFieldById(apiTokenRowId, "hidden");
+		addClassToFieldById(apiTokenErrorRowId, "hidden");
+
+		removeClassFromFieldById(usernameRowId, "hidden");
+		removeClassFromFieldById(passwordRowId, "hidden");
+	}
+}
+
 function addMappingErrorStatus(mappingElement){
 	var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
 	if(mappingStatus.find("i").length == 0){
