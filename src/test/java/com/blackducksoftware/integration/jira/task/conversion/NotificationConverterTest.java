@@ -87,6 +87,7 @@ import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
+import com.synopsys.integration.blackduck.notification.content.BomEditContent;
 import com.synopsys.integration.blackduck.notification.content.ComponentVersionStatus;
 import com.synopsys.integration.blackduck.notification.content.PolicyInfo;
 import com.synopsys.integration.blackduck.notification.content.PolicyOverrideNotificationContent;
@@ -160,6 +161,7 @@ public class NotificationConverterTest {
     private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN;
     private final static String VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
+    private final static String BOM_EDIT_VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\nVulnerabilities _added_: None\nVulnerabilities _updated_: None\nVulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
@@ -242,6 +244,12 @@ public class NotificationConverterTest {
     }
 
     @Test
+    public void testBomEdit() throws ConfigurationException, URISyntaxException, IntegrationException {
+        test(NotificationType.BOM_EDIT, BlackDuckEventAction.UPDATE_IF_EXISTS, BOM_EDIT_VULN_EXPECTED_COMMENT, BOM_EDIT_VULN_EXPECTED_COMMENT, BOM_EDIT_VULN_EXPECTED_COMMENT, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+                VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
+    }
+
+    @Test
     public void testRuleViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION, BlackDuckEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
                 POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
@@ -317,11 +325,13 @@ public class NotificationConverterTest {
         final Date startDate = new Date();
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
         // Old Converter
-        final OldNotificationToEventConverter oldConverter = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
-                mockBlackDuckSerivce, mockLogger);
-        final Collection<EventData> oldEvents = oldConverter.createEventDataForNotificationDetailResult(notificationDetailResults, mockBlackDuckBucket, startDate);
-        verifyGeneratedEvents(oldEvents, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
-                expectedResolveComment, expectedPropertyKey);
+        if (!NotificationType.BOM_EDIT.equals(notifType)) {
+            final OldNotificationToEventConverter oldConverter = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
+                    mockBlackDuckSerivce, mockLogger);
+            final Collection<EventData> oldEvents = oldConverter.createEventDataForNotificationDetailResult(notificationDetailResults, mockBlackDuckBucket, startDate);
+            verifyGeneratedEvents(oldEvents, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
+                    expectedResolveComment, expectedPropertyKey);
+        }
 
         // New Converter
         final BomNotificationToEventConverter newConverter = new BomNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
@@ -349,12 +359,13 @@ public class NotificationConverterTest {
         project._meta.href = BLACKDUCK_PROJECT_URL;
         Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
         Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
-        Mockito.when(mockBlackDuckService.getHref(Mockito.any(ProjectVersionView.class))).thenReturn(PROJECT_VERSION_URL);
 
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
 
         Mockito.when(mockBlackDuckService.getHref(Mockito.any(PolicyRuleViewV2.class))).thenReturn(RULE_URL);
+        Mockito.when(mockBlackDuckService.getHref(Mockito.any(ProjectVersionView.class))).thenReturn(PROJECT_VERSION_URL);
+        Mockito.when(mockBlackDuckService.getHref(Mockito.any(VersionBomComponentView.class))).thenReturn(BOM_COMPONENT_URI);
     }
 
     private static void mockBlackDuckBucketResponses(final HubBucket mockBlackDuckBucket) {
@@ -375,19 +386,19 @@ public class NotificationConverterTest {
     }
 
     private NotificationDetailResult createNotification(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
-        NotificationDetailResult notif;
         if (NotificationType.VULNERABILITY.equals(notifType)) {
-            notif = createVulnerabilityNotif(now);
+            return createVulnerabilityNotif(now);
         } else if (NotificationType.RULE_VIOLATION.equals(notifType)) {
-            notif = createRuleViolationNotif(mockBlackDuckBucket, now);
+            return createRuleViolationNotif(mockBlackDuckBucket, now);
         } else if (NotificationType.POLICY_OVERRIDE.equals(notifType)) {
-            notif = createPolicyOverrideNotif(mockBlackDuckBucket, now);
+            return createPolicyOverrideNotif(mockBlackDuckBucket, now);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notifType)) {
-            notif = createRuleViolationClearedNotif(mockBlackDuckBucket, now);
+            return createRuleViolationClearedNotif(mockBlackDuckBucket, now);
+        } else if (NotificationType.BOM_EDIT.equals(notifType)) {
+            return createBomEditNotif(now);
         } else {
             throw new IllegalArgumentException("Unrecognized notification type");
         }
-        return notif;
     }
 
     private void verifyGeneratedEvents(final Collection<EventData> events, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
@@ -577,6 +588,16 @@ public class NotificationConverterTest {
                 componentVersionName, componentVersionUri, policyName, policyUri, Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(BOM_COMPONENT_URI));
 
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
+    }
+
+    private NotificationDetailResult createBomEditNotif(final Date createdAt) {
+        final BomEditContent content = new BomEditContent();
+        content.bomComponent = BOM_COMPONENT_URI;
+
+        final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_BOM_EDIT, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(BOM_COMPONENT_URI));
+
+        return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.BOM_EDIT, NotificationContentDetail.CONTENT_KEY_GROUP_BOM_EDIT, Optional.empty(), Arrays.asList(detail));
     }
 
     private static BlackDuckProject createBlackDuckProject() {
