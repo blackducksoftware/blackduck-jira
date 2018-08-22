@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -28,22 +28,23 @@ import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
-import com.blackducksoftware.integration.hub.notification.content.detail.NotificationContentDetail;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.exception.EventDataBuilderException;
-import com.blackducksoftware.integration.jira.config.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataBuilder;
 
 public class JiraEventInfoTest {
+    private static final String COMPONENT_URL = "https://blackDuckComponentUrl";
+    private static final String COMPONENT_VERSION_URL = "https://blackDuckComponentVersionUrl";
+    private static final String PROJECT_VERSION_URL = "https://blackDuckProjectVersionUrl";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -56,24 +57,22 @@ public class JiraEventInfoTest {
     @Test
     public void testValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
-        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings);
 
         final EventData eventData = eventDataBuilder.build();
 
-        checkCommonValues(jiraFieldCopyMappings, issuePropertiesGenerator, eventData);
-        assertEquals(null, eventData.getHubRuleName());
-        assertEquals(null, eventData.getHubRuleUrl());
+        checkCommonValues(jiraFieldCopyMappings, eventData);
+        assertEquals(null, eventData.getBlackDuckRuleName());
+        assertEquals(null, eventData.getBlackDuckRuleUrl());
     }
 
     @Test
     public void testInValidVulnerabilityEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.VULNERABILITY);
 
-        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubProjectVersionUrl(null);
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.VULNERABILITY, jiraFieldCopyMappings);
+        eventDataBuilder.setBlackDuckProjectVersionUrl(null);
 
         try {
             eventDataBuilder.build();
@@ -86,26 +85,27 @@ public class JiraEventInfoTest {
     @Test
     public void testValidPolicyEvent() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
-        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleName("hubRuleName");
-        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+        final String bdRuleName = "blackDuckRuleName";
+        final String bdRuleUrl = "https://bdRuleUrl:443";
+
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings);
+        eventDataBuilder.setBlackDuckRuleName(bdRuleName);
+        eventDataBuilder.setBlackDuckRuleUrl(bdRuleUrl);
 
         final EventData eventData = eventDataBuilder.build();
 
-        checkCommonValues(jiraFieldCopyMappings, issuePropertiesGenerator, eventData);
-        assertEquals("hubRuleName", eventData.getHubRuleName());
-        assertEquals("hubRuleUrl", eventData.getHubRuleUrl());
+        checkCommonValues(jiraFieldCopyMappings, eventData);
+        assertEquals(bdRuleName, eventData.getBlackDuckRuleName());
+        assertEquals(bdRuleUrl, eventData.getBlackDuckRuleUrl());
     }
 
     @Test
     public void testInValidPolicyEventMissingRuleUrl() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
-        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleName("hubRuleName");
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings);
+        eventDataBuilder.setBlackDuckRuleName("blackDuckRuleName");
 
         try {
             eventDataBuilder.build();
@@ -118,10 +118,9 @@ public class JiraEventInfoTest {
     @Test
     public void testInValidPolicyEventMissingRuleName() throws EventDataBuilderException, URISyntaxException {
         final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings = new HashSet<>();
-        final IssuePropertiesGenerator issuePropertiesGenerator = createIssuePropertyGenerator(NotificationType.POLICY_OVERRIDE);
 
-        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings, issuePropertiesGenerator);
-        eventDataBuilder.setHubRuleUrl("hubRuleUrl");
+        final EventDataBuilder eventDataBuilder = createEventDataBuilder(EventCategory.POLICY, jiraFieldCopyMappings);
+        eventDataBuilder.setBlackDuckRuleUrl("https://blackDuckRuleUrl");
 
         try {
             eventDataBuilder.build();
@@ -131,24 +130,23 @@ public class JiraEventInfoTest {
         }
     }
 
-    private void checkCommonValues(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings, final IssuePropertiesGenerator issuePropertiesGenerator,
-            final EventData eventData) {
-        assertEquals(HubEventAction.ADD_COMMENT, eventData.getAction());
-        assertEquals("hubComponentName", eventData.getHubComponentName());
-        assertEquals("hubComponentUrl", eventData.getHubComponentUrl());
-        assertEquals("hubComponentVersion", eventData.getHubComponentVersion());
-        assertEquals("hubComponentVersionUrl", eventData.getHubComponentVersionUrl());
+    private void checkCommonValues(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings, final EventData eventData) {
+        assertEquals(BlackDuckEventAction.ADD_COMMENT, eventData.getAction());
+        assertEquals("blackDuckComponentName", eventData.getBlackDuckComponentName());
+        assertEquals(COMPONENT_URL, eventData.getBlackDuckComponentUrl());
+        assertEquals("blackDuckComponentVersion", eventData.getBlackDuckComponentVersionName());
+        assertEquals(COMPONENT_VERSION_URL, eventData.getBlackDuckComponentVersionUrl());
 
-        assertEquals("hubComponentUsage", eventData.getHubComponentUsage());
-        assertEquals("hubComponentOrigin", eventData.getHubComponentOrigin());
-        assertEquals("hubComponentOriginId", eventData.getHubComponentOriginId());
+        assertEquals("blackDuckComponentUsage", eventData.getBlackDuckComponentUsage());
+        assertEquals("blackDuckComponentOrigin", eventData.getBlackDuckComponentOrigin());
+        assertEquals("blackDuckComponentOriginId", eventData.getBlackDuckComponentOriginId());
 
-        assertEquals("hubProjectVersionUrl", eventData.getHubProjectVersionUrl());
-        assertEquals("hubProjectVersionNickname", eventData.getHubProjectVersionNickname());
-        assertEquals("hubLicenseNames", eventData.getHubLicenseNames());
+        assertEquals(PROJECT_VERSION_URL, eventData.getBlackDuckProjectVersionUrl());
+        assertEquals("blackDuckProjectVersionNickname", eventData.getBlackDuckProjectVersionNickname());
+        assertEquals("blackDuckLicenseNames", eventData.getBlackDuckLicenseNames());
 
-        assertEquals("hubProjectName", eventData.getHubProjectName());
-        assertEquals("hubProjectVersion", eventData.getHubProjectVersion());
+        assertEquals("blackDuckProjectName", eventData.getBlackDuckProjectName());
+        assertEquals("blackDuckProjectVersion", eventData.getBlackDuckProjectVersionName());
 
         assertEquals(jiraFieldCopyMappings, eventData.getJiraFieldCopyMappings());
         assertEquals("jiraIssueAssigneeUserId", eventData.getJiraIssueAssigneeUserId());
@@ -157,10 +155,9 @@ public class JiraEventInfoTest {
         assertEquals("jiraIssueCommentForExistingIssue", eventData.getJiraIssueCommentForExistingIssue());
         assertEquals("jiraIssueCommentInLieuOfStateChange", eventData.getJiraIssueCommentInLieuOfStateChange());
         assertEquals("jiraIssueDescription", eventData.getJiraIssueDescription());
-        assertEquals(issuePropertiesGenerator, eventData.getJiraIssuePropertiesGenerator());
         assertEquals("jiraIssueReOpenComment", eventData.getJiraIssueReOpenComment());
         assertEquals("jiraIssueResolveComment", eventData.getJiraIssueResolveComment());
-        assertEquals("jiraIssueSummary", eventData.getJiraIssueSummary());
+        assertEquals(EXPECTED_ISSUE_SUMMARY(eventData), eventData.getJiraIssueSummary());
         assertEquals("jiraIssueTypeId", eventData.getJiraIssueTypeId());
         assertEquals(Long.valueOf(123L), eventData.getJiraProjectId());
         assertEquals("jiraProjectName", eventData.getJiraProjectName());
@@ -170,22 +167,21 @@ public class JiraEventInfoTest {
         assertEquals("jiraIssueCreatorUserName", eventData.getJiraIssueCreatorUsername());
     }
 
-    private EventDataBuilder createEventDataBuilder(final EventCategory eventCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings,
-            final IssuePropertiesGenerator issuePropertiesGenerator) {
+    private EventDataBuilder createEventDataBuilder(final EventCategory eventCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
-        eventDataBuilder.setAction(HubEventAction.ADD_COMMENT)
-                .setHubComponentName("hubComponentName")
-                .setHubComponentUrl("hubComponentUrl")
-                .setHubComponentVersion("hubComponentVersion")
-                .setHubComponentVersionUrl("hubComponentVersionUrl")
-                .setHubComponentUsage("hubComponentUsage")
-                .setHubComponentOrigin("hubComponentOrigin")
-                .setHubComponentOriginId("hubComponentOriginId")
-                .setHubProjectName("hubProjectName")
-                .setHubProjectVersion("hubProjectVersion")
-                .setHubProjectVersionUrl("hubProjectVersionUrl")
-                .setHubProjectVersionNickname("hubProjectVersionNickname")
-                .setHubLicenseNames("hubLicenseNames")
+        eventDataBuilder.setAction(BlackDuckEventAction.ADD_COMMENT)
+                .setBlackDuckComponentName("blackDuckComponentName")
+                .setBlackDuckComponentUrl(COMPONENT_URL)
+                .setBlackDuckComponentVersionName("blackDuckComponentVersion")
+                .setBlackDuckComponentVersionUrl(COMPONENT_VERSION_URL)
+                .setBlackDuckComponentUsages("blackDuckComponentUsage")
+                .setBlackDuckComponentOrigins("blackDuckComponentOrigin")
+                .setBlackDuckComponentOriginId("blackDuckComponentOriginId")
+                .setBlackDuckProjectName("blackDuckProjectName")
+                .setBlackDuckProjectVersionName("blackDuckProjectVersion")
+                .setBlackDuckProjectVersionUrl(PROJECT_VERSION_URL)
+                .setBlackDuckProjectVersionNickname("blackDuckProjectVersionNickname")
+                .setBlackDuckLicenseNames("blackDuckLicenseNames")
                 .setJiraFieldCopyMappings(jiraFieldCopyMappings)
                 .setJiraIssueAssigneeUserId("jiraIssueAssigneeUserId")
                 .setJiraIssueComment("jiraIssueComment")
@@ -193,10 +189,8 @@ public class JiraEventInfoTest {
                 .setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue")
                 .setJiraIssueCommentInLieuOfStateChange("jiraIssueCommentInLieuOfStateChange")
                 .setJiraIssueDescription("jiraIssueDescription")
-                .setJiraIssuePropertiesGenerator(issuePropertiesGenerator)
                 .setJiraIssueReOpenComment("jiraIssueReOpenComment")
                 .setJiraIssueResolveComment("jiraIssueResolveComment")
-                .setJiraIssueSummary("jiraIssueSummary")
                 .setJiraIssueTypeId("jiraIssueTypeId")
                 .setJiraProjectId(123L)
                 .setJiraProjectName("jiraProjectName")
@@ -204,25 +198,19 @@ public class JiraEventInfoTest {
                 .setJiraAdminUserName("jiraAdminUserName")
                 .setJiraIssueCreatorUserKey("jiraIssueCreatorUserKey")
                 .setJiraIssueCreatorUserName("jiraIssueCreatorUserName");
-        ;
         return eventDataBuilder;
     }
 
-    private IssuePropertiesGenerator createIssuePropertyGenerator(final NotificationType notificationType) throws URISyntaxException {
-        final Optional<String> projectName = Optional.of("projectName");
-        final Optional<String> projectVersionName = Optional.of("projectVersionName");
-        final Optional<String> projectVersionUri = Optional.of("projectVersionUri");
-
-        final Optional<String> componentName = Optional.of("compName");
-        final Optional<String> componentUri = Optional.of("componentUri");
-        final Optional<String> componentVersionName = Optional.of("versionName");
-        final Optional<String> componentVersionUri = Optional.of("compVerName");
-        final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
-        final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
-
-        final NotificationContentDetail detail = NotificationContentDetail.createDetail(notificationType.name(), projectName, projectVersionName, projectVersionUri, componentName, componentUri, componentVersionName, componentVersionUri,
-                Optional.empty(), Optional.empty(), componentVersionOriginName, Optional.empty(), componentVersionOriginId);
-        final IssuePropertiesGenerator issuePropertiesGenerator = new IssuePropertiesGenerator(detail, Optional.empty());
-        return issuePropertiesGenerator;
+    private static final String EXPECTED_ISSUE_SUMMARY(final EventData eventData) {
+        String issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
+        String suffix = "";
+        if (EventCategory.POLICY.equals(eventData.getCategory())) {
+            issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
+            suffix = String.format(" [Rule: '%s']", eventData.getBlackDuckRuleName());
+        }
+        final String issueSummary = String.format("%s: Project '%s' / '%s', Component '%s' / '%s'",
+                issueType, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName());
+        return issueSummary + suffix;
     }
+
 }

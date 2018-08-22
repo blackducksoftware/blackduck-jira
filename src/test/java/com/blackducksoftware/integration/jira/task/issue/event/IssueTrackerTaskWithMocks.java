@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -26,31 +26,31 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
-import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.synopsys.integration.blackduck.configuration.HubServerConfig;
+import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.exception.EncryptionException;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
+    private final HubServicesFactory blackDuckServicesFactory;
 
-    private final HubServicesFactory hubServicesFactory;
-
-    public IssueTrackerTaskWithMocks(final Issue jiraIssue, final Long eventTypeID, final JiraServices jiraServices, final PluginSettings settings, final String propertyKey, final EntityProperty property,
-            final HubServicesFactory hubServicesFactory) {
-        super(jiraIssue, eventTypeID, jiraServices, settings, propertyKey, property);
-        this.hubServicesFactory = hubServicesFactory;
+    public IssueTrackerTaskWithMocks(final Issue jiraIssue, final JiraIssuePropertyWrapper issuePropertyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey,
+            final EntityProperty property, final HubServicesFactory blackDuckServicesFactory) {
+        super(jiraIssue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
+        this.blackDuckServicesFactory = blackDuckServicesFactory;
     }
 
     @Override
-    public HubServicesFactory createHubServicesFactory(final HubServerConfig config) throws EncryptionException {
-        return hubServicesFactory;
+    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
+        return blackDuckServicesFactory;
     }
 
     @Override
-    public HubServerConfig createHubServerConfig(final PluginConfigurationDetails configDetails) {
+    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
         final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
-        return super.createHubServerConfig(testConfigDetails);
+        return super.createBlackDuckServerConfig(testConfigDetails);
     }
 }

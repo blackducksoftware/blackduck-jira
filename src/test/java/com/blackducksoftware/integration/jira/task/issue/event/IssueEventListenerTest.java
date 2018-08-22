@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
@@ -50,23 +51,18 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.hub.api.generated.view.IssueView;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.service.HubService;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProject;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraProject;
-import com.blackducksoftware.integration.jira.config.HubConfigKeys;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyMock;
 import com.blackducksoftware.integration.jira.mocks.EntityPropertyQueryMock;
 import com.blackducksoftware.integration.jira.mocks.EventPublisherMock;
 import com.blackducksoftware.integration.jira.mocks.ExecutableQueryMock;
-import com.blackducksoftware.integration.jira.mocks.IssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.JSonEntityPropertyManagerMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
@@ -75,16 +71,24 @@ import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
-import com.blackducksoftware.integration.jira.task.conversion.output.HubIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.HubIssueTrackerPropertyHandler;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
+import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
+import com.blackducksoftware.integration.jira.mocks.issue.JiraIssuePropertyWrapperMock;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
+import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
+import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerPropertyHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
+import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class IssueEventListenerTest {
     private static final String JIRA_USER = "auser";
-    private static final String HUB_PROJECT_NAME = "HubProjectName";
+    private static final String BLACKDUCK_PROJECT_NAME = "HubProjectName";
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
     private static final Long JIRA_PROJECT_ID = new Long(1);
     private static final String ISSUE_URL = "ISSUE URL";
@@ -109,48 +113,49 @@ public class IssueEventListenerTest {
         userManager.setMockApplicationUser(createApplicationUser());
         jiraServices.setUserManager(userManager);
         final URL url = new URL("http://www.google.com");
-        final RestConnection restConnection = new CredentialsRestConnection(Mockito.mock(HubJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        final BlackduckRestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
 
-        final HubServicesFactory hubServicesFactory = Mockito.mock(HubServicesFactory.class);
-        Mockito.when(hubServicesFactory.getRestConnection()).thenReturn(restConnection);
-        final HubService hubService = Mockito.mock(HubService.class);
-        Mockito.when(hubService.getRestConnection()).thenReturn(restConnection);
+        final HubServicesFactory blackDuckServicesFactory = Mockito.mock(HubServicesFactory.class);
+        Mockito.when(blackDuckServicesFactory.getRestConnection()).thenReturn(restConnection);
+        final HubService blackDuckService = Mockito.mock(HubService.class);
+        Mockito.when(blackDuckService.getRestConnection()).thenReturn(restConnection);
 
-        issueServiceMock = new IssueServiceMock(hubService);
-        Mockito.when(hubServicesFactory.createIssueService()).thenReturn(issueServiceMock);
+        issueServiceMock = new IssueServiceMock(blackDuckService);
+        Mockito.when(blackDuckServicesFactory.createIssueService()).thenReturn(issueServiceMock);
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
 
-        listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, jiraServices, hubServicesFactory);
+        final JiraIssuePropertyWrapper issuePropertyWrapper = new JiraIssuePropertyWrapperMock(jiraServices);
+        listener = new IssueListenerWithMocks(eventPublisher, pluginSettingsFactory, issuePropertyWrapper, blackDuckServicesFactory);
     }
 
     private PluginSettingsMock createPluginSettings() {
         final PluginSettingsMock settings = new PluginSettingsMock();
-        settings.put(HubConfigKeys.CONFIG_HUB_URL, "http://www.google.com");
-        settings.put(HubConfigKeys.CONFIG_HUB_USER, JIRA_USER);
-        settings.put(HubConfigKeys.CONFIG_HUB_PASS, "apassword");
-        settings.put(HubConfigKeys.CONFIG_HUB_PASS_LENGTH, "");
-        settings.put(HubConfigKeys.CONFIG_HUB_TIMEOUT, "120");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, "http://www.google.com");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, JIRA_USER);
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, "apassword");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, "120");
 
-        settings.put(HubConfigKeys.CONFIG_PROXY_HOST, "");
-        settings.put(HubConfigKeys.CONFIG_PROXY_PORT, "");
-        settings.put(HubConfigKeys.CONFIG_PROXY_NO_HOST, "");
-        settings.put(HubConfigKeys.CONFIG_PROXY_USER, "");
-        settings.put(HubConfigKeys.CONFIG_PROXY_PASS, "");
-        settings.put(HubConfigKeys.CONFIG_PROXY_PASS_LENGTH, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_HOST, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PORT, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_USER, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS, "");
+        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, "");
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_POLICY_RULES_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_FIRST_SAVE_TIME, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, "1");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, "");
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER, JIRA_USER);
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER, JIRA_USER);
 
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, "");
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, "false");
         return settings;
     }
 
@@ -160,7 +165,7 @@ public class IssueEventListenerTest {
         return user;
     }
 
-    private String createProjectJSon(final Set<HubProjectMapping> projectMappings) {
+    private String createProjectJSon(final Set<BlackDuckProjectMapping> projectMappings) {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(projectMappings);
     }
@@ -185,30 +190,30 @@ public class IssueEventListenerTest {
         return issue;
     }
 
-    private String createIssuePropertiesJSON(final HubIssueTrackerProperties issueProperties) {
+    private String createIssuePropertiesJSON(final BlackDuckIssueTrackerProperties issueProperties) {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(issueProperties);
     }
 
     private void populateProjectSettings() {
-        final Set<HubProjectMapping> projectSet = new HashSet<>();
-        final HubProjectMapping mapping = new HubProjectMapping();
+        final Set<BlackDuckProjectMapping> projectSet = new HashSet<>();
+        final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
         final JiraProject jiraProject = new JiraProject();
         jiraProject.setProjectId(JIRA_PROJECT_ID);
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         mapping.setJiraProject(jiraProject);
-        final HubProject hubProject = new HubProject();
-        hubProject.setProjectName(HUB_PROJECT_NAME);
-        mapping.setHubProject(hubProject);
+        final BlackDuckProject blackDuckProject = new BlackDuckProject();
+        blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
+        mapping.setHubProject(blackDuckProject);
         projectSet.add(mapping);
-        settings.put(HubJiraConfigKeys.HUB_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
+        settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
     }
 
     private void createEntityProperty() {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
-        entityProperty.setEntityName(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(HubIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_HUB_ISSUE_URL);
-        final HubIssueTrackerProperties issueTrackerProperties = new HubIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
+        entityProperty.setEntityName(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
+        entityProperty.setKey(BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL);
+        final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
         final List<EntityProperty> propList = new ArrayList<>(1);
         propList.add(entityProperty);
@@ -227,7 +232,7 @@ public class IssueEventListenerTest {
 
         });
         jiraServices.setJsonEntityPropertyManager(jsonManager);
-        // jiraServices.getJsonEntityPropertyManager().put(HubJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
+        // jiraServices.getJsonEntityPropertyManager().put(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
         // JIRA_PROJECT_ID,
         // entityProperty.getKey(),
         // entityProperty.getValue());
@@ -248,14 +253,15 @@ public class IssueEventListenerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView hubIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = issueServiceMock.issueMap.get(ISSUE_URL);
 
-        assertEquals(issue.getKey(), hubIssue.issueId);
-        assertEquals(issue.getDescription(), hubIssue.issueDescription);
-        assertEquals(issue.getStatus().getName(), hubIssue.issueStatus);
-        assertEquals(issue.getCreated(), hubIssue.issueCreatedAt);
-        assertEquals(issue.getUpdated(), hubIssue.issueUpdatedAt);
-        assertEquals(issue.getAssignee().getDisplayName(), hubIssue.issueAssignee);
+        assertNotNull(blackDuckIssue);
+        assertEquals(issue.getKey(), blackDuckIssue.issueId);
+        assertEquals(issue.getDescription(), blackDuckIssue.issueDescription);
+        assertEquals(issue.getStatus().getName(), blackDuckIssue.issueStatus);
+        assertEquals(issue.getCreated(), blackDuckIssue.issueCreatedAt);
+        assertEquals(issue.getUpdated(), blackDuckIssue.issueUpdatedAt);
+        assertEquals(issue.getAssignee().getDisplayName(), blackDuckIssue.issueAssignee);
     }
 
     private void assertIssueNotCreated(final Long eventTypeId) {
@@ -377,15 +383,15 @@ public class IssueEventListenerTest {
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_DELETED_ID);
 
-        final IssueView hubIssue = new IssueView();
-        hubIssue.issueId = issue.getKey();
-        hubIssue.issueDescription = issue.getDescription();
-        hubIssue.issueStatus = issue.getStatus().getName();
-        hubIssue.issueCreatedAt = issue.getCreated();
-        hubIssue.issueUpdatedAt = issue.getUpdated();
-        hubIssue.issueAssignee = issue.getAssignee().getDisplayName();
+        final IssueView blackDuckIssue = new IssueView();
+        blackDuckIssue.issueId = issue.getKey();
+        blackDuckIssue.issueDescription = issue.getDescription();
+        blackDuckIssue.issueStatus = issue.getStatus().getName();
+        blackDuckIssue.issueCreatedAt = issue.getCreated();
+        blackDuckIssue.issueUpdatedAt = issue.getUpdated();
+        blackDuckIssue.issueAssignee = issue.getAssignee().getDisplayName();
 
-        issueServiceMock.issueMap.put(ISSUE_URL, hubIssue);
+        issueServiceMock.issueMap.put(ISSUE_URL, blackDuckIssue);
         listener.onIssueEvent(event);
 
         assertTrue(issueServiceMock.issueMap.isEmpty());

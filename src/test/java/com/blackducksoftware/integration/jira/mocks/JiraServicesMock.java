@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -29,6 +29,8 @@ import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.avatar.AvatarManager;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
+import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
@@ -47,49 +49,31 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
-
     private ConstantsManager constantsManager;
-
     private ProjectManager projectManager;
-
     private AvatarManager avatarManager;
-
     private IssueTypeSchemeManager issueTypeSchemeManager;
-
     private IssueService issueService;
-
     private JiraAuthenticationContext jiraAuthenticationContext;
-
     private IssuePropertyService issuePropertyService;
-
+    private ProjectPropertyService projectPropertyService;
     private WorkflowManager workflowManager;
-
     private WorkflowSchemeManager workflowSchemeManager;
-
     private JsonEntityPropertyManager jsonEntityPropertyManager;
-
     private CommentManager commentManager;
-
     private UserManager userManager;
-
     private Collection<IssueType> issueTypes;
-
     private UserUtil userUtil;
-
     private FieldScreenManager fieldScreenManager;
-
     private FieldScreenSchemeManager fieldScreenSchemeManager;
-
     private FieldManager fieldManager;
-
     private CustomFieldManager customFieldManager;
-
     private FieldLayoutManager fieldLayoutManager;
-
     private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
+    private SearchService searchService;
 
     @Override
     public UserUtil getUserUtil() {
@@ -123,6 +107,10 @@ public class JiraServicesMock extends JiraServices {
 
     public void setIssuePropertyService(final IssuePropertyService issuePropertyService) {
         this.issuePropertyService = issuePropertyService;
+    }
+
+    public void setProjectPropertyService(final ProjectPropertyService projectPropertyService) {
+        this.projectPropertyService = projectPropertyService;
     }
 
     public void setWorkflowManager(final WorkflowManager workflowManager) {
@@ -190,6 +178,11 @@ public class JiraServicesMock extends JiraServices {
     @Override
     public IssuePropertyService getPropertyService() {
         return issuePropertyService;
+    }
+
+    @Override
+    public ProjectPropertyService getProjectPropertyService() {
+        return projectPropertyService;
     }
 
     @Override
@@ -276,6 +269,15 @@ public class JiraServicesMock extends JiraServices {
 
     public void setIssueTypeScreenSchemeManager(final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager) {
         this.issueTypeScreenSchemeManager = issueTypeScreenSchemeManager;
+    }
+
+    @Override
+    public SearchService getSearchService() {
+        return searchService;
+    }
+
+    public void setSearchService(final SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override

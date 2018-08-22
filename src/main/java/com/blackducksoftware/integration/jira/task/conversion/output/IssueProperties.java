@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -23,43 +23,34 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import java.util.Optional;
 
-public abstract class IssueProperties {
-    private final String projectName;
-    private final String projectVersionName;
-    private final String componentName;
-    private final String componentVersionName;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.synopsys.integration.util.Stringable;
+
+public class IssueProperties extends Stringable {
+    private final EventCategory type;
+    private final String bomComponentUri;
+    private final String ruleName;
     private final Long jiraIssueId;
 
-    public IssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final Long jiraIssueId) {
-        this.projectName = projectName;
-        this.projectVersionName = projectVersionName;
-        this.componentName = componentName;
-        this.componentVersionName = componentVersionName;
+    public IssueProperties(final EventCategory type, final String bomComponentUri, final String ruleName, final Long jiraIssueId) {
+        this.type = type;
+        this.bomComponentUri = bomComponentUri;
+        this.ruleName = ruleName;
         this.jiraIssueId = jiraIssueId;
     }
 
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
+    public EventCategory getType() {
+        return type;
     }
 
-    public String getProjectName() {
-        return projectName;
+    public String getBomComponentUri() {
+        return bomComponentUri;
     }
 
-    public String getProjectVersion() {
-        return projectVersionName;
-    }
-
-    public String getComponentName() {
-        return componentName;
-    }
-
-    public String getComponentVersion() {
-        return componentVersionName;
+    public Optional<String> getRuleName() {
+        return Optional.ofNullable(ruleName);
     }
 
     public Long getJiraIssueId() {

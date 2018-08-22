@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -53,9 +53,7 @@ public class CustomFieldManagerMock implements CustomFieldManager {
     }
 
     @Override
-    public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType,
-            final CustomFieldSearcher searcher, final List contexts, final List genericValues)
-            throws GenericEntityException {
+    public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType, final CustomFieldSearcher searcher, final List contexts, final List genericValues) throws GenericEntityException {
         final CustomFieldMock customField = new CustomFieldMock();
         customField.setName(name);
         customField.setDescription(description);

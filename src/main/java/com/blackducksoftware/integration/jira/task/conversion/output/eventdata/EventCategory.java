@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -23,11 +23,12 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
-import com.blackducksoftware.integration.hub.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 
 public enum EventCategory {
     POLICY,
-    VULNERABILITY;
+    VULNERABILITY,
+    SPECIAL;
 
     public static EventCategory fromNotificationType(final NotificationType notificationType) {
         EventCategory category = EventCategory.POLICY;

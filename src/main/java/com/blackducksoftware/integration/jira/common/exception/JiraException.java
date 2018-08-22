@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -24,8 +24,13 @@
 package com.blackducksoftware.integration.jira.common.exception;
 
 public class JiraException extends Exception {
+    private static final long serialVersionUID = -8266124446156847454L;
 
-    private static final long serialVersionUID = -5115029798246254838L;
+    private String methodAttempt = "unknown";
+
+    public JiraException() {
+        super();
+    }
 
     public JiraException(final String message) {
         super(message);
@@ -39,9 +44,16 @@ public class JiraException extends Exception {
         super(message, cause);
     }
 
-    public JiraException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
+    public JiraException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public void setMethodAttempt(final String methodAttempt) {
+        this.methodAttempt = methodAttempt;
+    }
+
+    public String getMethodAttempt() {
+        return methodAttempt;
     }
 
 }

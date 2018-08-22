@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -44,19 +44,12 @@ import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.user.ApplicationUser;
 
 public class IssueMock implements Issue {
-
     private Long id;
-
     private Timestamp created;
-
     private Timestamp updated;
-
     private Status status;
-
     private String description;
-
     private ApplicationUser assignee;
-
     private Project project;
 
     @Override

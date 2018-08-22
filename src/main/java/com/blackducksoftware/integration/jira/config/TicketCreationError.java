@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -40,9 +40,12 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.synopsys.integration.util.Stringable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TicketCreationError implements Serializable, Comparable<TicketCreationError> {
+public class TicketCreationError extends Stringable implements Serializable, Comparable<TicketCreationError> {
+    private static final long serialVersionUID = 3419175683879020116L;
+
     public static final String YEAR_PATTERN = "y";
     public static final String MONTH_PATTERN = "MM";
     public static final String DAY_OF_MONTH_PATTERN = "dd";
@@ -57,7 +60,6 @@ public class TicketCreationError implements Serializable, Comparable<TicketCreat
 
     public static final DateTimeFormatter ERROR_TIME_FORMAT = new DateTimeFormatterBuilder().appendPattern(ERROR_TIME_PATTERN).toFormatter();
 
-    private static final long serialVersionUID = 8705688400750977007L;
     private static final Gson gson = new Gson();
     private static final Type listType = new TypeToken<List<TicketCreationError>>() {
     }.getType();

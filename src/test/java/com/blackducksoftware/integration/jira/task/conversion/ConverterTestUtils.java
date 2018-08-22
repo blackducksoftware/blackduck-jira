@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -32,11 +32,11 @@ import org.mockito.Mockito;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.jira.common.HubJiraConstants;
-import com.blackducksoftware.integration.jira.common.JiraProject;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class ConverterTestUtils {
 
@@ -49,11 +49,11 @@ public class ConverterTestUtils {
         final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         final Collection<IssueType> issueTypes = new ArrayList<>();
         final IssueType policyIssueType = Mockito.mock(IssueType.class);
-        Mockito.when(policyIssueType.getName()).thenReturn(HubJiraConstants.HUB_POLICY_VIOLATION_ISSUE);
+        Mockito.when(policyIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
         issueTypes.add(policyIssueType);
         final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
-        Mockito.when(vulnerabilityIssueType.getName()).thenReturn(HubJiraConstants.HUB_VULNERABILITY_ISSUE);
+        Mockito.when(vulnerabilityIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");
         issueTypes.add(vulnerabilityIssueType);
 

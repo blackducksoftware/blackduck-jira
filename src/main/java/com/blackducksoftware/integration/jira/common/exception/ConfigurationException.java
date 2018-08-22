@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.common.exception;
 
 public class ConfigurationException extends Exception {
-
     private static final long serialVersionUID = -9146861663735413869L;
 
     public ConfigurationException() {

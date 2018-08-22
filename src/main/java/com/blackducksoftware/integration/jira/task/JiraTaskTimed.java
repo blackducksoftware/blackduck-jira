@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -40,41 +40,43 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.HubJiraConfigKeys;
-import com.blackducksoftware.integration.jira.common.HubJiraLogger;
-import com.blackducksoftware.integration.jira.common.HubProjectMapping;
-import com.blackducksoftware.integration.jira.common.JiraContext;
+import com.blackducksoftware.integration.jira.JiraVersionCheck;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.jiraversion.JiraVersionCheck;
-import com.blackducksoftware.integration.jira.config.HubJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.issue.JiraServices;
-import com.blackducksoftware.integration.jira.task.setup.HubFieldConfigurationSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubFieldScreenSchemeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.HubWorkflowSetup;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldConfigurationSetup;
+import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldScreenSchemeSetup;
+import com.blackducksoftware.integration.jira.task.setup.BlackDuckIssueTypeSetup;
+import com.blackducksoftware.integration.jira.task.setup.BlackDuckWorkflowSetup;
 
 public class JiraTaskTimed implements Callable<String> {
-    private final HubJiraLogger logger = new HubJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final PluginSettings settings;
     private final JiraServices jiraServices;
-    private final JiraSettingsService jiraSettingsService;
 
-    public JiraTaskTimed(final PluginSettings settings, final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+    public JiraTaskTimed(final PluginSettings settings, final JiraServices jiraServices) {
         this.settings = settings;
-        this.jiraSettingsService = jiraSettingsService;
         this.jiraServices = jiraServices;
     }
 
     @Override
     public String call() throws Exception {
-        logger.info("Running the Hub JIRA periodic timed task.");
+        logger.info("Running the Black Duck JIRA periodic timed task.");
 
-        // This plugin configuration needs to be read during execution because the task could have been queued for an arbitrarily long time
+        // These need to be created during execution because the task could have been queued for an arbitrarily long time
+        final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
-        final JiraContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+
+        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
@@ -89,57 +91,54 @@ public class JiraTaskTimed implements Callable<String> {
         }
         final LocalDateTime afterSetup = LocalDateTime.now();
         final Duration diff = Duration.between(beforeSetup, afterSetup);
-        logger.info("Hub JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
-        final HubJiraTask processor = new HubJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
-        final String runResult = runHubJiraTaskAndSetLastRunDate(processor, configDetails);
-        logger.info("hub-jira periodic timed task has completed");
+        logger.info("Black Duck JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
+        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
+        final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, configDetails);
+        logger.info("blackduck-jira periodic timed task has completed");
         return runResult;
     }
 
-    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService,
-            final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup,
-            final JiraContext jiraContext)
+    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
             throws ConfigurationException, JiraException {
-
-        // Make sure current JIRA version is supported
-        getJiraVersionCheck(); // throws exception if not
+        // Make sure current JIRA version is supported throws exception if not
+        getJiraVersionCheck();
 
         // Create Issue Types, workflow, etc.
-        HubIssueTypeSetup issueTypeSetup;
+        BlackDuckIssueTypeSetup issueTypeSetup;
         try {
-            issueTypeSetup = getHubIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
+            issueTypeSetup = getBlackDuckIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
         } catch (final ConfigurationException e) {
-            logger.error("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
-            return;
+            throw new JiraException("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
         }
-        final List<IssueType> issueTypes = issueTypeSetup.addIssueTypesToJira();
+        final List<IssueType> issueTypes = issueTypeSetup.addBdsIssueTypesToJira();
         if (issueTypes == null || issueTypes.isEmpty()) {
-            logger.error("No Black Duck Issue Types found or created");
-            return;
+            throw new JiraException("No Black Duck Issue Types found or created");
         }
         logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
 
-        final HubFieldScreenSchemeSetup fieldConfigurationSetup = getHubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+        final BlackDuckFieldScreenSchemeSetup fieldConfigurationSetup = getBlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
 
-        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addHubFieldConfigurationToJira(issueTypes);
+        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
         if (screenSchemesByIssueType.isEmpty()) {
-            logger.error("No Black Duck Screen Schemes found or created");
+            throw new JiraException("No Black Duck Screen Schemes found or created");
         }
         ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
 
         logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
-        final HubFieldConfigurationSetup hubFieldConfigurationSetup = getHubFieldConfigurationSetup(jiraSettingsService, jiraServices);
-        final EditableFieldLayout fieldConfiguration = hubFieldConfigurationSetup.addHubFieldConfigurationToJira();
-        final FieldLayoutScheme fieldConfigurationScheme = hubFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
+        final BlackDuckFieldConfigurationSetup blackDuckFieldConfigurationSetup = getBlackDuckFieldConfigurationSetup(jiraSettingsService, jiraServices);
+        final EditableFieldLayout fieldConfiguration = blackDuckFieldConfigurationSetup.addBlackDuckFieldConfigurationToJira();
+        final FieldLayoutScheme fieldConfigurationScheme = blackDuckFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
-        final HubWorkflowSetup workflowSetup = getHubWorkflowSetup(jiraSettingsService, jiraServices);
-        final JiraWorkflow workflow = workflowSetup.addHubWorkflowToJira();
+        final BlackDuckWorkflowSetup workflowSetup = getBlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
+        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
+        if (workflow == null) {
+            throw new JiraException("Unable to add Black Duck workflow to JIRA.");
+        }
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
         // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration,
-                fieldConfigurationScheme, workflowSetup, workflow);
+        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
@@ -147,30 +146,31 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
-    private String runHubJiraTaskAndSetLastRunDate(final HubJiraTask processor, final PluginConfigurationDetails configDetails) {
+    private String runBlackDuckJiraTaskAndSetLastRunDate(final BlackDuckJiraTask processor, final PluginConfigurationDetails configDetails) {
         String runStatus = "error";
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();
         if (previousRunDateString != null && currentRunDateString != null) {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, currentRunDateString);
+            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, currentRunDateString);
         }
         final String newRunDateString = processor.execute(previousRunDateString);
         if (newRunDateString != null) {
-            settings.put(HubJiraConfigKeys.HUB_CONFIG_LAST_RUN_DATE, newRunDateString);
+            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDateString);
             runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
         }
+        // TODO determine if an else case is needed to revert to old last run date
         return runStatus;
     }
 
-    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final HubIssueTypeSetup issueTypeSetup,
+    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
             final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-            final FieldLayoutScheme fieldConfigurationScheme, final HubWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
-            final HubJiraConfigSerializable config = new HubJiraConfigSerializable();
+            final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
             config.setHubProjectMappingsJson(projectMappingJson);
             if (!config.getHubProjectMappings().isEmpty()) {
-                for (final HubProjectMapping projectMapping : config.getHubProjectMappings()) {
+                for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
                             && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
@@ -193,26 +193,23 @@ public class JiraTaskTimed implements Callable<String> {
         }
     }
 
-    private HubIssueTypeSetup getHubIssueTypeSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
-        return new HubIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
+    public BlackDuckFieldScreenSchemeSetup getBlackDuckFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+        return new BlackDuckFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
     }
 
-    public HubFieldScreenSchemeSetup getHubFieldScreenSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
-        return new HubFieldScreenSchemeSetup(jiraSettingsService, jiraServices);
+    private BlackDuckIssueTypeSetup getBlackDuckIssueTypeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
+        return new BlackDuckIssueTypeSetup(jiraServices, jiraSettingsService, jiraServices.getIssueTypes(), jiraUserName);
     }
 
-    private HubFieldConfigurationSetup getHubFieldConfigurationSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices) {
-        return new HubFieldConfigurationSetup(jiraSettingsService, jiraServices);
+    private BlackDuckFieldConfigurationSetup getBlackDuckFieldConfigurationSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+        return new BlackDuckFieldConfigurationSetup(jiraSettingsService, jiraServices);
     }
 
-    private HubWorkflowSetup getHubWorkflowSetup(final JiraSettingsService jiraSettingsService,
-            final JiraServices jiraServices) {
-        return new HubWorkflowSetup(jiraSettingsService, jiraServices);
+    private BlackDuckWorkflowSetup getBlackDuckWorkflowSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+        return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
+    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
             logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
@@ -223,7 +220,7 @@ public class JiraTaskTimed implements Callable<String> {
         if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
             return null;
         }
-        final JiraContext jiraContext = new JiraContext(jiraAdminUser, jiraIssueCreatorUser);
+        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
         return jiraContext;
     }
 

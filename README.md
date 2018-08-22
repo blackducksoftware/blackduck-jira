@@ -16,4 +16,4 @@ Alternatively, you can download the latest from GitHub: https://github.com/black
 
 
 ## Documentation ##
-All documentation for hub-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/)
+All documentation for blackduck-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/)

@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.common;
 import java.util.Map;
 
 import com.atlassian.jira.issue.fields.CustomField;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 
 public class TicketInfoFromSetup {
     private Map<PluginField, CustomField> customFields;

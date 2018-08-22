@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -24,6 +24,8 @@
 package com.blackducksoftware.integration.jira.config;
 
 import java.util.Comparator;
+
+import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
 
 public class IdToNameMappingByNameComparator implements Comparator<IdToNameMapping> {
 

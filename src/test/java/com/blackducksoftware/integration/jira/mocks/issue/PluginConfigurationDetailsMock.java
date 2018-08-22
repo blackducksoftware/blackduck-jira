@@ -1,5 +1,5 @@
 /**
- * Hub JIRA Plugin
+ * Black Duck JIRA Plugin
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.jira.task.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
 
 public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
@@ -36,21 +36,21 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
     }
 
     @Override
-    public HubServerConfigBuilder createHubServerConfigBuilder() {
+    public HubServerConfigBuilder createServerConfigBuilder() {
         final HubServerConfigBuilderMock configBuilder = new HubServerConfigBuilderMock();
 
-        configBuilder.setUrl(getHubUrl());
-        configBuilder.setUsername(getHubUsername());
-        configBuilder.setPassword(getHubPasswordEncrypted());
-        configBuilder.setPasswordLength(NumberUtils.toInt(getHubPasswordLength()));
-        configBuilder.setTimeout(getHubTimeoutString());
+        configBuilder.setUrl(getBlackDuckUrl());
+        configBuilder.setUsername(getBlackDuckUsername());
+        configBuilder.setPassword(getBlackDuckPasswordEncrypted());
+        configBuilder.setPasswordLength(NumberUtils.toInt(getBlackDuckPasswordLength()));
+        configBuilder.setTimeout(getBlackDuckTimeoutString());
 
-        configBuilder.setProxyHost(getHubProxyHost());
-        configBuilder.setProxyPort(getHubProxyPort());
-        configBuilder.setIgnoredProxyHosts(getHubProxyNoHost());
-        configBuilder.setProxyUsername(getHubProxyUser());
-        configBuilder.setProxyPassword(getHubProxyPassEncrypted());
-        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getHubProxyPassLength()));
+        configBuilder.setProxyHost(getBlackDuckProxyHost());
+        configBuilder.setProxyPort(getBlackDuckProxyPort());
+        configBuilder.setProxyIgnoredHosts(getBlackDuckProxyNoHost());
+        configBuilder.setProxyUsername(getBlackDuckProxyUser());
+        configBuilder.setProxyPassword(getBlackDuckProxyPassEncrypted());
+        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));
 
         return configBuilder;
     }
