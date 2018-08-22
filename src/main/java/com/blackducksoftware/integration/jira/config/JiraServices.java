@@ -206,7 +206,7 @@ public class JiraServices {
     }
 
     public String getPluginVersion() {
-        // TODO update this string when hub-jira becomes blackduck-jira
+        // TODO update this string if the plugin key changes
         return ComponentAccessor.getPluginAccessor().getPlugin("com.blackducksoftware.integration.hub-jira").getPluginInformation().getVersion();
     }
 

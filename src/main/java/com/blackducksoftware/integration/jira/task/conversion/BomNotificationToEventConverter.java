@@ -204,11 +204,11 @@ public class BomNotificationToEventConverter {
         if (!linksOfRulesToMonitor.contains(policyRuleUriSingleResponse.uri)) {
             return null;
         }
-        final PolicyRuleViewV2 policyRule = getBlackDuckResponse(policyRuleUriSingleResponse, blackDuckBucket);
-
         final EventDataBuilder eventDataBuilder = createCommonEventDataBuilder(jiraProject, EventCategory.POLICY, batchStartDate);
-        addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
         eventDataBuilder.setNotificationType(notificationType);
+        addCommonIssuePanelFields(eventDataBuilder, projectVersionWrapper, versionBomComponent, blackDuckBucket);
+
+        final PolicyRuleViewV2 policyRule = getBlackDuckResponse(policyRuleUriSingleResponse, blackDuckBucket);
         return populateEventDataForPolicy(eventDataBuilder, policyRule, blackDuckBucket);
     }
 
