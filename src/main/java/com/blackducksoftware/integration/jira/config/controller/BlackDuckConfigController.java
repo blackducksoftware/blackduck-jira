@@ -210,8 +210,13 @@ public class BlackDuckConfigController {
 
                 logger.debug(String.format("Saving connection to %s...", config.getHubUrl()));
                 setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, config.getHubUrl());
-                if (StringUtils.isNotBlank(config.getApiToken()) && !config.isApiTokenMasked()) {
-                    setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, config.getApiToken());
+                final String apiToken = config.getApiToken();
+                if (!config.isApiTokenMasked()) {
+                    if (StringUtils.isNotBlank(apiToken)) {
+                        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, apiToken);
+                    } else {
+                        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, null);
+                    }
                 }
                 setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, config.getUsername());
 
