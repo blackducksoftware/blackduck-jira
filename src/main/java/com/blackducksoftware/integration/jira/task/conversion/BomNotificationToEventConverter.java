@@ -248,7 +248,6 @@ public class BomNotificationToEventConverter {
         return addRemainingFieldsToEventDataAndBuild(eventDataBuilder, blackDuckBucket);
     }
 
-    // TODO add tests for this
     private Collection<EventData> populateEventDataForBomEdit(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent, final HubBucket blackDuckBucket,
             final Date batchStartDate) throws IntegrationException, EventDataBuilderException, ConfigurationException {
         logger.debug("Populating event data for BOM Component");
