@@ -28,6 +28,7 @@ import java.util.Set;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 
 public class JiraIssueWrapper {
+    // TODO find out what other information is needed to deprecate EventData: issue id, BlackDuckEventAction, comment(s) for various states, component issue url (Black Duck), event key (deprecated)
     private final JiraIssueFieldTemplate jiraIssueFieldTemplate;
     private final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
     private final Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
