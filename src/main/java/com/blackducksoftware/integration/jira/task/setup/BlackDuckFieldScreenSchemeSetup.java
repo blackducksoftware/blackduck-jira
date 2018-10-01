@@ -60,8 +60,6 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
-// TODO investigate why the JIRA API returns raw types
-@SuppressWarnings("rawtypes")
 public class BlackDuckFieldScreenSchemeSetup {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
@@ -177,7 +175,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             @SuppressWarnings("deprecation")
             // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
-            CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
+                CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
                 customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }
