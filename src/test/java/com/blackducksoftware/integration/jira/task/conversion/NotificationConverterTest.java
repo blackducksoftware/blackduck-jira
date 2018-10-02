@@ -63,7 +63,7 @@ import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
@@ -174,7 +174,7 @@ public class NotificationConverterTest {
     private static BlackDuckJiraLogger mockLogger;
     private static BlackDuckProjectMappings projectMappingObject;
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
-    private static EventDataFormatHelper eventDataFormatHelper;
+    private static DataFormatHelper dataFormatHelper;
 
     @BeforeClass
     // Mock the objects that the Converter needs
@@ -232,7 +232,7 @@ public class NotificationConverterTest {
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
-        eventDataFormatHelper = new EventDataFormatHelper(mockBlackDuckSerivce);
+        dataFormatHelper = new DataFormatHelper(mockBlackDuckSerivce);
     }
 
     @AfterClass
@@ -418,7 +418,7 @@ public class NotificationConverterTest {
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         // New Converter
-        final BomNotificationToEventConverter newConverter = new BomNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
+        final BomNotificationToEventConverter newConverter = new BomNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper, Arrays.asList(RULE_URL),
             mockBlackDuckSerivce, mockLogger);
         final Collection<BlackDuckIssueWrapper> newEvents = newConverter.convertToEventData(notificationDetailResults, mockBlackDuckBucket, startDate);
         verifyGeneratedEvents(newEvents, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,

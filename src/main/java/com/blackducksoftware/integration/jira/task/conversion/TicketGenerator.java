@@ -41,7 +41,7 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
@@ -120,7 +120,7 @@ public class TicketGenerator {
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
                 final BomNotificationToEventConverter notificationConverter = new BomNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    new EventDataFormatHelper(blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
+                    new DataFormatHelper(blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {

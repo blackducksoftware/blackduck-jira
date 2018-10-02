@@ -51,11 +51,11 @@ import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.exception.IntegrationException;
 
-public class EventDataFormatHelper {
+public class DataFormatHelper {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final HubService blackDuckService;
 
-    public EventDataFormatHelper(final HubService blackDuckService) {
+    public DataFormatHelper(final HubService blackDuckService) {
         this.blackDuckService = blackDuckService;
     }
 

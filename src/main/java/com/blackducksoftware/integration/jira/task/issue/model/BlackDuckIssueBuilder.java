@@ -13,7 +13,7 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
@@ -29,7 +29,7 @@ import com.synopsys.integration.util.Stringable;
 public class BlackDuckIssueBuilder extends Stringable {
     private final HubService blackDuckService;
     private final HubBucket blackDuckBucket;
-    private final EventDataFormatHelper dataFormatHelper;
+    private final DataFormatHelper dataFormatHelper;
 
     private BlackDuckEventAction action;
     private EventCategory eventCategory;
@@ -77,7 +77,7 @@ public class BlackDuckIssueBuilder extends Stringable {
     private String jiraIssueResolveComment;
     private String jiraIssueCommentInLieuOfStateChange;
 
-    public BlackDuckIssueBuilder(final HubService blackDuckService, final HubBucket blackDuckBucket, final EventDataFormatHelper dataFormatHelper) {
+    public BlackDuckIssueBuilder(final HubService blackDuckService, final HubBucket blackDuckBucket, final DataFormatHelper dataFormatHelper) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucket = blackDuckBucket;
         this.dataFormatHelper = dataFormatHelper;

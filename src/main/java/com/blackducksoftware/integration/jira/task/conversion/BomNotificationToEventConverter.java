@@ -47,7 +47,7 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueBuilder;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
@@ -80,12 +80,12 @@ public class BomNotificationToEventConverter {
     private final JiraSettingsService jiraSettingsService;
     private final BlackDuckProjectMappings blackDuckProjectMappings;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
-    private final EventDataFormatHelper dataFormatHelper;
+    private final DataFormatHelper dataFormatHelper;
     private final List<String> linksOfRulesToMonitor;
     private final HubService blackDuckService;
 
     public BomNotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
-        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger) {
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
