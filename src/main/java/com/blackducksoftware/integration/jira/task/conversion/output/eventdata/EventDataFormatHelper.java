@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import com.synopsys.integration.blackduck.api.generated.component.RemediatingVer
 import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.ComplexLicenseType;
+import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
@@ -163,6 +165,20 @@ public class EventDataFormatHelper {
             commentText.append("None");
         }
         commentText.append("\n");
+    }
+
+    public String getBomLastUpdated(final ProjectVersionView projectVersion) {
+        try {
+            final VersionRiskProfileView riskProfile = blackDuckService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
+            final SimpleDateFormat dateFormat = new SimpleDateFormat();
+            return dateFormat.format(riskProfile.bomLastUpdatedAt);
+        } catch (final IntegrationException intException) {
+            logger.debug(String.format("Could not find the risk profile: %s", intException.getMessage()));
+        } catch (final NullPointerException npe) {
+            logger.debug("The risk profile for the requested project was null.");
+            logger.trace("Caught NPE in getBomLastUpdated()", npe);
+        }
+        return "";
     }
 
     public String getComponentLicensesStringPlainText(final List<VersionBomLicenseView> licenses) {

@@ -35,6 +35,7 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
     private final String policyRuleUri;
     private final String policyRuleOverridable;
     private final String policyRuleDescription;
+    private final String policyRuleSeverity;
 
     // @formatter:off
     public PolicyIssueFieldTempate(
@@ -55,12 +56,14 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleUri
             ,final String policyRuleOverridable
             ,final String policyRuleDescription
+            ,final String policyRuleSeverity
             ) {
         super(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString);
         this.policyRuleName = policyRuleName;
         this.policyRuleUri = policyRuleUri;
         this.policyRuleOverridable = policyRuleOverridable;
         this.policyRuleDescription = policyRuleDescription;
+        this.policyRuleSeverity = policyRuleSeverity;
     }
     // @formatter:on
 
@@ -81,8 +84,9 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleUri
             ,final String policyRuleOverridable
             ,final String policyRuleDescription
+            ,final String policyRuleSeverity
             ) {
-        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, null, null, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription);
+        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, null, null, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription, policyRuleSeverity);
     }
     // @formatter:on
 
@@ -104,8 +108,9 @@ public class PolicyIssueFieldTempate extends BlackDuckIssueFieldTemplate {
             ,final String policyRuleUri
             ,final String policyRuleOverridable
             ,final String policyRuleDescription
+            ,final String policyRuleSeverity
             ) {
-        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription);
+        return new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUri, policyRuleOverridable, policyRuleDescription, policyRuleSeverity);
     }
     // @formatter:on
 

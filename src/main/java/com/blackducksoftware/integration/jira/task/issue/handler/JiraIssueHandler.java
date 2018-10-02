@@ -77,6 +77,10 @@ public class JiraIssueHandler {
         this.instanceUniqueDate = new Date();
     }
 
+    public void handleBlackDuckIssue(final BlackDuckIssueWrapper blackDuckIssueWrapper) {
+        // TODO placeholder until EventData is removed entirely
+    }
+
     // TODO handle BlackDuckIssue
     public void handleEvent(final EventData eventData) {
         logger.info("Handling event for BOM Component: " + eventData.getBlackDuckBomComponentUri());
@@ -477,7 +481,7 @@ public class JiraIssueHandler {
             blackDuckIssueTemplate = new PolicyIssueFieldTempate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
                 eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
                 eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(),
-                policyPageLink, eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription());
+                policyPageLink, eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription(), null);
         } else if (eventData.isVulnerability()) {
             blackDuckIssueTemplate = new VulnerabilityIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
                 eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckComponentOrigin(),
