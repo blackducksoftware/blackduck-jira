@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
@@ -74,7 +75,10 @@ public class JiraIssuePropertyWrapper {
     }
 
     public void addIssuePropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
-        logger.debug("addIssuePropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
+        logger.debug("addIssuePropertyJson(): issueId: " + issueId);
+        if (isKeyOrValueBlank(key, jsonValue, "addIssuePropertyJson()")) {
+            return;
+        }
         final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
         final SetPropertyValidationResult validationResult = issuePropertyService.validateSetProperty(user, issueId, propertyInput);
@@ -116,7 +120,10 @@ public class JiraIssuePropertyWrapper {
     }
 
     public void addProjectPropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
-        logger.debug("addProjectPropertyJson(): issueId: " + issueId + "; key: " + key + "; json: " + jsonValue);
+        logger.debug("addProjectPropertyJson(): issueId: " + issueId);
+        if (isKeyOrValueBlank(key, jsonValue, "addProjectPropertyJson()")) {
+            return;
+        }
         final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
         final SetPropertyValidationResult validationResult = projectPropertyService.validateSetProperty(user, issueId, propertyInput);
@@ -129,6 +136,21 @@ public class JiraIssuePropertyWrapper {
             }
         } else {
             throw new JiraIssueException("addProjectPropertyJson", validationResult.getErrorCollection());
+        }
+    }
+
+    private boolean isKeyOrValueBlank(final String key, final String json, final String method) {
+        if (StringUtils.isBlank(key) || StringUtils.isBlank(json)) {
+            if (StringUtils.isBlank(key)) {
+                logger.error(String.format("%s: key is blank", method, key, json));
+            }
+            if (StringUtils.isBlank(json)) {
+                logger.error(String.format("%s: json is blank", method, key, json));
+            }
+            return true;
+        } else {
+            logger.debug(String.format("%s: key: %s; json: %s", method, key, json));
+            return false;
         }
     }
 

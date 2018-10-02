@@ -67,7 +67,7 @@ public class JiraIssueHandler {
     private final Date instanceUniqueDate;
 
     public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler,
-            final JiraAuthenticationContext authContext, final JiraUserContext jiraContext) {
+        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext) {
         this.issueServiceWrapper = issueServiceWrapper;
         this.jiraSettingsService = jiraSettingsService;
         this.authContext = authContext;
@@ -372,7 +372,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                    jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -392,7 +392,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                    jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         return null;
     }
@@ -462,26 +462,26 @@ public class JiraIssueHandler {
     // TODO eventually get rid of event data in favor of issue field templates
     private JiraIssueWrapper createJiraIssueWrapperFromEventData(final Long jiraProjectId, final EventData eventData, final boolean applyDefaults, final boolean retainExisting) throws JiraIssueException {
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, eventData.getJiraProjectName(), eventData.getJiraIssueTypeId(), eventData.getJiraIssueSummary(),
-                eventData.getJiraIssueCreatorUsername(), eventData.getJiraIssueDescription(), eventData.getJiraIssueAssigneeUserId());
+            eventData.getJiraIssueCreatorUsername(), eventData.getJiraIssueDescription(), eventData.getJiraIssueAssigneeUserId());
         jiraIssueFieldTemplate.setApplyDefaultValuesWhenParameterNotProvided(applyDefaults);
         jiraIssueFieldTemplate.setRetainExistingValuesWhenParameterNotProvided(retainExisting);
 
-        BlackDuckIssueFieldTemplate blackDuckIssueTemplate;
+        final BlackDuckIssueFieldTemplate blackDuckIssueTemplate;
         if (eventData.isPolicy()) {
             // TODO create a user-friendly link until Black Duck supports policy redirects
             final String policyPageLink = eventData.getBlackDuckBaseUrl() + "/ui/policy-management";
             blackDuckIssueTemplate = new PolicyIssueFieldTempate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
-                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
-                    eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(),
-                    policyPageLink, eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription());
+                eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
+                eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated(), eventData.getBlackDuckRuleName(),
+                policyPageLink, eventData.getBlackDuckRuleOverridable(), eventData.getBlackDuckRuleDescription());
         } else if (eventData.isVulnerability()) {
             blackDuckIssueTemplate = new VulnerabilityIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
-                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckComponentOrigin(),
-                    eventData.getBlackDuckComponentOriginId(), eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
+                eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(), eventData.getBlackDuckComponentOrigin(),
+                eventData.getBlackDuckComponentOriginId(), eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         } else {
             blackDuckIssueTemplate = new BlackDuckIssueFieldTemplate(eventData.getBlackDuckProjectOwner(), eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getBlackDuckProjectVersionUrl(),
-                    eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
-                    eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
+                eventData.getBlackDuckProjectVersionNickname(), eventData.getBlackDuckComponentName(), eventData.getBlackDuckComponentUrl(), eventData.getBlackDuckComponentVersionName(), eventData.getBlackDuckComponentVersionUrl(),
+                eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         }
 
         return new JiraIssueWrapper(jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings());
@@ -489,11 +489,11 @@ public class JiraIssueHandler {
 
     private void handleJiraIssueException(final JiraIssueException issueException, final EventData eventData) {
         handleJiraIssueException(issueException, eventData.getBlackDuckProjectName(), eventData.getBlackDuckProjectVersionName(), eventData.getJiraProjectName(),
-                jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getJiraIssueCreatorUser().getUsername());
+            jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getJiraIssueCreatorUser().getUsername());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProjectName, final String jiraAdminUsername,
-            final String jiraIssueCreatorUsername) {
+        final String jiraIssueCreatorUsername) {
         final String exceptionMessage = issueException.getMessage();
         final String methodAttempt = issueException.getMethodAttempt();
         final ErrorCollection errorCollection = issueException.getErrorCollection();
