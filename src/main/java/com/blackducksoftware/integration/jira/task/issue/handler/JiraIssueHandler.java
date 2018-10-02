@@ -492,7 +492,8 @@ public class JiraIssueHandler {
                 eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         }
 
-        return new BlackDuckIssueWrapper(eventData.getAction(), jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings(), eventData.getBlackDuckBomComponentUri(), eventData.getComponentIssueUrl());
+        return new BlackDuckIssueWrapper(eventData.getAction(), jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings(), eventData.getBlackDuckBomComponentUri(), eventData.getComponentIssueUrl(),
+            eventData.getLastBatchStartDate());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final EventData eventData) {

@@ -89,8 +89,8 @@ public class OldNotificationToEventConverter {
     private final HubService blackDuckService;
 
     public OldNotificationToEventConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
-            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger)
-            throws ConfigurationException {
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final EventDataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final HubService blackDuckSerivce, final BlackDuckJiraLogger logger)
+        throws ConfigurationException {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -121,7 +121,7 @@ public class OldNotificationToEventConverter {
     }
 
     public List<EventData> createEventDataForBlackDuckProjectMappings(final String blackDuckProjectName, final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent,
-            final HubBucket blackDuckBucket, final Date batchStartDate) {
+        final HubBucket blackDuckBucket, final Date batchStartDate) {
         logger.debug("Getting JIRA project(s) mapped to Black Duck project: " + blackDuckProjectName);
         final List<JiraProject> mappingJiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
         logger.debug("There are " + mappingJiraProjects.size() + " JIRA projects mapped to this Black Duck project : " + blackDuckProjectName);
@@ -137,14 +137,14 @@ public class OldNotificationToEventConverter {
             } catch (final Exception e) {
                 logger.error(e);
                 jiraSettingsService.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
-                        jiraUserContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
+                    jiraUserContext.getJiraIssueCreatorUser().getName(), "transitionIssue");
             }
         }
         return eventDataList;
     }
 
     public Optional<EventData> createEventDataForJiraProject(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final JiraProject jiraProject,
-            final HubBucket blackDuckBucket, final Date batchStartDate) throws EventDataBuilderException, IntegrationException, ConfigurationException {
+        final HubBucket blackDuckBucket, final Date batchStartDate) throws EventDataBuilderException, IntegrationException, ConfigurationException {
         BlackDuckEventAction action = BlackDuckEventAction.OPEN;
         final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
         final EventDataBuilder eventDataBuilder = new EventDataBuilder(eventCategory);
@@ -197,7 +197,8 @@ public class OldNotificationToEventConverter {
         eventDataBuilder.setNotificationType(notificationType);
 
         eventDataBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
-        eventDataBuilder.setJiraIssueDescription(dataFormatHelper.getIssueDescription(eventDataBuilder, blackDuckBucket));
+        eventDataBuilder
+            .setJiraIssueDescription(dataFormatHelper.getIssueDescription(eventDataBuilder.getEventCategory(), eventDataBuilder.getBlackDuckProjectVersionUrl(), eventDataBuilder.getBlackDuckComponentVersionUrl(), blackDuckBucket));
 
         final EventData eventData = eventDataBuilder.build();
         logger.debug("Event key: " + eventData.getEventKey());

@@ -59,16 +59,16 @@ public class EventDataFormatHelper {
         this.blackDuckService = blackDuckService;
     }
 
-    public String getIssueDescription(final EventDataBuilder builder, final HubBucket blackDuckBucket) {
+    public String getIssueDescription(final EventCategory eventCategory, final String projectVersionUrl, final String componentVersionUrl, final HubBucket blackDuckBucket) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
-        if (EventCategory.POLICY.equals(builder.getEventCategory())) {
+        if (EventCategory.POLICY.equals(eventCategory)) {
             issueDescription.append("a policy violation.  \n\n");
-        } else if (EventCategory.VULNERABILITY.equals(builder.getEventCategory())) {
+        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;
-            final ProjectVersionView projectVersion = getView(builder.getBlackDuckProjectVersionUrl(), ProjectVersionView.class, blackDuckBucket);
+            final ProjectVersionView projectVersion = getView(projectVersionUrl, ProjectVersionView.class, blackDuckBucket);
             if (projectVersion != null) {
                 vulnerableComponentsLink = blackDuckService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
@@ -82,18 +82,40 @@ public class EventDataFormatHelper {
             issueDescription.append(" in Black Duck.  \n\n");
         }
 
-        if (builder.getBlackDuckComponentVersionUrl() != null) {
-            final ComponentVersionView componentVersion = getView(builder.getBlackDuckComponentVersionUrl(), ComponentVersionView.class, blackDuckBucket);
+        if (componentVersionUrl != null) {
+            final ComponentVersionView componentVersion = getView(componentVersionUrl, ComponentVersionView.class, blackDuckBucket);
             final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
             if (StringUtils.isNotBlank(licenseText)) {
                 issueDescription.append("KB Component license(s): ");
                 issueDescription.append(licenseText);
             }
-            if (EventCategory.VULNERABILITY.equals(builder.getEventCategory())) {
+            if (EventCategory.VULNERABILITY.equals(eventCategory)) {
                 appendRemediationOptionsText(issueDescription, componentVersion);
             }
         }
         return issueDescription.toString();
+    }
+
+    public String createIssueSummary(final EventCategory eventCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {
+        if (EventCategory.POLICY.equals(eventCategory)) {
+            final String issueSummaryTemplate = "%s: Project '%s' / '%s', Component '%s' [Rule: '%s']";
+            return String.format(issueSummaryTemplate, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, projectName, projectVersionName, getComponentString(componentName, componentVersionName), ruleName);
+        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
+            final StringBuilder issueSummary = new StringBuilder();
+            issueSummary.append(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+            issueSummary.append(": Project '");
+            issueSummary.append(projectName);
+            issueSummary.append("' / '");
+            issueSummary.append(projectVersionName);
+            issueSummary.append("', Component '");
+            issueSummary.append(componentName);
+            issueSummary.append("' / '");
+            issueSummary.append(componentVersionName != null ? componentVersionName : "?");
+            issueSummary.append("'");
+            return issueSummary.toString();
+        } else {
+            return null;
+        }
     }
 
     public String generateVulnerabilitiesComment(final VulnerabilityNotificationContent vulnerabilityContent) {
@@ -240,6 +262,17 @@ public class EventDataFormatHelper {
             }
         }
         return "";
+    }
+
+    private String getComponentString(final String componentName, final String componentVersionName) {
+        String componentString = "?";
+        if (componentName != null) {
+            componentString = componentName;
+            if (componentVersionName != null) {
+                componentString += "' / '" + componentVersionName;
+            }
+        }
+        return componentString;
     }
 
     private String getComponentLicensesString(final EventDataLicense eventDataLicense, final boolean includeLinks) {

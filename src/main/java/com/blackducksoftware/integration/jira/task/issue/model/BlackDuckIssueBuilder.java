@@ -1,18 +1,25 @@
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.UrlParser;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
@@ -24,18 +31,18 @@ public class BlackDuckIssueBuilder extends Stringable {
     private final HubBucket blackDuckBucket;
     private final EventDataFormatHelper dataFormatHelper;
 
-    private BlackDuckEventAction issueAction;
+    private BlackDuckEventAction action;
+    private EventCategory eventCategory;
     private Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
     private String bomComponentUri;
     private String componentIssueUrl;
+    private Date lastBatchStartDate;
 
     // Jira Issue Fields
     private Long jiraProjectId;
     private String jiraProjectName;
     private String jiraIssueTypeId;
-    private String jiraIssueSummary;
     private String issueCreatorUsername;
-    private String issueDescription;
     private String assigneeId;
 
     // BlackDuckFields
@@ -76,8 +83,12 @@ public class BlackDuckIssueBuilder extends Stringable {
         this.dataFormatHelper = dataFormatHelper;
     }
 
-    public void setIssueAction(final BlackDuckEventAction issueAction) {
-        this.issueAction = issueAction;
+    public void setAction(final BlackDuckEventAction action) {
+        this.action = action;
+    }
+
+    public void setEventCategory(final EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
     }
 
     public void setProjectFieldCopyMappings(final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
@@ -92,37 +103,23 @@ public class BlackDuckIssueBuilder extends Stringable {
         this.componentIssueUrl = componentIssueUrl;
     }
 
-    // TODO SECTION
-
-    public void setJiraProjectId(final Long jiraProjectId) {
-        this.jiraProjectId = jiraProjectId;
+    public void setLastBatchStartDate(final Date lastBatchStartDate) {
+        this.lastBatchStartDate = lastBatchStartDate;
     }
 
-    public void setJiraProjectName(final String jiraProjectName) {
-        this.jiraProjectName = jiraProjectName;
+    public void setJiraProject(final JiraProject jiraProject) {
+        this.jiraProjectId = jiraProject.getProjectId();
+        this.jiraProjectName = jiraProject.getProjectName();
+        this.assigneeId = jiraProject.getAssigneeUserId();
     }
 
     public void setJiraIssueTypeId(final String jiraIssueTypeId) {
         this.jiraIssueTypeId = jiraIssueTypeId;
     }
 
-    public void setJiraIssueSummary(final String jiraIssueSummary) {
-        this.jiraIssueSummary = jiraIssueSummary;
-    }
-
     public void setIssueCreatorUsername(final String issueCreatorUsername) {
         this.issueCreatorUsername = issueCreatorUsername;
     }
-
-    public void setIssueDescription(final String issueDescription) {
-        this.issueDescription = issueDescription;
-    }
-
-    public void setAssigneeId(final String assigneeId) {
-        this.assigneeId = assigneeId;
-    }
-
-    // TODO SECTION
 
     public void setJiraIssueComment(final String jiraIssueComment) {
         this.jiraIssueComment = jiraIssueComment;
@@ -142,6 +139,49 @@ public class BlackDuckIssueBuilder extends Stringable {
 
     public void setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
+    }
+
+    public void setAllIssueComments(final String comment) {
+        this.jiraIssueComment = comment;
+        this.jiraIssueReOpenComment = comment;
+        this.jiraIssueResolveComment = comment;
+        this.jiraIssueCommentForExistingIssue = comment;
+        this.jiraIssueCommentInLieuOfStateChange = comment;
+    }
+
+    public BlackDuckIssueBuilder setVulnerabilityComments(final String comment) {
+        setJiraIssueComment(comment);
+        setJiraIssueCommentForExistingIssue(comment);
+        setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN);
+        setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_RESOLVE);
+        setJiraIssueCommentInLieuOfStateChange(comment);
+        return this;
+    }
+
+    public BlackDuckIssueBuilder setPolicyComments(final NotificationType notificationType) {
+        if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT);
+        } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
+            setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
+            setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
+            setJiraIssueResolveComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE);
+            setJiraIssueCommentInLieuOfStateChange(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT);
+        } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
+            final String noComment = "";
+            setJiraIssueReOpenComment(noComment);
+            setJiraIssueCommentForExistingIssue(noComment);
+            setJiraIssueResolveComment(noComment);
+            setJiraIssueCommentInLieuOfStateChange(noComment);
+        }
+        return this;
     }
 
     // TODO SECTION
@@ -181,10 +221,8 @@ public class BlackDuckIssueBuilder extends Stringable {
     }
 
     // TODO throw exception if missing required fields
-    public BlackDuckIssueWrapper build() {
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
-
-        if (issueAction == null) {
+    public BlackDuckIssueWrapper build() throws IntegrationException {
+        if (action == null) {
             // TODO throw exception
         }
         if (bomComponentUri == null) {
@@ -200,9 +238,62 @@ public class BlackDuckIssueBuilder extends Stringable {
                 originIdsString, licenseString, licenseLink, usagesString, updatedTimeString);
         }
 
-        final BlackDuckIssueWrapper wrapper = new BlackDuckIssueWrapper(issueAction, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl);
+        final String jiraIssueSummary = dataFormatHelper.createIssueSummary(eventCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
+        final String issueDescription = dataFormatHelper.getIssueDescription(eventCategory, projectVersionUri, componentVersionUri, blackDuckBucket);
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
+
+        final BlackDuckIssueWrapper wrapper = new BlackDuckIssueWrapper(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
         addComments(wrapper);
+        wrapper.setEventKey(generateEventKey());
         return wrapper;
+    }
+
+    // FIXME make sure all of these fields are correctly updated
+    public BlackDuckIssueBuilder copy() {
+        final BlackDuckIssueBuilder newBuilder = new BlackDuckIssueBuilder(blackDuckService, blackDuckBucket, dataFormatHelper);
+        newBuilder.action = action;
+        newBuilder.projectFieldCopyMappings = projectFieldCopyMappings;
+        newBuilder.bomComponentUri = bomComponentUri;
+        newBuilder.componentIssueUrl = componentIssueUrl;
+        newBuilder.lastBatchStartDate = lastBatchStartDate;
+
+        newBuilder.jiraProjectId = jiraProjectId;
+        newBuilder.jiraProjectName = jiraProjectName;
+        newBuilder.jiraIssueTypeId = jiraIssueTypeId;
+        newBuilder.issueCreatorUsername = issueCreatorUsername;
+        newBuilder.assigneeId = assigneeId;
+
+        newBuilder.projectOwner = projectOwner;
+        newBuilder.projectName = projectName;
+        newBuilder.projectVersionName = projectVersionName;
+        newBuilder.projectVersionUri = projectVersionUri;
+        newBuilder.projectVersionNickname = projectVersionNickname;
+
+        newBuilder.componentName = componentName;
+        newBuilder.componentUri = componentUri;
+        newBuilder.componentVersionName = componentVersionName;
+        newBuilder.componentVersionUri = componentVersionUri;
+
+        newBuilder.licenseString = licenseString;
+        newBuilder.licenseLink = licenseLink;
+        newBuilder.originsString = originsString;
+        newBuilder.originIdsString = originIdsString;
+        newBuilder.usagesString = usagesString;
+        newBuilder.updatedTimeString = updatedTimeString;
+
+        newBuilder.policyRuleName = policyRuleName;
+        newBuilder.policyRuleUrl = policyRuleUrl;
+        newBuilder.policyDescription = policyDescription;
+        newBuilder.policyOverridable = policyOverridable;
+        newBuilder.policySeverity = policySeverity;
+
+        newBuilder.jiraIssueComment = jiraIssueComment;
+        newBuilder.jiraIssueReOpenComment = jiraIssueReOpenComment;
+        newBuilder.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
+        newBuilder.jiraIssueResolveComment = jiraIssueResolveComment;
+        newBuilder.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
+
+        return newBuilder;
     }
 
     private void addComments(final BlackDuckIssueWrapper wrapper) {
@@ -211,6 +302,69 @@ public class BlackDuckIssueBuilder extends Stringable {
         wrapper.setJiraIssueCommentInLieuOfStateChange(jiraIssueCommentInLieuOfStateChange);
         wrapper.setJiraIssueReOpenComment(jiraIssueReOpenComment);
         wrapper.setJiraIssueResolveComment(jiraIssueResolveComment);
+    }
+
+    // This must remain consistent among non-major versions
+    private String generateEventKey() throws IntegrationException {
+        final String blackDuckProjectVersionUrl = projectVersionUri;
+        final String blackDuckComponentVersionUrl = componentVersionUri;
+        final String blackDuckComponentUrl = componentUri;
+        final StringBuilder keyBuilder = new StringBuilder();
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        if (EventCategory.POLICY.equals(eventCategory)) {
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
+        } else {
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY);
+        }
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(jiraProjectId);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_PROJECT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckProjectVersionUrl)));
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        if (blackDuckComponentVersionUrl == null && EventCategory.POLICY.equals(eventCategory)) {
+            keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
+        } else {
+            // Vulnerabilities do not have a component URL
+            keyBuilder.append("");
+        }
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_VERSION_REL_URL_HASHED_NAME);
+        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentVersionUrl)));
+
+        if (EventCategory.POLICY.equals(eventCategory)) {
+            if (policyRuleUrl == null) {
+                throw new HubIntegrationException("Policy Rule URL is null");
+            }
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_POLICY_RULE_REL_URL_HASHED_NAME);
+            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
+            keyBuilder.append(hashString(UrlParser.getRelativeUrl(policyRuleUrl)));
+        }
+
+        final String key = keyBuilder.toString();
+        return key;
+    }
+
+    public final String hashString(final String origString) {
+        String hashString;
+        if (origString == null) {
+            hashString = "";
+        } else {
+            hashString = String.valueOf(origString.hashCode());
+        }
+        return hashString;
     }
 
     private <T> String createCommaSeparatedString(final List<T> list, final Function<T, String> reductionFunction) {

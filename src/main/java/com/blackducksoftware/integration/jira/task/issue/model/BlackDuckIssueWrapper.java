@@ -23,10 +23,12 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import java.util.Date;
 import java.util.Set;
 
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueWrapper extends Stringable {
@@ -36,8 +38,9 @@ public class BlackDuckIssueWrapper extends Stringable {
     private final Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
     private final String bomComponentUri;
     private final String componentIssueUrl;
+    private final Date lastBatchStartDate;
 
-    private Long jiraIssueId;
+    private Long jiraIssueId = null;
     private String jiraIssueComment = null;
     private String jiraIssueReOpenComment = null;
     private String jiraIssueCommentForExistingIssue = null;
@@ -55,6 +58,7 @@ public class BlackDuckIssueWrapper extends Stringable {
             ,final Set<ProjectFieldCopyMapping> projectFieldCopyMappings
             ,final String bomComponentUri
             ,final String componentIssueUrl
+            ,final Date lastBatchStartDate
             ) {
         this.issueAction = issueAction;
         this.jiraIssueFieldTemplate = jiraIssueFieldTemplate;
@@ -62,6 +66,7 @@ public class BlackDuckIssueWrapper extends Stringable {
         this.projectFieldCopyMappings = projectFieldCopyMappings;
         this.bomComponentUri = bomComponentUri;
         this.componentIssueUrl = componentIssueUrl;
+        this.lastBatchStartDate = lastBatchStartDate;
     }
     // @formatter:on
 
@@ -99,6 +104,10 @@ public class BlackDuckIssueWrapper extends Stringable {
 
     public String getComponentIssueUrl() {
         return componentIssueUrl;
+    }
+
+    public Date getLastBatchStartDate() {
+        return lastBatchStartDate;
     }
 
     public String getJiraIssueComment() {
@@ -147,5 +156,15 @@ public class BlackDuckIssueWrapper extends Stringable {
 
     public void setEventKey(final String eventKey) {
         this.eventKey = eventKey;
+    }
+
+    public EventCategory getEventCategoryFromFieldTemplate() {
+        final Class<?> actualClass = blackDuckIssueFieldTemplate.getClass();
+        if (PolicyIssueFieldTempate.class.isAssignableFrom(actualClass)) {
+            return EventCategory.POLICY;
+        } else if (VulnerabilityIssueFieldTemplate.class.isAssignableFrom(actualClass)) {
+            return EventCategory.VULNERABILITY;
+        }
+        return EventCategory.SPECIAL;
     }
 }
