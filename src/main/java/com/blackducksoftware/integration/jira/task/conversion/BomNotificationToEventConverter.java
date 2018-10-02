@@ -180,10 +180,6 @@ public class BomNotificationToEventConverter {
         return Collections.emptyList();
     }
 
-    // ===============
-    // BUILDER METHODS
-    // ===============
-
     private void populateWrapperForPolicy(final BlackDuckIssueBuilder blackDuckIssueBuilder, final UriSingleResponse<PolicyRuleViewV2> policyRuleUriSingleResponse, final NotificationType notificationType, final HubBucket blackDuckBucket)
         throws IntegrationException {
         if (!linksOfRulesToMonitor.contains(policyRuleUriSingleResponse.uri)) {
@@ -273,7 +269,7 @@ public class BomNotificationToEventConverter {
         builder.setJiraProject(jiraProject);
         builder.setAction(BlackDuckEventAction.fromNotificationType(notificationType));
         builder.setLastBatchStartDate(batchStartDate);
-        builder.setBlackDuckFields(projectVersionWrapper, versionBomComponent);
+        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().projectOwner, blackDuckBucket), projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
         builder.setIssueCreatorUsername(jiraUserContext.getJiraIssueCreatorUser().getUsername());
         return builder;
@@ -373,7 +369,7 @@ public class BomNotificationToEventConverter {
         throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
     }
 
-    // TODO move this
+    // TODO can this be moved?
     private ApplicationUser getJiraProjectOwner(final String blackDuckProjectOwner, final HubBucket blackDuckBucket) {
         try {
             if (blackDuckProjectOwner != null) {

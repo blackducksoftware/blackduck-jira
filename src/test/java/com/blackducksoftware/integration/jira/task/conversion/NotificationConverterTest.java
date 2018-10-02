@@ -400,48 +400,6 @@ public class NotificationConverterTest {
             POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
-    @Test
-    public void testFindCompInBom() throws ConfigurationException, HubIntegrationException {
-        final OldNotificationToEventConverter conv = new OldNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, eventDataFormatHelper, Arrays.asList(RULE_URL),
-            mockBlackDuckSerivce, mockLogger);
-        final String compVer1Url = "comp1version1Url";
-        final String compVer2Url = "comp2version1Url";
-        final String comp3Url = "comp3Url";
-
-        final List<VersionBomComponentView> bomComps = new ArrayList<>();
-        addComp(bomComps, "comp1", null, compVer1Url);
-        addComp(bomComps, "comp2", null, compVer2Url);
-        addComp(bomComps, "comp3", comp3Url, null);
-
-        final ComponentVersionView actualCompVer1 = new ComponentVersionView();
-        final ComponentVersionView actualCompVer2 = new ComponentVersionView();
-        final ComponentView actualComp3 = new ComponentView();
-
-        // Needed to override stateful equals
-        actualCompVer1.versionName = compVer1Url;
-        actualCompVer2.versionName = compVer2Url;
-        actualComp3.name = comp3Url;
-
-        Mockito.when(mockBlackDuckSerivce.getHref(actualCompVer1)).thenReturn(compVer1Url);
-        Mockito.when(mockBlackDuckSerivce.getHref(actualCompVer2)).thenReturn(compVer2Url);
-        Mockito.when(mockBlackDuckSerivce.getHref(actualComp3)).thenReturn(comp3Url);
-
-        assertEquals("comp1", conv.findCompInBom(bomComps, null, actualCompVer1).componentName);
-        assertEquals("comp2", conv.findCompInBom(bomComps, null, actualCompVer2).componentName);
-        assertEquals("comp3", conv.findCompInBom(bomComps, actualComp3, null).componentName);
-
-        final ComponentVersionView nonCompVer1 = new ComponentVersionView();
-        nonCompVer1.versionName = "x";
-        final ComponentView nonComp1 = new ComponentView();
-        nonComp1.name = "y";
-
-        Mockito.when(mockBlackDuckSerivce.getHref(nonCompVer1)).thenReturn("x");
-        Mockito.when(mockBlackDuckSerivce.getHref(nonComp1)).thenReturn("y");
-
-        assertEquals(null, conv.findCompInBom(bomComps, null, nonCompVer1));
-        assertEquals(null, conv.findCompInBom(bomComps, nonComp1, null));
-    }
-
     private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl, final String componentVersionUrl) {
         final VersionBomComponentView bomComp = new VersionBomComponentView();
         bomComp.componentName = componentName;

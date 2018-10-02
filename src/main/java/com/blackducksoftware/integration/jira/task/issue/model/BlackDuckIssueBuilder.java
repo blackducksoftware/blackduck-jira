@@ -186,11 +186,11 @@ public class BlackDuckIssueBuilder extends Stringable {
 
     // TODO SECTION
 
-    public BlackDuckIssueBuilder setBlackDuckFields(final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) throws IntegrationException {
+    public BlackDuckIssueBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) throws IntegrationException {
         final ProjectView project = projectVersionWrapper.getProjectView();
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
 
-        this.projectOwner = null; // FIXME getJiraProjectOwner(project.projectOwner, blackDuckBucket);
+        this.projectOwner = projectOwner;
         this.projectName = project.name;
         this.projectVersionName = projectVersion.versionName;
         this.projectVersionUri = blackDuckService.getHref(projectVersion);
