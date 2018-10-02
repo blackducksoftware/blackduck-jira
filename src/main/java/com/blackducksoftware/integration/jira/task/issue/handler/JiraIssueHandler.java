@@ -49,8 +49,8 @@ import com.blackducksoftware.integration.jira.task.conversion.output.IssueProper
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
 import com.blackducksoftware.integration.jira.task.issue.model.PolicyIssueFieldTempate;
 import com.blackducksoftware.integration.jira.task.issue.model.VulnerabilityIssueFieldTemplate;
 import com.opensymphony.workflow.loader.ActionDescriptor;
@@ -77,6 +77,7 @@ public class JiraIssueHandler {
         this.instanceUniqueDate = new Date();
     }
 
+    // TODO handle BlackDuckIssue
     public void handleEvent(final EventData eventData) {
         logger.info("Handling event for BOM Component: " + eventData.getBlackDuckBomComponentUri());
         logger.debug("Handling event. Old key: " + eventData.getEventKey());
@@ -332,20 +333,23 @@ public class JiraIssueHandler {
         return Collections.emptyList();
     }
 
+    // TODO Take BlackDuckIssueWrapper as parameter, applyDefaults = true, retainExisting = true
     private Issue createIssue(final EventData eventData) {
         try {
-            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(eventData.getJiraProjectId(), eventData, true, true);
-            return issueServiceWrapper.createIssue(jiraIssueWrapper);
+            final BlackDuckIssueWrapper blackDuckIssueWrapper = createJiraIssueWrapperFromEventData(eventData.getJiraProjectId(), eventData, true, true);
+            return issueServiceWrapper.createIssue(blackDuckIssueWrapper);
         } catch (final JiraIssueException e) {
             handleJiraIssueException(e, eventData);
         }
         return null;
     }
 
+    // TODO Take BlackDuckIssueWrapper as parameter, applyDefaults = false, retainExisting = true
     private Issue updateBlackDuckFieldsAndDescription(final Issue existingIssue, final EventData eventData) {
         try {
-            final JiraIssueWrapper jiraIssueWrapper = createJiraIssueWrapperFromEventData(existingIssue.getProjectId(), eventData, false, true);
-            return issueServiceWrapper.updateIssue(existingIssue, jiraIssueWrapper);
+            final BlackDuckIssueWrapper blackDuckIssueWrapper = createJiraIssueWrapperFromEventData(existingIssue.getProjectId(), eventData, false, true);
+            blackDuckIssueWrapper.setJiraIssueId(existingIssue.getId());
+            return issueServiceWrapper.updateIssue(blackDuckIssueWrapper);
         } catch (final JiraIssueException e) {
             handleJiraIssueException(e, eventData);
         }
@@ -460,7 +464,7 @@ public class JiraIssueHandler {
     }
 
     // TODO eventually get rid of event data in favor of issue field templates
-    private JiraIssueWrapper createJiraIssueWrapperFromEventData(final Long jiraProjectId, final EventData eventData, final boolean applyDefaults, final boolean retainExisting) throws JiraIssueException {
+    private BlackDuckIssueWrapper createJiraIssueWrapperFromEventData(final Long jiraProjectId, final EventData eventData, final boolean applyDefaults, final boolean retainExisting) throws JiraIssueException {
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, eventData.getJiraProjectName(), eventData.getJiraIssueTypeId(), eventData.getJiraIssueSummary(),
             eventData.getJiraIssueCreatorUsername(), eventData.getJiraIssueDescription(), eventData.getJiraIssueAssigneeUserId());
         jiraIssueFieldTemplate.setApplyDefaultValuesWhenParameterNotProvided(applyDefaults);
@@ -484,7 +488,7 @@ public class JiraIssueHandler {
                 eventData.getBlackDuckLicenseNames(), eventData.getBlackDuckLicenseUrl(), eventData.getBlackDuckComponentUsage(), eventData.getBlackDuckProjectVersionLastUpdated());
         }
 
-        return new JiraIssueWrapper(jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings());
+        return new BlackDuckIssueWrapper(eventData.getAction(), jiraIssueFieldTemplate, blackDuckIssueTemplate, eventData.getJiraFieldCopyMappings(), eventData.getBlackDuckBomComponentUri(), eventData.getComponentIssueUrl());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final EventData eventData) {

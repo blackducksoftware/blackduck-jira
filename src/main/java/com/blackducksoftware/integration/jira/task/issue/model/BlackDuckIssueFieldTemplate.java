@@ -168,5 +168,4 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
     protected Map<Long, String> createAddtionalBlackDuckFieldMappings(@SuppressWarnings("unused") final Map<PluginField, CustomField> customFields) {
         return Collections.emptyMap();
     }
-
 }
