@@ -26,9 +26,10 @@ package com.blackducksoftware.integration.jira.task.issue.model;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueModel extends Stringable {
@@ -166,5 +167,19 @@ public class BlackDuckIssueModel extends Stringable {
 
     public boolean isVulnerability() {
         return IssueCategory.VULNERABILITY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
+    }
+
+    // TODO should this model have access to this?
+    public String extractBlackDuckBaseUrl() {
+        final String projectVersionUriString = blackDuckIssueFieldTemplate.getProjectVersionUri();
+        if (StringUtils.isNotBlank(projectVersionUriString)) {
+            final String searchString = "/api";
+            final int end = projectVersionUriString.indexOf(searchString);
+            if (end > 0) {
+                // No need to subtract 1 since we included the slash in the search String
+                return projectVersionUriString.substring(0, end);
+            }
+        }
+        return "";
     }
 }

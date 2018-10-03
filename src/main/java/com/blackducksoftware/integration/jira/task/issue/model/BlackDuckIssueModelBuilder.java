@@ -36,8 +36,7 @@ import com.blackducksoftware.integration.jira.common.UrlParser;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
+import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
@@ -48,7 +47,7 @@ import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.Stringable;
 
-public class BlackDuckIssueBuilder extends Stringable {
+public class BlackDuckIssueModelBuilder extends Stringable {
     private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
 
@@ -98,78 +97,93 @@ public class BlackDuckIssueBuilder extends Stringable {
     private String jiraIssueResolveComment;
     private String jiraIssueCommentInLieuOfStateChange;
 
-    public BlackDuckIssueBuilder(final BlackDuckDataHelper blackDuckDataHelper, final DataFormatHelper dataFormatHelper) {
+    public BlackDuckIssueModelBuilder(final BlackDuckDataHelper blackDuckDataHelper, final DataFormatHelper dataFormatHelper) {
         this.blackDuckDataHelper = blackDuckDataHelper;
         this.dataFormatHelper = dataFormatHelper;
     }
 
-    public void setAction(final BlackDuckEventAction action) {
+    public BlackDuckIssueModelBuilder setAction(final BlackDuckEventAction action) {
         this.action = action;
+        return this;
     }
 
-    public void setIssueCategory(final IssueCategory issueCategory) {
+    public BlackDuckIssueModelBuilder setIssueCategory(final IssueCategory issueCategory) {
         this.issueCategory = issueCategory;
+        return this;
     }
 
-    public void setProjectFieldCopyMappings(final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
+    public BlackDuckIssueModelBuilder setProjectFieldCopyMappings(final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
         this.projectFieldCopyMappings = projectFieldCopyMappings;
+        return this;
     }
 
-    public void setBomComponentUri(final String bomComponentUri) {
+    public BlackDuckIssueModelBuilder setBomComponentUri(final String bomComponentUri) {
         this.bomComponentUri = bomComponentUri;
+        return this;
     }
 
-    public void setComponentIssueUrl(final String componentIssueUrl) {
+    public BlackDuckIssueModelBuilder setComponentIssueUrl(final String componentIssueUrl) {
         this.componentIssueUrl = componentIssueUrl;
+        return this;
     }
 
-    public void setLastBatchStartDate(final Date lastBatchStartDate) {
+    public BlackDuckIssueModelBuilder setLastBatchStartDate(final Date lastBatchStartDate) {
         this.lastBatchStartDate = lastBatchStartDate;
+        return this;
     }
 
-    public void setJiraProject(final JiraProject jiraProject) {
+    public BlackDuckIssueModelBuilder setJiraProject(final JiraProject jiraProject) {
         this.jiraProjectId = jiraProject.getProjectId();
         this.jiraProjectName = jiraProject.getProjectName();
         this.assigneeId = jiraProject.getAssigneeUserId();
+        return this;
     }
 
-    public void setJiraIssueTypeId(final String jiraIssueTypeId) {
+    public BlackDuckIssueModelBuilder setJiraIssueTypeId(final String jiraIssueTypeId) {
         this.jiraIssueTypeId = jiraIssueTypeId;
+        return this;
     }
 
-    public void setIssueCreatorUsername(final String issueCreatorUsername) {
+    public BlackDuckIssueModelBuilder setIssueCreatorUsername(final String issueCreatorUsername) {
         this.issueCreatorUsername = issueCreatorUsername;
+        return this;
     }
 
-    public void setJiraIssueComment(final String jiraIssueComment) {
+    public BlackDuckIssueModelBuilder setJiraIssueComment(final String jiraIssueComment) {
         this.jiraIssueComment = jiraIssueComment;
+        return this;
     }
 
-    public void setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
+    public BlackDuckIssueModelBuilder setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
         this.jiraIssueReOpenComment = jiraIssueReOpenComment;
+        return this;
     }
 
-    public void setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
+    public BlackDuckIssueModelBuilder setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
         this.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
+        return this;
     }
 
-    public void setJiraIssueResolveComment(final String jiraIssueResolveComment) {
+    public BlackDuckIssueModelBuilder setJiraIssueResolveComment(final String jiraIssueResolveComment) {
         this.jiraIssueResolveComment = jiraIssueResolveComment;
+        return this;
     }
 
-    public void setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
+    public BlackDuckIssueModelBuilder setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
+        return this;
     }
 
-    public void setAllIssueComments(final String comment) {
+    public BlackDuckIssueModelBuilder setAllIssueComments(final String comment) {
         this.jiraIssueComment = comment;
         this.jiraIssueReOpenComment = comment;
         this.jiraIssueResolveComment = comment;
         this.jiraIssueCommentForExistingIssue = comment;
         this.jiraIssueCommentInLieuOfStateChange = comment;
+        return this;
     }
 
-    public BlackDuckIssueBuilder setVulnerabilityComments(final String comment) {
+    public BlackDuckIssueModelBuilder setVulnerabilityComments(final String comment) {
         setJiraIssueComment(comment);
         setJiraIssueCommentForExistingIssue(comment);
         setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN);
@@ -178,7 +192,7 @@ public class BlackDuckIssueBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueBuilder setPolicyComments(final NotificationType notificationType) {
+    public BlackDuckIssueModelBuilder setPolicyComments(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
             setJiraIssueReOpenComment(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN);
             setJiraIssueCommentForExistingIssue(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT);
@@ -206,7 +220,7 @@ public class BlackDuckIssueBuilder extends Stringable {
 
     // TODO SECTION
 
-    public BlackDuckIssueBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
+    public BlackDuckIssueModelBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
         final ProjectView project = projectVersionWrapper.getProjectView();
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
 
@@ -231,7 +245,7 @@ public class BlackDuckIssueBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
+    public BlackDuckIssueModelBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
         this.policyRuleUrl = blackDuckDataHelper.getHrefNullable(policyRule);
         this.policyRuleName = policyRule.name;
         this.policyDescription = policyRule.description;
@@ -271,8 +285,8 @@ public class BlackDuckIssueBuilder extends Stringable {
     }
 
     // FIXME make sure all of these fields are correctly updated
-    public BlackDuckIssueBuilder copy() {
-        final BlackDuckIssueBuilder newBuilder = new BlackDuckIssueBuilder(blackDuckDataHelper, dataFormatHelper);
+    public BlackDuckIssueModelBuilder copy() {
+        final BlackDuckIssueModelBuilder newBuilder = new BlackDuckIssueModelBuilder(blackDuckDataHelper, dataFormatHelper);
         newBuilder.action = action;
         newBuilder.projectFieldCopyMappings = projectFieldCopyMappings;
         newBuilder.bomComponentUri = bomComponentUri;

@@ -64,7 +64,7 @@ import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
+import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
@@ -475,13 +475,13 @@ public class NotificationConverterTest {
         assertEquals(expectedReOpenComment, wrapper.getJiraIssueReOpenComment());
         assertEquals(expectedResolveComment, wrapper.getJiraIssueResolveComment());
 
-        wrapper.setJiraIssueId(456L);
+        wrapper.setJiraIssueId(JIRA_ISSUE_ID);
         final OldIssueProperties issueProperties = OldIssueProperties.fromBlackDuckIssueWrapper(wrapper);
         assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());
         assertEquals(COMPONENT_VERSION_NAME, issueProperties.getComponentVersion());
-        assertEquals(Long.valueOf(456L), issueProperties.getJiraIssueId());
+        assertEquals(Long.valueOf(JIRA_ISSUE_ID), issueProperties.getJiraIssueId());
         assertEquals(expectedPropertyKey, wrapper.getEventKey());
     }
 

@@ -46,9 +46,9 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
+import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler {

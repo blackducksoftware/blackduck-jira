@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
+package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
 import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;

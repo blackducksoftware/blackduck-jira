@@ -29,7 +29,6 @@ import java.util.Map;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueFieldTemplate extends Stringable {

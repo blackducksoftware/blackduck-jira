@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.util.Optional;
 
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
+import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class IssueProperties extends Stringable {

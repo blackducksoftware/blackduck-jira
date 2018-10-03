@@ -23,9 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
+import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 
 public class OldIssueProperties extends IssueProperties {
     private final String projectName;
