@@ -47,6 +47,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -64,7 +65,7 @@ import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
-import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
 import com.synopsys.integration.blackduck.api.core.ResourceMetadata;
@@ -161,7 +162,6 @@ public class NotificationConverterTest {
     private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN;
     private final static String VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
                                                             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
-    private final static String BOM_EDIT_VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\nVulnerabilities _added_: None\nVulnerabilities _updated_: None\nVulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
@@ -174,6 +174,7 @@ public class NotificationConverterTest {
     private static BlackDuckJiraLogger mockLogger;
     private static BlackDuckProjectMappings projectMappingObject;
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
+    private static BlackDuckDataHelper blackDuckDataHelper;
     private static DataFormatHelper dataFormatHelper;
 
     @BeforeClass
@@ -232,7 +233,8 @@ public class NotificationConverterTest {
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
-        dataFormatHelper = new DataFormatHelper(mockBlackDuckSerivce);
+        blackDuckDataHelper = new BlackDuckDataHelper(mockLogger, mockBlackDuckSerivce, mockBlackDuckBucket);
+        dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
     }
 
     @AfterClass
@@ -258,6 +260,8 @@ public class NotificationConverterTest {
         Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
         Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
 
+        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
+        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
         Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
 
@@ -418,9 +422,9 @@ public class NotificationConverterTest {
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         // New Converter
-        final BomNotificationToEventConverter newConverter = new BomNotificationToEventConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper, Arrays.asList(RULE_URL),
-            mockBlackDuckSerivce, mockLogger);
-        final Collection<BlackDuckIssueWrapper> newEvents = newConverter.convertToEventData(notificationDetailResults, mockBlackDuckBucket, startDate);
+        final BomNotificationToIssueModelConverter newConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper, Arrays.asList(RULE_URL),
+            blackDuckDataHelper, mockBlackDuckSerivce, mockLogger);
+        final Collection<BlackDuckIssueModel> newEvents = newConverter.convertToModel(notificationDetailResults, startDate);
         verifyGeneratedEvents(newEvents, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
             expectedResolveComment, expectedPropertyKey);
     }
@@ -441,11 +445,10 @@ public class NotificationConverterTest {
         }
     }
 
-    private void verifyGeneratedEvents(final Collection<BlackDuckIssueWrapper> wrappers, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
+    private void verifyGeneratedEvents(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
         final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey) {
         assertEquals(EXPECTED_EVENT_COUNT, wrappers.size());
-        // HubEvent<VulnerabilityContentItem> event = events.get(0);
-        final BlackDuckIssueWrapper wrapper = wrappers.iterator().next();
+        final BlackDuckIssueModel wrapper = wrappers.iterator().next();
         assertEquals(expectedHubEventAction, wrapper.getIssueAction());
         assertEquals(expectedComment, wrapper.getJiraIssueComment());
         assertEquals(expectedCommentIfExists, wrapper.getJiraIssueCommentForExistingIssue());
@@ -457,9 +460,6 @@ public class NotificationConverterTest {
 
         assertEquals(Long.valueOf(JIRA_PROJECT_ID), wrapper.getJiraIssueFieldTemplate().getJiraProjectId());
         assertEquals(JIRA_PROJECT_NAME, wrapper.getJiraIssueFieldTemplate().getJiraProjectName());
-        // FIXME are these fields needed?
-        //        assertEquals(JIRA_ADMIN_USER_KEY, wrapper.getJiraIssueFieldTemplate().getJiraAdminUserKey());
-        //        assertEquals(JIRA_ADMIN_USERNAME, wrapper.getJiraIssueFieldTemplate().getJiraAdminUsername());
         assertEquals(JIRA_ISSUE_CREATOR_USERNAME, wrapper.getJiraIssueFieldTemplate().getIssueCreatorUsername());
         final Set<ProjectFieldCopyMapping> fieldMappings = wrapper.getProjectFieldCopyMappings();
         assertEquals(1, fieldMappings.size());
@@ -484,7 +484,7 @@ public class NotificationConverterTest {
         assertEquals(expectedPropertyKey, wrapper.getEventKey());
     }
 
-    private NotificationDetailResult createVulnerabilityNotif(final Date createdAt) throws URISyntaxException, HubIntegrationException {
+    private NotificationDetailResult createVulnerabilityNotif(final Date createdAt) {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
         vuln.source = VULN_SOURCE;
         vuln.vulnerabilityId = COMPONENT_VERSION_URL;

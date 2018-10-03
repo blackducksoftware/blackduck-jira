@@ -1,3 +1,26 @@
+/**
+ * Black Duck JIRA Plugin
+ *
+ * Copyright (C) 2018 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
 import java.util.Date;
@@ -7,28 +30,26 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.atlassian.jira.user.ApplicationUser;
+import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.UrlParser;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueBuilder extends Stringable {
-    private final HubService blackDuckService;
-    private final HubBucket blackDuckBucket;
+    private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
 
     private BlackDuckEventAction action;
@@ -77,9 +98,8 @@ public class BlackDuckIssueBuilder extends Stringable {
     private String jiraIssueResolveComment;
     private String jiraIssueCommentInLieuOfStateChange;
 
-    public BlackDuckIssueBuilder(final HubService blackDuckService, final HubBucket blackDuckBucket, final DataFormatHelper dataFormatHelper) {
-        this.blackDuckService = blackDuckService;
-        this.blackDuckBucket = blackDuckBucket;
+    public BlackDuckIssueBuilder(final BlackDuckDataHelper blackDuckDataHelper, final DataFormatHelper dataFormatHelper) {
+        this.blackDuckDataHelper = blackDuckDataHelper;
         this.dataFormatHelper = dataFormatHelper;
     }
 
@@ -186,14 +206,14 @@ public class BlackDuckIssueBuilder extends Stringable {
 
     // TODO SECTION
 
-    public BlackDuckIssueBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) throws IntegrationException {
+    public BlackDuckIssueBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
         final ProjectView project = projectVersionWrapper.getProjectView();
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
 
         this.projectOwner = projectOwner;
         this.projectName = project.name;
         this.projectVersionName = projectVersion.versionName;
-        this.projectVersionUri = blackDuckService.getHref(projectVersion);
+        this.projectVersionUri = blackDuckDataHelper.getHrefNullable(projectVersion);
         this.projectVersionNickname = projectVersion.nickname;
 
         this.componentName = versionBomComponent.componentName;
@@ -211,8 +231,8 @@ public class BlackDuckIssueBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) throws IntegrationException {
-        this.policyRuleUrl = blackDuckService.getHref(policyRule);
+    public BlackDuckIssueBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
+        this.policyRuleUrl = blackDuckDataHelper.getHrefNullable(policyRule);
         this.policyRuleName = policyRule.name;
         this.policyDescription = policyRule.description;
         this.policyOverridable = policyRule.overridable;
@@ -221,7 +241,7 @@ public class BlackDuckIssueBuilder extends Stringable {
     }
 
     // TODO throw exception if missing required fields
-    public BlackDuckIssueWrapper build() throws IntegrationException {
+    public BlackDuckIssueModel build() throws IntegrationException {
         if (action == null) {
             // TODO throw exception
         }
@@ -239,10 +259,10 @@ public class BlackDuckIssueBuilder extends Stringable {
         }
 
         final String jiraIssueSummary = dataFormatHelper.createIssueSummary(eventCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-        final String issueDescription = dataFormatHelper.getIssueDescription(eventCategory, projectVersionUri, componentVersionUri, blackDuckBucket);
+        final String issueDescription = dataFormatHelper.getIssueDescription(eventCategory, projectVersionUri, componentVersionUri);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
 
-        final BlackDuckIssueWrapper wrapper = new BlackDuckIssueWrapper(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
+        final BlackDuckIssueModel wrapper = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
         addComments(wrapper);
         wrapper.setEventKey(generateEventKey());
         return wrapper;
@@ -250,7 +270,7 @@ public class BlackDuckIssueBuilder extends Stringable {
 
     // FIXME make sure all of these fields are correctly updated
     public BlackDuckIssueBuilder copy() {
-        final BlackDuckIssueBuilder newBuilder = new BlackDuckIssueBuilder(blackDuckService, blackDuckBucket, dataFormatHelper);
+        final BlackDuckIssueBuilder newBuilder = new BlackDuckIssueBuilder(blackDuckDataHelper, dataFormatHelper);
         newBuilder.action = action;
         newBuilder.projectFieldCopyMappings = projectFieldCopyMappings;
         newBuilder.bomComponentUri = bomComponentUri;
@@ -296,7 +316,7 @@ public class BlackDuckIssueBuilder extends Stringable {
         return newBuilder;
     }
 
-    private void addComments(final BlackDuckIssueWrapper wrapper) {
+    private void addComments(final BlackDuckIssueModel wrapper) {
         wrapper.setJiraIssueComment(jiraIssueComment);
         wrapper.setJiraIssueCommentForExistingIssue(jiraIssueCommentForExistingIssue);
         wrapper.setJiraIssueCommentInLieuOfStateChange(jiraIssueCommentInLieuOfStateChange);
@@ -335,7 +355,6 @@ public class BlackDuckIssueBuilder extends Stringable {
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
         } else {
             // Vulnerabilities do not have a component URL
-            keyBuilder.append("");
         }
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
 

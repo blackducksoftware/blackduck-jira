@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.fields.CustomField;
+import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
@@ -45,7 +46,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.D
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
-import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.NotificationUserView;
@@ -119,9 +120,13 @@ public class TicketGenerator {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
-                final BomNotificationToEventConverter notificationConverter = new BomNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    new DataFormatHelper(blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
-                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
+                final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
+                final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
+
+                final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
+
+                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {
                 return results.getLatestNotificationCreatedAtDate().get();
@@ -141,18 +146,16 @@ public class TicketGenerator {
         return types;
     }
 
-    private void handleEachIssue(final BomNotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket blackDuckBucket,
-        final Date batchStartDate)
-        throws HubIntegrationException {
+    private void handleEachIssue(final BomNotificationToIssueModelConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final Date batchStartDate) {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<BlackDuckIssueWrapper> issueWrappers = converter.convertToEventData(detailResult, blackDuckBucket, batchStartDate);
-                for (final BlackDuckIssueWrapper wrapper : issueWrappers) {
+                final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
+                for (final BlackDuckIssueModel model : issueModels) {
                     try {
-                        issueHandler.handleBlackDuckIssue(wrapper);
+                        issueHandler.handleBlackDuckIssue(model);
                     } catch (final Exception e) {
                         logger.error(e);
-                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleEvent(event)");
+                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                     }
                 }
             }

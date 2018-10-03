@@ -26,7 +26,7 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
-import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueWrapper;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.task.issue.model.PolicyIssueFieldTempate;
 
 public class OldIssueProperties extends IssueProperties {
@@ -60,11 +60,11 @@ public class OldIssueProperties extends IssueProperties {
     // @formatter:on
 
     // @formatter:off
-    public static OldIssueProperties fromBlackDuckIssueWrapper(final BlackDuckIssueWrapper blackDuckIssueWrapper, final Long jiraIssueId) {
-        final BlackDuckIssueFieldTemplate template = blackDuckIssueWrapper.getBlackDuckIssueTemplate();
+    public static OldIssueProperties fromBlackDuckIssueWrapper(final BlackDuckIssueModel blackDuckIssueModel, final Long jiraIssueId) {
+        final BlackDuckIssueFieldTemplate template = blackDuckIssueModel.getBlackDuckIssueTemplate();
 
         String ruleName = null;
-        final EventCategory category = blackDuckIssueWrapper.getEventCategoryFromFieldTemplate();
+        final EventCategory category = blackDuckIssueModel.getEventCategoryFromFieldTemplate();
         if (EventCategory.POLICY.equals(category)) {
             ruleName = ((PolicyIssueFieldTempate) template).getPolicyRuleName();
         }
@@ -75,7 +75,7 @@ public class OldIssueProperties extends IssueProperties {
                 ,template.getComponentVersionName()
                 ,ruleName
                 ,category
-                ,blackDuckIssueWrapper.getBomComponentUri()
+                ,blackDuckIssueModel.getBomComponentUri()
                 ,jiraIssueId);
     }
 

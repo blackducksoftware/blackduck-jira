@@ -26,14 +26,15 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.synopsys.integration.blackduck.api.core.HubResponse;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
 import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;
@@ -46,20 +47,17 @@ import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.blackduck.service.ComponentService;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class DataFormatHelper {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final HubService blackDuckService;
+    private final BlackDuckDataHelper blackDuckDataHelper;
 
-    public DataFormatHelper(final HubService blackDuckService) {
-        this.blackDuckService = blackDuckService;
+    public DataFormatHelper(final BlackDuckDataHelper blackDuckDataHelper) {
+        this.blackDuckDataHelper = blackDuckDataHelper;
     }
 
-    public String getIssueDescription(final EventCategory eventCategory, final String projectVersionUrl, final String componentVersionUrl, final HubBucket blackDuckBucket) {
+    public String getIssueDescription(final EventCategory eventCategory, final String projectVersionUrl, final String componentVersionUrl) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
@@ -68,9 +66,9 @@ public class DataFormatHelper {
         } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;
-            final ProjectVersionView projectVersion = getView(projectVersionUrl, ProjectVersionView.class, blackDuckBucket);
+            final ProjectVersionView projectVersion = blackDuckDataHelper.getResponseNullable(projectVersionUrl, ProjectVersionView.class);
             if (projectVersion != null) {
-                vulnerableComponentsLink = blackDuckService.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+                vulnerableComponentsLink = blackDuckDataHelper.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
             if (vulnerableComponentsLink != null) {
                 issueDescription.append("[vulnerabilities|");
@@ -83,7 +81,7 @@ public class DataFormatHelper {
         }
 
         if (componentVersionUrl != null) {
-            final ComponentVersionView componentVersion = getView(componentVersionUrl, ComponentVersionView.class, blackDuckBucket);
+            final ComponentVersionView componentVersion = blackDuckDataHelper.getResponseNullable(componentVersionUrl, ComponentVersionView.class);
             final String licenseText = getComponentLicensesStringWithLinksAtlassianFormat(componentVersion);
             if (StringUtils.isNotBlank(licenseText)) {
                 issueDescription.append("KB Component license(s): ");
@@ -132,17 +130,9 @@ public class DataFormatHelper {
     }
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
-        // TODO use the HubService once the Black Duck APIs have the link.
-        final ComponentService componentService = new ComponentService(blackDuckService, logger);
-        RemediationOptionsView remediationOptions;
-        try {
-            remediationOptions = componentService.getRemediationInformation(componentVersionView);
-        } catch (final IntegrationException e) {
-            logger.debug("Could not get remediation information: ");
-            logger.debug(e.getMessage());
-            return;
-        }
-        if (remediationOptions != null) {
+        final Optional<RemediationOptionsView> optionalRemediation = blackDuckDataHelper.getRemediationInformation(componentVersionView);
+        if (optionalRemediation.isPresent()) {
+            final RemediationOptionsView remediationOptions = optionalRemediation.get();
             stringBuilder.append("\nRemediation Information:\n");
             if (remediationOptions.fixesPreviousVulnerabilities != null) {
                 appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
@@ -191,7 +181,7 @@ public class DataFormatHelper {
 
     public String getBomLastUpdated(final ProjectVersionView projectVersion) {
         try {
-            final VersionRiskProfileView riskProfile = blackDuckService.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
+            final VersionRiskProfileView riskProfile = blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
             final SimpleDateFormat dateFormat = new SimpleDateFormat();
             return dateFormat.format(riskProfile.bomLastUpdatedAt);
         } catch (final IntegrationException intException) {
@@ -254,9 +244,9 @@ public class DataFormatHelper {
                 }
             }
             try {
-                final LicenseView genericLicense = blackDuckService.getResponse(versionBomLicense.license, LicenseView.class);
-                final LicenseView kbLicense = blackDuckService.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
-                return blackDuckService.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
+                final LicenseView genericLicense = blackDuckDataHelper.getResponse(versionBomLicense.license, LicenseView.class);
+                final LicenseView kbLicense = blackDuckDataHelper.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
+                return blackDuckDataHelper.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
             } catch (final Exception e) {
                 logger.debug("Unable to get the BOM component license text.");
             }
@@ -317,24 +307,12 @@ public class DataFormatHelper {
     private String getLicenseTextUrl(final EventDataLicense license) {
         final String licenseUrl = license.licenseUrl;
         try {
-            final ComplexLicenseView fullLicense = blackDuckService.getResponse(licenseUrl, ComplexLicenseView.class);
-            return blackDuckService.getFirstLink(fullLicense, "text");
+            final ComplexLicenseView fullLicense = blackDuckDataHelper.getResponse(licenseUrl, ComplexLicenseView.class);
+            return blackDuckDataHelper.getFirstLink(fullLicense, "text");
         } catch (final Exception e) {
             logger.debug("Error getting license text url.");
         }
-        return blackDuckService.getHubBaseUrl().toString();
-    }
-
-    private <T extends HubResponse> T getView(final String uri, final Class<T> clazz, final HubBucket blackDuckBucket) {
-        T view = blackDuckBucket.get(uri, clazz);
-        if (view == null) {
-            try {
-                view = blackDuckService.getResponse(uri, clazz);
-            } catch (final IntegrationException e) {
-                logger.debug("Could not get view from Black Duck.", e);
-            }
-        }
-        return view;
+        return blackDuckDataHelper.getBlackDuckBaseUrl();
     }
 
     class EventDataLicense {
@@ -389,5 +367,4 @@ public class DataFormatHelper {
         }
 
     }
-
 }

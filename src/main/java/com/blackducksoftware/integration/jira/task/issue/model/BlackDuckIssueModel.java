@@ -31,7 +31,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEv
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
 import com.synopsys.integration.util.Stringable;
 
-public class BlackDuckIssueWrapper extends Stringable {
+public class BlackDuckIssueModel extends Stringable {
     private final BlackDuckEventAction issueAction;
     private final JiraIssueFieldTemplate jiraIssueFieldTemplate;
     private final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
@@ -51,7 +51,7 @@ public class BlackDuckIssueWrapper extends Stringable {
     private String eventKey;
 
     // @formatter:off
-    public BlackDuckIssueWrapper(
+    public BlackDuckIssueModel(
              final BlackDuckEventAction issueAction
             ,final JiraIssueFieldTemplate jiraIssueFieldTemplate
             ,final BlackDuckIssueFieldTemplate blackDuckIssueTemplate
