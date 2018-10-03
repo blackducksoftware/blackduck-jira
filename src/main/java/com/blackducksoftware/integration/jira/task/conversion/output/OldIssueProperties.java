@@ -23,11 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.conversion.output;
 
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
-import com.blackducksoftware.integration.jira.task.issue.model.PolicyIssueFieldTempate;
 
 public class OldIssueProperties extends IssueProperties {
     private final String projectName;
@@ -35,7 +33,7 @@ public class OldIssueProperties extends IssueProperties {
     private final String componentName;
     private final String componentVersionName;
 
-    public OldIssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName, final EventCategory type, final String bomComponentUri,
+    public OldIssueProperties(final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName, final IssueCategory type, final String bomComponentUri,
         final Long jiraIssueId) {
         super(type, bomComponentUri, ruleName, jiraIssueId);
         this.projectName = projectName;
@@ -46,38 +44,19 @@ public class OldIssueProperties extends IssueProperties {
     // @formatter:on
 
     // @formatter:off
-    public static OldIssueProperties fromEventData(final EventData eventData, final Long jiraIssueId) {
-        return new OldIssueProperties(
-                 eventData.getBlackDuckProjectName()
-                ,eventData.getBlackDuckProjectVersionName()
-                ,eventData.getBlackDuckComponentName()
-                ,eventData.getBlackDuckComponentVersionName()
-                ,eventData.getBlackDuckRuleName()
-                ,eventData.getCategory()
-                ,eventData.getBlackDuckBomComponentUri()
-                ,jiraIssueId);
-    }
-    // @formatter:on
-
-    // @formatter:off
-    public static OldIssueProperties fromBlackDuckIssueWrapper(final BlackDuckIssueModel blackDuckIssueModel, final Long jiraIssueId) {
+    public static OldIssueProperties fromBlackDuckIssueWrapper(final BlackDuckIssueModel blackDuckIssueModel) {
         final BlackDuckIssueFieldTemplate template = blackDuckIssueModel.getBlackDuckIssueTemplate();
-
-        String ruleName = null;
-        final EventCategory category = blackDuckIssueModel.getEventCategoryFromFieldTemplate();
-        if (EventCategory.POLICY.equals(category)) {
-            ruleName = ((PolicyIssueFieldTempate) template).getPolicyRuleName();
-        }
         return new OldIssueProperties(
                  template.getProjectName()
                 ,template.getProjectVersionName()
                 ,template.getComponentName()
                 ,template.getComponentVersionName()
-                ,ruleName
-                ,category
+                ,template.getPolicyRuleName()
+                ,template.getIssueCategory()
                 ,blackDuckIssueModel.getBomComponentUri()
-                ,jiraIssueId);
+                ,blackDuckIssueModel.getJiraIssueId());
     }
+    // @formatter:on
 
     public String getProjectName() {
         return projectName;
@@ -94,5 +73,4 @@ public class OldIssueProperties extends IssueProperties {
     public String getComponentVersion() {
         return componentVersionName;
     }
-
 }

@@ -57,13 +57,13 @@ public class DataFormatHelper {
         this.blackDuckDataHelper = blackDuckDataHelper;
     }
 
-    public String getIssueDescription(final EventCategory eventCategory, final String projectVersionUrl, final String componentVersionUrl) {
+    public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentVersionUrl) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
-        if (EventCategory.POLICY.equals(eventCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory)) {
             issueDescription.append("a policy violation.  \n\n");
-        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
+        } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
             String vulnerableComponentsLink = null;
             final ProjectVersionView projectVersion = blackDuckDataHelper.getResponseNullable(projectVersionUrl, ProjectVersionView.class);
@@ -87,18 +87,18 @@ public class DataFormatHelper {
                 issueDescription.append("KB Component license(s): ");
                 issueDescription.append(licenseText);
             }
-            if (EventCategory.VULNERABILITY.equals(eventCategory)) {
+            if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
                 appendRemediationOptionsText(issueDescription, componentVersion);
             }
         }
         return issueDescription.toString();
     }
 
-    public String createIssueSummary(final EventCategory eventCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {
-        if (EventCategory.POLICY.equals(eventCategory)) {
+    public String createIssueSummary(final IssueCategory issueCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {
+        if (IssueCategory.POLICY.equals(issueCategory)) {
             final String issueSummaryTemplate = "%s: Project '%s' / '%s', Component '%s' [Rule: '%s']";
             return String.format(issueSummaryTemplate, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, projectName, projectVersionName, getComponentString(componentName, componentVersionName), ruleName);
-        } else if (EventCategory.VULNERABILITY.equals(eventCategory)) {
+        } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             final StringBuilder issueSummary = new StringBuilder();
             issueSummary.append(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
             issueSummary.append(": Project '");

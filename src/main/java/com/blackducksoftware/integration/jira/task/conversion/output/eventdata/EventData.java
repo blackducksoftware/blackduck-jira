@@ -34,7 +34,7 @@ import com.synopsys.integration.util.Stringable;
 
 public class EventData extends Stringable {
     private BlackDuckEventAction action;
-    private EventCategory category;
+    private IssueCategory category;
     private Date lastBatchStartDate;
     private String jiraAdminUsername;
     private String jiraIssueCreatorUsername;
@@ -84,109 +84,29 @@ public class EventData extends Stringable {
     EventData() {
     }
 
-    EventData setAction(final BlackDuckEventAction action) {
-        this.action = action;
-        return this;
-    }
-
     public void overrideAction(final BlackDuckEventAction action) {
         this.action = action;
     }
 
-    public EventCategory getCategory() {
+    public IssueCategory getCategory() {
         return category;
     }
 
-    EventData setCategory(final EventCategory category) {
+    EventData setCategory(final IssueCategory category) {
         this.category = category;
         return this;
     }
 
     public boolean isPolicy() {
-        return EventCategory.POLICY.equals(category);
+        return IssueCategory.POLICY.equals(category);
     }
 
     public boolean isVulnerability() {
-        return EventCategory.VULNERABILITY.equals(category);
-    }
-
-    EventData setLastBatchStartDate(final Date lastBatchStartDate) {
-        this.lastBatchStartDate = lastBatchStartDate;
-        return this;
-    }
-
-    EventData setJiraAdminUsername(final String jiraAdminUsername) {
-        this.jiraAdminUsername = jiraAdminUsername;
-        return this;
-    }
-
-    EventData setJiraIssueCreatorUsername(final String jiraIssueCreatorUsername) {
-        this.jiraIssueCreatorUsername = jiraIssueCreatorUsername;
-        return this;
-    }
-
-    EventData setJiraAdminUserKey(final String jiraAdminUserKey) {
-        this.jiraAdminUserKey = jiraAdminUserKey;
-        return this;
-    }
-
-    EventData setJiraIssueCreatorUserKey(final String jiraIssueCreatorUserKey) {
-        this.jiraIssueCreatorUserKey = jiraIssueCreatorUserKey;
-        return this;
-    }
-
-    EventData setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
-        this.jiraIssueAssigneeUserId = jiraIssueAssigneeUserId;
-        return this;
-    }
-
-    EventData setJiraIssueTypeId(final String jiraIssueTypeId) {
-        this.jiraIssueTypeId = jiraIssueTypeId;
-        return this;
-    }
-
-    EventData setJiraProjectName(final String jiraProjectName) {
-        this.jiraProjectName = jiraProjectName;
-        return this;
-    }
-
-    EventData setJiraProjectId(final Long jiraProjectId) {
-        this.jiraProjectId = jiraProjectId;
-        return this;
-    }
-
-    EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
-        this.jiraFieldCopyMappings = jiraFieldCopyMappings;
-        return this;
-    }
-
-    EventData setBlackDuckBaseUrl(final String blackDuckBaseUrl) {
-        this.blackDuckBaseUrl = blackDuckBaseUrl;
-        return this;
-    }
-
-    EventData setBlackDuckProjectName(final String blackDuckProjectName) {
-        this.blackDuckProjectName = blackDuckProjectName;
-        return this;
+        return IssueCategory.VULNERABILITY.equals(category);
     }
 
     EventData setBlackDuckProjectVersion(final String blackDuckProjectVersion) {
         this.blackDuckProjectVersion = blackDuckProjectVersion;
-        return this;
-    }
-
-    EventData setBlackDuckProjectVersionUrl(final String blackDuckProjectVersionUrl) {
-        this.blackDuckProjectVersionUrl = blackDuckProjectVersionUrl;
-        return this;
-    }
-
-    EventData setBlackDuckComponentName(final String blackDuckComponentName) {
-        this.blackDuckComponentName = blackDuckComponentName;
-        return this;
-    }
-
-    EventData setBlackDuckComponentUrl(final String blackDuckComponentUrl) {
-        this.blackDuckComponentUrl = blackDuckComponentUrl;
         return this;
     }
 
@@ -195,176 +115,121 @@ public class EventData extends Stringable {
         return this;
     }
 
-    EventData setBlackDuckComponentVersionUrl(final String blackDuckComponentVersionUrl) {
-        this.blackDuckComponentVersionUrl = blackDuckComponentVersionUrl;
-        return this;
-    }
-
-    EventData setJiraIssueSummary(final String jiraIssueSummary) {
-        this.jiraIssueSummary = jiraIssueSummary;
-        return this;
-    }
-
-    EventData setJiraIssueDescription(final String jiraIssueDescription) {
-        this.jiraIssueDescription = jiraIssueDescription;
-        return this;
-    }
-
-    EventData setJiraIssueComment(final String jiraIssueComment) {
-        this.jiraIssueComment = jiraIssueComment;
-        return this;
-    }
-
-    EventData setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
-        this.jiraIssueReOpenComment = jiraIssueReOpenComment;
-        return this;
-    }
-
-    EventData setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
-        this.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
-        return this;
-    }
-
-    EventData setJiraIssueResolveComment(final String jiraIssueResolveComment) {
-        this.jiraIssueResolveComment = jiraIssueResolveComment;
-        return this;
-    }
-
-    EventData setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
-        this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
-        return this;
-    }
-
-    EventData setBlackDuckRuleName(final String blackDuckRuleName) {
-        this.blackDuckRuleName = blackDuckRuleName;
-        return this;
-    }
-
-    EventData setBlackDuckRuleOverridable(final String blackDuckRuleOverridable) {
-        this.blackDuckRuleOverridable = blackDuckRuleOverridable;
-        return this;
-    }
-
-    EventData setBlackDuckRuleDescription(final String blackDuckRuleDescription) {
-        this.blackDuckRuleDescription = blackDuckRuleDescription;
-        return this;
-    }
-
-    EventData setBlackDuckRuleUrl(final String blackDuckRuleUrl) {
-        this.blackDuckRuleUrl = blackDuckRuleUrl;
-        return this;
-    }
-
-    EventData setBlackDuckLicenseNames(final String blackDuckLicenseNames) {
-        this.blackDuckLicenseNames = blackDuckLicenseNames;
-        return this;
-    }
-
-    EventData setBlackDuckLicenseUrl(final String blackDuckLicenseUrl) {
-        this.blackDuckLicenseUrl = blackDuckLicenseUrl;
-        return this;
-    }
-
-    EventData setBlackDuckComponentUsage(final String blackDuckComponentUsage) {
-        this.blackDuckComponentUsage = blackDuckComponentUsage;
-        return this;
-    }
-
-    EventData setBlackDuckComponentOrigin(final String blackDuckComponentOrigin) {
-        this.blackDuckComponentOrigin = blackDuckComponentOrigin;
-        return this;
-    }
-
-    EventData setBlackDuckComponentOriginId(final String blackDuckComponentOriginId) {
-        this.blackDuckComponentOriginId = blackDuckComponentOriginId;
-        return this;
-    }
-
-    EventData setBlackDuckProjectVersionNickname(final String blackDuckProjectVersionNickname) {
-        this.blackDuckProjectVersionNickname = blackDuckProjectVersionNickname;
-        return this;
-    }
-
-    EventData setBlackDuckBomComponentUri(final String blackDuckBomComponentUri) {
-        this.blackDuckBomComponentUri = blackDuckBomComponentUri;
-        return this;
-    }
-
-    EventData setComponentIssueUrl(final String componentIssueUrl) {
-        this.componentIssueUrl = componentIssueUrl;
-        return this;
-    }
-
-    EventData setBlackDuckProjectOwner(final ApplicationUser blackDuckProjectOwner) {
-        this.blackDuckProjectOwner = blackDuckProjectOwner;
-        return this;
-    }
-
-    EventData setBlackDuckProjectVersionLastUpdated(final String blackDuckProjectVersionLastUpdated) {
-        this.blackDuckProjectVersionLastUpdated = blackDuckProjectVersionLastUpdated;
-        return this;
-    }
-
-    public EventData setNotificationType(final NotificationType notificationType) {
-        this.notificationType = notificationType;
-        return this;
-    }
-
-    public EventData setEventKey(final String eventKey) {
-        this.eventKey = eventKey;
-        return this;
-    }
-
     public BlackDuckEventAction getAction() {
         return action;
+    }
+
+    EventData setAction(final BlackDuckEventAction action) {
+        this.action = action;
+        return this;
     }
 
     public Date getLastBatchStartDate() {
         return lastBatchStartDate;
     }
 
+    EventData setLastBatchStartDate(final Date lastBatchStartDate) {
+        this.lastBatchStartDate = lastBatchStartDate;
+        return this;
+    }
+
     public String getJiraAdminUsername() {
         return jiraAdminUsername;
+    }
+
+    EventData setJiraAdminUsername(final String jiraAdminUsername) {
+        this.jiraAdminUsername = jiraAdminUsername;
+        return this;
     }
 
     public String getJiraIssueCreatorUsername() {
         return jiraIssueCreatorUsername;
     }
 
+    EventData setJiraIssueCreatorUsername(final String jiraIssueCreatorUsername) {
+        this.jiraIssueCreatorUsername = jiraIssueCreatorUsername;
+        return this;
+    }
+
     public String getJiraAdminUserKey() {
         return jiraAdminUserKey;
+    }
+
+    EventData setJiraAdminUserKey(final String jiraAdminUserKey) {
+        this.jiraAdminUserKey = jiraAdminUserKey;
+        return this;
     }
 
     public String getJiraIssueCreatorUserKey() {
         return jiraIssueCreatorUserKey;
     }
 
+    EventData setJiraIssueCreatorUserKey(final String jiraIssueCreatorUserKey) {
+        this.jiraIssueCreatorUserKey = jiraIssueCreatorUserKey;
+        return this;
+    }
+
     public String getJiraIssueAssigneeUserId() {
         return jiraIssueAssigneeUserId;
+    }
+
+    EventData setJiraIssueAssigneeUserId(final String jiraIssueAssigneeUserId) {
+        this.jiraIssueAssigneeUserId = jiraIssueAssigneeUserId;
+        return this;
     }
 
     public String getJiraIssueTypeId() {
         return jiraIssueTypeId;
     }
 
+    EventData setJiraIssueTypeId(final String jiraIssueTypeId) {
+        this.jiraIssueTypeId = jiraIssueTypeId;
+        return this;
+    }
+
     public String getJiraProjectName() {
         return jiraProjectName;
+    }
+
+    EventData setJiraProjectName(final String jiraProjectName) {
+        this.jiraProjectName = jiraProjectName;
+        return this;
     }
 
     public Long getJiraProjectId() {
         return jiraProjectId;
     }
 
+    EventData setJiraProjectId(final Long jiraProjectId) {
+        this.jiraProjectId = jiraProjectId;
+        return this;
+    }
+
     public Set<ProjectFieldCopyMapping> getJiraFieldCopyMappings() {
         return jiraFieldCopyMappings;
+    }
+
+    EventData setJiraFieldCopyMappings(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
+        this.jiraFieldCopyMappings = jiraFieldCopyMappings;
+        return this;
     }
 
     public String getBlackDuckBaseUrl() {
         return blackDuckBaseUrl;
     }
 
+    EventData setBlackDuckBaseUrl(final String blackDuckBaseUrl) {
+        this.blackDuckBaseUrl = blackDuckBaseUrl;
+        return this;
+    }
+
     public String getBlackDuckProjectName() {
         return blackDuckProjectName;
+    }
+
+    EventData setBlackDuckProjectName(final String blackDuckProjectName) {
+        this.blackDuckProjectName = blackDuckProjectName;
+        return this;
     }
 
     public String getBlackDuckProjectVersionName() {
@@ -375,12 +240,27 @@ public class EventData extends Stringable {
         return blackDuckProjectVersionUrl;
     }
 
+    EventData setBlackDuckProjectVersionUrl(final String blackDuckProjectVersionUrl) {
+        this.blackDuckProjectVersionUrl = blackDuckProjectVersionUrl;
+        return this;
+    }
+
     public String getBlackDuckComponentName() {
         return blackDuckComponentName;
     }
 
+    EventData setBlackDuckComponentName(final String blackDuckComponentName) {
+        this.blackDuckComponentName = blackDuckComponentName;
+        return this;
+    }
+
     public String getBlackDuckComponentUrl() {
         return blackDuckComponentUrl;
+    }
+
+    EventData setBlackDuckComponentUrl(final String blackDuckComponentUrl) {
+        this.blackDuckComponentUrl = blackDuckComponentUrl;
+        return this;
     }
 
     public String getBlackDuckComponentVersionName() {
@@ -391,96 +271,216 @@ public class EventData extends Stringable {
         return blackDuckComponentVersionUrl;
     }
 
+    EventData setBlackDuckComponentVersionUrl(final String blackDuckComponentVersionUrl) {
+        this.blackDuckComponentVersionUrl = blackDuckComponentVersionUrl;
+        return this;
+    }
+
     public String getJiraIssueSummary() {
         return jiraIssueSummary;
+    }
+
+    EventData setJiraIssueSummary(final String jiraIssueSummary) {
+        this.jiraIssueSummary = jiraIssueSummary;
+        return this;
     }
 
     public String getJiraIssueDescription() {
         return jiraIssueDescription;
     }
 
+    EventData setJiraIssueDescription(final String jiraIssueDescription) {
+        this.jiraIssueDescription = jiraIssueDescription;
+        return this;
+    }
+
     public String getJiraIssueComment() {
         return jiraIssueComment;
+    }
+
+    EventData setJiraIssueComment(final String jiraIssueComment) {
+        this.jiraIssueComment = jiraIssueComment;
+        return this;
     }
 
     public String getJiraIssueReOpenComment() {
         return jiraIssueReOpenComment;
     }
 
+    EventData setJiraIssueReOpenComment(final String jiraIssueReOpenComment) {
+        this.jiraIssueReOpenComment = jiraIssueReOpenComment;
+        return this;
+    }
+
     public String getJiraIssueCommentForExistingIssue() {
         return jiraIssueCommentForExistingIssue;
+    }
+
+    EventData setJiraIssueCommentForExistingIssue(final String jiraIssueCommentForExistingIssue) {
+        this.jiraIssueCommentForExistingIssue = jiraIssueCommentForExistingIssue;
+        return this;
     }
 
     public String getJiraIssueResolveComment() {
         return jiraIssueResolveComment;
     }
 
+    EventData setJiraIssueResolveComment(final String jiraIssueResolveComment) {
+        this.jiraIssueResolveComment = jiraIssueResolveComment;
+        return this;
+    }
+
     public String getJiraIssueCommentInLieuOfStateChange() {
         return jiraIssueCommentInLieuOfStateChange;
+    }
+
+    EventData setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
+        this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
+        return this;
     }
 
     public String getBlackDuckRuleName() {
         return blackDuckRuleName;
     }
 
+    EventData setBlackDuckRuleName(final String blackDuckRuleName) {
+        this.blackDuckRuleName = blackDuckRuleName;
+        return this;
+    }
+
     public String getBlackDuckRuleOverridable() {
         return blackDuckRuleOverridable;
+    }
+
+    EventData setBlackDuckRuleOverridable(final String blackDuckRuleOverridable) {
+        this.blackDuckRuleOverridable = blackDuckRuleOverridable;
+        return this;
     }
 
     public String getBlackDuckRuleDescription() {
         return blackDuckRuleDescription;
     }
 
+    EventData setBlackDuckRuleDescription(final String blackDuckRuleDescription) {
+        this.blackDuckRuleDescription = blackDuckRuleDescription;
+        return this;
+    }
+
     public String getBlackDuckRuleUrl() {
         return blackDuckRuleUrl;
+    }
+
+    EventData setBlackDuckRuleUrl(final String blackDuckRuleUrl) {
+        this.blackDuckRuleUrl = blackDuckRuleUrl;
+        return this;
     }
 
     public String getBlackDuckLicenseNames() {
         return blackDuckLicenseNames;
     }
 
+    EventData setBlackDuckLicenseNames(final String blackDuckLicenseNames) {
+        this.blackDuckLicenseNames = blackDuckLicenseNames;
+        return this;
+    }
+
     public String getBlackDuckLicenseUrl() {
         return blackDuckLicenseUrl;
+    }
+
+    EventData setBlackDuckLicenseUrl(final String blackDuckLicenseUrl) {
+        this.blackDuckLicenseUrl = blackDuckLicenseUrl;
+        return this;
     }
 
     public String getBlackDuckComponentUsage() {
         return blackDuckComponentUsage;
     }
 
+    EventData setBlackDuckComponentUsage(final String blackDuckComponentUsage) {
+        this.blackDuckComponentUsage = blackDuckComponentUsage;
+        return this;
+    }
+
     public String getBlackDuckComponentOrigin() {
         return blackDuckComponentOrigin;
+    }
+
+    EventData setBlackDuckComponentOrigin(final String blackDuckComponentOrigin) {
+        this.blackDuckComponentOrigin = blackDuckComponentOrigin;
+        return this;
     }
 
     public String getBlackDuckComponentOriginId() {
         return blackDuckComponentOriginId;
     }
 
+    EventData setBlackDuckComponentOriginId(final String blackDuckComponentOriginId) {
+        this.blackDuckComponentOriginId = blackDuckComponentOriginId;
+        return this;
+    }
+
     public String getBlackDuckProjectVersionNickname() {
         return blackDuckProjectVersionNickname;
+    }
+
+    EventData setBlackDuckProjectVersionNickname(final String blackDuckProjectVersionNickname) {
+        this.blackDuckProjectVersionNickname = blackDuckProjectVersionNickname;
+        return this;
     }
 
     public String getBlackDuckBomComponentUri() {
         return blackDuckBomComponentUri;
     }
 
+    EventData setBlackDuckBomComponentUri(final String blackDuckBomComponentUri) {
+        this.blackDuckBomComponentUri = blackDuckBomComponentUri;
+        return this;
+    }
+
     public String getComponentIssueUrl() {
         return componentIssueUrl;
+    }
+
+    EventData setComponentIssueUrl(final String componentIssueUrl) {
+        this.componentIssueUrl = componentIssueUrl;
+        return this;
     }
 
     public ApplicationUser getBlackDuckProjectOwner() {
         return blackDuckProjectOwner;
     }
 
+    EventData setBlackDuckProjectOwner(final ApplicationUser blackDuckProjectOwner) {
+        this.blackDuckProjectOwner = blackDuckProjectOwner;
+        return this;
+    }
+
     public String getBlackDuckProjectVersionLastUpdated() {
         return blackDuckProjectVersionLastUpdated;
+    }
+
+    EventData setBlackDuckProjectVersionLastUpdated(final String blackDuckProjectVersionLastUpdated) {
+        this.blackDuckProjectVersionLastUpdated = blackDuckProjectVersionLastUpdated;
+        return this;
     }
 
     public NotificationType getNotificationType() {
         return notificationType;
     }
 
+    public EventData setNotificationType(final NotificationType notificationType) {
+        this.notificationType = notificationType;
+        return this;
+    }
+
     public String getEventKey() {
         return eventKey;
+    }
+
+    public EventData setEventKey(final String eventKey) {
+        this.eventKey = eventKey;
+        return this;
     }
 
 }

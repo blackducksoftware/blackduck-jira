@@ -23,13 +23,13 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueFieldTemplate extends Stringable {
@@ -49,6 +49,18 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
     private final String usagesString;
     private final String updatedTimeString;
 
+    private final IssueCategory issueCategory;
+
+    // Vulnerability
+    private String componentVersionOriginName;
+    private String componentVersionOriginId;
+    // Policy
+    private String policyRuleName;
+    private String policyRuleUri;
+    private String policyRuleOverridable;
+    private String policyRuleDescription;
+    private String policyRuleSeverity;
+
     // @formatter:off
     public BlackDuckIssueFieldTemplate(
              final ApplicationUser projectOwner
@@ -64,6 +76,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String licenseLink
             ,final String usagesString
             ,final String updatedTimeString
+            ,final IssueCategory issueCategory
             ) {
         this.projectOwner = projectOwner;
         this.projectName = projectName;
@@ -78,6 +91,62 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         this.licenseLink = licenseLink;
         this.usagesString = usagesString;
         this.updatedTimeString = updatedTimeString;
+        this.issueCategory = issueCategory;
+    }
+    // @formatter:on
+
+    // @formatter:off
+    public static BlackDuckIssueFieldTemplate createPolicyIssueFieldTemplate(
+             final ApplicationUser projectOwner
+            ,final String projectName
+            ,final String projectVersionName
+            ,final String projectVersionUri
+            ,final String projectVersionNickname
+            ,final String componentName
+            ,final String componentUri
+            ,final String componentVersionName
+            ,final String componentVersionUri
+            ,final String licenseString
+            ,final String licenseLink
+            ,final String usagesString
+            ,final String updatedTimeString
+            ,final String policyRuleName
+            ,final String policyRuleUri
+            ,final String policyRuleOverridable
+            ,final String policyRuleDescription
+            ,final String policyRuleSeverity
+            ) {
+        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.POLICY);
+        newTemplate.policyRuleName = policyRuleName;
+        newTemplate.policyRuleUri = policyRuleUri;
+        newTemplate.policyRuleOverridable = policyRuleOverridable;
+        newTemplate.policyRuleDescription = policyRuleDescription;
+        newTemplate.policyRuleSeverity = policyRuleSeverity;
+        return newTemplate;
+    }
+    // @formatter:on
+
+    // @formatter:off
+    public static BlackDuckIssueFieldTemplate createVulnerabilityIssueFieldTemplate(
+             final ApplicationUser projectOwner
+            ,final String projectName
+            ,final String projectVersionName
+            ,final String projectVersionUri
+            ,final String projectVersionNickname
+            ,final String componentName
+            ,final String componentVersionName
+            ,final String componentVersionUri
+            ,final String licenseString
+            ,final String licenseLink
+            ,final String usagesString
+            ,final String updatedTimeString
+            ,final String componentVersionOriginName
+            ,final String componentVersionOriginId
+            ) {
+        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.VULNERABILITY);
+        newTemplate.componentVersionOriginName = componentVersionOriginName;
+        newTemplate.componentVersionOriginId = componentVersionOriginId;
+        return newTemplate;
     }
     // @formatter:on
 
@@ -133,6 +202,38 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         return updatedTimeString;
     }
 
+    public String getComponentVersionOriginName() {
+        return componentVersionOriginName;
+    }
+
+    public String getComponentVersionOriginId() {
+        return componentVersionOriginId;
+    }
+
+    public String getPolicyRuleName() {
+        return policyRuleName;
+    }
+
+    public String getPolicyRuleUri() {
+        return policyRuleUri;
+    }
+
+    public String getPolicyRuleOverridable() {
+        return policyRuleOverridable;
+    }
+
+    public String getPolicyRuleDescription() {
+        return policyRuleDescription;
+    }
+
+    public String getPolicyRuleSeverity() {
+        return policyRuleSeverity;
+    }
+
+    public IssueCategory getIssueCategory() {
+        return issueCategory;
+    }
+
     public final Map<Long, String> createBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
         if (projectOwner != null) {
@@ -153,7 +254,15 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE, usagesString);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, updatedTimeString);
 
-        blackDuckFieldMappings.putAll(createAddtionalBlackDuckFieldMappings(customFields));
+        // Vulnerability
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN, componentVersionOriginName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, componentVersionOriginId);
+
+        // Policy
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
 
         return blackDuckFieldMappings;
     }
@@ -163,9 +272,5 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         if (customField != null) {
             blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);
         }
-    }
-
-    protected Map<Long, String> createAddtionalBlackDuckFieldMappings(@SuppressWarnings("unused") final Map<PluginField, CustomField> customFields) {
-        return Collections.emptyMap();
     }
 }

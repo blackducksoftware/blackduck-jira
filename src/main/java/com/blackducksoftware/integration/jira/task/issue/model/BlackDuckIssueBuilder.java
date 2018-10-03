@@ -37,7 +37,7 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
@@ -53,7 +53,7 @@ public class BlackDuckIssueBuilder extends Stringable {
     private final DataFormatHelper dataFormatHelper;
 
     private BlackDuckEventAction action;
-    private EventCategory eventCategory;
+    private IssueCategory issueCategory;
     private Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
     private String bomComponentUri;
     private String componentIssueUrl;
@@ -107,8 +107,8 @@ public class BlackDuckIssueBuilder extends Stringable {
         this.action = action;
     }
 
-    public void setEventCategory(final EventCategory eventCategory) {
-        this.eventCategory = eventCategory;
+    public void setIssueCategory(final IssueCategory issueCategory) {
+        this.issueCategory = issueCategory;
     }
 
     public void setProjectFieldCopyMappings(final Set<ProjectFieldCopyMapping> projectFieldCopyMappings) {
@@ -251,15 +251,17 @@ public class BlackDuckIssueBuilder extends Stringable {
 
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
         if (policyRuleUrl != null) {
-            blackDuckIssueFieldTemplate = new PolicyIssueFieldTempate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri,
-                licenseString, licenseLink, usagesString, updatedTimeString, policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
+            blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
+                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
+                policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
         } else {
-            blackDuckIssueFieldTemplate = new VulnerabilityIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, originsString,
-                originIdsString, licenseString, licenseLink, usagesString, updatedTimeString);
+            blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createVulnerabilityIssueFieldTemplate(
+                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
+                originsString, originIdsString);
         }
 
-        final String jiraIssueSummary = dataFormatHelper.createIssueSummary(eventCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-        final String issueDescription = dataFormatHelper.getIssueDescription(eventCategory, projectVersionUri, componentVersionUri);
+        final String jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
+        final String issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
 
         final BlackDuckIssueModel wrapper = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
@@ -332,7 +334,7 @@ public class BlackDuckIssueBuilder extends Stringable {
         final StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        if (EventCategory.POLICY.equals(eventCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory)) {
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
         } else {
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY);
@@ -351,7 +353,7 @@ public class BlackDuckIssueBuilder extends Stringable {
 
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME);
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        if (blackDuckComponentVersionUrl == null && EventCategory.POLICY.equals(eventCategory)) {
+        if (blackDuckComponentVersionUrl == null && IssueCategory.POLICY.equals(issueCategory)) {
             keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
         } else {
             // Vulnerabilities do not have a component URL
@@ -362,7 +364,7 @@ public class BlackDuckIssueBuilder extends Stringable {
         keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
         keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentVersionUrl)));
 
-        if (EventCategory.POLICY.equals(eventCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory)) {
             if (policyRuleUrl == null) {
                 throw new HubIntegrationException("Policy Rule URL is null");
             }

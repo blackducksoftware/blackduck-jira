@@ -421,11 +421,11 @@ public class NotificationConverterTest {
         final Date startDate = new Date();
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
-        // New Converter
-        final BomNotificationToIssueModelConverter newConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper, Arrays.asList(RULE_URL),
+        final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper,
+            Arrays.asList(RULE_URL),
             blackDuckDataHelper, mockBlackDuckSerivce, mockLogger);
-        final Collection<BlackDuckIssueModel> newEvents = newConverter.convertToModel(notificationDetailResults, startDate);
-        verifyGeneratedEvents(newEvents, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
+        final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
+        verifyGeneratedModels(issueModels, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
             expectedResolveComment, expectedPropertyKey);
     }
 
@@ -445,7 +445,7 @@ public class NotificationConverterTest {
         }
     }
 
-    private void verifyGeneratedEvents(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
+    private void verifyGeneratedModels(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
         final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey) {
         assertEquals(EXPECTED_EVENT_COUNT, wrappers.size());
         final BlackDuckIssueModel wrapper = wrappers.iterator().next();
@@ -475,7 +475,8 @@ public class NotificationConverterTest {
         assertEquals(expectedReOpenComment, wrapper.getJiraIssueReOpenComment());
         assertEquals(expectedResolveComment, wrapper.getJiraIssueResolveComment());
 
-        final OldIssueProperties issueProperties = OldIssueProperties.fromBlackDuckIssueWrapper(wrapper, Long.valueOf(JIRA_ISSUE_ID));
+        wrapper.setJiraIssueId(456L);
+        final OldIssueProperties issueProperties = OldIssueProperties.fromBlackDuckIssueWrapper(wrapper);
         assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());

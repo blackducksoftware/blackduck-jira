@@ -236,6 +236,16 @@ public class JiraIssueServiceWrapper {
         issuePropertyWrapper.addProjectPropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
     }
 
+    public JiraWorkflow getWorkflow(final Long issueId) {
+        final Issue issue;
+        try {
+            issue = getIssue(issueId);
+            return getWorkflow(issue);
+        } catch (JiraIssueException e) {
+            return null;
+        }
+    }
+
     public JiraWorkflow getWorkflow(final Issue issue) {
         return workflowManager.getWorkflow(issue);
     }

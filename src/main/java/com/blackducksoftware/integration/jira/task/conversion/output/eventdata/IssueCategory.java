@@ -25,15 +25,15 @@ package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
 
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 
-public enum EventCategory {
+public enum IssueCategory {
     POLICY,
     VULNERABILITY,
     SPECIAL;
 
-    public static EventCategory fromNotificationType(final NotificationType notificationType) {
-        EventCategory category = EventCategory.POLICY;
+    public static IssueCategory fromNotificationType(final NotificationType notificationType) {
+        IssueCategory category = IssueCategory.POLICY;
         if (NotificationType.VULNERABILITY.equals(notificationType)) {
-            category = EventCategory.VULNERABILITY;
+            category = IssueCategory.VULNERABILITY;
         }
         return category;
     }

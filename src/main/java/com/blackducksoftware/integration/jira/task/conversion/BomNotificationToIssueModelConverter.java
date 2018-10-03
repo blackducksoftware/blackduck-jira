@@ -47,7 +47,7 @@ import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.DataFormatHelper;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueBuilder;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
@@ -160,9 +160,9 @@ public class BomNotificationToIssueModelConverter {
                         vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds);
                 }
 
-                final EventCategory eventCategory = EventCategory.fromNotificationType(notificationType);
-                blackDuckIssueBuilder.setEventCategory(eventCategory);
-                blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
+                final IssueCategory issueCategory = IssueCategory.fromNotificationType(notificationType);
+                blackDuckIssueBuilder.setIssueCategory(issueCategory);
+                blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
                 final BlackDuckIssueModel issueWrapper = blackDuckIssueBuilder.build();
                 if (issueWrapper != null) {
                     return Arrays.asList(issueWrapper);
@@ -210,9 +210,9 @@ public class BomNotificationToIssueModelConverter {
         if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
             logger.debug("This component has vulnerabilities.");
             try {
-                final EventCategory eventCategory = EventCategory.VULNERABILITY;
-                blackDuckIssueBuilder.setEventCategory(eventCategory);
-                blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
+                final IssueCategory issueCategory = IssueCategory.VULNERABILITY;
+                blackDuckIssueBuilder.setIssueCategory(issueCategory);
+                blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
                 final BlackDuckIssueModel vulnerabilityWrapper = blackDuckIssueBuilder.build();
                 issueWrappersForEdits.add(vulnerabilityWrapper);
             } catch (final Exception e) {
@@ -225,9 +225,9 @@ public class BomNotificationToIssueModelConverter {
             final List<PolicyRuleViewV2> policyRules = blackDuckDataHelper.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
             for (final PolicyRuleViewV2 rule : policyRules) {
                 try {
-                    final EventCategory eventCategory = EventCategory.POLICY;
-                    blackDuckIssueBuilder.setEventCategory(eventCategory);
-                    blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(eventCategory));
+                    final IssueCategory issueCategory = IssueCategory.POLICY;
+                    blackDuckIssueBuilder.setIssueCategory(issueCategory);
+                    blackDuckIssueBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
                     final BlackDuckIssueBuilder policyWrapperBuilder = blackDuckIssueBuilder.copy();
                     policyWrapperBuilder.setPolicyFields(rule);
                     policyWrapperBuilder.setPolicyComments(notificationType);
@@ -247,7 +247,7 @@ public class BomNotificationToIssueModelConverter {
         if (restException.getHttpStatusCode() == 404) {
             final BlackDuckIssueBuilder builder = new BlackDuckIssueBuilder(blackDuckDataHelper, dataFormatHelper);
             builder.setAction(BlackDuckEventAction.RESOLVE_ALL);
-            builder.setEventCategory(EventCategory.SPECIAL);
+            builder.setIssueCategory(IssueCategory.SPECIAL);
             builder.setLastBatchStartDate(batchStartDate);
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
             if (detail.getBomComponent().isPresent()) {
@@ -270,9 +270,9 @@ public class BomNotificationToIssueModelConverter {
         return builder;
     }
 
-    private final String getIssueTypeId(final EventCategory category) throws ConfigurationException {
+    private final String getIssueTypeId(final IssueCategory category) throws ConfigurationException {
         String issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
-        if (EventCategory.VULNERABILITY.equals(category)) {
+        if (IssueCategory.VULNERABILITY.equals(category)) {
             issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
         }
         return lookUpIssueTypeId(issueType);

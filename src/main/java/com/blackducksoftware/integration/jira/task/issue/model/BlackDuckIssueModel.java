@@ -28,7 +28,7 @@ import java.util.Set;
 
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueModel extends Stringable {
@@ -150,21 +150,21 @@ public class BlackDuckIssueModel extends Stringable {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
     }
 
+    @Deprecated
     public String getEventKey() {
         return eventKey;
     }
 
+    @Deprecated
     public void setEventKey(final String eventKey) {
         this.eventKey = eventKey;
     }
 
-    public EventCategory getEventCategoryFromFieldTemplate() {
-        final Class<?> actualClass = blackDuckIssueFieldTemplate.getClass();
-        if (PolicyIssueFieldTempate.class.isAssignableFrom(actualClass)) {
-            return EventCategory.POLICY;
-        } else if (VulnerabilityIssueFieldTemplate.class.isAssignableFrom(actualClass)) {
-            return EventCategory.VULNERABILITY;
-        }
-        return EventCategory.SPECIAL;
+    public boolean isPolicy() {
+        return IssueCategory.POLICY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
+    }
+
+    public boolean isVulnerability() {
+        return IssueCategory.VULNERABILITY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
     }
 }
