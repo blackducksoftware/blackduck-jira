@@ -29,13 +29,16 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.UrlParser;
+import com.blackducksoftware.integration.jira.common.exception.IssueModelBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
@@ -51,7 +54,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
 
-    private BlackDuckEventAction action;
+    private BlackDuckIssueAction action;
     private IssueCategory issueCategory;
     private Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
     private String bomComponentUri;
@@ -102,7 +105,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         this.dataFormatHelper = dataFormatHelper;
     }
 
-    public BlackDuckIssueModelBuilder setAction(final BlackDuckEventAction action) {
+    public BlackDuckIssueModelBuilder setAction(final BlackDuckIssueAction action) {
         this.action = action;
         return this;
     }
@@ -119,11 +122,6 @@ public class BlackDuckIssueModelBuilder extends Stringable {
 
     public BlackDuckIssueModelBuilder setBomComponentUri(final String bomComponentUri) {
         this.bomComponentUri = bomComponentUri;
-        return this;
-    }
-
-    public BlackDuckIssueModelBuilder setComponentIssueUrl(final String componentIssueUrl) {
-        this.componentIssueUrl = componentIssueUrl;
         return this;
     }
 
@@ -218,8 +216,6 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return this;
     }
 
-    // TODO SECTION
-
     public BlackDuckIssueModelBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
         final ProjectView project = projectVersionWrapper.getProjectView();
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
@@ -242,46 +238,57 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         this.usagesString = createCommaSeparatedString(versionBomComponent.usages, usage -> usage.prettyPrint());
         this.updatedTimeString = dataFormatHelper.getBomLastUpdated(projectVersion);
 
+        this.bomComponentUri = blackDuckDataHelper.getHrefNullable(versionBomComponent);
+        this.componentIssueUrl = blackDuckDataHelper.getFirstLinkSafely(versionBomComponent, VersionBomComponentView.COMPONENT_ISSUES_LINK);
+
         return this;
     }
 
     public BlackDuckIssueModelBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
         this.policyRuleUrl = blackDuckDataHelper.getHrefNullable(policyRule);
         this.policyRuleName = policyRule.name;
-        this.policyDescription = policyRule.description;
+        this.policyDescription = StringUtils.defaultString(policyRule.description);
         this.policyOverridable = policyRule.overridable;
-        this.policySeverity = policyRule.severity;
+        this.policySeverity = StringUtils.capitalize(StringUtils.lowerCase(policyRule.severity));
         return this;
     }
 
     // TODO throw exception if missing required fields
     public BlackDuckIssueModel build() throws IntegrationException {
         if (action == null) {
-            // TODO throw exception
+            throw new IssueModelBuilderException("The required field defining a BlackDuckIssueAction is missing.");
         }
         if (bomComponentUri == null) {
-            // TODO throw exception
+            throw new IssueModelBuilderException("The required field 'bomComponentUri' is missing.");
         }
 
-        final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
-        if (policyRuleUrl != null) {
-            blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
-                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
-                policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
-        } else {
+        BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
+        if (IssueCategory.POLICY.equals(issueCategory)) {
+            if (policyRuleUrl != null) {
+                blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
+                    projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString,
+                    updatedTimeString,
+                    policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
+            } else {
+                throw new IssueModelBuilderException("The field 'policyRuleUrl' is required for policy notifications.");
+            }
+        } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createVulnerabilityIssueFieldTemplate(
                 projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
                 originsString, originIdsString);
+        } else {
+            blackDuckIssueFieldTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname,
+                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.SPECIAL);
         }
 
         final String jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
         final String issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
 
-        final BlackDuckIssueModel wrapper = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
-        addComments(wrapper);
-        wrapper.setEventKey(generateEventKey());
-        return wrapper;
+        final BlackDuckIssueModel model = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
+        addComments(model);
+        model.setEventKey(generateEventKey());
+        return model;
     }
 
     // FIXME make sure all of these fields are correctly updated

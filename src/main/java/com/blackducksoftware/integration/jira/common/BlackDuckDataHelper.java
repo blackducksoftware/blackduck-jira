@@ -126,7 +126,7 @@ public class BlackDuckDataHelper {
     }
 
     public boolean doesNotificationOnlyHaveDeletes(final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) {
-        return deletedIds.size() > 0 && addedIds.size() == 0 && updatedIds.size() == 0;
+        return deletedIds != null && deletedIds.size() > 0 && addedIds != null && addedIds.size() == 0 && updatedIds != null && updatedIds.size() == 0;
     }
 
     public boolean doesSecurityRiskProfileHaveVulnerabilities(final RiskProfileView securityRiskProfile) {

@@ -62,7 +62,7 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCop
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
@@ -147,6 +147,7 @@ public class NotificationConverterTest {
     private static final String COMPONENT_VERSION_NAME = "componentVersion";
     private static final String COMPONENT_NAME = "componentName";
     private static final String BOM_COMPONENT_URI = "http://localhost:8080/api/projects/projectId/versions/versionId/components/componentId";
+    private static final String BOM_EDIT_COMMENT_VULN = "(Black Duck plugin auto-generated comment)\nVulnerabilities _added_: None\nVulnerabilities _updated_: None\nVulnerabilities _deleted_: None\n";
     private static final String ASSIGNEE_USER_ID = "assigneeUserId";
     private static final String BLACKDUCK_PROJECT_NAME = "hubProjectName";
     private static final long JIRA_PROJECT_ID = 123L;
@@ -375,32 +376,32 @@ public class NotificationConverterTest {
 
     @Test
     public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.VULNERABILITY, BlackDuckEventAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+        test(NotificationType.VULNERABILITY, BlackDuckIssueAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
             VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     // TODO add bom edit case with policy
     public void testBomEdit() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.BOM_EDIT, BlackDuckEventAction.UPDATE_IF_EXISTS, null, null, null, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
-            VULNERABILITY_ISSUE_TYPE_ID, null, null, VULN_EXPECTED_PROPERTY_KEY);
+        test(NotificationType.BOM_EDIT, BlackDuckIssueAction.UPDATE_IF_EXISTS, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testRuleViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.RULE_VIOLATION, BlackDuckEventAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
+        test(NotificationType.RULE_VIOLATION, BlackDuckIssueAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
             POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.POLICY_OVERRIDE, BlackDuckEventAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
+        test(NotificationType.POLICY_OVERRIDE, BlackDuckIssueAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
             POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
     @Test
     public void testRuleViolationCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
-        test(NotificationType.RULE_VIOLATION_CLEARED, BlackDuckEventAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
+        test(NotificationType.RULE_VIOLATION_CLEARED, BlackDuckIssueAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
             POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
     }
 
@@ -414,7 +415,7 @@ public class NotificationConverterTest {
     }
 
     // FIXME fix this test
-    private void test(final NotificationType notifType, final BlackDuckEventAction expectedBlackDuckEventAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
+    private void test(final NotificationType notifType, final BlackDuckIssueAction expectedBlackDuckIssueAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
         final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
         throws URISyntaxException, IntegrationException, ConfigurationException {
 
@@ -425,7 +426,7 @@ public class NotificationConverterTest {
             Arrays.asList(RULE_URL),
             blackDuckDataHelper, mockBlackDuckSerivce, mockLogger);
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
-        verifyGeneratedModels(issueModels, issueTypeId, expectedBlackDuckEventAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
+        verifyGeneratedModels(issueModels, issueTypeId, expectedBlackDuckIssueAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
             expectedResolveComment, expectedPropertyKey);
     }
 
@@ -445,10 +446,11 @@ public class NotificationConverterTest {
         }
     }
 
-    private void verifyGeneratedModels(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckEventAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
+    private void verifyGeneratedModels(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckIssueAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
         final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey) {
         assertEquals(EXPECTED_EVENT_COUNT, wrappers.size());
         final BlackDuckIssueModel wrapper = wrappers.iterator().next();
+        assertEquals(BOM_COMPONENT_URI, wrapper.getBomComponentUri());
         assertEquals(expectedHubEventAction, wrapper.getIssueAction());
         assertEquals(expectedComment, wrapper.getJiraIssueComment());
         assertEquals(expectedCommentIfExists, wrapper.getJiraIssueCommentForExistingIssue());

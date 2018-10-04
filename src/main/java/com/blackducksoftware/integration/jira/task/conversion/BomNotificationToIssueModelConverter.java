@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.atlassian.jira.bc.user.search.UserSearchService;
@@ -45,7 +46,7 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModelBuilder;
@@ -105,7 +106,7 @@ public class BomNotificationToIssueModelConverter {
                     issueWrappers.addAll(issueWrappersFromDetail);
                 } catch (final IntegrationRestException restException) {
                     logger.warn(String.format("The Black Duck resource requested was not found. It was probably deleted: %s. Caused by: %s", restException.getMessage(), restException.getCause()));
-                    issueWrappers.addAll(create404Wrapper(restException, detail, batchStartDate));
+                    issueWrappers.addAll(createModelsFor404(restException, detail, batchStartDate));
                 }
             } catch (final Exception e) {
                 logger.error(e);
@@ -145,27 +146,25 @@ public class BomNotificationToIssueModelConverter {
             try {
                 versionBomComponent = blackDuckDataHelper.getBomComponent(bomComponentUriSingleResponse);
             } catch (final IntegrationRestException restException) {
-                return create404Wrapper(restException, detail, batchStartDate);
+                return createModelsFor404(restException, detail, batchStartDate);
             }
 
             final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder = createCommonBlackDuckIssueBuilder(jiraProject, notificationType, batchStartDate, projectVersionWrapper, versionBomComponent);
             if (detail.isBomEdit()) {
-                return populateWrapperForBomEdit(blackDuckIssueModelBuilder, versionBomComponent, notificationType);
+                return createModelsForBomEdit(blackDuckIssueModelBuilder, notificationType, versionBomComponent);
             } else {
+                Optional<BlackDuckIssueModel> issueModel = Optional.empty();
                 if (detail.isPolicy()) {
-                    populateWrapperForPolicy(blackDuckIssueModelBuilder, detail.getPolicy().get(), notificationType);
+                    final UriSingleResponse<PolicyRuleViewV2> uriSingleResponse = detail.getPolicy().get();
+                    final PolicyRuleViewV2 policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
+                    issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule);
                 } else if (detail.isVulnerability()) {
                     final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
-                    populateWrapperForVulnerability(blackDuckIssueModelBuilder, versionBomComponent.securityRiskProfile,
+                    issueModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.securityRiskProfile,
                         vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds);
                 }
-
-                final IssueCategory issueCategory = IssueCategory.fromNotificationType(notificationType);
-                blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
-                blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
-                final BlackDuckIssueModel issueWrapper = blackDuckIssueModelBuilder.build();
-                if (issueWrapper != null) {
-                    return Arrays.asList(issueWrapper);
+                if (issueModel.isPresent()) {
+                    return Arrays.asList(issueModel.get());
                 }
             }
         } else {
@@ -175,78 +174,87 @@ public class BomNotificationToIssueModelConverter {
         return Collections.emptyList();
     }
 
-    private void populateWrapperForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final UriSingleResponse<PolicyRuleViewV2> policyRuleUriSingleResponse, final NotificationType notificationType)
-        throws IntegrationException {
-        if (!linksOfRulesToMonitor.contains(policyRuleUriSingleResponse.uri)) {
-            return;
+    private Optional<BlackDuckIssueModel> populateModelForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final PolicyRuleViewV2 policyRule)
+        throws IntegrationException, ConfigurationException {
+        final String policyRuleUrl = blackDuckDataHelper.getHref(policyRule);
+        if (!linksOfRulesToMonitor.contains(policyRuleUrl)) {
+            return Optional.empty();
         }
-        final PolicyRuleViewV2 policyRule = blackDuckDataHelper.getResponse(policyRuleUriSingleResponse);
-        logger.debug("Collecting data for policy: " + policyRule.name);
+        logger.debug("Creating model for policy: " + policyRule.name);
         blackDuckIssueModelBuilder.setPolicyFields(policyRule);
         blackDuckIssueModelBuilder.setPolicyComments(notificationType);
+
+        final IssueCategory issueCategory = IssueCategory.POLICY;
+        blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
+        blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
+
+        return Optional.of(blackDuckIssueModelBuilder.build());
     }
 
-    private void populateWrapperForVulnerability(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final RiskProfileView securityRiskProfile,
-        final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) {
-        logger.debug("Populating event data for vulnerability");
-
+    private Optional<BlackDuckIssueModel> createModelForVulnerability(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final RiskProfileView securityRiskProfile,
+        final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) throws IntegrationException, ConfigurationException {
+        if (!blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
+            return Optional.empty();
+        }
+        logger.debug("Creating model for vulnerability");
         final String comment = dataFormatHelper.generateVulnerabilitiesComment(addedIds, updatedIds, deletedIds);
         blackDuckIssueModelBuilder.setVulnerabilityComments(comment);
 
-        BlackDuckEventAction action = BlackDuckEventAction.ADD_COMMENT;
-        if (!blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
-            action = BlackDuckEventAction.RESOLVE;
-        } else if (blackDuckDataHelper.doesNotificationOnlyHaveDeletes(addedIds, updatedIds, deletedIds)) {
-            action = BlackDuckEventAction.ADD_COMMENT_IF_EXISTS;
+        if (!NotificationType.BOM_EDIT.equals(notificationType)) {
+            BlackDuckIssueAction action = BlackDuckIssueAction.ADD_COMMENT;
+            if (!blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
+                action = BlackDuckIssueAction.RESOLVE;
+            } else if (blackDuckDataHelper.doesNotificationOnlyHaveDeletes(addedIds, updatedIds, deletedIds)) {
+                action = BlackDuckIssueAction.ADD_COMMENT_IF_EXISTS;
+            }
+            blackDuckIssueModelBuilder.setAction(action);
         }
-        blackDuckIssueModelBuilder.setAction(action);
+
+        final IssueCategory issueCategory = IssueCategory.VULNERABILITY;
+        blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
+        blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
+
+        return Optional.of(blackDuckIssueModelBuilder.build());
     }
 
-    // TODO abstract this into the "populate" methods
-    private Collection<BlackDuckIssueModel> populateWrapperForBomEdit(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final VersionBomComponentView versionBomComponent, final NotificationType notificationType)
+    private Collection<BlackDuckIssueModel> createModelsForBomEdit(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final VersionBomComponentView versionBomComponent)
         throws IntegrationException {
         logger.debug("Populating event data for BOM Component");
         final List<BlackDuckIssueModel> issueWrappersForEdits = new ArrayList<>();
-        if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(versionBomComponent.securityRiskProfile)) {
-            logger.debug("This component has vulnerabilities.");
-            try {
-                final IssueCategory issueCategory = IssueCategory.VULNERABILITY;
-                blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
-                blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
-                final BlackDuckIssueModel vulnerabilityWrapper = blackDuckIssueModelBuilder.build();
-                issueWrappersForEdits.add(vulnerabilityWrapper);
-            } catch (final Exception e) {
-                logger.error("Unable to create vulnerability template for BOM component.", e);
-            }
+
+        // Vulnerability
+        try {
+            final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.securityRiskProfile, null, null, null);
+            vulnModel.ifPresent(model -> issueWrappersForEdits.add(model));
+        } catch (final Exception e) {
+            logger.error("Unable to create vulnerability template for BOM component.", e);
         }
 
+        // Policy
         if (PolicySummaryStatusType.IN_VIOLATION.equals(versionBomComponent.policyStatus)) {
             logger.debug("This component is in violation of at least one policy.");
             final List<PolicyRuleViewV2> policyRules = blackDuckDataHelper.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
             for (final PolicyRuleViewV2 rule : policyRules) {
-                try {
-                    final IssueCategory issueCategory = IssueCategory.POLICY;
-                    blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
-                    blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
-                    final BlackDuckIssueModelBuilder policyWrapperBuilder = blackDuckIssueModelBuilder.copy();
-                    policyWrapperBuilder.setPolicyFields(rule);
-                    policyWrapperBuilder.setPolicyComments(notificationType);
-                    final BlackDuckIssueModel createdWrapper = policyWrapperBuilder.build();
-                    issueWrappersForEdits.add(createdWrapper);
-                } catch (final Exception e) {
-                    logger.error("Unable to create policy template for BOM component.", e);
+                if (linksOfRulesToMonitor.contains(blackDuckDataHelper.getHrefNullable(rule))) {
+                    try {
+                        final BlackDuckIssueModelBuilder policyWrapperBuilder = blackDuckIssueModelBuilder.copy();
+                        final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, notificationType, rule);
+                        policyModel.ifPresent(model -> issueWrappersForEdits.add(model));
+                    } catch (final Exception e) {
+                        logger.error("Unable to create policy template for BOM component.", e);
+                    }
                 }
             }
         }
         return issueWrappersForEdits;
     }
 
-    private Collection<BlackDuckIssueModel> create404Wrapper(final IntegrationRestException restException, final NotificationContentDetail detail, final Date batchStartDate)
+    private Collection<BlackDuckIssueModel> createModelsFor404(final IntegrationRestException restException, final NotificationContentDetail detail, final Date batchStartDate)
         throws IntegrationException {
         logger.debug("HTTP Status Code 404: Creating event for notification with missing resources on Black Duck server.");
         if (restException.getHttpStatusCode() == 404) {
             final BlackDuckIssueModelBuilder builder = new BlackDuckIssueModelBuilder(blackDuckDataHelper, dataFormatHelper);
-            builder.setAction(BlackDuckEventAction.RESOLVE_ALL);
+            builder.setAction(BlackDuckIssueAction.RESOLVE_ALL);
             builder.setIssueCategory(IssueCategory.SPECIAL);
             builder.setLastBatchStartDate(batchStartDate);
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
@@ -262,7 +270,7 @@ public class BomNotificationToIssueModelConverter {
         final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
         final BlackDuckIssueModelBuilder builder = new BlackDuckIssueModelBuilder(blackDuckDataHelper, dataFormatHelper);
         builder.setJiraProject(jiraProject);
-        builder.setAction(BlackDuckEventAction.fromNotificationType(notificationType));
+        builder.setAction(BlackDuckIssueAction.fromNotificationType(notificationType));
         builder.setLastBatchStartDate(batchStartDate);
         builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().projectOwner), projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());

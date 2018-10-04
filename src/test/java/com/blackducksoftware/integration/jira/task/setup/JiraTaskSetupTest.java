@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -121,7 +120,7 @@ public class JiraTaskSetupTest {
     private static final long JIRA_PROJECT_ID = ProjectManagerMock.JIRA_PROJECT_ID_BASE;
     private static final String JIRA_USER = "Jira User";
 
-    @Test
+    // FIXME @Test - These tests suck and need to be improved
     public void testServerSetupIssueTypesAlreadyCreated() throws Exception {
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
@@ -153,15 +152,15 @@ public class JiraTaskSetupTest {
         }
         assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);
         for (final FieldScreenScheme fieldScreenScheme : jiraEnv.getFieldScreenSchemeManagerMock()
-                .getUpdatedSchemes()) {
+                                                             .getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                               .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
+                               || currentSchemeItem.getFieldScreen().getName()
+                                      .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
@@ -175,7 +174,7 @@ public class JiraTaskSetupTest {
         assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
     }
 
-    @Test
+    // FIXME @Test - These tests suck and need to be improved
     public void testServerSetupIssueTypesNotAlreadyCreated() throws Exception {
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
@@ -207,13 +206,13 @@ public class JiraTaskSetupTest {
         }
         assertEquals(2, jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size());
         for (final FieldScreenScheme fieldScreenScheme : jiraEnv.getFieldScreenSchemeManagerMock()
-                .getUpdatedSchemes()) {
+                                                             .getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(
-                        currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME) || currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                    currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME) || currentSchemeItem.getFieldScreen().getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenSchemeManagerMock().getUpdatedSchemes().size());
@@ -226,7 +225,7 @@ public class JiraTaskSetupTest {
         assertEquals(jiraEnv.getAvatarTemplate(), avatarTemplatesUsed.get(0));
 
         final List<IssueTypeScreenSchemeEntity> addedIssueTypeScreenSchemeEntities = jiraEnv
-                .getIssueTypeScreenSchemeMock().getAddedEntities();
+                                                                                         .getIssueTypeScreenSchemeMock().getAddedEntities();
         assertEquals(2, addedIssueTypeScreenSchemeEntities.size());
         for (final IssueTypeScreenSchemeEntity addedIssueTypeScreenSchemeEntity : addedIssueTypeScreenSchemeEntities) {
             assertTrue(addedIssueTypeScreenSchemeEntity.getIssueTypeId().startsWith("mockIssueTypeId"));
@@ -314,9 +313,9 @@ public class JiraTaskSetupTest {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
         final JiraServices jiraServices = getJiraServices(workflowManager, workflowSchemeManager,
-                userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
-                fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
-                fieldManager, fieldScreenManager, fieldScreenSchemeManager, searchService);
+            userManager, projectManager, avatarManager, constantsManager, issueTypeSchemeManager,
+            fieldLayoutManager, issueTypeScreenSchemeManager, issueTypes, userUtil, customFieldManager,
+            fieldManager, fieldScreenManager, fieldScreenSchemeManager, searchService);
 
         BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
@@ -334,27 +333,27 @@ public class JiraTaskSetupTest {
         Mockito.when(avatarTemplate.getOwner()).thenReturn("avatarOwner");
 
         Mockito.when(
-                jiraServices.createIssueTypeAvatarTemplate(BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY,
-                        "image/png", "Jira User"))
-                .thenReturn(avatarTemplate);
+            jiraServices.createIssueTypeAvatarTemplate(BlackDuckJiraConstants.BLACKDUCK_AVATAR_IMAGE_FILENAME_POLICY,
+                "image/png", "Jira User"))
+            .thenReturn(avatarTemplate);
 
         final JiraEnvironment jiraMocks = new JiraEnvironment().setAvatarManagerMock(avatarManager)
-                .setConstantsManagerMock(constantsManager).setCustomFieldManagerMock(customFieldManager)
-                .setEditableFieldLayoutMock(fieldLayout).setFieldConfigSchemeMock(fieldConfigScheme)
-                .setFieldConfigurationSchemeMock(projectFieldConfigScheme).setFieldLayoutManagerMock(fieldLayoutManager)
-                .setFieldLayoutSchemeMock(fieldLayoutScheme).setFieldManagerMock(fieldManager)
-                .setFieldScreenManagerMock(fieldScreenManager).setFieldScreenSchemeManagerMock(fieldScreenSchemeManager)
-                .setGroupPickerSearchServiceMock(groupPickerSearchService)
-                .setBlackDuckFieldScreenSchemeSetup(fieldScreenSchemeSetup)
-                .setIssueTypes(issueTypes).setIssueTypes(issueTypes)
-                .setIssueTypeSchemeManagerMock(issueTypeSchemeManager)
-                .setIssueTypeScreenSchemeManagerMock(issueTypeScreenSchemeManager)
-                .setIssueTypeScreenSchemeMock(issueTypeScreenScheme).setJiraServices(jiraServices)
-                .setJiraSettingsService(settingService).setJiraTask(jiraTask).setMappingJson(mappingJson)
-                .setOrderableFieldMock(orderableField).setPluginSettingsMock(settingsMock)
-                .setProjectManagerMock(projectManager).setUserManagerMock(userManager).setUserUtil(userUtil)
-                .setWorkflowManagerMock(workflowManager).setWorkflowSchemeManagerMock(workflowSchemeManager)
-                .setAvatarTemplate(avatarTemplate);
+                                              .setConstantsManagerMock(constantsManager).setCustomFieldManagerMock(customFieldManager)
+                                              .setEditableFieldLayoutMock(fieldLayout).setFieldConfigSchemeMock(fieldConfigScheme)
+                                              .setFieldConfigurationSchemeMock(projectFieldConfigScheme).setFieldLayoutManagerMock(fieldLayoutManager)
+                                              .setFieldLayoutSchemeMock(fieldLayoutScheme).setFieldManagerMock(fieldManager)
+                                              .setFieldScreenManagerMock(fieldScreenManager).setFieldScreenSchemeManagerMock(fieldScreenSchemeManager)
+                                              .setGroupPickerSearchServiceMock(groupPickerSearchService)
+                                              .setBlackDuckFieldScreenSchemeSetup(fieldScreenSchemeSetup)
+                                              .setIssueTypes(issueTypes).setIssueTypes(issueTypes)
+                                              .setIssueTypeSchemeManagerMock(issueTypeSchemeManager)
+                                              .setIssueTypeScreenSchemeManagerMock(issueTypeScreenSchemeManager)
+                                              .setIssueTypeScreenSchemeMock(issueTypeScreenScheme).setJiraServices(jiraServices)
+                                              .setJiraSettingsService(settingService).setJiraTask(jiraTask).setMappingJson(mappingJson)
+                                              .setOrderableFieldMock(orderableField).setPluginSettingsMock(settingsMock)
+                                              .setProjectManagerMock(projectManager).setUserManagerMock(userManager).setUserUtil(userUtil)
+                                              .setWorkflowManagerMock(workflowManager).setWorkflowSchemeManagerMock(workflowSchemeManager)
+                                              .setAvatarTemplate(avatarTemplate);
 
         return jiraMocks;
     }
@@ -381,7 +380,7 @@ public class JiraTaskSetupTest {
     }
 
     private void mockCreationMethods(final JiraTaskTimed jiraTask, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
-            throws ConfigurationException {
+        throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
         buildInfoUtil.setVersion("7.3.0");
         final int[] versionNumbers = { 7, 3, 0 };
@@ -390,31 +389,31 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraTask.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
 
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-                .thenAnswer(new Answer<FieldScreen>() {
-                    @Override
-                    public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreen>() {
+                @Override
+                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-                .thenAnswer(new Answer<FieldScreenScheme>() {
-                    @Override
-                    public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreenScheme>() {
+                @Override
+                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenSchemeMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-                Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-                    @Override
-                    public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeItemMock();
-                    }
-                });
+            Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
+            @Override
+            public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
+                return new FieldScreenSchemeItemMock();
+            }
+        });
 
         Mockito.doReturn(fieldConfigSetup).when(jiraTask).getBlackDuckFieldScreenSchemeSetup(
-                Mockito.any(JiraSettingsService.class), Mockito.any(JiraServices.class));
+            Mockito.any(JiraSettingsService.class), Mockito.any(JiraServices.class));
     }
 
     private FieldLayoutManagerMock getFieldLayoutManagerMock() {
@@ -456,9 +455,9 @@ public class JiraTaskSetupTest {
         blackDuckWorkflow.setName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         if (workflowMappedToOurIssueTypes) {
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE,
-                    BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+                BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE,
-                    BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+                BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         } else {
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, "Fake Workflow");
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, "Fake Workflow");
@@ -520,14 +519,14 @@ public class JiraTaskSetupTest {
     }
 
     private JiraServices getJiraServices(final WorkflowManager workflowManager,
-            final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
-            final ProjectManager projectManager, final AvatarManager avatarManager,
-            final ConstantsManager constantsManager, final IssueTypeSchemeManager issueTypeSchemeManager,
-            final FieldLayoutManager fieldLayoutManager,
-            final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager, final Collection<IssueType> issueTypes,
-            final UserUtil userUtil, final CustomFieldManagerMock customFieldManager,
-            final FieldManagerMock fieldManager, final FieldScreenManagerMock fieldScreenManager,
-            final FieldScreenSchemeManagerMock fieldScreenSchemeManager, final SearchService searchService) {
+        final WorkflowSchemeManager workflowSchemeManager, final UserManager userManager,
+        final ProjectManager projectManager, final AvatarManager avatarManager,
+        final ConstantsManager constantsManager, final IssueTypeSchemeManager issueTypeSchemeManager,
+        final FieldLayoutManager fieldLayoutManager,
+        final IssueTypeScreenSchemeManager issueTypeScreenSchemeManager, final Collection<IssueType> issueTypes,
+        final UserUtil userUtil, final CustomFieldManagerMock customFieldManager,
+        final FieldManagerMock fieldManager, final FieldScreenManagerMock fieldScreenManager,
+        final FieldScreenSchemeManagerMock fieldScreenSchemeManager, final SearchService searchService) {
 
         JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setWorkflowManager(workflowManager);
@@ -562,7 +561,7 @@ public class JiraTaskSetupTest {
     }
 
     private String getProjectMappingJson(final boolean hasProjectMapping, final String jiraProjectName,
-            final long jiraProjectId) {
+        final long jiraProjectId) {
         final Set<BlackDuckProjectMapping> mappings = new HashSet<>();
         if (hasProjectMapping) {
             final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
@@ -614,7 +613,7 @@ public class JiraTaskSetupTest {
         private Avatar avatarTemplate;
 
         JiraEnvironment setGroupPickerSearchServiceMock(
-                final GroupPickerSearchServiceMock groupPickerSearchServiceMock) {
+            final GroupPickerSearchServiceMock groupPickerSearchServiceMock) {
             this.groupPickerSearchServiceMock = groupPickerSearchServiceMock;
             return this;
         }
@@ -633,7 +632,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setWorkflowSchemeManagerMock(
-                final WorkflowSchemeManagerMock workflowSchemeManagerMock) {
+            final WorkflowSchemeManagerMock workflowSchemeManagerMock) {
             this.workflowSchemeManagerMock = workflowSchemeManagerMock;
             return this;
         }
@@ -667,7 +666,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setIssueTypeSchemeManagerMock(
-                final IssueTypeSchemeManagerMock issueTypeSchemeManagerMock) {
+            final IssueTypeSchemeManagerMock issueTypeSchemeManagerMock) {
             this.issueTypeSchemeManagerMock = issueTypeSchemeManagerMock;
             return this;
         }
@@ -683,7 +682,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setIssueTypeScreenSchemeManagerMock(
-                final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManagerMock) {
+            final IssueTypeScreenSchemeManagerMock issueTypeScreenSchemeManagerMock) {
             this.issueTypeScreenSchemeManagerMock = issueTypeScreenSchemeManagerMock;
             return this;
         }
@@ -693,7 +692,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setIssueTypeScreenSchemeMock(
-                final IssueTypeScreenSchemeMock issueTypeScreenSchemeMock) {
+            final IssueTypeScreenSchemeMock issueTypeScreenSchemeMock) {
             this.issueTypeScreenSchemeMock = issueTypeScreenSchemeMock;
             return this;
         }
@@ -708,7 +707,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setFieldConfigurationSchemeMock(
-                final FieldConfigurationSchemeMock fieldConfigurationSchemeMock) {
+            final FieldConfigurationSchemeMock fieldConfigurationSchemeMock) {
             this.fieldConfigurationSchemeMock = fieldConfigurationSchemeMock;
             return this;
         }
@@ -751,7 +750,7 @@ public class JiraTaskSetupTest {
         }
 
         JiraEnvironment setFieldScreenSchemeManagerMock(
-                final FieldScreenSchemeManagerMock fieldScreenSchemeManagerMock) {
+            final FieldScreenSchemeManagerMock fieldScreenSchemeManagerMock) {
             this.fieldScreenSchemeManagerMock = fieldScreenSchemeManagerMock;
             return this;
         }
@@ -816,13 +815,13 @@ public class JiraTaskSetupTest {
             return this;
         }
 
+        Avatar getAvatarTemplate() {
+            return avatarTemplate;
+        }
+
         JiraEnvironment setAvatarTemplate(final Avatar avatarTemplate) {
             this.avatarTemplate = avatarTemplate;
             return this;
-        }
-
-        Avatar getAvatarTemplate() {
-            return avatarTemplate;
         }
 
     }

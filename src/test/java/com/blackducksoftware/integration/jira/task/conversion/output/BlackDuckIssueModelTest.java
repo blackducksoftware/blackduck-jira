@@ -84,7 +84,7 @@ public class BlackDuckIssueModelTest {
 
     private void checkCommonValues(final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings, final BlackDuckIssueModel blackDuckIssueModel) {
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueFieldTemplate();
-        assertEquals(BlackDuckEventAction.ADD_COMMENT, blackDuckIssueModel.getIssueAction());
+        assertEquals(BlackDuckIssueAction.ADD_COMMENT, blackDuckIssueModel.getIssueAction());
         assertEquals("blackDuckComponentName", blackDuckIssueFieldTemplate.getComponentName());
         if (blackDuckIssueModel.isPolicy()) {
             assertEquals(COMPONENT_URL, blackDuckIssueFieldTemplate.getComponentUri());
@@ -161,7 +161,7 @@ public class BlackDuckIssueModelTest {
             jiraIssueSummary = "Black Duck Security Vulnerability: Project 'blackDuckProjectName' / 'blackDuckProjectVersion', Component 'blackDuckComponentName' / 'blackDuckComponentVersion'";
         }
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(123L, "jiraProjectName", "jiraIssueTypeId", jiraIssueSummary, "jiraIssueCreatorUserName", "jiraIssueDescription", "jiraIssueAssigneeUserId");
-        final BlackDuckIssueModel issueModel = new BlackDuckIssueModel(BlackDuckEventAction.ADD_COMMENT, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, jiraFieldCopyMappings, "bomComponentUri", "componentIssueUrl", DATE_INSTANCE);
+        final BlackDuckIssueModel issueModel = new BlackDuckIssueModel(BlackDuckIssueAction.ADD_COMMENT, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, jiraFieldCopyMappings, "bomComponentUri", "componentIssueUrl", DATE_INSTANCE);
         issueModel.setJiraIssueComment("jiraIssueComment");
         issueModel.setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue");
         issueModel.setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue");

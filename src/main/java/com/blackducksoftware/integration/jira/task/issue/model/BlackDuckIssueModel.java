@@ -26,14 +26,12 @@ package com.blackducksoftware.integration.jira.task.issue.model;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckEventAction;
+import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.synopsys.integration.util.Stringable;
 
 public class BlackDuckIssueModel extends Stringable {
-    private final BlackDuckEventAction issueAction;
+    private final BlackDuckIssueAction issueAction;
     private final JiraIssueFieldTemplate jiraIssueFieldTemplate;
     private final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
     private final Set<ProjectFieldCopyMapping> projectFieldCopyMappings;
@@ -53,7 +51,7 @@ public class BlackDuckIssueModel extends Stringable {
 
     // @formatter:off
     public BlackDuckIssueModel(
-             final BlackDuckEventAction issueAction
+             final BlackDuckIssueAction issueAction
             ,final JiraIssueFieldTemplate jiraIssueFieldTemplate
             ,final BlackDuckIssueFieldTemplate blackDuckIssueTemplate
             ,final Set<ProjectFieldCopyMapping> projectFieldCopyMappings
@@ -79,7 +77,7 @@ public class BlackDuckIssueModel extends Stringable {
         this.jiraIssueId = jiraIssueId;
     }
 
-    public BlackDuckEventAction getIssueAction() {
+    public BlackDuckIssueAction getIssueAction() {
         return issueAction;
     }
 
@@ -169,17 +167,7 @@ public class BlackDuckIssueModel extends Stringable {
         return IssueCategory.VULNERABILITY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
     }
 
-    // TODO should this model have access to this?
     public String extractBlackDuckBaseUrl() {
-        final String projectVersionUriString = blackDuckIssueFieldTemplate.getProjectVersionUri();
-        if (StringUtils.isNotBlank(projectVersionUriString)) {
-            final String searchString = "/api";
-            final int end = projectVersionUriString.indexOf(searchString);
-            if (end > 0) {
-                // No need to subtract 1 since we included the slash in the search String
-                return projectVersionUriString.substring(0, end);
-            }
-        }
-        return "";
+        return blackDuckIssueFieldTemplate.extractBlackDuckBaseUrl();
     }
 }
