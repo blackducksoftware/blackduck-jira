@@ -26,6 +26,8 @@ package com.blackducksoftware.integration.jira.task.issue.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
@@ -261,12 +263,28 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, policyRuleName);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY, policyRuleSeverity);
+        // TODO use this when Black Duck supports policy redirect: addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
 
         return blackDuckFieldMappings;
     }
 
-    protected final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> blackDuckFieldMappings, final PluginField pluginField, final String fieldValue) {
+    // TODO remove this once policy redirect is supported in the Black Duck UI
+    protected String extractBlackDuckBaseUrl() {
+        final String projectVersionUriString = getProjectVersionUri();
+        if (StringUtils.isNotBlank(projectVersionUriString)) {
+            final String searchString = "/api";
+            final int end = projectVersionUriString.indexOf(searchString);
+            if (end > 0) {
+                // No need to subtract 1 since we included the slash in the search String
+                return projectVersionUriString.substring(0, end);
+            }
+        }
+        return "";
+    }
+
+    private final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> blackDuckFieldMappings, final PluginField pluginField, final String fieldValue) {
         final CustomField customField = customFields.get(pluginField);
         if (customField != null) {
             blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);

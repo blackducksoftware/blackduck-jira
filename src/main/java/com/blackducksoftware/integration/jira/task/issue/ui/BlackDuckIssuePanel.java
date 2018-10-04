@@ -69,9 +69,9 @@ public class BlackDuckIssuePanel extends AbstractJiraContextProvider {
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, "bdsPolicyRule");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, "bdsPolicyRuleOverridable");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, "bdsPolicyRuleDescription");
+            populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY, "bdsPolicyRuleSeverity");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, "bdsPolicyRuleUrl");
         }
-
         return contextMap;
     }
 
@@ -104,5 +104,4 @@ public class BlackDuckIssuePanel extends AbstractJiraContextProvider {
         }
         return fieldValue;
     }
-
 }
