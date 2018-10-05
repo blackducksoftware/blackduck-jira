@@ -307,7 +307,8 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         }
     }
 
-    // FIXME @Test - These tests suck and need to be improved
+    @Test
+    // TODO This test is not easily maintainable and should be improved
     public void testAddBlackDuckFieldConfigurationToJiraWithUserChanges() throws Exception {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
@@ -346,7 +347,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -388,7 +389,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertEquals(2, fieldScreenManager.getUpdatedScreens().size());

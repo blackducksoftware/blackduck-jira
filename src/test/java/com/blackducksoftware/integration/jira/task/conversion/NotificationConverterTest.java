@@ -52,7 +52,6 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
@@ -86,7 +85,6 @@ import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
 import com.synopsys.integration.blackduck.notification.content.BomEditContent;
 import com.synopsys.integration.blackduck.notification.content.ComponentVersionStatus;
@@ -269,6 +267,9 @@ public class NotificationConverterTest {
         Mockito.when(mockBlackDuckService.getHref(Mockito.any(PolicyRuleViewV2.class))).thenReturn(RULE_URL);
         Mockito.when(mockBlackDuckService.getHref(Mockito.any(ProjectVersionView.class))).thenReturn(PROJECT_VERSION_URL);
         Mockito.when(mockBlackDuckService.getHref(Mockito.any(VersionBomComponentView.class))).thenReturn(BOM_COMPONENT_URI);
+
+        Mockito.when(mockBlackDuckService.getAllResponses(Mockito.any(VersionBomComponentView.class), Mockito.eq(VersionBomComponentView.POLICY_RULES_LINK_RESPONSE)))
+            .thenReturn(Arrays.asList(createPolicyRuleV2(new Date(), POLICY_VIOLATION_EXPECTED_DESCRIPTION)));
     }
 
     private static void mockBlackDuckBucketResponses(final HubBucket mockBlackDuckBucket) {
@@ -359,6 +360,7 @@ public class NotificationConverterTest {
         versionBomComponent.origins = Collections.emptyList();
         versionBomComponent.licenses = Arrays.asList(new VersionBomLicenseView());
         versionBomComponent.securityRiskProfile = createSecurityRiskProfile();
+        versionBomComponent.policyStatus = PolicySummaryStatusType.IN_VIOLATION;
 
         return versionBomComponent;
     }
@@ -374,96 +376,103 @@ public class NotificationConverterTest {
         return riskProfile;
     }
 
+    private static PolicyRuleViewV2 createPolicyRuleV2(final Date createdAt, final String description) {
+        final PolicyRuleViewV2 policyRule = new PolicyRuleViewV2();
+        policyRule.createdAt = createdAt;
+        policyRule.createdBy = "Shmario";
+        policyRule.createdByUser = "Bear";
+        policyRule.description = description;
+        policyRule.enabled = Boolean.TRUE;
+        policyRule.expression = new PolicyRuleExpressionSetView();
+        policyRule.name = RULE_NAME;
+        policyRule.overridable = Boolean.TRUE;
+        policyRule.severity = "Who Cares?";
+        policyRule.updatedAt = createdAt;
+        policyRule.updatedBy = "Shmario";
+        policyRule.updatedByUser = "Bear";
+        return policyRule;
+    }
+
     @Test
-    public void testVulnerability() throws ConfigurationException, URISyntaxException, IntegrationException {
+    public void testVulnerability() throws URISyntaxException, IntegrationException {
         test(NotificationType.VULNERABILITY, BlackDuckIssueAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
-            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
+            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
     }
 
     @Test
-    // TODO add bom edit case with policy
-    public void testBomEdit() throws ConfigurationException, URISyntaxException, IntegrationException {
+    public void testBomEdit() throws URISyntaxException, IntegrationException {
         test(NotificationType.BOM_EDIT, BlackDuckIssueAction.UPDATE_IF_EXISTS, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
-            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY);
+            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY, 2);
     }
 
     @Test
-    public void testRuleViolation() throws ConfigurationException, URISyntaxException, IntegrationException {
+    public void testRuleViolation() throws URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION, BlackDuckIssueAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
-            POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
+            POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
     }
 
     @Test
-    public void testPolicyOverride() throws ConfigurationException, URISyntaxException, IntegrationException {
+    public void testPolicyOverride() throws URISyntaxException, IntegrationException {
         test(NotificationType.POLICY_OVERRIDE, BlackDuckIssueAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
-            POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
+            POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
     }
 
     @Test
-    public void testRuleViolationCleared() throws ConfigurationException, URISyntaxException, IntegrationException {
+    public void testRuleViolationCleared() throws URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION_CLEARED, BlackDuckIssueAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
-            POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY);
+            POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
     }
 
-    private void addComp(final List<VersionBomComponentView> bomComps, final String componentName, final String componentUrl, final String componentVersionUrl) {
-        final VersionBomComponentView bomComp = new VersionBomComponentView();
-        bomComp.componentName = componentName;
-        bomComp.component = componentUrl;
-        bomComp.componentVersion = componentVersionUrl;
-
-        bomComps.add(bomComp);
-    }
-
-    // FIXME fix this test
     private void test(final NotificationType notifType, final BlackDuckIssueAction expectedBlackDuckIssueAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
-        final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey)
-        throws URISyntaxException, IntegrationException, ConfigurationException {
+        final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey, final int expectedCount)
+        throws URISyntaxException, IntegrationException {
 
         final Date startDate = new Date();
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper,
-            Arrays.asList(RULE_URL),
-            blackDuckDataHelper, mockBlackDuckSerivce, mockLogger);
+            Arrays.asList(RULE_URL), blackDuckDataHelper, mockBlackDuckSerivce, mockLogger);
+
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
-        verifyGeneratedModels(issueModels, issueTypeId, expectedBlackDuckIssueAction, expectedComment, expectedCommentIfExists, expectedCommentInLieuOfStateChange, expectedDescription, expectedSummary, expectedReOpenComment,
-            expectedResolveComment, expectedPropertyKey);
+        assertEquals(expectedCount, issueModels.size());
+        for (final BlackDuckIssueModel model : issueModels) {
+            verifyGeneratedModels(model, issueTypeId, expectedBlackDuckIssueAction, expectedDescription, expectedSummary, expectedPropertyKey);
+            if (expectedCount == 1) {
+                assertEquals(expectedDescription, model.getJiraIssueFieldTemplate().getIssueDescription());
+                assertEquals(expectedSummary, model.getJiraIssueFieldTemplate().getSummary());
+                assertEquals(issueTypeId, model.getJiraIssueFieldTemplate().getJiraIssueTypeId());
+                assertEquals(expectedPropertyKey, model.getEventKey());
+                verifyGeneratedComments(model, expectedComment, expectedCommentIfExists, expectedReOpenComment, expectedResolveComment, expectedCommentInLieuOfStateChange);
+            }
+        }
     }
 
-    private NotificationDetailResult createNotification(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date now) throws URISyntaxException, HubIntegrationException, IntegrationException {
+    private NotificationDetailResult createNotification(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date notifDate) throws URISyntaxException, IntegrationException {
         if (NotificationType.VULNERABILITY.equals(notifType)) {
-            return createVulnerabilityNotif(now);
+            return createVulnerabilityNotif(notifDate);
         } else if (NotificationType.RULE_VIOLATION.equals(notifType)) {
-            return createRuleViolationNotif(mockBlackDuckBucket, now);
+            return createRuleViolationNotif(mockBlackDuckBucket, notifDate);
         } else if (NotificationType.POLICY_OVERRIDE.equals(notifType)) {
-            return createPolicyOverrideNotif(mockBlackDuckBucket, now);
+            return createPolicyOverrideNotif(mockBlackDuckBucket, notifDate);
         } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notifType)) {
-            return createRuleViolationClearedNotif(mockBlackDuckBucket, now);
+            return createRuleViolationClearedNotif(mockBlackDuckBucket, notifDate);
         } else if (NotificationType.BOM_EDIT.equals(notifType)) {
-            return createBomEditNotif(now);
+            return createVulnerabilityBomEditNotif(notifDate);
         } else {
             throw new IllegalArgumentException("Unrecognized notification type");
         }
     }
 
-    private void verifyGeneratedModels(final Collection<BlackDuckIssueModel> wrappers, final String issueTypeId, final BlackDuckIssueAction expectedHubEventAction, final String expectedComment, final String expectedCommentIfExists,
-        final String expectedCommentInLieuOfStateChange, final String expectedDescription, final String expectedSummary, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey) {
-        assertEquals(EXPECTED_EVENT_COUNT, wrappers.size());
-        final BlackDuckIssueModel wrapper = wrappers.iterator().next();
-        assertEquals(BOM_COMPONENT_URI, wrapper.getBomComponentUri());
-        assertEquals(expectedHubEventAction, wrapper.getIssueAction());
-        assertEquals(expectedComment, wrapper.getJiraIssueComment());
-        assertEquals(expectedCommentIfExists, wrapper.getJiraIssueCommentForExistingIssue());
-        assertEquals(expectedCommentInLieuOfStateChange, wrapper.getJiraIssueCommentInLieuOfStateChange());
-        assertEquals(ASSIGNEE_USER_ID, wrapper.getJiraIssueFieldTemplate().getAssigneeId());
-        assertEquals(expectedDescription, wrapper.getJiraIssueFieldTemplate().getIssueDescription());
-        assertEquals(expectedSummary, wrapper.getJiraIssueFieldTemplate().getSummary());
-        assertEquals(issueTypeId, wrapper.getJiraIssueFieldTemplate().getJiraIssueTypeId());
+    private void verifyGeneratedModels(final BlackDuckIssueModel model, final String issueTypeId, final BlackDuckIssueAction expectedHubEventAction, final String expectedDescription, final String expectedSummary,
+        final String expectedPropertyKey) {
+        assertEquals(BOM_COMPONENT_URI, model.getBomComponentUri());
+        assertEquals(expectedHubEventAction, model.getIssueAction());
+        assertEquals(ASSIGNEE_USER_ID, model.getJiraIssueFieldTemplate().getAssigneeId());
 
-        assertEquals(Long.valueOf(JIRA_PROJECT_ID), wrapper.getJiraIssueFieldTemplate().getJiraProjectId());
-        assertEquals(JIRA_PROJECT_NAME, wrapper.getJiraIssueFieldTemplate().getJiraProjectName());
-        assertEquals(JIRA_ISSUE_CREATOR_USERNAME, wrapper.getJiraIssueFieldTemplate().getIssueCreatorUsername());
-        final Set<ProjectFieldCopyMapping> fieldMappings = wrapper.getProjectFieldCopyMappings();
+        assertEquals(Long.valueOf(JIRA_PROJECT_ID), model.getJiraIssueFieldTemplate().getJiraProjectId());
+        assertEquals(JIRA_PROJECT_NAME, model.getJiraIssueFieldTemplate().getJiraProjectName());
+        assertEquals(JIRA_ISSUE_CREATOR_USERNAME, model.getJiraIssueFieldTemplate().getIssueCreatorUsername());
+        final Set<ProjectFieldCopyMapping> fieldMappings = model.getProjectFieldCopyMappings();
         assertEquals(1, fieldMappings.size());
         final Iterator<ProjectFieldCopyMapping> iter = fieldMappings.iterator();
         final ProjectFieldCopyMapping actualProjectFieldCopyMapping = iter.next();
@@ -474,17 +483,22 @@ public class NotificationConverterTest {
         assertEquals(TARGET_FIELD_ID, actualProjectFieldCopyMapping.getTargetFieldId());
         assertEquals(TARGET_FIELD_NAME, actualProjectFieldCopyMapping.getTargetFieldName());
 
-        assertEquals(expectedReOpenComment, wrapper.getJiraIssueReOpenComment());
-        assertEquals(expectedResolveComment, wrapper.getJiraIssueResolveComment());
-
-        wrapper.setJiraIssueId(JIRA_ISSUE_ID);
-        final OldIssueProperties issueProperties = OldIssueProperties.fromBlackDuckIssueWrapper(wrapper);
+        model.setJiraIssueId(JIRA_ISSUE_ID);
+        final OldIssueProperties issueProperties = OldIssueProperties.fromBlackDuckIssueWrapper(model);
         assertEquals(BLACKDUCK_PROJECT_NAME, issueProperties.getProjectName());
         assertEquals(PROJECT_VERSION_NAME, issueProperties.getProjectVersion());
         assertEquals(COMPONENT_NAME, issueProperties.getComponentName());
         assertEquals(COMPONENT_VERSION_NAME, issueProperties.getComponentVersion());
         assertEquals(Long.valueOf(JIRA_ISSUE_ID), issueProperties.getJiraIssueId());
-        assertEquals(expectedPropertyKey, wrapper.getEventKey());
+    }
+
+    private void verifyGeneratedComments(final BlackDuckIssueModel model,
+        final String expectedComment, final String expectedCommentIfExists, final String expectedReOpenComment, final String expectedResolveComment, final String expectedCommentInLieuOfStateChange) {
+        assertEquals(expectedComment, model.getJiraIssueComment());
+        assertEquals(expectedCommentIfExists, model.getJiraIssueCommentForExistingIssue());
+        assertEquals(expectedCommentInLieuOfStateChange, model.getJiraIssueCommentInLieuOfStateChange());
+        assertEquals(expectedReOpenComment, model.getJiraIssueReOpenComment());
+        assertEquals(expectedResolveComment, model.getJiraIssueResolveComment());
     }
 
     private NotificationDetailResult createVulnerabilityNotif(final Date createdAt) {
@@ -531,7 +545,7 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) {
         final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
@@ -633,7 +647,7 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.POLICY_OVERRIDE, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createBomEditNotif(final Date createdAt) {
+    private NotificationDetailResult createVulnerabilityBomEditNotif(final Date createdAt) {
         final BomEditContent content = new BomEditContent();
         content.bomComponent = BOM_COMPONENT_URI;
 
@@ -661,23 +675,6 @@ public class NotificationConverterTest {
         policyInfo.policyName = RULE_NAME;
         policyInfo.policy = RULE_URL;
         return policyInfo;
-    }
-
-    private PolicyRuleViewV2 createPolicyRuleV2(final Date createdAt, final String description) {
-        final PolicyRuleViewV2 policyRule = new PolicyRuleViewV2();
-        policyRule.createdAt = createdAt;
-        policyRule.createdBy = "Shmario";
-        policyRule.createdByUser = "Bear";
-        policyRule.description = description;
-        policyRule.enabled = Boolean.TRUE;
-        policyRule.expression = new PolicyRuleExpressionSetView();
-        policyRule.name = RULE_NAME;
-        policyRule.overridable = Boolean.TRUE;
-        policyRule.severity = "Who Cares?";
-        policyRule.updatedAt = createdAt;
-        policyRule.updatedBy = "Shmario";
-        policyRule.updatedByUser = "Bear";
-        return policyRule;
     }
 
     private UriSingleResponse<PolicyRuleViewV2> mockUriSingleResponsePolicyRuleViewV2() {

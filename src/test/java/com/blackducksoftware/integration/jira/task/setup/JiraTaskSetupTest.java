@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -112,7 +113,7 @@ import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManag
 import com.blackducksoftware.integration.jira.task.JiraTaskTimed;
 
 public class JiraTaskSetupTest {
-    private static final int NUM_SECURITY_SCREEN_FIELDS = PluginField.values().length;
+    private static final int NUM_FIELDS = PluginField.values().length;
 
     private final static String BLACKDUCK_JIRA_GROUP = "hub-jira";
     private static final String BLACKDUCK_PROJECT_NAME = "Test Black Duck Project";
@@ -120,7 +121,7 @@ public class JiraTaskSetupTest {
     private static final long JIRA_PROJECT_ID = ProjectManagerMock.JIRA_PROJECT_ID_BASE;
     private static final String JIRA_USER = "Jira User";
 
-    // FIXME @Test - These tests suck and need to be improved
+    @Test
     public void testServerSetupIssueTypesAlreadyCreated() throws Exception {
         final JiraEnvironment jiraEnv = generateJiraMocks(true);
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
@@ -135,7 +136,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(0, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
 
-        assertEquals(NUM_SECURITY_SCREEN_FIELDS, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -145,9 +146,9 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size() == 2);
@@ -174,7 +175,7 @@ public class JiraTaskSetupTest {
         assertEquals(2, jiraEnv.getFieldLayoutSchemeMock().getStoreCount());
     }
 
-    // FIXME @Test - These tests suck and need to be improved
+    @Test
     public void testServerSetupIssueTypesNotAlreadyCreated() throws Exception {
         final JiraEnvironment jiraEnv = generateJiraMocks(false);
 
@@ -189,7 +190,7 @@ public class JiraTaskSetupTest {
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
         assertEquals(2, jiraEnv.getConstantsManagerMock().getIssueTypesCreatedCount());
-        assertEquals(NUM_SECURITY_SCREEN_FIELDS, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
+        assertEquals(NUM_FIELDS, jiraEnv.getCustomFieldManagerMock().getCustomFieldObjects().size());
         for (final FieldScreen fieldScreen : jiraEnv.getFieldScreenManagerMock().getUpdatedScreens()) {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
@@ -199,9 +200,9 @@ public class JiraTaskSetupTest {
         for (final FieldScreenTab tab : jiraEnv.getFieldScreenManagerMock().getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS + 2, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_SECURITY_SCREEN_FIELDS, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertEquals(2, jiraEnv.getFieldScreenManagerMock().getUpdatedScreens().size());
