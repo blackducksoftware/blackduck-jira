@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
@@ -36,6 +37,7 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.JiraWorkflow;
@@ -47,6 +49,7 @@ import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
@@ -76,9 +79,14 @@ public class JiraTaskTimed implements Callable<String> {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
 
-        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName());
+        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName(), jiraServices.getUserManager());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
+            return "error";
+        }
+        final String jiraPluginGroupsString = (String) settings.get(BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+        if (!checkUserInPluginGroups(jiraPluginGroupsString, jiraServices.getGroupManager(), jiraContext.getJiraIssueCreatorUser())) {
+            logger.error(String.format("User '%s' is no longer in the groups '%s'. The task cannot run.", jiraContext.getJiraIssueCreatorUser().getUsername(), jiraPluginGroupsString));
             return "error";
         }
         final LocalDateTime beforeSetup = LocalDateTime.now();
@@ -99,12 +107,12 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
-            throws ConfigurationException, JiraException {
+        throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
         // Create Issue Types, workflow, etc.
-        BlackDuckIssueTypeSetup issueTypeSetup;
+        final BlackDuckIssueTypeSetup issueTypeSetup;
         try {
             issueTypeSetup = getBlackDuckIssueTypeSetup(jiraSettingsService, jiraServices, jiraContext.getJiraAdminUser().getName());
         } catch (final ConfigurationException e) {
@@ -163,8 +171,8 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-            final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
+        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -175,7 +183,7 @@ public class JiraTaskTimed implements Callable<String> {
                             && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
-                                .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
@@ -209,14 +217,14 @@ public class JiraTaskTimed implements Callable<String> {
         return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername) {
+    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
             logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
             jiraIssueCreatorUsername = jiraAdminUsername;
         }
-        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername);
-        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername);
+        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername, userManager);
+        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername, userManager);
         if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
             return null;
         }
@@ -224,14 +232,25 @@ public class JiraTaskTimed implements Callable<String> {
         return jiraContext;
     }
 
-    private ApplicationUser getJiraUser(final String jiraUsername) {
-        final UserManager jiraUserManager = jiraServices.getUserManager();
-        final ApplicationUser jiraUser = jiraUserManager.getUserByName(jiraUsername);
+    private ApplicationUser getJiraUser(final String jiraUsername, final UserManager userManager) {
+        final ApplicationUser jiraUser = userManager.getUserByName(jiraUsername);
         if (jiraUser == null) {
             logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
             return null;
         }
         return jiraUser;
+    }
+
+    private boolean checkUserInPluginGroups(final String jiraPluginGroupsString, final GroupManager groupManager, final ApplicationUser issueCreator) {
+        if (StringUtils.isNotBlank(jiraPluginGroupsString)) {
+            final String[] jiraPluginGroups = jiraPluginGroupsString.split(",");
+            for (final String blackDuckJiraGroup : jiraPluginGroups) {
+                if (groupManager.isUserInGroup(issueCreator, blackDuckJiraGroup.trim())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

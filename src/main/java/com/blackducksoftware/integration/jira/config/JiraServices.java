@@ -129,7 +129,7 @@ public class JiraServices {
 
     public UserSearchService getUserSearchService() {
         return new DefaultUserPickerSearchService(getUserManager(), ComponentAccessor.getApplicationProperties(), getAuthContext(), ComponentAccessor.getPermissionManager(), getGroupManager(),
-                getJiraProjectManager(), null, ComponentAccessor.getCrowdService(), null, null, null);
+            getJiraProjectManager(), null, ComponentAccessor.getCrowdService(), null, null, null);
     }
 
     public UserUtil getUserUtil() {
@@ -197,7 +197,7 @@ public class JiraServices {
 
     public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
         final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
-                IconType.ISSUE_TYPE_ICON_TYPE);
+            IconType.ISSUE_TYPE_ICON_TYPE);
         return avatarTemplate;
     }
 
