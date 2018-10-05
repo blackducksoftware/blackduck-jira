@@ -247,7 +247,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     public BlackDuckIssueModelBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
         this.policyRuleUrl = blackDuckDataHelper.getHrefNullable(policyRule);
         this.policyRuleName = policyRule.name;
-        this.policyDescription = StringUtils.defaultString(policyRule.description);
+        this.policyDescription = StringUtils.defaultString(policyRule.description, "No description");
         this.policyOverridable = policyRule.overridable;
         this.policySeverity = StringUtils.capitalize(StringUtils.lowerCase(policyRule.severity));
         return this;
