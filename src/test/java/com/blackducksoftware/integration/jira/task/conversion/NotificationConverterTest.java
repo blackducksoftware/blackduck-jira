@@ -436,7 +436,7 @@ public class NotificationConverterTest {
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
         assertEquals(expectedCount, issueModels.size());
         for (final BlackDuckIssueModel model : issueModels) {
-            verifyGeneratedModels(model, issueTypeId, expectedBlackDuckIssueAction, expectedDescription, expectedSummary, expectedPropertyKey);
+            verifyGeneratedModels(model, expectedBlackDuckIssueAction);
             if (expectedCount == 1) {
                 assertEquals(expectedDescription, model.getJiraIssueFieldTemplate().getIssueDescription());
                 assertEquals(expectedSummary, model.getJiraIssueFieldTemplate().getSummary());
@@ -463,8 +463,7 @@ public class NotificationConverterTest {
         }
     }
 
-    private void verifyGeneratedModels(final BlackDuckIssueModel model, final String issueTypeId, final BlackDuckIssueAction expectedHubEventAction, final String expectedDescription, final String expectedSummary,
-        final String expectedPropertyKey) {
+    private void verifyGeneratedModels(final BlackDuckIssueModel model, final BlackDuckIssueAction expectedHubEventAction) {
         assertEquals(BOM_COMPONENT_URI, model.getBomComponentUri());
         assertEquals(expectedHubEventAction, model.getIssueAction());
         assertEquals(ASSIGNEE_USER_ID, model.getJiraIssueFieldTemplate().getAssigneeId());

@@ -55,6 +55,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
     // Vulnerability
     private String componentVersionOriginName;
     private String componentVersionOriginId;
+
     // Policy
     private String policyRuleName;
     private String policyRuleUri;
@@ -264,14 +265,15 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, policyRuleOverridable);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, policyRuleDescription);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY, policyRuleSeverity);
-        // TODO use this when Black Duck supports policy redirect: addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
-        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
+        // TODO use this when Black Duck supports policy redirect:
+        // addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, policyRuleUri);
+        addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL, extractBlackDuckBaseUrl() + "/ui/policy-management");
 
         return blackDuckFieldMappings;
     }
 
     // TODO remove this once policy redirect is supported in the Black Duck UI
-    protected String extractBlackDuckBaseUrl() {
+    private String extractBlackDuckBaseUrl() {
         final String projectVersionUriString = getProjectVersionUri();
         if (StringUtils.isNotBlank(projectVersionUriString)) {
             final String searchString = "/api";
@@ -284,7 +286,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         return "";
     }
 
-    private final void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> blackDuckFieldMappings, final PluginField pluginField, final String fieldValue) {
+    private void addCustomField(final Map<PluginField, CustomField> customFields, final Map<Long, String> blackDuckFieldMappings, final PluginField pluginField, final String fieldValue) {
         final CustomField customField = customFields.get(pluginField);
         if (customField != null) {
             blackDuckFieldMappings.put(customField.getIdAsLong(), fieldValue);
