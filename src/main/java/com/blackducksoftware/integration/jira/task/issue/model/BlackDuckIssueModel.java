@@ -166,8 +166,4 @@ public class BlackDuckIssueModel extends Stringable {
     public boolean isVulnerability() {
         return IssueCategory.VULNERABILITY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
     }
-
-    public String extractBlackDuckBaseUrl() {
-        return blackDuckIssueFieldTemplate.extractBlackDuckBaseUrl();
-    }
 }

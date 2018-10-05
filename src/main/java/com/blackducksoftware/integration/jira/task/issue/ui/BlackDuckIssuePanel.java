@@ -54,6 +54,7 @@ public class BlackDuckIssuePanel extends AbstractJiraContextProvider {
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, "bdsProjectVersionUrl");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER, "bdsProjectOwner");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, "bdsProjectVersionNickname");
+            populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, "bdsProjectVersionLastUpdated");
 
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT, "bdsComponent");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL, "bdsComponentUrl");
@@ -65,7 +66,7 @@ public class BlackDuckIssuePanel extends AbstractJiraContextProvider {
 
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES, "bdsLicenses");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL, "bdsLicenseUrl");
-            populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED, "bdsProjectVersionLastUpdated");
+
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE, "bdsPolicyRule");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE, "bdsPolicyRuleOverridable");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION, "bdsPolicyRuleDescription");

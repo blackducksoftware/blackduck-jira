@@ -67,7 +67,7 @@ public class BlackDuckDataHelper {
     }
 
     public VersionBomComponentView getBomComponent(final UriSingleResponse<VersionBomComponentView> bomComponentLocation) throws IntegrationException {
-        IntegrationRestException restException = null;
+        IntegrationRestException restException;
         try {
             final VersionBomComponentView versionBomComponentView = getResponse(bomComponentLocation);
             return versionBomComponentView;

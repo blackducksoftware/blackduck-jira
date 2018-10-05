@@ -291,7 +291,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return model;
     }
 
-    // FIXME make sure all of these fields are correctly updated
+    // TODO make sure all of these fields are correctly updated
     public BlackDuckIssueModelBuilder copy() {
         final BlackDuckIssueModelBuilder newBuilder = new BlackDuckIssueModelBuilder(blackDuckDataHelper, dataFormatHelper);
         newBuilder.action = action;

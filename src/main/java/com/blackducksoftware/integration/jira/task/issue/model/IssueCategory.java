@@ -23,18 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
-import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
-
 public enum IssueCategory {
     POLICY,
     VULNERABILITY,
-    SPECIAL;
-
-    public static IssueCategory fromNotificationType(final NotificationType notificationType) {
-        IssueCategory category = IssueCategory.POLICY;
-        if (NotificationType.VULNERABILITY.equals(notificationType)) {
-            category = IssueCategory.VULNERABILITY;
-        }
-        return category;
-    }
+    SPECIAL
 }

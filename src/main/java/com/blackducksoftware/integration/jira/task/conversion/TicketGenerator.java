@@ -133,7 +133,7 @@ public class TicketGenerator {
             }
         } catch (final Exception e) {
             logger.error(e);
-            jiraSettingsService.addBlackDuckError(e, "generateTicketsForRecentNotifications");
+            jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
         }
         return startDate;
     }
@@ -169,18 +169,18 @@ public class TicketGenerator {
                 final Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
                     final String msg = String.format(
-                        "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
+                        "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
+                            + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
                         e.getMessage());
                     logger.warn(msg);
-                    jiraSettingsService.addBlackDuckError(msg, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
                 } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
                     logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else {
                     logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                    jiraSettingsService.addBlackDuckError(e, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
                 }
             }
         });
     }
-
 }
