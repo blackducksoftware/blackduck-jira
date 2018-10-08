@@ -74,7 +74,7 @@ public class JiraIssueHandler {
     }
 
     public void handleBlackDuckIssue(final BlackDuckIssueModel blackDuckIssueModel) {
-        logger.info("Handling event for BOM Component: " + blackDuckIssueModel.getBomComponentUri());
+        logger.info(String.format("Performing action '%s' on BOM Component: %s", blackDuckIssueModel.getIssueAction(), blackDuckIssueModel.getBomComponentUri()));
         logger.debug("Handling event. Old key: " + blackDuckIssueModel.getEventKey());
 
         final BlackDuckIssueAction actionToTake = blackDuckIssueModel.getIssueAction();
@@ -151,7 +151,7 @@ public class JiraIssueHandler {
             if (BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_STATUS_RESOLVED.equals(oldIssue.getStatus().getName())) {
                 final Issue transitionedIssue = transitionIssue(blackDuckIssueModel, oldIssue, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_STATUS_OPEN);
                 if (transitionedIssue != null) {
-                    logger.info("Re-opened the already exisiting issue.");
+                    logger.info("Re-opened the already existing issue.");
                     addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueReOpenComment(), oldIssue);
                     printIssueInfo(oldIssue);
                 }
