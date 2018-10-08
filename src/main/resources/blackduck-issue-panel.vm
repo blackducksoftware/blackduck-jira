@@ -5,7 +5,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         hideBlackDuckCustomFields();
         replaceProjectOwnerField();
     } catch (error) {
-        
+
     }
 </script>
 
@@ -54,8 +54,8 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
         </ul>
     </div>
     <div class="fieldSectionSeparator"></div>
-#end          
-            
+#end
+
 #if ($bdsComponent || $bdsComponentVersion || $bdsComponentUsage || $bdsComponentOrigin || $bdsComponentOriginId || $bdsLicenses || $bdsProjectVersionLastUpdated)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.component.label")</h5></div>
@@ -167,14 +167,14 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     </div>
     <div class="fieldSectionSeparator"></div>
 #end
-            
+
 #if ($bdsPolicyRule || $bdsPolicyRuleOverridable)
     <div class="module">
         <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.policy.label")</h5></div>
         <ul class="property-list two-cols">
-            
+
             #set( $side = "left" )
-        
+
             #if ($bdsPolicyRule)
                 #if ($side == "left")
                     <li class="item">
@@ -189,6 +189,20 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
                         </div>
                 	</li>
             #end
+			#if ($bdsPolicyRuleSeverity)
+				#if ($side == "left")
+                <li class="item">
+					#set( $side = "right" )
+				#else
+                <li class="item-right fiftyPercent">
+					#set( $side = "left" )
+				#end
+                <div class="blackDuckWrap">
+                    <strong class="name">$i18n.getText("blackduck.integration.jira.issue.custom.policy.rule.severity.label"):</strong>
+                    <div id="bdsPolicyRuleSeverity" class="value">$bdsPolicyRuleSeverity</div> 
+                </div>
+            </li>
+			#end
         	#if ($bdsPolicyRuleOverridable)
                 #if ($side == "left")
                     <li class="item">

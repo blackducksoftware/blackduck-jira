@@ -56,8 +56,8 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueFieldTemplate;
-import com.blackducksoftware.integration.jira.task.issue.model.JiraIssueWrapper;
 import com.google.gson.Gson;
 
 public class JiraIssueServiceWrapper {
@@ -121,17 +121,17 @@ public class JiraIssueServiceWrapper {
         return null;
     }
 
-    public Issue createIssue(final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
-        logger.debug("Create issue: " + jiraIssueWrapper);
-        final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
+    public Issue createIssue(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
+        logger.debug("Create issue: " + blackDuckIssueModel);
+        final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(blackDuckIssueModel);
 
         logger.debug("issueInputParameters.getAssigneeId(): " + issueInputParameters.getAssigneeId());
         logger.debug("issueInputParameters.applyDefaultValuesWhenParameterNotProvided(): " + issueInputParameters.applyDefaultValuesWhenParameterNotProvided());
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): " + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
-        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
+        final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
+        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
             jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
 
         final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraUserContext.getJiraIssueCreatorUser(), issueInputParameters);
@@ -140,8 +140,9 @@ public class JiraIssueServiceWrapper {
             final ErrorCollection errors = result.getErrorCollection();
             if (!errors.hasAnyErrors()) {
                 final MutableIssue jiraIssue = result.getIssue();
-                fixIssueAssignment(jiraIssue, jiraIssueWrapper.getJiraIssueFieldTemplate().getAssigneeId());
                 issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
+                // TODO Fixing the issue assignment should be separate from creating the issue (if an exception is thrown, the issue will be missing pieces).
+                fixIssueAssignment(jiraIssue, blackDuckIssueModel.getJiraIssueFieldTemplate().getAssigneeId());
                 return jiraIssue;
             }
             throw new JiraIssueException("createIssue", errors);
@@ -149,15 +150,16 @@ public class JiraIssueServiceWrapper {
         throw new JiraIssueException("createIssue", validationResult.getErrorCollection());
     }
 
-    public Issue updateIssue(final Issue existingIssue, final JiraIssueWrapper jiraIssueWrapper) throws JiraIssueException {
-        logger.debug("Update issue (" + existingIssue.getKey() + "): " + jiraIssueWrapper);
-        final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(jiraIssueWrapper);
+    public Issue updateIssue(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
+        final Long jiraIssueId = blackDuckIssueModel.getJiraIssueId();
+        logger.debug("Update issue (id: " + jiraIssueId + "): " + blackDuckIssueModel);
+        final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(blackDuckIssueModel);
 
-        final Map<Long, String> blackDuckFieldMappings = jiraIssueWrapper.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = jiraIssueWrapper.getJiraIssueFieldTemplate();
-        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, jiraIssueWrapper.getProjectFieldCopyMappings(), blackDuckFieldMappings,
+        final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
+        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
             jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
-        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), existingIssue.getId(), issueInputParameters);
+        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), jiraIssueId, issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;
             final IssueResult result = jiraIssueService.update(jiraUserContext.getJiraIssueCreatorUser(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
@@ -234,6 +236,16 @@ public class JiraIssueServiceWrapper {
         issuePropertyWrapper.addProjectPropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
     }
 
+    public JiraWorkflow getWorkflow(final Long issueId) {
+        final Issue issue;
+        try {
+            issue = getIssue(issueId);
+            return getWorkflow(issue);
+        } catch (JiraIssueException e) {
+            return null;
+        }
+    }
+
     public JiraWorkflow getWorkflow(final Issue issue) {
         return workflowManager.getWorkflow(issue);
     }
@@ -290,10 +302,10 @@ public class JiraIssueServiceWrapper {
         }
     }
 
-    private IssueInputParameters createPopulatedIssueInputParameters(final JiraIssueWrapper jiraIssueWrapper) {
+    private IssueInputParameters createPopulatedIssueInputParameters(final BlackDuckIssueModel blackDuckIssueModel) {
         final IssueInputParameters issueInputParameters = jiraIssueService.newIssueInputParameters();
-        populateIssueInputParameters(issueInputParameters, jiraIssueWrapper.getJiraIssueFieldTemplate());
-        populateIssueInputParameters(issueInputParameters, jiraIssueWrapper.getBlackDuckIssueTemplate());
+        populateIssueInputParameters(issueInputParameters, blackDuckIssueModel.getJiraIssueFieldTemplate());
+        populateIssueInputParameters(issueInputParameters, blackDuckIssueModel.getBlackDuckIssueTemplate());
 
         return issueInputParameters;
     }
@@ -326,5 +338,4 @@ public class JiraIssueServiceWrapper {
             }
         }
     }
-
 }

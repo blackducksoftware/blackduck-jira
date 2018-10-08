@@ -42,5 +42,4 @@ public class BlackDuckIssuePanelCondition extends AbstractWebCondition {
         }
         return false;
     }
-
 }

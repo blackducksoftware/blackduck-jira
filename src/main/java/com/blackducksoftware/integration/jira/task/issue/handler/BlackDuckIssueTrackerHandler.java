@@ -110,8 +110,8 @@ public class BlackDuckIssueTrackerHandler {
     private IssueView createBlackDuckIssueView(final Issue jiraIssue) {
         final IssueView blackDuckIssue = new IssueView();
         final String issueId = jiraIssue.getKey();
-        String assignee = "";
 
+        final String assignee;
         if (jiraIssue.getAssignee() != null) {
             assignee = jiraIssue.getAssignee().getDisplayName();
         } else {

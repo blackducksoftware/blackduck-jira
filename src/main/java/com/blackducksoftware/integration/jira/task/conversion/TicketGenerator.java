@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.fields.CustomField;
+import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
@@ -41,11 +42,11 @@ import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventData;
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventDataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
+import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.NotificationUserView;
@@ -83,8 +84,8 @@ public class TicketGenerator {
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final HubService blackDuckService, final HubBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-            final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
-            final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
+        final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
         this.notificationService = notificationService;
@@ -119,16 +120,20 @@ public class TicketGenerator {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
 
-                final BomNotificationToEventConverter notificationConverter = new BomNotificationToEventConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                        new EventDataFormatHelper(blackDuckService), linksOfRulesToMonitor, blackDuckService, logger);
-                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, blackDuckBucket, startDate);
+                final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
+                final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
+
+                final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
+
+                handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
             if (results.getLatestNotificationCreatedAtDate().isPresent()) {
                 return results.getLatestNotificationCreatedAtDate().get();
             }
         } catch (final Exception e) {
             logger.error(e);
-            jiraSettingsService.addBlackDuckError(e, "generateTicketsForRecentNotifications");
+            jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
         }
         return startDate;
     }
@@ -141,18 +146,16 @@ public class TicketGenerator {
         return types;
     }
 
-    private void handleEachIssue(final BomNotificationToEventConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final HubBucket blackDuckBucket,
-            final Date batchStartDate)
-            throws HubIntegrationException {
+    private void handleEachIssue(final BomNotificationToIssueModelConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final Date batchStartDate) {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
             if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<EventData> events = converter.convertToEventData(detailResult, blackDuckBucket, batchStartDate);
-                for (final EventData event : events) {
+                final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
+                for (final BlackDuckIssueModel model : issueModels) {
                     try {
-                        issueHandler.handleEvent(event);
+                        issueHandler.handleBlackDuckIssue(model);
                     } catch (final Exception e) {
                         logger.error(e);
-                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleEvent(event)");
+                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                     }
                 }
             }
@@ -166,18 +169,18 @@ public class TicketGenerator {
                 final Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
                     final String msg = String.format(
-                            "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
-                            e.getMessage());
+                        "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
+                            + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
+                        e.getMessage());
                     logger.warn(msg);
-                    jiraSettingsService.addBlackDuckError(msg, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
                 } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
                     logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else {
                     logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                    jiraSettingsService.addBlackDuckError(e, "getAllNotifications");
+                    jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
                 }
             }
         });
     }
-
 }

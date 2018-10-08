@@ -21,20 +21,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.conversion.output.eventdata;
+package com.blackducksoftware.integration.jira.task.issue.model;
 
-import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
-
-public enum EventCategory {
+public enum IssueCategory {
     POLICY,
     VULNERABILITY,
-    SPECIAL;
-
-    public static EventCategory fromNotificationType(final NotificationType notificationType) {
-        EventCategory category = EventCategory.POLICY;
-        if (NotificationType.VULNERABILITY.equals(notificationType)) {
-            category = EventCategory.VULNERABILITY;
-        }
-        return category;
-    }
+    SPECIAL
 }

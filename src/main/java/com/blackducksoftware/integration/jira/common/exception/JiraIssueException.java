@@ -31,11 +31,6 @@ public class JiraIssueException extends JiraException {
 
     private ErrorCollection errorCollection = ErrorCollections.empty();
 
-    public JiraIssueException(final String methodAttempt) {
-        super();
-        super.setMethodAttempt(methodAttempt);
-    }
-
     public JiraIssueException(final String message, final String methodAttempt) {
         super(message);
         super.setMethodAttempt(methodAttempt);
@@ -47,12 +42,11 @@ public class JiraIssueException extends JiraException {
         this.errorCollection = errorCollection;
     }
 
-    public void setErrorCollection(final ErrorCollection errorCollection) {
-        this.errorCollection = errorCollection;
-    }
-
     public ErrorCollection getErrorCollection() {
         return errorCollection;
     }
 
+    public void setErrorCollection(final ErrorCollection errorCollection) {
+        this.errorCollection = errorCollection;
+    }
 }

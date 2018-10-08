@@ -92,6 +92,7 @@ public class JiraFieldUtils {
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL.equals(field.getName())
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE.equals(field.getName())
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY.equals(field.getName())
          ;
          // @formatter:on
     }

@@ -24,5 +24,5 @@
 package com.blackducksoftware.integration.jira.task;
 
 public interface NotificationMonitor {
-    public void reschedule(long interval);
+    void reschedule(long interval);
 }
