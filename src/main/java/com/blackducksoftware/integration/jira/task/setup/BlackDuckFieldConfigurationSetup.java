@@ -45,11 +45,10 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckFieldConfigurationSetup {
+    public final List<String> requiredDefaultFields = new ArrayList<>();
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-
     private final JiraSettingsService settingService;
     private final JiraServices jiraServices;
-    public final List<String> requiredDefaultFields = new ArrayList<>();
 
     public BlackDuckFieldConfigurationSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
         this.settingService = settingService;
@@ -200,5 +199,4 @@ public class BlackDuckFieldConfigurationSetup {
         oldFieldConfigurationScheme.setDescription(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME);
         fieldLayoutManager.updateFieldLayoutScheme(oldFieldConfigurationScheme);
     }
-
 }

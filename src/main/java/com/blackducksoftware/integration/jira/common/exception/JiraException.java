@@ -36,24 +36,16 @@ public class JiraException extends Exception {
         super(message);
     }
 
-    public JiraException(final Throwable cause) {
-        super(cause);
-    }
-
     public JiraException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public JiraException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public String getMethodAttempt() {
+        return methodAttempt;
     }
 
     public void setMethodAttempt(final String methodAttempt) {
         this.methodAttempt = methodAttempt;
-    }
-
-    public String getMethodAttempt() {
-        return methodAttempt;
     }
 
 }

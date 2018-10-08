@@ -25,23 +25,23 @@ package com.blackducksoftware.integration.jira.task.conversion.output;
 
 import java.util.Optional;
 
-import com.blackducksoftware.integration.jira.task.conversion.output.eventdata.EventCategory;
+import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.util.Stringable;
 
 public class IssueProperties extends Stringable {
-    private final EventCategory type;
+    private final IssueCategory type;
     private final String bomComponentUri;
     private final String ruleName;
     private final Long jiraIssueId;
 
-    public IssueProperties(final EventCategory type, final String bomComponentUri, final String ruleName, final Long jiraIssueId) {
+    public IssueProperties(final IssueCategory type, final String bomComponentUri, final String ruleName, final Long jiraIssueId) {
         this.type = type;
         this.bomComponentUri = bomComponentUri;
         this.ruleName = ruleName;
         this.jiraIssueId = jiraIssueId;
     }
 
-    public EventCategory getType() {
+    public IssueCategory getType() {
         return type;
     }
 
@@ -56,5 +56,4 @@ public class IssueProperties extends Stringable {
     public Long getJiraIssueId() {
         return jiraIssueId;
     }
-
 }

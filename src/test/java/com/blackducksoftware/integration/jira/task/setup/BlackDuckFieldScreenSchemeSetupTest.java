@@ -68,7 +68,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
     private static final int NUM_FIELDS_TOTAL = PluginField.values().length;
     private static final int NUM_FIELDS_POLICY = NUM_FIELDS_TOTAL - 2;
-    private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_TOTAL - 3;
+    private static final int NUM_FIELDS_VULNERABILITY = NUM_FIELDS_TOTAL - 4;
 
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
@@ -85,15 +85,15 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
 
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetupOrig = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+            jiraServices);
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = Mockito.spy(fieldConfigSetupOrig);
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-                .thenAnswer(new Answer<FieldScreenScheme>() {
-                    @Override
-                    public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreenScheme>() {
+                @Override
+                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenSchemeMock();
+                }
+            });
         final FieldScreen screen = new FieldScreenMock();
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenReturn(screen);
         // Mockito.doReturn(screen).when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)));
@@ -162,32 +162,32 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+            jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-                .thenAnswer(new Answer<FieldScreen>() {
-                    @Override
-                    public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreen>() {
+                @Override
+                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-                .thenAnswer(new Answer<FieldScreenScheme>() {
-                    @Override
-                    public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreenScheme>() {
+                @Override
+                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenSchemeMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-                Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-                    @Override
-                    public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeItemMock();
-                    }
-                });
+            Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
+            @Override
+            public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
+                return new FieldScreenSchemeItemMock();
+            }
+        });
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
@@ -213,9 +213,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                               .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
+                               || currentSchemeItem.getFieldScreen().getName()
+                                      .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
@@ -262,7 +262,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+            jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
         mockCreationMethods(fieldConfigSetup);
@@ -291,9 +291,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                               .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
+                               || currentSchemeItem.getFieldScreen().getName()
+                                      .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -308,6 +308,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     @Test
+    // TODO This test is not easily maintainable and should be improved
     public void testAddBlackDuckFieldConfigurationToJiraWithUserChanges() throws Exception {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
         final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
@@ -328,7 +329,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
         BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-                jiraServices);
+            jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
         mockCreationMethods(fieldConfigSetup);
@@ -346,7 +347,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
@@ -357,9 +358,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
 
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                               .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
+                               || currentSchemeItem.getFieldScreen().getName()
+                                      .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
@@ -388,7 +389,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)) {
                 assertEquals(NUM_FIELDS_POLICY + 4, tab.getFieldScreenLayoutItems().size());
             } else if (screenName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME)) {
-                assertEquals(NUM_FIELDS_TOTAL, tab.getFieldScreenLayoutItems().size());
+                assertEquals(NUM_FIELDS_TOTAL - 1, tab.getFieldScreenLayoutItems().size());
             }
         }
         assertEquals(2, fieldScreenManager.getUpdatedScreens().size());
@@ -398,9 +399,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
             for (final FieldScreenSchemeItem currentSchemeItem : fieldScreenScheme.getFieldScreenSchemeItems()) {
                 assertTrue(currentSchemeItem.getFieldScreen().getName()
-                        .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
-                        || currentSchemeItem.getFieldScreen().getName()
-                                .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
+                               .equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME)
+                               || currentSchemeItem.getFieldScreen().getName()
+                                      .equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_SCREEN_NAME));
             }
         }
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
@@ -411,28 +412,28 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
     private void mockCreationMethods(final BlackDuckFieldScreenSchemeSetup fieldConfigSetup) {
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-                .thenAnswer(new Answer<FieldScreen>() {
-                    @Override
-                    public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreen>() {
+                @Override
+                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-                .thenAnswer(new Answer<FieldScreenScheme>() {
-                    @Override
-                    public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeMock();
-                    }
-                });
+            .thenAnswer(new Answer<FieldScreenScheme>() {
+                @Override
+                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
+                    return new FieldScreenSchemeMock();
+                }
+            });
 
         Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-                Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-                    @Override
-                    public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                        return new FieldScreenSchemeItemMock();
-                    }
-                });
+            Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
+            @Override
+            public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
+                return new FieldScreenSchemeItemMock();
+            }
+        });
     }
 
     private FieldScreen getDefaultFieldScreen(final boolean includeSomeNullFields) {

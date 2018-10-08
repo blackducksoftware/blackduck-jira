@@ -27,6 +27,7 @@ import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.user.ApplicationUser;
 
 public class ApplicationUserMock implements ApplicationUser {
+    private String username;
     private String name;
     private String key;
 
@@ -70,7 +71,11 @@ public class ApplicationUserMock implements ApplicationUser {
 
     @Override
     public String getUsername() {
-        return null;
+        return username;
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     @Override

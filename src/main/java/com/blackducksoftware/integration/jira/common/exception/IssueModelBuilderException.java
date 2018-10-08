@@ -23,27 +23,10 @@
  */
 package com.blackducksoftware.integration.jira.common.exception;
 
-public class EventDataBuilderException extends Exception {
-    private static final long serialVersionUID = 7709990445225630347L;
+import com.synopsys.integration.exception.IntegrationException;
 
-    public EventDataBuilderException() {
-    }
-
-    public EventDataBuilderException(final String message) {
+public class IssueModelBuilderException extends IntegrationException {
+    public IssueModelBuilderException(String message) {
         super(message);
     }
-
-    public EventDataBuilderException(final Throwable cause) {
-        super(cause);
-    }
-
-    public EventDataBuilderException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public EventDataBuilderException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
 }
