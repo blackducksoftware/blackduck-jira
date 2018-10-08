@@ -183,13 +183,12 @@ public class DataFormatHelper {
     public String getBomLastUpdated(final ProjectVersionView projectVersion) {
         try {
             final VersionRiskProfileView riskProfile = blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
-            final SimpleDateFormat dateFormat = new SimpleDateFormat();
-            return dateFormat.format(riskProfile.bomLastUpdatedAt);
+            if (riskProfile != null) {
+                final SimpleDateFormat dateFormat = new SimpleDateFormat();
+                return dateFormat.format(riskProfile.bomLastUpdatedAt);
+            }
         } catch (final IntegrationException intException) {
             logger.debug(String.format("Could not find the risk profile: %s", intException.getMessage()));
-        } catch (final NullPointerException npe) {
-            logger.debug("The risk profile for the requested project was null.");
-            logger.trace("Caught NPE in getBomLastUpdated()", npe);
         }
         return "";
     }
