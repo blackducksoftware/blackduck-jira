@@ -127,7 +127,7 @@ public class JiraServices {
         return ComponentAccessor.getUserManager();
     }
 
-    public UserSearchService getUserSearchService() {
+    public UserSearchService createUserSearchService() {
         return new DefaultUserPickerSearchService(getUserManager(), ComponentAccessor.getApplicationProperties(), getAuthContext(), ComponentAccessor.getPermissionManager(), getGroupManager(),
             getJiraProjectManager(), null, ComponentAccessor.getCrowdService(), null, null, null);
     }

@@ -301,7 +301,7 @@ public class BomNotificationToIssueModelConverter {
             if (blackDuckProjectOwner != null) {
                 final UserView projectOwner = blackDuckDataHelper.getResponse(blackDuckProjectOwner, UserView.class);
                 if (projectOwner != null) {
-                    final UserSearchService userSearchService = jiraServices.getUserSearchService();
+                    final UserSearchService userSearchService = jiraServices.createUserSearchService();
                     for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.email)) {
                         // We will assume that if users are configured correctly, they will have unique email addresses.
                         return jiraUser;
