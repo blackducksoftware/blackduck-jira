@@ -46,7 +46,6 @@ import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.exception.IntegrationException;
 
@@ -97,28 +96,14 @@ public class DataFormatHelper {
 
     public String createIssueSummary(final IssueCategory issueCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {
         if (IssueCategory.POLICY.equals(issueCategory)) {
-            final String issueSummaryTemplate = "%s: Project '%s' / '%s', Component '%s' [Rule: '%s']";
-            return String.format(issueSummaryTemplate, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, projectName, projectVersionName, getComponentString(componentName, componentVersionName), ruleName);
+            final String policySummaryTemplate = "Policy Violation: Project '%s' / '%s', Component '%s', Rule '%s'";
+            return String.format(policySummaryTemplate, projectName, projectVersionName, getComponentString(componentName, componentVersionName), ruleName);
         } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
-            final StringBuilder issueSummary = new StringBuilder();
-            issueSummary.append(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-            issueSummary.append(": Project '");
-            issueSummary.append(projectName);
-            issueSummary.append("' / '");
-            issueSummary.append(projectVersionName);
-            issueSummary.append("', Component '");
-            issueSummary.append(componentName);
-            issueSummary.append("' / '");
-            issueSummary.append(componentVersionName != null ? componentVersionName : "?");
-            issueSummary.append("'");
-            return issueSummary.toString();
+            final String vulnerabilitySummaryTemplate = "Vulnerability: Project '%s' / '%s', Component '%s' / '%s'";
+            return String.format(vulnerabilitySummaryTemplate, projectName, projectVersionName, componentName, componentVersionName);
         } else {
             return null;
         }
-    }
-
-    public String generateVulnerabilitiesComment(final VulnerabilityNotificationContent vulnerabilityContent) {
-        return generateVulnerabilitiesComment(vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds);
     }
 
     public String generateVulnerabilitiesComment(final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) {
