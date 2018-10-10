@@ -193,9 +193,6 @@ public class BomNotificationToIssueModelConverter {
 
     private Optional<BlackDuckIssueModel> createModelForVulnerability(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final RiskProfileView securityRiskProfile,
         final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) throws IntegrationException, ConfigurationException {
-        if (!blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
-            return Optional.empty();
-        }
         logger.debug("Creating model for vulnerability");
         final String comment = dataFormatHelper.generateVulnerabilitiesComment(addedIds, updatedIds, deletedIds);
         blackDuckIssueModelBuilder.setVulnerabilityComments(comment);
@@ -224,8 +221,11 @@ public class BomNotificationToIssueModelConverter {
 
         // Vulnerability
         try {
-            final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.securityRiskProfile, null, null, null);
-            vulnModel.ifPresent(model -> issueWrappersForEdits.add(model));
+            final RiskProfileView securityRiskProfile = versionBomComponent.securityRiskProfile;
+            if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
+                final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, securityRiskProfile, null, null, null);
+                vulnModel.ifPresent(model -> issueWrappersForEdits.add(model));
+            }
         } catch (final Exception e) {
             logger.error("Unable to create vulnerability template for BOM component.", e);
         }
