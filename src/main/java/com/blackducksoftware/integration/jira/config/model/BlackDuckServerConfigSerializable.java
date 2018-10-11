@@ -119,6 +119,23 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
 
     }
 
+    public BlackDuckServerConfigSerializable(final BlackDuckServerConfigSerializable blackDuckServerConfigSerializable) {
+        this.hubUrl = blackDuckServerConfigSerializable.getHubUrl();
+        this.timeout = blackDuckServerConfigSerializable.getTimeout();
+        this.apiToken = blackDuckServerConfigSerializable.getApiToken();
+        this.apiTokenLength = blackDuckServerConfigSerializable.getApiTokenLength();
+        this.username = blackDuckServerConfigSerializable.getUsername();
+        this.password = blackDuckServerConfigSerializable.getPassword();
+        this.passwordLength = blackDuckServerConfigSerializable.getPasswordLength();
+        this.trustCert = Boolean.valueOf(blackDuckServerConfigSerializable.getTrustCert());
+        this.hubProxyHost = blackDuckServerConfigSerializable.getHubProxyHost();
+        this.hubProxyPort = blackDuckServerConfigSerializable.getHubProxyPort();
+        this.hubNoProxyHosts = blackDuckServerConfigSerializable.getHubNoProxyHosts();
+        this.hubProxyUser = blackDuckServerConfigSerializable.getHubProxyUser();
+        this.hubProxyPassword = blackDuckServerConfigSerializable.getHubProxyPassword();
+        this.hubProxyPasswordLength = blackDuckServerConfigSerializable.getHubProxyPasswordLength();
+    }
+
     public boolean hasErrors() {
         boolean hasErrors = false;
         if (StringUtils.isNotBlank(getHubUrlError())) {
