@@ -66,7 +66,7 @@ public class IssueFieldCopyMappingHandler {
     }
 
     public List<String> setFieldCopyMappings(final IssueInputParameters issueInputParameters, final Set<ProjectFieldCopyMapping> projectFieldCopyMappings, final Map<Long, String> blackDuckFieldMappings,
-            final String jiraProjectName, final Long jiraProjectId) {
+        final String jiraProjectName, final Long jiraProjectId) {
         final List<String> labels = new ArrayList<>();
         if (projectFieldCopyMappings == null || projectFieldCopyMappings.size() == 0) {
             logger.debug("projectFieldCopyMappings is empty");
@@ -112,7 +112,7 @@ public class IssueFieldCopyMappingHandler {
     public void addLabels(final Long issueId, final List<String> labels) {
         for (final String label : labels) {
             logger.debug("Adding label: " + label);
-            labelManager.addLabel(jiraUserContext.getJiraIssueCreatorUser(), issueId, label, false);
+            labelManager.addLabel(jiraUserContext.getDefaultJiraIssueCreatorUser(), issueId, label, false);
         }
     }
 

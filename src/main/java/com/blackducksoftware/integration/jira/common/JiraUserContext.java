@@ -27,19 +27,18 @@ import com.atlassian.jira.user.ApplicationUser;
 
 public class JiraUserContext {
     private final ApplicationUser jiraAdminUser;
-    private final ApplicationUser jiraIssueCreatorUser;
+    private final ApplicationUser defaultJiraIssueCreatorUser;
 
-    public JiraUserContext(final ApplicationUser jiraAdminUser, final ApplicationUser jiraIssueCreatorUser) {
+    public JiraUserContext(final ApplicationUser jiraAdminUser, final ApplicationUser defaultJiraIssueCreatorUser) {
         this.jiraAdminUser = jiraAdminUser;
-        this.jiraIssueCreatorUser = jiraIssueCreatorUser;
+        this.defaultJiraIssueCreatorUser = defaultJiraIssueCreatorUser;
     }
 
     public ApplicationUser getJiraAdminUser() {
         return jiraAdminUser;
     }
 
-    public ApplicationUser getJiraIssueCreatorUser() {
-        return jiraIssueCreatorUser;
+    public ApplicationUser getDefaultJiraIssueCreatorUser() {
+        return defaultJiraIssueCreatorUser;
     }
-
 }

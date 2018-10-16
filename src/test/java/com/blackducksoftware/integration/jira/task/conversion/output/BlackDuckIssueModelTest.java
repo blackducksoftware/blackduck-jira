@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
@@ -47,7 +48,7 @@ public class BlackDuckIssueModelTest {
     private static final String POLICY_RULE_NAME = "blackDuckRuleName";
     private static final String POLICY_RULE_URI = "https://bdRuleUrl:443";
 
-    private static final String EXPECTED_ISSUE_SUMMARY(final BlackDuckIssueModel blackDuckIssueModel) {
+    private static String EXPECTED_ISSUE_SUMMARY(final BlackDuckIssueModel blackDuckIssueModel) {
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueFieldTemplate();
         String issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
         String suffix = "";
@@ -112,10 +113,10 @@ public class BlackDuckIssueModelTest {
         assertEquals("jiraIssueReOpenComment", blackDuckIssueModel.getJiraIssueReOpenComment());
         assertEquals("jiraIssueResolveComment", blackDuckIssueModel.getJiraIssueResolveComment());
         assertEquals(EXPECTED_ISSUE_SUMMARY(blackDuckIssueModel), jiraIssueFieldTemplate.getSummary());
-        assertEquals("jiraIssueTypeId", jiraIssueFieldTemplate.getJiraIssueTypeId());
-        assertEquals(Long.valueOf(123L), jiraIssueFieldTemplate.getJiraProjectId());
-        assertEquals("jiraProjectName", jiraIssueFieldTemplate.getJiraProjectName());
-        assertEquals("jiraIssueCreatorUserName", jiraIssueFieldTemplate.getIssueCreatorUsername());
+        assertEquals("jiraIssueTypeId", jiraIssueFieldTemplate.getIssueTypeId());
+        assertEquals(Long.valueOf(123L), jiraIssueFieldTemplate.getProjectId());
+        assertEquals("jiraProjectName", jiraIssueFieldTemplate.getProjectName());
+        assertEquals("jiraIssueCreatorUserName", jiraIssueFieldTemplate.getIssueCreator().getUsername());
     }
 
     private BlackDuckIssueModel createBlackDuckIssueModel(final IssueCategory issueCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
@@ -160,7 +161,10 @@ public class BlackDuckIssueModelTest {
             );
             jiraIssueSummary = "Black Duck Security Vulnerability: Project 'blackDuckProjectName' / 'blackDuckProjectVersion', Component 'blackDuckComponentName' / 'blackDuckComponentVersion'";
         }
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(123L, "jiraProjectName", "jiraIssueTypeId", jiraIssueSummary, "jiraIssueCreatorUserName", "jiraIssueDescription", "jiraIssueAssigneeUserId");
+        final ApplicationUserMock issueCreator = new ApplicationUserMock();
+        issueCreator.setUsername("jiraIssueCreatorUserName");
+
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(123L, "jiraProjectName", "jiraIssueTypeId", jiraIssueSummary, issueCreator, "jiraIssueDescription", "jiraIssueAssigneeUserId");
         final BlackDuckIssueModel issueModel = new BlackDuckIssueModel(BlackDuckIssueAction.ADD_COMMENT, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, jiraFieldCopyMappings, "bomComponentUri", "componentIssueUrl", DATE_INSTANCE);
         issueModel.setJiraIssueComment("jiraIssueComment");
         issueModel.setJiraIssueCommentForExistingIssue("jiraIssueCommentForExistingIssue");

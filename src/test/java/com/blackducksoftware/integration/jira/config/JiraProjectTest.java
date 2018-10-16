@@ -86,6 +86,8 @@ public class JiraProjectTest {
         builder.append(item1.getProjectName());
         builder.append(", projectId=");
         builder.append(item1.getProjectId());
+        builder.append(", issueCreator=");
+        builder.append(item1.getIssueCreator());
         builder.append(", projectKey=");
         builder.append(item1.getProjectKey());
         builder.append(", assigneeUserId=");
