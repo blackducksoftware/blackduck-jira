@@ -1,17 +1,17 @@
 .hidden {
-	display: none !important;
+    display: none !important;
 }
 
 .plugin-info {
-	width: 100%;
-	color: #707070;
-	text-align: center;
-	white-space: nowrap;
-	display: inline-block;
-	font-family: Arial, sans-serif;
-	font-size: 12px;
-	line-height: 1.66666666666667;
-	padding: 0;
+    width: 100%;
+    color: #707070;
+    text-align: center;
+    white-space: nowrap;
+    display: inline-block;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.66666666666667;
+    padding: 0;
 }
 
 /* Style the tab list */
@@ -25,7 +25,9 @@ ul.tab {
 }
 
 /* Float the list items side by side */
-ul.tab li {float: left;}
+ul.tab li {
+    float: left;
+}
 
 /* Style the links inside the list items */
 ul.tab li a {
@@ -39,10 +41,14 @@ ul.tab li a {
 }
 
 /* Change background color of tab links on hover */
-ul.tab li a:hover {background-color: #ddd;}
+ul.tab li a:hover {
+    background-color: #ddd;
+}
 
 /* Create an active/current tablink class */
-ul.tab li a:focus, .active {background-color: #ccc;}
+ul.tab li a:focus, .active {
+    background-color: #ccc;
+}
 
 /* Style the tab content */
 .tabcontent {
@@ -53,42 +59,42 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 }
 
 .error {
-	color : #c00;
+    color: #c00;
 }
 
 .ticketCreationError {
-	display : inline-block;
-	margin-left : 10px;
-	max-width : 90%;
+    display: inline-block;
+    margin-left: 10px;
+    max-width: 90%;
 }
 
 .disabledPolicyRule {
-	text-decoration: line-through;
+    text-decoration: line-through;
 }
 
 .inlineError {
-	display: inline-block;
+    display: inline-block;
 }
 
 .errorTimestamp {
-	display: inline-block;
-	margin-left : 10px;
+    display: inline-block;
+    margin-left: 10px;
 }
 
 .clickable:hover {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 .largeIcon {
-	font-size : 25px !important;
+    font-size: 25px !important;
 }
 
 .infoIcon {
-	color: #707070;
+    color: #707070;
 }
 
 .field-group {
-	clear: both;
+    clear: both;
     display: block;
     margin-bottom: 5px;
     min-height: 1.6em;
@@ -96,7 +102,7 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 }
 
 .blackduck-details-field-group {
-	clear: both;
+    clear: both;
     display: block;
     margin-bottom: 5px;
     min-height: 1.6em;
@@ -104,99 +110,102 @@ ul.tab li a:focus, .active {background-color: #ccc;}
 }
 
 .longInput {
-	width: 400px;
-	border: 1px solid #ccc;
-	border-radius: 3.01px;
-	box-shadow: inset 0 1px 3px #ccc;
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    box-shadow: inset 0 1px 3px #ccc;
 }
 
 .intervalInput {
-	type: number;
-	min: 1;
-	max: 999;
-	maxlength: 3;
-	size: 3;
-	border: 1px solid #ccc;
-	border-radius: 3.01px;
-	box-shadow: inset 0 1px 3px #ccc;
-	font-family: arial,tahoma,verdana,sans-serif;
+    type: number;
+    min: 1;
+    max: 999;
+    maxlength: 3;
+    size: 3;
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    box-shadow: inset 0 1px 3px #ccc;
+    font-family: arial, tahoma, verdana, sans-serif;
     font-size: 13px;
-    padding : 2px 5px 2px 5px;
+    padding: 2px 5px 2px 5px;
 }
 
 .inputDescription {
-	display: block;
+    display: block;
 }
 
 .textStyle {
-	font-family: arial,tahoma,verdana,sans-serif;
+    font-family: arial, tahoma, verdana, sans-serif;
     font-size: 13px;
-    padding : 2px 5px 2px 5px;
+    padding: 2px 5px 2px 5px;
 }
 
 .legend {
-	font-family: arial,tahoma,verdana,sans-serif;
-	font-size : 16px !important;
-	font-weight : bold !important;
-	display : block !important;
+    font-family: arial, tahoma, verdana, sans-serif;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    display: block !important;
 }
 
 .label {
-	color : #707070;
-	font-weight : bold;
-	width : auto !important;
-	text-align : left !important;
+    color: #707070;
+    font-weight: bold;
+    width: auto !important;
+    text-align: left !important;
 }
 
 .blackDuckDetailsLabel {
-	color : #707070;
-	float : left;
-	margin-left: -160px;
-	font-weight : bold;
-	width : auto !important;
-	text-align : left !important;
-	white-space : nowrap !important;
+    color: #707070;
+    float: left;
+    margin-left: -160px;
+    font-weight: bold;
+    width: auto !important;
+    text-align: left !important;
+    white-space: nowrap !important;
 }
- 
+
 .fieldSection {
-	border : 1px solid !important;
-	padding : 10px 5px 5px 15px !important; 
+    border: 1px solid !important;
+    padding: 10px 5px 5px 15px !important;
 }
 
 .errorSection {
-	border: 1px solid #ccc;
-	padding : 10px 5px 5px 15px !important; 
+    border: 1px solid #ccc;
+    padding: 10px 5px 5px 15px !important;
 }
 
 .mappingContainer {
-	overflow-y: scroll; 
-	height:300px;
+    overflow-y: scroll;
+    height: 300px;
 }
 
 .mappingTableCell {
-	text-align : center;
+    text-align: center;
 }
 
 .ticketCriteriaTable {
-	width : 100%;
-	table-layout : fixed;
+    width: 100%;
+    table-layout: fixed;
 }
 
 .ticketCriteriaSection {
-	overflow : scroll; 
-	height : 300px;
+    overflow: scroll;
+    height: 300px;
 }
+
 .buttonContainer {
-	padding-top : 10px; 
-	float : right;
+    padding-top: 10px;
+    float: right;
 }
 
 ::-webkit-scrollbar {
-  -webkit-appearance: none;
-  width: 7px;
+    -webkit-appearance: none;
+    width: 7px;
 }
+
 ::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-  background-color: #707070;
-  -webkit-box-shadow: 0 0 1px #707070;
+    border-radius: 4px;
+    background-color: #707070;
+    -webkit-box-shadow: 0 0 1px #707070;
 }

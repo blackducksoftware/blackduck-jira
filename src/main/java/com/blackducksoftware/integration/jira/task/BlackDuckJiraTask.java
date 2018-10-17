@@ -97,12 +97,11 @@ public class BlackDuckJiraTask {
 
     /**
      * Setup, then generate JIRA tickets based on recent notifications
-     *
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
         final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
-        HubServerConfig blackDuckServerConfig = null;
+        final HubServerConfig blackDuckServerConfig;
         try {
             logger.debug("Building Black Duck configuration");
             blackDuckServerConfig = blackDuckServerConfigBuilder.build();
@@ -118,7 +117,7 @@ public class BlackDuckJiraTask {
         }
         final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
-        Date startDate;
+        final Date startDate;
         try {
             startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), previousStartDate);
         } catch (final ParseException e) {
@@ -213,14 +212,14 @@ public class BlackDuckJiraTask {
     }
 
     private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubServicesFactory hubServicesFactory, final boolean notificationsOldestFirst,
-            final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
+        final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
         final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(hubServicesFactory.getGson(), HubServicesFactory.createDefaultJsonParser());
         final CommonNotificationService commonNotificationService = hubServicesFactory.createCommonNotificationService(contentDetailFactory, notificationsOldestFirst);
 
         final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), hubServicesFactory.createNotificationService(), commonNotificationService,
-                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
+            hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
         return ticketGenerator;
     }
 

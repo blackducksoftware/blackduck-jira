@@ -36,6 +36,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
@@ -117,8 +118,9 @@ public class JiraIssueHandler {
     }
 
     private ExistenceAwareIssue openIssue(final BlackDuckIssueModel blackDuckIssueModel) {
-        logger.debug("Setting logged in User : " + blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreatorUsername());
-        authContext.setLoggedInUser(jiraUserContext.getJiraIssueCreatorUser());
+        final ApplicationUser issueCreator = blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreator();
+        logger.debug("Setting logged in User : " + issueCreator);
+        authContext.setLoggedInUser(issueCreator);
         logger.debug("issue template: " + blackDuckIssueModel);
 
         final Issue oldIssue = findIssueAndUpdateModel(blackDuckIssueModel);
@@ -200,7 +202,7 @@ public class JiraIssueHandler {
             }
             return new ExistenceAwareIssue(oldIssue, true, issueStateChangeBlocked);
         } else {
-            BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueTemplate();
+            final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueTemplate();
             logger.info("Could not find an existing issue to close for this event.");
             logger.debug("Black Duck Project Name : " + blackDuckIssueFieldTemplate.getProjectName());
             logger.debug("Black Duck Project Version : " + blackDuckIssueFieldTemplate.getProjectVersionName());
@@ -268,7 +270,7 @@ public class JiraIssueHandler {
             final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(blackDuckIssueUrl, blackDuckIssueModel.getJiraIssueId());
             try {
                 final String key = blackDuckIssueTrackerPropertyHandler.createEntityPropertyKey(blackDuckIssueModel.getJiraIssueId());
-                issueServiceWrapper.addProjectProperty(blackDuckIssueModel.getJiraIssueFieldTemplate().getJiraProjectId(), key, issueTrackerProperties);
+                issueServiceWrapper.addProjectProperty(blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectId(), key, issueTrackerProperties);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
             }
@@ -381,7 +383,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -401,7 +403,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         return null;
     }
@@ -473,8 +475,8 @@ public class JiraIssueHandler {
 
     private void handleJiraIssueException(final JiraIssueException issueException, final BlackDuckIssueModel blackDuckIssueModel) {
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueTemplate();
-        handleJiraIssueException(issueException, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), blackDuckIssueModel.getJiraIssueFieldTemplate().getJiraProjectName(),
-            jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getJiraIssueCreatorUser().getUsername());
+        handleJiraIssueException(issueException, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectName(),
+            jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProjectName, final String jiraAdminUsername,

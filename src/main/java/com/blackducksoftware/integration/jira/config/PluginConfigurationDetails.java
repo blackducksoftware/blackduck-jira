@@ -48,7 +48,7 @@ public class PluginConfigurationDetails {
     private final String installDateString;
     private final String lastRunDateString;
     private final String jiraAdminUserName;
-    private final String jiraIssueCreatorUserName;
+    private final String defaultJiraIssueCreatorUserName;
     private final String fieldCopyMappingJson;
     private final boolean createVulnerabilityIssues;
 
@@ -77,7 +77,7 @@ public class PluginConfigurationDetails {
         installDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
         lastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
 
-        jiraIssueCreatorUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
+        defaultJiraIssueCreatorUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
         jiraAdminUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER);
 
         fieldCopyMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
@@ -160,8 +160,8 @@ public class PluginConfigurationDetails {
         return jiraAdminUserName;
     }
 
-    public String getJiraIssueCreatorUserName() {
-        return jiraIssueCreatorUserName;
+    public String getDefaultJiraIssueCreatorUserName() {
+        return defaultJiraIssueCreatorUserName;
     }
 
     public String getFieldCopyMappingJson() {

@@ -69,19 +69,19 @@ public class JiraIssueServiceWrapper {
     private final WorkflowManager workflowManager;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
     private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
-    private final JiraUserContext jiraUserContext;
+    private final ApplicationUser jiraAdminUser;
     private final Gson gson;
     private final Map<PluginField, CustomField> customFieldsMap;
 
     public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager, final JiraIssuePropertyWrapper issuePropertyWrapper,
-        final IssueFieldCopyMappingHandler issueFieldCopyHandler, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
+        final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
         this.jiraIssueService = jiraIssueService;
         this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
         this.workflowManager = workflowManager;
         this.issuePropertyWrapper = issuePropertyWrapper;
         this.issueFieldCopyHandler = issueFieldCopyHandler;
-        this.jiraUserContext = jiraUserContext;
+        this.jiraAdminUser = jiraAdminUser;
         this.gson = gson;
         this.customFieldsMap = customFieldsMap;
     }
@@ -95,7 +95,7 @@ public class JiraIssueServiceWrapper {
                 ,jiraServices.getWorkflowManager()
                 ,jiraServices.createIssuePropertyWrapper()
                 ,new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFieldsMap)
-                ,jiraUserContext
+                ,jiraUserContext.getJiraAdminUser() 
                 ,customFieldsMap
                 ,gson
                 );
@@ -103,7 +103,7 @@ public class JiraIssueServiceWrapper {
     // @formatter:on
 
     public Issue getIssue(final Long issueId) throws JiraIssueException {
-        final IssueResult result = jiraIssueService.getIssue(jiraUserContext.getJiraIssueCreatorUser(), issueId);
+        final IssueResult result = jiraIssueService.getIssue(jiraAdminUser, issueId);
         if (result.isValid()) {
             return result.getIssue();
         }
@@ -132,17 +132,17 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
+            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
 
-        final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraUserContext.getJiraIssueCreatorUser(), issueInputParameters);
+        final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraIssueFieldTemplate.getIssueCreator(), issueInputParameters);
         if (validationResult.isValid()) {
-            final IssueResult result = jiraIssueService.create(jiraUserContext.getJiraIssueCreatorUser(), validationResult);
+            final IssueResult result = jiraIssueService.create(jiraIssueFieldTemplate.getIssueCreator(), validationResult);
             final ErrorCollection errors = result.getErrorCollection();
             if (!errors.hasAnyErrors()) {
                 final MutableIssue jiraIssue = result.getIssue();
                 issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
                 // TODO Fixing the issue assignment should be separate from creating the issue (if an exception is thrown, the issue will be missing pieces).
-                fixIssueAssignment(jiraIssue, blackDuckIssueModel.getJiraIssueFieldTemplate().getAssigneeId());
+                fixIssueAssignment(jiraIssue, jiraIssueFieldTemplate.getAssigneeId());
                 return jiraIssue;
             }
             throw new JiraIssueException("createIssue", errors);
@@ -158,11 +158,11 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getJiraProjectName(), jiraIssueFieldTemplate.getJiraProjectId());
-        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraUserContext.getJiraIssueCreatorUser(), jiraIssueId, issueInputParameters);
+            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraIssueFieldTemplate.getIssueCreator(), jiraIssueId, issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;
-            final IssueResult result = jiraIssueService.update(jiraUserContext.getJiraIssueCreatorUser(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
+            final IssueResult result = jiraIssueService.update(jiraIssueFieldTemplate.getIssueCreator(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
             final ErrorCollection errors = result.getErrorCollection();
             if (!errors.hasAnyErrors()) {
                 final MutableIssue jiraIssue = result.getIssue();
@@ -180,9 +180,9 @@ public class JiraIssueServiceWrapper {
         issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
 
         logger.debug("Previous issue status: " + existingIssue.getStatus().getName());
-        final TransitionValidationResult validationResult = jiraIssueService.validateTransition(jiraUserContext.getJiraIssueCreatorUser(), existingIssue.getId(), transitionActionId, issueInputParameters);
+        final TransitionValidationResult validationResult = jiraIssueService.validateTransition(existingIssue.getCreator(), existingIssue.getId(), transitionActionId, issueInputParameters);
         if (validationResult.isValid()) {
-            final IssueResult result = jiraIssueService.transition(jiraUserContext.getJiraIssueCreatorUser(), validationResult);
+            final IssueResult result = jiraIssueService.transition(existingIssue.getCreator(), validationResult);
             final ErrorCollection errors = result.getErrorCollection();
             if (!errors.hasAnyErrors()) {
                 final Issue jiraIssue = result.getIssue();
@@ -196,11 +196,11 @@ public class JiraIssueServiceWrapper {
 
     public void addComment(final Issue issue, final String comment) {
         final boolean dispatchCommentEvent = false;
-        commentManager.create(issue, jiraUserContext.getJiraIssueCreatorUser(), comment, dispatchCommentEvent);
+        commentManager.create(issue, issue.getCreator(), comment, dispatchCommentEvent);
     }
 
     public String getIssueProperty(final Long issueId, final String propertyName) {
-        return issuePropertyWrapper.getIssueProperty(issueId, jiraUserContext.getJiraIssueCreatorUser(), propertyName);
+        return issuePropertyWrapper.getIssueProperty(issueId, jiraAdminUser, propertyName);
     }
 
     public List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
@@ -225,7 +225,7 @@ public class JiraIssueServiceWrapper {
     }
 
     public void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
-        issuePropertyWrapper.addIssuePropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
+        issuePropertyWrapper.addIssuePropertyJson(issueId, jiraAdminUser, key, jsonValue);
     }
 
     public void addProjectProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
@@ -233,17 +233,7 @@ public class JiraIssueServiceWrapper {
         if (null != value) {
             jsonValue = gson.toJson(value);
         }
-        issuePropertyWrapper.addProjectPropertyJson(issueId, jiraUserContext.getJiraIssueCreatorUser(), key, jsonValue);
-    }
-
-    public JiraWorkflow getWorkflow(final Long issueId) {
-        final Issue issue;
-        try {
-            issue = getIssue(issueId);
-            return getWorkflow(issue);
-        } catch (JiraIssueException e) {
-            return null;
-        }
+        issuePropertyWrapper.addProjectPropertyJson(issueId, jiraAdminUser, key, jsonValue);
     }
 
     public JiraWorkflow getWorkflow(final Issue issue) {
@@ -267,8 +257,8 @@ public class JiraIssueServiceWrapper {
     }
 
     private void assignIssue(final MutableIssue issue, final String assigneeId) throws JiraIssueException {
-        final ApplicationUser issueCreator = jiraUserContext.getJiraIssueCreatorUser();
-        final AssignValidationResult assignValidationResult = jiraIssueService.validateAssign(jiraUserContext.getJiraIssueCreatorUser(), issue.getId(), assigneeId);
+        final ApplicationUser issueCreator = issue.getCreator();
+        final AssignValidationResult assignValidationResult = jiraIssueService.validateAssign(issueCreator, issue.getId(), assigneeId);
         final ErrorCollection errors = assignValidationResult.getErrorCollection();
         if (assignValidationResult.isValid() && !errors.hasAnyErrors()) {
             logger.debug("Assigning issue to user ID: " + assigneeId);
@@ -291,7 +281,7 @@ public class JiraIssueServiceWrapper {
 
     private void dispatchEvent(final MutableIssue modifiedIssue, final EventDispatchOption option, final boolean sendMail) {
         final UpdateIssueRequest issueUpdate = UpdateIssueRequest.builder().eventDispatchOption(option).sendMail(sendMail).build();
-        jiraIssueManager.updateIssue(jiraUserContext.getJiraIssueCreatorUser(), modifiedIssue, issueUpdate);
+        jiraIssueManager.updateIssue(modifiedIssue.getCreator(), modifiedIssue, issueUpdate);
     }
 
     private IssueProperties createIssuePropertiesFromJson(final String json) throws JiraIssueException {
@@ -311,12 +301,13 @@ public class JiraIssueServiceWrapper {
     }
 
     private void populateIssueInputParameters(final IssueInputParameters issueInputParameters, final JiraIssueFieldTemplate jiraIssueFieldTemplate) {
-        issueInputParameters.setProjectId(jiraIssueFieldTemplate.getJiraProjectId()).setIssueTypeId(jiraIssueFieldTemplate.getJiraIssueTypeId());
+        issueInputParameters.setProjectId(jiraIssueFieldTemplate.getProjectId()).setIssueTypeId(jiraIssueFieldTemplate.getIssueTypeId());
         if (jiraIssueFieldTemplate.getSummary() != null) {
             issueInputParameters.setSummary(jiraIssueFieldTemplate.getSummary());
         }
-        if (jiraIssueFieldTemplate.getIssueCreatorUsername() != null) {
-            issueInputParameters.setReporterId(jiraIssueFieldTemplate.getIssueCreatorUsername());
+        if (jiraIssueFieldTemplate.getIssueCreator() != null) {
+            final String reporterId = jiraIssueFieldTemplate.getIssueCreator().getUsername();
+            issueInputParameters.setReporterId(reporterId);
         }
         if (jiraIssueFieldTemplate.getIssueDescription() != null) {
             issueInputParameters.setDescription(jiraIssueFieldTemplate.getIssueDescription());

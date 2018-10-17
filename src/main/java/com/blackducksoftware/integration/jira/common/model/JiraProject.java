@@ -35,13 +35,16 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JiraProject extends Stringable implements Serializable {
-    private static final long serialVersionUID = 7423609186833952372L;
+    private static final long serialVersionUID = -943699199632688043L;
 
     @XmlElement
     private String projectName;
 
     @XmlElement
     private Long projectId;
+
+    @XmlElement
+    private String issueCreator;
 
     @XmlElement
     private String assigneeUserId;
@@ -65,6 +68,14 @@ public class JiraProject extends Stringable implements Serializable {
 
     public Long getProjectId() {
         return projectId;
+    }
+
+    public String getIssueCreator() {
+        return issueCreator;
+    }
+
+    public void setIssueCreator(final String issueCreator) {
+        this.issueCreator = issueCreator;
     }
 
     public String getAssigneeUserId() {
@@ -102,6 +113,8 @@ public class JiraProject extends Stringable implements Serializable {
         builder.append(projectName);
         builder.append(", projectId=");
         builder.append(projectId);
+        builder.append(", issueCreator=");
+        builder.append(issueCreator);
         builder.append(", projectKey=");
         builder.append(projectKey);
         builder.append(", assigneeUserId=");
@@ -111,5 +124,4 @@ public class JiraProject extends Stringable implements Serializable {
         builder.append("]");
         return builder.toString();
     }
-
 }
