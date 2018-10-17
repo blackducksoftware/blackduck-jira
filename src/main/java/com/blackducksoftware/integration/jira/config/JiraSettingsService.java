@@ -101,7 +101,7 @@ public class JiraSettingsService {
         suffixBuilder.append(methodAttempt);
 
         final StringBuilder finalErrorBuilder = new StringBuilder();
-        finalErrorBuilder.append(StringUtils.trim(errorMessage));
+        finalErrorBuilder.append(StringUtils.trimToEmpty(errorMessage));
         finalErrorBuilder.append("\n");
         finalErrorBuilder.append(suffixBuilder.toString());
 
