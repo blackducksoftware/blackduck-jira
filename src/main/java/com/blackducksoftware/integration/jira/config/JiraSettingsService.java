@@ -48,8 +48,6 @@ public class JiraSettingsService {
         this.settings = settings;
     }
 
-    ;
-
     public void addBlackDuckError(final Throwable throwable, final String methodAttempt) {
         addBlackDuckError(throwable, null, null, null, null, null, methodAttempt);
     }

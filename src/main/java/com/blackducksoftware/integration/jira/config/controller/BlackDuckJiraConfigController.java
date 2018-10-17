@@ -752,6 +752,7 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+                    config.setJiraProjects(jiraProjects);
                     final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
                     if (blackDuckServicesFactory == null) {
                         return config;
@@ -760,7 +761,6 @@ public class BlackDuckJiraConfigController {
                     closeRestConnection(blackDuckServicesFactory.getRestConnection());
 
                     config.setHubProjects(blackDuckProjects);
-                    config.setJiraProjects(jiraProjects);
                     validateInterval(config);
                     validateCreator(config, settings);
                     validateMapping(config);
