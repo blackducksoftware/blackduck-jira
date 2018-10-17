@@ -856,7 +856,6 @@ AJS.$(document).ajaxComplete(function (event, xhr, settings) {
                         if (hubProject) {
                             hubProjectError = false;
                         }
-
                     }
                 }
                 if (hubProjectError) {
@@ -1028,8 +1027,10 @@ function getJsonArrayFromMapping() {
 
         var currentJiraProjectDisplayName = currentJiraProject.val();
         var currentJiraProjectValue = currentJiraProject.attr('projectKey');
-        var currentJiraProjectIssueCreator = currentJiraProject.attr('issueCreator');
         var currentJiraProjectError = currentJiraProject.attr('projectError');
+
+        var currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
+        var currentJiraProjectIssueCreator = currentIssueCreator.val();
 
         var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 
@@ -1409,6 +1410,9 @@ function fillInMapping(mappingElement, storedMapping) {
 
     currentJiraProject.val(storedJiraProjectDisplayName);
     currentJiraProject.attr("projectKey", storedJiraProjectValue);
+
+    var currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
+    currentIssueCreator.val(storedJiraProject.issueCreator);
 
     var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 

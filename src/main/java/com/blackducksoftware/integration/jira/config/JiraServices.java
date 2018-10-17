@@ -168,7 +168,10 @@ public class JiraServices {
         return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
     }
 
-    public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
+    public JiraProject getJiraProject(final Long jiraProjectId) throws HubIntegrationException {
+        if (jiraProjectId == null) {
+            throw new HubIntegrationException("Error: JIRA Project ID is null; one of the Project Mappings is likely misconfigured");
+        }
         final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
             throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");

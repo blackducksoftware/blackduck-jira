@@ -291,8 +291,7 @@
                             </div>
                         </td>
                         <td class="mappingTableCell">
-                            <input type="text" id="creatorInput" name="creator" class="intervalInput"
-                                   placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
+                            <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
                                    list="creatorCandidates" oninput="onCreatorInputChange(this);"/>
                             <datalist id="creatorCandidates">
                             </datalist>

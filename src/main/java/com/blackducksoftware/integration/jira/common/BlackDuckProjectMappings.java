@@ -70,6 +70,7 @@ public class BlackDuckProjectMappings {
             final JiraProject jiraProject;
             try {
                 jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
+                jiraProject.setIssueCreator(mappingJiraProject.getIssueCreator());
             } catch (final HubIntegrationException e) {
                 logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID " + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
                 continue;

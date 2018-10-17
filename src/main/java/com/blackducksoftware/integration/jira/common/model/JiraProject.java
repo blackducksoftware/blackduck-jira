@@ -74,6 +74,10 @@ public class JiraProject extends Stringable implements Serializable {
         return issueCreator;
     }
 
+    public void setIssueCreator(final String issueCreator) {
+        this.issueCreator = issueCreator;
+    }
+
     public String getAssigneeUserId() {
         return assigneeUserId;
     }

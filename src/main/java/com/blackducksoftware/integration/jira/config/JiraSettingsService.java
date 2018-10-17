@@ -46,7 +46,9 @@ public class JiraSettingsService {
 
     public JiraSettingsService(final PluginSettings settings) {
         this.settings = settings;
-    };
+    }
+
+    ;
 
     public void addBlackDuckError(final Throwable throwable, final String methodAttempt) {
         addBlackDuckError(throwable, null, null, null, null, null, methodAttempt);
@@ -57,14 +59,14 @@ public class JiraSettingsService {
     }
 
     public void addBlackDuckError(final Throwable throwable, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
-            final String methodAttempt) {
+        final String methodAttempt) {
         final StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
         addBlackDuckError(sw.toString(), blackDuckProjectName, blackDuckProjectVersionName, jiraProject, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
     }
 
     public void addBlackDuckError(final String errorMessage, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
-            final String methodAttempt) {
+        final String methodAttempt) {
         logger.debug("Sending error to UI");
         List<TicketCreationError> ticketErrors = expireOldErrors(settings);
         if (ticketErrors == null) {
@@ -101,7 +103,7 @@ public class JiraSettingsService {
         suffixBuilder.append(methodAttempt);
 
         final StringBuilder finalErrorBuilder = new StringBuilder();
-        finalErrorBuilder.append(errorMessage.trim());
+        finalErrorBuilder.append(StringUtils.trim(errorMessage));
         finalErrorBuilder.append("\n");
         finalErrorBuilder.append(suffixBuilder.toString());
 

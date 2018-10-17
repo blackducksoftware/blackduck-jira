@@ -124,7 +124,7 @@ public class BlackDuckJiraConfigController {
     private final Properties i18nProperties;
 
     public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-            final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
+        final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
@@ -752,7 +752,6 @@ public class BlackDuckJiraConfigController {
                 @Override
                 public Object doInTransaction() {
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-                    config.setJiraProjects(jiraProjects);
                     final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
                     if (blackDuckServicesFactory == null) {
                         return config;
@@ -1003,7 +1002,7 @@ public class BlackDuckJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     void updatePluginTaskInterval(final String previousIntervalString, final String newIntervalString) {
         final int previousInterval = NumberUtils.toInt(previousIntervalString);
-        int newInterval;
+        final int newInterval;
         try {
             newInterval = stringToInteger(newIntervalString);
             if (newInterval > 0 && newInterval != previousInterval) {
@@ -1201,7 +1200,7 @@ public class BlackDuckJiraConfigController {
 
             restConnection = serverConfig.createRestConnection(logger);
             restConnection.connect();
-        } catch (IllegalArgumentException | IntegrationException e) {
+        } catch (final IllegalArgumentException | IntegrationException e) {
             config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
             return null;
         }

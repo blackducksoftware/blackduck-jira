@@ -306,8 +306,8 @@ public class JiraIssueServiceWrapper {
             issueInputParameters.setSummary(jiraIssueFieldTemplate.getSummary());
         }
         if (jiraIssueFieldTemplate.getIssueCreator() != null) {
-            final Long reporterId = jiraIssueFieldTemplate.getIssueCreator().getId();
-            issueInputParameters.setReporterId(Long.toString(reporterId));
+            final String reporterId = jiraIssueFieldTemplate.getIssueCreator().getUsername();
+            issueInputParameters.setReporterId(reporterId);
         }
         if (jiraIssueFieldTemplate.getIssueDescription() != null) {
             issueInputParameters.setDescription(jiraIssueFieldTemplate.getIssueDescription());

@@ -275,8 +275,7 @@ public class BomNotificationToIssueModelConverter {
         builder.setLastBatchStartDate(batchStartDate);
         builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().projectOwner), projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
-        // FIXME get this from the project mapping
-        builder.setIssueCreator(getIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
+        builder.setIssueCreator(lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
         return builder;
     }
 
@@ -316,7 +315,7 @@ public class BomNotificationToIssueModelConverter {
         return null;
     }
 
-    private ApplicationUser getIssueCreator(final String issueCreatorUsername, final JiraUserContext jiraUserContext) {
+    private ApplicationUser lookupIssueCreator(final String issueCreatorUsername, final JiraUserContext jiraUserContext) {
         final UserManager userManager = jiraServices.getUserManager();
         ApplicationUser issueCreator = userManager.getUserByName(issueCreatorUsername);
         if (issueCreator == null) {

@@ -85,7 +85,7 @@ public class BlackDuckProjectMappingsTest {
             jiraProject.setProjectId((long) i);
             jiraProject.setProjectKey("projectKey" + i);
             jiraProject.setProjectName("projectName" + i);
-            Mockito.when(jiraServices.getJiraProject(i)).thenReturn(jiraProject);
+            Mockito.when(jiraServices.getJiraProject(Long.valueOf(i))).thenReturn(jiraProject);
         }
 
         final Set<BlackDuckProjectMapping> underlyingMappings = new HashSet<>();
