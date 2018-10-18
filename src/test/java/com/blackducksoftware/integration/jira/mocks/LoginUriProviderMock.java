@@ -24,8 +24,11 @@
 package com.blackducksoftware.integration.jira.mocks;
 
 import java.net.URI;
+import java.util.EnumSet;
 
 import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.sal.api.page.PageCapability;
+import com.atlassian.sal.api.user.UserRole;
 
 public class LoginUriProviderMock implements LoginUriProvider {
 
@@ -34,6 +37,21 @@ public class LoginUriProviderMock implements LoginUriProvider {
 
     @Override
     public URI getLoginUri(final URI returnUri) {
+        return returnUri;
+    }
+
+    @Override
+    public URI getLoginUri(final URI returnUri, final EnumSet<PageCapability> enumSet) {
+        return returnUri;
+    }
+
+    @Override
+    public URI getLoginUriForRole(final URI returnUri, final UserRole userRole) {
+        return returnUri;
+    }
+
+    @Override
+    public URI getLoginUriForRole(final URI returnUri, final UserRole userRole, final EnumSet<PageCapability> enumSet) {
         return returnUri;
     }
 

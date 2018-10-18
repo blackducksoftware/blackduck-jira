@@ -83,6 +83,12 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         reschedule(0L);
     }
 
+    @Override
+    public void onStop() {
+        //TODO figure out what we should do here
+        cleanup();
+    }
+
     public void changeInterval() {
         logger.trace(BlackDuckMonitor.class.getName() + " changeInterval() called.");
         reschedule(0L);
@@ -95,7 +101,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         unscheduleOldJobs();
 
         final long actualInterval = getIntervalMillisec();
-        Schedule schedule;
+        final Schedule schedule;
         try {
             final String installDateString = getInstallDateString();
             schedule = Schedule.forInterval(actualInterval, BlackDuckPluginDateFormatter.parse(installDateString));
@@ -111,10 +117,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, new Integer(configuredIntervalMinutes));
 
         final JobConfig jobConfig = JobConfig
-                .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)
-                .withRunMode(RunMode.RUN_LOCALLY)
-                .withParameters(blackDuckJobRunnerProperties)
-                .withSchedule(schedule);
+                                        .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)
+                                        .withRunMode(RunMode.RUN_LOCALLY)
+                                        .withParameters(blackDuckJobRunnerProperties)
+                                        .withSchedule(schedule);
 
         try {
             schedulerService.scheduleJob(JobId.of(CURRENT_JOB_NAME), jobConfig);
@@ -136,6 +142,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
     @Override
     public void destroy() throws Exception {
         logger.debug("destroy() called; Unscheduling " + CURRENT_JOB_NAME);
+        cleanup();
+    }
+
+    private void cleanup() {
         schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
 
         final String installDate = getInstallDateString();
