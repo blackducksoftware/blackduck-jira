@@ -27,9 +27,12 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.sal.api.user.UserProfile;
 import com.atlassian.sal.api.user.UserResolutionException;
 
 public class UserManagerUIMock implements UserManager {
@@ -56,14 +59,55 @@ public class UserManagerUIMock implements UserManager {
         return remoteUsername;
     }
 
+    @Nullable
+    @Override
+    public UserProfile getRemoteUser() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public UserKey getRemoteUserKey() {
+        return null;
+    }
+
     @Override
     public String getRemoteUsername(final HttpServletRequest request) {
         return remoteUsername;
     }
 
+    @Nullable
+    @Override
+    public UserProfile getRemoteUser(final HttpServletRequest httpServletRequest) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public UserKey getRemoteUserKey(final HttpServletRequest httpServletRequest) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public UserProfile getUserProfile(@Nullable final String s) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public UserProfile getUserProfile(@Nullable final UserKey userKey) {
+        return null;
+    }
+
     @Override
     public boolean isUserInGroup(final String username, final String group) {
         return userGroups.contains(group);
+    }
+
+    @Override
+    public boolean isUserInGroup(@Nullable final UserKey userKey, @Nullable final String s) {
+        return false;
     }
 
     public void setIsSystemAdmin(final boolean isSystemAdmin) {
@@ -76,12 +120,32 @@ public class UserManagerUIMock implements UserManager {
     }
 
     @Override
+    public boolean isSystemAdmin(@Nullable final UserKey userKey) {
+        return false;
+    }
+
+    @Override
+    public boolean isAdmin(@Nullable final String s) {
+        return false;
+    }
+
+    @Override
+    public boolean isAdmin(@Nullable final UserKey userKey) {
+        return false;
+    }
+
+    @Override
     public boolean authenticate(final String username, final String password) {
         return false;
     }
 
     @Override
     public Principal resolve(final String username) throws UserResolutionException {
+        return null;
+    }
+
+    @Override
+    public Iterable<String> findGroupNamesByPrefix(final String s, final int i, final int i1) {
         return null;
     }
 
