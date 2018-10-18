@@ -474,9 +474,10 @@ public class JiraIssueHandler {
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final BlackDuckIssueModel blackDuckIssueModel) {
+        final ApplicationUser issueCreator = blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreator();
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueTemplate();
         handleJiraIssueException(issueException, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectName(),
-            jiraUserContext.getJiraAdminUser().getUsername(), jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername());
+            jiraUserContext.getJiraAdminUser().getUsername(), issueCreator.getUsername());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProjectName, final String jiraAdminUsername,
