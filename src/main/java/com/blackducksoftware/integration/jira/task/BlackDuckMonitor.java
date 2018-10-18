@@ -30,7 +30,6 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.DisposableBean;
 
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -48,7 +47,7 @@ import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
-public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, DisposableBean {
+public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
 
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
@@ -85,7 +84,23 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
 
     @Override
     public void onStop() {
-        cleanup();
+        logger.debug(BlackDuckMonitor.class.getName() + ".onStop() called; Unscheduling " + CURRENT_JOB_NAME);
+        schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
+
+        final String installDate = getInstallDateString();
+        logger.debug("Install date was: " + installDate);
+        logger.debug("Removing install date...");
+        final Object removedSetting = pluginSettings.remove(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+        if (removedSetting != null) {
+            logger.debug("Successfully removed install date.");
+        } else {
+            logger.debug("Failed to remove install date.");
+        }
+        try {
+            executorService.shutdown();
+        } catch (final Exception e) {
+            logger.warn("Failed to properly shutdown the Black Duck threadManager: " + e.getMessage());
+        }
     }
 
     public void changeInterval() {
@@ -136,31 +151,6 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
         }
 
         return "blackDuckMonitor";
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        cleanup();
-    }
-
-    private void cleanup() {
-        logger.debug(BlackDuckMonitor.class.getName() + ".cleanup() called; Unscheduling " + CURRENT_JOB_NAME);
-        schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
-
-        final String installDate = getInstallDateString();
-        logger.debug("Install date was: " + installDate);
-        logger.debug("Removing install date...");
-        final Object removedSetting = pluginSettings.remove(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
-        if (removedSetting != null) {
-            logger.debug("Successfully removed install date.");
-        } else {
-            logger.debug("Failed to remove install date.");
-        }
-        try {
-            executorService.shutdown();
-        } catch (final Exception e) {
-            logger.warn("Failed to properly shutdown the Black Duck threadManager: " + e.getMessage());
-        }
     }
 
     private void unscheduleOldJobs() {
