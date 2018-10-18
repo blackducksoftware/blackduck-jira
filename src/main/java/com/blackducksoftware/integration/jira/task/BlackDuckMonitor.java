@@ -85,7 +85,6 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
 
     @Override
     public void onStop() {
-        //TODO figure out what we should do here
         cleanup();
     }
 
@@ -141,11 +140,11 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware, Di
 
     @Override
     public void destroy() throws Exception {
-        logger.debug("destroy() called; Unscheduling " + CURRENT_JOB_NAME);
         cleanup();
     }
 
     private void cleanup() {
+        logger.debug(BlackDuckMonitor.class.getName() + ".cleanup() called; Unscheduling " + CURRENT_JOB_NAME);
         schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
 
         final String installDate = getInstallDateString();
