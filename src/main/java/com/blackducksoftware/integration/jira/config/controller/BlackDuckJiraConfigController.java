@@ -67,6 +67,7 @@ import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
+import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
@@ -1210,6 +1211,12 @@ public class BlackDuckJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     List<BlackDuckProject> getBlackDuckProjects(final HubServicesFactory blackDuckServicesFactory, final ErrorTracking config) {
         final List<BlackDuckProject> blackDuckProjects = new ArrayList<>();
+
+        final BlackDuckProject allProjects = new BlackDuckProject();
+        allProjects.setProjectName(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
+        allProjects.setProjectUrl(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
+        blackDuckProjects.add(allProjects);
+
         final ProjectService projectRequestService = blackDuckServicesFactory.createProjectService();
         List<ProjectView> blackDuckProjectItems = null;
         try {

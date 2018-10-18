@@ -259,6 +259,7 @@ public class BomNotificationToIssueModelConverter {
             builder.setIssueCategory(IssueCategory.SPECIAL);
             builder.setLastBatchStartDate(batchStartDate);
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
+            builder.setIssueCreator(jiraUserContext.getDefaultJiraIssueCreatorUser());
             if (detail.getBomComponent().isPresent()) {
                 builder.setBomComponentUri(detail.getBomComponent().get().uri);
             }
