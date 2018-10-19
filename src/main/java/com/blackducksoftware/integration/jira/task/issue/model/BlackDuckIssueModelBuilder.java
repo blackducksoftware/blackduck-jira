@@ -277,12 +277,17 @@ public class BlackDuckIssueModelBuilder extends Stringable {
                 projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
                 originsString, originIdsString);
         } else {
+            issueCategory = IssueCategory.SPECIAL;
             blackDuckIssueFieldTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname,
-                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.SPECIAL);
+                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
         }
 
-        final String jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-        final String issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
+        String jiraIssueSummary = null;
+        String issueDescription = null;
+        if (!IssueCategory.SPECIAL.equals(issueCategory)) {
+            jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
+            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
+        }
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreator, issueDescription, assigneeId);
 
         final BlackDuckIssueModel model = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
