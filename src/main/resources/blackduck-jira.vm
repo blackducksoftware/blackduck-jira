@@ -291,7 +291,7 @@
                             <div id="jiraProjectError">
                             </div>
                         </td>
-                        <td class="mappingTableCell" width="5px" margin="auto"></td>
+                        <td class="mappingTableCell" width="10px" margin="auto"></td>
                         <td class="mappingTableCell">
                             <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
                                    list="creatorCandidates" oninput="onCreatorInputChange(this);"/>
@@ -299,7 +299,7 @@
                             </datalist>
                             </input>
                         </td>
-                        <td class="mappingTableCell" width="20%" min-width="20px" margin="auto"> =</td>
+                        <td class="mappingTableCell" width="10%" min-width="20px" margin="auto"> =</td>
                         <td class="mappingTableCell">
                             <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);"
                                    placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
