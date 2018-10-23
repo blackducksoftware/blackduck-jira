@@ -36,6 +36,7 @@ import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.bc.user.search.DefaultUserPickerSearchService;
 import com.atlassian.jira.bc.user.search.UserSearchService;
+import com.atlassian.jira.cluster.ClusterManager;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
@@ -121,6 +122,10 @@ public class JiraServices {
 
     public CommentManager getCommentManager() {
         return ComponentAccessor.getCommentManager();
+    }
+
+    public ClusterManager getClusterManager() {
+        return ComponentAccessor.getComponentOfType(ClusterManager.class);
     }
 
     public UserManager getUserManager() {

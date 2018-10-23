@@ -28,15 +28,14 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.cluster.ClusterManager;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
+import com.blackducksoftware.integration.jira.JiraDeploymentType;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -267,19 +266,16 @@ public class BlackDuckJiraTask {
 
     public void bdPhoneHome(final BlackDuckPhoneHomeCallable phCallable) {
         try {
-            phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
+            final ClusterManager clusterManager = jiraServices.getClusterManager();
+            final JiraDeploymentType deploymentType;
+            if (clusterManager.isClusterLicensed()) {
+                deploymentType = JiraDeploymentType.DATA_CENTER;
+            } else {
+                deploymentType = JiraDeploymentType.SERVER;
+            }
 
-            Map<String, String> environmentVariables;
-            try {
-                final Map<String, String> systemEnv = System.getenv();
-                environmentVariables = new HashMap<>();
-                environmentVariables.putAll(systemEnv);
-            } catch (final Exception e) {
-                environmentVariables = Collections.emptyMap();
-            }
-            for (final Map.Entry<String, String> entry : environmentVariables.entrySet()) {
-                phCallable.addMetaData(entry.getKey(), entry.getValue());
-            }
+            phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
+            phCallable.addMetaData("jira.deployment", deploymentType.name()); 
 
             final PhoneHomeService phService = new PhoneHomeService(logger, null);
             phService.phoneHome(phCallable);
@@ -288,5 +284,4 @@ public class BlackDuckJiraTask {
             logger.debug("Unable to phone home: " + phException.getMessage());
         }
     }
-
 }
