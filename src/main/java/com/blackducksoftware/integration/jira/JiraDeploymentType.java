@@ -21,38 +21,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.mocks;
+package com.blackducksoftware.integration.jira;
 
-import java.net.URI;
-import java.util.EnumSet;
-
-import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.page.PageCapability;
-import com.atlassian.sal.api.user.UserRole;
-
-public class LoginUriProviderMock implements LoginUriProvider {
-
-    public LoginUriProviderMock() {
-    }
-
-    @Override
-    public URI getLoginUri(final URI returnUri) {
-        return returnUri;
-    }
-
-    @Override
-    public URI getLoginUri(final URI returnUri, final EnumSet<PageCapability> enumSet) {
-        return returnUri;
-    }
-
-    @Override
-    public URI getLoginUriForRole(final URI returnUri, final UserRole userRole) {
-        return returnUri;
-    }
-
-    @Override
-    public URI getLoginUriForRole(final URI returnUri, final UserRole userRole, final EnumSet<PageCapability> enumSet) {
-        return returnUri;
-    }
-
+public enum JiraDeploymentType {
+    CLOUD,
+    DATA_CENTER,
+    SERVER;
 }

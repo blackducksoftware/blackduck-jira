@@ -79,14 +79,14 @@ public class JiraTaskTimed implements Callable<String> {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
 
-        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getJiraIssueCreatorUserName(), jiraServices.getUserManager());
+        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
         if (jiraContext == null) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
         }
         final String jiraPluginGroupsString = (String) settings.get(BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-        if (!checkUserInPluginGroups(jiraPluginGroupsString, jiraServices.getGroupManager(), jiraContext.getJiraIssueCreatorUser())) {
-            logger.error(String.format("User '%s' is no longer in the groups '%s'. The task cannot run.", jiraContext.getJiraIssueCreatorUser().getUsername(), jiraPluginGroupsString));
+        if (!checkUserInPluginGroups(jiraPluginGroupsString, jiraServices.getGroupManager(), jiraContext.getDefaultJiraIssueCreatorUser())) {
+            logger.error(String.format("User '%s' is no longer in the groups '%s'. The task cannot run.", jiraContext.getDefaultJiraIssueCreatorUser().getUsername(), jiraPluginGroupsString));
             return "error";
         }
         final LocalDateTime beforeSetup = LocalDateTime.now();
@@ -252,5 +252,4 @@ public class JiraTaskTimed implements Callable<String> {
         }
         return false;
     }
-
 }

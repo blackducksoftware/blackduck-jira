@@ -23,14 +23,15 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.model;
 
+import com.atlassian.jira.user.ApplicationUser;
 import com.synopsys.integration.util.Stringable;
 
 public class JiraIssueFieldTemplate extends Stringable {
-    private final Long jiraProjectId;
-    private final String jiraProjectName;
-    private final String jiraIssueTypeId;
+    private final Long projectId;
+    private final String projectName;
+    private final String issueTypeId;
     private final String summary;
-    private final String issueCreatorUsername;
+    private final ApplicationUser issueCreator;
     private final String issueDescription;
     private final String assigneeId;
 
@@ -39,42 +40,42 @@ public class JiraIssueFieldTemplate extends Stringable {
 
     // @formatter:off
     public JiraIssueFieldTemplate(
-             final Long jiraProjectId
-            ,final String jiraProjectName
-            ,final String jiraIssueTypeId
+             final Long projectId
+            ,final String projectName
+            ,final String issueTypeId
             ,final String summary
-            ,final String issueCreatorUsername
+            ,final ApplicationUser issueCreator
             ,final String issueDescription
             ,final String assigneeId
             ) {
-        this.jiraProjectId = jiraProjectId;
-        this.jiraProjectName = jiraProjectName;
-        this.jiraIssueTypeId = jiraIssueTypeId;
+        this.projectId = projectId;
+        this.projectName = projectName;
+        this.issueTypeId = issueTypeId;
         this.summary = summary;
-        this.issueCreatorUsername = issueCreatorUsername;
+        this.issueCreator = issueCreator;
         this.issueDescription = issueDescription;
         this.assigneeId = assigneeId;
     }
     // @formatter:on
 
-    public Long getJiraProjectId() {
-        return jiraProjectId;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public String getJiraProjectName() {
-        return jiraProjectName;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public String getJiraIssueTypeId() {
-        return jiraIssueTypeId;
+    public String getIssueTypeId() {
+        return issueTypeId;
     }
 
     public String getSummary() {
         return summary;
     }
 
-    public String getIssueCreatorUsername() {
-        return issueCreatorUsername;
+    public ApplicationUser getIssueCreator() {
+        return issueCreator;
     }
 
     public String getIssueDescription() {

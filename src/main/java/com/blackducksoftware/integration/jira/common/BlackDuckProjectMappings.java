@@ -39,6 +39,8 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 
 public class BlackDuckProjectMappings {
+    public static final String MAP_ALL_PROJECTS = "-- ALL BLACK DUCK PROJECTS --";
+
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final Set<BlackDuckProjectMapping> mappings;
@@ -70,6 +72,7 @@ public class BlackDuckProjectMappings {
             final JiraProject jiraProject;
             try {
                 jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
+                jiraProject.setIssueCreator(mappingJiraProject.getIssueCreator());
             } catch (final HubIntegrationException e) {
                 logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID " + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
                 continue;
@@ -79,11 +82,7 @@ public class BlackDuckProjectMappings {
             } else {
                 logger.debug("JIRA Project: " + jiraProject);
                 final BlackDuckProject blackDuckProject = mapping.getHubProject();
-
-                // Check by name because the notifications may be for Black Duck projects that the User doesn't have access to
-                logger.debug("blackDuckProject.getProjectName() (from config mapping): " + blackDuckProject.getProjectName());
-                logger.debug("blackDuckProjectName (from notification content)       : " + blackDuckProjectName);
-                if ((!StringUtils.isBlank(blackDuckProject.getProjectName()) && (blackDuckProject.getProjectName().equals(blackDuckProjectName)))) {
+                if (appliesForBlackDuckProject(blackDuckProject.getProjectName(), blackDuckProjectName)) {
                     logger.debug("Match!");
                     matchingJiraProjects.add(jiraProject);
                 }
@@ -100,4 +99,13 @@ public class BlackDuckProjectMappings {
         return mappings.size();
     }
 
+    private boolean appliesForBlackDuckProject(final String blackDuckProjectNameFromMapping, final String blackDuckProjectNameFromNotification) {
+        // Check by name because the notifications may be for Black Duck projects that the User doesn't have access to
+        logger.debug("blackDuckProject.getProjectName() (from config mapping): " + blackDuckProjectNameFromMapping);
+        logger.debug("blackDuckProjectName (from notification content)       : " + blackDuckProjectNameFromNotification);
+        if (MAP_ALL_PROJECTS.equals(blackDuckProjectNameFromMapping)) {
+            return true;
+        }
+        return (!StringUtils.isBlank(blackDuckProjectNameFromMapping) && (blackDuckProjectNameFromMapping.equals(blackDuckProjectNameFromNotification)));
+    }
 }

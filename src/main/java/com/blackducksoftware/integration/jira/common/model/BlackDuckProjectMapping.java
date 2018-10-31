@@ -35,7 +35,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckProjectMapping extends Stringable implements Serializable {
-    private static final long serialVersionUID = -7375806850713790815L;
+    private static final long serialVersionUID = -653410734924801522L;
 
     @XmlElement
     private JiraProject jiraProject;

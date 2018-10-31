@@ -36,6 +36,7 @@ import java.util.Set;
 import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -131,7 +132,7 @@ public class BomNotificationToIssueModelConverter {
             } catch (final Exception e) {
                 logger.error(e);
                 jiraSettingsService.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
-                    jiraUserContext.getJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
+                    jiraUserContext.getDefaultJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
             }
         }
         return issueWrapperList;
@@ -142,7 +143,7 @@ public class BomNotificationToIssueModelConverter {
         if (detail.getBomComponent().isPresent()) {
             final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = detail.getBomComponent().get();
             logger.debug("BOM Component was present: " + bomComponentUriSingleResponse.uri);
-            VersionBomComponentView versionBomComponent;
+            final VersionBomComponentView versionBomComponent;
             try {
                 versionBomComponent = blackDuckDataHelper.getBomComponent(bomComponentUriSingleResponse);
             } catch (final IntegrationRestException restException) {
@@ -258,6 +259,7 @@ public class BomNotificationToIssueModelConverter {
             builder.setIssueCategory(IssueCategory.SPECIAL);
             builder.setLastBatchStartDate(batchStartDate);
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
+            builder.setIssueCreator(jiraUserContext.getDefaultJiraIssueCreatorUser());
             if (detail.getBomComponent().isPresent()) {
                 builder.setBomComponentUri(detail.getBomComponent().get().uri);
             }
@@ -274,11 +276,11 @@ public class BomNotificationToIssueModelConverter {
         builder.setLastBatchStartDate(batchStartDate);
         builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().projectOwner), projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
-        builder.setIssueCreatorUsername(jiraUserContext.getJiraIssueCreatorUser().getUsername());
+        builder.setIssueCreator(lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
         return builder;
     }
 
-    private final String getIssueTypeId(final IssueCategory category) throws ConfigurationException {
+    private String getIssueTypeId(final IssueCategory category) throws ConfigurationException {
         String issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
         if (IssueCategory.VULNERABILITY.equals(category)) {
             issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
@@ -312,5 +314,14 @@ public class BomNotificationToIssueModelConverter {
             logger.warn("Unable to get the project owner for this notification: " + e.getMessage());
         }
         return null;
+    }
+
+    private ApplicationUser lookupIssueCreator(final String issueCreatorUsername, final JiraUserContext jiraUserContext) {
+        final UserManager userManager = jiraServices.getUserManager();
+        ApplicationUser issueCreator = userManager.getUserByName(issueCreatorUsername);
+        if (issueCreator == null) {
+            issueCreator = jiraUserContext.getDefaultJiraIssueCreatorUser();
+        }
+        return issueCreator;
     }
 }

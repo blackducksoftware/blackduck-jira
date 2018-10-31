@@ -65,7 +65,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     private Long jiraProjectId;
     private String jiraProjectName;
     private String jiraIssueTypeId;
-    private String issueCreatorUsername;
+    private ApplicationUser issueCreator;
     private String assigneeId;
 
     // BlackDuckFields
@@ -142,8 +142,8 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueModelBuilder setIssueCreatorUsername(final String issueCreatorUsername) {
-        this.issueCreatorUsername = issueCreatorUsername;
+    public BlackDuckIssueModelBuilder setIssueCreator(final ApplicationUser issueCreator) {
+        this.issueCreator = issueCreator;
         return this;
     }
 
@@ -262,7 +262,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
             throw new IssueModelBuilderException("The required field 'bomComponentUri' is missing.");
         }
 
-        BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
+        final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
         if (IssueCategory.POLICY.equals(issueCategory)) {
             if (policyRuleUrl != null) {
                 blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
@@ -277,13 +277,18 @@ public class BlackDuckIssueModelBuilder extends Stringable {
                 projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
                 originsString, originIdsString);
         } else {
+            issueCategory = IssueCategory.SPECIAL;
             blackDuckIssueFieldTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname,
-                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.SPECIAL);
+                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
         }
 
-        final String jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-        final String issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreatorUsername, issueDescription, assigneeId);
+        String jiraIssueSummary = null;
+        String issueDescription = null;
+        if (!IssueCategory.SPECIAL.equals(issueCategory)) {
+            jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
+            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
+        }
+        final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreator, issueDescription, assigneeId);
 
         final BlackDuckIssueModel model = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
         addComments(model);
@@ -303,7 +308,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         newBuilder.jiraProjectId = jiraProjectId;
         newBuilder.jiraProjectName = jiraProjectName;
         newBuilder.jiraIssueTypeId = jiraIssueTypeId;
-        newBuilder.issueCreatorUsername = issueCreatorUsername;
+        newBuilder.issueCreator = issueCreator;
         newBuilder.assigneeId = assigneeId;
 
         newBuilder.projectOwner = projectOwner;
@@ -400,7 +405,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     }
 
     public final String hashString(final String origString) {
-        String hashString;
+        final String hashString;
         if (origString == null) {
             hashString = "";
         } else {

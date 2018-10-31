@@ -61,6 +61,7 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCop
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
+import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
@@ -219,6 +220,10 @@ public class NotificationConverterTest {
         jiraIssueCreatorUser.setUsername(JIRA_ISSUE_CREATOR_USERNAME);
         jiraIssueCreatorUser.setKey(JIRA_ISSUE_CREATOR_USER_KEY);
         jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
+
+        final UserManagerMock userManagerMock = new UserManagerMock();
+        userManagerMock.setMockApplicationUser(jiraIssueCreatorUser);
+        Mockito.when(jiraServices.getUserManager()).thenReturn(userManagerMock);
 
         // Black Duck Services
         mockBlackDuckSerivce = Mockito.mock(HubService.class);
@@ -440,7 +445,7 @@ public class NotificationConverterTest {
             if (expectedCount == 1) {
                 assertEquals(expectedDescription, model.getJiraIssueFieldTemplate().getIssueDescription());
                 assertEquals(expectedSummary, model.getJiraIssueFieldTemplate().getSummary());
-                assertEquals(issueTypeId, model.getJiraIssueFieldTemplate().getJiraIssueTypeId());
+                assertEquals(issueTypeId, model.getJiraIssueFieldTemplate().getIssueTypeId());
                 assertEquals(expectedPropertyKey, model.getEventKey());
                 verifyGeneratedComments(model, expectedComment, expectedCommentIfExists, expectedReOpenComment, expectedResolveComment, expectedCommentInLieuOfStateChange);
             }
@@ -468,9 +473,9 @@ public class NotificationConverterTest {
         assertEquals(expectedHubEventAction, model.getIssueAction());
         assertEquals(ASSIGNEE_USER_ID, model.getJiraIssueFieldTemplate().getAssigneeId());
 
-        assertEquals(Long.valueOf(JIRA_PROJECT_ID), model.getJiraIssueFieldTemplate().getJiraProjectId());
-        assertEquals(JIRA_PROJECT_NAME, model.getJiraIssueFieldTemplate().getJiraProjectName());
-        assertEquals(JIRA_ISSUE_CREATOR_USERNAME, model.getJiraIssueFieldTemplate().getIssueCreatorUsername());
+        assertEquals(Long.valueOf(JIRA_PROJECT_ID), model.getJiraIssueFieldTemplate().getProjectId());
+        assertEquals(JIRA_PROJECT_NAME, model.getJiraIssueFieldTemplate().getProjectName());
+        assertEquals(JIRA_ISSUE_CREATOR_USERNAME, model.getJiraIssueFieldTemplate().getIssueCreator().getUsername());
         final Set<ProjectFieldCopyMapping> fieldMappings = model.getProjectFieldCopyMappings();
         assertEquals(1, fieldMappings.size());
         final Iterator<ProjectFieldCopyMapping> iter = fieldMappings.iterator();

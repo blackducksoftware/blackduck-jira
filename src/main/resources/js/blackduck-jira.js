@@ -21,84 +21,76 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var statusMessageFieldId = "aui-hub-message-field";
-var statusMessageTitleId = "aui-hub-message-title";
-var statusMessageTitleTextId = "aui-hub-message-title-text";
-var statusMessageTextId = "aui-hub-message-text";
+const statusMessageFieldId = "aui-hub-message-field";
+const statusMessageTitleId = "aui-hub-message-title";
+const statusMessageTitleTextId = "aui-hub-message-title-text";
+const statusMessageTextId = "aui-hub-message-text";
 
-var errorMessageFieldId = "error-message-field";
+const errorMessageFieldId = "error-message-field";
 
-var errorStatus = "error";
-var successStatus = "success";
+const errorStatus = "error";
+const successStatus = "success";
 
-var hiddenClass = "hidden";
+const hiddenClass = "hidden";
 
-var hubJiraGroupsId = "hubJiraGroups";
+const hubJiraGroupsId = "hubJiraGroups";
 
-var hubProjectMappingTable = "hubProjectMappingTable";
-var hubProjectMappingContainer = "hubProjectMappingContainer";
-var hubProjectMappingElement = "hubProjectMappingElement";
-var hubMappingStatus = "mappingStatus";
+const hubProjectMappingTable = "hubProjectMappingTable";
+const hubProjectMappingContainer = "hubProjectMappingContainer";
+const hubProjectMappingElement = "hubProjectMappingElement";
+const hubMappingStatus = "mappingStatus";
 
-var fieldCopyMappingContainer = "fieldCopyMappingContainer";
-var fieldCopyMappingElement = "fieldCopyMappingElement";
-var fieldCopyMappingStatus = "fieldCopyMappingStatus";
+const fieldCopyMappingContainer = "fieldCopyMappingContainer";
+const fieldCopyMappingElement = "fieldCopyMappingElement";
+const fieldCopyMappingStatus = "fieldCopyMappingStatus";
 
-var jiraProjectListId = "jiraProjects";
-var hubProjectListId = "hubProjects";
+const jiraProjectListId = "jiraProjects";
+const hubProjectListId = "hubProjects";
 
-var sourceFieldListId = "sourceFields";
-var targetFieldListId = "targetFields";
+const sourceFieldListId = "sourceFields";
+const targetFieldListId = "targetFields";
 
-var jiraProjectListErrorId = "jiraProjectListError";
-var hubProjectListErrorId = "hubProjectListError";
+const jiraProjectListErrorId = "jiraProjectListError";
+const hubProjectListErrorId = "hubProjectListError";
 
-var jiraProjectErrorId = "jiraProjectError";
+const jiraProjectErrorId = "jiraProjectError";
 
-var jiraProjectDisplayName = "projectName";
-var jiraProjectKey = "projectId";
-var jiraProjectExists = "projectExists";
-var hubProjectDisplayName = "projectName";
-var hubProjectKey = "projectUrl";
-var hubProjectExists = "projectExists";
+const jiraProjectDisplayName = "projectName";
+const jiraProjectKey = "projectId";
+const hubProjectDisplayName = "projectName";
+const hubProjectKey = "projectUrl";
+const jiraProjectIssueCreatorDisplayName = "issueCreator";
 
-var policyRuleTicketCreation = "policyRuleTicketCreation";
-var policyRuleName = "name";
-var policyRuleDescription = "description";
-var policyRuleUrl = "policyUrl";
-var policyRuleChecked = "checked";
+const policyRuleTicketCreation = "policyRuleTicketCreation";
+const policyRuleName = "name";
+const policyRuleDescription = "description";
+const policyRuleUrl = "policyUrl";
+const policyRuleChecked = "checked";
 
-
-var vulnerabilityTicketCreation = "vulnerabilityTicketCreation";
-var vulnerabilityTicketClosure = "vulnerabilityTicketClosure";
-
-var ticketCreationFieldSetId = "ticketCreationFieldSet";
-var ticketCreationLoadingErrorId = "ticketCreationLoadingError";
-var ticketCreationErrorsTableId = "ticketCreationErrorsTable";
-var ticketCreationErrorRowId = "ticketCreationErrorRow";
+const ticketCreationFieldSetId = "ticketCreationFieldSet";
+const ticketCreationErrorsTableId = "ticketCreationErrorsTable";
+const ticketCreationErrorRowId = "ticketCreationErrorRow";
 
 
-var ticketCreationErrorCounter = 0;
-var mappingElementCounter = 0;
+let ticketCreationErrorCounter = 0;
+let mappingElementCounter = 0;
 
-var gotCreatorCandidates = false;
-var gotJiraProjects = false;
-var gotHubProjects = false;
-var gotProjectMappings = false;
-var gotSourceFields = false;
-var gotTargetFields = false;
-var gotFieldCopyMappings = false;
+let gotCreatorCandidates = false;
+let gotJiraProjects = false;
+let gotHubProjects = false;
+let gotProjectMappings = false;
+let gotSourceFields = false;
+let gotTargetFields = false;
+let gotFieldCopyMappings = false;
 
-var initialPageLoad = true;
-
-var jiraProjectMap = new Map();
-var hubProjectMap = new Map();
+let jiraProjectMap = new Map();
+let hubProjectMap = new Map();
 
 function initTabs() {
     console.log("Initializing tabs");
 
     // Declare all variables
-    var i, tabcontent, tablinks;
+    let i, tabcontent, tablinks;
 
     // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -124,7 +116,7 @@ function openTab(evt, tabId) {
     resetStatusMessage();
 
     // Declare all variables
-    var i, tabcontent, tablinks;
+    let i, tabcontent, tablinks;
 
     // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -165,9 +157,9 @@ function updateFieldCopyConfig() {
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
-    var apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
+    const apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
 
-    var config = '';
+    let config = '';
     if (apiTokenInput && apiTokenInput.checked) {
         config = '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
             + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
@@ -253,13 +245,12 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 
 function initProjectMappingRows() {
     console.log("initProjectMapping()");
-    var mappingTable = AJS.$("#" + hubProjectMappingTable);
-    var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-    var mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+    const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+    let mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
     console.log("initProjectMapping(): Before: #rows: " + mappingElements.length);
-    for (var rowIndex = mappingElements.length - 1; rowIndex > 0; rowIndex--) {
+    for (let rowIndex = mappingElements.length - 1; rowIndex > 0; rowIndex--) {
         console.log("initProjectMapping: Removing project mapping row: " + rowIndex);
-        var mappingElement = mappingElements[rowIndex];
+        let mappingElement = mappingElements[rowIndex];
         AJS.$('#' + mappingElement.id).remove();
     }
     mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
@@ -325,13 +316,13 @@ function populateForm() {
             handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
             handleErrorHubDetails('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
 
-            var apiTokenRowId = 'bdApiTokenRow';
-            var apiTokenErrorRowId = 'bdApiTokenErrorRow';
+            const apiTokenRowId = 'bdApiTokenRow';
+            const apiTokenErrorRowId = 'bdApiTokenErrorRow';
 
-            var usernameRowId = 'bdUsernameRow';
-            var usernameErrorRowId = 'hubUsernameErrorRow';
-            var passwordRowId = 'bdPasswordRow';
-            var passwordErrorRowId = 'hubPasswordErrorRow';
+            const usernameRowId = 'bdUsernameRow';
+            const usernameErrorRowId = 'hubUsernameErrorRow';
+            const passwordRowId = 'bdPasswordRow';
+            const passwordErrorRowId = 'hubPasswordErrorRow';
             if (config.apiToken) {
                 AJS.$('#bdAuthenticationTypeToken')[0].checked = true;
                 removeClassFromFieldById(apiTokenRowId, "hidden");
@@ -348,7 +339,7 @@ function populateForm() {
                 removeClassFromFieldById(usernameRowId, "hidden");
                 removeClassFromFieldById(passwordRowId, "hidden");
             }
-            
+
         }, error: function (response) {
             console.log("putConfig(): " + response.responseText);
             alert("There was an error loading the configuration.");
@@ -472,7 +463,7 @@ function populateForm() {
         },
         error: function (response) {
             console.log("Error getting the ticket creation errors : " + response.responseText);
-            var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+            const fieldSet = AJS.$('#' + ticketCreationFieldSetId);
             if (fieldSet.hasClass('hidden')) {
                 fieldSet.removeClass('hidden');
             }
@@ -605,11 +596,11 @@ function populateFormHubData() {
 }
 
 function checkProxyConfig() {
-    var proxyHost = AJS.$("#proxyHost").val();
-    var proxyPort = AJS.$("#proxyPort").val();
-    var noProxyHost = AJS.$("#noProxyHost").val();
-    var proxyUsername = AJS.$("#proxyUsername").val();
-    var proxyPassword = AJS.$("#proxyPassword").val();
+    const proxyHost = AJS.$("#proxyHost").val();
+    const proxyPort = AJS.$("#proxyPort").val();
+    const noProxyHost = AJS.$("#noProxyHost").val();
+    const proxyUsername = AJS.$("#proxyUsername").val();
+    const proxyPassword = AJS.$("#proxyPassword").val();
 
     if (!proxyHost && !proxyPort && !noProxyHost && !proxyUsername && !proxyPassword) {
         toggleDisplayById("proxyConfigDisplayIcon", 'proxyConfigArea');
@@ -617,7 +608,7 @@ function checkProxyConfig() {
 }
 
 function toggleDisplayById(iconId, fieldId) {
-    var iconObject = AJS.$('#' + iconId);
+    const iconObject = AJS.$('#' + iconId);
     if (iconObject.hasClass('fa-angle-down')) {
         removeClassFromFieldById(iconId, 'fa-angle-down');
         addClassToFieldById(iconId, 'fa-angle-right');
@@ -632,7 +623,7 @@ function toggleDisplayById(iconId, fieldId) {
 }
 
 function resetSalKeys() {
-    var restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/reset';
+    const restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/reset';
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -656,11 +647,11 @@ function resetSalKeys() {
 }
 
 function handleErrorResize(expansionIcon) {
-    var currentIcon = AJS.$(expansionIcon);
-    var errorRow = currentIcon.closest("tr");
-    var errorColumn = errorRow.find('td');
-    var errorMessageDiv = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
-    var stackTraceDiv = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
+    const currentIcon = AJS.$(expansionIcon);
+    const errorRow = currentIcon.closest("tr");
+    const errorColumn = errorRow.find('td');
+    const errorMessageDiv = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+    const stackTraceDiv = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
 
     if (currentIcon.hasClass('fa-plus-square-o')) {
         currentIcon.removeClass('fa-plus-square-o');
@@ -735,25 +726,25 @@ function updateTicketCreationErrors(hubJiraTicketErrors) {
 }
 
 function getJsonArrayFromErrors(errorRow) {
-    var jsonArray = "[";
+    let jsonArray = "[";
 
-    var errorColumn = AJS.$(errorRow).find('td');
+    const errorColumn = AJS.$(errorRow).find('td');
 
-    var creationErrorMessage = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+    const creationErrorMessage = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
 
-    var creationErrorStackTrace = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
+    const creationErrorStackTrace = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
 
-    var creationErrorTimeStamp = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
+    const creationErrorTimeStamp = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
 
-    var stackTrace = creationErrorStackTrace.text().trim();
+    let stackTrace = creationErrorStackTrace.text().trim();
     if (stackTrace) {
         stackTrace = encodeURIComponent(stackTrace);
     } else {
-        var errorMessage = creationErrorMessage.text().trim();
+        const errorMessage = creationErrorMessage.text().trim();
 
         stackTrace = encodeURIComponent(errorMessage);
     }
-    var timeStamp = creationErrorTimeStamp.text().trim();
+    let timeStamp = creationErrorTimeStamp.text().trim();
     timeStamp = encodeURIComponent(timeStamp);
 
     jsonArray += '{"'
@@ -766,12 +757,12 @@ function getJsonArrayFromErrors(errorRow) {
 }
 
 function handleErrorRemoval(trashIcon) {
-    var currentIcon = AJS.$(trashIcon);
-    var errorRow = currentIcon.closest("tr");
+    const currentIcon = AJS.$(trashIcon);
+    const errorRow = currentIcon.closest("tr");
 
-    var restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
+    const restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
 
-    var hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
+    const hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -797,10 +788,10 @@ function handleErrorRemoval(trashIcon) {
 
     errorRow.remove();
 
-    var ticketCreationErrorContainer = AJS.$("#" + ticketCreationErrorsTableId);
-    var creationErrors = ticketCreationErrorContainer.find("tr[name*='" + ticketCreationErrorRowId + "']");
+    const ticketCreationErrorContainer = AJS.$("#" + ticketCreationErrorsTableId);
+    const creationErrors = ticketCreationErrorContainer.find("tr[name*='" + ticketCreationErrorRowId + "']");
     if (creationErrors.length <= 1) {
-        var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+        const fieldSet = AJS.$('#' + ticketCreationFieldSetId);
         if (!fieldSet.hasClass(hiddenClass)) {
             fieldSet.addClass(hiddenClass);
         }
@@ -808,11 +799,11 @@ function handleErrorRemoval(trashIcon) {
 }
 
 function handleDataRetrievalError(response, errorId, errorText, dialogTitle) {
-    var errorField = AJS.$('#' + errorId);
+    const errorField = AJS.$('#' + errorId);
     errorField.text(errorText);
     removeClassFromField(errorField, hiddenClass);
     addClassToField(errorField, "clickable");
-    var error = JSON.parse(response.responseText);
+    let error = JSON.parse(response.responseText);
     error = AJS.$(error);
     errorField.click(function () {
         showErrorDialog(dialogTitle, error.attr("message"), error.attr("status-code"), error.attr("stack-trace"))
@@ -820,7 +811,7 @@ function handleDataRetrievalError(response, errorId, errorText, dialogTitle) {
 }
 
 function showErrorDialog(header, errorMessage, errorCode, stackTrace) {
-    var errorDialog = new AJS.Dialog({
+    const errorDialog = new AJS.Dialog({
         width: 800,
         height: 500,
         id: 'error-dialog',
@@ -829,7 +820,7 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace) {
 
     errorDialog.addHeader(header);
 
-    var errorBody = AJS.$('<div>', {});
+    const errorBody = AJS.$('<div>', {});
     var errorMessage = AJS.$('<p>', {
         text: "Error Message : " + errorMessage
     });
@@ -855,22 +846,22 @@ AJS.$(document).ajaxComplete(function (event, xhr, settings) {
     console.log("ajaxComplete()");
     if (gotJiraProjects && gotHubProjects && gotProjectMappings && gotCreatorCandidates) {
         console.log("ajaxComplete(): data is ready");
-        var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-        var mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+        const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+        const mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
 
         if (mappingElements.length > 0) {
-            for (m = 0; m < mappingElements.length; m++) {
-                var currentJiraProject = AJS.$(mappingElements[m]).find("input[name*='jiraProject']");
-                var jiraProjectError = true;
+            for (let m = 0; m < mappingElements.length; m++) {
+                let currentJiraProject = AJS.$(mappingElements[m]).find("input[name*='jiraProject']");
+                let jiraProjectError = true;
                 if (currentJiraProject != null) {
-                    var key = String(currentJiraProject.attr("projectkey"));
+                    let key = String(currentJiraProject.attr("projectkey"));
                     console.log("ajaxComplete(): jira project key: " + key);
                     if (key) {
-                        var jiraProject = jiraProjectMap.get(key);
+                        let jiraProject = jiraProjectMap.get(key);
                         if (jiraProject) {
                             console.log("ajaxComplete(): jiraProject.projectError: " + jiraProject.projectError);
-                            var jiraProjectMappingParent = currentJiraProject.parent();
-                            var jiraProjectMappingError = jiraProjectMappingParent.children("#" + jiraProjectErrorId);
+                            let jiraProjectMappingParent = currentJiraProject.parent();
+                            let jiraProjectMappingError = jiraProjectMappingParent.children("#" + jiraProjectErrorId);
                             if (jiraProject.projectError) {
                                 jiraProjectError = true;
                                 jiraProjectMappingError.text(jiraProject.projectError.trim());
@@ -897,17 +888,16 @@ AJS.$(document).ajaxComplete(function (event, xhr, settings) {
                     }
                 }
 
-                var currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
-                var hubProjectError = true;
+                let currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
+                let hubProjectError = true;
                 if (currentHubProject != null) {
-                    var key = String(currentHubProject.attr("projectkey"));
+                    let key = String(currentHubProject.attr("projectkey"));
                     console.log("ajaxComplete(): Black Duck project key: " + key);
                     if (key) {
-                        var hubProject = hubProjectMap.get(key);
+                        let hubProject = hubProjectMap.get(key);
                         if (hubProject) {
                             hubProjectError = false;
                         }
-
                     }
                 }
                 if (hubProjectError) {
@@ -932,8 +922,7 @@ AJS.$(document).ajaxComplete(function (event, xhr, settings) {
 });
 
 function putAccessConfig(restUrl, successMessage, failureMessage) {
-
-    var hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
+    const hubJiraGroups = encodeURI(AJS.$("#" + hubJiraGroupsId).val());
 
     AJS.$.ajax({
         url: restUrl,
@@ -967,7 +956,7 @@ function putAccessConfig(restUrl, successMessage, failureMessage) {
 
 function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
     console.log("putFieldCopyConfig()");
-    var jsonFieldCopyMappingArray = getJsonArrayFromFieldCopyMapping();
+    const jsonFieldCopyMappingArray = getJsonArrayFromFieldCopyMapping();
     console.log("jsonFieldCopyMappingArray: " + jsonFieldCopyMappingArray);
 
     AJS.$.ajax({
@@ -1002,8 +991,7 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 }
 
 function getCreateVulnerabilityIssuesChoice() {
-    var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
-    var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+    const createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
 
     if (createVulnerabilityIssuesYesElement[0].checked) {
         return "true";
@@ -1013,11 +1001,11 @@ function getCreateVulnerabilityIssuesChoice() {
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {
-    var creatorUsername = encodeURI(AJS.$("#creatorInput").val());
+    const creatorUsername = encodeURI(AJS.$("#creatorInput").val());
     console.log("putConfig(): " + creatorUsername);
-    var jsonMappingArray = getJsonArrayFromMapping();
-    var policyRuleArray = getJsonArrayFromPolicyRules();
-    var createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
+    const jsonMappingArray = getJsonArrayFromMapping();
+    const policyRuleArray = getJsonArrayFromPolicyRules();
+    const createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -1067,25 +1055,28 @@ function putConfig(restUrl, successMessage, failureMessage) {
 }
 
 function getJsonArrayFromMapping() {
-    var jsonArray = "[";
-    var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-    var mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+    let jsonArray = "[";
+    const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+    const mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
     for (i = 1; i < mappingElements.length; i++) {
         if (i > 1) {
             jsonArray += ","
         }
-        var mappingElement = mappingElements[i];
-        var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
+        let mappingElement = mappingElements[i];
+        let currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
 
-        var currentJiraProjectDisplayName = currentJiraProject.val();
-        var currentJiraProjectValue = currentJiraProject.attr('projectKey');
-        var currentJiraProjectError = currentJiraProject.attr('projectError');
+        let currentJiraProjectDisplayName = currentJiraProject.val();
+        let currentJiraProjectValue = currentJiraProject.attr('projectKey');
+        let currentJiraProjectError = currentJiraProject.attr('projectError');
 
-        var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+        let currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
+        let currentJiraProjectIssueCreator = currentIssueCreator.val();
 
-        var currentHubProjectDisplayName = currentHubProject.val();
-        var currentHubProjectValue = currentHubProject.attr('projectKey');
-        var currentHubProjectError = currentHubProject.attr('projectError');
+        let currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+
+        let currentHubProjectDisplayName = currentHubProject.val();
+        let currentHubProjectValue = currentHubProject.attr('projectKey');
+        let currentHubProjectError = currentHubProject.attr('projectError');
 
 
         if (isNullOrWhitespace(currentJiraProjectValue) || isNullOrWhitespace(currentHubProjectValue) || currentJiraProjectError || currentHubProjectError) {
@@ -1099,6 +1090,8 @@ function getJsonArrayFromMapping() {
             + jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName
             + '","'
             + jiraProjectKey + '":"' + currentJiraProjectValue
+            + '","'
+            + jiraProjectIssueCreatorDisplayName + '":"' + currentJiraProjectIssueCreator
             + '"},"'
             + 'hubProject" : {"'
             + hubProjectDisplayName + '":"' + currentHubProjectDisplayName
@@ -1112,23 +1105,23 @@ function getJsonArrayFromMapping() {
 
 function getJsonArrayFromFieldCopyMapping() {
     console.log("getJsonArrayFromFieldCopyMapping()");
-    var jsonArray = "[";
-    var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
-    var mappingElements = mappingContainer.find("tr[name*='" + fieldCopyMappingElement + "']");
+    let jsonArray = "[";
+    const mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+    const mappingElements = mappingContainer.find("tr[name*='" + fieldCopyMappingElement + "']");
     console.log("mappingElements.length: " + mappingElements.length);
-    var numRowsAdded = 0;
+    let numRowsAdded = 0;
     for (i = 0; i < mappingElements.length; i++) {
-        var mappingElement = mappingElements[i];
-        var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+        let mappingElement = mappingElements[i];
+        let currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
 
-        var currentSourceFieldDisplayName = currentSourceField.val();
-        var currentSourceFieldId = currentSourceField.attr('id');
+        let currentSourceFieldDisplayName = currentSourceField.val();
+        let currentSourceFieldId = currentSourceField.attr('id');
 
-        var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+        let currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
 
-        var currentTargetFieldDisplayName = currentTargetField.val();
-        var currentTargetFieldId = currentTargetField.attr('id');
-        var currentTargetFieldError = currentTargetField.attr('fieldError');
+        let currentTargetFieldDisplayName = currentTargetField.val();
+        let currentTargetFieldId = currentTargetField.attr('id');
+        let currentTargetFieldError = currentTargetField.attr('fieldError');
 
         if (isNullOrWhitespace(currentSourceFieldId) && isNullOrWhitespace(currentTargetFieldId)) {
             console.log("Skipping empty field copy mapping row");
@@ -1155,21 +1148,21 @@ function getJsonArrayFromFieldCopyMapping() {
 }
 
 function getJsonArrayFromPolicyRules() {
-    var jsonArray = "[";
-    var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
-    var policyRules = policyRuleContainer.find("input");
+    let jsonArray = "[";
+    const policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+    const policyRules = policyRuleContainer.find("input");
     for (i = 0; i < policyRules.length; i++) {
         if (i > 0) {
             jsonArray += ","
         }
-        var policyRule = AJS.$(policyRules[i]);
+        let policyRule = AJS.$(policyRules[i]);
 
-        var currentPolicyRuleUrl = policyRule.attr("policyurl");
+        let currentPolicyRuleUrl = policyRule.attr("policyurl");
         // Names and descriptions with chars like ", <, and > cause problems on save
         // and we don't actually use them; just omitting them for now
 //		var currentPolicyRuleDescription = policyRule.attr("title");
 //		var currentPolicyRuleName = policyRule.attr("name");
-        var currentPolicyRuleChecked = policyRules[i].checked;
+        let currentPolicyRuleChecked = policyRules[i].checked;
         console.log("Constructing rules jsonArray, but omitting name");
         jsonArray += '{"'
             + policyRuleName + '":"' + "name omitted by hub-jira.js"
@@ -1187,7 +1180,7 @@ function getJsonArrayFromPolicyRules() {
 
 function updateValue(fieldId, configField) {
     if (configField) {
-        var fieldObject = AJS.$("#" + fieldId);
+        const fieldObject = AJS.$("#" + fieldId);
         if (fieldObject.type == "checkbox" || (fieldObject[0] && fieldObject[0].type == "checkbox")) {
             fieldObject.prop("checked", decodeURI(configField));
         } else {
@@ -1197,8 +1190,8 @@ function updateValue(fieldId, configField) {
 }
 
 function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
-    var createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
-    var createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
+    const createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+    const createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
     console.log("createVulnerabilityIssuesYesElement: " + createVulnerabilityIssuesYesElement);
     console.log("createVulnerabilityIssuesNoElement: " + createVulnerabilityIssuesNoElement);
     if (createVulnerabilityIssuesYesElement.length == 0) {
@@ -1219,27 +1212,27 @@ function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
 }
 
 function removeAllChildren(parent) {
-    for (var i = parent.children.length - 1; i >= 0; i--) {
+    for (let i = parent.children.length - 1; i >= 0; i--) {
         parent.children[i].remove();
     }
 }
 
 function addPolicyViolationRules(policyRules) {
-    var policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+    const policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
     removeAllChildren(policyRuleContainer[0]);
     if (policyRules != null && policyRules.length > 0) {
         for (p = 0; p < policyRules.length; p++) {
-            var newPolicy = AJS.$('<div>', {});
+            let newPolicy = AJS.$('<div>', {});
 
-            var newPolicyRuleCheckbox = AJS.$('<input>', {
+            let newPolicyRuleCheckbox = AJS.$('<input>', {
                 type: "checkbox",
                 policyurl: decodeURI(policyRules[p].policyUrl),
                 title: decodeURI(policyRules[p].description),
                 name: decodeURI(policyRules[p].name),
                 checked: policyRules[p].checked
             });
-            var description = decodeURI(policyRules[p].description);
-            var newPolicyLabel = AJS.$('<label>', {
+            let description = decodeURI(policyRules[p].description);
+            let newPolicyLabel = AJS.$('<label>', {
                 text: policyRules[p].name,
                 title: description,
             });
@@ -1253,7 +1246,7 @@ function addPolicyViolationRules(policyRules) {
             newPolicy.append(newPolicyRuleCheckbox, newPolicyLabel)
 
             if (description) {
-                var newDescription = AJS.$('<i>', {
+                let newDescription = AJS.$('<i>', {
                     title: description,
                 });
                 AJS.$(newDescription).addClass("fa");
@@ -1268,22 +1261,22 @@ function addPolicyViolationRules(policyRules) {
 
 function fillInCreatorCandidates(creatorCandidates) {
     console.log("fillInCreatorCandidates()");
-    for (i = 0; i < creatorCandidates.length; i++) {
+    for (let i = 0; i < creatorCandidates.length; i++) {
         console.log("Creator candidate: " + creatorCandidates[i]);
     }
 
-    var creatorElement = AJS.$("#" + "creatorCell");
-    var creatorCandidatesList = creatorElement.find("datalist[id='" + "creatorCandidates" + "']");
+    const creatorElement = AJS.$("#" + "creatorCell");
+    const creatorCandidatesList = creatorElement.find("datalist[id='" + "creatorCandidates" + "']");
     console.log("fillInCreatorCandidates() List: " + creatorCandidatesList);
     if (creatorCandidatesList.length > 0) {
         console.log("fillInCreatorCandidates(): removing option");
         clearList(creatorCandidatesList[0]);
     }
     if (creatorCandidates != null && creatorCandidates.length > 0) {
-        for (j = 0; j < creatorCandidates.length; j++) {
+        for (let j = 0; j < creatorCandidates.length; j++) {
             console.log("Adding creator candidate: " + creatorCandidates[j]);
 //			jiraProjectMap.set(String(jiraProjects[j].projectId), jiraProjects[j]);
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: creatorCandidates[j],
                 id: creatorCandidates[j]
             });
@@ -1293,23 +1286,23 @@ function fillInCreatorCandidates(creatorCandidates) {
 }
 
 function fillInJiraGroups(hubJiraGroups, jiraGroups) {
-    var splitHubJiraGroups = null;
+    let splitHubJiraGroups = null;
     if (hubJiraGroups != null) {
         splitHubJiraGroups = hubJiraGroups.split(",");
     }
-    var jiraGroupList = AJS.$("#" + hubJiraGroupsId);
+    const jiraGroupList = AJS.$("#" + hubJiraGroupsId);
     if (jiraGroups != null && jiraGroups.length > 0) {
-        for (j = 0; j < jiraGroups.length; j++) {
-            var optionSelected = false;
+        for (let j = 0; j < jiraGroups.length; j++) {
+            let optionSelected = false;
             if (splitHubJiraGroups != null) {
-                for (g = 0; g < splitHubJiraGroups.length; g++) {
+                for (let g = 0; g < splitHubJiraGroups.length; g++) {
                     if (splitHubJiraGroups[g] === jiraGroups[j]) {
                         optionSelected = true;
                     }
                 }
             }
 
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: jiraGroups[j],
                 text: jiraGroups[j],
                 selected: optionSelected
@@ -1318,8 +1311,8 @@ function fillInJiraGroups(hubJiraGroups, jiraGroups) {
             jiraGroupList.append(newOption);
         }
     } else if (splitHubJiraGroups != null) {
-        for (j = 0; j < splitHubJiraGroups.length; j++) {
-            var newOption = AJS.$('<option>', {
+        for (let j = 0; j < splitHubJiraGroups.length; j++) {
+            let newOption = AJS.$('<option>', {
                 value: splitHubJiraGroups[j],
                 text: splitHubJiraGroups[j],
                 selected: true
@@ -1332,12 +1325,12 @@ function fillInJiraGroups(hubJiraGroups, jiraGroups) {
 }
 
 function fillInJiraProjects(jiraProjects) {
-    var mappingElement = AJS.$("#" + hubProjectMappingElement);
-    var jiraProjectList = mappingElement.find("datalist[id='" + jiraProjectListId + "']");
+    const mappingElement = AJS.$("#" + hubProjectMappingElement);
+    const jiraProjectList = mappingElement.find("datalist[id='" + jiraProjectListId + "']");
     if (jiraProjects != null && jiraProjects.length > 0) {
-        for (j = 0; j < jiraProjects.length; j++) {
+        for (let j = 0; j < jiraProjects.length; j++) {
             jiraProjectMap.set(String(jiraProjects[j].projectId), jiraProjects[j]);
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: jiraProjects[j].projectName,
                 projectKey: String(jiraProjects[j].projectId),
                 projectError: jiraProjects[j].projectError
@@ -1349,24 +1342,23 @@ function fillInJiraProjects(jiraProjects) {
 }
 
 function clearList(list) {
-    var i;
-    for (i = list.options.length - 1; i >= 0; i--) {
+    for (let i = list.options.length - 1; i >= 0; i--) {
         list.options[i].remove(i);
     }
 }
 
 function fillInHubProjects(hubProjects) {
     hubProjectMap = new Map();
-    var mappingElement = AJS.$("#" + hubProjectMappingElement);
-    var hubProjectList = mappingElement.find("datalist[id='" + hubProjectListId + "']");
+    const mappingElement = AJS.$("#" + hubProjectMappingElement);
+    const hubProjectList = mappingElement.find("datalist[id='" + hubProjectListId + "']");
     if (hubProjectList.length > 0) {
         clearList(hubProjectList[0]);
     }
     if (hubProjects != null && hubProjects.length > 0) {
-        for (h = 0; h < hubProjects.length; h++) {
+        for (let h = 0; h < hubProjects.length; h++) {
             hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
             console.log("fillInHubProjects(): adding: " + hubProjects[h].projectName);
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: hubProjects[h].projectName,
                 projectKey: hubProjects[h].projectUrl
             });
@@ -1377,21 +1369,21 @@ function fillInHubProjects(hubProjects) {
 
 function fillInPluginVersion(pluginVersion) {
     console.log("fillInPluginVersion(): pluginVersion: " + pluginVersion);
-    var pluginVersionElements = AJS.$("#" + "pluginVersion");
-    for (i = 0; i < pluginVersionElements.length; i++) {
+    const pluginVersionElements = AJS.$("#" + "pluginVersion");
+    for (let i = 0; i < pluginVersionElements.length; i++) {
         pluginVersionElements[i].innerHTML = pluginVersion;
     }
 }
 
 function fillInSourceFields(sourceFields) {
-    var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+    const mappingElement = AJS.$("#" + fieldCopyMappingElement);
     console.log("fieldCopyMappingElement: " + mappingElement);
-    var sourceFieldList = mappingElement.find("datalist[id='" + sourceFieldListId + "']");
+    const sourceFieldList = mappingElement.find("datalist[id='" + sourceFieldListId + "']");
     if ((sourceFields != null) && (sourceFields.idToNameMappings != null)) {
-        for (var i = 0; i < sourceFields.idToNameMappings.length; i++) {
-            var sourceFieldIdToNameMapping = sourceFields.idToNameMappings[i];
+        for (let i = 0; i < sourceFields.idToNameMappings.length; i++) {
+            let sourceFieldIdToNameMapping = sourceFields.idToNameMappings[i];
             console.log("Adding source field: Field ID: " + sourceFieldIdToNameMapping.id + "; Name: " + sourceFieldIdToNameMapping.name);
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: sourceFieldIdToNameMapping.name,
                 id: sourceFieldIdToNameMapping.id,
                 fieldError: ""
@@ -1402,14 +1394,14 @@ function fillInSourceFields(sourceFields) {
 }
 
 function fillInTargetFields(targetFields) {
-    var mappingElement = AJS.$("#" + fieldCopyMappingElement);
+    const mappingElement = AJS.$("#" + fieldCopyMappingElement);
     console.log("fieldCopyMappingElement: " + mappingElement);
-    var targetFieldList = mappingElement.find("datalist[id='" + targetFieldListId + "']");
+    const targetFieldList = mappingElement.find("datalist[id='" + targetFieldListId + "']");
     if ((targetFields != null) && (targetFields.idToNameMappings != null)) {
-        for (var i = 0; i < targetFields.idToNameMappings.length; i++) {
-            var targetFieldIdToNameMapping = targetFields.idToNameMappings[i];
+        for (let i = 0; i < targetFields.idToNameMappings.length; i++) {
+            let targetFieldIdToNameMapping = targetFields.idToNameMappings[i];
             console.log("Adding target field: Field ID: " + targetFieldIdToNameMapping.id + "; Name: " + targetFieldIdToNameMapping.name);
-            var newOption = AJS.$('<option>', {
+            let newOption = AJS.$('<option>', {
                 value: targetFieldIdToNameMapping.name,
                 id: targetFieldIdToNameMapping.id,
                 fieldError: ""
@@ -1420,12 +1412,12 @@ function fillInTargetFields(targetFields) {
 }
 
 function fillInMappings(storedMappings) {
-    var mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-    var mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+    const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+    const mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
     // On loading the page, there should only be one original mapping element
     if (storedMappings != null && storedMappings.length > 0) {
-        for (i = 0; i < storedMappings.length; i++) {
-            var newMappingElement = addNewMappingElement(hubProjectMappingElement);
+        for (let i = 0; i < storedMappings.length; i++) {
+            let newMappingElement = addNewMappingElement(hubProjectMappingElement);
             fillInMapping(newMappingElement, storedMappings[i]);
         }
     } else {
@@ -1434,12 +1426,12 @@ function fillInMappings(storedMappings) {
 }
 
 function fillInFieldCopyMappings(storedMappings) {
-    var mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
-    var mappingElements = mappingContainer.find("tr[name*='" + fieldCopyMappingElement + "']");
+    const mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
+    const mappingElements = mappingContainer.find("tr[name*='" + fieldCopyMappingElement + "']");
     // On loading the page, there should only be one original mapping element
     if (storedMappings != null && storedMappings.length > 0) {
-        for (i = 0; i < storedMappings.length; i++) {
-            var newMappingElement = addNewFieldCopyMappingElement(fieldCopyMappingElement);
+        for (let i = 0; i < storedMappings.length; i++) {
+            let newMappingElement = addNewFieldCopyMappingElement(fieldCopyMappingElement);
             fillInFieldCopyMapping(newMappingElement, storedMappings[i]);
         }
     } else {
@@ -1448,46 +1440,49 @@ function fillInFieldCopyMappings(storedMappings) {
 }
 
 function fillInMapping(mappingElement, storedMapping) {
-    var currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
+    const currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
 
-    var storedJiraProject = storedMapping.jiraProject;
-    var storedJiraProjectDisplayName = storedJiraProject.projectName;
-    var storedJiraProjectValue = storedJiraProject.projectId;
-    var storedJiraProjectError = storedJiraProject.projectError;
+    const storedJiraProject = storedMapping.jiraProject;
+    const storedJiraProjectDisplayName = storedJiraProject.projectName;
+    const storedJiraProjectValue = storedJiraProject.projectId;
+    const storedJiraProjectError = storedJiraProject.projectError;
 
     currentJiraProject.val(storedJiraProjectDisplayName);
     currentJiraProject.attr("projectKey", storedJiraProjectValue);
 
-    var currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+    const currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
+    currentIssueCreator.val(storedJiraProject.issueCreator);
 
-    var storedHubProject = storedMapping.hubProject;
-    var storedHubProjectDisplayName = storedHubProject.projectName;
-    var storedHubProjectValue = storedHubProject.projectUrl;
+    const currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
+
+    const storedHubProject = storedMapping.hubProject;
+    const storedHubProjectDisplayName = storedHubProject.projectName;
+    const storedHubProjectValue = storedHubProject.projectUrl;
 
     currentHubProject.val(storedHubProjectDisplayName);
     currentHubProject.attr("projectKey", storedHubProjectValue);
 }
 
 function fillInFieldCopyMapping(mappingElement, storedMapping) {
-    var currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
+    const currentSourceField = AJS.$(mappingElement).find("input[name*='sourceField']");
 
-    var storedSourceFieldId = storedMapping.sourceFieldId;
-    var storedSourceFieldName = storedMapping.sourceFieldName;
+    const storedSourceFieldId = storedMapping.sourceFieldId;
+    const storedSourceFieldName = storedMapping.sourceFieldName;
 
     currentSourceField.val(storedSourceFieldName);
     currentSourceField.attr("id", storedSourceFieldId);
 
-    var currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
+    const currentTargetField = AJS.$(mappingElement).find("input[name*='targetField']");
 
-    var storedTargetFieldId = storedMapping.targetFieldId;
-    var storedTargetFieldName = storedMapping.targetFieldName;
+    const storedTargetFieldId = storedMapping.targetFieldId;
+    const storedTargetFieldName = storedMapping.targetFieldName;
 
     currentTargetField.val(storedTargetFieldName);
     currentTargetField.attr("id", storedTargetFieldId);
 }
 
 function addNewMappingElement(fieldId) {
-    var elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
+    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
     mappingElementCounter = mappingElementCounter + 1;
     elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
     elementToAdd.appendTo("#" + hubProjectMappingContainer);
@@ -1496,21 +1491,21 @@ function addNewMappingElement(fieldId) {
 
     removeMappingErrorStatus(elementToAdd);
 
-    var currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
+    const currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
 
     currentJiraProject.val("");
     currentJiraProject.attr("projectKey", "");
     if (currentJiraProject.hasClass('error')) {
         currentJiraProject.removeClass('error');
     }
-    var currentJiraProjectParent = currentJiraProject.parent();
-    var currentJiraProjectError = currentJiraProjectParent.children("#" + jiraProjectErrorId);
+    const currentJiraProjectParent = currentJiraProject.parent();
+    const currentJiraProjectError = currentJiraProjectParent.children("#" + jiraProjectErrorId);
     currentJiraProjectError.text("");
     if (currentJiraProjectError.hasClass('error')) {
         currentJiraProjectError.removeClass('error');
     }
 
-    var currentHubProject = AJS.$(elementToAdd).find("input[name*='hubProject']");
+    const currentHubProject = AJS.$(elementToAdd).find("input[name*='hubProject']");
 
     currentHubProject.val("");
     currentHubProject.attr("projectKey", "");
@@ -1518,7 +1513,7 @@ function addNewMappingElement(fieldId) {
         currentHubProject.removeClass('error');
     }
 
-    var mappingArea = AJS.$('#mappingArea')[0];
+    const mappingArea = AJS.$('#mappingArea')[0];
     if (mappingArea) {
         AJS.$('#mappingArea').scrollTop(mappingArea.scrollHeight);
     }
@@ -1526,7 +1521,7 @@ function addNewMappingElement(fieldId) {
 }
 
 function addNewFieldCopyMappingElement(fieldId) {
-    var elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
+    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
     mappingElementCounter = mappingElementCounter + 1;
     elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
     elementToAdd.appendTo("#" + fieldCopyMappingContainer);
@@ -1535,19 +1530,19 @@ function addNewFieldCopyMappingElement(fieldId) {
 
     removeMappingErrorStatus(elementToAdd);
 
-    var currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
+    const currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
 
     currentSourceField.val("");
     currentSourceField.attr("id", "");
     if (currentSourceField.hasClass('fieldError')) {
         currentSourceField.removeClass('fieldError');
     }
-    var currentSourceFieldParent = currentSourceField.parent();
-    var currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
+    const currentSourceFieldParent = currentSourceField.parent();
+    const currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
     currentTargetField.val("");
     currentTargetField.attr("id", "");
 
-    var mappingArea = AJS.$('#fieldCopyMappingArea')[0];
+    const mappingArea = AJS.$('#fieldCopyMappingArea')[0];
     if (mappingArea) {
         AJS.$('#fieldCopyMappingArea').scrollTop(fieldCopyMappingArea.scrollHeight);
     }
@@ -1568,41 +1563,41 @@ function removeFieldCopyMappingElement(childElement) {
 
 function onCreatorInputChange(inputField) {
     console.log("onCreatorInputChange()");
-    var field = AJS.$(inputField);
-    var datalist = inputField.list;
-    var options = datalist.options;
+    const field = AJS.$(inputField);
+    const datalist = inputField.list;
+    const options = datalist.options;
 
-    var optionFound = false;
-    for (var i = 0; i < options.length; i++) {
+    let optionFound = false;
+    for (let i = 0; i < options.length; i++) {
         if (options[i].value == inputField.value) {
             optionFound = true;
-            var option = AJS.$(options[i]);
+            let option = AJS.$(options[i]);
 
-            var username = option.attr("id");
+            let username = option.attr("id");
             console.log("onCreatorInputChange(): username: " + username);
         }
     }
 }
 
 function onMappingInputChange(inputField) {
-    var field = AJS.$(inputField);
-    var datalist = inputField.list;
-    var options = datalist.options;
+    const field = AJS.$(inputField);
+    const datalist = inputField.list;
+    const options = datalist.options;
 
-    var optionFound = false;
-    for (var i = 0; i < options.length; i++) {
+    let optionFound = false;
+    for (let i = 0; i < options.length; i++) {
         if (options[i].value == inputField.value) {
             optionFound = true;
-            var option = AJS.$(options[i]);
+            let option = AJS.$(options[i]);
 
-            var projectKey = option.attr("projectKey");
+            let projectKey = option.attr("projectKey");
             field.val(option.val());
             field.attr("projectKey", projectKey);
 
-            var projectError = option.attr("projectError");
+            let projectError = option.attr("projectError");
 
-            var fieldParent = field.parent();
-            var fieldError = fieldParent.children("#" + jiraProjectErrorId);
+            let fieldParent = field.parent();
+            let fieldError = fieldParent.children("#" + jiraProjectErrorId);
             if (projectError) {
                 fieldError.text(projectError);
                 if (!fieldError.hasClass('error')) {
@@ -1630,23 +1625,23 @@ function onMappingInputChange(inputField) {
 }
 
 function onFieldCopyMappingInputChange(inputField) {
-    var field = AJS.$(inputField);
-    var datalist = inputField.list;
-    var options = datalist.options;
+    const field = AJS.$(inputField);
+    const datalist = inputField.list;
+    const options = datalist.options;
 
-    var optionFound = false;
-    for (var i = 0; i < options.length; i++) {
+    let optionFound = false;
+    for (let i = 0; i < options.length; i++) {
         if (options[i].value == inputField.value) {
             optionFound = true;
-            var option = AJS.$(options[i]);
-            var id = option.attr("id");
+            let option = AJS.$(options[i]);
+            let id = option.attr("id");
             field.val(option.val());
             field.attr("id", id);
 
-            var projectError = option.attr("fieldError");
+            let projectError = option.attr("fieldError");
 
-            var fieldParent = field.parent();
-            var fieldError = fieldParent.children("#" + jiraProjectErrorId);
+            let fieldParent = field.parent();
+            let fieldError = fieldParent.children("#" + jiraProjectErrorId);
             if (projectError) {
                 fieldError.text(projectError);
                 if (!fieldError.hasClass('error')) {
@@ -1661,7 +1656,6 @@ function onFieldCopyMappingInputChange(inputField) {
                     field.removeClass('error');
                 }
             }
-
             break;
         }
     }
@@ -1689,9 +1683,9 @@ function showErrorHubDetails(fieldRowId, fieldId, configField) {
 }
 
 function showError(fieldId, configField, clearOldMessage) {
-    var newMessage = decodeURI(configField).trim();
+    let newMessage = decodeURI(configField).trim();
     if (!clearOldMessage) {
-        var oldMessage = AJS.$("#" + fieldId).text().trim();
+        const oldMessage = AJS.$("#" + fieldId).text().trim();
         if (oldMessage && oldMessage != newMessage) {
             newMessage = oldMessage + ' .... ' + newMessage;
         }
@@ -1761,7 +1755,7 @@ function removeClassFromField(field, cssClass) {
 }
 
 function toggleDisplay(icon, fieldId) {
-    var iconObject = AJS.$(icon);
+    const iconObject = AJS.$(icon);
     if (iconObject.hasClass('fa-angle-down')) {
         removeClassFromField(icon, 'fa-angle-down');
         addClassToField(icon, 'fa-angle-right');
@@ -1776,15 +1770,15 @@ function toggleDisplay(icon, fieldId) {
 }
 
 function toggleAuthenticationType() {
-    var apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
+    const apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
 
-    var apiTokenRowId = 'bdApiTokenRow';
-    var apiTokenErrorRowId = 'bdApiTokenErrorRow';
+    const apiTokenRowId = 'bdApiTokenRow';
+    const apiTokenErrorRowId = 'bdApiTokenErrorRow';
 
-    var usernameRowId = 'bdUsernameRow';
-    var usernameErrorRowId = 'hubUsernameErrorRow';
-    var passwordRowId = 'bdPasswordRow';
-    var passwordErrorRowId = 'hubPasswordErrorRow';
+    const usernameRowId = 'bdUsernameRow';
+    const usernameErrorRowId = 'hubUsernameErrorRow';
+    const passwordRowId = 'bdPasswordRow';
+    const passwordErrorRowId = 'hubPasswordErrorRow';
 
     if (apiTokenInput && apiTokenInput.checked) {
         removeClassFromFieldById(apiTokenRowId, "hidden");
@@ -1803,9 +1797,9 @@ function toggleAuthenticationType() {
 }
 
 function addMappingErrorStatus(mappingElement) {
-    var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
     if (mappingStatus.find("i").length == 0) {
-        var newStatus = AJS.$('<i>', {});
+        const newStatus = AJS.$('<i>', {});
         AJS.$(newStatus).addClass("error");
         AJS.$(newStatus).addClass("largeIcon");
         AJS.$(newStatus).addClass("fa");
@@ -1816,24 +1810,24 @@ function addMappingErrorStatus(mappingElement) {
 }
 
 function removeMappingErrorStatus(mappingElement) {
-    var mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
     if (mappingStatus.children().length > 0) {
         AJS.$(mappingStatus).empty();
     }
 }
 
 function removeFieldCopyMappingErrorStatus(mappingElement) {
-    var mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
+    const mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
     if (mappingStatus.children().length > 0) {
         AJS.$(mappingStatus).empty();
     }
 }
 
 function startProgressSpinner(spinnerId) {
-    var spinner = AJS.$('#' + spinnerId);
+    const spinner = AJS.$('#' + spinnerId);
 
     if (spinner.find("i").length == 0) {
-        var newSpinnerIcon = AJS.$('<i>', {});
+        const newSpinnerIcon = AJS.$('<i>', {});
         AJS.$(newSpinnerIcon).addClass("largeIcon");
         AJS.$(newSpinnerIcon).addClass("fa");
         AJS.$(newSpinnerIcon).addClass("fa-spinner");
@@ -1845,7 +1839,7 @@ function startProgressSpinner(spinnerId) {
 }
 
 function stopProgressSpinner(spinnerId) {
-    var spinner = AJS.$('#' + spinnerId);
+    const spinner = AJS.$('#' + spinnerId);
     if (spinner.children().length > 0) {
         AJS.$(spinner).empty();
     }

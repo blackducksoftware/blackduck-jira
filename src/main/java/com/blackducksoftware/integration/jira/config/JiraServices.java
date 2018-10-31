@@ -36,6 +36,7 @@ import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.bc.user.search.DefaultUserPickerSearchService;
 import com.atlassian.jira.bc.user.search.UserSearchService;
+import com.atlassian.jira.cluster.ClusterManager;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
@@ -123,6 +124,10 @@ public class JiraServices {
         return ComponentAccessor.getCommentManager();
     }
 
+    public ClusterManager getClusterManager() {
+        return ComponentAccessor.getComponentOfType(ClusterManager.class);
+    }
+
     public UserManager getUserManager() {
         return ComponentAccessor.getUserManager();
     }
@@ -168,7 +173,10 @@ public class JiraServices {
         return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
     }
 
-    public JiraProject getJiraProject(final long jiraProjectId) throws HubIntegrationException {
+    public JiraProject getJiraProject(final Long jiraProjectId) throws HubIntegrationException {
+        if (jiraProjectId == null) {
+            throw new HubIntegrationException("Error: JIRA Project ID is null; one of the Project Mappings is likely misconfigured");
+        }
         final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
             throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
