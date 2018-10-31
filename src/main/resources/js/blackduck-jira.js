@@ -307,7 +307,7 @@ function populateForm() {
             handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
             handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
             handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
-            handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.bdApiTokenError);
+            handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
             handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
             handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
             handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
@@ -323,7 +323,15 @@ function populateForm() {
             const usernameErrorRowId = 'hubUsernameErrorRow';
             const passwordRowId = 'bdPasswordRow';
             const passwordErrorRowId = 'hubPasswordErrorRow';
-            if (config.apiToken) {
+
+            if (config.username || config.password) {
+                AJS.$('#bdAuthenticationTypeCredentials')[0].checked = true;
+                addClassToFieldById(apiTokenRowId, "hidden");
+                addClassToFieldById(apiTokenErrorRowId, "hidden");
+
+                removeClassFromFieldById(usernameRowId, "hidden");
+                removeClassFromFieldById(passwordRowId, "hidden");
+            } else {
                 AJS.$('#bdAuthenticationTypeToken')[0].checked = true;
                 removeClassFromFieldById(apiTokenRowId, "hidden");
 
@@ -331,13 +339,6 @@ function populateForm() {
                 addClassToFieldById(usernameErrorRowId, "hidden");
                 addClassToFieldById(passwordRowId, "hidden");
                 addClassToFieldById(passwordErrorRowId, "hidden");
-            } else if (config.username || config.password) {
-                AJS.$('#bdAuthenticationTypeCredentials')[0].checked = true;
-                addClassToFieldById(apiTokenRowId, "hidden");
-                addClassToFieldById(apiTokenErrorRowId, "hidden");
-
-                removeClassFromFieldById(usernameRowId, "hidden");
-                removeClassFromFieldById(passwordRowId, "hidden");
             }
 
         }, error: function (response) {
