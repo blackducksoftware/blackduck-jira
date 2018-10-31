@@ -157,24 +157,43 @@ function updateFieldCopyConfig() {
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
-    console.log("putHubDetails()");
-    AJS.$.ajax({
-        url: restUrl,
-        type: "PUT",
-        dataType: "json",
-        contentType: "application/json",
-        data: '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
+    const apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
+
+    let config = '';
+    if (apiTokenInput && apiTokenInput.checked) {
+        config = '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
             + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
             + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
             + '", "apiToken": "' + encodeURI(AJS.$("#bdApiToken").val())
-            + '", "username": "' + encodeURI(AJS.$("#hubUsername").val())
+            + '", "username": "", "password": ""'
+            + ', "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
+            + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
+            + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
+            + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
+            + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
+            + '"}'
+    } else {
+        config = '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
+            + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
+            + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
+            + '", "apiToken": ""'
+            + ', "username": "' + encodeURI(AJS.$("#hubUsername").val())
             + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
             + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
             + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
             + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
             + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
             + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
-            + '"}',
+            + '"}'
+    }
+
+    console.log("putHubDetails()");
+    AJS.$.ajax({
+        url: restUrl,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        data: config,
         processData: false,
         success: function () {
             handleError(errorMessageFieldId, "", true, true);
@@ -200,7 +219,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
         },
         error: function (response) {
             console.log("putConfig(): " + response.responseText);
-            const config = JSON.parse(response.responseText);
+            var config = JSON.parse(response.responseText);
 
             handleError(errorMessageFieldId, config.errorMessage, true, true);
             handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
@@ -296,6 +315,30 @@ function populateForm() {
             handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
             handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
             handleErrorHubDetails('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
+
+            const apiTokenRowId = 'bdApiTokenRow';
+            const apiTokenErrorRowId = 'bdApiTokenErrorRow';
+
+            const usernameRowId = 'bdUsernameRow';
+            const usernameErrorRowId = 'hubUsernameErrorRow';
+            const passwordRowId = 'bdPasswordRow';
+            const passwordErrorRowId = 'hubPasswordErrorRow';
+            if (config.apiToken) {
+                AJS.$('#bdAuthenticationTypeToken')[0].checked = true;
+                removeClassFromFieldById(apiTokenRowId, "hidden");
+
+                addClassToFieldById(usernameRowId, "hidden");
+                addClassToFieldById(usernameErrorRowId, "hidden");
+                addClassToFieldById(passwordRowId, "hidden");
+                addClassToFieldById(passwordErrorRowId, "hidden");
+            } else if (config.username || config.password) {
+                AJS.$('#bdAuthenticationTypeCredentials')[0].checked = true;
+                addClassToFieldById(apiTokenRowId, "hidden");
+                addClassToFieldById(apiTokenErrorRowId, "hidden");
+
+                removeClassFromFieldById(usernameRowId, "hidden");
+                removeClassFromFieldById(passwordRowId, "hidden");
+            }
 
         }, error: function (response) {
             console.log("putConfig(): " + response.responseText);
@@ -683,25 +726,25 @@ function updateTicketCreationErrors(hubJiraTicketErrors) {
 }
 
 function getJsonArrayFromErrors(errorRow) {
-    var jsonArray = "[";
+    let jsonArray = "[";
 
-    var errorColumn = AJS.$(errorRow).find('td');
+    const errorColumn = AJS.$(errorRow).find('td');
 
-    var creationErrorMessage = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
+    const creationErrorMessage = AJS.$(errorColumn).children("div[name*='ticketCreationErrorMessageName']");
 
-    var creationErrorStackTrace = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
+    const creationErrorStackTrace = AJS.$(errorColumn).children("div[name*='ticketCreationStackTraceName']");
 
-    var creationErrorTimeStamp = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
+    const creationErrorTimeStamp = AJS.$(errorColumn).children("div[name*='ticketCreationTimeStampName']");
 
-    var stackTrace = creationErrorStackTrace.text().trim();
+    let stackTrace = creationErrorStackTrace.text().trim();
     if (stackTrace) {
         stackTrace = encodeURIComponent(stackTrace);
     } else {
-        var errorMessage = creationErrorMessage.text().trim();
+        const errorMessage = creationErrorMessage.text().trim();
 
         stackTrace = encodeURIComponent(errorMessage);
     }
-    var timeStamp = creationErrorTimeStamp.text().trim();
+    let timeStamp = creationErrorTimeStamp.text().trim();
     timeStamp = encodeURIComponent(timeStamp);
 
     jsonArray += '{"'
@@ -714,12 +757,12 @@ function getJsonArrayFromErrors(errorRow) {
 }
 
 function handleErrorRemoval(trashIcon) {
-    var currentIcon = AJS.$(trashIcon);
-    var errorRow = currentIcon.closest("tr");
+    const currentIcon = AJS.$(trashIcon);
+    const errorRow = currentIcon.closest("tr");
 
-    var restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
+    const restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
 
-    var hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
+    const hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -745,10 +788,10 @@ function handleErrorRemoval(trashIcon) {
 
     errorRow.remove();
 
-    var ticketCreationErrorContainer = AJS.$("#" + ticketCreationErrorsTableId);
-    var creationErrors = ticketCreationErrorContainer.find("tr[name*='" + ticketCreationErrorRowId + "']");
+    const ticketCreationErrorContainer = AJS.$("#" + ticketCreationErrorsTableId);
+    const creationErrors = ticketCreationErrorContainer.find("tr[name*='" + ticketCreationErrorRowId + "']");
     if (creationErrors.length <= 1) {
-        var fieldSet = AJS.$('#' + ticketCreationFieldSetId);
+        const fieldSet = AJS.$('#' + ticketCreationFieldSetId);
         if (!fieldSet.hasClass(hiddenClass)) {
             fieldSet.addClass(hiddenClass);
         }
@@ -756,11 +799,11 @@ function handleErrorRemoval(trashIcon) {
 }
 
 function handleDataRetrievalError(response, errorId, errorText, dialogTitle) {
-    var errorField = AJS.$('#' + errorId);
+    const errorField = AJS.$('#' + errorId);
     errorField.text(errorText);
     removeClassFromField(errorField, hiddenClass);
     addClassToField(errorField, "clickable");
-    var error = JSON.parse(response.responseText);
+    let error = JSON.parse(response.responseText);
     error = AJS.$(error);
     errorField.click(function () {
         showErrorDialog(dialogTitle, error.attr("message"), error.attr("status-code"), error.attr("stack-trace"))
