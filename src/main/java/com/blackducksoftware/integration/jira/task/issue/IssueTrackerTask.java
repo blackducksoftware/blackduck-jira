@@ -93,6 +93,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
             }
         } catch (final Throwable throwable) {
             logger.error(String.format("Error occurred processing issue %s, caused by %s", jiraIssue, throwable));
+            logger.debug(throwable.getMessage(), throwable);
             return Boolean.FALSE;
         } finally {
             logger.debug(String.format("ISSUE TRACKER TASK FINISHED: Event Type ID: %s, Issue: %s", eventTypeID, jiraIssue));
