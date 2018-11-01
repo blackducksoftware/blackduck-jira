@@ -17,15 +17,8 @@
     <description>Black Duck JIRA Integration</description>
 
     <properties>
-        <!--
-                   For production builds, use:
-                   amps.version: 5.0.13
-                   jira.version: 5.2.11
-
-                   To use quickReload, use:
-                   amps.version: 6.2.4
-                   jira.version: 7.1.4
-                   -->
+        <!--  For production builds, use: amps.version: 5.0.13 jira.version: 5.2.11 -->
+        <!-- To use quickReload, use: amps.version: 6.2.4 jira.version: 7.1.4 -->
         <amps.version>6.3.15</amps.version>
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
         <jira.version>7.3.0</jira.version>
@@ -214,6 +207,13 @@
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
             <version>${plugin.testrunner.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blackducksoftware.integration</groupId>
+            <artifactId>integration-test-common</artifactId>
+            <version>4.0.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
