@@ -102,11 +102,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.blackducksoftware.integration</groupId>
-            <artifactId>integration-common</artifactId>
-            <version>13.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-core</artifactId>
             <version>${jira.version}</version>
@@ -216,6 +211,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.blackducksoftware.integration</groupId>
+            <artifactId>integration-common</artifactId>
+            <version>13.0.0</version>
+        </dependency>
         <dependency>
             <groupId>com.blackducksoftware.integration</groupId>
             <artifactId>integration-test-common</artifactId>
