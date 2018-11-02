@@ -16,4 +16,4 @@ Alternatively, you can download the latest from GitHub: https://github.com/black
 
 
 ## Documentation ##
-All documentation for blackduck-jira can be found on our public [Black Duck Confluence](https://blackducksoftware.atlassian.net/wiki/spaces/INTDOCS/pages/47254687/Black+Duck+JIRA+Plugin)
+All documentation for blackduck-jira can be found on our public [Confluence](https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/622624/Black+Duck+JIRA+Plugin)
