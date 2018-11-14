@@ -1,12 +1,12 @@
-.name, .value {
-	text-align: left;
-	display: inline-block;
+.bds-name, .bds-value {
+    text-align: left;
+    display: inline-block;
 }
 
-.name {
-	float: left;
-	color: #707070;
-	font-weight: normal;
+.bds-name {
+    float: left;
+    color: #707070;
+    font-weight: normal;
     padding: 2px 5px 2px 0;
     padding-right: 5px;
     width: 150px;
@@ -14,8 +14,8 @@
     display: inline-block;
 }
 
-.value {
-	word-wrap: break-word;
+.bds-value {
+    word-wrap: break-word;
     word-break: break-word;
     display: inline-block;
     max-width: 100%;
@@ -27,15 +27,15 @@
     text-align: left;
 }
 
-.blackDuckWrap {
-	padding: 0 10px 0 0px;
+.bds-wrap {
+    padding: 0 10px 0 0px;
 }
 
-.fiftyPercent {
-	width: 50%;
-	box-sizing: border-box;
+.bds-fiftyPercent {
+    width: 50%;
+    box-sizing: border-box;
 }
 
-div.fieldSectionSeparator {
-	clear: both;
+div.bds-fieldSectionSeparator {
+    clear: both;
 }
