@@ -86,17 +86,17 @@ public class BlackDuckJobRunner implements JobRunner {
         logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
         if (executorService.canAcceptNewTasks()) {
-            return scheduleTask(taskTimeoutMinutes);
+            return scheduleTask(taskIntervalMinutes, taskTimeoutMinutes);
         }
         return JobRunnerResponse.aborted("Too many tasks are currently scheduled.");
     }
 
-    private JobRunnerResponse scheduleTask(final int taskTimeoutMinutes) {
+    private JobRunnerResponse scheduleTask(final Integer taskIntervalMinutes, final int taskTimeoutMinutes) {
         String reasonForFailure = null;
         Exception failureException = null;
         PluginFuture future = null;
         try {
-            future = executorService.submit(new JiraTaskTimed(pluginSettings, new JiraServices()));
+            future = executorService.submit(new JiraTaskTimed(pluginSettings, new JiraServices(), taskIntervalMinutes));
             final String result = future.get(taskTimeoutMinutes);
             logger.info("The timed task completed with result: " + result);
         } catch (final ExecutionException e) {
