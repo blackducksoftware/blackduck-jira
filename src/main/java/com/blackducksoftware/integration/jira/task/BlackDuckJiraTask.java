@@ -110,6 +110,7 @@ public class BlackDuckJiraTask {
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
+        logger.debug("Previous start date: " + previousStartDate);
         final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
         final HubServerConfig blackDuckServerConfig;
         try {
@@ -137,12 +138,14 @@ public class BlackDuckJiraTask {
 
         final Date startDate;
         try {
+            logger.debug("Determining what to use as the start date...");
             startDate = deriveStartDate(blackDuckServicesFactory, previousStartDate);
+            logger.debug("Derived start date: " + startDate);
         } catch (final ParseException parseException) {
             logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
             return getRunDateString();
         } catch (final IntegrationException integrationException) {
-            logger.error("");
+            logger.error("Could not determine the last notification date from Black Duck. Please ensure that a connection can be established.");
             return previousStartDate;
         }
 
@@ -278,10 +281,11 @@ public class BlackDuckJiraTask {
     }
 
     private Date getLastNotificationDateFromBlackDuck(final HubServicesFactory blackDuckServicesFactory) throws IntegrationException {
-        final Date endDate = new Date();
-        final Date lookbackDate = BlackDuckPluginDateFormatter
-                                          .fromLocalDateTime(LocalDateTime.now().minusDays(NOTIFICATIONS_LOOKBACK_DAYS));
         try {
+            final Date endDate = new Date();
+            final Date lookbackDate = BlackDuckPluginDateFormatter
+                                              .fromLocalDateTime(LocalDateTime.now().minusDays(NOTIFICATIONS_LOOKBACK_DAYS));
+            logger.debug("Checking the last " + NOTIFICATIONS_LOOKBACK_DAYS + " days for notifications. From " + lookbackDate + " to " + endDate);
             final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
             final List<NotificationView> notificationViews = notificationService.getAllNotifications(lookbackDate, endDate);
             final CommonNotificationService commonNotificationService = createCommonNotificationService(blackDuckServicesFactory, false);

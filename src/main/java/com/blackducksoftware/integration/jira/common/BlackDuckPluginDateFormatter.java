@@ -59,7 +59,10 @@ public final class BlackDuckPluginDateFormatter {
     }
 
     public static LocalDateTime toLocalDateTime(final Date date) {
-        return LocalDateTime.from(date.toInstant());
+        return LocalDateTime.ofInstant(
+                date.toInstant(),
+                DATE_FORMATTER.getTimeZone().toZoneId()
+        );
     }
 
 }
