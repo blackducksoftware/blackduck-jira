@@ -65,10 +65,12 @@ public class JiraTaskTimed implements Callable<String> {
 
     private final PluginSettings settings;
     private final JiraServices jiraServices;
+    private final Integer configuredTaskInterval;
 
-    public JiraTaskTimed(final PluginSettings settings, final JiraServices jiraServices) {
+    public JiraTaskTimed(final PluginSettings settings, final JiraServices jiraServices, final Integer configuredTaskInterval) {
         this.settings = settings;
         this.jiraServices = jiraServices;
+        this.configuredTaskInterval = configuredTaskInterval;
     }
 
     @Override
@@ -100,14 +102,14 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime afterSetup = LocalDateTime.now();
         final Duration diff = Duration.between(beforeSetup, afterSetup);
         logger.info("Black Duck JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
-        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup);
+        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup, configuredTaskInterval);
         final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, configDetails);
         logger.info("blackduck-jira periodic timed task has completed");
         return runResult;
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
-        throws ConfigurationException, JiraException {
+            throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
@@ -171,8 +173,8 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+            final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
+            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -180,10 +182,10 @@ public class JiraTaskTimed implements Callable<String> {
             if (!config.getHubProjectMappings().isEmpty()) {
                 for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
-                            && projectMapping.getJiraProject().getProjectId() != null) {
+                                && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
-                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                                                            .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);

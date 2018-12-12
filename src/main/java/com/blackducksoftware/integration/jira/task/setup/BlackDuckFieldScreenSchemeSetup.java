@@ -175,7 +175,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             @SuppressWarnings("deprecation")
             // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
-                CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
+                    CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
                 customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }
@@ -335,7 +335,6 @@ public class BlackDuckFieldScreenSchemeSetup {
                 for (final FieldScreenLayoutItem layoutItem : layoutItems) {
                     FieldScreenLayoutItem existingField = null;
                     if (configIsOk(myTab, layoutItem)) {
-                        logger.debug("addBlackDuckTabToScreen(): layoutItem: " + layoutItem.getOrderableField().getName());
                         existingField = myTab.getFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
                         if (existingField == null) {
                             logger.debug("addBlackDuckTabToScreen(): field " + layoutItem.getOrderableField().getName() + " is not yet on Black Duck screen tab; adding it");

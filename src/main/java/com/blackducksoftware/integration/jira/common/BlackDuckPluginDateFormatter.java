@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.common;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.synopsys.integration.rest.RestConstants;
@@ -32,6 +33,7 @@ import com.synopsys.integration.rest.RestConstants;
 public final class BlackDuckPluginDateFormatter {
     private static final String INTERNAL_PLUGIN_TIME_ZONE = "Zulu";
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+
     static {
         DATE_FORMATTER.setTimeZone(java.util.TimeZone.getTimeZone(INTERNAL_PLUGIN_TIME_ZONE));
     }
@@ -46,6 +48,21 @@ public final class BlackDuckPluginDateFormatter {
 
     public static Date parse(final String dateString) throws ParseException {
         return DATE_FORMATTER.parse(dateString);
+    }
+
+    public static Date fromLocalDateTime(final LocalDateTime localDateTime) {
+        return Date.from(
+                localDateTime
+                        .atZone(DATE_FORMATTER.getTimeZone().toZoneId())
+                        .toInstant()
+        );
+    }
+
+    public static LocalDateTime toLocalDateTime(final Date date) {
+        return LocalDateTime.ofInstant(
+                date.toInstant(),
+                DATE_FORMATTER.getTimeZone().toZoneId()
+        );
     }
 
 }

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,14 +52,18 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCop
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
 import com.google.gson.Gson;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
+import com.synopsys.integration.blackduck.api.generated.view.NotificationView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.configuration.HubServerConfig;
 import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.blackduck.notification.CommonNotificationView;
+import com.synopsys.integration.blackduck.notification.CommonNotificationViewResults;
 import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetailFactory;
 import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
 import com.synopsys.integration.blackduck.service.CommonNotificationService;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.service.NotificationService;
 import com.synopsys.integration.blackduck.service.model.BlackDuckPhoneHomeCallable;
 import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationException;
@@ -67,6 +72,9 @@ import com.synopsys.integration.phonehome.PhoneHomeService;
 import com.synopsys.integration.rest.connection.RestConnection;
 
 public class BlackDuckJiraTask {
+    private static final Long NOTIFICATIONS_LOOKBACK_DAYS = 14L;
+    private static final Long START_DATE_LOOKBACK_INTERVAL_FACTOR = 1L;
+
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final PluginConfigurationDetails pluginConfigDetails;
@@ -75,11 +83,13 @@ public class BlackDuckJiraTask {
     private final JiraServices jiraServices = new JiraServices();
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final Integer configuredTaskInterval;
     private final String fieldCopyMappingJson;
 
     private final Gson gson = HubServicesFactory.createDefaultGson();
 
-    public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
+    public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup,
+            final Integer configuredTaskInterval) {
         this.pluginConfigDetails = configDetails;
         this.jiraContext = jiraContext;
 
@@ -89,6 +99,7 @@ public class BlackDuckJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
+        this.configuredTaskInterval = configuredTaskInterval;
         this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
 
         logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
@@ -99,6 +110,7 @@ public class BlackDuckJiraTask {
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
     public String execute(final String previousStartDate) {
+        logger.debug("Previous start date: " + previousStartDate);
         final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
         final HubServerConfig blackDuckServerConfig;
         try {
@@ -116,23 +128,28 @@ public class BlackDuckJiraTask {
         }
         final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
 
-        final Date startDate;
+        final HubServicesFactory blackDuckServicesFactory;
         try {
-            startDate = deriveStartDate(pluginConfigDetails.getInstallDateString(), previousStartDate);
-        } catch (final ParseException e) {
-            logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-            return getRunDateString();
+            blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
+        } catch (final EncryptionException e) {
+            logger.warn("Error handling password: " + e.getMessage());
+            return previousStartDate;
         }
 
-        HubServicesFactory blackDuckServicesFactory = null;
+        final Date startDate;
         try {
-            try {
-                blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
-            } catch (final EncryptionException e) {
-                logger.warn("Error handling password: " + e.getMessage());
-                return previousStartDate;
-            }
+            logger.debug("Determining what to use as the start date...");
+            startDate = deriveStartDate(blackDuckServicesFactory, previousStartDate);
+            logger.debug("Derived start date: " + startDate);
+        } catch (final ParseException parseException) {
+            logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
+            return getRunDateString();
+        } catch (final IntegrationException integrationException) {
+            logger.error("Could not determine the last notification date from Black Duck. Please ensure that a connection can be established.");
+            return previousStartDate;
+        }
 
+        try {
             final boolean getOldestNotificationsFirst = true;
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory, getOldestNotificationsFirst, ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
@@ -211,15 +228,17 @@ public class BlackDuckJiraTask {
     }
 
     private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubServicesFactory hubServicesFactory, final boolean notificationsOldestFirst,
-        final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
+            final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(hubServicesFactory.getGson(), HubServicesFactory.createDefaultJsonParser());
-        final CommonNotificationService commonNotificationService = hubServicesFactory.createCommonNotificationService(contentDetailFactory, notificationsOldestFirst);
+        final CommonNotificationService commonNotificationService = createCommonNotificationService(hubServicesFactory, notificationsOldestFirst);
+        return new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), hubServicesFactory.createNotificationService(), commonNotificationService,
+                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
+    }
 
-        final TicketGenerator ticketGenerator = new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), hubServicesFactory.createNotificationService(), commonNotificationService,
-            hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
-        return ticketGenerator;
+    private CommonNotificationService createCommonNotificationService(final HubServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
+        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), HubServicesFactory.createDefaultJsonParser());
+        return blackDuckServicesFactory.createCommonNotificationService(contentDetailFactory, notificationsOldestFirst);
     }
 
     private BlackDuckJiraConfigSerializable deSerializeConfig() {
@@ -253,15 +272,35 @@ public class BlackDuckJiraTask {
         return fieldCopyConfig;
     }
 
-    private Date deriveStartDate(final String installDateString, final String lastRunDateString) throws ParseException {
-        final Date startDate;
+    private Date deriveStartDate(final HubServicesFactory blackDuckServicesFactory, final String lastRunDateString) throws ParseException, IntegrationException {
         if (lastRunDateString == null) {
-            logger.info("No lastRunDate set, so this is the first run; Will collect notifications since the plugin install time: " + installDateString);
-            startDate = BlackDuckPluginDateFormatter.parse(installDateString);
-        } else {
-            startDate = BlackDuckPluginDateFormatter.parse(lastRunDateString);
+            logger.info("No lastRunDate set, using the last notification date from Black Duck to determine the start date");
+            return getLastNotificationDateFromBlackDuck(blackDuckServicesFactory);
         }
-        return startDate;
+        return BlackDuckPluginDateFormatter.parse(lastRunDateString);
+    }
+
+    private Date getLastNotificationDateFromBlackDuck(final HubServicesFactory blackDuckServicesFactory) throws IntegrationException {
+        try {
+            final Date endDate = new Date();
+            final Date lookbackDate = BlackDuckPluginDateFormatter
+                                              .fromLocalDateTime(LocalDateTime.now().minusDays(NOTIFICATIONS_LOOKBACK_DAYS));
+            logger.debug("Checking the last " + NOTIFICATIONS_LOOKBACK_DAYS + " days for notifications. From " + lookbackDate + " to " + endDate);
+            final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
+            final List<NotificationView> notificationViews = notificationService.getAllNotifications(lookbackDate, endDate);
+            final CommonNotificationService commonNotificationService = createCommonNotificationService(blackDuckServicesFactory, false);
+            final List<CommonNotificationView> commonNotifications = commonNotificationService.getCommonNotifications(notificationViews);
+            final CommonNotificationViewResults commonNotificationViewResults = commonNotificationService.getCommonNotificationViewResults(commonNotifications);
+            final Date lastNotificationDate = commonNotificationViewResults
+                                                      .getLatestNotificationCreatedAtDate()
+                                                      .orElseThrow(() -> new IntegrationException("Unable to get the latest notification date from Black Duck"));
+            final LocalDateTime lastNotificationLocalDateTime = BlackDuckPluginDateFormatter.toLocalDateTime(lastNotificationDate);
+
+            final Long lookbackTime = configuredTaskInterval.longValue() * START_DATE_LOOKBACK_INTERVAL_FACTOR;
+            return BlackDuckPluginDateFormatter.fromLocalDateTime(lastNotificationLocalDateTime.minusMinutes(lookbackTime));
+        } catch (final Exception e) {
+            throw new IntegrationException(e);
+        }
     }
 
     public void bdPhoneHome(final BlackDuckPhoneHomeCallable phCallable) {
@@ -275,7 +314,7 @@ public class BlackDuckJiraTask {
             }
 
             phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
-            phCallable.addMetaData("jira.deployment", deploymentType.name()); 
+            phCallable.addMetaData("jira.deployment", deploymentType.name());
 
             final PhoneHomeService phService = new PhoneHomeService(logger, null);
             phService.phoneHome(phCallable);
