@@ -157,7 +157,6 @@ public class BlackDuckFieldConfigurationSetup {
             if (fields != null && !fields.isEmpty()) {
                 for (final FieldLayoutItem field : fields) {
                     final String fieldName = field.getOrderableField().getName();
-                    logger.debug("addBlackDuckFieldConfigurationToJira(): Black Duck field config: field: " + fieldName);
                     String normalizedFieldName = fieldName.replace(" ", "");
                     normalizedFieldName = normalizedFieldName.toLowerCase();
                     if (!requiredDefaultFields.contains(normalizedFieldName) && field.isRequired()) {
