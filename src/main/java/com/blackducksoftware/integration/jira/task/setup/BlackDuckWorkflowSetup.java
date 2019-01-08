@@ -1,7 +1,7 @@
 /**
  * Black Duck JIRA Plugin
  *
- * Copyright (C) 2018 Black Duck Software, Inc.
+ * Copyright (C) 2019 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,40 +69,43 @@ public class BlackDuckWorkflowSetup {
         return jiraServices;
     }
 
-    public JiraWorkflow addBlackDuckWorkflowToJira() {
+    public Optional<JiraWorkflow> addBlackDuckWorkflowToJira() {
         try {
             final WorkflowManager workflowManager = jiraServices.getWorkflowManager();
-            JiraWorkflow blackDuckWorkflow = jiraServices.getWorkflowManager().getWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            final JiraWorkflow blackDuckWorkflow = jiraServices.getWorkflowManager().getWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
             if (blackDuckWorkflow == null) {
-                final WorkflowDescriptor workflowDescriptor = getWorkflowDescriptorFromResource();
-                blackDuckWorkflow = new ConfigurableJiraWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW, workflowDescriptor, jiraServices.getWorkflowManager());
-                final ApplicationUser jiraAppUser = getJiraSystemAdmin();
-                if (jiraAppUser == null) {
+                final Optional<ApplicationUser> jiraAppUser = getJiraSystemAdmin();
+                if (!jiraAppUser.isPresent()) {
                     logger.error("Could not find any JIRA System Admins to create the workflow.");
-                    return null;
+                    return Optional.empty();
                 }
-                workflowManager.createWorkflow(jiraAppUser, blackDuckWorkflow);
-                logger.debug("Created the Black Duck Workflow : " + BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+                final Optional<WorkflowDescriptor> workflowDescriptor = getWorkflowDescriptorFromResource();
+                final Optional<JiraWorkflow> workflowOptional = workflowDescriptor.map(descriptor -> new ConfigurableJiraWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW, descriptor, jiraServices.getWorkflowManager()));
+                workflowOptional.ifPresent(workflow -> {
+                    workflowManager.createWorkflow(jiraAppUser.get(), workflow);
+                    logger.debug("Created the Black Duck Workflow : " + BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+                });
+                return workflowOptional;
             }
-            return blackDuckWorkflow;
+            return Optional.of(blackDuckWorkflow);
         } catch (final Exception e) {
-            logger.error("Failed to add the Black Duck JIRA worflow.", e);
+            logger.error("Failed to add the Black Duck JIRA workflow.", e);
             settingService.addBlackDuckError(e, "addBlackDuckWorkflow");
         }
-        return null;
+        return Optional.empty();
     }
 
-    private WorkflowDescriptor getWorkflowDescriptorFromResource() throws IOException, FactoryException {
+    private Optional<WorkflowDescriptor> getWorkflowDescriptorFromResource() throws IOException, FactoryException {
         // https://developer.atlassian.com/confdev/development-resources/confluence-developer-faq/what-is-the-best-way-to-load-a-class-or-resource-from-a-plugin
         final InputStream inputStream = ClassLoaderUtils.getResourceAsStream(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW_RESOURCE, this.getClass());
         if (inputStream == null) {
             logger.error("Could not find the Black Duck JIRA workflow resource.");
             settingService.addBlackDuckError("Could not find the Black Duck JIRA workflow resource.", "addBlackDuckWorkflow");
-            return null;
+            return Optional.empty();
         }
         final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
 
-        return WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml);
+        return Optional.ofNullable(WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml));
     }
 
     public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow blackDuckWorkflow, final Project project, final List<IssueType> issueTypes) {
@@ -124,7 +128,7 @@ public class BlackDuckWorkflowSetup {
     }
 
     private boolean mapIssueTypeToBdsWorkflow(final Project project, final JiraWorkflow blackDuckWorkflow, final AssignableWorkflowScheme projectWorkflowScheme, final AssignableWorkflowScheme.Builder projectWorkflowSchemeBuilder,
-            final IssueType issueType, boolean needsToBeUpdated) {
+        final IssueType issueType, boolean needsToBeUpdated) {
         final String configuredWorkflowName = projectWorkflowScheme.getConfiguredWorkflow(issueType.getId());
         final String actualWorkflowName = projectWorkflowScheme.getActualWorkflow(issueType.getId());
         logger.debug("Configured workflow: " + configuredWorkflowName);
@@ -137,12 +141,12 @@ public class BlackDuckWorkflowSetup {
         return needsToBeUpdated;
     }
 
-    private ApplicationUser getJiraSystemAdmin() {
+    private Optional<ApplicationUser> getJiraSystemAdmin() {
         final Collection<ApplicationUser> jiraSysAdmins = getJiraServices().getUserUtil().getJiraSystemAdministrators();
         if (jiraSysAdmins == null || jiraSysAdmins.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return jiraSysAdmins.iterator().next();
+        return Optional.of(jiraSysAdmins.iterator().next());
     }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Black Duck JIRA Plugin
  *
- * Copyright (C) 2018 Black Duck Software, Inc.
+ * Copyright (C) 2019 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,20 +82,21 @@ public class JiraTaskTimed implements Callable<String> {
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
 
-        final JiraUserContext jiraContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
-        if (jiraContext == null) {
+        final Optional<JiraUserContext> optionalJiraUserContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
+        if (!optionalJiraUserContext.isPresent()) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
         }
+        final JiraUserContext jiraUserContext = optionalJiraUserContext.get();
         final String jiraPluginGroupsString = (String) settings.get(BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-        if (!checkUserInPluginGroups(jiraPluginGroupsString, jiraServices.getGroupManager(), jiraContext.getDefaultJiraIssueCreatorUser())) {
-            logger.error(String.format("User '%s' is no longer in the groups '%s'. The task cannot run.", jiraContext.getDefaultJiraIssueCreatorUser().getUsername(), jiraPluginGroupsString));
+        if (!checkUserInPluginGroups(jiraPluginGroupsString, jiraServices.getGroupManager(), jiraUserContext.getDefaultJiraIssueCreatorUser())) {
+            logger.error(String.format("User '%s' is no longer in the groups '%s'. The task cannot run.", jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), jiraPluginGroupsString));
             return "error";
         }
         final LocalDateTime beforeSetup = LocalDateTime.now();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(jiraServices, jiraSettingsService, configDetails.getProjectMappingJson(), ticketInfoFromSetup, jiraContext);
+            jiraSetup(jiraServices, jiraSettingsService, configDetails.getProjectMappingJson(), ticketInfoFromSetup, jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
@@ -102,14 +104,14 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime afterSetup = LocalDateTime.now();
         final Duration diff = Duration.between(beforeSetup, afterSetup);
         logger.info("Black Duck JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
-        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraContext, jiraSettingsService, ticketInfoFromSetup, configuredTaskInterval);
+        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraUserContext, jiraSettingsService, ticketInfoFromSetup, configuredTaskInterval);
         final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, configDetails);
         logger.info("blackduck-jira periodic timed task has completed");
         return runResult;
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
-            throws ConfigurationException, JiraException {
+        throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
@@ -141,10 +143,7 @@ public class JiraTaskTimed implements Callable<String> {
         final FieldLayoutScheme fieldConfigurationScheme = blackDuckFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
 
         final BlackDuckWorkflowSetup workflowSetup = getBlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
-        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
-        if (workflow == null) {
-            throw new JiraException("Unable to add Black Duck workflow to JIRA.");
-        }
+        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira().orElseThrow(() -> new JiraException("Unable to add Black Duck workflow to JIRA."));
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
         // Associate these config objects with mapped projects
@@ -161,20 +160,26 @@ public class JiraTaskTimed implements Callable<String> {
         final String previousRunDateString = configDetails.getLastRunDateString();
         final String currentRunDateString = processor.getRunDateString();
         if (previousRunDateString != null && currentRunDateString != null) {
+            logger.debug("Before processing, going to set the last run date to the current date: " + currentRunDateString);
             settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, currentRunDateString);
+        } else {
+            logger.warn(String.format("Before processing, did not update the last run date. Previous run date: %s   Current run date: %s", previousRunDateString, currentRunDateString));
         }
         final String newRunDateString = processor.execute(previousRunDateString);
         if (newRunDateString != null) {
+            logger.debug("After processing, going to set the last run date to the new date: " + newRunDateString);
             settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDateString);
             runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
+        } else {
+            logger.warn("After processing, the new run date was null.");
         }
         // TODO determine if an else case is needed to revert to old last run date
         return runStatus;
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-            final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
+        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -182,10 +187,10 @@ public class JiraTaskTimed implements Callable<String> {
             if (!config.getHubProjectMappings().isEmpty()) {
                 for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
-                                && projectMapping.getJiraProject().getProjectId() != null) {
+                            && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
-                                                            .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
@@ -219,28 +224,27 @@ public class JiraTaskTimed implements Callable<String> {
         return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
     }
 
-    private JiraUserContext initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
+    private Optional<JiraUserContext> initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
             logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
             jiraIssueCreatorUsername = jiraAdminUsername;
         }
-        final ApplicationUser jiraAdminUser = getJiraUser(jiraAdminUsername, userManager);
-        final ApplicationUser jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername, userManager);
-        if ((jiraAdminUser == null) || (jiraIssueCreatorUser == null)) {
-            return null;
+        final Optional<ApplicationUser> jiraAdminUser = getJiraUser(jiraAdminUsername, userManager);
+        final Optional<ApplicationUser> jiraIssueCreatorUser = getJiraUser(jiraIssueCreatorUsername, userManager);
+        if (!jiraAdminUser.isPresent() || !jiraIssueCreatorUser.isPresent()) {
+            return Optional.empty();
         }
-        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser, jiraIssueCreatorUser);
-        return jiraContext;
+        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser.get(), jiraIssueCreatorUser.get());
+        return Optional.of(jiraContext);
     }
 
-    private ApplicationUser getJiraUser(final String jiraUsername, final UserManager userManager) {
+    private Optional<ApplicationUser> getJiraUser(final String jiraUsername, final UserManager userManager) {
         final ApplicationUser jiraUser = userManager.getUserByName(jiraUsername);
         if (jiraUser == null) {
             logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
-            return null;
         }
-        return jiraUser;
+        return Optional.ofNullable(jiraUser);
     }
 
     private boolean checkUserInPluginGroups(final String jiraPluginGroupsString, final GroupManager groupManager, final ApplicationUser issueCreator) {

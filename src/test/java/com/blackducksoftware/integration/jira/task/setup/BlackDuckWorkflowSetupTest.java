@@ -1,7 +1,7 @@
 /**
  * Black Duck JIRA Plugin
  *
- * Copyright (C) 2018 Black Duck Software, Inc.
+ * Copyright (C) 2019 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -128,9 +129,9 @@ public class BlackDuckWorkflowSetupTest {
         services.setUserUtil(userUtil);
         final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
 
-        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira();
+        final Optional<JiraWorkflow> workflow = workflowSetup.addBlackDuckWorkflowToJira();
 
-        assertNotNull(workflow);
+        assertTrue(workflow.isPresent());
         assertTrue(workflowManager.getAttemptedCreateWorkflow());
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
     }
