@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -70,8 +71,9 @@ public class BlackDuckWorkflowSetupTest {
         final ApplicationUserMock user = new ApplicationUserMock();
         user.setName(jiraUserName);
         final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final Optional<JiraWorkflow> jiraWorkflow = workflowSetup.addBlackDuckWorkflowToJira();
 
-        assertNull(workflowSetup.addBlackDuckWorkflowToJira());
+        assertFalse(jiraWorkflow.isPresent());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
     }
@@ -103,8 +105,10 @@ public class BlackDuckWorkflowSetupTest {
         services.setUserUtil(userUtil);
 
         final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final Optional<JiraWorkflow> jiraWorkflow = workflowSetup.addBlackDuckWorkflowToJira();
 
-        assertEquals(workflowExisitng, workflowSetup.addBlackDuckWorkflowToJira());
+        assertTrue(jiraWorkflow.isPresent());
+        assertEquals(workflowExisitng, jiraWorkflow.get());
         assertTrue(!workflowManager.getAttemptedCreateWorkflow());
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
     }
