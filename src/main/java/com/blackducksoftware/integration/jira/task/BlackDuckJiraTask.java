@@ -110,17 +110,17 @@ public class BlackDuckJiraTask {
      * Setup, then generate JIRA tickets based on recent notifications
      * @return this execution's run date/time string on success, or previous start date/time on failure
      */
-    public String execute(final String previousStartDate) {
+    public Optional<String> execute(final String previousStartDate) {
         logger.debug("Previous start date: " + previousStartDate);
         final Optional<HubServicesFactory> optionalHubServicesFactory = getBlackDuckServicesFactory();
         if (!optionalHubServicesFactory.isPresent()) {
-            return previousStartDate;
+            return Optional.ofNullable(previousStartDate);
         }
         final HubServicesFactory blackDuckServicesFactory = optionalHubServicesFactory.get();
 
         final Optional<BlackDuckJiraConfigSerializable> optionalConfig = deSerializeConfig();
         if (!optionalConfig.isPresent()) {
-            return previousStartDate;
+            return Optional.ofNullable(previousStartDate);
         }
         final Date startDate;
         try {
@@ -129,11 +129,12 @@ public class BlackDuckJiraTask {
             logger.debug("Derived start date: " + startDate);
         } catch (final ParseException parseException) {
             logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
-            return getRunDateString();
+            return Optional.of(getRunDateString());
         } catch (final IntegrationException integrationException) {
             logger.error("Could not determine the last notification date from Black Duck. Please ensure that a connection can be established.");
-            return previousStartDate;
+            return Optional.ofNullable(previousStartDate);
         }
+        final String fallbackDate = BlackDuckPluginDateFormatter.format(startDate);
 
         try {
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
@@ -154,18 +155,18 @@ public class BlackDuckJiraTask {
             final Optional<UserView> blackDuckUserItem = getBlackDuckUser(blackDuckServicesFactory.createHubService());
             if (!blackDuckUserItem.isPresent()) {
                 logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
-                return previousStartDate;
+                return Optional.of(fallbackDate);
             }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Black Duck notifications from " + startDate + " to " + runDate);
             final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUserItem.get(), blackDuckProjectMappings, startDate, runDate);
             logger.debug("Finished running ticket generator. Last notification date: " + BlackDuckPluginDateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
-            return BlackDuckPluginDateFormatter.format(nextRunDate);
+            return Optional.of(BlackDuckPluginDateFormatter.format(nextRunDate));
         } catch (final Exception e) {
             logger.error("Error processing Black Duck notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addBlackDuckError(e, "executeBlackDuckJiraTask");
-            return previousStartDate;
+            return Optional.of(fallbackDate);
         } finally {
             closeRestConnection(blackDuckServicesFactory.getRestConnection());
         }

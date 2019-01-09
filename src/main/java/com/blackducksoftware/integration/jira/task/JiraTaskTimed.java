@@ -165,11 +165,12 @@ public class JiraTaskTimed implements Callable<String> {
         } else {
             logger.warn(String.format("Before processing, did not update the last run date. Previous run date: %s   Current run date: %s", previousRunDateString, currentRunDateString));
         }
-        final String newRunDateString = processor.execute(previousRunDateString);
-        if (newRunDateString != null) {
-            logger.debug("After processing, going to set the last run date to the new date: " + newRunDateString);
-            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDateString);
-            runStatus = newRunDateString.equals(previousRunDateString) ? runStatus : "success";
+        final Optional<String> newRunDateOptional = processor.execute(previousRunDateString);
+        if (newRunDateOptional.isPresent()) {
+            String newRunDate = newRunDateOptional.get();
+            logger.debug("After processing, going to set the last run date to the new date: " + newRunDate);
+            settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDate);
+            runStatus = newRunDate.equals(previousRunDateString) ? runStatus : "success";
         } else {
             logger.warn("After processing, the new run date was null.");
         }
