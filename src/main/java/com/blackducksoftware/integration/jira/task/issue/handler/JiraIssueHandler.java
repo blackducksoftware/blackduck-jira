@@ -151,7 +151,7 @@ public class JiraIssueHandler {
             }
 
             if (BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_STATUS_RESOLVED.equals(oldIssue.getStatus().getName())) {
-                final Issue transitionedIssue = transitionIssue(blackDuckIssueModel, oldIssue, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_STATUS_OPEN);
+                final Issue transitionedIssue = transitionIssue(blackDuckIssueModel, oldIssue, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_TRANSITION_READ_OR_OVERRIDE_REMOVED, BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_STATUS_OPEN);
                 if (transitionedIssue != null) {
                     logger.info("Re-opened the already existing issue.");
                     addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueReOpenComment(), oldIssue);

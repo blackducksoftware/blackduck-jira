@@ -63,7 +63,7 @@ public class BlackDuckJiraConstants {
     public static final String BLACKDUCK_WORKFLOW_STATUS_RESOLVED = "Resolved";
     public static final String BLACKDUCK_WORKFLOW_STATUS_CLOSED = "Closed";
     public static final String BLACKDUCK_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE = "Resolve";
-    public static final String BLACKDUCK_WORKFLOW_TRANSITION_READD_OR_OVERRIDE_REMOVED = "Re-Open";
+    public static final String BLACKDUCK_WORKFLOW_TRANSITION_READ_OR_OVERRIDE_REMOVED = "Re-Open";
     public static final String BLACKDUCK_POLICY_VIOLATION_REOPEN = "Automatically re-opened in response to a new Black Duck Policy Violation on this project / component / rule";
     public static final String BLACKDUCK_POLICY_VIOLATION_RESOLVE = "Automatically resolved in response to a Black Duck Policy Override on this project / component / rule";
     public static final String BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE = "Automatically resolved in response to a Black Duck Policy Violation Cleared event on this project / component / rule";
