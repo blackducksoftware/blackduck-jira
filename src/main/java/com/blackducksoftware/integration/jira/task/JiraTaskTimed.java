@@ -79,8 +79,12 @@ public class JiraTaskTimed implements Callable<String> {
         logger.info("Running the Black Duck JIRA periodic timed task.");
 
         // These need to be created during execution because the task could have been queued for an arbitrarily long time
+        logger.debug("Retrieving plugin settings for run...");
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
         final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+        logger.debug("Retrieved plugin settings");
+        logger.debug("Last run date based on SAL: " + settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE));
+        logger.debug("Last run date based on config details: " + configDetails.getLastRunDateString());
 
         final Optional<JiraUserContext> optionalJiraUserContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
         if (!optionalJiraUserContext.isPresent()) {
@@ -111,7 +115,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
-        throws ConfigurationException, JiraException {
+            throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
@@ -167,7 +171,7 @@ public class JiraTaskTimed implements Callable<String> {
         }
         final Optional<String> newRunDateOptional = processor.execute(previousRunDateString);
         if (newRunDateOptional.isPresent()) {
-            String newRunDate = newRunDateOptional.get();
+            final String newRunDate = newRunDateOptional.get();
             logger.debug("After processing, going to set the last run date to the new date: " + newRunDate);
             settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newRunDate);
             runStatus = newRunDate.equals(previousRunDateString) ? runStatus : "success";
@@ -179,8 +183,8 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+            final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
+            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -188,10 +192,10 @@ public class JiraTaskTimed implements Callable<String> {
             if (!config.getHubProjectMappings().isEmpty()) {
                 for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
-                            && projectMapping.getJiraProject().getProjectId() != null) {
+                                && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
-                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                                                            .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
