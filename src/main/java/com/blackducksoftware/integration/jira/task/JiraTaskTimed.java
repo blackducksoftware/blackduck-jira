@@ -25,9 +25,11 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,10 +83,11 @@ public class JiraTaskTimed implements Callable<String> {
         // These need to be created during execution because the task could have been queued for an arbitrarily long time
         logger.debug("Retrieving plugin settings for run...");
         final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
-        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
+        PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
         logger.debug("Retrieved plugin settings");
         logger.debug("Last run date based on SAL: " + settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE));
         logger.debug("Last run date based on config details: " + configDetails.getLastRunDateString());
+        configDetails = updateOldMappingsIfNeeded(configDetails, settings);
 
         final Optional<JiraUserContext> optionalJiraUserContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
         if (!optionalJiraUserContext.isPresent()) {
@@ -115,7 +118,7 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
-            throws ConfigurationException, JiraException {
+        throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
@@ -183,8 +186,8 @@ public class JiraTaskTimed implements Callable<String> {
     }
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-            final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-            final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
+        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -192,10 +195,10 @@ public class JiraTaskTimed implements Callable<String> {
             if (!config.getHubProjectMappings().isEmpty()) {
                 for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
                     if (projectMapping.getJiraProject() != null
-                                && projectMapping.getJiraProject().getProjectId() != null) {
+                            && projectMapping.getJiraProject().getProjectId() != null) {
                         // Get jira Project object by Id from the JiraProject in the mapping
                         final Project jiraProject = jiraServices.getJiraProjectManager()
-                                                            .getProjectObj(projectMapping.getJiraProject().getProjectId());
+                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
                         if (jiraProject != null) {
                             // add issuetypes to this project
                             issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
@@ -262,5 +265,29 @@ public class JiraTaskTimed implements Callable<String> {
             }
         }
         return false;
+    }
+
+    private PluginConfigurationDetails updateOldMappingsIfNeeded(final PluginConfigurationDetails pluginConfigurationDetails, final PluginSettings pluginSettings) {
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        if (StringUtils.isNotBlank(pluginConfigurationDetails.getProjectMappingJson())) {
+            config.setHubProjectMappingsJson(pluginConfigurationDetails.getProjectMappingJson());
+            if (!config.getHubProjectMappings().isEmpty()) {
+                final BlackDuckProjectMapping blackDuckProjectMapping = config.getHubProjectMappings().iterator().next();
+                if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
+                    logger.debug("Updating the old project mappings.");
+                    final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
+                    for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                        final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
+                        newMapping.setJiraProject(mapping.getJiraProject());
+                        newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
+                        newProjectMappings.add(newMapping);
+                    }
+                    config.setHubProjectMappings(newProjectMappings);
+                    pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+                    return new PluginConfigurationDetails(pluginSettings);
+                }
+            }
+        }
+        return pluginConfigurationDetails;
     }
 }

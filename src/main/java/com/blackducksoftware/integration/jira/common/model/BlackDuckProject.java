@@ -32,6 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.synopsys.integration.util.Stringable;
 
+// Keeping this around in order to read old data from the JIRA SAL
+@Deprecated
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckProject extends Stringable implements Serializable {
