@@ -70,11 +70,11 @@ public class JiraIssueServiceWrapper {
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
     private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
     private final ApplicationUser jiraAdminUser;
-    private final Gson gson;
     private final Map<PluginField, CustomField> customFieldsMap;
+    private final Gson gson;
 
     public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager, final JiraIssuePropertyWrapper issuePropertyWrapper,
-        final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
+            final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
         this.jiraIssueService = jiraIssueService;
         this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
@@ -82,8 +82,8 @@ public class JiraIssueServiceWrapper {
         this.issuePropertyWrapper = issuePropertyWrapper;
         this.issueFieldCopyHandler = issueFieldCopyHandler;
         this.jiraAdminUser = jiraAdminUser;
-        this.gson = gson;
         this.customFieldsMap = customFieldsMap;
+        this.gson = gson;
     }
 
     // @formatter:off
@@ -132,7 +132,7 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+                jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
 
         final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraIssueFieldTemplate.getIssueCreator(), issueInputParameters);
         if (validationResult.isValid()) {
@@ -158,7 +158,7 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+                jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
         final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraIssueFieldTemplate.getIssueCreator(), jiraIssueId, issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;

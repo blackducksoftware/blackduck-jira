@@ -576,6 +576,25 @@ function populateFormHubData() {
         }
     });
     AJS.$.ajax({
+        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/commentOnIssueUpdatesChoice/",
+        dataType: "json",
+        success: function (config) {
+            console.log("success: get of commentOnIssueUpdatesChoice");
+            setCommentOnIssueUpdatesChoice(config.commentOnIssueUpdatesChoice);
+
+//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+            handleError('createVulnerabilityIssuesChoiceError', config.commentOnIssueUpdatesChoiceError, true, false);
+            console.log("Finished handling commentOnIssueUpdatesChoice");
+        },
+        error: function (response) {
+            console.log("error: get of commentOnIssueUpdatesChoice");
+            handleDataRetrievalError(response, "commentOnIssueUpdatesChoiceError", "There was a problem retrieving the 'comment on issue updates' choice.", "Black Duck Comment On Issue Updates Choice Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed get of commentOnIssueUpdatesChoice: " + textStatus);
+        }
+    });
+    AJS.$.ajax({
         url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/mappings/",
         dataType: "json",
         success: function (config) {
@@ -1209,6 +1228,28 @@ function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
         console.log("Setting createVulnerabilityIssuesChoice to No");
         createVulnerabilityIssuesYesElement[0].checked = false;
         createVulnerabilityIssuesNoElement[0].checked = true;
+    }
+}
+
+function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
+    const commentOnIssueUpdatesChoiceYesElement = AJS.$("#" + "commentOnIssueUpdatesChoiceYes");
+    const commentOnIssueUpdatesChoiceNoElement = AJS.$("#" + "commentOnIssueUpdatesChoiceNo");
+    console.log("commentOnIssueUpdatesChoiceYesElement: " + commentOnIssueUpdatesChoiceYesElement);
+    console.log("commentOnIssueUpdatesChoiceNoElement: " + commentOnIssueUpdatesChoiceNoElement);
+    if (commentOnIssueUpdatesChoiceYesElement.length == 0) {
+        console.log("*** createVulnerabilityIssuesYesElement is not ready");
+    }
+    if (commentOnIssueUpdatesChoiceNoElement.length == 0) {
+        console.log("*** createVulnerabilityIssuesNoElement is not ready");
+    }
+    if (commentOnIssueUpdatesChoice == undefined || commentOnIssueUpdatesChoice) {
+        console.log("Setting createVulnerabilityIssuesChoice to Yes");
+        commentOnIssueUpdatesChoiceYesElement[0].checked = true;
+        commentOnIssueUpdatesChoiceNoElement[0].checked = false;
+    } else {
+        console.log("Setting createVulnerabilityIssuesChoice to No");
+        commentOnIssueUpdatesChoiceYesElement[0].checked = false;
+        commentOnIssueUpdatesChoiceNoElement[0].checked = true;
     }
 }
 

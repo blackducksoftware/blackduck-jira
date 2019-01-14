@@ -61,16 +61,18 @@ public class JiraIssueHandler {
     private final JiraUserContext jiraUserContext;
     private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
     private final BlackDuckIssueTrackerPropertyHandler blackDuckIssueTrackerPropertyHandler;
+    private final boolean commentOnIssueUpdates;
     private final Date instanceUniqueDate;
 
     public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler,
-        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext) {
+            final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final boolean commentOnIssueUpdates) {
         this.issueServiceWrapper = issueServiceWrapper;
         this.jiraSettingsService = jiraSettingsService;
         this.authContext = authContext;
         this.jiraUserContext = jiraContext;
         this.blackDuckIssueTrackerHandler = blackDuckIssueTrackerHandler;
         this.blackDuckIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
+        this.commentOnIssueUpdates = commentOnIssueUpdates;
         this.instanceUniqueDate = new Date();
     }
 
@@ -246,7 +248,12 @@ public class JiraIssueHandler {
     }
 
     private void addComment(final BlackDuckIssueModel blackDuckIssueModel, final String comment, final Issue issue) {
-        logger.debug(String.format("Attempting to add comment to %s: %s", issue.getKey(), comment));
+        final String issueKey = issue.getKey();
+        if (!commentOnIssueUpdates) {
+            logger.debug(String.format("Will not add a comment to issue %s because the plugin has been configured to not comment on issue updates", issueKey));
+            return;
+        }
+        logger.debug(String.format("Attempting to add comment to %s: %s", issueKey, comment));
         if (StringUtils.isNotBlank(comment) && !checkIfAlreadyProcessedAndUpdateLastBatch(blackDuckIssueModel)) {
             final String newCommentKey = String.valueOf(comment.hashCode());
             final String storedLastCommentKey = issueServiceWrapper.getIssueProperty(issue.getId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY);
@@ -383,7 +390,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                    jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -403,7 +410,7 @@ public class JiraIssueHandler {
             logger.error(errorMessage);
             final Project jiraProject = issueToTransition.getProjectObject();
             jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
+                    jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
         }
         return null;
     }
@@ -477,11 +484,11 @@ public class JiraIssueHandler {
         final ApplicationUser issueCreator = blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreator();
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueTemplate();
         handleJiraIssueException(issueException, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectName(),
-            jiraUserContext.getJiraAdminUser().getUsername(), issueCreator.getUsername());
+                jiraUserContext.getJiraAdminUser().getUsername(), issueCreator.getUsername());
     }
 
     private void handleJiraIssueException(final JiraIssueException issueException, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProjectName, final String jiraAdminUsername,
-        final String jiraIssueCreatorUsername) {
+            final String jiraIssueCreatorUsername) {
         final String exceptionMessage = issueException.getMessage();
         final String methodAttempt = issueException.getMethodAttempt();
         final ErrorCollection errorCollection = issueException.getErrorCollection();
