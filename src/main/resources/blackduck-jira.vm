@@ -83,7 +83,7 @@
                     <div id="authentication-type" class="blackduck-details-field-group">
                         <label class="blackDuckDetailsLabel" for="bdAuthenticationType">$i18n.getText("blackduck.integration.jira.server.details.auth.type.label")</label>
                         <input type="radio" id="bdAuthenticationTypeToken" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()" checked>API Token</input>
-                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials (deprecated for removal in version 5.0.0)</input>
+                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials</input>
                     </div>
 
                     <div id="bdApiTokenRow" class="blackduck-details-field-group">
@@ -94,6 +94,12 @@
                     <div id="bdApiTokenErrorRow" class="blackduck-details-field-group hidden">
                         <label> </label>
                         <div id="bdApiTokenError" class="error "></div>
+                    </div>
+
+
+                    <div id="credentialsDeprecatedWarningRow" class="blackduck-details-field-group hidden">
+                        <label class="blackDuckDetailsLabel" for="credentialsDeprecatedWarning"><span class="error">Warning:</span></label>
+                        <div id="credentialsDeprecatedWarning" name="credentialsDeprecatedWarning" class="error ">Authentication with User Name and Password are deprecated for removal in 5.0.0</div>
                     </div>
 
                     <div id="bdUsernameRow" class="blackduck-details-field-group hidden">

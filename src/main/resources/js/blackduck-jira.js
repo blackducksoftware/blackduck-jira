@@ -1817,6 +1817,7 @@ function toggleAuthenticationType() {
     const apiTokenRowId = 'bdApiTokenRow';
     const apiTokenErrorRowId = 'bdApiTokenErrorRow';
 
+    const deprecationWarningRowId = 'credentialsDeprecatedWarningRow';
     const usernameRowId = 'bdUsernameRow';
     const usernameErrorRowId = 'hubUsernameErrorRow';
     const passwordRowId = 'bdPasswordRow';
@@ -1825,6 +1826,7 @@ function toggleAuthenticationType() {
     if (apiTokenInput && apiTokenInput.checked) {
         removeClassFromFieldById(apiTokenRowId, "hidden");
 
+        addClassToFieldById(deprecationWarningRowId, "hidden");
         addClassToFieldById(usernameRowId, "hidden");
         addClassToFieldById(usernameErrorRowId, "hidden");
         addClassToFieldById(passwordRowId, "hidden");
@@ -1833,6 +1835,7 @@ function toggleAuthenticationType() {
         addClassToFieldById(apiTokenRowId, "hidden");
         addClassToFieldById(apiTokenErrorRowId, "hidden");
 
+        removeClassFromFieldById(deprecationWarningRowId, "hidden");
         removeClassFromFieldById(usernameRowId, "hidden");
         removeClassFromFieldById(passwordRowId, "hidden");
     }
