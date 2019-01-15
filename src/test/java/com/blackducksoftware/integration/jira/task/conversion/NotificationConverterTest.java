@@ -52,7 +52,6 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -138,7 +137,6 @@ public class NotificationConverterTest {
     private static final String SOURCE_FIELD_NAME = "sourceFieldName";
     private static final String SOURCE_FIELD_ID = "sourceFieldId";
     private static final String WILDCARD_STRING = "*";
-    private static final String BLACKDUCK_PROJECT_URL = "hubProjectUrl";
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
     private static final String PROJECT_VERSION_URL = "http://localhost:8080/api/projects/projectId/versions/versionId";
     private static final String COMPONENT_VERSION_URL = "http://localhost:8080/api/components/componentId/versions/versionId";
@@ -199,8 +197,7 @@ public class NotificationConverterTest {
 
         final Set<BlackDuckProjectMapping> mappings = new HashSet<>();
         final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
-        final BlackDuckProject blackDuckProject = createBlackDuckProject();
-        mapping.setHubProject(blackDuckProject);
+        mapping.setBlackDuckProjectName(BLACKDUCK_PROJECT_NAME);
         final JiraProject jiraProject = createJiraProject();
         mapping.setJiraProject(jiraProject);
         mappings.add(mapping);
@@ -259,8 +256,6 @@ public class NotificationConverterTest {
         final ProjectView project = new ProjectView();
         project.projectOwner = "Shmario Bear";
         project.name = BLACKDUCK_PROJECT_NAME;
-        project._meta = new ResourceMetadata();
-        project._meta.href = BLACKDUCK_PROJECT_URL;
         Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
         Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
 
@@ -292,13 +287,6 @@ public class NotificationConverterTest {
         final UriSingleResponse<VersionBomComponentView> mockUriSingleResponseVersionBomComponentView = new UriSingleResponse<>(BOM_COMPONENT_URI, VersionBomComponentView.class);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseVersionBomComponentView)).thenReturn(createVersionBomComponentView());
         Mockito.when(mockBlackDuckBucket.get(BOM_COMPONENT_URI, VersionBomComponentView.class)).thenReturn(createVersionBomComponentView());
-    }
-
-    private static BlackDuckProject createBlackDuckProject() {
-        final BlackDuckProject blackDuckProject = new BlackDuckProject();
-        blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
-        blackDuckProject.setProjectUrl(BLACKDUCK_PROJECT_URL);
-        return blackDuckProject;
     }
 
     private static JiraProject createJiraProject() {

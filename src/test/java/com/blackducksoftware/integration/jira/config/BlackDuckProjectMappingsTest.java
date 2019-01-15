@@ -40,7 +40,6 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
@@ -91,10 +90,7 @@ public class BlackDuckProjectMappingsTest {
         final Set<BlackDuckProjectMapping> underlyingMappings = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             final BlackDuckProjectMapping mapping = new BlackDuckProjectMapping();
-            final BlackDuckProject blackDuckProject = new BlackDuckProject();
-            blackDuckProject.setProjectName("projectName" + i);
-            blackDuckProject.setProjectUrl("projectUrl" + i);
-            mapping.setHubProject(blackDuckProject);
+            mapping.setBlackDuckProjectName("projectName" + i);
             final JiraProject jiraProject = new JiraProject();
             // jiraProject.setAssigneeUserId("assigneeUserId" + i);
             jiraProject.setProjectError("");
