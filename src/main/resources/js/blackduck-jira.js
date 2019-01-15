@@ -319,6 +319,7 @@ function populateForm() {
             const apiTokenRowId = 'bdApiTokenRow';
             const apiTokenErrorRowId = 'bdApiTokenErrorRow';
 
+            const deprecationWarningRowId = 'credentialsDeprecatedWarningRow';
             const usernameRowId = 'bdUsernameRow';
             const usernameErrorRowId = 'hubUsernameErrorRow';
             const passwordRowId = 'bdPasswordRow';
@@ -329,12 +330,14 @@ function populateForm() {
                 addClassToFieldById(apiTokenRowId, "hidden");
                 addClassToFieldById(apiTokenErrorRowId, "hidden");
 
+                removeClassFromFieldById(deprecationWarningRowId, "hidden");
                 removeClassFromFieldById(usernameRowId, "hidden");
                 removeClassFromFieldById(passwordRowId, "hidden");
             } else {
                 AJS.$('#bdAuthenticationTypeToken')[0].checked = true;
                 removeClassFromFieldById(apiTokenRowId, "hidden");
 
+                addClassToFieldById(deprecationWarningRowId, "hidden");
                 addClassToFieldById(usernameRowId, "hidden");
                 addClassToFieldById(usernameErrorRowId, "hidden");
                 addClassToFieldById(passwordRowId, "hidden");
