@@ -123,7 +123,7 @@ public class BlackDuckJiraConfigController {
     private final Properties i18nProperties;
 
     public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-        final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
+            final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
@@ -612,6 +612,44 @@ public class BlackDuckJiraConfigController {
         return Response.ok(config).build();
     }
 
+    @Path("/commentOnIssueUpdatesChoice")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCommentOnIssueUpdatesChoice(@Context final HttpServletRequest request) {
+        logger.debug("GET commentOnIssueUpdatesChoice");
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    logger.debug("GET commentOnIssueUpdatesChoice transaction");
+                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                    final String commentOnIssueUpdatesChoiceString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
+                    logger.debug("commentOnIssueUpdatesChoiceString: " + commentOnIssueUpdatesChoiceString);
+                    boolean choice = true;
+                    if ("false".equalsIgnoreCase(commentOnIssueUpdatesChoiceString)) {
+                        choice = false;
+                    }
+                    logger.debug("choice: " + choice);
+                    txConfig.setCommentOnIssueUpdatesChoice(choice);
+                    return txConfig;
+                }
+            });
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting 'comment on issue updates' choice: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setCommentOnIssueUpdatesChoiceError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
     @Path("/mappings")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -765,6 +803,9 @@ public class BlackDuckJiraConfigController {
                     final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
                     logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
                     setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, createVulnerabilityIssuesChoice.toString());
+                    final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
+                    logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE, commentOnIssueUpdatesChoice.toString());
 
                     return null;
                 }

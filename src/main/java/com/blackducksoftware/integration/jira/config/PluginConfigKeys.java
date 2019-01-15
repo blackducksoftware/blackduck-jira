@@ -31,6 +31,7 @@ public class PluginConfigKeys {
     public static final String BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".firstSaveTime";
     public static final String BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".policyRules";
     public static final String BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".createVulnIssuesChoice";
+    public static final String BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".commentOnIssueUpdatesChoice";
     public static final String BLACKDUCK_CONFIG_LAST_RUN_DATE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".lastRunDate";
     public static final String BLACKDUCK_CONFIG_JIRA_ADMIN_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
     public static final String BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".creator";

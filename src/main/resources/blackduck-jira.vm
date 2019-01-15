@@ -83,7 +83,7 @@
                     <div id="authentication-type" class="blackduck-details-field-group">
                         <label class="blackDuckDetailsLabel" for="bdAuthenticationType">$i18n.getText("blackduck.integration.jira.server.details.auth.type.label")</label>
                         <input type="radio" id="bdAuthenticationTypeToken" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()" checked>API Token</input>
-                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials</input>
+                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials (deprecated for removal in version 5.0.0)</input>
                     </div>
 
                     <div id="bdApiTokenRow" class="blackduck-details-field-group">
@@ -326,21 +326,43 @@
                     <thead>
                     <tr>
                         <th class="label">$i18n.getText('blackduck.integration.jira.policyConditions.label')</th>
-                        <th class="label">$i18n.getText('blackduck.integration.jira.createVulnerabilityIssues.label')</th>
+                        <th class="label">$i18n.getText('blackduck.integration.jira.additionalSettings.label')</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td>
                             <div id="policyRuleSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
-                            <div id="policyRuleTicketCreation" class="ticketCriteriaSection">
+                            <div id="policyRuleTicketCreation" class="policyCriteriaSection">
                             </div>
                         </td>
-                        <td>
-                            <div id="vulnerabilityTicketCreation" class="ticketCriteriaSection">
-                                <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes"/>$i18n.getText("blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")<br>
-                                <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No"/>$i18n.getText("blackduck.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
-                            </div>
+                        <td class="booleanCriteriaSection">
+                            <table id="additionalPluginSettings">
+                                <tr class="label">
+                                    <td class="label">$i18n.getText('blackduck.integration.jira.createVulnerabilityIssues.label')</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="vulnerabilityTicketCreation">
+                                            <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes"/>$i18n.getText("blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")
+                                            <br>
+                                            <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No"/>$i18n.getText(
+                                            "blackduck.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="label">
+                                    <td class="label">$i18n.getText('blackduck.integration.jira.commentOnIssueUpdates.label')</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="toggleIssueComments">
+                                            <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceYes" value="Yes"/>$i18n.getText("blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label")<br>
+                                            <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceNo" value="No"/>$i18n.getText("blackduck.integration.jira.doNotCommentOnIssueUpdatesChoice.label")
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr>
@@ -349,6 +371,7 @@
                         </td>
                         <td>
                             <div id="createVulnerabilityIssuesChoiceError" class="error hidden"></div>
+                            <div id="commentOnIssueUpdatesChoiceError" class="error hidden"></div>
                         </td>
                     </tr>
                     </tbody>

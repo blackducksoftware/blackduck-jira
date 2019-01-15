@@ -80,12 +80,13 @@ public class TicketGenerator {
     private final Map<PluginField, CustomField> customFields;
     private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
     private final boolean shouldCreateVulnerabilityIssues;
+    private final boolean shouldCommentOnIssueUpdates;
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final HubService blackDuckService, final HubBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-        final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
-        final boolean shouldCreateVulnerabilityIssues, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+            final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
+            final boolean shouldCreateVulnerabilityIssues, final boolean shouldCommentOnIssueUpdates, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
         this.notificationService = notificationService;
@@ -96,6 +97,7 @@ public class TicketGenerator {
         this.customFields = customFields;
         this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckIssueService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
+        this.shouldCommentOnIssueUpdates = shouldCommentOnIssueUpdates;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
     }
@@ -118,13 +120,13 @@ public class TicketGenerator {
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, shouldCommentOnIssueUpdates);
 
                 final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
                 final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
+                        dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
@@ -169,9 +171,9 @@ public class TicketGenerator {
                 final Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
                     final String msg = String.format(
-                        "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
-                            + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
-                        e.getMessage());
+                            "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
+                                    + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
+                            e.getMessage());
                     logger.warn(msg);
                     jiraSettingsService.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
                 } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
