@@ -83,7 +83,7 @@
                     <div id="authentication-type" class="blackduck-details-field-group">
                         <label class="blackDuckDetailsLabel" for="bdAuthenticationType">$i18n.getText("blackduck.integration.jira.server.details.auth.type.label")</label>
                         <input type="radio" id="bdAuthenticationTypeToken" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()" checked>API Token</input>
-                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials</input>
+                        <input type="radio" id="bdAuthenticationTypeCredentials" name="bdAuthenticationTypeOption" onclick="toggleAuthenticationType()">Credentials (deprecated for removal in version 5.0.0)</input>
                     </div>
 
                     <div id="bdApiTokenRow" class="blackduck-details-field-group">
