@@ -51,6 +51,7 @@ public class PluginConfigurationDetails {
     private final String defaultJiraIssueCreatorUserName;
     private final String fieldCopyMappingJson;
     private final boolean createVulnerabilityIssues;
+    private final boolean commentOnIssueUpdates;
 
     private final PluginSettings settings;
 
@@ -82,6 +83,7 @@ public class PluginConfigurationDetails {
 
         fieldCopyMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
         createVulnerabilityIssues = getBooleanValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+        commentOnIssueUpdates = getBooleanValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
     }
 
     public PluginSettings getSettings() {
@@ -170,6 +172,10 @@ public class PluginConfigurationDetails {
 
     public boolean isCreateVulnerabilityIssues() {
         return createVulnerabilityIssues;
+    }
+
+    public boolean isCommentOnIssueUpdates() {
+        return commentOnIssueUpdates;
     }
 
     public HubServerConfigBuilder createServerConfigBuilder() {

@@ -220,7 +220,8 @@ public class BlackDuckJiraTask {
 
         final CommonNotificationService commonNotificationService = createCommonNotificationService(hubServicesFactory, notificationsOldestFirst);
         return new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), notificationService, commonNotificationService,
-                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(), linksOfRulesToMonitor, fieldCopyConfig);
+                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(),
+                pluginConfigDetails.isCommentOnIssueUpdates(), linksOfRulesToMonitor, fieldCopyConfig);
     }
 
     private CommonNotificationService createCommonNotificationService(final HubServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {

@@ -190,9 +190,14 @@ ul.tab li a:focus, .active {
     table-layout: fixed;
 }
 
-.ticketCriteriaSection {
+.policyCriteriaSection {
     overflow: scroll;
-    height: 300px;
+    min-height: 250px;
+    max-height: 350px;
+}
+
+.booleanCriteriaSection {
+    float: left;
 }
 
 .buttonContainer {

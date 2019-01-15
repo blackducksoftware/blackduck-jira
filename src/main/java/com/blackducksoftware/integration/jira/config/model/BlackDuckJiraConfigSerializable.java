@@ -96,6 +96,12 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     @XmlElement
     private String createVulnerabilityIssuesError;
 
+    @XmlElement
+    private boolean commentOnIssueUpdatesChoice;
+
+    @XmlElement
+    private String commentOnIssueUpdatesChoiceError;
+
     public BlackDuckJiraConfigSerializable() {
     }
 
@@ -353,6 +359,22 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.createVulnerabilityIssuesError = createVulnerabilityIssuesError;
     }
 
+    public boolean getCommentOnIssueUpdatesChoice() {
+        return commentOnIssueUpdatesChoice;
+    }
+
+    public void setCommentOnIssueUpdatesChoice(final boolean commentOnIssueUpdatesChoice) {
+        this.commentOnIssueUpdatesChoice = commentOnIssueUpdatesChoice;
+    }
+
+    public String getCommentOnIssueUpdatesChoiceError() {
+        return commentOnIssueUpdatesChoiceError;
+    }
+
+    public void setCommentOnIssueUpdatesChoiceError(final String commentOnIssueUpdatesChoiceError) {
+        this.commentOnIssueUpdatesChoiceError = commentOnIssueUpdatesChoiceError;
+    }
+
     @Override
     public String getErrorMessage() {
         return errorMessage;
@@ -392,6 +414,10 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         builder.append(policyRules);
         builder.append(", policyRulesError=");
         builder.append(policyRulesError);
+        builder.append(", commentOnIssueUpdatesChoice=");
+        builder.append(commentOnIssueUpdatesChoice);
+        builder.append(", commentOnIssueUpdatesChoiceError=");
+        builder.append(commentOnIssueUpdatesChoiceError);
         builder.append("]");
         return builder.toString();
     }
