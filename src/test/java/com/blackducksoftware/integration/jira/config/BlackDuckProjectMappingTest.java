@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 
@@ -48,11 +47,6 @@ public class BlackDuckProjectMappingTest {
         jira1.setProjectError(jiraProjectError1);
 
         final String blackDuckName1 = "name1";
-        final String blackDuckProjectUrl1 = "projectUrl1";
-
-        final BlackDuckProject blackDuck1 = new BlackDuckProject();
-        blackDuck1.setProjectName(blackDuckName1);
-        blackDuck1.setProjectUrl(blackDuckProjectUrl1);
 
         final String jiraName2 = "name2";
         final Long jiraId2 = 2L;
@@ -66,27 +60,22 @@ public class BlackDuckProjectMappingTest {
         jira2.setProjectError(jiraProjectError2);
 
         final String blackDuckName2 = "name2";
-        final String blackDuckProjectUrl2 = "projectUrl2";
-
-        final BlackDuckProject blackDuck2 = new BlackDuckProject();
-        blackDuck2.setProjectName(blackDuckName2);
-        blackDuck2.setProjectUrl(blackDuckProjectUrl2);
 
         final BlackDuckProjectMapping item1 = new BlackDuckProjectMapping();
         item1.setJiraProject(jira1);
-        item1.setHubProject(blackDuck1);
+        item1.setBlackDuckProjectName(blackDuckName1);
         final BlackDuckProjectMapping item2 = new BlackDuckProjectMapping();
         item2.setJiraProject(jira2);
-        item2.setHubProject(blackDuck2);
+        item2.setBlackDuckProjectName(blackDuckName2);
         final BlackDuckProjectMapping item3 = new BlackDuckProjectMapping();
         item3.setJiraProject(jira1);
-        item3.setHubProject(blackDuck1);
+        item3.setBlackDuckProjectName(blackDuckName1);
 
         assertEquals(jira1, item1.getJiraProject());
-        assertEquals(blackDuck1, item1.getHubProject());
+        assertEquals(blackDuckName1, item1.getBlackDuckProjectName());
 
         assertEquals(jira2, item2.getJiraProject());
-        assertEquals(blackDuck2, item2.getHubProject());
+        assertEquals(blackDuckName2, item2.getBlackDuckProjectName());
 
         assertTrue(!item1.equals(item2));
         assertTrue(item1.equals(item3));
@@ -99,6 +88,8 @@ public class BlackDuckProjectMappingTest {
         builder.append(item1.getJiraProject());
         builder.append(", hubProject=");
         builder.append(item1.getHubProject());
+        builder.append(", blackDuckProjectName=");
+        builder.append(item1.getBlackDuckProjectName());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());

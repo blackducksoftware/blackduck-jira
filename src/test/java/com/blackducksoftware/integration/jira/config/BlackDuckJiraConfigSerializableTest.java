@@ -36,7 +36,6 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
@@ -78,13 +77,6 @@ public class BlackDuckJiraConfigSerializableTest {
         jira1.setProjectKey(jiraKey1);
         jira1.setProjectError(jiraProjectError1);
 
-        final String blackDuckName1 = "name1";
-        final String blackDuckProjectUrl1 = "projectUrl1";
-
-        final BlackDuckProject blackDuck1 = new BlackDuckProject();
-        blackDuck1.setProjectName(blackDuckName1);
-        blackDuck1.setProjectUrl(blackDuckProjectUrl1);
-
         final String errorMessage2 = "";
         final String intervalBetweenChecks2 = "";
         final String generalSettingsError2 = "";
@@ -113,27 +105,23 @@ public class BlackDuckJiraConfigSerializableTest {
         jira2.setProjectKey(jiraKey2);
         jira2.setProjectError(jiraProjectError2);
 
+        final String blackDuckName1 = "name1";
         final String blackDuckName2 = "name2";
-        final String blackDuckProjectUrl2 = "projectUrl2";
-
-        final BlackDuckProject blackDuck2 = new BlackDuckProject();
-        blackDuck2.setProjectName(blackDuckName2);
-        blackDuck2.setProjectUrl(blackDuckProjectUrl2);
 
         final BlackDuckProjectMapping mapping1 = new BlackDuckProjectMapping();
         mapping1.setJiraProject(jira1);
-        mapping1.setHubProject(blackDuck1);
+        mapping1.setBlackDuckProjectName(blackDuckName1);
         final BlackDuckProjectMapping mapping2 = new BlackDuckProjectMapping();
         mapping2.setJiraProject(jira2);
-        mapping2.setHubProject(blackDuck2);
+        mapping2.setBlackDuckProjectName(blackDuckName2);
 
         final List<JiraProject> jiraProjects1 = new ArrayList<>();
         jiraProjects1.add(jira1);
 
         final String jiraProjectsError1 = "jiraProjectsError1";
 
-        final List<BlackDuckProject> blackDuckProjects1 = new ArrayList<>();
-        blackDuckProjects1.add(blackDuck1);
+        final List<String> blackDuckProjects1 = new ArrayList<>();
+        blackDuckProjects1.add(blackDuckName1);
 
         final String blackDuckProjectsError1 = "blackDuckProjectsError1";
 
@@ -148,8 +136,8 @@ public class BlackDuckJiraConfigSerializableTest {
 
         final String jiraProjectsError2 = "jiraProjectsError2";
 
-        final List<BlackDuckProject> blackDuckProjects2 = new ArrayList<>();
-        blackDuckProjects2.add(blackDuck2);
+        final List<String> blackDuckProjects2 = new ArrayList<>();
+        blackDuckProjects2.add(blackDuckName2);
 
         final String blackDuckProjectsError2 = "blackDuckProjectsError2";
 

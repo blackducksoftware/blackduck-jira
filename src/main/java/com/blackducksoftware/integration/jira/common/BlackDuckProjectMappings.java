@@ -32,7 +32,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -81,8 +80,8 @@ public class BlackDuckProjectMappings {
                 logger.error(jiraProject.getProjectError());
             } else {
                 logger.debug("JIRA Project: " + jiraProject);
-                final BlackDuckProject blackDuckProject = mapping.getHubProject();
-                if (appliesForBlackDuckProject(blackDuckProject.getProjectName(), blackDuckProjectName)) {
+                final String blackDuckProject = mapping.getBlackDuckProjectName();
+                if (appliesForBlackDuckProject(blackDuckProject, blackDuckProjectName)) {
                     logger.debug("Match!");
                     matchingJiraProjects.add(jiraProject);
                 }

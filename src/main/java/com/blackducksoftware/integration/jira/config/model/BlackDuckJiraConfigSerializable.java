@@ -36,7 +36,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
@@ -73,7 +72,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     private String creator;
 
     @XmlElement
-    private List<BlackDuckProject> hubProjects;
+    private List<String> hubProjects;
 
     @XmlElement
     private String hubProjectsError;
@@ -247,11 +246,11 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.jiraProjectsError = jiraProjectsError;
     }
 
-    public List<BlackDuckProject> getHubProjects() {
+    public List<String> getHubProjects() {
         return hubProjects;
     }
 
-    public void setHubProjects(final List<BlackDuckProject> hubProjects) {
+    public void setHubProjects(final List<String> hubProjects) {
         this.hubProjects = hubProjects;
     }
 

@@ -68,14 +68,13 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
+import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
-import com.blackducksoftware.integration.jira.config.ErrorTracking;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -87,7 +86,6 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSe
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.Fields;
 import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
-import com.blackducksoftware.integration.jira.config.model.PluginInfoSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
@@ -125,7 +123,7 @@ public class BlackDuckJiraConfigController {
     private final Properties i18nProperties;
 
     public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-            final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
+        final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
@@ -398,22 +396,19 @@ public class BlackDuckJiraConfigController {
             projectsConfig = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-                    config.setHubProjects(new ArrayList<>(0));
+                    final HubServicesFactory blackDuckServicesFactory;
+                    try {
+                        blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
+                        final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
 
-                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
-                    if (blackDuckServicesFactory == null) {
-                        return config;
+                        if (blackDuckProjects.size() == 0) {
+                            return JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND;
+                        }
+                        closeRestConnection(blackDuckServicesFactory.getRestConnection());
+                        return blackDuckProjects;
+                    } catch (final ConfigurationException e) {
+                        return e.getMessage();
                     }
-
-                    final List<BlackDuckProject> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory, config);
-                    config.setHubProjects(blackDuckProjects);
-
-                    if (blackDuckProjects.size() == 0) {
-                        config.setHubProjectsError(JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND);
-                    }
-                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
-                    return config;
                 }
             });
         } catch (final Exception e) {
@@ -440,21 +435,16 @@ public class BlackDuckJiraConfigController {
             pluginInfo = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    final PluginInfoSerializable txPluginInfo = new PluginInfoSerializable();
-
                     logger.debug("Getting plugin version string");
                     final String pluginVersion = BlackDuckPluginVersion.getVersion();
                     logger.debug("pluginVersion: " + pluginVersion);
-                    txPluginInfo.setPluginVersion(pluginVersion);
-                    return txPluginInfo;
+                    return pluginVersion;
                 }
             });
         } catch (final Exception e) {
-            final PluginInfoSerializable errorPluginInfo = new PluginInfoSerializable();
             final String msg = "Error getting Plugin info: " + e.getMessage();
             logger.error(msg, e);
-            errorPluginInfo.setPluginVersion("<unknown>");
-            return Response.ok(errorPluginInfo).build();
+            return Response.ok("<unknown>").build();
         }
         return Response.ok(pluginInfo).build();
     }
@@ -564,12 +554,14 @@ public class BlackDuckJiraConfigController {
                         txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, txConfig);
-                    if (blackDuckServicesFactory == null) {
-                        return txConfig;
+                    final HubServicesFactory blackDuckServicesFactory;
+                    try {
+                        blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
+                        setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
+                        closeRestConnection(blackDuckServicesFactory.getRestConnection());
+                    } catch (final ConfigurationException e) {
+                        txConfig.setErrorMessage(e.getMessage());
                     }
-                    setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
-                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
                     return txConfig;
                 }
             });
@@ -792,14 +784,6 @@ public class BlackDuckJiraConfigController {
                 public Object doInTransaction() {
                     final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
                     config.setJiraProjects(jiraProjects);
-                    final HubServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(settings, config);
-                    if (blackDuckServicesFactory == null) {
-                        return config;
-                    }
-                    final List<BlackDuckProject> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory, config);
-                    closeRestConnection(blackDuckServicesFactory.getRestConnection());
-
-                    config.setHubProjects(blackDuckProjects);
                     validateInterval(config);
                     validateCreator(config, settings);
                     validateMapping(config);
@@ -1102,12 +1086,8 @@ public class BlackDuckJiraConfigController {
                         jiraProjectBlank = false;
                     }
                 }
-                if (mapping.getHubProject() != null) {
-                    if (StringUtils.isNotBlank(mapping.getHubProject().getProjectUrl())) {
-                        blackDuckProjectBlank = false;
-                    } else if (StringUtils.isNotBlank(mapping.getHubProject().getProjectName())) {
-                        blackDuckProjectBlank = false;
-                    }
+                if (StringUtils.isNotBlank(mapping.getBlackDuckProjectName())) {
+                    blackDuckProjectBlank = false;
                 }
                 if (jiraProjectBlank || blackDuckProjectBlank) {
                     hasEmptyMapping = true;
@@ -1162,11 +1142,8 @@ public class BlackDuckJiraConfigController {
     }
 
     // This must be "package protected" to avoid synthetic access
-    HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
-        final BlackduckRestConnection restConnection = createRestConnection(settings, config);
-        if (config.hasErrors()) {
-            return null;
-        }
+    HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
+        final BlackduckRestConnection restConnection = createRestConnection(settings);
         final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
         return blackDuckServicesFactory;
     }
@@ -1179,7 +1156,7 @@ public class BlackDuckJiraConfigController {
         }
     }
 
-    private BlackduckRestConnection createRestConnection(final PluginSettings settings, final BlackDuckJiraConfigSerializable config) {
+    private BlackduckRestConnection createRestConnection(final PluginSettings settings) throws ConfigurationException {
         final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
         final String blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
         final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
@@ -1196,15 +1173,12 @@ public class BlackDuckJiraConfigController {
             encBlackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
 
             if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
-                config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
-                return null;
+                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
             } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
-                config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-                return null;
+                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
             }
         } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckApiToken) || StringUtils.isBlank(blackDuckTimeout)) {
-            config.setErrorMessage(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-            return null;
+            throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
 
         final String blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
@@ -1236,35 +1210,28 @@ public class BlackDuckJiraConfigController {
                 serverConfig = configBuilder.build();
             } catch (final IllegalStateException e) {
                 logger.error("Error in Black Duck server configuration: " + e.getMessage());
-                config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-                return null;
+                throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
             }
 
             restConnection = serverConfig.createRestConnection(logger);
             restConnection.connect();
         } catch (final IllegalArgumentException | IntegrationException e) {
-            config.setErrorMessage(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
-            return null;
+            throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
         }
         return restConnection;
     }
 
     // This must be "package protected" to avoid synthetic access
-    List<BlackDuckProject> getBlackDuckProjects(final HubServicesFactory blackDuckServicesFactory, final ErrorTracking config) {
-        final List<BlackDuckProject> blackDuckProjects = new ArrayList<>();
-
-        final BlackDuckProject allProjects = new BlackDuckProject();
-        allProjects.setProjectName(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
-        allProjects.setProjectUrl(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
-        blackDuckProjects.add(allProjects);
+    List<String> getBlackDuckProjects(final HubServicesFactory blackDuckServicesFactory) throws ConfigurationException {
+        final List<String> blackDuckProjects = new ArrayList<>();
+        blackDuckProjects.add(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
 
         final ProjectService projectRequestService = blackDuckServicesFactory.createProjectService();
         List<ProjectView> blackDuckProjectItems = null;
         try {
             blackDuckProjectItems = projectRequestService.getAllProjectMatches(null);
         } catch (final IntegrationException e) {
-            config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
-            return blackDuckProjects;
+            throw new ConfigurationException(e.getMessage());
         }
 
         final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
@@ -1272,21 +1239,12 @@ public class BlackDuckJiraConfigController {
         try {
             blackDuckProjectItems = filter.getAccessibleItems(metaHandler, blackDuckProjectItems);
         } catch (final HubIntegrationException e1) {
-            config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e1.getMessage()));
-            return blackDuckProjects;
+            throw new ConfigurationException(e1.getMessage());
         }
 
         if (blackDuckProjectItems != null && !blackDuckProjectItems.isEmpty()) {
             for (final ProjectView project : blackDuckProjectItems) {
-                final BlackDuckProject newBlackDuckProject = new BlackDuckProject();
-                newBlackDuckProject.setProjectName(project.name);
-                try {
-                    newBlackDuckProject.setProjectUrl(metaHandler.getHref(project));
-                } catch (final HubIntegrationException e) {
-                    config.setErrorMessage(concatErrorMessage(config.getErrorMessage(), e.getMessage()));
-                    continue;
-                }
-                blackDuckProjects.add(newBlackDuckProject);
+                blackDuckProjects.add(project.name);
             }
         }
         return blackDuckProjects;

@@ -481,9 +481,9 @@ function populateForm() {
     AJS.$.ajax({
         url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/pluginInfo/",
         dataType: "json",
-        success: function (pluginInfo) {
-            console.log("pluginVersion: " + pluginInfo.pluginVersion);
-            fillInPluginVersion(pluginInfo.pluginVersion);
+        success: function (pluginVersion) {
+            console.log("pluginVersion: " + pluginVersion);
+            fillInPluginVersion(pluginVersion);
         },
         error: function (response) {
             console.log("Error getting pluginInfo");
@@ -527,13 +527,14 @@ function populateFormHubData() {
     AJS.$.ajax({
         url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckProjects/",
         dataType: "json",
-        success: function (config) {
-            fillInHubProjects(config.hubProjects);
-
-            handleError(hubProjectListErrorId, config.hubProjectsError, false, false);
-            handleError(errorMessageFieldId, config.errorMessage, true, false);
-
-            gotHubProjects = true;
+        success: function (response) {
+            if (Array.isArray(response)) {
+                fillInHubProjects(response);
+                gotHubProjects = true;
+            } else {
+                handleError(hubProjectListErrorId, response, false, false);
+                handleError(errorMessageFieldId, response, true, false);
+            }
         },
         error: function (response) {
             handleDataRetrievalError(response, hubProjectListErrorId, "There was a problem retrieving the Hub Projects.", "Hub Project Error");
@@ -1098,29 +1099,26 @@ function getJsonArrayFromMapping() {
         let currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 
         let currentHubProjectDisplayName = currentHubProject.val();
-        let currentHubProjectValue = currentHubProject.attr('projectKey');
         let currentHubProjectError = currentHubProject.attr('projectError');
 
 
-        if (isNullOrWhitespace(currentJiraProjectValue) || isNullOrWhitespace(currentHubProjectValue) || currentJiraProjectError || currentHubProjectError) {
+        if (isNullOrWhitespace(currentJiraProjectValue) || currentJiraProjectError || currentHubProjectError) {
             addMappingErrorStatus(mappingElement);
         } else {
             removeMappingErrorStatus(mappingElement);
         }
 
-        jsonArray += '{"'
-            + 'jiraProject" : {"'
+        jsonArray += '{'
+            + '"jiraProject" : {"'
             + jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName
             + '","'
             + jiraProjectKey + '":"' + currentJiraProjectValue
             + '","'
             + jiraProjectIssueCreatorDisplayName + '":"' + currentJiraProjectIssueCreator
-            + '"},"'
-            + 'hubProject" : {"'
-            + hubProjectDisplayName + '":"' + currentHubProjectDisplayName
-            + '","'
-            + hubProjectKey + '":"' + currentHubProjectValue
-            + '"}}';
+            + '"},'
+            + '"blackDuckProjectName" : "'
+            + currentHubProjectDisplayName
+            + '"}';
     }
     jsonArray += "]";
     return jsonArray;
@@ -1401,11 +1399,11 @@ function fillInHubProjects(hubProjects) {
     }
     if (hubProjects != null && hubProjects.length > 0) {
         for (let h = 0; h < hubProjects.length; h++) {
-            hubProjectMap.set(hubProjects[h].projectUrl, hubProjects[h]);
-            console.log("fillInHubProjects(): adding: " + hubProjects[h].projectName);
+            hubProjectMap.set(hubProjects[h], hubProjects[h]);
+            console.log("fillInHubProjects(): adding: " + hubProjects[h]);
             let newOption = AJS.$('<option>', {
-                value: hubProjects[h].projectName,
-                projectKey: hubProjects[h].projectUrl
+                value: hubProjects[h],
+                projectKey: hubProjects[h]
             });
             hubProjectList.append(newOption);
         }
@@ -1500,12 +1498,10 @@ function fillInMapping(mappingElement, storedMapping) {
 
     const currentHubProject = AJS.$(mappingElement).find("input[name*='hubProject']");
 
-    const storedHubProject = storedMapping.hubProject;
-    const storedHubProjectDisplayName = storedHubProject.projectName;
-    const storedHubProjectValue = storedHubProject.projectUrl;
+    const storedBlackDuckProject = storedMapping.blackDuckProjectName;
 
-    currentHubProject.val(storedHubProjectDisplayName);
-    currentHubProject.attr("projectKey", storedHubProjectValue);
+    currentHubProject.val(storedBlackDuckProject);
+    currentHubProject.attr("projectKey", storedBlackDuckProject);
 }
 
 function fillInFieldCopyMapping(mappingElement, storedMapping) {
@@ -1527,7 +1523,7 @@ function fillInFieldCopyMapping(mappingElement, storedMapping) {
 }
 
 function addNewMappingElement(fieldId) {
-    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
+    const elementToAdd = AJS.$("#" + fieldId).clone();
     mappingElementCounter = mappingElementCounter + 1;
     elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
     elementToAdd.appendTo("#" + hubProjectMappingContainer);

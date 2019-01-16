@@ -40,8 +40,13 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
     @XmlElement
     private JiraProject jiraProject;
 
+    // Keeping this around in order to read old data from the JIRA SAL
+    @Deprecated
     @XmlElement
     private BlackDuckProject hubProject;
+
+    @XmlElement
+    private String blackDuckProjectName;
 
     public BlackDuckProjectMapping() {
     }
@@ -54,12 +59,22 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
         this.jiraProject = jiraProject;
     }
 
+    @Deprecated
     public BlackDuckProject getHubProject() {
         return hubProject;
     }
 
+    @Deprecated
     public void setHubProject(final BlackDuckProject hubProject) {
         this.hubProject = hubProject;
+    }
+
+    public void setBlackDuckProjectName(final String blackDuckProjectName) {
+        this.blackDuckProjectName = blackDuckProjectName;
+    }
+
+    public String getBlackDuckProjectName() {
+        return blackDuckProjectName;
     }
 
     @Override
@@ -69,6 +84,8 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
         builder.append(jiraProject);
         builder.append(", hubProject=");
         builder.append(hubProject);
+        builder.append(", blackDuckProjectName=");
+        builder.append(blackDuckProjectName);
         builder.append("]");
         return builder.toString();
     }
