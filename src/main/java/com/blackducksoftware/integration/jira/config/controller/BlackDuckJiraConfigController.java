@@ -123,7 +123,7 @@ public class BlackDuckJiraConfigController {
     private final Properties i18nProperties;
 
     public BlackDuckJiraConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final ProjectManager projectManager,
-            final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
+        final BlackDuckMonitor blackDuckMonitor, final GroupPickerSearchService groupPickerSearchService, final FieldManager fieldManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;

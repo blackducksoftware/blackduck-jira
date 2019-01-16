@@ -272,19 +272,22 @@ public class JiraTaskTimed implements Callable<String> {
         if (StringUtils.isNotBlank(pluginConfigurationDetails.getProjectMappingJson())) {
             config.setHubProjectMappingsJson(pluginConfigurationDetails.getProjectMappingJson());
             if (!config.getHubProjectMappings().isEmpty()) {
-                final BlackDuckProjectMapping blackDuckProjectMapping = config.getHubProjectMappings().iterator().next();
-                if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
-                    logger.debug("Updating the old project mappings.");
-                    final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
-                    for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                        final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
-                        newMapping.setJiraProject(mapping.getJiraProject());
-                        newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
-                        newProjectMappings.add(newMapping);
+                final Optional<BlackDuckProjectMapping> blackDuckProjectMappingOptional = config.getHubProjectMappings().stream().findFirst();
+                if (blackDuckProjectMappingOptional.isPresent()) {
+                    final BlackDuckProjectMapping blackDuckProjectMapping = blackDuckProjectMappingOptional.get();
+                    if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
+                        logger.debug("Updating the old project mappings.");
+                        final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
+                        for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                            final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
+                            newMapping.setJiraProject(mapping.getJiraProject());
+                            newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
+                            newProjectMappings.add(newMapping);
+                        }
+                        config.setHubProjectMappings(newProjectMappings);
+                        pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+                        return new PluginConfigurationDetails(pluginSettings);
                     }
-                    config.setHubProjectMappings(newProjectMappings);
-                    pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
-                    return new PluginConfigurationDetails(pluginSettings);
                 }
             }
         }
