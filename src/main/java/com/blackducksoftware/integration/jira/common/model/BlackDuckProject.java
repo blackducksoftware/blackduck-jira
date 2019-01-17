@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.synopsys.integration.util.Stringable;
 
 // Keeping this around in order to read old data from the JIRA SAL
+// Deprecated in 4.2.0, delete when customers all upgrade to 4.2.0+
 @Deprecated
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

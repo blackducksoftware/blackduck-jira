@@ -267,6 +267,7 @@ public class JiraTaskTimed implements Callable<String> {
         return false;
     }
 
+    // Delete when customers all upgrade to 4.2.0+
     private PluginConfigurationDetails updateOldMappingsIfNeeded(final PluginConfigurationDetails pluginConfigurationDetails, final PluginSettings pluginSettings) {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         if (StringUtils.isNotBlank(pluginConfigurationDetails.getProjectMappingJson())) {
