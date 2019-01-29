@@ -480,7 +480,7 @@ function populateForm() {
     });
     AJS.$.ajax({
         url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/pluginInfo/",
-        dataType: "json",
+        dataType: "text",
         success: function (pluginVersion) {
             console.log("pluginVersion: " + pluginVersion);
             fillInPluginVersion(pluginVersion);
