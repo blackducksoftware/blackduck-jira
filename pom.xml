@@ -10,7 +10,7 @@
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
   <artifactId>hub-jira</artifactId>
-  <version>4.1.3</version>
+  <version>4.1.4-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Black Duck JIRA Plugin</name>
