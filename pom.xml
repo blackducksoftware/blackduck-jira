@@ -8,9 +8,9 @@
     <version>5.0.0</version>
   </parent>
 
-    <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
-    <artifactId>hub-jira</artifactId>
-  <version>4.2.0</version>
+  <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
+  <artifactId>hub-jira</artifactId>
+  <version>4.2.1-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Black Duck JIRA Plugin</name>
@@ -18,13 +18,13 @@
 
   <properties>
     <!--  For production builds, use: amps.version: 5.0.13 jira.version: 5.2.11 -->
-      <!-- To use quickReload, use: amps.version: 6.2.4 jira.version: 7.1.4 -->
-      <amps.version>6.3.15</amps.version>
+    <!-- To use quickReload, use: amps.version: 6.2.4 jira.version: 7.1.4 -->
+    <amps.version>6.3.15</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-    <jira.version>7.3.0</jira.version> 
+    <jira.version>7.3.0</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
-      <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
-      <testkit.version>5.2.26</testkit.version>
+    <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
+    <testkit.version>5.2.26</testkit.version>
   </properties>
 
   <repositories>
@@ -81,8 +81,8 @@
         </exclusion>
       </exclusions>
     </dependency>
-      <!-- JIRA brings in an older version of commons-io by default so we need to demand our version explicitly -->
-      <dependency>
+    <!-- JIRA brings in an older version of commons-io by default so we need to demand our version explicitly -->
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
@@ -93,8 +93,8 @@
       <version>1.0.1</version>
       <scope>compile</scope>
     </dependency>
-      <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
-      <dependency>
+    <!-- http://mvnrepository.com/artifact/com.sun.net.httpserver/http -->
+    <dependency>
       <groupId>com.sun.net.httpserver</groupId>
       <artifactId>http</artifactId>
       <version>20070405</version>
@@ -159,8 +159,8 @@
         </exclusion>
       </exclusions>
     </dependency>
-      <!-- must include this jta dependency to override the one from the jira-api, see https://jira.atlassian.com/browse/JRA-43031 -->
-      <dependency>
+    <!-- must include this jta dependency to override the one from the jira-api, see https://jira.atlassian.com/browse/JRA-43031 -->
+    <dependency>
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
       <version>1.0.1B</version>
@@ -196,8 +196,8 @@
       <version>1</version>
       <scope>provided</scope>
     </dependency>
-      <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
-      <dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
       <version>2.5.6.SEC03</version>
@@ -209,8 +209,8 @@
       <version>2.5.6.SEC03</version>
       <scope>provided</scope>
     </dependency>
-      <!-- WIRED TEST RUNNER DEPENDENCIES -->
-      <dependency>
+    <!-- WIRED TEST RUNNER DEPENDENCIES -->
+    <dependency>
       <groupId>com.atlassian.plugins</groupId>
       <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
       <version>${plugin.testrunner.version}</version>
