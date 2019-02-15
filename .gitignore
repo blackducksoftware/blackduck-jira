@@ -13,3 +13,4 @@
 .DS_Store
 *.iml
 /.idea/
+/src/test/resources/test.properties
