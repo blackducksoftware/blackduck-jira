@@ -118,7 +118,7 @@
     <web-panel name="Black Duck Issue Panel" key="blackDuckIssuePanel" location="atl.jira.view.issue.left.context" weight="150">
         <label key="blackduck.issue.panel.title"/>
         <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
-        <resource name="view" type="velocity" location="blackduck-issue-panel.vm"/>
+        <resource name="view" type="velocity" location="/templates/blackduck-issue-panel.vm"/>
         <condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition"/>
     </web-panel>
 

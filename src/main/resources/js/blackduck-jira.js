@@ -161,30 +161,33 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 
     let config = '';
     if (apiTokenInput && apiTokenInput.checked) {
-        config = '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
-            + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
-            + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
-            + '", "apiToken": "' + encodeURI(AJS.$("#bdApiToken").val())
-            + '", "username": "", "password": ""'
-            + ', "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
-            + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
-            + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
-            + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
-            + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
-            + '"}'
+        config = Object.assign({}, {
+            hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
+            timeout: encodeURI(AJS.$("#hubTimeout").val()),
+            trustCert: encodeURI(AJS.$("#hubTrustCert")[0].checked),
+            apiToken: encodeURI(AJS.$("#bdApiToken").val()),
+            username: "",
+            password: "",
+            hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
+            hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
+            hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
+            hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
+            hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
+        });
     } else {
-        config = '{ "hubUrl": "' + encodeURI(AJS.$("#hubServerUrl").val())
-            + '", "timeout": "' + encodeURI(AJS.$("#hubTimeout").val())
-            + '", "trustCert": "' + encodeURI(AJS.$("#hubTrustCert")[0].checked)
-            + '", "apiToken": ""'
-            + ', "username": "' + encodeURI(AJS.$("#hubUsername").val())
-            + '", "password": "' + encodeURI(AJS.$("#hubPassword").val())
-            + '", "hubProxyHost": "' + encodeURI(AJS.$("#proxyHost").val())
-            + '", "hubProxyPort": "' + encodeURI(AJS.$("#proxyPort").val())
-            + '", "hubNoProxyHosts": "' + encodeURI(AJS.$("#noProxyHost").val())
-            + '", "hubProxyUser": "' + encodeURI(AJS.$("#proxyUsername").val())
-            + '", "hubProxyPassword": "' + encodeURI(AJS.$("#proxyPassword").val())
-            + '"}'
+        config = Object.assign({}, {
+            hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
+            timeout: encodeURI(AJS.$("#hubTimeout").val()),
+            trustCert: encodeURI(AJS.$("#hubTrustCert")[0].checked),
+            apiToken: "",
+            username: encodeURI(AJS.$("#hubUsername").val()),
+            password: encodeURI(AJS.$("#hubPassword").val()),
+            hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
+            hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
+            hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
+            hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
+            hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
+        });
     }
 
     console.log("putHubDetails()");
@@ -193,7 +196,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
         type: "PUT",
         dataType: "json",
         contentType: "application/json",
-        data: config,
+        data: JSON.stringify(config),
         processData: false,
         success: function () {
             handleError(errorMessageFieldId, "", true, true);
