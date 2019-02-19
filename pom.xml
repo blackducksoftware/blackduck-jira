@@ -60,8 +60,8 @@
   <dependencies>
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
-      <artifactId>hub-common</artifactId>
-      <version>38.7.0</version>
+      <artifactId>blackduck-common</artifactId>
+      <version>42.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.blackducksoftware.integration</groupId>
@@ -256,8 +256,8 @@
           <enableFastdev>false</enableFastdev>
           <jvmArgs>-Xms1g -Xmx2g -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
           <instructions>
-            <Private-Package>com.blackducksoftware.integration.hub.*</Private-Package>
-            <Private-Package>com.blackducksoftware.integration.hub.exception.*</Private-Package>
+            <Private-Package>com.synopsys.integration.blackduck.*</Private-Package>
+            <Private-Package>com.synopsys.integration.blackduck.exception.*</Private-Package>
           </instructions>
         </configuration>
       </plugin>

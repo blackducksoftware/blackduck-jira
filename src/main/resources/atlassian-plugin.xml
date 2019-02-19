@@ -12,7 +12,7 @@
         <bundle-instructions>
             <Embed-Dependency>stream</Embed-Dependency>
             <Private-Package>
-                com.blackducksoftware.integration.hub.*
+                com.synopsys.integration.blackduck.*
             </Private-Package>
             <Import-Package>
                 com.atlassian.plugin.spring.scanner.annotation.export;version=0;resolution:=optional,
@@ -20,7 +20,8 @@
                 com.atlassian.sal.api;version=0;resolution:=optional,
                 javax.inject;version=0;resolution:=optional,
                 com.blackducksoftware.integration.*;version="0.0",
-                com.blackducksoftware.integration.hub.*;version="0.0",
+                com.synopsys.integration.*;version="0.0",
+                com.synopsys.integration.blackduck.*;version="0.0",
                 org.springframework.osgi.service.exporter.support;resolution:=optional,
                 org.springframework.osgi.service.importer.support;resolution:=optional,
                 org.eclipse.gemini.blueprint.service.exporter;resolution:=optional,

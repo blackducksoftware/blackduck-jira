@@ -32,7 +32,7 @@ import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
-import com.synopsys.integration.blackduck.service.IssueService;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
@@ -42,18 +42,18 @@ public class BlackDuckIssueTrackerHandler {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraSettingsService jiraSettingsService;
-    private final IssueService blackDuckIssueService;
+    private final BlackDuckService blackDuckService;
 
-    public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final IssueService blackDuckIssueService) {
+    public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BlackDuckService blackDuckService) {
         this.jiraSettingsService = jiraSettingsService;
-        this.blackDuckIssueService = blackDuckIssueService;
+        this.blackDuckService = blackDuckService;
     }
 
     public String createBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {
         String url = "";
         try {
             if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
-                url = blackDuckIssueService.createIssue(createBlackDuckIssueView(jiraIssue), blackDuckIssueUrl);
+                url = blackDuckService.post(blackDuckIssueUrl, createBlackDuckIssueView(jiraIssue));
             } else {
                 final String message = "Error creating Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -72,7 +72,7 @@ public class BlackDuckIssueTrackerHandler {
             try {
                 if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
                     logger.debug(String.format("Updating issue %s from Black Duck for jira issue %s", blackDuckIssueUrl, jiraIssue.getKey()));
-                    blackDuckIssueService.updateIssue(createBlackDuckIssueView(jiraIssue), blackDuckIssueUrl);
+                    blackDuckService.put(createBlackDuckIssueView(jiraIssue));
                 } else {
                     final String message = "Error updating Black Duck issue; no component or component version found.";
                     logger.error(message);
@@ -95,7 +95,7 @@ public class BlackDuckIssueTrackerHandler {
         try {
             if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
                 logger.debug(String.format("Deleting issue %s from Black Duck for jira issue %s", blackDuckIssueUrl, jiraIssue.getKey()));
-                blackDuckIssueService.deleteIssue(blackDuckIssueUrl);
+                blackDuckService.delete(blackDuckIssueUrl);
             } else {
                 final String message = "Error deleting Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -124,13 +124,13 @@ public class BlackDuckIssueTrackerHandler {
             status = jiraIssue.getStatus().getName();
         }
 
-        blackDuckIssue.issueId = issueId;
-        blackDuckIssue.issueAssignee = assignee;
-        blackDuckIssue.issueStatus = status;
-        blackDuckIssue.issueCreatedAt = jiraIssue.getCreated();
-        blackDuckIssue.issueUpdatedAt = jiraIssue.getUpdated();
-        blackDuckIssue.issueDescription = jiraIssue.getSummary();
-        blackDuckIssue.issueLink = String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey());
+        blackDuckIssue.setIssueId(issueId);
+        blackDuckIssue.setIssueAssignee(assignee) ;
+        blackDuckIssue.setIssueStatus(status);
+        blackDuckIssue.setIssueCreatedAt(jiraIssue.getCreated());
+        blackDuckIssue.setIssueUpdatedAt(jiraIssue.getUpdated());
+        blackDuckIssue.setIssueDescription(jiraIssue.getSummary());
+        blackDuckIssue.setIssueLink(String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey()));
         return blackDuckIssue;
     }
 

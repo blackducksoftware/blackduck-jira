@@ -99,6 +99,7 @@ import com.synopsys.integration.blackduck.configuration.HubServerConfig;
 import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.HubServicesFactory;
 import com.synopsys.integration.blackduck.service.ProjectService;
@@ -396,7 +397,7 @@ public class BlackDuckJiraConfigController {
             projectsConfig = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    final HubServicesFactory blackDuckServicesFactory;
+                    final BlackDuckServicesFactory blackDuckServicesFactory;
                     try {
                         blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
                         final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
@@ -1142,9 +1143,9 @@ public class BlackDuckJiraConfigController {
     }
 
     // This must be "package protected" to avoid synthetic access
-    HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
+    BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
         final BlackduckRestConnection restConnection = createRestConnection(settings);
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
+        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultJsonParser(), restConnection, logger);
         return blackDuckServicesFactory;
     }
 

@@ -51,15 +51,21 @@ import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.NotificationUserView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
+import com.synopsys.integration.blackduck.api.manual.view.NotificationUserView;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckItemTransformException;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.exception.HubItemTransformException;
 import com.synopsys.integration.blackduck.notification.CommonNotificationView;
 import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
 import com.synopsys.integration.blackduck.notification.NotificationDetailResults;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.CommonNotificationService;
 import com.synopsys.integration.blackduck.service.HubService;
 import com.synopsys.integration.blackduck.service.IssueService;
 import com.synopsys.integration.blackduck.service.NotificationService;
+import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
+import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucketService;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.blackduck.service.bucket.HubBucketService;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
@@ -70,10 +76,10 @@ import com.synopsys.integration.rest.exception.IntegrationRestException;
 public class TicketGenerator {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final HubService blackDuckService;
-    private final HubBucketService blackDuckBucketService;
+    private final BlackDuckService blackDuckService;
+    private final BlackDuckBucketService blackDuckBucketService;
     private final NotificationService notificationService;
-    private final CommonNotificationService commonNotificationService;
+    private final NotificationService commonNotificationService;
     private final JiraUserContext jiraUserContext;
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
@@ -84,8 +90,8 @@ public class TicketGenerator {
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public TicketGenerator(final HubService blackDuckService, final HubBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-            final IssueService blackDuckIssueService, final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
+    public TicketGenerator(final BlackDuckService blackDuckService, final BlackDuckBucketService blackDuckBucketService, final NotificationService notificationService, final NotificationService commonNotificationService,
+            final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
             final boolean shouldCreateVulnerabilityIssues, final boolean shouldCommentOnIssueUpdates, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
@@ -95,14 +101,14 @@ public class TicketGenerator {
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckIssueService);
+        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckService);
         this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
         this.shouldCommentOnIssueUpdates = shouldCommentOnIssueUpdates;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) throws HubIntegrationException {
+    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) throws BlackDuckIntegrationException {
         if ((blackDuckProjectMappings == null) || (blackDuckProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
@@ -113,7 +119,7 @@ public class TicketGenerator {
             final NotificationDetailResults results = commonNotificationService.getNotificationDetailResults(commonNotifications);
             final List<NotificationDetailResult> notificationDetailResults = results.getResults();
 
-            final HubBucket blackDuckBucket = new HubBucket();
+            final BlackDuckBucket blackDuckBucket = new BlackDuckBucket();
             commonNotificationService.populateHubBucket(blackDuckBucketService, blackDuckBucket, results);
             reportAnyErrors(blackDuckBucket);
 
@@ -164,12 +170,12 @@ public class TicketGenerator {
         }
     }
 
-    private void reportAnyErrors(final HubBucket blackDuckBucket) {
+    private void reportAnyErrors(final BlackDuckBucket blackDuckBucket) {
         blackDuckBucket.getAvailableUris().parallelStream().forEach(uri -> {
             final Optional<Exception> uriError = blackDuckBucket.getError(uri);
             if (uriError.isPresent()) {
                 final Exception e = uriError.get();
-                if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof HubItemTransformException)) {
+                if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof BlackDuckItemTransformException)) {
                     final String msg = String.format(
                             "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
                                     + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",

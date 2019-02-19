@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
+import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
+import com.synopsys.integration.blackduck.api.core.BlackDuckView;
 import com.synopsys.integration.blackduck.api.core.HubResponse;
 import com.synopsys.integration.blackduck.api.core.HubView;
 import com.synopsys.integration.blackduck.api.core.LinkMultipleResponses;
@@ -35,16 +37,21 @@ import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.RiskCountType;
+import com.synopsys.integration.blackduck.api.generated.response.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 import com.synopsys.integration.blackduck.exception.HubIntegrationException;
 import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.ComponentService;
 import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
 import com.synopsys.integration.blackduck.service.bucket.HubBucket;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
@@ -52,18 +59,17 @@ import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class BlackDuckDataHelper {
     private final BlackDuckJiraLogger logger;
-    private final HubService blackDuckService;
-    private final HubBucket blackDuckBucket;
+    private final BlackDuckService blackDuckService;
+    private final BlackDuckBucket blackDuckBucket;
 
-    public BlackDuckDataHelper(final BlackDuckJiraLogger logger, final HubService blackDuckService, final HubBucket blackDuckBucket) {
+    public BlackDuckDataHelper(final BlackDuckJiraLogger logger, final BlackDuckService blackDuckService, final BlackDuckBucket blackDuckBucket) {
         this.logger = logger;
         this.blackDuckService = blackDuckService;
         this.blackDuckBucket = blackDuckBucket;
     }
 
     public String getBlackDuckBaseUrl() {
-        final URL baseUrl = blackDuckService.getHubBaseUrl();
-        return baseUrl.toString();
+        return blackDuckService.getBlackDuckBaseUrl();
     }
 
     public VersionBomComponentView getBomComponent(final UriSingleResponse<VersionBomComponentView> bomComponentLocation) throws IntegrationException {
@@ -84,7 +90,7 @@ public class BlackDuckDataHelper {
         // TODO use the HubService once the Black Duck APIs have the link.
         final ComponentService componentService = new ComponentService(blackDuckService, logger);
         try {
-            return Optional.ofNullable(componentService.getRemediationInformation(componentVersionView));
+            return componentService.getRemediationInformation(componentVersionView);
         } catch (final IntegrationException e) {
             logger.debug("Could not get remediation information: ");
             logger.debug(e.getMessage());
@@ -96,7 +102,7 @@ public class BlackDuckDataHelper {
         final ProjectVersionWrapper projectVersionWrapper;
         if (detail.getProjectVersion().isPresent()) {
             final UriSingleResponse<ProjectVersionView> projectVersionResponse = detail.getProjectVersion().get();
-            projectVersionWrapper = getProjectVersionWrapper(projectVersionResponse.uri);
+            projectVersionWrapper = getProjectVersionWrapper(projectVersionResponse.getUri());
         } else if (detail.getBomComponent().isPresent()) {
             final VersionBomComponentView versionBomComponent = getResponse(detail.getBomComponent().get());
             projectVersionWrapper = getProjectVersionWrapper(versionBomComponent);
@@ -117,7 +123,7 @@ public class BlackDuckDataHelper {
 
     private ProjectVersionWrapper getProjectVersionWrapper(final String projectVersionUri) throws IntegrationException {
         final ProjectVersionView projectVersion = getResponse(projectVersionUri, ProjectVersionView.class);
-        final ProjectView project = blackDuckService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
+        final Optional<ProjectView> project = blackDuckService.getResponse(projectVersion, ProjectVersionView.PROJECT_LINK_RESPONSE);
 
         final ProjectVersionWrapper wrapper = new ProjectVersionWrapper();
         wrapper.setProjectVersionView(projectVersion);
@@ -131,7 +137,7 @@ public class BlackDuckDataHelper {
 
     public boolean doesSecurityRiskProfileHaveVulnerabilities(final RiskProfileView securityRiskProfile) {
         logger.debug("Checking if the component still has vulnerabilities...");
-        final int vulnerablitiesCount = getSumOfRiskCounts(securityRiskProfile.counts);
+        final int vulnerablitiesCount = getSumOfRiskCounts(securityRiskProfile.getCounts());
         logger.debug("Number of vulnerabilities found: " + vulnerablitiesCount);
         if (vulnerablitiesCount > 0) {
             logger.debug("This component still has vulnerabilities");
@@ -143,35 +149,35 @@ public class BlackDuckDataHelper {
     private int getSumOfRiskCounts(final List<RiskCountView> vulnerabilityCounts) {
         int count = 0;
         for (final RiskCountView riskCount : vulnerabilityCounts) {
-            if (!RiskCountType.OK.equals(riskCount.countType)) {
-                count += riskCount.count.intValue();
+            if (!RiskCountType.OK.equals(riskCount.getCountType())) {
+                count += riskCount.getCount().intValue();
             }
         }
         return count;
     }
 
-    public <T extends HubResponse> T getResponse(final String uri, final Class<T> clazz) throws IntegrationException {
+    public <T extends BlackDuckResponse> T getResponse(final String uri, final Class<T> clazz) throws IntegrationException {
         return getResponse(new UriSingleResponse<>(uri, clazz));
     }
 
-    public <T extends HubResponse> T getResponse(final UriSingleResponse<T> uriSingleResponse) throws IntegrationException {
+    public <T extends BlackDuckResponse> T getResponse(final UriSingleResponse<T> uriSingleResponse) throws IntegrationException {
         T response = blackDuckBucket.get(uriSingleResponse);
         if (response == null) {
             response = blackDuckService.getResponse(uriSingleResponse);
-            blackDuckBucket.addValid(uriSingleResponse.uri, response);
+            blackDuckBucket.addValid(uriSingleResponse.getUri(), response);
         }
         return response;
     }
 
-    public <T extends HubResponse> T getResponse(final HubView view, final LinkSingleResponse<T> linkSingleResponse) throws IntegrationException {
+    public <T extends BlackDuckResponse> Optional<T> getResponse(final BlackDuckView view, final LinkSingleResponse<T> linkSingleResponse) throws IntegrationException {
         return blackDuckService.getResponse(view, linkSingleResponse);
     }
 
-    public <T extends HubResponse> List<T> getAllResponses(final HubView view, final LinkMultipleResponses<T> linkMultipleResponses) throws IntegrationException {
+    public <T extends BlackDuckResponse> List<T> getAllResponses(final BlackDuckView view, final LinkMultipleResponses<T> linkMultipleResponses) throws IntegrationException {
         return blackDuckService.getAllResponses(view, linkMultipleResponses);
     }
 
-    public <T extends HubResponse> T getResponseNullable(final String uri, final Class<T> clazz) {
+    public <T extends BlackDuckResponse> T getResponseNullable(final String uri, final Class<T> clazz) {
         try {
             return getResponse(uri, clazz);
         } catch (final IntegrationException e) {
@@ -180,31 +186,26 @@ public class BlackDuckDataHelper {
         return null;
     }
 
-    public String getFirstLink(final HubView view, final String linkKey) throws IntegrationException {
+    public String getFirstLink(final BlackDuckView view, final String linkKey) throws IntegrationException {
         return blackDuckService.getFirstLink(view, linkKey);
     }
 
-    public String getFirstLinkSafely(final HubView view, final String linkKey) {
+    public String getFirstLinkSafely(final BlackDuckView view, final String linkKey) {
         String link = null;
         try {
             link = blackDuckService.getFirstLink(view, linkKey);
-        } catch (HubIntegrationException e) {
+        } catch (BlackDuckIntegrationException e) {
             logger.debug("Could not get link " + linkKey + " for view: " + view, e);
         }
         return link;
     }
 
-    public String getHref(final HubView view) throws IntegrationException {
-        return blackDuckService.getHref(view);
+    public Optional<String> getHref(final BlackDuckView view) {
+        return view.getHref();
     }
 
-    public String getHrefNullable(final HubView view) {
-        String href = null;
-        try {
-            href = getHref(view);
-        } catch (IntegrationException e) {
-            logger.debug("Could not get href for view: " + view, e);
-        }
-        return href;
+    public String getHrefNullable(final BlackDuckView view) {
+        Optional<String> href = getHref(view);
+        return href.orElse(null);
     }
 }
