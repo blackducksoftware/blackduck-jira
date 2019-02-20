@@ -38,12 +38,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.encryption.PasswordEncrypter;
 import com.synopsys.integration.exception.EncryptionException;
-import com.synopsys.integration.exception.IntegrationException;
 
 public class BlackDuckConfigActions {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -158,33 +157,33 @@ public class BlackDuckConfigActions {
             return newConfig;
         } else {
             newConfig = getUnMaskedConfig(newConfig, settings);
-            final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
+            final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
             serverConfigBuilder.setLogger(logger);
             serverConfigBuilder.setUrl(newConfig.getHubUrl());
             serverConfigBuilder.setTimeout(newConfig.getTimeout());
             serverConfigBuilder.setApiToken(newConfig.getApiToken());
             serverConfigBuilder.setUsername(newConfig.getUsername());
             serverConfigBuilder.setPassword(newConfig.getPassword());
-            serverConfigBuilder.setPasswordLength(newConfig.getPasswordLength());
             serverConfigBuilder.setTrustCert(newConfig.getTrustCert());
 
             serverConfigBuilder.setProxyHost(newConfig.getHubProxyHost());
             serverConfigBuilder.setProxyPort(newConfig.getHubProxyPort());
             serverConfigBuilder.setProxyUsername(newConfig.getHubProxyUser());
             serverConfigBuilder.setProxyPassword(newConfig.getHubProxyPassword());
-            serverConfigBuilder.setProxyPasswordLength(newConfig.getHubProxyPasswordLength());
-            serverConfigBuilder.setProxyIgnoredHosts(newConfig.getHubNoProxyHosts());
 
-            final HubServerConfig serverConfig = serverConfigBuilder.build();
-            try (final BlackduckRestConnection restConnection = serverConfig.createRestConnection(logger)) {
-                restConnection.connect();
-            } catch (final IntegrationException | IOException e) {
-                if (e.getMessage().toLowerCase().contains("unauthorized")) {
-                    newConfig.setApiTokenError("Invalid credential(s) for: " + serverConfig.getHubUrl());
-                } else {
-                    newConfig.setTestConnectionError(e.toString());
-                }
-            }
+            final BlackDuckServerConfig serverConfig = serverConfigBuilder.build();
+            final BlackDuckHttpClient restConnection = serverConfig.createBlackDuckHttpClient(logger);
+
+
+            //FIXME validate restConnection here
+
+//            } catch (final IntegrationException | IOException e) {
+//                if (e.getMessage().toLowerCase().contains("unauthorized")) {
+//                    newConfig.setApiTokenError("Invalid credential(s) for: " + serverConfig.getBlackDuckUrl());
+//                } else {
+//                    newConfig.setTestConnectionError(e.toString());
+//                }
+//            }
             return newConfig;
         }
     }

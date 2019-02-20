@@ -41,11 +41,11 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
-import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.Stringable;
@@ -221,21 +221,21 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
 
         this.projectOwner = projectOwner;
-        this.projectName = project.name;
-        this.projectVersionName = projectVersion.versionName;
+        this.projectName = project.getName();
+        this.projectVersionName = projectVersion.getVersionName();
         this.projectVersionUri = blackDuckDataHelper.getHrefNullable(projectVersion);
-        this.projectVersionNickname = projectVersion.nickname;
+        this.projectVersionNickname = projectVersion.getNickname();
 
-        this.componentName = versionBomComponent.componentName;
-        this.componentUri = versionBomComponent.component;
-        this.componentVersionName = versionBomComponent.componentVersionName;
-        this.componentVersionUri = versionBomComponent.componentVersion;
+        this.componentName = versionBomComponent.getComponentName();
+        this.componentUri = versionBomComponent.getComponent();
+        this.componentVersionName = versionBomComponent.getComponentVersionName();
+        this.componentVersionUri = versionBomComponent.getComponentVersion();
 
-        this.originsString = createCommaSeparatedString(versionBomComponent.origins, origin -> origin.name);
-        this.originIdsString = createCommaSeparatedString(versionBomComponent.origins, origin -> origin.externalId);
-        this.licenseString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent.licenses);
-        this.licenseLink = dataFormatHelper.getLicenseTextLink(versionBomComponent.licenses, this.licenseString);
-        this.usagesString = createCommaSeparatedString(versionBomComponent.usages, usage -> usage.prettyPrint());
+        this.originsString = createCommaSeparatedString(versionBomComponent.getOrigins(), origin -> origin.getName());
+        this.originIdsString = createCommaSeparatedString(versionBomComponent.getOrigins(), origin -> origin.getExternalId());
+        this.licenseString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent.getLicenses());
+        this.licenseLink = dataFormatHelper.getLicenseTextLink(versionBomComponent.getLicenses(), this.licenseString);
+        this.usagesString = createCommaSeparatedString(versionBomComponent.getUsages(), usage -> usage.prettyPrint());
         this.updatedTimeString = dataFormatHelper.getBomLastUpdated(projectVersion);
 
         this.bomComponentUri = blackDuckDataHelper.getHrefNullable(versionBomComponent);
@@ -244,12 +244,12 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueModelBuilder setPolicyFields(final PolicyRuleViewV2 policyRule) {
+    public BlackDuckIssueModelBuilder setPolicyFields(final PolicyRuleView policyRule) {
         this.policyRuleUrl = blackDuckDataHelper.getHrefNullable(policyRule);
-        this.policyRuleName = policyRule.name;
-        this.policyDescription = StringUtils.defaultString(policyRule.description, "No description");
-        this.policyOverridable = policyRule.overridable;
-        this.policySeverity = StringUtils.capitalize(StringUtils.lowerCase(policyRule.severity));
+        this.policyRuleName = policyRule.getName();
+        this.policyDescription = StringUtils.defaultString(policyRule.getDescription(), "No description");
+        this.policyOverridable = policyRule.getOverridable();
+        this.policySeverity = StringUtils.capitalize(StringUtils.lowerCase(policyRule.getSeverity()));
         return this;
     }
 
@@ -392,7 +392,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
 
         if (IssueCategory.POLICY.equals(issueCategory)) {
             if (policyRuleUrl == null) {
-                throw new HubIntegrationException("Policy Rule URL is null");
+                throw new BlackDuckIntegrationException("Policy Rule URL is null");
             }
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
             keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_POLICY_RULE_REL_URL_HASHED_NAME);
