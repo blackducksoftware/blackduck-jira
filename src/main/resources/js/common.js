@@ -141,6 +141,16 @@ function removeClassFromField(field, cssClass) {
     }
 }
 
+function resetStatusMessage() {
+    removeClassFromFieldById(statusMessageFieldId, 'error');
+    removeClassFromFieldById(statusMessageFieldId, 'success');
+    removeClassFromFieldById(statusMessageTitleId, 'icon-error');
+    removeClassFromFieldById(statusMessageTitleId, 'icon-success');
+    AJS.$("#" + statusMessageTitleTextId).text('');
+    AJS.$("#" + statusMessageTextId).text('');
+    addClassToFieldById(statusMessageFieldId, hiddenClass);
+}
+
 function showStatusMessage(status, statusTitle, message) {
     resetStatusMessage();
     if (status == errorStatus) {
@@ -153,16 +163,6 @@ function showStatusMessage(status, statusTitle, message) {
     AJS.$("#" + statusMessageTitleTextId).text(statusTitle);
     AJS.$("#" + statusMessageTextId).text(message);
     removeClassFromFieldById(statusMessageFieldId, hiddenClass);
-}
-
-function resetStatusMessage() {
-    removeClassFromFieldById(statusMessageFieldId, 'error');
-    removeClassFromFieldById(statusMessageFieldId, 'success');
-    removeClassFromFieldById(statusMessageTitleId, 'icon-error');
-    removeClassFromFieldById(statusMessageTitleId, 'icon-success');
-    AJS.$("#" + statusMessageTitleTextId).text('');
-    AJS.$("#" + statusMessageTextId).text('');
-    addClassToFieldById(statusMessageFieldId, hiddenClass);
 }
 
 function startProgressSpinner(spinnerId) {

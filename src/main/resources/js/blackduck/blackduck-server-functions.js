@@ -21,6 +21,102 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+function toggleDisplayById(iconId, fieldId) {
+    const iconObject = AJS.$('#' + iconId);
+    if (iconObject.hasClass('fa-angle-down')) {
+        removeClassFromFieldById(iconId, 'fa-angle-down');
+        addClassToFieldById(iconId, 'fa-angle-right');
+
+        addClassToFieldById(fieldId, hiddenClass);
+    } else if (iconObject.hasClass('fa-angle-right')) {
+        removeClassFromFieldById(iconId, 'fa-angle-right');
+        addClassToFieldById(iconId, 'fa-angle-down');
+
+        removeClassFromFieldById(fieldId, hiddenClass);
+    }
+}
+
+function checkProxyConfig() {
+    const proxyHost = AJS.$("#proxyHost").val();
+    const proxyPort = AJS.$("#proxyPort").val();
+    const noProxyHost = AJS.$("#noProxyHost").val();
+    const proxyUsername = AJS.$("#proxyUsername").val();
+    const proxyPassword = AJS.$("#proxyPassword").val();
+
+    if (!proxyHost && !proxyPort && !noProxyHost && !proxyUsername && !proxyPassword) {
+        toggleDisplayById("proxyConfigDisplayIcon", 'proxyConfigArea');
+    }
+}
+
+function fillInHubProjects(hubProjects) {
+    hubProjectMap = new Map();
+    const mappingElement = AJS.$("#" + hubProjectMappingElement);
+    const hubProjectList = mappingElement.find("datalist[id='" + hubProjectListId + "']");
+    if (hubProjectList.length > 0) {
+        clearList(hubProjectList[0]);
+    }
+    if (hubProjects != null && hubProjects.length > 0) {
+        for (let h = 0; h < hubProjects.length; h++) {
+            hubProjectMap.set(hubProjects[h], hubProjects[h]);
+            console.log("fillInHubProjects(): adding: " + hubProjects[h]);
+            let newOption = AJS.$('<option>', {
+                value: hubProjects[h],
+                projectKey: hubProjects[h]
+            });
+            hubProjectList.append(newOption);
+        }
+    }
+}
+
+function handleErrorHubDetails(fieldRowId, fieldId, configField) {
+    if (configField) {
+        showErrorHubDetails(fieldRowId, fieldId, configField);
+    } else {
+        hideError(fieldRowId, fieldId);
+    }
+}
+
+function addPolicyViolationRules(policyRules) {
+    const policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
+    removeAllChildren(policyRuleContainer[0]);
+    if (policyRules != null && policyRules.length > 0) {
+        for (p = 0; p < policyRules.length; p++) {
+            let newPolicy = AJS.$('<div>', {});
+
+            let newPolicyRuleCheckbox = AJS.$('<input>', {
+                type: "checkbox",
+                policyurl: decodeURI(policyRules[p].policyUrl),
+                title: decodeURI(policyRules[p].description),
+                name: decodeURI(policyRules[p].name),
+                checked: policyRules[p].checked
+            });
+            let description = decodeURI(policyRules[p].description);
+            let newPolicyLabel = AJS.$('<label>', {
+                text: policyRules[p].name,
+                title: description,
+            });
+            newPolicyLabel.addClass("textStyle");
+            newPolicyLabel.css("padding", "0px 5px 0px 5px")
+            if (!policyRules[p].enabled) {
+                newPolicyLabel.addClass("disabledPolicyRule");
+            }
+
+
+            newPolicy.append(newPolicyRuleCheckbox, newPolicyLabel)
+
+            if (description) {
+                let newDescription = AJS.$('<i>', {
+                    title: description,
+                });
+                AJS.$(newDescription).addClass("fa");
+                AJS.$(newDescription).addClass("fa-info-circle");
+                AJS.$(newDescription).addClass("infoIcon");
+                newPolicy.append(newDescription);
+            }
+            newPolicy.appendTo(policyRuleContainer);
+        }
+    }
+}
 
 function readBlackduckServerData() {
     AJS.$.ajax({
@@ -142,8 +238,18 @@ function testConnection() {
     putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
 }
 
-function updateHubDetails() {
-    putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/save', 'Save successful.', 'The Hub details are not valid.');
+function initProjectMappingRows() {
+    console.log("initProjectMapping()");
+    const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
+    let mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+    console.log("initProjectMapping(): Before: #rows: " + mappingElements.length);
+    for (let rowIndex = mappingElements.length - 1; rowIndex > 0; rowIndex--) {
+        console.log("initProjectMapping: Removing project mapping row: " + rowIndex);
+        let mappingElement = mappingElements[rowIndex];
+        AJS.$('#' + mappingElement.id).remove();
+    }
+    mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
+    console.log("initProjectMapping(): After re-fetch: #rows: " + mappingElements.length);
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
@@ -236,54 +342,8 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
     });
 }
 
-function initProjectMappingRows() {
-    console.log("initProjectMapping()");
-    const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
-    let mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
-    console.log("initProjectMapping(): Before: #rows: " + mappingElements.length);
-    for (let rowIndex = mappingElements.length - 1; rowIndex > 0; rowIndex--) {
-        console.log("initProjectMapping: Removing project mapping row: " + rowIndex);
-        let mappingElement = mappingElements[rowIndex];
-        AJS.$('#' + mappingElement.id).remove();
-    }
-    mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
-    console.log("initProjectMapping(): After re-fetch: #rows: " + mappingElements.length);
-}
-
-
-function handleErrorHubDetails(fieldRowId, fieldId, configField) {
-    if (configField) {
-        showErrorHubDetails(fieldRowId, fieldId, configField);
-    } else {
-        hideError(fieldRowId, fieldId);
-    }
-}
-
-function checkProxyConfig() {
-    const proxyHost = AJS.$("#proxyHost").val();
-    const proxyPort = AJS.$("#proxyPort").val();
-    const noProxyHost = AJS.$("#noProxyHost").val();
-    const proxyUsername = AJS.$("#proxyUsername").val();
-    const proxyPassword = AJS.$("#proxyPassword").val();
-
-    if (!proxyHost && !proxyPort && !noProxyHost && !proxyUsername && !proxyPassword) {
-        toggleDisplayById("proxyConfigDisplayIcon", 'proxyConfigArea');
-    }
-}
-
-function toggleDisplayById(iconId, fieldId) {
-    const iconObject = AJS.$('#' + iconId);
-    if (iconObject.hasClass('fa-angle-down')) {
-        removeClassFromFieldById(iconId, 'fa-angle-down');
-        addClassToFieldById(iconId, 'fa-angle-right');
-
-        addClassToFieldById(fieldId, hiddenClass);
-    } else if (iconObject.hasClass('fa-angle-right')) {
-        removeClassFromFieldById(iconId, 'fa-angle-right');
-        addClassToFieldById(iconId, 'fa-angle-down');
-
-        removeClassFromFieldById(fieldId, hiddenClass);
-    }
+function updateHubDetails() {
+    putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/save', 'Save successful.', 'The Hub details are not valid.');
 }
 
 function readBlackduckTicketCreationErrors() {
@@ -306,68 +366,6 @@ function readBlackduckTicketCreationErrors() {
             console.log("Completed get of task errors: " + textStatus);
         }
     });
-}
-
-function fillInHubProjects(hubProjects) {
-    hubProjectMap = new Map();
-    const mappingElement = AJS.$("#" + hubProjectMappingElement);
-    const hubProjectList = mappingElement.find("datalist[id='" + hubProjectListId + "']");
-    if (hubProjectList.length > 0) {
-        clearList(hubProjectList[0]);
-    }
-    if (hubProjects != null && hubProjects.length > 0) {
-        for (let h = 0; h < hubProjects.length; h++) {
-            hubProjectMap.set(hubProjects[h], hubProjects[h]);
-            console.log("fillInHubProjects(): adding: " + hubProjects[h]);
-            let newOption = AJS.$('<option>', {
-                value: hubProjects[h],
-                projectKey: hubProjects[h]
-            });
-            hubProjectList.append(newOption);
-        }
-    }
-}
-
-function addPolicyViolationRules(policyRules) {
-    const policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
-    removeAllChildren(policyRuleContainer[0]);
-    if (policyRules != null && policyRules.length > 0) {
-        for (p = 0; p < policyRules.length; p++) {
-            let newPolicy = AJS.$('<div>', {});
-
-            let newPolicyRuleCheckbox = AJS.$('<input>', {
-                type: "checkbox",
-                policyurl: decodeURI(policyRules[p].policyUrl),
-                title: decodeURI(policyRules[p].description),
-                name: decodeURI(policyRules[p].name),
-                checked: policyRules[p].checked
-            });
-            let description = decodeURI(policyRules[p].description);
-            let newPolicyLabel = AJS.$('<label>', {
-                text: policyRules[p].name,
-                title: description,
-            });
-            newPolicyLabel.addClass("textStyle");
-            newPolicyLabel.css("padding", "0px 5px 0px 5px")
-            if (!policyRules[p].enabled) {
-                newPolicyLabel.addClass("disabledPolicyRule");
-            }
-
-
-            newPolicy.append(newPolicyRuleCheckbox, newPolicyLabel)
-
-            if (description) {
-                let newDescription = AJS.$('<i>', {
-                    title: description,
-                });
-                AJS.$(newDescription).addClass("fa");
-                AJS.$(newDescription).addClass("fa-info-circle");
-                AJS.$(newDescription).addClass("infoIcon");
-                newPolicy.append(newDescription);
-            }
-            newPolicy.appendTo(policyRuleContainer);
-        }
-    }
 }
 
 function updateTicketCreationErrors(hubJiraTicketErrors) {

@@ -21,86 +21,111 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+function addMappingErrorStatus(mappingElement) {
+    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+    if (mappingStatus.find("i").length == 0) {
+        const newStatus = AJS.$('<i>', {});
+        AJS.$(newStatus).addClass("error");
+        AJS.$(newStatus).addClass("largeIcon");
+        AJS.$(newStatus).addClass("fa");
+        AJS.$(newStatus).addClass("fa-exclamation");
 
-function readMappingData() {
-    AJS.$.ajax({
-        url: createRequestPath('mappings/'),
-        dataType: "json",
-        success: function (config) {
-            fillInMappings(config.hubProjectMappings);
-
-            handleError(errorMessageFieldId, config.errorMessage, true, false);
-            handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
-
-            gotProjectMappings = true;
-        },
-        error: function (response) {
-            handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
-        },
-        complete: function (jqXHR, textStatus) {
-            AJS.$('#projectMappingSpinner').remove();
-            console.log("Completed get of project mappings: " + textStatus);
-        }
-    });
+        newStatus.appendTo(mappingStatus);
+    }
 }
 
-function readSourceFields() {
-    AJS.$.ajax({
-        url: createRequestPath('sourceFields/'),
-        dataType: "json",
-        success: function (sourceFieldNames) {
-            fillInSourceFields(sourceFieldNames);
-            gotSourceFields = true;
-        },
-        error: function (response) {
-            handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
-        },
-        complete: function (jqXHR, textStatus) {
-            console.log("Completed get of sourceFields: " + textStatus);
-        }
-    });
+function removeMappingErrorStatus(mappingElement) {
+    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
+    if (mappingStatus.children().length > 0) {
+        AJS.$(mappingStatus).empty();
+    }
 }
 
-function readTargetFields() {
-    AJS.$.ajax({
-        url: createRequestPath('targetFields/'),
-        dataType: "json",
-        success: function (targetFields) {
-            fillInTargetFields(targetFields);
-
-            handleError("fieldCopyTargetFieldError", targetFields.errorMessage, true, false);
-
-            gotTargetFields = true;
-        },
-        error: function (response) {
-            handleDataRetrievalError(response, targetFieldListErrorId, "There was a problem retrieving the target fields.", "Target Field Error");
-        },
-        complete: function (jqXHR, textStatus) {
-            console.log("Completed get of targetFields: " + textStatus);
-        }
-    });
+function removeFieldCopyMappingErrorStatus(mappingElement) {
+    const mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
+    if (mappingStatus.children().length > 0) {
+        AJS.$(mappingStatus).empty();
+    }
 }
 
-function readFieldCopyMappings() {
-    AJS.$.ajax({
-        url: createRequestPath('fieldCopyMappings/'),
-        dataType: "json",
-        success: function (config) {
-            console.log("Success getting field copy mappings");
-            fillInFieldCopyMappings(config.projectFieldCopyMappings);
+function addNewMappingElement(fieldId) {
+    const elementToAdd = AJS.$("#" + fieldId).clone();
+    mappingElementCounter = mappingElementCounter + 1;
+    elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
+    elementToAdd.appendTo("#" + hubProjectMappingContainer);
 
-            handleError("fieldCopyMappingError", config.errorMessage, true, false);
+    removeClassFromField(elementToAdd, hiddenClass);
 
-            gotFieldCopyMappings = true;
-        },
-        error: function (response) {
-            console.log("Error getting field copy mappings");
-            handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
-        },
-        complete: function (jqXHR, textStatus) {
-            console.log("Completed get of field copy mappings: " + textStatus);
-        }
-    });
+    removeMappingErrorStatus(elementToAdd);
+
+    const currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
+
+    currentJiraProject.val("");
+    currentJiraProject.attr("projectKey", "");
+    if (currentJiraProject.hasClass('error')) {
+        currentJiraProject.removeClass('error');
+    }
+    const currentJiraProjectParent = currentJiraProject.parent();
+    const currentJiraProjectError = currentJiraProjectParent.children("#" + jiraProjectErrorId);
+    currentJiraProjectError.text("");
+    if (currentJiraProjectError.hasClass('error')) {
+        currentJiraProjectError.removeClass('error');
+    }
+
+    const currentHubProject = AJS.$(elementToAdd).find("input[name*='hubProject']");
+
+    currentHubProject.val("");
+    currentHubProject.attr("projectKey", "");
+    if (currentHubProject.hasClass('error')) {
+        currentHubProject.removeClass('error');
+    }
+
+    const mappingArea = AJS.$('#mappingArea')[0];
+    if (mappingArea) {
+        AJS.$('#mappingArea').scrollTop(mappingArea.scrollHeight);
+    }
+    return elementToAdd;
+}
+
+function addNewFieldCopyMappingElement(fieldId) {
+    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
+    mappingElementCounter = mappingElementCounter + 1;
+    elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
+    elementToAdd.appendTo("#" + fieldCopyMappingContainer);
+
+    removeClassFromField(elementToAdd, hiddenClass);
+
+    removeMappingErrorStatus(elementToAdd);
+
+    const currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
+
+    currentSourceField.val("");
+    currentSourceField.attr("id", "");
+    if (currentSourceField.hasClass('fieldError')) {
+        currentSourceField.removeClass('fieldError');
+    }
+    const currentSourceFieldParent = currentSourceField.parent();
+    const currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
+    currentTargetField.val("");
+    currentTargetField.attr("id", "");
+
+    const mappingArea = AJS.$('#fieldCopyMappingArea')[0];
+    if (mappingArea) {
+        AJS.$('#fieldCopyMappingArea').scrollTop(fieldCopyMappingArea.scrollHeight);
+    }
+    return elementToAdd;
+}
+
+function removeMappingElement(childElement) {
+    if (AJS.$("#" + hubProjectMappingContainer).find("tr[name*='" + hubProjectMappingElement + "']").length > 1) {
+        AJS.$(childElement).closest("tr[name*='" + hubProjectMappingElement + "']").remove();
+    }
+}
+
+function removeFieldCopyMappingElement(childElement) {
+    if (AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='" + fieldCopyMappingElement + "']").length > 1) {
+        AJS.$(childElement).closest("tr[name*='" + fieldCopyMappingElement + "']").remove();
+    }
 }
 
 function fillInTargetFields(targetFields) {
@@ -187,86 +212,6 @@ function fillInFieldCopyMapping(mappingElement, storedMapping) {
 
     currentTargetField.val(storedTargetFieldName);
     currentTargetField.attr("id", storedTargetFieldId);
-}
-
-function addNewMappingElement(fieldId) {
-    const elementToAdd = AJS.$("#" + fieldId).clone();
-    mappingElementCounter = mappingElementCounter + 1;
-    elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
-    elementToAdd.appendTo("#" + hubProjectMappingContainer);
-
-    removeClassFromField(elementToAdd, hiddenClass);
-
-    removeMappingErrorStatus(elementToAdd);
-
-    const currentJiraProject = AJS.$(elementToAdd).find("input[name*='jiraProject']");
-
-    currentJiraProject.val("");
-    currentJiraProject.attr("projectKey", "");
-    if (currentJiraProject.hasClass('error')) {
-        currentJiraProject.removeClass('error');
-    }
-    const currentJiraProjectParent = currentJiraProject.parent();
-    const currentJiraProjectError = currentJiraProjectParent.children("#" + jiraProjectErrorId);
-    currentJiraProjectError.text("");
-    if (currentJiraProjectError.hasClass('error')) {
-        currentJiraProjectError.removeClass('error');
-    }
-
-    const currentHubProject = AJS.$(elementToAdd).find("input[name*='hubProject']");
-
-    currentHubProject.val("");
-    currentHubProject.attr("projectKey", "");
-    if (currentHubProject.hasClass('error')) {
-        currentHubProject.removeClass('error');
-    }
-
-    const mappingArea = AJS.$('#mappingArea')[0];
-    if (mappingArea) {
-        AJS.$('#mappingArea').scrollTop(mappingArea.scrollHeight);
-    }
-    return elementToAdd;
-}
-
-function addNewFieldCopyMappingElement(fieldId) {
-    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
-    mappingElementCounter = mappingElementCounter + 1;
-    elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
-    elementToAdd.appendTo("#" + fieldCopyMappingContainer);
-
-    removeClassFromField(elementToAdd, hiddenClass);
-
-    removeMappingErrorStatus(elementToAdd);
-
-    const currentSourceField = AJS.$(elementToAdd).find("input[name*='sourceField']");
-
-    currentSourceField.val("");
-    currentSourceField.attr("id", "");
-    if (currentSourceField.hasClass('fieldError')) {
-        currentSourceField.removeClass('fieldError');
-    }
-    const currentSourceFieldParent = currentSourceField.parent();
-    const currentTargetField = AJS.$(elementToAdd).find("input[name*='hubProject']");
-    currentTargetField.val("");
-    currentTargetField.attr("id", "");
-
-    const mappingArea = AJS.$('#fieldCopyMappingArea')[0];
-    if (mappingArea) {
-        AJS.$('#fieldCopyMappingArea').scrollTop(fieldCopyMappingArea.scrollHeight);
-    }
-    return elementToAdd;
-}
-
-function removeMappingElement(childElement) {
-    if (AJS.$("#" + hubProjectMappingContainer).find("tr[name*='" + hubProjectMappingElement + "']").length > 1) {
-        AJS.$(childElement).closest("tr[name*='" + hubProjectMappingElement + "']").remove();
-    }
-}
-
-function removeFieldCopyMappingElement(childElement) {
-    if (AJS.$("#" + fieldCopyMappingContainer).find("tr[name*='" + fieldCopyMappingElement + "']").length > 1) {
-        AJS.$(childElement).closest("tr[name*='" + fieldCopyMappingElement + "']").remove();
-    }
 }
 
 function updateFieldCopyConfig() {
@@ -391,33 +336,6 @@ function getJsonArrayFromFieldCopyMapping() {
     return jsonArray;
 }
 
-function addMappingErrorStatus(mappingElement) {
-    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
-    if (mappingStatus.find("i").length == 0) {
-        const newStatus = AJS.$('<i>', {});
-        AJS.$(newStatus).addClass("error");
-        AJS.$(newStatus).addClass("largeIcon");
-        AJS.$(newStatus).addClass("fa");
-        AJS.$(newStatus).addClass("fa-exclamation");
-
-        newStatus.appendTo(mappingStatus);
-    }
-}
-
-function removeMappingErrorStatus(mappingElement) {
-    const mappingStatus = AJS.$(mappingElement).find("#" + hubMappingStatus);
-    if (mappingStatus.children().length > 0) {
-        AJS.$(mappingStatus).empty();
-    }
-}
-
-function removeFieldCopyMappingErrorStatus(mappingElement) {
-    const mappingStatus = AJS.$(mappingElement).find("#" + fieldCopyMappingStatus);
-    if (mappingStatus.children().length > 0) {
-        AJS.$(mappingStatus).empty();
-    }
-}
-
 function fillInSourceFields(sourceFields) {
     const mappingElement = AJS.$("#" + fieldCopyMappingElement);
     console.log("fieldCopyMappingElement: " + mappingElement);
@@ -436,3 +354,83 @@ function fillInSourceFields(sourceFields) {
     }
 }
 
+function readMappingData() {
+    AJS.$.ajax({
+        url: createRequestPath('mappings/'),
+        dataType: "json",
+        success: function (config) {
+            fillInMappings(config.hubProjectMappings);
+
+            handleError(errorMessageFieldId, config.errorMessage, true, false);
+            handleError('hubProjectMappingsError', config.hubProjectMappingError, true, false);
+
+            gotProjectMappings = true;
+        },
+        error: function (response) {
+            handleDataRetrievalError(response, "hubProjectMappingsError", "There was a problem retrieving the Project Mappings.", "Project Mapping Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            AJS.$('#projectMappingSpinner').remove();
+            console.log("Completed get of project mappings: " + textStatus);
+        }
+    });
+}
+
+function readSourceFields() {
+    AJS.$.ajax({
+        url: createRequestPath('sourceFields/'),
+        dataType: "json",
+        success: function (sourceFieldNames) {
+            fillInSourceFields(sourceFieldNames);
+            gotSourceFields = true;
+        },
+        error: function (response) {
+            handleDataRetrievalError(response, sourceFieldListErrorId, "There was a problem retrieving the source fields.", "Source Field Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed get of sourceFields: " + textStatus);
+        }
+    });
+}
+
+function readTargetFields() {
+    AJS.$.ajax({
+        url: createRequestPath('targetFields/'),
+        dataType: "json",
+        success: function (targetFields) {
+            fillInTargetFields(targetFields);
+
+            handleError("fieldCopyTargetFieldError", targetFields.errorMessage, true, false);
+
+            gotTargetFields = true;
+        },
+        error: function (response) {
+            handleDataRetrievalError(response, targetFieldListErrorId, "There was a problem retrieving the target fields.", "Target Field Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed get of targetFields: " + textStatus);
+        }
+    });
+}
+
+function readFieldCopyMappings() {
+    AJS.$.ajax({
+        url: createRequestPath('fieldCopyMappings/'),
+        dataType: "json",
+        success: function (config) {
+            console.log("Success getting field copy mappings");
+            fillInFieldCopyMappings(config.projectFieldCopyMappings);
+
+            handleError("fieldCopyMappingError", config.errorMessage, true, false);
+
+            gotFieldCopyMappings = true;
+        },
+        error: function (response) {
+            console.log("Error getting field copy mappings");
+            handleDataRetrievalError(response, "fieldCopyMappingsError", "There was a problem retrieving the Field Copy Mappings.", "Field Copy Mapping Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed get of field copy mappings: " + textStatus);
+        }
+    });
+}
