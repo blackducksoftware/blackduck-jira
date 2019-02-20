@@ -129,8 +129,6 @@ function readBlackduckServerData() {
             updateValue("hubTimeout", config.timeout);
             updateValue("hubTrustCert", config.trustCert);
             updateValue("bdApiToken", config.apiToken);
-            updateValue("hubUsername", config.username);
-            updateValue("hubPassword", config.password);
             updateValue("proxyHost", config.hubProxyHost);
             updateValue("proxyPort", config.hubProxyPort);
             updateValue("proxyUsername", config.hubProxyUser);
@@ -144,41 +142,11 @@ function readBlackduckServerData() {
             handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
             handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
             handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
-            handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
-            handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
             handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
             handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
             handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
             handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
             handleErrorHubDetails('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
-
-            const apiTokenRowId = 'bdApiTokenRow';
-            const apiTokenErrorRowId = 'bdApiTokenErrorRow';
-
-            const deprecationWarningRowId = 'credentialsDeprecatedWarningRow';
-            const usernameRowId = 'bdUsernameRow';
-            const usernameErrorRowId = 'hubUsernameErrorRow';
-            const passwordRowId = 'bdPasswordRow';
-            const passwordErrorRowId = 'hubPasswordErrorRow';
-
-            if (config.username || config.password) {
-                AJS.$('#bdAuthenticationTypeCredentials')[0].checked = true;
-                addClassToFieldById(apiTokenRowId, "hidden");
-                addClassToFieldById(apiTokenErrorRowId, "hidden");
-
-                removeClassFromFieldById(deprecationWarningRowId, "hidden");
-                removeClassFromFieldById(usernameRowId, "hidden");
-                removeClassFromFieldById(passwordRowId, "hidden");
-            } else {
-                AJS.$('#bdAuthenticationTypeToken')[0].checked = true;
-                removeClassFromFieldById(apiTokenRowId, "hidden");
-
-                addClassToFieldById(deprecationWarningRowId, "hidden");
-                addClassToFieldById(usernameRowId, "hidden");
-                addClassToFieldById(usernameErrorRowId, "hidden");
-                addClassToFieldById(passwordRowId, "hidden");
-                addClassToFieldById(passwordErrorRowId, "hidden");
-            }
 
         }, error: function (response) {
             console.log("putConfig(): " + response.responseText);
@@ -254,37 +222,17 @@ function initProjectMappingRows() {
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
     const apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
-
-    let config = '';
-    if (apiTokenInput && apiTokenInput.checked) {
-        config = Object.assign({}, {
-            hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
-            timeout: encodeURI(AJS.$("#hubTimeout").val()),
-            trustCert: encodeURI(AJS.$("#hubTrustCert")[0].checked),
-            apiToken: encodeURI(AJS.$("#bdApiToken").val()),
-            username: "",
-            password: "",
-            hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
-            hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
-            hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
-            hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
-            hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
-        });
-    } else {
-        config = Object.assign({}, {
-            hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
-            timeout: encodeURI(AJS.$("#hubTimeout").val()),
-            trustCert: encodeURI(AJS.$("#hubTrustCert")[0].checked),
-            apiToken: "",
-            username: encodeURI(AJS.$("#hubUsername").val()),
-            password: encodeURI(AJS.$("#hubPassword").val()),
-            hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
-            hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
-            hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
-            hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
-            hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
-        });
-    }
+    const config = Object.assign({}, {
+        hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
+        timeout: encodeURI(AJS.$("#hubTimeout").val()),
+        trustCert: encodeURI(AJS.$("#hubTrustCert")[0].checked),
+        apiToken: encodeURI(AJS.$("#bdApiToken").val()),
+        hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
+        hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
+        hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
+        hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
+        hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
+    });
 
     console.log("putHubDetails()");
     AJS.$.ajax({
