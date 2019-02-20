@@ -23,7 +23,7 @@
  */
 function readAdminData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/admin/",
+        url: createRequestPath('admin/'),
         dataType: "json",
         success: function (admin) {
             fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
@@ -41,7 +41,7 @@ function readAdminData() {
 
 function readIntervalData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/interval/",
+        url: createRequestPath('interval/'),
         dataType: "json",
         success: function (config) {
             updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
@@ -98,7 +98,7 @@ function fillInJiraGroups(hubJiraGroups, jiraGroups) {
 
 function readJiraProjects() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/jiraProjects/",
+        url: createRequestPath('jiraProjects/'),
         dataType: "json",
         success: function (config) {
             fillInJiraProjects(config.jiraProjects);
@@ -135,7 +135,7 @@ function fillInJiraProjects(jiraProjects) {
 }
 
 function updateAccessConfig() {
-    putAccessConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/admin', 'Save successful.', 'The configuration is not valid.');
+    putAccessConfig(createRequestPath('admin'), 'Save successful.', 'The configuration is not valid.');
 }
 
 function putAccessConfig(restUrl, successMessage, failureMessage) {

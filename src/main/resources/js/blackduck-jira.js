@@ -153,7 +153,7 @@ function populateForm() {
     readBlackduckTicketCreationErrors();
 
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/pluginInfo/",
+        url: createRequestPath('pluginInfo/'),
         dataType: "text",
         success: function (pluginVersion) {
             console.log("pluginVersion: " + pluginVersion);
@@ -183,7 +183,7 @@ function populateFormBlackduckData() {
     readBlackduckPolicyData();
 
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/createVulnerabilityTicketsChoice/",
+        url: createRequestPath('createVulnerabilityTicketsChoice/'),
         dataType: "json",
         success: function (config) {
             console.log("success: get of ticketsChoice");
@@ -202,7 +202,7 @@ function populateFormBlackduckData() {
         }
     });
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/commentOnIssueUpdatesChoice/",
+        url: createRequestPath('commentOnIssueUpdatesChoice/'),
         dataType: "json",
         success: function (config) {
             console.log("success: get of commentOnIssueUpdatesChoice");
@@ -225,7 +225,7 @@ function populateFormBlackduckData() {
 
 
 function resetSalKeys() {
-    const restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/reset';
+    const restUrl = createRequestPath('reset');
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -277,7 +277,7 @@ function handleErrorResize(expansionIcon) {
 }
 
 function getJsonArrayFromErrors(errorRow) {
-    let jsonArray = "[";
+    let jsonArray = [];
 
     const errorColumn = AJS.$(errorRow).find('td');
 
@@ -298,12 +298,10 @@ function getJsonArrayFromErrors(errorRow) {
     let timeStamp = creationErrorTimeStamp.text().trim();
     timeStamp = encodeURIComponent(timeStamp);
 
-    jsonArray += '{"'
-        + 'stackTrace" : "' + stackTrace
-        + '","'
-        + 'timeStamp" : "' + timeStamp
-        + '"}';
-    jsonArray += "]";
+    jsonArray.push({
+        stackTrace: stackTrace,
+        timeStamp: timeStamp
+    });
     return jsonArray;
 }
 
@@ -311,7 +309,7 @@ function handleErrorRemoval(trashIcon) {
     const currentIcon = AJS.$(trashIcon);
     const errorRow = currentIcon.closest("tr");
 
-    const restUrl = AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/removeErrors';
+    const restUrl = createRequestPath('/removeErrors');
 
     const hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
     AJS.$.ajax({
@@ -445,17 +443,19 @@ function putConfig(restUrl, successMessage, failureMessage) {
     const jsonMappingArray = getJsonArrayFromMapping();
     const policyRuleArray = getJsonArrayFromPolicyRules();
     const createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
+    const requestData = Object.assign({}, {
+        intervalBetweenChecks: encodeURI(AJS.$("#intervalBetweenChecks").val()),
+        creator: creatorUsername,
+        hubProjectMappings: jsonMappingArray,
+        policyRules: policyRuleArray,
+        createVulnerabilityIssues: createVulnerabilityIssues
+    });
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
         dataType: "json",
         contentType: "application/json",
-        data: '{ "intervalBetweenChecks": "' + encodeURI(AJS.$("#intervalBetweenChecks").val())
-            + '", "creator": "' + creatorUsername
-            + '", "hubProjectMappings": ' + jsonMappingArray
-            + ', "policyRules": ' + policyRuleArray
-            + ', "createVulnerabilityIssues": ' + createVulnerabilityIssues
-            + '}',
+        data: JSON.stringify(requestData),
         processData: false,
         success: function () {
             hideError(errorMessageFieldId);
@@ -495,15 +495,11 @@ function putConfig(restUrl, successMessage, failureMessage) {
 
 
 function getJsonArrayFromPolicyRules() {
-    let jsonArray = "[";
+    let jsonArray = [];
     const policyRuleContainer = AJS.$("#" + policyRuleTicketCreation);
     const policyRules = policyRuleContainer.find("input");
     for (i = 0; i < policyRules.length; i++) {
-        if (i > 0) {
-            jsonArray += ","
-        }
         let policyRule = AJS.$(policyRules[i]);
-
         let currentPolicyRuleUrl = policyRule.attr("policyurl");
         // Names and descriptions with chars like ", <, and > cause problems on save
         // and we don't actually use them; just omitting them for now
@@ -511,17 +507,13 @@ function getJsonArrayFromPolicyRules() {
 //		var currentPolicyRuleName = policyRule.attr("name");
         let currentPolicyRuleChecked = policyRules[i].checked;
         console.log("Constructing rules jsonArray, but omitting name");
-        jsonArray += '{"'
-            + policyRuleName + '":"' + "name omitted by hub-jira.js"
-            + '","'
-            + policyRuleUrl + '":"' + currentPolicyRuleUrl
-            + '","'
-            + policyRuleDescription + '":"' + "description omitted by hub-jira.js"
-            + '","'
-            + policyRuleChecked + '":"' + currentPolicyRuleChecked
-            + '"}';
+        jsonArray.push({
+            [policyRuleName]: 'name omitted by hub-jira.js',
+            [policyRuleUrl]: currentPolicyRuleUrl,
+            [policyRuleDescription]: 'description omitted by hub-jira.js',
+            [policyRuleChecked]: currentPolicyRuleChecked
+        });
     }
-    jsonArray += "]";
     return jsonArray;
 }
 

@@ -24,7 +24,7 @@
 
 function readCreatorData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/creator/",
+        url: createRequestPath('creator/'),
         dataType: "json",
         success: function (config) {
             updateValue("creatorInput", config.creator);
@@ -43,7 +43,7 @@ function readCreatorData() {
 function initCreatorCandidates() {
     console.log("Initializing issue creator candidate list");
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/creatorCandidates/",
+        url: createRequestPath('creatorCandidates/'),
         dataType: "json",
         success: function (config) {
             fillInCreatorCandidates(config.creatorCandidates);

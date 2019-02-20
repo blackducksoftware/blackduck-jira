@@ -24,7 +24,7 @@
 
 function readMappingData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/mappings/",
+        url: createRequestPath('mappings/'),
         dataType: "json",
         success: function (config) {
             fillInMappings(config.hubProjectMappings);
@@ -46,7 +46,7 @@ function readMappingData() {
 
 function readSourceFields() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/sourceFields/",
+        url: createRequestPath('sourceFields/'),
         dataType: "json",
         success: function (sourceFieldNames) {
             fillInSourceFields(sourceFieldNames);
@@ -63,7 +63,7 @@ function readSourceFields() {
 
 function readTargetFields() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/targetFields/",
+        url: createRequestPath('targetFields/'),
         dataType: "json",
         success: function (targetFields) {
             fillInTargetFields(targetFields);
@@ -83,7 +83,7 @@ function readTargetFields() {
 
 function readFieldCopyMappings() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/fieldCopyMappings/",
+        url: createRequestPath('fieldCopyMappings/'),
         dataType: "json",
         success: function (config) {
             console.log("Success getting field copy mappings");
@@ -311,13 +311,10 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
 }
 
 function getJsonArrayFromMapping() {
-    let jsonArray = "[";
+    let jsonArray = [];
     const mappingContainer = AJS.$("#" + hubProjectMappingContainer);
     const mappingElements = mappingContainer.find("tr[name*='" + hubProjectMappingElement + "']");
     for (i = 1; i < mappingElements.length; i++) {
-        if (i > 1) {
-            jsonArray += ","
-        }
         let mappingElement = mappingElements[i];
         let currentJiraProject = AJS.$(mappingElement).find("input[name*='jiraProject']");
 
@@ -340,25 +337,22 @@ function getJsonArrayFromMapping() {
             removeMappingErrorStatus(mappingElement);
         }
 
-        jsonArray += '{'
-            + '"jiraProject" : {"'
-            + jiraProjectDisplayName + '":"' + currentJiraProjectDisplayName
-            + '","'
-            + jiraProjectKey + '":"' + currentJiraProjectValue
-            + '","'
-            + jiraProjectIssueCreatorDisplayName + '":"' + currentJiraProjectIssueCreator
-            + '"},'
-            + '"blackDuckProjectName" : "'
-            + currentHubProjectDisplayName
-            + '"}';
+        jsonArray.push({
+            jiraProject: {
+                [jiraProjectDisplayName]: currentJiraProjectDisplayName,
+
+                [jiraProjectKey]: currentJiraProjectValue,
+                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator
+            },
+            blackDuckProjectName: currentHubProjectDisplayName
+        });
     }
-    jsonArray += "]";
     return jsonArray;
 }
 
 function getJsonArrayFromFieldCopyMapping() {
     console.log("getJsonArrayFromFieldCopyMapping()");
-    let jsonArray = "[";
+    let jsonArray = [];
     const mappingContainer = AJS.$("#" + fieldCopyMappingContainer);
     const mappingElements = mappingContainer.find("tr[name*='" + fieldCopyMappingElement + "']");
     console.log("mappingElements.length: " + mappingElements.length);
@@ -382,21 +376,18 @@ function getJsonArrayFromFieldCopyMapping() {
         } else {
             console.log("Adding field copy mapping row to data for server");
             removeFieldCopyMappingErrorStatus(mappingElement);
-            if (numRowsAdded > 0) {
-                jsonArray += ",";
-            }
-            jsonArray += '{ '
-                + '"jiraProjectName": "*", '
-                + '"hubProjectName": "*", '
-                + '"sourceFieldId": "' + currentSourceFieldId + '", '
-                + '"sourceFieldName": "' + currentSourceFieldDisplayName + '", '
-                + '"targetFieldId": "' + currentTargetFieldId + '", '
-                + '"targetFieldName": "' + currentTargetFieldDisplayName + '" '
-                + '} ';
+
+            jsonArray.push({
+                jiraProjectName: "*",
+                hubProjectName: "*",
+                sourceFieldId: currentSourceFieldId,
+                sourceFieldName: currentSourceFieldDisplayName,
+                targetFieldId: currentTargetFieldId,
+                targetFieldName: currentTargetFieldDisplayName
+            });
             numRowsAdded++;
         }
     }
-    jsonArray += "]";
     return jsonArray;
 }
 

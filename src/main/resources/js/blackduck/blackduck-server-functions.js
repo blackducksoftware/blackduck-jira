@@ -24,7 +24,7 @@
 
 function readBlackduckServerData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckDetails/read",
+        url: createRequestPath('blackDuckDetails/read'),
         dataType: "json",
         success: function (config) {
             console.log("Successful get of hub details for " + config.hubUrl);
@@ -98,7 +98,7 @@ function readBlackduckServerData() {
 
 function readBlackduckProjectData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckProjects/",
+        url: createRequestPath('blackDuckProjects/'),
         dataType: "json",
         success: function (response) {
             if (Array.isArray(response)) {
@@ -120,7 +120,7 @@ function readBlackduckProjectData() {
 
 function readBlackduckPolicyData() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckPolicies/",
+        url: createRequestPath('blackDuckPolicies/'),
         dataType: "json",
         success: function (config) {
             addPolicyViolationRules(config.policyRules);
@@ -288,7 +288,7 @@ function toggleDisplayById(iconId, fieldId) {
 
 function readBlackduckTicketCreationErrors() {
     AJS.$.ajax({
-        url: AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/blackDuckJiraTicketErrors/",
+        url: createRequestPath('blackDuckJiraTicketErrors/'),
         dataType: "json",
         success: function (creationError) {
             updateTicketCreationErrors(creationError.hubJiraTicketErrors);

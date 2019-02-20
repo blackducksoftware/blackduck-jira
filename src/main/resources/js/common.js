@@ -35,6 +35,10 @@ function isNullOrWhitespace(input) {
     return input.trim().length < 1;
 }
 
+function createRequestPath(relativePath) {
+    return AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/" + relativePath;
+}
+
 function handleError(fieldId, configField, hideErrorValue, clearOldMessage) {
     if (configField) {
         showError(fieldId, configField, clearOldMessage);
