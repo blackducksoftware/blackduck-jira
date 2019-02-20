@@ -21,7 +21,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 function readCreatorData() {
     AJS.$.ajax({
         url: createRequestPath('creator/'),

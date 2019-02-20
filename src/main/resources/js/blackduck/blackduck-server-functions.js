@@ -203,7 +203,7 @@ function readBlackduckPolicyData() {
 }
 
 function testConnection() {
-    putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/testConnection', 'Test Connection successful.', 'Test Connection failed.');
+    putHubDetails(createRequestPath('blackDuckDetails/testConnection'), 'Test Connection successful.', 'Test Connection failed.');
 }
 
 function initProjectMappingRows() {
@@ -248,8 +248,6 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
             hideError('hubTimeoutErrorRow', 'hubTimeoutError');
             hideError('hubTrustCertErrorRow', 'hubTrustCertError');
             hideError('bdApiTokenErrorRow', 'bdApiTokenError');
-            hideError('hubUsernameErrorRow', 'hubUsernameError');
-            hideError('hubPasswordErrorRow', 'hubPasswordError');
             hideError('proxyHostErrorRow', 'proxyHostError');
             hideError('proxyPortErrorRow', 'proxyPortError');
             hideError('proxyUsernameErrorRow', 'proxyUsernameError');
@@ -273,8 +271,6 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
             handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
             handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
             handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
-            handleErrorHubDetails('hubUsernameErrorRow', 'hubUsernameError', config.usernameError);
-            handleErrorHubDetails('hubPasswordErrorRow', 'hubPasswordError', config.passwordError);
             handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
             handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
             handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
@@ -291,7 +287,7 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
 }
 
 function updateHubDetails() {
-    putHubDetails(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/blackDuckDetails/save', 'Save successful.', 'The Hub details are not valid.');
+    putHubDetails(createRequestPath('blackDuckDetails/save'), 'Save successful.', 'The Hub details are not valid.');
 }
 
 function readBlackduckTicketCreationErrors() {

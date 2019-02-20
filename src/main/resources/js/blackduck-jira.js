@@ -21,57 +21,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-const statusMessageFieldId = "aui-hub-message-field";
-const statusMessageTitleId = "aui-hub-message-title";
-const statusMessageTitleTextId = "aui-hub-message-title-text";
-const statusMessageTextId = "aui-hub-message-text";
-
-const errorMessageFieldId = "error-message-field";
-
-const errorStatus = "error";
-const successStatus = "success";
-
-const hiddenClass = "hidden";
-
-const hubJiraGroupsId = "hubJiraGroups";
-
-const hubProjectMappingTable = "hubProjectMappingTable";
-const hubProjectMappingContainer = "hubProjectMappingContainer";
-const hubProjectMappingElement = "hubProjectMappingElement";
-const hubMappingStatus = "mappingStatus";
-
-const fieldCopyMappingContainer = "fieldCopyMappingContainer";
-const fieldCopyMappingElement = "fieldCopyMappingElement";
-const fieldCopyMappingStatus = "fieldCopyMappingStatus";
-
-const jiraProjectListId = "jiraProjects";
-const hubProjectListId = "hubProjects";
-
-const sourceFieldListId = "sourceFields";
-const targetFieldListId = "targetFields";
-
-const jiraProjectListErrorId = "jiraProjectListError";
-const hubProjectListErrorId = "hubProjectListError";
-
-const jiraProjectErrorId = "jiraProjectError";
-
-const jiraProjectDisplayName = "projectName";
-const jiraProjectKey = "projectId";
-const hubProjectDisplayName = "projectName";
-const hubProjectKey = "projectUrl";
-const jiraProjectIssueCreatorDisplayName = "issueCreator";
-
-const policyRuleTicketCreation = "policyRuleTicketCreation";
-const policyRuleName = "name";
-const policyRuleDescription = "description";
-const policyRuleUrl = "policyUrl";
-const policyRuleChecked = "checked";
-
-const ticketCreationFieldSetId = "ticketCreationFieldSet";
-const ticketCreationErrorsTableId = "ticketCreationErrorsTable";
-const ticketCreationErrorRowId = "ticketCreationErrorRow";
-
-
 let ticketCreationErrorCounter = 0;
 let mappingElementCounter = 0;
 
@@ -137,7 +86,7 @@ function openTab(evt, tabId) {
 
 
 function updateConfig() {
-    putConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/', 'Save successful.', 'The configuration is not valid.');
+    putConfig(createRequestPath(''), 'Save successful.', 'The configuration is not valid.');
 }
 
 function populateForm() {

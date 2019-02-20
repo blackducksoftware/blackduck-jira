@@ -21,6 +21,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// Constant Strings
+const statusMessageFieldId = "aui-hub-message-field";
+const statusMessageTitleId = "aui-hub-message-title";
+const statusMessageTitleTextId = "aui-hub-message-title-text";
+const statusMessageTextId = "aui-hub-message-text";
+const errorMessageFieldId = "error-message-field";
+const errorStatus = "error";
+const successStatus = "success";
+const hiddenClass = "hidden";
+const sourceFieldListId = "sourceFields";
+const targetFieldListId = "targetFields";
+
+const hubProjectListId = "hubProjects";
+const hubProjectListErrorId = "hubProjectListError";
+const hubProjectMappingContainer = "hubProjectMappingContainer";
+const hubProjectMappingElement = "hubProjectMappingElement";
+const hubProjectMappingTable = "hubProjectMappingTable";
+const hubJiraGroupsId = "hubJiraGroups";
+const hubMappingStatus = "mappingStatus";
+
+const ticketCreationFieldSetId = "ticketCreationFieldSet";
+const ticketCreationErrorsTableId = "ticketCreationErrorsTable";
+const ticketCreationErrorRowId = "ticketCreationErrorRow";
+
+const fieldCopyMappingContainer = "fieldCopyMappingContainer";
+const fieldCopyMappingElement = "fieldCopyMappingElement";
+const fieldCopyMappingStatus = "fieldCopyMappingStatus";
+
+const jiraProjectListErrorId = "jiraProjectListError";
+const jiraProjectListId = "jiraProjects";
+const jiraProjectErrorId = "jiraProjectError";
+const jiraProjectDisplayName = "projectName";
+const jiraProjectKey = "projectId";
+const jiraProjectIssueCreatorDisplayName = "issueCreator";
+
+const policyRuleTicketCreation = "policyRuleTicketCreation";
+const policyRuleName = "name";
+const policyRuleDescription = "description";
+const policyRuleUrl = "policyUrl";
+const policyRuleChecked = "checked";
+
 function isNullOrWhitespace(input) {
     if (input == null) {
         return true;

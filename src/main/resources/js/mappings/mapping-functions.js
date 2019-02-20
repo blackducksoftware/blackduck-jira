@@ -216,7 +216,7 @@ function fillInFieldCopyMapping(mappingElement, storedMapping) {
 
 function updateFieldCopyConfig() {
     console.log("updateFieldCopyConfig()");
-    putFieldCopyConfig(AJS.contextPath() + '/rest/blackduck-jira-integration/1.0/updateFieldCopyMappings', 'Save successful.', 'The field copy configuration is not valid.');
+    putFieldCopyConfig(createRequestPath('updateFieldCopyMappings'), 'Save successful.', 'The field copy configuration is not valid.');
 }
 
 function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
