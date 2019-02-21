@@ -85,6 +85,7 @@
     <web-resource key="blackduck-jira-resources" name="Black Duck Jira Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
+        <dependency>com.atlassian.auiplugin:aui-tabs</dependency>
         <resource type="download" name="blackduck-jira.css" location="/css/blackduck-jira.css"/>
         <resource type="download" name="common.js" location="/js/common.js"/>
         <resource type="download" name="creator-functions.js" location="/js/creator/creator-functions.js"/>

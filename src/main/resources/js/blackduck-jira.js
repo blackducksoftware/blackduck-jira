@@ -35,53 +35,9 @@ let gotFieldCopyMappings = false;
 let jiraProjectMap = new Map();
 let hubProjectMap = new Map();
 
-function initTabs() {
-    console.log("Initializing tabs");
-
-    // Declare all variables
-    let i, tabcontent, tablinks;
-
-    // Get all elements with class="tabcontent" and hide them
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-
-    // Get all elements with class="tablinks" and remove the class "active"
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-
-    // Show the current tab, and add an "active" class to the link that opened the tab
-    document.getElementById("Admin").style.display = "block";
-
-    // evt.currentTarget.className += " active";
-}
-
-function openTab(evt, tabId) {
-    console.log("Opening: " + tabId);
-
+function openTab(evt) {
+    console.log("Opening: ", evt);
     resetStatusMessage();
-
-    // Declare all variables
-    let i, tabcontent, tablinks;
-
-    // Get all elements with class="tabcontent" and hide them
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-
-    // Get all elements with class="tablinks" and remove the class "active"
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-
-    // Show the current tab, and add an "active" class to the link that opened the tab
-    document.getElementById(tabId).style.display = "block";
-    evt.currentTarget.className += " active";
 }
 
 
@@ -674,7 +630,9 @@ function toggleAuthenticationType() {
     $(document).ready(function () {
         console.log("DOM loaded");
         populateForm();
-        initTabs();
+        AJS.tabs.setup();
+        console.log("AJS Tabs", AJS.tabs);
+        AJS.$("#blackduck-navigation-tabs").on('tabSelect', openTab);
     });
 
 })(AJS.$ || jQuery);
