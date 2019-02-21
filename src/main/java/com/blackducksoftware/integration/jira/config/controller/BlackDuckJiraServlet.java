@@ -90,7 +90,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
         }
 
         response.setContentType("text/html;charset=utf-8");
-        renderer.render("templates/controller/blackduck-jira.vm", response.getWriter());
+        renderer.render("templates/blackduck-jira.vm", response.getWriter());
     }
 
     private void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response) throws IOException {

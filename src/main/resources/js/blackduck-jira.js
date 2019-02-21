@@ -35,11 +35,9 @@ let gotFieldCopyMappings = false;
 let jiraProjectMap = new Map();
 let hubProjectMap = new Map();
 
-function openTab(evt) {
-    console.log("Opening: ", evt);
+function openTab() {
     resetStatusMessage();
 }
-
 
 function updateConfig() {
     putConfig(createRequestPath(''), 'Save successful.', 'The configuration is not valid.');
