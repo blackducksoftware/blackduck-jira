@@ -87,6 +87,11 @@
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
         <resource type="download" name="blackduck-jira.css" location="/css/blackduck-jira.css"/>
+        <resource type="download" name="common.js" location="/js/common.js"/>
+        <resource type="download" name="creator-functions.js" location="/js/creator/creator-functions.js"/>
+        <resource type="download" name="admin-functions.js" location="/js/admin/admin-functions.js"/>
+        <resource type="download" name="mapping-functions.js" location="/js/mappings/mapping-functions.js"/>
+        <resource type="download" name="blackduck-server-functions.js" location="/js/blackduck/blackduck-server-functions.js"/>
         <resource type="download" name="blackduck-jira.js" location="/js/blackduck-jira.js"/>
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="fonts/" location="/font-awesome-4.5.0/fonts"/>
@@ -119,7 +124,7 @@
     <web-panel name="Black Duck Issue Panel" key="blackDuckIssuePanel" location="atl.jira.view.issue.left.context" weight="150">
         <label key="blackduck.issue.panel.title"/>
         <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
-        <resource name="view" type="velocity" location="blackduck-issue-panel.vm"/>
+        <resource name="view" type="velocity" location="/templates/blackduck-issue-panel.vm"/>
         <condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition"/>
     </web-panel>
 

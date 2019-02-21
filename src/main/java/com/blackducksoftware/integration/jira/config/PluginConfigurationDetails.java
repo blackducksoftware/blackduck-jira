@@ -31,9 +31,6 @@ import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBui
 public class PluginConfigurationDetails {
     private final String blackDuckUrl;
     private final String blackDuckApiToken;
-    private final String blackDuckUsername;
-    private final String blackDuckPasswordEncrypted;
-    private final String blackDuckPasswordLength;
     private final String blackDuckTimeoutString;
     private final boolean blackDuckTrustCert;
     private final String blackDuckProxyHost;
@@ -59,9 +56,6 @@ public class PluginConfigurationDetails {
         this.settings = settings;
         blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
         blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-        blackDuckUsername = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
-        blackDuckPasswordEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
-        blackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
         blackDuckTimeoutString = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         blackDuckTrustCert = getBooleanValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
@@ -92,18 +86,6 @@ public class PluginConfigurationDetails {
 
     public String getBlackDuckUrl() {
         return blackDuckUrl;
-    }
-
-    public String getBlackDuckUsername() {
-        return blackDuckUsername;
-    }
-
-    public String getBlackDuckPasswordEncrypted() {
-        return blackDuckPasswordEncrypted;
-    }
-
-    public String getBlackDuckPasswordLength() {
-        return blackDuckPasswordLength;
     }
 
     public String getBlackDuckTimeoutString() {
@@ -182,11 +164,8 @@ public class PluginConfigurationDetails {
         final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
         serverConfigBuilder.setUrl(blackDuckUrl);
         serverConfigBuilder.setApiToken(blackDuckApiToken);
-        serverConfigBuilder.setUsername(blackDuckUsername);
-        serverConfigBuilder.setPassword(blackDuckPasswordEncrypted);
         serverConfigBuilder.setTimeout(blackDuckTimeoutString);
         serverConfigBuilder.setTrustCert(blackDuckTrustCert);
-
         serverConfigBuilder.setProxyHost(blackDuckProxyHost);
         serverConfigBuilder.setProxyPort(blackDuckProxyPort);
         serverConfigBuilder.setProxyUsername(blackDuckProxyUser);

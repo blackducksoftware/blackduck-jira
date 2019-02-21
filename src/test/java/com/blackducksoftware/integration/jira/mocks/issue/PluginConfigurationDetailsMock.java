@@ -40,9 +40,6 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
         final HubServerConfigBuilderMock configBuilder = new HubServerConfigBuilderMock();
 
         configBuilder.setUrl(getBlackDuckUrl());
-        configBuilder.setUsername(getBlackDuckUsername());
-        configBuilder.setPassword(getBlackDuckPasswordEncrypted());
-        configBuilder.setPasswordLength(NumberUtils.toInt(getBlackDuckPasswordLength()));
         configBuilder.setTimeout(getBlackDuckTimeoutString());
 
         configBuilder.setProxyHost(getBlackDuckProxyHost());
