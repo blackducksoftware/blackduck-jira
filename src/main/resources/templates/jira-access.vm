@@ -1,0 +1,23 @@
+<fieldset class="fieldSection">
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'adminArea');"> </i> $i18n.getText("blackduck.integration.jira.admin.label")</legend>
+    <div id="adminArea">
+        <div class="field-group">
+            <label class="label" for="hubJiraGroups">$i18n.getText("blackduck.integration.jira.pluginGroups.label")</label>
+            <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
+            <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.pluginGroupsDescription.label')"></span>
+            <select class="aui longInput" id="hubJiraGroups" multiple=""> </select>
+        </div>
+        <div class="field-group">
+            <label> </label>
+            <div id="hubJiraGroupsError" class="error hidden"></div>
+        </div>
+
+        <div style="display: inline-block; width: 100%;">
+            <div class="buttonContainer">
+                <div id="adminSaveSpinner" style="display: inline-block;"></div>
+                <input id="hubJiraAdminConfigSaveButton" onclick="updateAccessConfig(); startProgressSpinner('adminSaveSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.save.label')"
+                       class="aui-button aui-button-primary" />
+            </div>
+        </div>
+    </div>
+</fieldset>
