@@ -180,7 +180,7 @@ public class DataFormatHelper {
 
     public String getComponentLicensesStringPlainText(final List<VersionBomLicenseView> licenses) {
         if (CollectionUtils.isNotEmpty(licenses)) {
-            EventDataLicense license = getEventLicense(licenses);
+            final EventDataLicense license = getEventLicense(licenses);
             return getComponentLicensesString(license, false);
         }
         return "";
@@ -188,13 +188,13 @@ public class DataFormatHelper {
 
     public String getComponentLicensesStringWithLinksAtlassianFormat(final List<VersionBomLicenseView> licenses) {
         if (CollectionUtils.isNotEmpty(licenses)) {
-            EventDataLicense license = getEventLicense(licenses);
+            final EventDataLicense license = getEventLicense(licenses);
             return getComponentLicensesString(license, true);
         }
         return "";
     }
 
-    private EventDataLicense getEventLicense( List<VersionBomLicenseView> licenses) {
+    private EventDataLicense getEventLicense(final List<VersionBomLicenseView> licenses) {
         if (licenses.size() == 1) {
             return new EventDataLicense(licenses.get(0));
         }
@@ -230,7 +230,7 @@ public class DataFormatHelper {
                 final LicenseView genericLicense = blackDuckDataHelper.getResponse(versionBomLicense.getLicense(), LicenseView.class);
                 final Optional<LicenseView> kbLicense = blackDuckDataHelper.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
                 if (kbLicense.isPresent()) {
-                    return blackDuckDataHelper.getFirstLink(kbLicense.get(), LicenseView.TEXT_LINK);
+                    return blackDuckDataHelper.getFirstLink(kbLicense.get(), LicenseView.TEXT_LINK).orElse("");
                 }
             } catch (final Exception e) {
                 logger.debug("Unable to get the BOM component license text.");
@@ -293,7 +293,7 @@ public class DataFormatHelper {
         final String licenseUrl = license.licenseUrl;
         try {
             final ComplexLicenseView fullLicense = blackDuckDataHelper.getResponse(licenseUrl, ComplexLicenseView.class);
-            return blackDuckDataHelper.getFirstLink(fullLicense, "text");
+            return blackDuckDataHelper.getFirstLink(fullLicense, "text").orElse(blackDuckDataHelper.getBlackDuckBaseUrl());
         } catch (final Exception e) {
             logger.debug("Error getting license text url.");
         }
