@@ -47,7 +47,6 @@ import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
@@ -132,7 +131,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return blackDuckServerConfig;
     }
 
-    public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) throws EncryptionException {
+    public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) {
         final BlackDuckHttpClient restConnection = config.createBlackDuckHttpClient(logger);
         return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
     }

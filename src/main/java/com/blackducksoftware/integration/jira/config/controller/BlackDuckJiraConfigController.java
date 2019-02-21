@@ -1141,7 +1141,8 @@ public class BlackDuckJiraConfigController {
     // This must be "package protected" to avoid synthetic access
     BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
         final BlackDuckHttpClient restConnection = createRestConnection(settings);
-        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
+        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
+            restConnection, logger);
         return blackDuckServicesFactory;
     }
 
@@ -1151,20 +1152,10 @@ public class BlackDuckJiraConfigController {
         final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        String blackDuckUser = null;
-        String encBlackDuckPassword = null;
+        final String blackDuckUser = null;
+        final String encBlackDuckPassword = null;
 
-        if (blackDuckApiToken == null) {
-            blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
-            logger.debug(String.format("Establishing connection to Black Duck server: %s...", blackDuckUrl));
-            encBlackDuckPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
-
-            if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
-                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
-            } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
-                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-            }
-        } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckApiToken) || StringUtils.isBlank(blackDuckTimeout)) {
+        if (StringUtils.isBlank(blackDuckApiToken)) {
             throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
 
@@ -1173,7 +1164,7 @@ public class BlackDuckJiraConfigController {
         final String blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
         final String encBlackDuckProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
 
-        BlackDuckHttpClient restConnection;
+        final BlackDuckHttpClient restConnection;
         try {
             final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
@@ -1208,7 +1199,7 @@ public class BlackDuckJiraConfigController {
         blackDuckProjects.add(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
 
         final ProjectService projectRequestService = blackDuckServicesFactory.createProjectService();
-        List<ProjectView> blackDuckProjectItems;
+        final List<ProjectView> blackDuckProjectItems;
         try {
             blackDuckProjectItems = projectRequestService.getAllProjectMatches(null);
         } catch (final IntegrationException e) {
