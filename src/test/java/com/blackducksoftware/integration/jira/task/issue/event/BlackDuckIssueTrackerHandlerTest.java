@@ -75,7 +75,7 @@ public class BlackDuckIssueTrackerHandlerTest {
         Mockito.when(blackDuckService.getBlackDuckHttpClient()).thenReturn(restConnection);
 
         issueServiceMock = new IssueServiceMock(restConnection);
-        issueHandler = new BlackDuckIssueTrackerHandler(new JiraSettingsService(settings), blackDuckService);
+        issueHandler = new BlackDuckIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {
@@ -128,7 +128,7 @@ public class BlackDuckIssueTrackerHandlerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView blackDuckIssue = (IssueView) issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = (IssueView) issueServiceMock.issueMap.get(IssueServiceMock.TEST_PUT_URL);
 
         assertEquals(issue.getKey(), blackDuckIssue.getIssueId());
         assertEquals(issue.getDescription(), blackDuckIssue.getIssueDescription());

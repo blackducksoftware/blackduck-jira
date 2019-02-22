@@ -82,7 +82,6 @@ import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
-import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
@@ -118,8 +117,7 @@ public class IssueEventListenerTest {
 
         final BlackDuckServicesFactory blackDuckServicesFactory = Mockito.mock(BlackDuckServicesFactory.class);
         Mockito.when(blackDuckServicesFactory.getBlackDuckHttpClient()).thenReturn(restConnection);
-        final BlackDuckService blackDuckService = Mockito.mock(BlackDuckService.class);
-        Mockito.when(blackDuckService.getBlackDuckHttpClient()).thenReturn(restConnection);
+        issueServiceMock = new IssueServiceMock(restConnection);
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);

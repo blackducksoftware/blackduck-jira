@@ -82,8 +82,7 @@ public class BomNotificationToIssueModelConverter {
 
     public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
         final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper,
-        final BlackDuckService blackDuckService,
-        final BlackDuckJiraLogger logger) {
+        final BlackDuckService blackDuckService, final BlackDuckJiraLogger logger) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;

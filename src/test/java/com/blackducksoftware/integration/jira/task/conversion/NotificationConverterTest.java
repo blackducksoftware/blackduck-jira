@@ -73,6 +73,7 @@ import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelpe
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
+import com.synopsys.integration.blackduck.api.generated.component.ResourceLink;
 import com.synopsys.integration.blackduck.api.generated.component.ResourceMetadata;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
@@ -263,10 +264,6 @@ public class NotificationConverterTest {
         //        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
         //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
         //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
-        //
-        //        Mockito.when(mockBlackDuckService.getHref(Mockito.any(PolicyRuleView.class))).thenReturn(RULE_URL);
-        //        Mockito.when(mockBlackDuckService.getHref(Mockito.any(ProjectVersionView.class))).thenReturn(PROJECT_VERSION_URL);
-        //        Mockito.when(mockBlackDuckService.getHref(Mockito.any(VersionBomComponentView.class))).thenReturn(BOM_COMPONENT_URI);
 
         Mockito.when(mockBlackDuckService.getAllResponses(Mockito.any(VersionBomComponentView.class), Mockito.eq(VersionBomComponentView.POLICY_RULES_LINK_RESPONSE)))
             .thenReturn(Arrays.asList(createPolicyRule(new Date(), POLICY_VIOLATION_EXPECTED_DESCRIPTION)));
@@ -316,6 +313,13 @@ public class NotificationConverterTest {
         final ProjectVersionView projectVersion = new ProjectVersionView();
         final ResourceMetadata resourceMetadata = new ResourceMetadata();
         resourceMetadata.setHref(PROJECT_VERSION_URL);
+        final ResourceLink componentLink = new ResourceLink();
+        componentLink.setHref(COMPONENT_URL);
+        componentLink.setRel(ProjectVersionView.COMPONENTS_LINK);
+        final ResourceLink vulnerableLink = new ResourceLink();
+        vulnerableLink.setHref(VULNERABLE_COMPONENTS_URL);
+        vulnerableLink.setRel(ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+        resourceMetadata.setLinks(Arrays.asList(componentLink, vulnerableLink));
         projectVersion.setMeta(resourceMetadata);
         projectVersion.setNickname("???");
         projectVersion.setPhase(ProjectVersionPhaseType.PLANNING);
@@ -373,6 +377,9 @@ public class NotificationConverterTest {
 
     private static PolicyRuleView createPolicyRule(final Date createdAt, final String description) {
         final PolicyRuleView policyRule = new PolicyRuleView();
+        final ResourceMetadata resourceMetadata = new ResourceMetadata();
+        resourceMetadata.setHref(RULE_URL);
+        policyRule.setMeta(resourceMetadata);
         policyRule.setCreatedAt(createdAt);
         policyRule.setCreatedBy("Shmario");
         policyRule.setCreatedByUser("Bear");
