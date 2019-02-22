@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
-import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.IssueService;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.LogLevel;
@@ -38,7 +38,7 @@ public class IssueServiceMock extends IssueService {
     public final static String CREATION_FAILURE_URL = "";
     public Map<String, IssueView> issueMap = new HashMap<>();
 
-    public IssueServiceMock(final HubService blackDuckService) {
+    public IssueServiceMock(final BlackDuckService blackDuckService) {
         super(blackDuckService, new PrintStreamIntLogger(System.out, LogLevel.DEBUG));
     }
 
