@@ -248,7 +248,7 @@ public class IssueEventListenerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView blackDuckIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = (IssueView) issueServiceMock.issueMap.get(ISSUE_URL);
 
         assertNotNull(blackDuckIssue);
         assertEquals(issue.getKey(), blackDuckIssue.getIssueId());
@@ -382,12 +382,12 @@ public class IssueEventListenerTest {
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_DELETED_ID);
 
         final IssueView blackDuckIssue = new IssueView();
-        blackDuckIssue.issueId = issue.getKey();
-        blackDuckIssue.issueDescription = issue.getDescription();
-        blackDuckIssue.issueStatus = issue.getStatus().getName();
-        blackDuckIssue.issueCreatedAt = issue.getCreated();
-        blackDuckIssue.issueUpdatedAt = issue.getUpdated();
-        blackDuckIssue.issueAssignee = issue.getAssignee().getDisplayName();
+        blackDuckIssue.setIssueId(issue.getKey());
+        blackDuckIssue.setIssueDescription(issue.getDescription());
+        blackDuckIssue.setIssueStatus(issue.getStatus().getName());
+        blackDuckIssue.setIssueCreatedAt(issue.getCreated());
+        blackDuckIssue.setIssueUpdatedAt(issue.getUpdated());
+        blackDuckIssue.setIssueAssignee(issue.getAssignee().getDisplayName());
 
         issueServiceMock.issueMap.put(ISSUE_URL, blackDuckIssue);
         listener.onIssueEvent(event);
