@@ -1,0 +1,178 @@
+<fieldset class="fieldSection">
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'intervalArea');"> </i> $i18n.getText("blackduck.integration.jira.intervalSection.label")</legend>
+    <div id="intervalArea">
+        <div class="field-group">
+
+            <table width="100%">
+                <tr>
+                    <td>
+                        <label class="label" for="intervalBetweenChecks">$i18n.getText("blackduck.integration.jira.intervalBetweenChecks.label")</label>
+                        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
+                        <input type="text" id="intervalBetweenChecks" name="intervalBetweenChecks" class="intervalInput" />
+                    </td>
+                    <td width="25px"></td>
+                    <td id="creatorCell">
+                        <label class="label" for="creator">$i18n.getText("blackduck.integration.jira.creator.label")</label>
+                        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
+                        <input type="text" id="creatorInput" name="creator" class="intervalInput"
+                               placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
+                               list="creatorCandidates" oninput="onCreatorInputChange(this);" />
+                        <datalist id="creatorCandidates">
+                        </datalist>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div class="field-group">
+            <label> </label>
+            <div id="generalSettingsError" class="error hidden"></div>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldSection">
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'mappingArea');"> </i> $i18n.getText('blackduck.integration.jira.blackduckProjectMappingSection.label') </legend>
+    <div id="mappingArea" class="mappingContainer">
+        <label class="label" for="hubProjectMappingContainer">$i18n.getText("blackduck.integration.jira.blackduckProjectMappings.label")</label>
+        <span class="aui-icon icon-required"> $i18n.getText("blackduck.integration.jira.required")</span>
+        <div class="field-group">
+            <div id="hubProjectMappingsError" class="error hidden"></div>
+        </div>
+        <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
+        <table id='hubProjectMappingTable' width="100%">
+            <thead>
+            <tr>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell error" id="jiraProjectListError">
+                </td>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell error" id="hubProjectListError">
+                </td>
+                <td class="mappingTableCell" />
+            </tr>
+            <tr>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell">
+                    $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
+                </td>
+                <td class="mappingTableCell"></td>
+                <td class="mappingTableCell">
+                    $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.creator.label')
+                </td>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell">
+                    $i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')
+                </td>
+                <td class="mappingTableCell" />
+            </tr>
+            </thead>
+            <tbody id="hubProjectMappingContainer">
+            <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
+                <td class="mappingTableCell" id="mappingStatus">
+                </td>
+                <td class="mappingTableCell">
+                    <input class="longInput textStyle" type="text" name="jiraProject" list="jiraProjects" projectKey="" oninput="onMappingInputChange(this);"
+                           placeholder="$i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')">
+                    <datalist id="jiraProjects">
+                    </datalist>
+                    </input>
+                    <div id="jiraProjectError">
+                    </div>
+                </td>
+                <td class="mappingTableCell" width="10px" margin="auto"></td>
+                <td class="mappingTableCell">
+                    <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
+                           list="creatorCandidates" oninput="onCreatorInputChange(this);" />
+                    <datalist id="creatorCandidates">
+                    </datalist>
+                    </input>
+                </td>
+                <td class="mappingTableCell" width="10%" min-width="20px" margin="auto"> =</td>
+                <td class="mappingTableCell">
+                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);"
+                           placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
+                    <datalist id="hubProjects">
+                    </datalist>
+                    </input>
+                </td>
+                <td class="mappingTableCell" width="100px">
+                    <div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('blackduck.integration.jira.removeProjectMapping.label')"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="buttonContainer">
+        <input id="hubJiraAddMappingButton" onclick="addNewMappingElement('hubProjectMappingElement');" type="button" value="$i18n.getText('blackduck.integration.jira.addProjectMapping.label')" class="aui-button" />
+    </div>
+</fieldset>
+
+<fieldset class="fieldSection">
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText("blackduck.integration.jira.ticketCriteriaSection.label")</legend>
+    <div id="ticketCriteriaArea">
+        <table class="ticketCriteriaTable">
+            <thead>
+            <tr>
+                <th class="label">$i18n.getText('blackduck.integration.jira.policyConditions.label')</th>
+                <th class="label">$i18n.getText('blackduck.integration.jira.additionalSettings.label')</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <div id="policyRuleSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
+                    <div id="policyRuleTicketCreation" class="policyCriteriaSection">
+                    </div>
+                </td>
+                <td class="booleanCriteriaSection">
+                    <table id="additionalPluginSettings">
+                        <tr class="label">
+                            <td class="label">$i18n.getText('blackduck.integration.jira.createVulnerabilityIssues.label')</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div id="vulnerabilityTicketCreation">
+                                    <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes" />$i18n.getText(
+                                    "blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")
+                                    <br>
+                                    <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No" />$i18n.getText(
+                                    "blackduck.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="label">
+                            <td class="label">$i18n.getText('blackduck.integration.jira.commentOnIssueUpdates.label')</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div id="toggleIssueComments">
+                                    <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceYes" value="Yes" />$i18n.getText("blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label")<br>
+                                    <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceNo" value="No" />$i18n.getText("blackduck.integration.jira.doNotCommentOnIssueUpdatesChoice.label")
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="policyRulesError" class="error hidden"></div>
+                </td>
+                <td>
+                    <div id="createVulnerabilityIssuesChoiceError" class="error hidden"></div>
+                    <div id="commentOnIssueUpdatesChoiceError" class="error hidden"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</fieldSet>
+
+<div style="display: inline-block; width: 100%;">
+    <div class="buttonContainer">
+        <div id="saveSpinner" style="display: inline-block;"></div>
+        <input id="hubJiraConfigSaveButton" onclick="updateConfig(); startProgressSpinner('saveSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.save.label')" class="aui-button aui-button-primary" />
+    </div>
+</div>

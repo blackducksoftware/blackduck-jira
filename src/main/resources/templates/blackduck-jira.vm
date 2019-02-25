@@ -1,0 +1,90 @@
+<html>
+<head>
+    <title>$i18n.getText("blackduck.integration.jira.label")</title>
+    <meta name="decorator" content="atl.admin" />
+    $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:blackduck-jira-resources")
+
+</head>
+<body>
+<form id="hub-jira" class="">
+
+    <div id="aui-hub-message-field" class="aui-message hidden">
+        <p class="title">
+            <span id="aui-hub-message-title" class="aui-icon"></span>
+            <strong id="aui-hub-message-title-text"></strong>
+        </p>
+        <p id="aui-hub-message-text"></p>
+    </div>
+
+    <div id="error-message-field" class="error hidden">
+    </div>
+    <div class="aui-tabs horizontal-tabs" id="blackduck-navigation-tabs">
+        <ul class="tabs-menu">
+            <li class="menu-item active-tab">
+                <a href="#PluginAccess">Configuration Access</a>
+            </li>
+            <li class="menu-item">
+                <a href="#BlackduckConfig">Black Duck Server</a>
+            </li>
+            <li class="menu-item">
+                <a href="#IssueCreation">Issue Creation</a>
+            </li>
+            <li class="menu-item">
+                <a href="#FieldMapping">Issue Fields</a>
+            </li>
+        </ul>
+        <div id="PluginAccess" class="tabs-pane active-pane">
+            #parse("/templates/jira-access.vm")
+        </div>
+        <div id="BlackduckConfig" class="tabs-pane">
+            #parse("/templates/blackduck-config.vm")
+        </div>
+
+        <div id="IssueCreation" class="tabs-pane">
+            #parse("/templates/issue-creation.vm")
+        </div>
+
+        <div id="FieldMapping" class="tabs-pane">
+            #parse("/templates/field-mapping.vm")
+        </div>
+
+        <fieldset class="errorSection hidden" id="ticketCreationFieldSet">
+            <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('blackduck.integration.jira.ticketCreationError.label') </legend>
+            <div id="ticketCreationErrors">
+                <table id="ticketCreationErrorsTable" style="width : 100%;">
+                    <tr class="hidden" id="ticketCreationErrorRow" name="ticketCreationErrorRow">
+                        <td>
+                            <div name="expansionIconDiv" style="float : left; display : inline-block;">
+                                <i name="expansionIcon" onclick="handleErrorResize(this);" class="largeIcon fa fa-plus-square-o" aria-hidden="true"></i>
+                            </div>
+                            <div class="errorTimestamp hidden" name="ticketCreationTimeStampName">
+                            </div>
+                            <div class="ticketCreationError" name="ticketCreationErrorMessageName">
+
+                            </div>
+                            <div class="ticketCreationError hidden" name="ticketCreationStackTraceName">
+
+                            </div>
+                            <div style="float : right; display : inline-block;">
+                                <i name="trashIcon" onclick="handleErrorRemoval(this);" class="largeIcon fa fa-trash-o" aria-hidden="true"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="display: inline-block; width: 100%;">
+                    <div class="buttonContainer">
+                        <div id="resetSpinner" style="display: inline-block;"></div>
+                        <input onclick="resetSalKeys(); startProgressSpinner('resetSpinner');" type="button" value="$i18n.getText('blackduck.integration.jira.reset.label')" class="aui-button aui-button-primary" />
+                    </div>
+                </div>
+            </div>
+        </fieldSet>
+
+        <!-- Plugin Version -->
+        <footer>
+            <br />
+            <div id="pluginInfo" class="plugin-info">Black Duck JIRA Plugin v<span id="pluginVersion">(not set)</span></div>
+        </footer>
+</form>
+</body>
+</html>

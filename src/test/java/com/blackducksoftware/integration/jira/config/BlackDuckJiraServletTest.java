@@ -36,7 +36,7 @@ import com.blackducksoftware.integration.jira.mocks.TemplateRendererMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
 
 public class BlackDuckJiraServletTest {
-    private static final String TEMPLATE_NAME = "templates/controller/blackduck-jira.vm";
+    private static final String TEMPLATE_NAME = "templates/blackduck-jira.vm";
 
     @Test
     public void testDoGetUserNull() throws Exception {

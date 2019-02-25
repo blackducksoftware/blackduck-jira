@@ -85,12 +85,17 @@
     <web-resource key="blackduck-jira-resources" name="Black Duck Jira Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
+        <dependency>com.atlassian.auiplugin:aui-tabs</dependency>
         <resource type="download" name="blackduck-jira.css" location="/css/blackduck-jira.css"/>
         <resource type="download" name="common.js" location="/js/common.js"/>
-        <resource type="download" name="creator-functions.js" location="/js/creator/creator-functions.js"/>
-        <resource type="download" name="admin-functions.js" location="/js/admin/admin-functions.js"/>
-        <resource type="download" name="mapping-functions.js" location="/js/mappings/mapping-functions.js"/>
-        <resource type="download" name="blackduck-server-functions.js" location="/js/blackduck/blackduck-server-functions.js"/>
+        <resource type="download" name="creator-utilities.js" location="/js/creator/creator-utilities.js"/>
+        <resource type="download" name="creator-request.js" location="/js/creator/creator-request.js"/>
+        <resource type="download" name="access-utilities.js" location="/js/access/access-utilities.js"/>
+        <resource type="download" name="access-request.js" location="/js/access/access-request.js"/>
+        <resource type="download" name="field-mapping-utilities.js" location="/js/mappings/field-mapping-utilities.js"/>
+        <resource type="download" name="field-mapping-request.js" location="/js/mappings/field-mapping-request.js"/>
+        <resource type="download" name="blackduck-utilities.js" location="/js/blackduck/blackduck-utilities.js"/>
+        <resource type="download" name="blackduck-request.js" location="/js/blackduck/blackduck-request.js"/>
         <resource type="download" name="blackduck-jira.js" location="/js/blackduck-jira.js"/>
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="fonts/" location="/font-awesome-4.5.0/fonts"/>

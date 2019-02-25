@@ -250,3 +250,18 @@ function removeAllChildren(parent) {
         parent.children[i].remove();
     }
 }
+
+function toggleDisplay(icon, fieldId) {
+    const iconObject = AJS.$(icon);
+    if (iconObject.hasClass('fa-angle-down')) {
+        removeClassFromField(icon, 'fa-angle-down');
+        addClassToField(icon, 'fa-angle-right');
+
+        addClassToFieldById(fieldId, hiddenClass);
+    } else if (iconObject.hasClass('fa-angle-right')) {
+        removeClassFromField(icon, 'fa-angle-right');
+        addClassToField(icon, 'fa-angle-down');
+
+        removeClassFromFieldById(fieldId, hiddenClass);
+    }
+}
