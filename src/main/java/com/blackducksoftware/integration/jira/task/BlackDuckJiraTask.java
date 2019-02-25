@@ -173,10 +173,13 @@ public class BlackDuckJiraTask {
             phoneHomeMetaData.put("jira.deployment", deploymentType.name());
 
             final ExecutorService executorService = Executors.newSingleThreadExecutor();
-            final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, executorService);
-            blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion());
-            jiraSettingsService.setLastPhoneHome(LocalDate.now());
-            executorService.shutdown();
+            try {
+                final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, executorService);
+                blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion());
+                jiraSettingsService.setLastPhoneHome(LocalDate.now());
+            } finally {
+                executorService.shutdown();
+            }
         }
     }
 
