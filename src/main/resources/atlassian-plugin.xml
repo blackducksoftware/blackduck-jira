@@ -36,6 +36,7 @@
                 com.atlassian.sal.api,
                 com.google.gson.reflect;version="0.0";resolution:=optional,
                 com.google.gson;version="0.0";resolution:=optional,
+                com.jayway.jsonpath.internal,
                 com.thoughtworks.xstream,
                 com.thoughtworks.xstream.io,
                 com.thoughtworks.xstream.io.xml,
