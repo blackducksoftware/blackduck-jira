@@ -77,7 +77,7 @@ function isNullOrWhitespace(input) {
 }
 
 function createRequestPath(relativePath) {
-    return AJS.contextPath() + "/rest/blackduck-jira-integration/1.0/" + relativePath;
+    return AJS.contextPath() + "/rest/blackduck-jira-integration/" + relativePath;
 }
 
 function handleError(fieldId, configField, hideErrorValue, clearOldMessage) {

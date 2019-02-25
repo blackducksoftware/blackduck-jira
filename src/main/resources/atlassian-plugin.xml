@@ -109,7 +109,7 @@
         <url-pattern>/blackduck-jira-integration</url-pattern>
     </servlet>
 
-    <rest name="Black Duck Jira Rest" key="rest" path="/blackduck-jira-integration" version="1.0">
+    <rest name="Black Duck Jira Rest" key="rest" path="/blackduck-jira-integration" version="none">
         <description>Provides REST resources for the admin UI.</description>
     </rest>
 

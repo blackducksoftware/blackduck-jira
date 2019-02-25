@@ -23,7 +23,7 @@
  */
 function readAdminData() {
     AJS.$.ajax({
-        url: createRequestPath('admin/'),
+        url: createRequestPath('config/access/'),
         dataType: "json",
         success: function (admin) {
             fillInJiraGroups(admin.hubJiraGroups, admin.jiraGroups);
@@ -39,7 +39,7 @@ function readAdminData() {
 }
 
 function updateAccessConfig() {
-    putAccessConfig(createRequestPath('admin'), 'Save successful.', 'The configuration is not valid.');
+    putAccessConfig(createRequestPath('config/access'), 'Save successful.', 'The configuration is not valid.');
 }
 
 function putAccessConfig(restUrl, successMessage, failureMessage) {
