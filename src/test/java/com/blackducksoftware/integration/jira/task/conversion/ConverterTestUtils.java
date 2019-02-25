@@ -36,7 +36,7 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class ConverterTestUtils {
 
@@ -44,7 +44,7 @@ public class ConverterTestUtils {
 
     public static final long JIRA_PROJECT_ID_BASE = 153L;
 
-    static JiraServices mockJiraServices() throws HubIntegrationException {
+    static JiraServices mockJiraServices() throws BlackDuckIntegrationException {
 
         final ConstantsManager constantsManager = Mockito.mock(ConstantsManager.class);
         final Collection<IssueType> issueTypes = new ArrayList<>();

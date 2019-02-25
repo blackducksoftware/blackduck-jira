@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,10 +80,10 @@ import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueProper
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
+import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class IssueEventListenerTest {
@@ -113,16 +112,12 @@ public class IssueEventListenerTest {
         final UserManagerMock userManager = new UserManagerMock();
         userManager.setMockApplicationUser(createApplicationUser());
         jiraServices.setUserManager(userManager);
-        final URL url = new URL("http://www.google.com");
-        final BlackduckRestConnection restConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), url, "", "", 120, ProxyInfo.NO_PROXY_INFO);
+        final String url = "http://www.google.com";
+        final BlackDuckHttpClient restConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, url, null, Credentials.NO_CREDENTIALS);
 
-        final HubServicesFactory blackDuckServicesFactory = Mockito.mock(HubServicesFactory.class);
-        Mockito.when(blackDuckServicesFactory.getRestConnection()).thenReturn(restConnection);
-        final HubService blackDuckService = Mockito.mock(HubService.class);
-        Mockito.when(blackDuckService.getRestConnection()).thenReturn(restConnection);
-
-        issueServiceMock = new IssueServiceMock(blackDuckService);
-        Mockito.when(blackDuckServicesFactory.createIssueService()).thenReturn(issueServiceMock);
+        final BlackDuckServicesFactory blackDuckServicesFactory = Mockito.mock(BlackDuckServicesFactory.class);
+        Mockito.when(blackDuckServicesFactory.getBlackDuckHttpClient()).thenReturn(restConnection);
+        issueServiceMock = new IssueServiceMock(restConnection);
 
         final ApplicationUser jiraUser = Mockito.mock(ApplicationUser.class);
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
@@ -134,9 +129,6 @@ public class IssueEventListenerTest {
     private PluginSettingsMock createPluginSettings() {
         final PluginSettingsMock settings = new PluginSettingsMock();
         settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, "http://www.google.com");
-        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, JIRA_USER);
-        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, "apassword");
-        settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, "");
         settings.put(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, "120");
 
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_HOST, "");
@@ -254,15 +246,15 @@ public class IssueEventListenerTest {
 
         assertFalse(issueServiceMock.issueMap.isEmpty());
 
-        final IssueView blackDuckIssue = issueServiceMock.issueMap.get(ISSUE_URL);
+        final IssueView blackDuckIssue = (IssueView) issueServiceMock.issueMap.get(ISSUE_URL);
 
         assertNotNull(blackDuckIssue);
-        assertEquals(issue.getKey(), blackDuckIssue.issueId);
-        assertEquals(issue.getDescription(), blackDuckIssue.issueDescription);
-        assertEquals(issue.getStatus().getName(), blackDuckIssue.issueStatus);
-        assertEquals(issue.getCreated(), blackDuckIssue.issueCreatedAt);
-        assertEquals(issue.getUpdated(), blackDuckIssue.issueUpdatedAt);
-        assertEquals(issue.getAssignee().getDisplayName(), blackDuckIssue.issueAssignee);
+        assertEquals(issue.getKey(), blackDuckIssue.getIssueId());
+        assertEquals(issue.getDescription(), blackDuckIssue.getIssueDescription());
+        assertEquals(issue.getStatus().getName(), blackDuckIssue.getIssueStatus());
+        assertEquals(issue.getCreated(), blackDuckIssue.getIssueCreatedAt());
+        assertEquals(issue.getUpdated(), blackDuckIssue.getIssueUpdatedAt());
+        assertEquals(issue.getAssignee().getDisplayName(), blackDuckIssue.getIssueAssignee());
     }
 
     private void assertIssueNotCreated(final Long eventTypeId) {
@@ -388,12 +380,12 @@ public class IssueEventListenerTest {
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_DELETED_ID);
 
         final IssueView blackDuckIssue = new IssueView();
-        blackDuckIssue.issueId = issue.getKey();
-        blackDuckIssue.issueDescription = issue.getDescription();
-        blackDuckIssue.issueStatus = issue.getStatus().getName();
-        blackDuckIssue.issueCreatedAt = issue.getCreated();
-        blackDuckIssue.issueUpdatedAt = issue.getUpdated();
-        blackDuckIssue.issueAssignee = issue.getAssignee().getDisplayName();
+        blackDuckIssue.setIssueId(issue.getKey());
+        blackDuckIssue.setIssueDescription(issue.getDescription());
+        blackDuckIssue.setIssueStatus(issue.getStatus().getName());
+        blackDuckIssue.setIssueCreatedAt(issue.getCreated());
+        blackDuckIssue.setIssueUpdatedAt(issue.getUpdated());
+        blackDuckIssue.setIssueAssignee(issue.getAssignee().getDisplayName());
 
         issueServiceMock.issueMap.put(ISSUE_URL, blackDuckIssue);
         listener.onIssueEvent(event);

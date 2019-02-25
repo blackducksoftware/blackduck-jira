@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -91,20 +92,18 @@ import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSe
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
-import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
-import com.synopsys.integration.blackduck.api.view.HubViewFilter;
-import com.synopsys.integration.blackduck.api.view.MetaHandler;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.blackduck.service.ProjectService;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.connection.RestConnection;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.util.IntEnvironmentVariables;
 
 @Path("/")
 public class BlackDuckJiraConfigController {
@@ -396,7 +395,7 @@ public class BlackDuckJiraConfigController {
             projectsConfig = transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    final HubServicesFactory blackDuckServicesFactory;
+                    final BlackDuckServicesFactory blackDuckServicesFactory;
                     try {
                         blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
                         final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
@@ -404,7 +403,6 @@ public class BlackDuckJiraConfigController {
                         if (blackDuckProjects.size() == 0) {
                             return JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND;
                         }
-                        closeRestConnection(blackDuckServicesFactory.getRestConnection());
                         return blackDuckProjects;
                     } catch (final ConfigurationException e) {
                         return e.getMessage();
@@ -554,11 +552,10 @@ public class BlackDuckJiraConfigController {
                         txConfig.setPolicyRules(new ArrayList<>(0));
                     }
 
-                    final HubServicesFactory blackDuckServicesFactory;
+                    final BlackDuckServicesFactory blackDuckServicesFactory;
                     try {
                         blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
                         setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
-                        closeRestConnection(blackDuckServicesFactory.getRestConnection());
                     } catch (final ConfigurationException e) {
                         txConfig.setErrorMessage(e.getMessage());
                     }
@@ -1142,70 +1139,41 @@ public class BlackDuckJiraConfigController {
     }
 
     // This must be "package protected" to avoid synthetic access
-    HubServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
-        final BlackduckRestConnection restConnection = createRestConnection(settings);
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
+    BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
+        final BlackDuckHttpClient restConnection = createRestConnection(settings);
+        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
+            restConnection, logger);
         return blackDuckServicesFactory;
     }
 
-    void closeRestConnection(final RestConnection restConnection) {
-        try {
-            restConnection.close();
-        } catch (final IOException e) {
-            logger.error("There was a problem trying to close the connection to the Black Duck server.", e);
-        }
-    }
-
-    private BlackduckRestConnection createRestConnection(final PluginSettings settings) throws ConfigurationException {
+    private BlackDuckHttpClient createRestConnection(final PluginSettings settings) throws ConfigurationException {
         final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
         final String blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
         final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        String blackDuckUser = null;
-        String encBlackDuckPassword = null;
-        String encBlackDuckPasswordLength = null;
-
-        if (blackDuckApiToken == null) {
-            blackDuckUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
-            logger.debug(String.format("Establishing connection to Black Duck server: %s...", blackDuckUrl));
-            encBlackDuckPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
-            encBlackDuckPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
-
-            if (StringUtils.isBlank(blackDuckUrl) && StringUtils.isBlank(blackDuckUser) && StringUtils.isBlank(encBlackDuckPassword) && StringUtils.isBlank(blackDuckTimeout)) {
-                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_CONFIG_PLUGIN_MISSING);
-            } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckUser) || StringUtils.isBlank(encBlackDuckPassword) || StringUtils.isBlank(blackDuckTimeout)) {
-                throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-            }
-        } else if (StringUtils.isBlank(blackDuckUrl) || StringUtils.isBlank(blackDuckApiToken) || StringUtils.isBlank(blackDuckTimeout)) {
+        if (StringUtils.isBlank(blackDuckApiToken)) {
             throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
 
         final String blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
         final String blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        final String blackDuckNoProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
         final String blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
         final String encBlackDuckProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
-        final String blackDuckProxyPasswordLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
 
-        BlackduckRestConnection restConnection = null;
+        final BlackDuckHttpClient restConnection;
         try {
-            final HubServerConfigBuilder configBuilder = new HubServerConfigBuilder();
+            final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
             configBuilder.setApiToken(blackDuckApiToken);
-            configBuilder.setUsername(blackDuckUser);
-            configBuilder.setPassword(encBlackDuckPassword);
-            configBuilder.setPasswordLength(NumberUtils.toInt(encBlackDuckPasswordLength));
             configBuilder.setTimeout(blackDuckTimeout);
             configBuilder.setTrustCert(blackDuckTrustCert);
             configBuilder.setProxyHost(blackDuckProxyHost);
             configBuilder.setProxyPort(blackDuckProxyPort);
-            configBuilder.setProxyIgnoredHosts(blackDuckNoProxyHost);
             configBuilder.setProxyUsername(blackDuckProxyUser);
             configBuilder.setProxyPassword(encBlackDuckProxyPassword);
-            configBuilder.setProxyPasswordLength(NumberUtils.toInt(blackDuckProxyPasswordLength));
 
-            final HubServerConfig serverConfig;
+            final BlackDuckServerConfig serverConfig;
             try {
                 serverConfig = configBuilder.build();
             } catch (final IllegalStateException e) {
@@ -1213,53 +1181,47 @@ public class BlackDuckJiraConfigController {
                 throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
             }
 
-            restConnection = serverConfig.createRestConnection(logger);
-            restConnection.connect();
-        } catch (final IllegalArgumentException | IntegrationException e) {
+            restConnection = serverConfig.createBlackDuckHttpClient(logger);
+        } catch (final IllegalArgumentException e) {
             throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
         }
         return restConnection;
     }
 
     // This must be "package protected" to avoid synthetic access
-    List<String> getBlackDuckProjects(final HubServicesFactory blackDuckServicesFactory) throws ConfigurationException {
+    List<String> getBlackDuckProjects(final BlackDuckServicesFactory blackDuckServicesFactory) throws ConfigurationException {
         final List<String> blackDuckProjects = new ArrayList<>();
         blackDuckProjects.add(BlackDuckProjectMappings.MAP_ALL_PROJECTS);
 
         final ProjectService projectRequestService = blackDuckServicesFactory.createProjectService();
-        List<ProjectView> blackDuckProjectItems = null;
+        final List<ProjectView> blackDuckProjectItems;
         try {
             blackDuckProjectItems = projectRequestService.getAllProjectMatches(null);
         } catch (final IntegrationException e) {
             throw new ConfigurationException(e.getMessage());
         }
 
-        final HubViewFilter<ProjectView> filter = new HubViewFilter<>();
-        final MetaHandler metaHandler = new MetaHandler(logger);
-        try {
-            blackDuckProjectItems = filter.getAccessibleItems(metaHandler, blackDuckProjectItems);
-        } catch (final HubIntegrationException e1) {
-            throw new ConfigurationException(e1.getMessage());
-        }
-
         if (blackDuckProjectItems != null && !blackDuckProjectItems.isEmpty()) {
             for (final ProjectView project : blackDuckProjectItems) {
-                blackDuckProjects.add(project.name);
+                final List<String> allowedMethods = project.getAllowedMethods();
+                if (allowedMethods != null && !allowedMethods.isEmpty() && allowedMethods.contains("GET") && allowedMethods.contains("PUT")) {
+                    blackDuckProjects.add(project.getName());
+                }
             }
         }
         return blackDuckProjects;
     }
 
     // This must be "package protected" to avoid synthetic access
-    void setBlackDuckPolicyRules(final HubServicesFactory blackDuckServicesFactory, final BlackDuckJiraConfigSerializable config) {
+    void setBlackDuckPolicyRules(final BlackDuckServicesFactory blackDuckServicesFactory, final BlackDuckJiraConfigSerializable config) {
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (blackDuckServicesFactory != null) {
-            final HubService blackDuckService = blackDuckServicesFactory.createHubService();
+            final BlackDuckService blackDuckService = blackDuckServicesFactory.createBlackDuckService();
             try {
-                List<PolicyRuleViewV2> policyRules = null;
+                List<PolicyRuleView> policyRules = null;
                 try {
                     policyRules = blackDuckService.getAllResponses(ApiDiscovery.POLICY_RULES_LINK_RESPONSE);
-                } catch (final HubIntegrationException e) {
+                } catch (final BlackDuckIntegrationException e) {
                     config.setPolicyRulesError(e.getMessage());
                 } catch (final IntegrationRestException ire) {
                     if (ire.getHttpStatusCode() == 402) {
@@ -1270,24 +1232,25 @@ public class BlackDuckJiraConfigController {
                 }
 
                 if (policyRules != null && !policyRules.isEmpty()) {
-                    for (final PolicyRuleViewV2 rule : policyRules) {
+                    for (final PolicyRuleView rule : policyRules) {
                         final PolicyRuleSerializable newRule = new PolicyRuleSerializable();
-                        String description = rule.description;
+                        String description = rule.getDescription();
                         if (description == null) {
                             description = "";
                         }
                         newRule.setDescription(cleanDescription(description));
-                        newRule.setName(rule.name.trim());
+                        newRule.setName(rule.getName().trim());
 
-                        final MetaHandler metaHandler = new MetaHandler(logger);
-                        try {
-                            newRule.setPolicyUrl(metaHandler.getHref(rule));
-                        } catch (final HubIntegrationException e) {
-                            logger.error("Error getting URL for policy rule " + rule.name + ": " + e.getMessage());
+                        final Optional<String> ruleHref = rule.getHref();
+                        if (ruleHref.isPresent()) {
+                            newRule.setPolicyUrl(ruleHref.get());
+                        } else {
+                            logger.error("URL for policy rule" + rule.getName() + " does not exist.");
                             config.setPolicyRulesError(JiraConfigErrorStrings.POLICY_RULE_URL_ERROR);
                             continue;
                         }
-                        newRule.setEnabled(rule.enabled);
+
+                        newRule.setEnabled(rule.getEnabled());
                         newPolicyRules.add(newRule);
                     }
                 }

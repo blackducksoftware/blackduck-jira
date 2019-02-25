@@ -43,12 +43,12 @@ import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueT
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
-import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class IssueTrackerTask implements Callable<Boolean> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -77,18 +77,18 @@ public class IssueTrackerTask implements Callable<Boolean> {
             final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
             // only execute if hub 3.7 or higher with the issue tracker capability
-            final HubServerConfig blackDuckServerConfig = createBlackDuckServerConfig(configDetails);
+            final BlackDuckServerConfig blackDuckServerConfig = createBlackDuckServerConfig(configDetails);
             if (blackDuckServerConfig == null) {
                 logger.error("Black Duck Server Configuration is invalid.  Cannot update Black Duck issue tracking data.");
             } else {
-                final HubServicesFactory servicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
+                final BlackDuckServicesFactory servicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
                 final BlackDuckJiraConfigSerializable config = createJiraConfig(configDetails);
                 if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
                     logger.debug("Black Duck JIRA configuration is incomplete");
                     return Boolean.FALSE;
                 }
 
-                final BlackDuckIssueTrackerHandler blackDuckIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createIssueService());
+                final BlackDuckIssueTrackerHandler blackDuckIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createBlackDuckService());
                 handleIssue(eventTypeID, jiraIssue, blackDuckIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
@@ -102,9 +102,9 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return Boolean.TRUE;
     }
 
-    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
-        final HubServerConfigBuilder blackDuckConfigBuilder = configDetails.createServerConfigBuilder();
-        HubServerConfig blackDuckServerConfig = null;
+    public BlackDuckServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
+        final BlackDuckServerConfigBuilder blackDuckConfigBuilder = configDetails.createServerConfigBuilder();
+        BlackDuckServerConfig blackDuckServerConfig = null;
         if (configDetails.getProjectMappingJson() == null) {
             logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
             return null;
@@ -125,15 +125,15 @@ public class IssueTrackerTask implements Callable<Boolean> {
         }
 
         logger.debug("Last run date: " + configDetails.getLastRunDateString());
-        logger.debug("Black Duck url: " + blackDuckServerConfig.getHubUrl().toString());
+        logger.debug("Black Duck url: " + blackDuckServerConfig.getBlackDuckUrl().toString());
         logger.debug("Interval: " + configDetails.getIntervalString());
 
         return blackDuckServerConfig;
     }
 
-    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
-        final BlackduckRestConnection restConnection = config.createRestConnection(logger);
-        return new HubServicesFactory(HubServicesFactory.createDefaultGson(), HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
+    public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) {
+        final BlackDuckHttpClient restConnection = config.createBlackDuckHttpClient(logger);
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
     }
 
     private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {

@@ -64,20 +64,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
     private String apiTokenError;
 
     @XmlElement
-    private String username;
-
-    @XmlElement
-    private String usernameError;
-
-    @XmlElement
-    private String password;
-
-    @XmlElement
-    private String passwordError;
-
-    private int passwordLength;
-
-    @XmlElement
     private Boolean trustCert;
 
     @XmlElement
@@ -123,10 +109,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         this.hubUrl = blackDuckServerConfigSerializable.getHubUrl();
         this.timeout = blackDuckServerConfigSerializable.getTimeout();
         this.apiToken = blackDuckServerConfigSerializable.getApiToken();
-        this.apiTokenLength = blackDuckServerConfigSerializable.getApiTokenLength();
-        this.username = blackDuckServerConfigSerializable.getUsername();
-        this.password = blackDuckServerConfigSerializable.getPassword();
-        this.passwordLength = blackDuckServerConfigSerializable.getPasswordLength();
         this.trustCert = Boolean.valueOf(blackDuckServerConfigSerializable.getTrustCert());
         this.hubProxyHost = blackDuckServerConfigSerializable.getHubProxyHost();
         this.hubProxyPort = blackDuckServerConfigSerializable.getHubProxyPort();
@@ -146,10 +128,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getApiTokenError())) {
             hasErrors = true;
-        } else if (StringUtils.isNotBlank(getUsernameError())) {
-            hasErrors = true;
-        } else if (StringUtils.isNotBlank(getPasswordError())) {
-            hasErrors = true;
         } else if (StringUtils.isNotBlank(getTestConnectionError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getHubProxyHostError())) {
@@ -165,14 +143,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         }
 
         return hasErrors;
-    }
-
-    public String getMaskedPassword() {
-        return getMaskedString(passwordLength);
-    }
-
-    public boolean isPasswordMasked() {
-        return isStringMasked(password);
     }
 
     public String getMaskedProxyPassword() {
@@ -289,46 +259,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
 
     public void setApiTokenError(final String apiTokenError) {
         this.apiTokenError = apiTokenError;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public String getUsernameError() {
-        return usernameError;
-    }
-
-    public void setUsernameError(final String usernameError) {
-        this.usernameError = usernameError;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
-    public String getPasswordError() {
-        return passwordError;
-    }
-
-    public void setPasswordError(final String passwordError) {
-        this.passwordError = passwordError;
-    }
-
-    public int getPasswordLength() {
-        return passwordLength;
-    }
-
-    public void setPasswordLength(final int passwordLength) {
-        this.passwordLength = passwordLength;
     }
 
     public String getHubProxyHost() {
@@ -448,16 +378,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         builder.append(apiToken);
         builder.append(", apiTokenError=");
         builder.append(apiTokenError);
-        builder.append(", username=");
-        builder.append(username);
-        builder.append(", usernameError=");
-        builder.append(usernameError);
-        builder.append(", password=");
-        builder.append(password);
-        builder.append(", passwordError=");
-        builder.append(passwordError);
-        builder.append(", passwordLength=");
-        builder.append(passwordLength);
         builder.append(", hubProxyHost=");
         builder.append(hubProxyHost);
         builder.append(", hubProxyHostError=");

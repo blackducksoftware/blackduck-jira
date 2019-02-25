@@ -30,26 +30,25 @@ import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
-import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 
 public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
-    private final HubServicesFactory blackDuckServicesFactory;
+    private final BlackDuckServicesFactory blackDuckServicesFactory;
 
     public IssueTrackerTaskWithMocks(final Issue jiraIssue, final JiraIssuePropertyWrapper issuePropertyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey,
-            final EntityProperty property, final HubServicesFactory blackDuckServicesFactory) {
+        final EntityProperty property, final BlackDuckServicesFactory blackDuckServicesFactory) {
         super(jiraIssue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
         this.blackDuckServicesFactory = blackDuckServicesFactory;
     }
 
     @Override
-    public HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig config) throws EncryptionException {
+    public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) {
         return blackDuckServicesFactory;
     }
 
     @Override
-    public HubServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
+    public BlackDuckServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
         final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
         return super.createBlackDuckServerConfig(testConfigDetails);
     }

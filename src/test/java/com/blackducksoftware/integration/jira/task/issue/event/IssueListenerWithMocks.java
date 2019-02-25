@@ -34,13 +34,13 @@ import com.blackducksoftware.integration.jira.mocks.issue.ExecutorServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
 import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 
 public class IssueListenerWithMocks extends IssueEventListener {
-    private final HubServicesFactory blackDuckServicesFactory;
+    private final BlackDuckServicesFactory blackDuckServicesFactory;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
 
-    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper, final HubServicesFactory blackDuckServicesFactory) {
+    public IssueListenerWithMocks(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper, final BlackDuckServicesFactory blackDuckServicesFactory) {
         super(eventPublisher, pluginSettingsFactory, issuePropertyWrapper);
         this.blackDuckServicesFactory = blackDuckServicesFactory;
         this.issuePropertyWrapper = issuePropertyWrapper;

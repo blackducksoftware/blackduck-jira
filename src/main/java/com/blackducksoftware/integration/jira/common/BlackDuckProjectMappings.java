@@ -35,7 +35,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class BlackDuckProjectMappings {
     public static final String MAP_ALL_PROJECTS = "-- ALL BLACK DUCK PROJECTS --";
@@ -72,7 +72,7 @@ public class BlackDuckProjectMappings {
             try {
                 jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
                 jiraProject.setIssueCreator(mappingJiraProject.getIssueCreator());
-            } catch (final HubIntegrationException e) {
+            } catch (final BlackDuckIntegrationException e) {
                 logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID " + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
                 continue;
             }

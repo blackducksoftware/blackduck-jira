@@ -21,15 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.mocks.issue;
+package com.blackducksoftware.integration.jira.common.notification;
 
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import java.util.List;
 
-public class HubServerConfigBuilderMock extends BlackDuckServerConfigBuilder {
+import com.synopsys.integration.blackduck.api.core.BlackDuckComponent;
+import com.synopsys.integration.blackduck.service.model.ProjectVersionDescription;
 
-    @Override
-    public BlackDuckServerConfig build() throws IllegalStateException {
-        return super.build();
-    }
+public abstract class NotificationContent extends BlackDuckComponent {
+    public abstract boolean providesPolicyDetails();
+
+    public abstract boolean providesVulnerabilityDetails();
+
+    public abstract boolean providesProjectComponentDetails();
+
+    public abstract boolean providesLicenseDetails();
+
+    public abstract List<ProjectVersionDescription> getAffectedProjectVersionDescriptions();
+
 }
