@@ -52,14 +52,10 @@ public class BlackDuckConfigActions {
         final String blackDuckUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
         final String apiToken = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-        final String username = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER);
-        final String password = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS);
-        final String passwordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH);
         final String timeout = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         final String trustCert = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
         final String proxyHost = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
         final String proxyPort = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        final String noProxyHosts = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
         final String proxyUser = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
         final String proxyPassword = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
         final String proxyPasswordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
@@ -70,19 +66,11 @@ public class BlackDuckConfigActions {
             config.setApiTokenLength(apiToken.length());
             config.setApiToken(config.getMaskedApiToken());
         }
-        config.setUsername(username);
-        if (StringUtils.isNotBlank(password)) {
-            final int passwordLengthInt = getIntFromObject(passwordLength);
-            if (passwordLengthInt > 0) {
-                config.setPasswordLength(passwordLengthInt);
-                config.setPassword(config.getMaskedPassword());
-            }
-        }
+
         config.setTimeout(timeout);
         config.setTrustCert(trustCert);
         config.setHubProxyHost(proxyHost);
         config.setHubProxyPort(proxyPort);
-        config.setHubNoProxyHosts(noProxyHosts);
         config.setHubProxyUser(proxyUser);
         if (StringUtils.isNotBlank(proxyPassword)) {
             final int blackDuckProxyPasswordLength = getIntFromObject(proxyPasswordLength);

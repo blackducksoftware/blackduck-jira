@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
 
 @Path("/blackDuckDetails")
+//@Path("/config/blackduck")
 public class BlackDuckConfigController {
     private final UserManager userManager;
     private final PluginSettingsFactory pluginSettingsFactory;
