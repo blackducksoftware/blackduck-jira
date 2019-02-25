@@ -41,7 +41,6 @@ import com.synopsys.integration.blackduck.api.generated.component.RemediatingVer
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.ComplexLicenseType;
 import com.synopsys.integration.blackduck.api.generated.response.RemediationOptionsView;
-import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
@@ -167,13 +166,11 @@ public class DataFormatHelper {
 
     public String getBomLastUpdated(final ProjectVersionView projectVersion) {
         try {
-            final Optional<VersionRiskProfileView> riskProfile = blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
-            if (riskProfile.isPresent()) {
-                final SimpleDateFormat dateFormat = new SimpleDateFormat();
-                return dateFormat.format(riskProfile.get().getBomLastUpdatedAt());
-            }
-        } catch (final IntegrationException intException) {
-            logger.debug(String.format("Could not find the risk profile: %s", intException.getMessage()));
+            return blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE)
+                       .map(versionRiskProfileView -> new SimpleDateFormat().format(versionRiskProfileView.getBomLastUpdatedAt()))
+                       .orElse("");
+        } catch (final IntegrationException e) {
+            logger.debug(String.format("Could not find the risk profile: %s", e.getMessage()));
         }
         return "";
     }

@@ -40,6 +40,8 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
+import com.synopsys.integration.blackduck.api.generated.component.VersionBomOriginView;
+import com.synopsys.integration.blackduck.api.generated.enumeration.MatchedFileUsagesType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
@@ -231,11 +233,11 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         this.componentVersionName = versionBomComponent.getComponentVersionName();
         this.componentVersionUri = versionBomComponent.getComponentVersion();
 
-        this.originsString = createCommaSeparatedString(versionBomComponent.getOrigins(), origin -> origin.getName());
-        this.originIdsString = createCommaSeparatedString(versionBomComponent.getOrigins(), origin -> origin.getExternalId());
+        this.originsString = createCommaSeparatedString(versionBomComponent.getOrigins(), VersionBomOriginView::getName);
+        this.originIdsString = createCommaSeparatedString(versionBomComponent.getOrigins(), VersionBomOriginView::getExternalId);
         this.licenseString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent.getLicenses());
         this.licenseLink = dataFormatHelper.getLicenseTextLink(versionBomComponent.getLicenses(), this.licenseString);
-        this.usagesString = createCommaSeparatedString(versionBomComponent.getUsages(), usage -> usage.prettyPrint());
+        this.usagesString = createCommaSeparatedString(versionBomComponent.getUsages(), MatchedFileUsagesType::prettyPrint);
         this.updatedTimeString = dataFormatHelper.getBomLastUpdated(projectVersion);
 
         this.bomComponentUri = blackDuckDataHelper.getHrefNullable(versionBomComponent);

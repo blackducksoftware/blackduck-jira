@@ -106,8 +106,9 @@ public class BlackDuckDataHelper {
         // TODO Stop using this when Black Duck supports going back to the project-version
         final Optional<String> versionBomComponentHref = versionBomComponent.getHref();
         if (versionBomComponentHref.isPresent()) {
-            final int componentsIndex = versionBomComponentHref.get().indexOf(ProjectVersionView.COMPONENTS_LINK);
-            final String projectVersionUri = versionBomComponentHref.get().substring(0, componentsIndex - 1);
+            final String versionHref = versionBomComponentHref.get();
+            final int componentsIndex = versionHref.indexOf(ProjectVersionView.COMPONENTS_LINK);
+            final String projectVersionUri = versionHref.substring(0, componentsIndex - 1);
 
             return getProjectVersionWrapper(projectVersionUri);
         }

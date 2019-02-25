@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
@@ -171,9 +172,11 @@ public class BlackDuckJiraTask {
             phoneHomeMetaData.put("jira.version", new BuildUtilsInfoImpl().getVersion());
             phoneHomeMetaData.put("jira.deployment", deploymentType.name());
 
-            final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, Executors.newSingleThreadExecutor());
+            final ExecutorService executorService = Executors.newSingleThreadExecutor();
+            final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, executorService);
             blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion());
             jiraSettingsService.setLastPhoneHome(LocalDate.now());
+            executorService.shutdown();
         }
     }
 

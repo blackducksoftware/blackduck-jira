@@ -1152,9 +1152,6 @@ public class BlackDuckJiraConfigController {
         final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
         final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
 
-        final String blackDuckUser = null;
-        final String encBlackDuckPassword = null;
-
         if (StringUtils.isBlank(blackDuckApiToken)) {
             throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
@@ -1169,8 +1166,6 @@ public class BlackDuckJiraConfigController {
             final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
             configBuilder.setApiToken(blackDuckApiToken);
-            configBuilder.setUsername(blackDuckUser);
-            configBuilder.setPassword(encBlackDuckPassword);
             configBuilder.setTimeout(blackDuckTimeout);
             configBuilder.setTrustCert(blackDuckTrustCert);
             configBuilder.setProxyHost(blackDuckProxyHost);
