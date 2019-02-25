@@ -42,7 +42,7 @@ import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class BlackDuckProjectMappingsTest {
 
@@ -55,7 +55,7 @@ public class BlackDuckProjectMappingsTest {
     }
 
     @Test
-    public void test() throws HubIntegrationException {
+    public void test() throws BlackDuckIntegrationException {
         final JiraServices jiraServices = Mockito.mock(JiraServices.class);
 
         final Collection<IssueType> issueTypes = new ArrayList<>();

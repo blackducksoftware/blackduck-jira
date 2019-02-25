@@ -38,15 +38,14 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
-import com.synopsys.integration.blackduck.api.generated.component.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.ComplexLicenseType;
-import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProfileView;
+import com.synopsys.integration.blackduck.api.generated.response.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class DataFormatHelper {
@@ -120,28 +119,28 @@ public class DataFormatHelper {
         if (optionalRemediation.isPresent()) {
             final RemediationOptionsView remediationOptions = optionalRemediation.get();
             stringBuilder.append("\nRemediation Information:\n");
-            if (remediationOptions.fixesPreviousVulnerabilities != null) {
-                appendRemediationVersionText(stringBuilder, remediationOptions.fixesPreviousVulnerabilities, "fixes previous vulnerabilities");
+            if (remediationOptions.getFixesPreviousVulnerabilities() != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.getFixesPreviousVulnerabilities(), "fixes previous vulnerabilities");
             }
-            if (remediationOptions.latestAfterCurrent != null) {
-                appendRemediationVersionText(stringBuilder, remediationOptions.latestAfterCurrent, "is the most recent");
+            if (remediationOptions.getLatestAfterCurrent() != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.getLatestAfterCurrent(), "is the most recent");
             }
-            if (remediationOptions.noVulnerabilities != null) {
-                appendRemediationVersionText(stringBuilder, remediationOptions.noVulnerabilities, "has no known vulnerabilities");
+            if (remediationOptions.getNoVulnerabilities() != null) {
+                appendRemediationVersionText(stringBuilder, remediationOptions.getNoVulnerabilities(), "has no known vulnerabilities");
             }
         }
     }
 
     private void appendRemediationVersionText(final StringBuilder stringBuilder, final RemediatingVersionView remediatingVersionView, final String versionComment) {
         stringBuilder.append(" * Version [");
-        stringBuilder.append(remediatingVersionView.name);
+        stringBuilder.append(remediatingVersionView.getName());
         stringBuilder.append("|");
-        stringBuilder.append(remediatingVersionView.componentVersion);
+        stringBuilder.append(remediatingVersionView.getComponentVersion());
         stringBuilder.append("] ");
         stringBuilder.append(versionComment);
-        if (remediatingVersionView.vulnerabilityCount != null && remediatingVersionView.vulnerabilityCount > 0) {
+        if (remediatingVersionView.getVulnerabilityCount() != null && remediatingVersionView.getVulnerabilityCount() > 0) {
             stringBuilder.append(". Vulnerability count: ");
-            stringBuilder.append(remediatingVersionView.vulnerabilityCount);
+            stringBuilder.append(remediatingVersionView.getVulnerabilityCount());
         }
         stringBuilder.append(".\n");
     }
@@ -153,7 +152,7 @@ public class DataFormatHelper {
         int index = 0;
         if (hasContent) {
             for (final VulnerabilitySourceQualifiedId vuln : vulns) {
-                commentText.append(vuln.vulnerabilityId + " (" + vuln.source + ")");
+                commentText.append(vuln.getVulnerabilityId() + " (" + vuln.getSource() + ")");
                 if ((index + 1) < vulns.size()) {
                     commentText.append(", ");
                 }
@@ -167,25 +166,18 @@ public class DataFormatHelper {
 
     public String getBomLastUpdated(final ProjectVersionView projectVersion) {
         try {
-            final VersionRiskProfileView riskProfile = blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE);
-            if (riskProfile != null) {
-                final SimpleDateFormat dateFormat = new SimpleDateFormat();
-                return dateFormat.format(riskProfile.bomLastUpdatedAt);
-            }
-        } catch (final IntegrationException intException) {
-            logger.debug(String.format("Could not find the risk profile: %s", intException.getMessage()));
+            return blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE)
+                       .map(versionRiskProfileView -> new SimpleDateFormat().format(versionRiskProfileView.getBomLastUpdatedAt()))
+                       .orElse("");
+        } catch (final IntegrationException e) {
+            logger.debug(String.format("Could not find the risk profile: %s", e.getMessage()));
         }
         return "";
     }
 
     public String getComponentLicensesStringPlainText(final List<VersionBomLicenseView> licenses) {
         if (CollectionUtils.isNotEmpty(licenses)) {
-            EventDataLicense license;
-            if (licenses.size() == 1) {
-                license = new EventDataLicense(licenses.get(0));
-            } else {
-                license = new EventDataLicense(licenses);
-            }
+            final EventDataLicense license = getEventLicense(licenses);
             return getComponentLicensesString(license, false);
         }
         return "";
@@ -193,20 +185,23 @@ public class DataFormatHelper {
 
     public String getComponentLicensesStringWithLinksAtlassianFormat(final List<VersionBomLicenseView> licenses) {
         if (CollectionUtils.isNotEmpty(licenses)) {
-            EventDataLicense license;
-            if (licenses.size() == 1) {
-                license = new EventDataLicense(licenses.get(0));
-            } else {
-                license = new EventDataLicense(licenses);
-            }
+            final EventDataLicense license = getEventLicense(licenses);
             return getComponentLicensesString(license, true);
         }
         return "";
     }
 
+    private EventDataLicense getEventLicense(final List<VersionBomLicenseView> licenses) {
+        if (licenses.size() == 1) {
+            return new EventDataLicense(licenses.get(0));
+        }
+
+        return new EventDataLicense(licenses);
+    }
+
     public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) {
         if (componentVersion != null) {
-            final EventDataLicense license = new EventDataLicense(componentVersion.license);
+            final EventDataLicense license = new EventDataLicense(componentVersion.getLicense());
             return getComponentLicensesString(license, false);
         }
         return "";
@@ -214,7 +209,7 @@ public class DataFormatHelper {
 
     public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) {
         if (componentVersion != null) {
-            final EventDataLicense license = new EventDataLicense(componentVersion.license);
+            final EventDataLicense license = new EventDataLicense(componentVersion.getLicense());
             return getComponentLicensesString(license, true);
         }
         return "";
@@ -224,14 +219,16 @@ public class DataFormatHelper {
         if (CollectionUtils.isNotEmpty(licenses)) {
             VersionBomLicenseView versionBomLicense = licenses.get(0);
             for (final VersionBomLicenseView license : licenses) {
-                if (licenseName.equals(license.licenseDisplay)) {
+                if (licenseName.equals(license.getLicenseDisplay())) {
                     versionBomLicense = license;
                 }
             }
             try {
-                final LicenseView genericLicense = blackDuckDataHelper.getResponse(versionBomLicense.license, LicenseView.class);
-                final LicenseView kbLicense = blackDuckDataHelper.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
-                return blackDuckDataHelper.getFirstLink(kbLicense, LicenseView.TEXT_LINK);
+                final LicenseView genericLicense = blackDuckDataHelper.getResponse(versionBomLicense.getLicense(), LicenseView.class);
+                final Optional<LicenseView> kbLicense = blackDuckDataHelper.getResponse(genericLicense, new LinkSingleResponse<>("license", LicenseView.class));
+                if (kbLicense.isPresent()) {
+                    return blackDuckDataHelper.getFirstLink(kbLicense.get(), LicenseView.TEXT_LINK).orElse("");
+                }
             } catch (final Exception e) {
                 logger.debug("Unable to get the BOM component license text.");
             }
@@ -293,7 +290,7 @@ public class DataFormatHelper {
         final String licenseUrl = license.licenseUrl;
         try {
             final ComplexLicenseView fullLicense = blackDuckDataHelper.getResponse(licenseUrl, ComplexLicenseView.class);
-            return blackDuckDataHelper.getFirstLink(fullLicense, "text");
+            return blackDuckDataHelper.getFirstLink(fullLicense, "text").orElse(blackDuckDataHelper.getBlackDuckBaseUrl());
         } catch (final Exception e) {
             logger.debug("Error getting license text url.");
         }
@@ -314,17 +311,17 @@ public class DataFormatHelper {
         }
 
         public EventDataLicense(final ComplexLicenseView licenseView) {
-            this.licenseUrl = licenseView.license;
-            this.licenseDisplay = licenseView.licenseDisplay;
-            this.licenseType = licenseView.type;
-            this.licenses = createLicenseListFromComplex(licenseView.licenses);
+            this.licenseUrl = licenseView.getLicense();
+            this.licenseDisplay = licenseView.getLicenseDisplay();
+            this.licenseType = licenseView.getType();
+            this.licenses = createLicenseListFromComplex(licenseView.getLicenses());
         }
 
         public EventDataLicense(final VersionBomLicenseView licenseView) {
-            this.licenseUrl = licenseView.license;
-            this.licenseDisplay = licenseView.licenseDisplay;
-            this.licenseType = licenseView.licenseType;
-            this.licenses = createLicenseListFromBom(licenseView.licenses);
+            this.licenseUrl = licenseView.getLicense();
+            this.licenseDisplay = licenseView.getLicenseDisplay();
+            this.licenseType = licenseView.getLicenseType();
+            this.licenses = createLicenseListFromBom(licenseView.getLicenses());
         }
 
         public List<EventDataLicense> createLicenseListFromComplex(final List<ComplexLicenseView> licenses) {

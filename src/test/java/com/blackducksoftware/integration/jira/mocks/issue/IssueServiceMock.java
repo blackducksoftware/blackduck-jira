@@ -26,35 +26,38 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.synopsys.integration.blackduck.api.generated.view.IssueView;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.IssueService;
+import com.synopsys.integration.blackduck.api.core.BlackDuckView;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.log.PrintStreamIntLogger;
 
-public class IssueServiceMock extends IssueService {
+public class IssueServiceMock extends BlackDuckService {
     public final static String CREATION_SUCCESS_URL = "SUCCESS_URL";
     public final static String CREATION_FAILURE_URL = "";
-    public Map<String, IssueView> issueMap = new HashMap<>();
+    public final static String TEST_PUT_URL = "testPut";
+    public Map<String, Object> issueMap = new HashMap<>();
 
-    public IssueServiceMock(final HubService blackDuckService) {
-        super(blackDuckService, new PrintStreamIntLogger(System.out, LogLevel.DEBUG));
+    public IssueServiceMock(final BlackDuckHttpClient blackDuckHttpClient) {
+        super(new PrintStreamIntLogger(System.out, LogLevel.DEBUG), blackDuckHttpClient, BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper());
     }
 
     @Override
-    public String createIssue(final IssueView issueItem, final String url) throws IntegrationException {
-        issueMap.put(url, issueItem);
+    public void put(final BlackDuckView blackDuckView) {
+        issueMap.put(TEST_PUT_URL, blackDuckView);
+    }
+
+    @Override
+    public String post(final String uri, final Object object) {
+        issueMap.put(uri, object);
         return CREATION_SUCCESS_URL;
     }
 
     @Override
-    public void updateIssue(final IssueView issueItem, final String url) throws IntegrationException {
-        issueMap.put(url, issueItem);
+    public void delete(final String url) throws IntegrationException {
+        issueMap.remove(url);
     }
 
-    @Override
-    public void deleteIssue(final String issueItemUrl) throws IntegrationException {
-        issueMap.remove(issueItemUrl);
-    }
 }

@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,6 +53,13 @@ import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.notification.BomEditContent;
+import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
+import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
+import com.blackducksoftware.integration.jira.common.notification.PolicyOverrideNotificationContent;
+import com.blackducksoftware.integration.jira.common.notification.RuleViolationClearedNotificationContent;
+import com.blackducksoftware.integration.jira.common.notification.RuleViolationNotificationContent;
+import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
@@ -66,9 +72,9 @@ import com.blackducksoftware.integration.jira.task.conversion.output.OldIssuePro
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
-import com.synopsys.integration.blackduck.api.component.AffectedProjectVersion;
-import com.synopsys.integration.blackduck.api.core.ResourceMetadata;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
+import com.synopsys.integration.blackduck.api.generated.component.ResourceLink;
+import com.synopsys.integration.blackduck.api.generated.component.ResourceMetadata;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
@@ -80,26 +86,21 @@ import com.synopsys.integration.blackduck.api.generated.response.VersionRiskProf
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentView;
-import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
-import com.synopsys.integration.blackduck.notification.content.BomEditContent;
-import com.synopsys.integration.blackduck.notification.content.ComponentVersionStatus;
-import com.synopsys.integration.blackduck.notification.content.PolicyInfo;
-import com.synopsys.integration.blackduck.notification.content.PolicyOverrideNotificationContent;
-import com.synopsys.integration.blackduck.notification.content.RuleViolationClearedNotificationContent;
-import com.synopsys.integration.blackduck.notification.content.RuleViolationNotificationContent;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.bucket.HubBucket;
+import com.synopsys.integration.blackduck.api.manual.component.AffectedProjectVersion;
+import com.synopsys.integration.blackduck.api.manual.component.ComponentVersionStatus;
+import com.synopsys.integration.blackduck.api.manual.component.PolicyInfo;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
+import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class NotificationConverterTest {
@@ -167,8 +168,8 @@ public class NotificationConverterTest {
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;
     private static JiraUserContext jiraContext;
-    private static HubService mockBlackDuckSerivce;
-    private static HubBucket mockBlackDuckBucket;
+    private static BlackDuckService mockBlackDuckSerivce;
+    private static BlackDuckBucket mockBlackDuckBucket;
     private static BlackDuckJiraLogger mockLogger;
     private static BlackDuckProjectMappings projectMappingObject;
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
@@ -223,9 +224,9 @@ public class NotificationConverterTest {
         Mockito.when(jiraServices.getUserManager()).thenReturn(userManagerMock);
 
         // Black Duck Services
-        mockBlackDuckSerivce = Mockito.mock(HubService.class);
+        mockBlackDuckSerivce = Mockito.mock(BlackDuckService.class);
         mockHubServiceResponses(mockBlackDuckSerivce);
-        mockBlackDuckBucket = Mockito.mock(HubBucket.class);
+        mockBlackDuckBucket = Mockito.mock(BlackDuckBucket.class);
         mockBlackDuckBucketResponses(mockBlackDuckBucket);
         mockLogger = new BlackDuckJiraLogger(Logger.getLogger(NotificationConverterTest.class));
 
@@ -242,37 +243,33 @@ public class NotificationConverterTest {
     public static void tearDownAfterClass() throws Exception {
     }
 
-    private static void mockHubServiceResponses(final HubService mockBlackDuckService) throws IntegrationException, MalformedURLException {
-        final URL blackDuckBaseUrl = new URL("https://localhost:8080");
+    private static void mockHubServiceResponses(final BlackDuckService mockBlackDuckService) throws IntegrationException, MalformedURLException {
+        final String blackDuckBaseUrl = "https://localhost:8080";
 
-        final BlackduckRestConnection mockRestConnection = new CredentialsRestConnection(Mockito.mock(BlackDuckJiraLogger.class), blackDuckBaseUrl, "", "", 120, ProxyInfo.NO_PROXY_INFO);
-        Mockito.when(mockBlackDuckService.getRestConnection()).thenReturn(mockRestConnection);
-        Mockito.when(mockBlackDuckService.getHubBaseUrl()).thenReturn(blackDuckBaseUrl);
+        final BlackDuckHttpClient mockRestConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, blackDuckBaseUrl, null, Credentials.NO_CREDENTIALS);
+        Mockito.when(mockBlackDuckService.getBlackDuckHttpClient()).thenReturn(mockRestConnection);
+        Mockito.when(mockBlackDuckService.getBlackDuckBaseUrl()).thenReturn(blackDuckBaseUrl);
 
         final VersionRiskProfileView riskProfile = new VersionRiskProfileView();
-        riskProfile.bomLastUpdatedAt = new Date();
-        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.RISKPROFILE_LINK_RESPONSE))).thenReturn(riskProfile);
+        riskProfile.setBomLastUpdatedAt(new Date());
+        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.RISKPROFILE_LINK_RESPONSE))).thenReturn(Optional.of(riskProfile));
 
         final ProjectView project = new ProjectView();
-        project.projectOwner = "Shmario Bear";
-        project.name = BLACKDUCK_PROJECT_NAME;
-        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(project);
+        project.setProjectOwner("Shmario Bear");
+        project.setName(BLACKDUCK_PROJECT_NAME);
+        Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(Optional.of(project));
         Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
 
-        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
-        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
-        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
-        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
-
-        Mockito.when(mockBlackDuckService.getHref(Mockito.any(PolicyRuleViewV2.class))).thenReturn(RULE_URL);
-        Mockito.when(mockBlackDuckService.getHref(Mockito.any(ProjectVersionView.class))).thenReturn(PROJECT_VERSION_URL);
-        Mockito.when(mockBlackDuckService.getHref(Mockito.any(VersionBomComponentView.class))).thenReturn(BOM_COMPONENT_URI);
+        //        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
+        //        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
+        //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
+        //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
 
         Mockito.when(mockBlackDuckService.getAllResponses(Mockito.any(VersionBomComponentView.class), Mockito.eq(VersionBomComponentView.POLICY_RULES_LINK_RESPONSE)))
-            .thenReturn(Arrays.asList(createPolicyRuleV2(new Date(), POLICY_VIOLATION_EXPECTED_DESCRIPTION)));
+            .thenReturn(Arrays.asList(createPolicyRule(new Date(), POLICY_VIOLATION_EXPECTED_DESCRIPTION)));
     }
 
-    private static void mockBlackDuckBucketResponses(final HubBucket mockBlackDuckBucket) {
+    private static void mockBlackDuckBucketResponses(final BlackDuckBucket mockBlackDuckBucket) {
         final UriSingleResponse<ProjectVersionView> mockUriSingleResponseProjectVersionView = new UriSingleResponse<>(PROJECT_VERSION_URL, ProjectVersionView.class);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponseProjectVersionView)).thenReturn(createProjectVersionView());
         Mockito.when(mockBlackDuckBucket.get(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
@@ -314,46 +311,55 @@ public class NotificationConverterTest {
 
     private static ProjectVersionView createProjectVersionView() {
         final ProjectVersionView projectVersion = new ProjectVersionView();
-        projectVersion._meta = new ResourceMetadata();
-        projectVersion._meta.href = PROJECT_VERSION_URL;
-        projectVersion.nickname = "???";
-        projectVersion.phase = ProjectVersionPhaseType.PLANNING;
-        projectVersion.releaseComments = "???";
-        projectVersion.releasedOn = new Date();
-        projectVersion.source = OriginSourceType.KB;
-        projectVersion.versionName = PROJECT_VERSION_NAME;
+        final ResourceMetadata resourceMetadata = new ResourceMetadata();
+        resourceMetadata.setHref(PROJECT_VERSION_URL);
+        final ResourceLink componentLink = new ResourceLink();
+        componentLink.setHref(COMPONENT_URL);
+        componentLink.setRel(ProjectVersionView.COMPONENTS_LINK);
+        final ResourceLink vulnerableLink = new ResourceLink();
+        vulnerableLink.setHref(VULNERABLE_COMPONENTS_URL);
+        vulnerableLink.setRel(ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
+        resourceMetadata.setLinks(Arrays.asList(componentLink, vulnerableLink));
+        projectVersion.setMeta(resourceMetadata);
+        projectVersion.setNickname("???");
+        projectVersion.setPhase(ProjectVersionPhaseType.PLANNING);
+        projectVersion.setReleaseComments("???");
+        projectVersion.setReleasedOn(new Date());
+        projectVersion.setSource(OriginSourceType.KB);
+        projectVersion.setVersionName(PROJECT_VERSION_NAME);
         return projectVersion;
     }
 
     private static ComponentView createComponentView() {
         final ComponentView component = new ComponentView();
-        component.description = "???";
-        component.name = COMPONENT_NAME;
-        component.source = OriginSourceType.KB;
+        component.setDescription("???");
+        component.setName(COMPONENT_NAME);
+        component.setSource(OriginSourceType.KB);
         return component;
     }
 
     private static ComponentVersionView createComponentVersionView() {
         final ComponentVersionView componentVersion = new ComponentVersionView();
-        componentVersion.license = new ComplexLicenseView();
-        componentVersion.releasedOn = new Date();
-        componentVersion.source = OriginSourceType.KB;
-        componentVersion.versionName = COMPONENT_VERSION_NAME;
+        componentVersion.setLicense(new ComplexLicenseView());
+        componentVersion.setReleasedOn(new Date());
+        componentVersion.setSource(OriginSourceType.KB);
+        componentVersion.setVersionName(COMPONENT_VERSION_NAME);
         return componentVersion;
     }
 
     private static VersionBomComponentView createVersionBomComponentView() {
         final VersionBomComponentView versionBomComponent = new VersionBomComponentView();
-        versionBomComponent._meta = new ResourceMetadata();
-        versionBomComponent._meta.href = BOM_COMPONENT_URI;
-        versionBomComponent.componentName = COMPONENT_NAME;
-        versionBomComponent.component = COMPONENT_URL;
-        versionBomComponent.componentVersionName = COMPONENT_VERSION_NAME;
-        versionBomComponent.componentVersion = COMPONENT_VERSION_URL;
-        versionBomComponent.origins = Collections.emptyList();
-        versionBomComponent.licenses = Arrays.asList(new VersionBomLicenseView());
-        versionBomComponent.securityRiskProfile = createSecurityRiskProfile();
-        versionBomComponent.policyStatus = PolicySummaryStatusType.IN_VIOLATION;
+        final ResourceMetadata resourceMetadata = new ResourceMetadata();
+        resourceMetadata.setHref(BOM_COMPONENT_URI);
+        versionBomComponent.setMeta(resourceMetadata);
+        versionBomComponent.setComponentName(COMPONENT_NAME);
+        versionBomComponent.setComponent(COMPONENT_URL);
+        versionBomComponent.setComponentVersionName(COMPONENT_VERSION_NAME);
+        versionBomComponent.setComponentVersion(COMPONENT_VERSION_URL);
+        versionBomComponent.setOrigins(Collections.emptyList());
+        versionBomComponent.setLicenses(Arrays.asList(new VersionBomLicenseView()));
+        versionBomComponent.setSecurityRiskProfile(createSecurityRiskProfile());
+        versionBomComponent.setPolicyStatus(PolicySummaryStatusType.IN_VIOLATION);
 
         return versionBomComponent;
     }
@@ -362,27 +368,30 @@ public class NotificationConverterTest {
         final RiskProfileView riskProfile = new RiskProfileView();
 
         final RiskCountView riskCount = new RiskCountView();
-        riskCount.count = 1;
-        riskCount.countType = RiskCountType.HIGH;
-        riskProfile.counts = Arrays.asList(riskCount);
+        riskCount.setCount(1);
+        riskCount.setCountType(RiskCountType.HIGH);
+        riskProfile.setCounts(Arrays.asList(riskCount));
 
         return riskProfile;
     }
 
-    private static PolicyRuleViewV2 createPolicyRuleV2(final Date createdAt, final String description) {
-        final PolicyRuleViewV2 policyRule = new PolicyRuleViewV2();
-        policyRule.createdAt = createdAt;
-        policyRule.createdBy = "Shmario";
-        policyRule.createdByUser = "Bear";
-        policyRule.description = description;
-        policyRule.enabled = Boolean.TRUE;
-        policyRule.expression = new PolicyRuleExpressionSetView();
-        policyRule.name = RULE_NAME;
-        policyRule.overridable = Boolean.TRUE;
-        policyRule.severity = "Who Cares?";
-        policyRule.updatedAt = createdAt;
-        policyRule.updatedBy = "Shmario";
-        policyRule.updatedByUser = "Bear";
+    private static PolicyRuleView createPolicyRule(final Date createdAt, final String description) {
+        final PolicyRuleView policyRule = new PolicyRuleView();
+        final ResourceMetadata resourceMetadata = new ResourceMetadata();
+        resourceMetadata.setHref(RULE_URL);
+        policyRule.setMeta(resourceMetadata);
+        policyRule.setCreatedAt(createdAt);
+        policyRule.setCreatedBy("Shmario");
+        policyRule.setCreatedByUser("Bear");
+        policyRule.setDescription(description);
+        policyRule.setEnabled(Boolean.TRUE);
+        policyRule.setExpression(new PolicyRuleExpressionSetView());
+        policyRule.setName(RULE_NAME);
+        policyRule.setOverridable(Boolean.TRUE);
+        policyRule.setSeverity("Who Cares?");
+        policyRule.setUpdatedAt(createdAt);
+        policyRule.setUpdatedBy("Shmario");
+        policyRule.setUpdatedByUser("Bear");
         return policyRule;
     }
 
@@ -440,7 +449,7 @@ public class NotificationConverterTest {
         }
     }
 
-    private NotificationDetailResult createNotification(final HubBucket mockBlackDuckBucket, final NotificationType notifType, final Date notifDate) throws URISyntaxException, IntegrationException {
+    private NotificationDetailResult createNotification(final BlackDuckBucket mockBlackDuckBucket, final NotificationType notifType, final Date notifDate) throws URISyntaxException, IntegrationException {
         if (NotificationType.VULNERABILITY.equals(notifType)) {
             return createVulnerabilityNotif(notifDate);
         } else if (NotificationType.RULE_VIOLATION.equals(notifType)) {
@@ -495,8 +504,8 @@ public class NotificationConverterTest {
 
     private NotificationDetailResult createVulnerabilityNotif(final Date createdAt) {
         final VulnerabilitySourceQualifiedId vuln = new VulnerabilitySourceQualifiedId();
-        vuln.source = VULN_SOURCE;
-        vuln.vulnerabilityId = COMPONENT_VERSION_URL;
+        vuln.setSource(VULN_SOURCE);
+        vuln.setVulnerabilityId(COMPONENT_VERSION_URL);
         final List<VulnerabilitySourceQualifiedId> addedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> updatedVulnList = new ArrayList<>();
         final List<VulnerabilitySourceQualifiedId> deletedVulnList = new ArrayList<>();
@@ -514,10 +523,10 @@ public class NotificationConverterTest {
         content.deletedVulnerabilityCount = deletedVulnList.size();
 
         final AffectedProjectVersion affected = new AffectedProjectVersion();
-        affected.projectName = BLACKDUCK_PROJECT_NAME;
-        affected.projectVersion = PROJECT_VERSION_URL;
-        affected.projectVersionName = PROJECT_VERSION_NAME;
-        affected.bomComponent = BOM_COMPONENT_URI;
+        affected.setProjectName(BLACKDUCK_PROJECT_NAME);
+        affected.setProjectVersion(PROJECT_VERSION_URL);
+        affected.setProjectVersionName(PROJECT_VERSION_NAME);
+        affected.setBomComponent(BOM_COMPONENT_URI);
         content.affectedProjectVersions = Arrays.asList(affected);
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
@@ -537,8 +546,8 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.VULNERABILITY, NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) {
-        final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
+    private NotificationDetailResult createRuleViolationNotif(final BlackDuckBucket mockBlackDuckBucket, final Date createdAt) {
+        final PolicyRuleView policyRule = createPolicyRule(createdAt, POLICY_VIOLATION_EXPECTED_DESCRIPTION);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
@@ -561,8 +570,8 @@ public class NotificationConverterTest {
         final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
         final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
         final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
-        final Optional<String> policyName = Optional.of(policyInfo.policyName);
-        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+        final Optional<String> policyName = Optional.of(policyInfo.getPolicyName());
+        final Optional<String> policyUri = Optional.of(policyInfo.getPolicy());
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
             componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.of(BOM_COMPONENT_URI));
@@ -570,8 +579,8 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createRuleViolationClearedNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
-        final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_CLEARED_EXPECTED_DESCRIPTION);
+    private NotificationDetailResult createRuleViolationClearedNotif(final BlackDuckBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+        final PolicyRuleView policyRule = createPolicyRule(createdAt, POLICY_CLEARED_EXPECTED_DESCRIPTION);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
@@ -594,8 +603,8 @@ public class NotificationConverterTest {
         final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
         final Optional<String> componentVersionOriginId = Optional.of("compVerOriginId");
         final Optional<String> componentVersionOriginName = Optional.of("compVerOriginName");
-        final Optional<String> policyName = Optional.of(policyInfo.policyName);
-        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+        final Optional<String> policyName = Optional.of(policyInfo.getPolicyName());
+        final Optional<String> policyUri = Optional.of(policyInfo.getPolicy());
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
             componentVersionName, componentVersionUri, policyName, policyUri, componentVersionOriginName, Optional.empty(), componentVersionOriginId, Optional.of(BOM_COMPONENT_URI));
@@ -603,8 +612,8 @@ public class NotificationConverterTest {
         return new NotificationDetailResult(content, "application/json", createdAt, NotificationType.RULE_VIOLATION_CLEARED, NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, Optional.empty(), Arrays.asList(detail));
     }
 
-    private NotificationDetailResult createPolicyOverrideNotif(final HubBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
-        final PolicyRuleViewV2 policyRule = createPolicyRuleV2(createdAt, POLICY_OVERRIDE_EXPECTED_DESCRIPTION);
+    private NotificationDetailResult createPolicyOverrideNotif(final BlackDuckBucket mockBlackDuckBucket, final Date createdAt) throws URISyntaxException, IntegrationException {
+        final PolicyRuleView policyRule = createPolicyRule(createdAt, POLICY_OVERRIDE_EXPECTED_DESCRIPTION);
         Mockito.when(mockBlackDuckBucket.get(mockUriSingleResponsePolicyRuleViewV2())).thenReturn(policyRule);
 
         final PolicyInfo policyInfo = createPolicyInfo();
@@ -617,7 +626,7 @@ public class NotificationConverterTest {
         content.componentVersionName = COMPONENT_VERSION_NAME;
         content.firstName = OVERRIDER_FIRST_NAME;
         content.lastName = OVERRIDER_LAST_NAME;
-        content.policies = Arrays.asList(policyInfo.policyName);
+        content.policies = Arrays.asList(policyInfo.getPolicyName());
         content.policyInfos = Arrays.asList(policyInfo);
         content.projectName = BLACKDUCK_PROJECT_NAME;
         content.projectVersion = PROJECT_VERSION_URL;
@@ -630,8 +639,8 @@ public class NotificationConverterTest {
         final Optional<String> componentName = Optional.of(COMPONENT_NAME);
         final Optional<String> componentVersionName = Optional.of(COMPONENT_VERSION_NAME);
         final Optional<String> componentVersionUri = Optional.of(COMPONENT_VERSION_URL);
-        final Optional<String> policyName = Optional.of(policyInfo.policyName);
-        final Optional<String> policyUri = Optional.of(policyInfo.policy);
+        final Optional<String> policyName = Optional.of(policyInfo.getPolicyName());
+        final Optional<String> policyUri = Optional.of(policyInfo.getPolicy());
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_POLICY, projectName, projectVersionName, projectVersionUri, componentName, Optional.empty(),
             componentVersionName, componentVersionUri, policyName, policyUri, Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(BOM_COMPONENT_URI));
@@ -651,25 +660,25 @@ public class NotificationConverterTest {
 
     private ComponentVersionStatus createComponentVersionStatus() {
         final ComponentVersionStatus componentVersionStatus = new ComponentVersionStatus();
-        componentVersionStatus.bomComponentVersionPolicyStatus = PolicySummaryStatusType.IN_VIOLATION.name();
-        componentVersionStatus.component = COMPONENT_URL;
-        componentVersionStatus.componentIssueLink = "???";
-        componentVersionStatus.componentName = COMPONENT_NAME;
-        componentVersionStatus.componentVersion = COMPONENT_VERSION_URL;
-        componentVersionStatus.componentVersionName = COMPONENT_VERSION_NAME;
-        componentVersionStatus.policies = Arrays.asList(RULE_URL);
-        componentVersionStatus.bomComponent = BOM_COMPONENT_URI;
+        componentVersionStatus.setBomComponentVersionPolicyStatus(PolicySummaryStatusType.IN_VIOLATION.name());
+        componentVersionStatus.setComponent(COMPONENT_URL);
+        componentVersionStatus.setComponentIssueLink("???");
+        componentVersionStatus.setComponentName(COMPONENT_NAME);
+        componentVersionStatus.setComponentVersion(COMPONENT_VERSION_URL);
+        componentVersionStatus.setComponentVersionName(COMPONENT_VERSION_NAME);
+        componentVersionStatus.setPolicies(Arrays.asList(RULE_URL));
+        componentVersionStatus.setBomComponent(BOM_COMPONENT_URI);
         return componentVersionStatus;
     }
 
     private PolicyInfo createPolicyInfo() {
         final PolicyInfo policyInfo = new PolicyInfo();
-        policyInfo.policyName = RULE_NAME;
-        policyInfo.policy = RULE_URL;
+        policyInfo.setPolicyName(RULE_NAME);
+        policyInfo.setPolicy(RULE_URL);
         return policyInfo;
     }
 
-    private UriSingleResponse<PolicyRuleViewV2> mockUriSingleResponsePolicyRuleViewV2() {
-        return new UriSingleResponse<>(RULE_URL, PolicyRuleViewV2.class);
+    private UriSingleResponse<PolicyRuleView> mockUriSingleResponsePolicyRuleViewV2() {
+        return new UriSingleResponse<>(RULE_URL, PolicyRuleView.class);
     }
 }

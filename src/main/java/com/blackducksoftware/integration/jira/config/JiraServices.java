@@ -68,7 +68,7 @@ import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.synopsys.integration.blackduck.exception.HubIntegrationException;
+import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 @InjectableComponent
 public class JiraServices {
@@ -173,13 +173,13 @@ public class JiraServices {
         return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
     }
 
-    public JiraProject getJiraProject(final Long jiraProjectId) throws HubIntegrationException {
+    public JiraProject getJiraProject(final Long jiraProjectId) throws BlackDuckIntegrationException {
         if (jiraProjectId == null) {
-            throw new HubIntegrationException("Error: JIRA Project ID is null; one of the Project Mappings is likely misconfigured");
+            throw new BlackDuckIntegrationException("Error: JIRA Project ID is null; one of the Project Mappings is likely misconfigured");
         }
         final com.atlassian.jira.project.Project atlassianJiraProject = getJiraProjectManager().getProjectObj(jiraProjectId);
         if (atlassianJiraProject == null) {
-            throw new HubIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
+            throw new BlackDuckIntegrationException("Error: JIRA Project with ID " + jiraProjectId + " not found");
         }
         final String jiraProjectKey = atlassianJiraProject.getKey();
         final String jiraProjectName = atlassianJiraProject.getName();

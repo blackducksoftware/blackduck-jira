@@ -111,7 +111,7 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime afterSetup = LocalDateTime.now();
         final Duration diff = Duration.between(beforeSetup, afterSetup);
         logger.info("Black Duck JIRA setup took " + diff.toMinutes() + "m," + (diff.getSeconds() % 60L) + "s," + (diff.toMillis() % 1000l) + "ms.");
-        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraUserContext, jiraSettingsService, ticketInfoFromSetup, configuredTaskInterval);
+        final BlackDuckJiraTask processor = new BlackDuckJiraTask(configDetails, jiraUserContext, jiraSettingsService, ticketInfoFromSetup);
         final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, configDetails);
         logger.info("blackduck-jira periodic timed task has completed");
         return runResult;

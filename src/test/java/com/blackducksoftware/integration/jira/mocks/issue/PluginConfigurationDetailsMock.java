@@ -23,11 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.mocks.issue;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 
 public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
@@ -36,7 +34,7 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
     }
 
     @Override
-    public HubServerConfigBuilder createServerConfigBuilder() {
+    public BlackDuckServerConfigBuilder createServerConfigBuilder() {
         final HubServerConfigBuilderMock configBuilder = new HubServerConfigBuilderMock();
 
         configBuilder.setUrl(getBlackDuckUrl());
@@ -44,10 +42,10 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
         configBuilder.setProxyHost(getBlackDuckProxyHost());
         configBuilder.setProxyPort(getBlackDuckProxyPort());
-        configBuilder.setProxyIgnoredHosts(getBlackDuckProxyNoHost());
+        //        configBuilder.setProxyIgnoredHosts(getBlackDuckProxyNoHost());
         configBuilder.setProxyUsername(getBlackDuckProxyUser());
         configBuilder.setProxyPassword(getBlackDuckProxyPassEncrypted());
-        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));
+        //        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));
 
         return configBuilder;
     }

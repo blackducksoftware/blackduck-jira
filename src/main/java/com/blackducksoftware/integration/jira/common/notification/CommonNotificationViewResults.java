@@ -21,15 +21,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.mocks.issue;
+package com.blackducksoftware.integration.jira.common.notification;
 
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-public class HubServerConfigBuilderMock extends BlackDuckServerConfigBuilder {
+public class CommonNotificationViewResults extends NotificationResults<CommonNotificationView> {
+    private final List<CommonNotificationView> commonNotificationViews;
+
+    public CommonNotificationViewResults(final List<CommonNotificationView> commonNotificationViews, final Optional<Date> latestNotificationCreatedAtDate, final Optional<String> latestNotificationCreatedAtString) {
+        super(latestNotificationCreatedAtDate, latestNotificationCreatedAtString);
+        this.commonNotificationViews = commonNotificationViews;
+    }
 
     @Override
-    public BlackDuckServerConfig build() throws IllegalStateException {
-        return super.build();
+    public List<CommonNotificationView> getResults() {
+        return commonNotificationViews;
     }
+
 }

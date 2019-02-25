@@ -44,6 +44,10 @@ import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.notification.NotificationContent;
+import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
+import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
+import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
@@ -55,16 +59,12 @@ import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.PolicySummaryStatusType;
-import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleViewV2;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.blackduck.notification.NotificationDetailResult;
-import com.synopsys.integration.blackduck.notification.content.NotificationContent;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilityNotificationContent;
-import com.synopsys.integration.blackduck.notification.content.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetail;
-import com.synopsys.integration.blackduck.service.HubService;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
@@ -81,8 +81,8 @@ public class BomNotificationToIssueModelConverter {
     private final List<String> linksOfRulesToMonitor;
 
     public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
-        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper, final HubService blackDuckService,
-        final BlackDuckJiraLogger logger) {
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper,
+        final BlackDuckService blackDuckService, final BlackDuckJiraLogger logger) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -122,7 +122,7 @@ public class BomNotificationToIssueModelConverter {
         final List<BlackDuckIssueModel> issueWrapperList = new ArrayList<>();
 
         final ProjectVersionWrapper projectVersionWrapper = blackDuckDataHelper.getProjectVersionWrapper(detail);
-        final String blackDuckProjectName = projectVersionWrapper.getProjectView().name;
+        final String blackDuckProjectName = projectVersionWrapper.getProjectView().getName();
         final List<JiraProject> jiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
         logger.debug(String.format("There are %d jira projects configured", jiraProjects.size()));
         for (final JiraProject jiraProject : jiraProjects) {
@@ -142,7 +142,7 @@ public class BomNotificationToIssueModelConverter {
         final NotificationContentDetail detail, final NotificationContent notificationContent, final Date batchStartDate) throws IntegrationException, ConfigurationException {
         if (detail.getBomComponent().isPresent()) {
             final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = detail.getBomComponent().get();
-            logger.debug("BOM Component was present: " + bomComponentUriSingleResponse.uri);
+            logger.debug("BOM Component was present: " + bomComponentUriSingleResponse.getUri());
             final VersionBomComponentView versionBomComponent;
             try {
                 versionBomComponent = blackDuckDataHelper.getBomComponent(bomComponentUriSingleResponse);
@@ -156,13 +156,13 @@ public class BomNotificationToIssueModelConverter {
             } else {
                 Optional<BlackDuckIssueModel> issueModel = Optional.empty();
                 if (detail.isPolicy()) {
-                    final UriSingleResponse<PolicyRuleViewV2> uriSingleResponse = detail.getPolicy().get();
-                    final PolicyRuleViewV2 policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
+                    final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail.getPolicy().get();
+                    final PolicyRuleView policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
                     issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule);
                 } else if (detail.isVulnerability()) {
                     final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
-                    issueModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.securityRiskProfile,
-                        vulnerabilityContent.newVulnerabilityIds, vulnerabilityContent.updatedVulnerabilityIds, vulnerabilityContent.deletedVulnerabilityIds);
+                    issueModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.getSecurityRiskProfile(),
+                        vulnerabilityContent.getNewVulnerabilityIds(), vulnerabilityContent.getUpdatedVulnerabilityIds(), vulnerabilityContent.getDeletedVulnerabilityIds());
                 }
                 if (issueModel.isPresent()) {
                     return Arrays.asList(issueModel.get());
@@ -175,13 +175,13 @@ public class BomNotificationToIssueModelConverter {
         return Collections.emptyList();
     }
 
-    private Optional<BlackDuckIssueModel> populateModelForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final PolicyRuleViewV2 policyRule)
+    private Optional<BlackDuckIssueModel> populateModelForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final PolicyRuleView policyRule)
         throws IntegrationException, ConfigurationException {
-        final String policyRuleUrl = blackDuckDataHelper.getHref(policyRule);
+        final String policyRuleUrl = policyRule.getHref().orElse(null);
         if (!linksOfRulesToMonitor.contains(policyRuleUrl)) {
             return Optional.empty();
         }
-        logger.debug("Creating model for policy: " + policyRule.name);
+        logger.debug("Creating model for policy: " + policyRule.getName());
         blackDuckIssueModelBuilder.setPolicyFields(policyRule);
         blackDuckIssueModelBuilder.setPolicyComments(notificationType);
 
@@ -222,7 +222,7 @@ public class BomNotificationToIssueModelConverter {
 
         // Vulnerability
         try {
-            final RiskProfileView securityRiskProfile = versionBomComponent.securityRiskProfile;
+            final RiskProfileView securityRiskProfile = versionBomComponent.getSecurityRiskProfile();
             if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
                 final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, securityRiskProfile, null, null, null);
                 vulnModel.ifPresent(model -> issueWrappersForEdits.add(model));
@@ -232,10 +232,10 @@ public class BomNotificationToIssueModelConverter {
         }
 
         // Policy
-        if (PolicySummaryStatusType.IN_VIOLATION.equals(versionBomComponent.policyStatus)) {
+        if (PolicySummaryStatusType.IN_VIOLATION.equals(versionBomComponent.getPolicyStatus())) {
             logger.debug("This component is in violation of at least one policy.");
-            final List<PolicyRuleViewV2> policyRules = blackDuckDataHelper.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
-            for (final PolicyRuleViewV2 rule : policyRules) {
+            final List<PolicyRuleView> policyRules = blackDuckDataHelper.getAllResponses(versionBomComponent, VersionBomComponentView.POLICY_RULES_LINK_RESPONSE);
+            for (final PolicyRuleView rule : policyRules) {
                 if (linksOfRulesToMonitor.contains(blackDuckDataHelper.getHrefNullable(rule))) {
                     try {
                         final BlackDuckIssueModelBuilder policyWrapperBuilder = blackDuckIssueModelBuilder.copy();
@@ -261,7 +261,7 @@ public class BomNotificationToIssueModelConverter {
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
             builder.setIssueCreator(jiraUserContext.getDefaultJiraIssueCreatorUser());
             if (detail.getBomComponent().isPresent()) {
-                builder.setBomComponentUri(detail.getBomComponent().get().uri);
+                builder.setBomComponentUri(detail.getBomComponent().get().getUri());
             }
             return Arrays.asList(builder.build());
         }
@@ -274,7 +274,7 @@ public class BomNotificationToIssueModelConverter {
         builder.setJiraProject(jiraProject);
         builder.setAction(BlackDuckIssueAction.fromNotificationType(notificationType));
         builder.setLastBatchStartDate(batchStartDate);
-        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().projectOwner), projectVersionWrapper, versionBomComponent);
+        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().getProjectOwner()), projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
         builder.setIssueCreator(lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
         return builder;
@@ -304,7 +304,7 @@ public class BomNotificationToIssueModelConverter {
                 final UserView projectOwner = blackDuckDataHelper.getResponse(blackDuckProjectOwner, UserView.class);
                 if (projectOwner != null) {
                     final UserSearchService userSearchService = jiraServices.createUserSearchService();
-                    for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.email)) {
+                    for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.getEmail())) {
                         // We will assume that if users are configured correctly, they will have unique email addresses.
                         return jiraUser;
                     }

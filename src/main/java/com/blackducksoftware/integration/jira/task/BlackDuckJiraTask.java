@@ -23,16 +23,18 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
@@ -46,34 +48,28 @@ import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.notification.CommonNotificationService;
+import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
-import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
-import com.synopsys.integration.blackduck.notification.content.detail.NotificationContentDetailFactory;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.blackduck.service.CommonNotificationService;
-import com.synopsys.integration.blackduck.service.HubService;
-import com.synopsys.integration.blackduck.service.HubServicesFactory;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import com.synopsys.integration.blackduck.phonehome.BlackDuckPhoneHomeHelper;
+import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
+import com.synopsys.integration.blackduck.service.BlackDuckService;
+import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.blackduck.service.NotificationService;
-import com.synopsys.integration.blackduck.service.model.BlackDuckPhoneHomeCallable;
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.phonehome.PhoneHomeCallable;
-import com.synopsys.integration.phonehome.PhoneHomeService;
-import com.synopsys.integration.rest.connection.RestConnection;
+import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class BlackDuckJiraTask {
-    private static final Long NOTIFICATIONS_LOOKBACK_DAYS = 14L;
-    private static final Long START_DATE_LOOKBACK_INTERVAL_FACTOR = 1L;
-
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final PluginConfigurationDetails pluginConfigDetails;
@@ -82,13 +78,9 @@ public class BlackDuckJiraTask {
     private final JiraServices jiraServices = new JiraServices();
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
-    private final Integer configuredTaskInterval;
     private final String fieldCopyMappingJson;
 
-    private final Gson gson = HubServicesFactory.createDefaultGson();
-
-    public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup,
-            final Integer configuredTaskInterval) {
+    public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
         this.jiraContext = jiraContext;
 
@@ -98,7 +90,6 @@ public class BlackDuckJiraTask {
 
         this.jiraSettingsService = jiraSettingsService;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
-        this.configuredTaskInterval = configuredTaskInterval;
         this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
 
         logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
@@ -110,11 +101,13 @@ public class BlackDuckJiraTask {
      */
     public Optional<String> execute(final String previousStartDate) {
         logger.debug("Previous start date: " + previousStartDate);
-        final Optional<HubServicesFactory> optionalHubServicesFactory = getBlackDuckServicesFactory();
+        final Optional<BlackDuckServicesFactory> optionalHubServicesFactory = getBlackDuckServicesFactory();
         if (!optionalHubServicesFactory.isPresent()) {
             return Optional.ofNullable(previousStartDate);
         }
-        final HubServicesFactory blackDuckServicesFactory = optionalHubServicesFactory.get();
+        final BlackDuckServicesFactory blackDuckServicesFactory = optionalHubServicesFactory.get();
+        phoneHome(blackDuckServicesFactory);
+
         final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
 
         final Optional<BlackDuckJiraConfigSerializable> optionalConfig = deSerializeConfig();
@@ -141,17 +134,10 @@ public class BlackDuckJiraTask {
             final boolean getOldestNotificationsFirst = true;
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory, notificationService, getOldestNotificationsFirst, ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
-            // Phone-Home
-            final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
-            if (LocalDate.now().isAfter(lastPhoneHome)) {
-                final PhoneHomeCallable phCallable = blackDuckServicesFactory.createBlackDuckPhoneHomeCallable(blackDuckServicesFactory.createHubService().getHubBaseUrl(), "blackduck-jira", jiraServices.getPluginVersion());
-                bdPhoneHome((BlackDuckPhoneHomeCallable) phCallable);
-            }
-
             final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
 
             logger.debug("Attempting to get the Black Duck user...");
-            final Optional<UserView> blackDuckUserItem = getBlackDuckUser(blackDuckServicesFactory.createHubService());
+            final Optional<UserView> blackDuckUserItem = getBlackDuckUser(blackDuckServicesFactory.createBlackDuckService());
             if (!blackDuckUserItem.isPresent()) {
                 logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
                 return Optional.of(fallbackDate);
@@ -166,8 +152,6 @@ public class BlackDuckJiraTask {
             logger.error("Error processing Black Duck notifications or generating JIRA issues: " + e.getMessage(), e);
             jiraSettingsService.addBlackDuckError(e, "executeBlackDuckJiraTask");
             return Optional.of(fallbackDate);
-        } finally {
-            closeRestConnection(blackDuckServicesFactory.getRestConnection());
         }
     }
 
@@ -175,7 +159,31 @@ public class BlackDuckJiraTask {
         return BlackDuckPluginDateFormatter.format(runDate);
     }
 
-    private Optional<UserView> getBlackDuckUser(final HubService blackDuckService) {
+    private void phoneHome(final BlackDuckServicesFactory blackDuckServicesFactory) {
+        final LocalDate lastPhoneHome = jiraSettingsService.getLastPhoneHome();
+        if (LocalDate.now().isAfter(lastPhoneHome)) {
+            final Map<String, String> phoneHomeMetaData = new HashMap<>();
+            final ClusterManager clusterManager = jiraServices.getClusterManager();
+            JiraDeploymentType deploymentType = JiraDeploymentType.SERVER;
+            if (clusterManager.isClusterLicensed()) {
+                deploymentType = JiraDeploymentType.DATA_CENTER;
+            }
+
+            phoneHomeMetaData.put("jira.version", new BuildUtilsInfoImpl().getVersion());
+            phoneHomeMetaData.put("jira.deployment", deploymentType.name());
+
+            final ExecutorService executorService = Executors.newSingleThreadExecutor();
+            try {
+                final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, executorService);
+                blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion());
+                jiraSettingsService.setLastPhoneHome(LocalDate.now());
+            } finally {
+                executorService.shutdown();
+            }
+        }
+    }
+
+    private Optional<UserView> getBlackDuckUser(final BlackDuckService blackDuckService) {
         UserView userView = null;
         try {
             userView = blackDuckService.getResponse(ApiDiscovery.CURRENT_USER_LINK_RESPONSE);
@@ -187,18 +195,11 @@ public class BlackDuckJiraTask {
         return Optional.ofNullable(userView);
     }
 
-    private HubServicesFactory createBlackDuckServicesFactory(final HubServerConfig blackDuckServerConfig) throws EncryptionException {
-        final BlackduckRestConnection restConnection = blackDuckServerConfig.createRestConnection(logger);
-        final HubServicesFactory blackDuckServicesFactory = new HubServicesFactory(gson, HubServicesFactory.createDefaultJsonParser(), restConnection, logger);
+    private BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig blackDuckServerConfig) {
+        final BlackDuckHttpClient restConnection = blackDuckServerConfig.createBlackDuckHttpClient(logger);
+        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
+            restConnection, logger);
         return blackDuckServicesFactory;
-    }
-
-    void closeRestConnection(final RestConnection restConnection) {
-        try {
-            restConnection.close();
-        } catch (final IOException e) {
-            logger.error("There was a problem trying to close the connection to the Black Duck server.", e);
-        }
     }
 
     private List<String> getRuleUrls(final BlackDuckJiraConfigSerializable config) {
@@ -214,19 +215,19 @@ public class BlackDuckJiraTask {
         return ruleUrls;
     }
 
-    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final HubServicesFactory hubServicesFactory, final NotificationService notificationService, final boolean notificationsOldestFirst,
-            final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws URISyntaxException {
+    private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final BlackDuckServicesFactory blackDuckServicesFactory, final NotificationService notificationService, final boolean notificationsOldestFirst,
+        final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         logger.debug("JIRA user: " + this.jiraContext.getJiraAdminUser().getName());
 
-        final CommonNotificationService commonNotificationService = createCommonNotificationService(hubServicesFactory, notificationsOldestFirst);
-        return new TicketGenerator(hubServicesFactory.createHubService(), hubServicesFactory.createHubBucketService(), notificationService, commonNotificationService,
-                hubServicesFactory.createIssueService(), jiraServices, jiraUserContext, jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(),
-                pluginConfigDetails.isCommentOnIssueUpdates(), linksOfRulesToMonitor, fieldCopyConfig);
+        final CommonNotificationService commonNotificationService = createCommonNotificationService(blackDuckServicesFactory, notificationsOldestFirst);
+        return new TicketGenerator(blackDuckServicesFactory.createBlackDuckService(), blackDuckServicesFactory.createBlackDuckBucketService(), notificationService, commonNotificationService, jiraServices, jiraUserContext,
+            jiraSettingsService, ticketInfoFromSetup.getCustomFields(), pluginConfigDetails.isCreateVulnerabilityIssues(),
+            pluginConfigDetails.isCommentOnIssueUpdates(), linksOfRulesToMonitor, fieldCopyConfig);
     }
 
-    private CommonNotificationService createCommonNotificationService(final HubServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
-        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), HubServicesFactory.createDefaultJsonParser());
-        return blackDuckServicesFactory.createCommonNotificationService(contentDetailFactory, notificationsOldestFirst);
+    private CommonNotificationService createCommonNotificationService(final BlackDuckServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
+        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), new JsonParser());
+        return new CommonNotificationService(contentDetailFactory, notificationsOldestFirst);
     }
 
     private Optional<BlackDuckJiraConfigSerializable> deSerializeConfig() {
@@ -268,46 +269,19 @@ public class BlackDuckJiraTask {
         return BlackDuckPluginDateFormatter.parse(lastRunDateString);
     }
 
-    public void bdPhoneHome(final BlackDuckPhoneHomeCallable phCallable) {
-        try {
-            final ClusterManager clusterManager = jiraServices.getClusterManager();
-            final JiraDeploymentType deploymentType;
-            if (clusterManager.isClusterLicensed()) {
-                deploymentType = JiraDeploymentType.DATA_CENTER;
-            } else {
-                deploymentType = JiraDeploymentType.SERVER;
-            }
-
-            phCallable.addMetaData("jira.version", new BuildUtilsInfoImpl().getVersion());
-            phCallable.addMetaData("jira.deployment", deploymentType.name());
-
-            final PhoneHomeService phService = new PhoneHomeService(logger, null);
-            phService.phoneHome(phCallable);
-            jiraSettingsService.setLastPhoneHome(LocalDate.now());
-        } catch (final Exception phException) {
-            logger.debug("Unable to phone home: " + phException.getMessage());
-        }
-    }
-
-    private Optional<HubServicesFactory> getBlackDuckServicesFactory() {
-        final HubServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
-        HubServerConfig blackDuckServerConfig = null;
+    private Optional<BlackDuckServicesFactory> getBlackDuckServicesFactory() {
+        final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder = pluginConfigDetails.createServerConfigBuilder();
+        BlackDuckServerConfig blackDuckServerConfig = null;
         try {
             logger.debug("Building Black Duck configuration");
             blackDuckServerConfig = blackDuckServerConfigBuilder.build();
-            logger.debug("Finished building Black Duck configuration for " + blackDuckServerConfig.getHubUrl());
+            logger.debug("Finished building Black Duck configuration for " + blackDuckServerConfig.getBlackDuckUrl());
+            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
+            return Optional.ofNullable(blackDuckServicesFactory);
         } catch (final IllegalStateException e) {
             logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
         }
 
-        HubServicesFactory blackDuckServicesFactory = null;
-        if (null != blackDuckServerConfig) {
-            try {
-                blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
-            } catch (final EncryptionException e) {
-                logger.warn("Error handling password: " + e.getMessage());
-            }
-        }
-        return Optional.ofNullable(blackDuckServicesFactory);
+        return Optional.empty();
     }
 }

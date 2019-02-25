@@ -23,27 +23,21 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
-import com.synopsys.integration.blackduck.configuration.HubServerConfig;
-import com.synopsys.integration.blackduck.configuration.HubServerConfigBuilder;
-import com.synopsys.integration.blackduck.rest.BlackduckRestConnection;
-import com.synopsys.integration.encryption.PasswordEncrypter;
-import com.synopsys.integration.exception.EncryptionException;
-import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 
 public class BlackDuckConfigActions {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -66,7 +60,6 @@ public class BlackDuckConfigActions {
             config.setApiTokenLength(apiToken.length());
             config.setApiToken(config.getMaskedApiToken());
         }
-
         config.setTimeout(timeout);
         config.setTrustCert(trustCert);
         config.setHubProxyHost(proxyHost);
@@ -88,31 +81,7 @@ public class BlackDuckConfigActions {
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
         setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, newConfig.getHubUrl());
-        final String apiToken = newConfig.getApiToken();
-
-        if (StringUtils.isBlank(apiToken)) {
-            setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, null);
-        } else if (!newConfig.isApiTokenMasked()) {
-            setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, apiToken);
-        }
-        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_USER, newConfig.getUsername());
-
-        final String password = newConfig.getPassword();
-        if (StringUtils.isBlank(password)) {
-            setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, null);
-            setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, null);
-        } else if (!newConfig.isPasswordMasked()) {
-            // only update the stored password if it is not the masked
-            // password used for display
-            try {
-                final String encPassword = PasswordEncrypter.encrypt(password);
-                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS, encPassword);
-                setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH, String.valueOf(password.length()));
-            } catch (final IllegalArgumentException | EncryptionException e) {
-                // This error was swallowed; not sure why. Adding a log message
-                logger.error("Error encrypting password: " + e.getMessage());
-            }
-        }
+        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, newConfig.getApiToken());
         setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, newConfig.getTimeout());
         setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, newConfig.getTrustCert());
         setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST, newConfig.getHubProxyHost());
@@ -126,13 +95,7 @@ public class BlackDuckConfigActions {
             setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, null);
         } else if (!newConfig.isProxyPasswordMasked()) {
             // only update the stored password if it is not the masked password used for display
-            try {
-                final String encryptedProxyPassword = PasswordEncrypter.encrypt(proxyPassword);
-                setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS, encryptedProxyPassword);
-                setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH,
-                    String.valueOf(proxyPassword.length()));
-            } catch (final IllegalArgumentException | EncryptionException e) {
-            }
+            setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS, proxyPassword);
         }
         validateAndUpdateErrorsOnConfig(newConfig);
         return newConfig;
@@ -146,33 +109,24 @@ public class BlackDuckConfigActions {
             return newConfig;
         } else {
             newConfig = getUnMaskedConfig(newConfig, settings);
-            final HubServerConfigBuilder serverConfigBuilder = new HubServerConfigBuilder();
+            final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
             serverConfigBuilder.setLogger(logger);
             serverConfigBuilder.setUrl(newConfig.getHubUrl());
             serverConfigBuilder.setTimeout(newConfig.getTimeout());
             serverConfigBuilder.setApiToken(newConfig.getApiToken());
-            serverConfigBuilder.setUsername(newConfig.getUsername());
-            serverConfigBuilder.setPassword(newConfig.getPassword());
-            serverConfigBuilder.setPasswordLength(newConfig.getPasswordLength());
             serverConfigBuilder.setTrustCert(newConfig.getTrustCert());
 
             serverConfigBuilder.setProxyHost(newConfig.getHubProxyHost());
             serverConfigBuilder.setProxyPort(newConfig.getHubProxyPort());
             serverConfigBuilder.setProxyUsername(newConfig.getHubProxyUser());
             serverConfigBuilder.setProxyPassword(newConfig.getHubProxyPassword());
-            serverConfigBuilder.setProxyPasswordLength(newConfig.getHubProxyPasswordLength());
-            serverConfigBuilder.setProxyIgnoredHosts(newConfig.getHubNoProxyHosts());
 
-            final HubServerConfig serverConfig = serverConfigBuilder.build();
-            try (final BlackduckRestConnection restConnection = serverConfig.createRestConnection(logger)) {
-                restConnection.connect();
-            } catch (final IntegrationException | IOException e) {
-                if (e.getMessage().toLowerCase().contains("unauthorized")) {
-                    newConfig.setApiTokenError("Invalid credential(s) for: " + serverConfig.getHubUrl());
-                } else {
-                    newConfig.setTestConnectionError(e.toString());
-                }
+            try {
+                serverConfigBuilder.build();
+            } catch (final IllegalStateException e) {
+                newConfig.setTestConnectionError(e.getMessage());
             }
+
             return newConfig;
         }
     }
@@ -182,10 +136,6 @@ public class BlackDuckConfigActions {
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
             newConfig.setApiToken(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN));
-        }
-        if (StringUtils.isNotBlank(newConfig.getPassword()) && newConfig.isPasswordMasked()) {
-            newConfig.setPassword(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS));
-            newConfig.setPasswordLength(NumberUtils.toInt(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_PASS_LENGTH)));
         }
         if (StringUtils.isNotBlank(newConfig.getHubProxyPassword()) && newConfig.isProxyPasswordMasked()) {
             newConfig.setHubProxyPassword(getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS));
@@ -235,14 +185,8 @@ public class BlackDuckConfigActions {
     }
 
     private void validateBlackDuckCredentials(final BlackDuckServerConfigSerializable config) {
-        if (StringUtils.isBlank(config.getApiToken()) && StringUtils.isBlank(config.getUsername()) && StringUtils.isBlank(config.getPassword())) {
+        if (StringUtils.isBlank(config.getApiToken())) {
             config.setApiTokenError("No api token was found.");
-            config.setUsernameError("No Hub Username was found.");
-            config.setPasswordError("No Hub Password was found.");
-        } else if (StringUtils.isBlank(config.getApiToken()) && StringUtils.isBlank(config.getUsername()) && StringUtils.isNotBlank(config.getPassword())) {
-            config.setUsernameError("No Hub Username was found.");
-        } else if (StringUtils.isBlank(config.getApiToken()) && StringUtils.isNotBlank(config.getUsername()) && StringUtils.isBlank(config.getPassword())) {
-            config.setPasswordError("No Hub Password was found.");
         }
     }
 
