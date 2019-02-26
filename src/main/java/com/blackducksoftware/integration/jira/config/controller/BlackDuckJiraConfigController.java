@@ -56,6 +56,7 @@ import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
@@ -86,9 +87,10 @@ public class BlackDuckJiraConfigController extends ConfigController {
         final Object pluginInfo;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             pluginInfo = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
@@ -112,9 +114,10 @@ public class BlackDuckJiraConfigController extends ConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete, @Context final HttpServletRequest request) {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+        final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
         final Object obj = getTransactionTemplate().execute(new TransactionCallback() {
             @Override
@@ -169,9 +172,10 @@ public class BlackDuckJiraConfigController extends ConfigController {
         final Object responseString;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
 
             responseString = getTransactionTemplate().execute(new TransactionCallback() {

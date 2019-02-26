@@ -52,7 +52,7 @@ public class BlackDuckJiraServletTest {
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
 
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory, controllerAuthentication);
+        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
         assertEquals(redirectUrl, responseMock.getRedirectedLocation());
@@ -75,7 +75,7 @@ public class BlackDuckJiraServletTest {
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
 
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory, controllerAuthentication);
+        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
         assertEquals(redirectUrl, responseMock.getRedirectedLocation());
@@ -101,7 +101,7 @@ public class BlackDuckJiraServletTest {
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
 
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory, controllerAuthentication);
+        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
         assertEquals(redirectUrl, responseMock.getRedirectedLocation());
@@ -128,7 +128,7 @@ public class BlackDuckJiraServletTest {
         requestMock.setRequestURL(requestUrl);
 
         final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock,
-            pluginSettingsFactory, controllerAuthentication);
+            pluginSettingsFactory);
 
         servlet.doGet(requestMock, responseMock);
 
@@ -155,7 +155,7 @@ public class BlackDuckJiraServletTest {
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
 
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory, controllerAuthentication);
+        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
         assertEquals("text/html;charset=utf-8", responseMock.getContentType());
@@ -180,7 +180,7 @@ public class BlackDuckJiraServletTest {
         final HttpServletRequestMock requestMock = new HttpServletRequestMock();
         requestMock.setRequestURL(requestUrl);
 
-        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory, controllerAuthentication);
+        final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
         assertEquals("text/html;charset=utf-8", responseMock.getContentType());

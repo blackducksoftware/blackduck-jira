@@ -35,7 +35,7 @@ public class AuthenticationChecker {
     }
 
     public boolean isValidAuthentication(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
-        return isUserSystemAdmin(request) && isGroupAuthenticated(request, blackDuckJiraGroups);
+        return isUserSystemAdmin(request) || isGroupAuthenticated(request, blackDuckJiraGroups);
     }
 
     public boolean isValidAuthentication(final String username, final String[] blackDuckJiraGroups) {
