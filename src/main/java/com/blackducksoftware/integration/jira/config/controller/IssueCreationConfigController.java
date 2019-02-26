@@ -177,7 +177,7 @@ public class IssueCreationConfigController extends ConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
-        logger.debug("GET createVulnerabilityTicketsChoice");
+        logger.debug("GET /vulnerability/ticketchoice");
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -188,7 +188,7 @@ public class IssueCreationConfigController extends ConfigController {
             config = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    logger.debug("GET createVulnerabilityTicketsChoice transaction");
+                    logger.debug("GET /vulnerability/ticketchoice transaction");
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
                     final String createVulnIssuesChoiceString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
                     logger.debug("createVulnIssuesChoiceString: " + createVulnIssuesChoiceString);
@@ -215,7 +215,7 @@ public class IssueCreationConfigController extends ConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCommentOnIssueUpdatesChoice(@Context final HttpServletRequest request) {
-        logger.debug("GET commentOnIssueUpdatesChoice");
+        logger.debug("GET /comment/updatechoice");
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
@@ -226,7 +226,7 @@ public class IssueCreationConfigController extends ConfigController {
             config = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    logger.debug("GET commentOnIssueUpdatesChoice transaction");
+                    logger.debug("GET /comment/updatechoice transaction");
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
                     final String commentOnIssueUpdatesChoiceString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
                     logger.debug("commentOnIssueUpdatesChoiceString: " + commentOnIssueUpdatesChoiceString);

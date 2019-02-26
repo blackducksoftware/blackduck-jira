@@ -23,17 +23,287 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.sal.api.transaction.TransactionTemplate;
+import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
+import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.Fields;
+import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
+import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
+
 @Path("/config/issue/field/mapping")
-public class IssueFieldMappingConfigController {
+public class IssueFieldMappingConfigController extends ConfigController {
+
+    final FieldManager fieldManager;
+
+    public IssueFieldMappingConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate,
+        final UserManager userManager, final FieldManager fieldManager) {
+        super(pluginSettingsFactory, transactionTemplate, userManager);
+        this.fieldManager = fieldManager;
+    }
 
     @GET
-    public Response get(@Context final HttpServletRequest request) {
-        return Response.status(Response.Status.NOT_FOUND).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMappings(@Context final HttpServletRequest request) {
+        final Object config;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = getTransactionTemplate().execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                    final String blackDuckProjectMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+
+                    txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
+
+                    validateMapping(txConfig);
+                    return txConfig;
+                }
+            });
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting project mappings: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
+    @Path("/sources")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSourceFields(@Context final HttpServletRequest request) {
+        final Object sourceFields;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+
+            sourceFields = getTransactionTemplate().execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final Fields txSourceFields = new Fields();
+                    logger.debug("Adding source fields");
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
+                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
+                    Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                    logger.debug("sourceFields: " + txSourceFields);
+                    return txSourceFields;
+                }
+            });
+        } catch (final Exception e) {
+            final Fields errorSourceFields = new Fields();
+            final String msg = "Error getting source fields: " + e.getMessage();
+            logger.error(msg, e);
+            errorSourceFields.setErrorMessage(msg);
+            return Response.ok(errorSourceFields).build();
+        }
+        return Response.ok(sourceFields).build();
+    }
+
+    @Path("/targets")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTargetFields(@Context final HttpServletRequest request) {
+        final Object targetFields;
+        try {
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+
+            targetFields = getTransactionTemplate().execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    Fields txTargetFields;
+                    try {
+                        txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
+                    } catch (final JiraException e) {
+                        txTargetFields = new Fields();
+                        txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
+                        return txTargetFields;
+                    }
+                    Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                    logger.debug("targetFields: " + txTargetFields);
+                    return txTargetFields;
+                }
+            });
+        } catch (final Exception e) {
+            final Fields errorTargetFields = new Fields();
+            final String msg = "Error getting target fields: " + e.getMessage();
+            logger.error(msg, e);
+            errorTargetFields.setErrorMessage(msg);
+            return Response.ok(errorTargetFields).build();
+        }
+        return Response.ok(targetFields).build();
+    }
+
+    @Path("/copies")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFieldCopyMappings(@Context final HttpServletRequest request) {
+        Object config = null;
+        try {
+            logger.debug("Get /copies");
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            config = getTransactionTemplate().execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
+                    final String blackDuckFieldCopyMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+
+                    logger.debug("Get /copies returning JSON: " + blackDuckFieldCopyMappingsJson);
+                    txConfig.setJson(blackDuckFieldCopyMappingsJson);
+                    logger.debug("BlackDuckJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
+                    return txConfig;
+                }
+            });
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting field mappings: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+
+        final BlackDuckJiraFieldCopyConfigSerializable returnValue = (BlackDuckJiraFieldCopyConfigSerializable) config;
+        logger.debug("returnValue: " + returnValue);
+        return Response.ok(config).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateFieldCopyConfiguration(final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, @Context final HttpServletRequest request) {
+        try {
+            logger.debug("updateFieldCopyConfiguration() received " + fieldCopyConfig.getProjectFieldCopyMappings().size() + " rows.");
+            logger.debug("fieldCopyConfig.getProjectFieldCopyMappings(): " + fieldCopyConfig.getProjectFieldCopyMappings());
+            for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+                logger.debug("projectFieldCopyMapping: " + projectFieldCopyMapping);
+            }
+
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+
+            final Response response = checkUserPermissions(request, settings);
+            if (response != null) {
+                return response;
+            }
+            getTransactionTemplate().execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction() {
+                    if (!isValid(fieldCopyConfig)) {
+                        return null;
+                    }
+
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
+                    return null;
+                }
+            });
+        } catch (final Exception e) {
+            final String msg = "Exception during admin save: " + e.getMessage();
+            logger.error(msg, e);
+            fieldCopyConfig.setErrorMessage(msg);
+        }
+        if (fieldCopyConfig.hasErrors()) {
+            return Response.ok(fieldCopyConfig).status(Response.Status.BAD_REQUEST).build();
+        }
+        return Response.noContent().build();
+    }
+
+    // This must be "package protected" to avoid synthetic access
+    void validateMapping(final BlackDuckJiraConfigSerializable config) {
+        if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
+            boolean hasEmptyMapping = false;
+            for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                boolean jiraProjectBlank = true;
+                boolean blackDuckProjectBlank = true;
+                if (mapping.getJiraProject() != null) {
+                    if (mapping.getJiraProject().getProjectId() != null) {
+                        jiraProjectBlank = false;
+                    }
+                }
+                if (StringUtils.isNotBlank(mapping.getBlackDuckProjectName())) {
+                    blackDuckProjectBlank = false;
+                }
+                if (jiraProjectBlank || blackDuckProjectBlank) {
+                    hasEmptyMapping = true;
+                }
+            }
+            if (hasEmptyMapping) {
+                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
+            }
+        }
+    }
+
+    // This must be "package protected" to avoid synthetic access
+    boolean isValid(final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        if (fieldCopyConfig.getProjectFieldCopyMappings().size() == 0) {
+            fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.NO_VALID_FIELD_CONFIGURATIONS);
+            return false;
+        }
+
+        for (final ProjectFieldCopyMapping projectFieldCopyMapping : fieldCopyConfig.getProjectFieldCopyMappings()) {
+            if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldId())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldId())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getSourceFieldName())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_SOURCE_FIELD);
+                return false;
+            }
+            if (StringUtils.isBlank(projectFieldCopyMapping.getTargetFieldName())) {
+                fieldCopyConfig.setErrorMessage(JiraConfigErrorStrings.FIELD_CONFIGURATION_INVALID_TARGET_FIELD);
+                return false;
+            }
+        }
+        return true;
     }
 }

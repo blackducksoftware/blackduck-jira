@@ -23,7 +23,7 @@
  */
 function readMappingData() {
     AJS.$.ajax({
-        url: createRequestPath('mappings/'),
+        url: createRequestPath('config/issue/field/mapping'),
         dataType: "json",
         success: function (config) {
             fillInMappings(config.hubProjectMappings);
@@ -45,7 +45,7 @@ function readMappingData() {
 
 function readSourceFields() {
     AJS.$.ajax({
-        url: createRequestPath('sourceFields/'),
+        url: createRequestPath('config/issue/field/mapping/sources'),
         dataType: "json",
         success: function (sourceFieldNames) {
             fillInSourceFields(sourceFieldNames);
@@ -62,7 +62,7 @@ function readSourceFields() {
 
 function readTargetFields() {
     AJS.$.ajax({
-        url: createRequestPath('targetFields/'),
+        url: createRequestPath('config/issue/field/mapping/targets'),
         dataType: "json",
         success: function (targetFields) {
             fillInTargetFields(targetFields);
@@ -80,7 +80,7 @@ function readTargetFields() {
 
 function readFieldCopyMappings() {
     AJS.$.ajax({
-        url: createRequestPath('fieldCopyMappings/'),
+        url: createRequestPath('config/issue/field/mapping/copies'),
         dataType: "json",
         success: function (config) {
             console.log("Success getting field copy mappings");
@@ -100,7 +100,7 @@ function readFieldCopyMappings() {
 
 function updateFieldCopyConfig() {
     console.log("updateFieldCopyConfig()");
-    putFieldCopyConfig(createRequestPath('updateFieldCopyMappings'), 'Save successful.', 'The field copy configuration is not valid.');
+    putFieldCopyConfig(createRequestPath('config/issue/field/mapping'), 'Save successful.', 'The field copy configuration is not valid.');
 }
 
 function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
@@ -114,7 +114,7 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
         dataType: "json",
         contentType: "application/json",
         data: '{ "projectFieldCopyMappings": '
-            + jsonFieldCopyMappingArray
+            + JSON.stringify(jsonFieldCopyMappingArray)
             + ' }',
         processData: false,
         success: function () {
