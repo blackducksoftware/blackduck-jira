@@ -82,12 +82,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
     private String hubProxyPortError;
 
     @XmlElement
-    private String hubNoProxyHosts;
-
-    @XmlElement
-    private String hubNoProxyHostsError;
-
-    @XmlElement
     private String hubProxyUser;
 
     @XmlElement
@@ -112,10 +106,18 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         this.trustCert = Boolean.valueOf(blackDuckServerConfigSerializable.getTrustCert());
         this.hubProxyHost = blackDuckServerConfigSerializable.getHubProxyHost();
         this.hubProxyPort = blackDuckServerConfigSerializable.getHubProxyPort();
-        this.hubNoProxyHosts = blackDuckServerConfigSerializable.getHubNoProxyHosts();
         this.hubProxyUser = blackDuckServerConfigSerializable.getHubProxyUser();
         this.hubProxyPassword = blackDuckServerConfigSerializable.getHubProxyPassword();
         this.hubProxyPasswordLength = blackDuckServerConfigSerializable.getHubProxyPasswordLength();
+    }
+
+    public static String getMaskedString(final int length) {
+        if (length == 0) {
+            return null;
+        }
+        final char[] array = new char[length];
+        Arrays.fill(array, '*');
+        return new String(array);
     }
 
     public boolean hasErrors() {
@@ -133,8 +135,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         } else if (StringUtils.isNotBlank(getHubProxyHostError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getHubProxyPortError())) {
-            hasErrors = true;
-        } else if (StringUtils.isNotBlank(getHubNoProxyHostsError())) {
             hasErrors = true;
         } else if (StringUtils.isNotBlank(getHubProxyUserError())) {
             hasErrors = true;
@@ -159,15 +159,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
 
     public boolean isApiTokenMasked() {
         return isStringMasked(apiToken);
-    }
-
-    public static String getMaskedString(final int length) {
-        if (length == 0) {
-            return null;
-        }
-        final char[] array = new char[length];
-        Arrays.fill(array, '*');
-        return new String(array);
     }
 
     private boolean isStringMasked(final String value) {
@@ -293,22 +284,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         this.hubProxyPortError = hubProxyPortError;
     }
 
-    public String getHubNoProxyHosts() {
-        return hubNoProxyHosts;
-    }
-
-    public void setHubNoProxyHosts(final String hubNoProxyHosts) {
-        this.hubNoProxyHosts = hubNoProxyHosts;
-    }
-
-    public String getHubNoProxyHostsError() {
-        return hubNoProxyHostsError;
-    }
-
-    public void setHubNoProxyHostsError(final String hubNoProxyHostsError) {
-        this.hubNoProxyHostsError = hubNoProxyHostsError;
-    }
-
     public String getHubProxyUser() {
         return hubProxyUser;
     }
@@ -386,10 +361,6 @@ public class BlackDuckServerConfigSerializable extends Stringable implements Ser
         builder.append(hubProxyPort);
         builder.append(", hubProxyPortError=");
         builder.append(hubProxyPortError);
-        builder.append(", hubNoProxyHosts=");
-        builder.append(hubNoProxyHosts);
-        builder.append(", hubNoProxyHostsError=");
-        builder.append(hubNoProxyHostsError);
         builder.append(", hubProxyUser=");
         builder.append(hubProxyUser);
         builder.append(", hubProxyUserError=");

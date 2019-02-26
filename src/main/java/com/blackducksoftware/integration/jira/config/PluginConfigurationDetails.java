@@ -35,7 +35,6 @@ public class PluginConfigurationDetails {
     private final boolean blackDuckTrustCert;
     private final String blackDuckProxyHost;
     private final String blackDuckProxyPort;
-    private final String blackDuckProxyNoHost;
     private final String blackDuckProxyUser;
     private final String blackDuckProxyPassEncrypted;
     private final String blackDuckProxyPassLength;
@@ -61,7 +60,6 @@ public class PluginConfigurationDetails {
 
         blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
         blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        blackDuckProxyNoHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
         blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
         blackDuckProxyPassEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
         blackDuckProxyPassLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
@@ -98,10 +96,6 @@ public class PluginConfigurationDetails {
 
     public String getBlackDuckProxyPort() {
         return blackDuckProxyPort;
-    }
-
-    public String getBlackDuckProxyNoHost() {
-        return blackDuckProxyNoHost;
     }
 
     public String getBlackDuckProxyUser() {

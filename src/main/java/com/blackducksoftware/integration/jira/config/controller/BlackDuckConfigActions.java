@@ -26,8 +26,6 @@ package com.blackducksoftware.integration.jira.config.controller;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -86,7 +84,6 @@ public class BlackDuckConfigActions {
         setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, newConfig.getTrustCert());
         setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST, newConfig.getHubProxyHost());
         setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT, newConfig.getHubProxyPort());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST, newConfig.getHubNoProxyHosts());
         setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER, newConfig.getHubProxyUser());
 
         final String proxyPassword = newConfig.getHubProxyPassword();
@@ -152,7 +149,6 @@ public class BlackDuckConfigActions {
         validateBlackDuckCredentials(config);
         validateProxyHostAndPort(config);
         validateProxyCredentials(config);
-        validateIgnoreHosts(config);
     }
 
     private void validateBlackDuckUrl(final BlackDuckServerConfigSerializable config) {
@@ -219,28 +215,6 @@ public class BlackDuckConfigActions {
             config.setHubProxyUserError("Proxy user not specified.");
         }
 
-    }
-
-    public void validateIgnoreHosts(final BlackDuckServerConfigSerializable config) {
-        final String ignoredProxyHosts = config.getHubNoProxyHosts();
-        if (StringUtils.isNotBlank(ignoredProxyHosts)) {
-            if (StringUtils.isBlank(config.getHubProxyHost())) {
-                config.setHubProxyHostError("Proxy host not specified.");
-            }
-            try {
-                if (ignoredProxyHosts.contains(",")) {
-                    String[] ignoreHosts = null;
-                    ignoreHosts = ignoredProxyHosts.split(",");
-                    for (final String ignoreHost : ignoreHosts) {
-                        Pattern.compile(ignoreHost.trim());
-                    }
-                } else {
-                    Pattern.compile(ignoredProxyHosts);
-                }
-            } catch (final PatternSyntaxException ex) {
-                config.setHubNoProxyHostsError("Proxy ignore hosts does not compile to a valid regular expression.");
-            }
-        }
     }
 
     // This method must be "package protected" to avoid synthetic access
