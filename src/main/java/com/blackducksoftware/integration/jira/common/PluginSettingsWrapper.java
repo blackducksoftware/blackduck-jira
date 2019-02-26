@@ -25,12 +25,15 @@ package com.blackducksoftware.integration.jira.common;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 
 public class PluginSettingsWrapper {
+    public static final String BLACK_DUCK_GROUPS_LIST_DELIMETER = ",";
     private final PluginSettings pluginSettings;
 
     public PluginSettingsWrapper(final PluginSettings pluginSettings) {
@@ -109,12 +112,108 @@ public class PluginSettingsWrapper {
         setValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT, port);
     }
 
+    public String getBlackDuckConfigGroups() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+    }
+
+    public String[] getParsedBlackDuckConfigGroups() {
+        final String blackDuckConfigGroupsString = getBlackDuckConfigGroups();
+        if (StringUtils.isNotBlank(blackDuckConfigGroupsString)) {
+            return blackDuckConfigGroupsString.split(BLACK_DUCK_GROUPS_LIST_DELIMETER);
+        }
+        return new String[0];
+    }
+
+    public void setBlackDuckConfigGroups(final String groups) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groups);
+    }
+
+    public String getIssueCreatorUser() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
+    }
+
+    public void setIssueCreatorUser(final String user) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER, user);
+    }
+
+    public Optional<Integer> getIntervalBetweenChecks() {
+        return getIntegerValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
+    }
+
+    public void setIntervalBetweenChecks(final Integer interval) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, interval);
+    }
+
+    public String getProjectMappingsJson() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+    }
+
+    public void setProjectMappingsJson(final String json) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, json);
+    }
+
+    public String getFieldMappingsCopyJson() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+    }
+
+    public void setFieldMappingsCopyJson(final String json) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, json);
+    }
+
+    public String getFirstTimeSave() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+    }
+
+    public void setFirstTimeSave(final String firstTimeSave) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, firstTimeSave);
+    }
+
+    public String getPolicyRulesJson() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+    }
+
+    public void setPolicyRulesJson(final String json) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON, json);
+    }
+
+    public Boolean getVulnerabilityIssuesChoice() {
+        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+    }
+
+    public void setVulnerabilityIssuesChoice(final Boolean choice) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, choice);
+    }
+
+    public Boolean getCommentOnIssuesUpdatesChoice() {
+        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
+    }
+
+    public void setCommentOnIssuesUpdatesChoice(final Boolean choice) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE, choice);
+    }
+
+    public String getLastRunDate() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
+    }
+
+    public void setLastRunDate(final String lastRunDate) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, lastRunDate);
+    }
+
+    public String getJiraAdminUser() {
+        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER);
+    }
+
+    public void setJiraAdminUser(final String adminUser) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER, adminUser);
+    }
+
     public String getStringValue(final String key) {
         return (String) pluginSettings.get(key);
     }
 
     public Optional<Integer> getIntegerValue(final String key) {
-        String value = getStringValue(key);
+        final String value = getStringValue(key);
         if (NumberUtils.isParsable(value)) {
             return Optional.of(Integer.parseInt(value));
         }

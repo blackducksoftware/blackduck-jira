@@ -26,65 +26,38 @@ package com.blackducksoftware.integration.jira.config.controller;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 
 public class BlackDuckJiraServlet extends HttpServlet {
     private static final long serialVersionUID = 8293922701957754642L;
 
-    private final UserManager userManager;
     private final LoginUriProvider loginUriProvider;
     private final TemplateRenderer renderer;
     private final PluginSettingsFactory pluginSettingsFactory;
+    private final AuthenticationChecker authenticationChecker;
 
     public BlackDuckJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider, final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
-        this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.renderer = renderer;
         this.pluginSettingsFactory = pluginSettingsFactory;
-    }
-
-    private boolean isUserAuthorized(final HttpServletRequest request) {
-        final String username = userManager.getRemoteUsername(request);
-        if (username == null) {
-            return false;
-        }
-        if (userManager.isSystemAdmin(username)) {
-            return true;
-        }
-
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final String blackDuckJiraGroupsString = (String) settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-        if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
-            final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
-            boolean userIsInGroups = false;
-            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-                if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
-                    userIsInGroups = true;
-                    break;
-                }
-            }
-            if (userIsInGroups) {
-                return true;
-            }
-        }
-        return false;
+        this.authenticationChecker = new AuthenticationChecker(userManager);
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-        if (!isUserAuthorized(request)) {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        final PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettings);
+        final String[] parsedBlackDuckConfigGroups = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
+        if (!authenticationChecker.isValidAuthentication(request, parsedBlackDuckConfigGroups)) {
             redirectToLogin(request, response);
             return;
         }

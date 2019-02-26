@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -43,12 +44,12 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.Fields;
@@ -73,15 +74,16 @@ public class IssueFieldMappingConfigController extends ConfigController {
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             config = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String blackDuckProjectMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
+                    final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
 
                     txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 
@@ -105,9 +107,10 @@ public class IssueFieldMappingConfigController extends ConfigController {
         final Object sourceFields;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
 
             sourceFields = getTransactionTemplate().execute(new TransactionCallback() {
@@ -149,9 +152,10 @@ public class IssueFieldMappingConfigController extends ConfigController {
         final Object targetFields;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
 
             targetFields = getTransactionTemplate().execute(new TransactionCallback() {
@@ -188,15 +192,16 @@ public class IssueFieldMappingConfigController extends ConfigController {
         try {
             logger.debug("Get /copies");
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             config = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
                     final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
-                    final String blackDuckFieldCopyMappingsJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
+                    final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
 
                     logger.debug("Get /copies returning JSON: " + blackDuckFieldCopyMappingsJson);
                     txConfig.setJson(blackDuckFieldCopyMappingsJson);
@@ -227,10 +232,10 @@ public class IssueFieldMappingConfigController extends ConfigController {
             }
 
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
@@ -239,7 +244,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
                         return null;
                     }
 
-                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldCopyConfig.getJson());
+                    pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
                     return null;
                 }
             });
@@ -249,7 +254,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
             fieldCopyConfig.setErrorMessage(msg);
         }
         if (fieldCopyConfig.hasErrors()) {
-            return Response.ok(fieldCopyConfig).status(Response.Status.BAD_REQUEST).build();
+            return Response.ok(fieldCopyConfig).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }

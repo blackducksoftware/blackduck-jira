@@ -48,8 +48,8 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 
 @Path("/config/access")
@@ -68,50 +68,29 @@ public class AccessConfigController extends ConfigController {
     public Response getPluginAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
-            final String username = getUserManager().getRemoteUsername(request);
-            if (username == null) {
+            final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(globalSettings);
+            final String[] parsedBlackDuckConfigGroups = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, parsedBlackDuckConfigGroups);
+            if (!validAuthentication) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            final boolean userIsSysAdmin = getUserManager().isSystemAdmin(username);
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final String blackDuckJiraGroupsString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
 
-            if (!userIsSysAdmin) {
-                if (StringUtils.isBlank(blackDuckJiraGroupsString)) {
-                    return Response.status(Response.Status.UNAUTHORIZED).build();
-                } else {
-                    final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
-                    boolean userIsInGroups = false;
-                    for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-                        if (getUserManager().isUserInGroup(username, blackDuckJiraGroup.trim())) {
-                            userIsInGroups = true;
-                            break;
+            adminConfig = getTransactionTemplate().execute((TransactionCallback) () -> {
+                final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
+                txAdminConfig.setHubJiraGroups(StringUtils.join(parsedBlackDuckConfigGroups, PluginSettingsWrapper.BLACK_DUCK_GROUPS_LIST_DELIMETER));
+                if (getAuthenticationChecker().isUserSystemAdmin(request)) {
+                    final List<String> jiraGroups = new ArrayList<>();
+
+                    final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
+                    if (jiraGroupCollection != null && !jiraGroupCollection.isEmpty()) {
+                        for (final Group group : jiraGroupCollection) {
+                            jiraGroups.add(group.getName());
                         }
                     }
-                    if (!userIsInGroups) {
-                        return Response.status(Response.Status.UNAUTHORIZED).build();
-                    }
+                    txAdminConfig.setJiraGroups(jiraGroups);
                 }
-            }
-
-            adminConfig = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
-                    txAdminConfig.setHubJiraGroups(blackDuckJiraGroupsString);
-                    if (userIsSysAdmin) {
-                        final List<String> jiraGroups = new ArrayList<>();
-
-                        final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
-                        if (jiraGroupCollection != null && !jiraGroupCollection.isEmpty()) {
-                            for (final Group group : jiraGroupCollection) {
-                                jiraGroups.add(group.getName());
-                            }
-                        }
-                        txAdminConfig.setJiraGroups(jiraGroups);
-                    }
-                    return txAdminConfig;
-                }
+                return txAdminConfig;
             });
         } catch (final Exception e) {
             final BlackDuckAdminConfigSerializable errorAdminConfig = new BlackDuckAdminConfigSerializable();
@@ -128,26 +107,24 @@ public class AccessConfigController extends ConfigController {
     public Response updateBlackDuckAdminConfiguration(final BlackDuckAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
         final Object responseObject;
         try {
-            final String username = getUserManager().getRemoteUsername(request);
-            if (username == null) {
+            final boolean userAvailable = getAuthenticationChecker().isUserAvailable(request);
+            if (!userAvailable) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            final boolean userIsSysAdmin = getUserManager().isSystemAdmin(username);
 
-            responseObject = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                    final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();
+            responseObject = getTransactionTemplate().execute((TransactionCallback) () -> {
+                final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+                final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+                final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();
 
-                    if (!userIsSysAdmin) {
-                        txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
-                        return txResponseObject;
-                    } else {
-                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, adminConfig.getHubJiraGroups());
-                    }
-                    return null;
+                final boolean userSystemAdmin = getAuthenticationChecker().isUserSystemAdmin(request);
+                if (!userSystemAdmin) {
+                    txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
+                    return txResponseObject;
+                } else {
+                    pluginSettingsWrapper.setBlackDuckConfigGroups(adminConfig.getHubJiraGroups());
                 }
+                return null;
             });
         } catch (final Exception e) {
             final String msg = "Exception during admin save: " + e.getMessage();

@@ -39,7 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -47,9 +47,9 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
@@ -83,26 +83,26 @@ public class BlackDuckConfigController extends ConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final PluginSettingsWrapper pluginSettingsWrapper = createSettingsWrapper();
+        final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable config = getTransactionTemplate().execute(() -> blackDuckConfigActions.getStoredBlackDuckConfig(settings));
+        final BlackDuckServerConfigSerializable config = getTransactionTemplate().execute(() -> blackDuckConfigActions.getStoredBlackDuckConfig(pluginSettingsWrapper));
         return Response.ok(config).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final BlackDuckServerConfigSerializable config, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final PluginSettingsWrapper pluginSettingsWrapper = createSettingsWrapper();
+        final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.updateBlackDuckConfig(config, settings));
+        final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.updateBlackDuckConfig(config, pluginSettingsWrapper));
         if (modifiedConfig.hasErrors()) {
             return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
         }
@@ -114,13 +114,13 @@ public class BlackDuckConfigController extends ConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response testConnection(final BlackDuckServerConfigSerializable config, @Context final HttpServletRequest request) {
         try {
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = createSettingsWrapper();
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.testConnection(config, settings));
+            final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.testConnection(config, pluginSettingsWrapper));
             if (modifiedConfig.hasErrors()) {
                 return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
             }
@@ -146,14 +146,16 @@ public class BlackDuckConfigController extends ConfigController {
     @Path("/projects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+
     public Response getBlackDuckProjects(@Context final HttpServletRequest request) {
         logger.debug("getBlackDuckProjects()");
         final Object projectsConfig;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             projectsConfig = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
@@ -189,14 +191,15 @@ public class BlackDuckConfigController extends ConfigController {
         final Object config;
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
             config = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction() {
-                    final String policyRulesJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+                    final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
                     final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
                     if (StringUtils.isNotBlank(policyRulesJson)) {
@@ -229,23 +232,21 @@ public class BlackDuckConfigController extends ConfigController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBlackDuckJiraTicketErrors(@Context final HttpServletRequest request) {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+        final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
-        final Object obj = getTransactionTemplate().execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
+        final Object obj = getTransactionTemplate().execute((TransactionCallback) () -> {
+            final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
-                final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
-                if (ticketErrors != null) {
-                    Collections.sort(ticketErrors);
-                    creationError.setHubJiraTicketErrors(ticketErrors);
-                    logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
-                }
-                return creationError;
+            final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
+            if (ticketErrors != null) {
+                Collections.sort(ticketErrors);
+                creationError.setHubJiraTicketErrors(ticketErrors);
+                logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
             }
+            return creationError;
         });
 
         return Response.ok(obj).build();
@@ -253,36 +254,36 @@ public class BlackDuckConfigController extends ConfigController {
 
     // This must be "package protected" to avoid synthetic access
     BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettings settings) throws ConfigurationException {
-        final BlackDuckHttpClient restConnection = createRestConnection(settings);
+        final BlackDuckHttpClient restConnection = createRestConnection(new PluginSettingsWrapper(settings));
         final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
             restConnection, logger);
         return blackDuckServicesFactory;
     }
 
-    private BlackDuckHttpClient createRestConnection(final PluginSettings settings) throws ConfigurationException {
-        final String blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
-        final String blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-        final String blackDuckTimeout = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
-        final String blackDuckTrustCert = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
+    private BlackDuckHttpClient createRestConnection(final PluginSettingsWrapper settings) throws ConfigurationException {
+        final String blackDuckUrl = settings.getBlackDuckUrl();
+        final String blackDuckApiToken = settings.getBlackDuckApiToken();
+        final Optional<Integer> blackDuckTimeout = settings.getBlackDuckTimeout();
+        final Boolean blackDuckTrustCert = settings.getBlackDuckAlwaysTrust();
 
         if (StringUtils.isBlank(blackDuckApiToken)) {
             throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
 
-        final String blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
-        final String blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        final String blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
-        final String encBlackDuckProxyPassword = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        final String blackDuckProxyHost = settings.getBlackDuckProxyHost();
+        final Optional<Integer> blackDuckProxyPort = settings.getBlackDuckProxyPort();
+        final String blackDuckProxyUser = settings.getBlackDuckProxyUser();
+        final String encBlackDuckProxyPassword = settings.getBlackDuckProxyPassword();
 
         final BlackDuckHttpClient restConnection;
         try {
             final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
             configBuilder.setApiToken(blackDuckApiToken);
-            configBuilder.setTimeout(blackDuckTimeout);
+            configBuilder.setTimeout(blackDuckTimeout.orElse(300));
             configBuilder.setTrustCert(blackDuckTrustCert);
             configBuilder.setProxyHost(blackDuckProxyHost);
-            configBuilder.setProxyPort(blackDuckProxyPort);
+            blackDuckProxyPort.ifPresent(configBuilder::setProxyPort);
             configBuilder.setProxyUsername(blackDuckProxyUser);
             configBuilder.setProxyPassword(encBlackDuckProxyPassword);
 
@@ -398,6 +399,11 @@ public class BlackDuckConfigController extends ConfigController {
             cleanerString = cleanerString.replace(c, ' ');
         }
         return cleanerString;
+
     }
 
+    private PluginSettingsWrapper createSettingsWrapper() {
+        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        return new PluginSettingsWrapper(settings);
+    }
 }

@@ -27,20 +27,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 
 public class ConfigController {
 
@@ -48,16 +43,16 @@ public class ConfigController {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
-    private final UserManager userManager;
     private final Properties i18nProperties;
+    private final AuthenticationChecker authenticationChecker;
 
     public ConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
-        this.userManager = userManager;
         // TODO: May need to remove this. May only be needed by the field mapping controller.
         i18nProperties = new Properties();
         populateI18nProperties();
+        authenticationChecker = new AuthenticationChecker(userManager);
     }
 
     public PluginSettingsFactory getPluginSettingsFactory() {
@@ -68,8 +63,8 @@ public class ConfigController {
         return transactionTemplate;
     }
 
-    public UserManager getUserManager() {
-        return userManager;
+    public AuthenticationChecker getAuthenticationChecker() {
+        return authenticationChecker;
     }
 
     private void populateI18nProperties() {
@@ -95,65 +90,6 @@ public class ConfigController {
             return key;
         }
         return value;
-    }
-
-    public Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
-        final String username = userManager.getRemoteUsername(request);
-        if (isUserAuthorizedForPlugin(settings, username)) {
-            return null;
-        }
-        return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-
-    public boolean isUserAuthorizedForPlugin(final PluginSettings settings, final String username) {
-        if (username == null) {
-            return false;
-        }
-        if (userManager.isSystemAdmin(username)) {
-            return true;
-        }
-        final String blackDuckJiraGroupsString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-        if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
-            final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
-            boolean userIsInGroups = false;
-            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-                if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
-                    userIsInGroups = true;
-                    break;
-                }
-            }
-            if (userIsInGroups) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    Object getValue(final PluginSettings settings, final String key) {
-        return settings.get(key);
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    String getStringValue(final PluginSettings settings, final String key) {
-        return (String) getValue(settings, key);
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    void setValue(final PluginSettings settings, final String key, final Object value) {
-        if (value == null) {
-            settings.remove(key);
-        } else {
-            settings.put(key, value);
-        }
-    }
-
-    int stringToInteger(final String integer) throws IllegalArgumentException {
-        try {
-            return Integer.valueOf(integer);
-        } catch (final NumberFormatException e) {
-            throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.", e);
-        }
     }
 
     String concatErrorMessage(final String originalMessage, final String newMessage) {

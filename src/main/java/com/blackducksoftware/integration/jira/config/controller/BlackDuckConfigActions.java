@@ -31,7 +31,6 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
@@ -40,8 +39,7 @@ import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBui
 public class BlackDuckConfigActions {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public BlackDuckServerConfigSerializable getStoredBlackDuckConfig(final PluginSettings settings) {
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+    public BlackDuckServerConfigSerializable getStoredBlackDuckConfig(final PluginSettingsWrapper pluginSettingsWrapper) {
         final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
         final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
@@ -81,9 +79,8 @@ public class BlackDuckConfigActions {
         return config;
     }
 
-    public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config, final PluginSettings settings) {
+    public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config, final PluginSettingsWrapper pluginSettingsWrapper) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
         pluginSettingsWrapper.setBlackDuckUrl(newConfig.getHubUrl());
@@ -114,14 +111,14 @@ public class BlackDuckConfigActions {
         return newConfig;
     }
 
-    public BlackDuckServerConfigSerializable testConnection(final BlackDuckServerConfigSerializable config, final PluginSettings settings) {
+    public BlackDuckServerConfigSerializable testConnection(final BlackDuckServerConfigSerializable config, final PluginSettingsWrapper pluginSettingsWrapper) {
         BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
         validateAndUpdateErrorsOnConfig(newConfig);
 
         if (newConfig.hasErrors()) {
             return newConfig;
         } else {
-            newConfig = getUnMaskedConfig(newConfig, settings);
+            newConfig = getUnMaskedConfig(newConfig, pluginSettingsWrapper);
             final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
             serverConfigBuilder.setLogger(logger);
             serverConfigBuilder.setUrl(newConfig.getHubUrl());
@@ -144,9 +141,8 @@ public class BlackDuckConfigActions {
         }
     }
 
-    BlackDuckServerConfigSerializable getUnMaskedConfig(final BlackDuckServerConfigSerializable currentConfig, final PluginSettings settings) {
+    BlackDuckServerConfigSerializable getUnMaskedConfig(final BlackDuckServerConfigSerializable currentConfig, final PluginSettingsWrapper pluginSettingsWrapper) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(currentConfig);
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
             newConfig.setApiToken(pluginSettingsWrapper.getBlackDuckApiToken());
