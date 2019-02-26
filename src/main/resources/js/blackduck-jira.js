@@ -35,7 +35,7 @@ function fillInPluginVersion(pluginVersion) {
 
 function readPluginInfo() {
     AJS.$.ajax({
-        url: createRequestPath('pluginInfo/'),
+        url: createRequestPath('config/pluginInfo/'),
         dataType: "text",
         success: function (pluginVersion) {
             console.log("pluginVersion: " + pluginVersion);
@@ -83,7 +83,7 @@ function populateFormBlackduckData() {
 
 
 function resetSalKeys() {
-    const restUrl = createRequestPath('reset');
+    const restUrl = createRequestPath('config/reset');
     AJS.$.ajax({
         url: restUrl,
         type: "PUT",
@@ -172,7 +172,7 @@ function handleErrorRemoval(trashIcon) {
     const hubJiraTicketErrors = getJsonArrayFromErrors(errorRow);
     AJS.$.ajax({
         url: restUrl,
-        type: "PUT",
+        type: "DELETE",
         dataType: "json",
         contentType: "application/json",
         data: '{ "hubJiraTicketErrors": ' + hubJiraTicketErrors
