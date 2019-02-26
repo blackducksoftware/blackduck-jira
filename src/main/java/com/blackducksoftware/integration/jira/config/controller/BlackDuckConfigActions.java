@@ -26,14 +26,14 @@ package com.blackducksoftware.integration.jira.config.controller;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 
@@ -41,16 +41,17 @@ public class BlackDuckConfigActions {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     public BlackDuckServerConfigSerializable getStoredBlackDuckConfig(final PluginSettings settings) {
-        final String blackDuckUrl = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+        final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
-        final String apiToken = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-        final String timeout = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
-        final String trustCert = getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
-        final String proxyHost = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
-        final String proxyPort = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        final String proxyUser = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
-        final String proxyPassword = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
-        final String proxyPasswordLength = getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
+        final Integer timeout = pluginSettingsWrapper.getBlackDuckTimeout();
+        final Boolean trustCert = pluginSettingsWrapper.getBlackDuckAlwaysTrust();
+        final String proxyHost = pluginSettingsWrapper.getBlackDuckProxyHost();
+        final Integer proxyPort = pluginSettingsWrapper.getBlackDuckProxyPort();
+        final String proxyUser = pluginSettingsWrapper.getBlackDuckProxyUser();
+        final String proxyPassword = pluginSettingsWrapper.getBlackDuckProxyPassword();
+        final Integer proxyPasswordLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength();
 
         final BlackDuckServerConfigSerializable config = new BlackDuckServerConfigSerializable();
         config.setHubUrl(blackDuckUrl);
@@ -58,15 +59,14 @@ public class BlackDuckConfigActions {
             config.setApiTokenLength(apiToken.length());
             config.setApiToken(config.getMaskedApiToken());
         }
-        config.setTimeout(timeout);
+        config.setTimeout(String.valueOf(timeout));
         config.setTrustCert(trustCert);
         config.setHubProxyHost(proxyHost);
-        config.setHubProxyPort(proxyPort);
+        config.setHubProxyPort(String.valueOf(proxyPort));
         config.setHubProxyUser(proxyUser);
         if (StringUtils.isNotBlank(proxyPassword)) {
-            final int blackDuckProxyPasswordLength = getIntFromObject(proxyPasswordLength);
-            if (blackDuckProxyPasswordLength > 0) {
-                config.setHubProxyPasswordLength(blackDuckProxyPasswordLength);
+            if (proxyPasswordLength > 0) {
+                config.setHubProxyPasswordLength(proxyPasswordLength);
                 config.setHubProxyPassword(config.getMaskedProxyPassword());
             }
         }
@@ -76,23 +76,24 @@ public class BlackDuckConfigActions {
 
     public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config, final PluginSettings settings) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
-        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, newConfig.getHubUrl());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, newConfig.getApiToken());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, newConfig.getTimeout());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, newConfig.getTrustCert());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST, newConfig.getHubProxyHost());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT, newConfig.getHubProxyPort());
-        setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER, newConfig.getHubProxyUser());
+        pluginSettingsWrapper.setBlackDuckUrl(newConfig.getHubUrl());
+        pluginSettingsWrapper.setBlackDuckApiToken(newConfig.getApiToken());
+        pluginSettingsWrapper.setBlackDuckTimeout(Integer.parseInt(newConfig.getTimeout()));
+        pluginSettingsWrapper.setBlackDuckAlwaysTrust(Boolean.parseBoolean(newConfig.getTrustCert()));
+        pluginSettingsWrapper.setBlackDuckProxyHost(newConfig.getHubProxyHost());
+        pluginSettingsWrapper.setBlackDuckProxyPort(Integer.parseInt(newConfig.getHubProxyPort()));
+        pluginSettingsWrapper.setBlackDuckProxyUser(newConfig.getHubProxyUser());
 
         final String proxyPassword = newConfig.getHubProxyPassword();
         if (StringUtils.isBlank(proxyPassword)) {
-            setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS, null);
-            setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, null);
+            pluginSettingsWrapper.setBlackDuckProxyPassword(null);
+            pluginSettingsWrapper.setBlackDuckProxyPasswordLength(null);
         } else if (!newConfig.isProxyPasswordMasked()) {
             // only update the stored password if it is not the masked password used for display
-            setValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS, proxyPassword);
+            pluginSettingsWrapper.setBlackDuckProxyPassword(proxyPassword);
         }
         validateAndUpdateErrorsOnConfig(newConfig);
         return newConfig;
@@ -130,13 +131,14 @@ public class BlackDuckConfigActions {
 
     BlackDuckServerConfigSerializable getUnMaskedConfig(final BlackDuckServerConfigSerializable currentConfig, final PluginSettings settings) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(currentConfig);
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
-            newConfig.setApiToken(getValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN));
+            newConfig.setApiToken(pluginSettingsWrapper.getBlackDuckApiToken());
         }
         if (StringUtils.isNotBlank(newConfig.getHubProxyPassword()) && newConfig.isProxyPasswordMasked()) {
-            newConfig.setHubProxyPassword(getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS));
-            newConfig.setHubProxyPasswordLength(NumberUtils.toInt(getValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH)));
+            newConfig.setHubProxyPassword(pluginSettingsWrapper.getBlackDuckProxyPassword());
+            newConfig.setHubProxyPasswordLength(pluginSettingsWrapper.getBlackDuckProxyPasswordLength());
         }
 
         return newConfig;
@@ -144,98 +146,79 @@ public class BlackDuckConfigActions {
 
     // This method must be "package protected" to avoid synthetic access
     void validateAndUpdateErrorsOnConfig(final BlackDuckServerConfigSerializable config) {
-        validateBlackDuckUrl(config);
-        validateBlackDuckTimeout(config);
-        validateBlackDuckCredentials(config);
-        validateProxyHostAndPort(config);
-        validateProxyCredentials(config);
+        validateBlackDuckUrl(config.getHubUrl()).ifPresent(config::setHubUrlError);
+        validateBlackDuckTimeout(config.getTimeout()).ifPresent(config::setTimeoutError);
+        validateBlackDuckApiToken(config.getApiToken()).ifPresent(config::setApiTokenError);
+        validateProxy(config);
     }
 
-    private void validateBlackDuckUrl(final BlackDuckServerConfigSerializable config) {
-        if (StringUtils.isBlank(config.getHubUrl())) {
-            config.setHubUrlError("No Hub Url was found.");
+    private Optional<String> validateBlackDuckUrl(final String url) {
+        if (StringUtils.isBlank(url)) {
+            return Optional.of("No Hub Url was found.");
         } else {
             try {
-                final URL hubURL = new URL(config.getHubUrl());
+                final URL hubURL = new URL(url);
                 hubURL.toURI();
             } catch (final MalformedURLException | URISyntaxException e) {
-                config.setHubUrlError("The Hub Url is not a valid URL.");
-                return;
+                return Optional.of("The Hub Url is not a valid URL.");
             }
         }
+        return Optional.empty();
     }
 
-    private void validateBlackDuckTimeout(final BlackDuckServerConfigSerializable config) {
-        if (StringUtils.isBlank(config.getTimeout())) {
-            config.setTimeoutError("No Hub Timeout was found.");
+    private Optional<String> validateBlackDuckTimeout(final String timeout) {
+        if (StringUtils.isBlank(timeout)) {
+            return Optional.of("No Hub Timeout was found.");
         } else {
             try {
-                final Integer timeout = Integer.valueOf(config.getTimeout());
-                if (timeout <= 0) {
-                    config.setTimeoutError("Timeout must be greater than 0.");
+                final Integer intTimeout = Integer.valueOf(timeout);
+                if (intTimeout <= 0) {
+                    return Optional.of("Timeout must be greater than 0.");
                 }
             } catch (final NumberFormatException e) {
-                config.setTimeoutError(String.format("The String : %s, is not an Integer.", config.getTimeout()));
+                return Optional.of(String.format("The String : %s, is not an Integer.", timeout));
             }
         }
+        return Optional.empty();
     }
 
-    private void validateBlackDuckCredentials(final BlackDuckServerConfigSerializable config) {
-        if (StringUtils.isBlank(config.getApiToken())) {
-            config.setApiTokenError("No api token was found.");
+    private Optional<String> validateBlackDuckApiToken(final String apiToken) {
+        if (StringUtils.isBlank(apiToken)) {
+            return Optional.of("No api token was found.");
         }
+        return Optional.empty();
     }
 
-    private void validateProxyHostAndPort(final BlackDuckServerConfigSerializable config) {
+    private void validateProxy(final BlackDuckServerConfigSerializable config) {
+        final String proxyHost = config.getHubProxyHost();
+        final String proxyPort = config.getHubProxyPort();
+        final String proxyUser = config.getHubProxyUser();
+        final String proxyPassword = config.getHubProxyPassword();
 
-        if (StringUtils.isBlank(config.getHubProxyHost()) && StringUtils.isNotBlank(config.getHubProxyPort())) {
+        if (StringUtils.isBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
             config.setHubProxyHostError("Proxy host not specified.");
         }
-        if (StringUtils.isNotBlank(config.getHubProxyHost()) && StringUtils.isBlank(config.getHubProxyPort())) {
+        if (StringUtils.isNotBlank(proxyHost) && StringUtils.isBlank(proxyPort)) {
             config.setHubProxyPortError("Proxy port not specified.");
-        } else if (StringUtils.isNotBlank(config.getHubProxyHost()) && StringUtils.isNotBlank(config.getHubProxyPort())) {
+        } else if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
             try {
-                final Integer timeout = Integer.valueOf(config.getHubProxyPort());
-                if (timeout <= 0) {
+                final Integer port = Integer.valueOf(proxyPort);
+                if (port <= 0) {
                     config.setHubProxyPortError("Proxy port must be greater than 0.");
                 }
             } catch (final NumberFormatException e) {
-                config.setHubProxyPortError(String.format("The String : %s, is not an Integer.", config.getHubProxyPort()));
+                config.setHubProxyPortError(String.format("The String : %s, is not an Integer.", proxyPort));
             }
         }
-    }
 
-    public void validateProxyCredentials(final BlackDuckServerConfigSerializable config) {
-        if (StringUtils.isNotBlank(config.getHubProxyUser()) && StringUtils.isNotBlank(config.getHubProxyPassword()) && StringUtils.isBlank(config.getHubProxyHost())) {
+        if (StringUtils.isNotBlank(proxyUser) && StringUtils.isNotBlank(proxyPassword) && StringUtils.isBlank(proxyHost)) {
             config.setHubProxyHostError("Proxy host not specified.");
         }
-        if (StringUtils.isNotBlank(config.getHubProxyUser()) && StringUtils.isBlank(config.getHubProxyPassword())) {
+        if (StringUtils.isNotBlank(proxyUser) && StringUtils.isBlank(proxyPassword)) {
             config.setHubProxyPasswordError("Proxy password not specified.");
-        } else if (StringUtils.isBlank(config.getHubProxyUser()) && StringUtils.isNotBlank(config.getHubProxyPassword())) {
+        } else if (StringUtils.isBlank(proxyUser) && StringUtils.isNotBlank(proxyPassword)) {
             config.setHubProxyUserError("Proxy user not specified.");
         }
-
     }
 
-    // This method must be "package protected" to avoid synthetic access
-    int getIntFromObject(final String value) {
-        if (StringUtils.isNotBlank(value)) {
-            return NumberUtils.toInt(value);
-        }
-        return 0;
-    }
-
-    // This method must be "package protected" to avoid synthetic access
-    String getValue(final PluginSettings settings, final String key) {
-        return (String) settings.get(key);
-    }
-
-    // This method must be "package protected" to avoid synthetic access
-    void setValue(final PluginSettings settings, final String key, final Object value) {
-        if (value == null) {
-            settings.remove(key);
-        } else {
-            settings.put(key, String.valueOf(value));
-        }
-    }
 }
