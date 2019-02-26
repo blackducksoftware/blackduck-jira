@@ -23,7 +23,7 @@
  */
 function readCreatorData() {
     AJS.$.ajax({
-        url: createRequestPath('creator/'),
+        url: createRequestPath('config/issue/creator/'),
         dataType: "json",
         success: function (config) {
             updateValue("creatorInput", config.creator);
@@ -41,7 +41,7 @@ function readCreatorData() {
 function initCreatorCandidates() {
     console.log("Initializing issue creator candidate list");
     AJS.$.ajax({
-        url: createRequestPath('creatorCandidates/'),
+        url: createRequestPath('config/issue/creator/candidates/'),
         dataType: "json",
         success: function (config) {
             fillInCreatorCandidates(config.creatorCandidates);
@@ -60,7 +60,7 @@ function initCreatorCandidates() {
 
 function readJiraProjects() {
     AJS.$.ajax({
-        url: createRequestPath('jiraProjects/'),
+        url: createRequestPath('config/issue/creator/jira/projects/'),
         dataType: "json",
         success: function (config) {
             fillInJiraProjects(config.jiraProjects);
@@ -80,7 +80,7 @@ function readJiraProjects() {
 
 function readCreateVulnerabilityTicketsChoide() {
     AJS.$.ajax({
-        url: createRequestPath('createVulnerabilityTicketsChoice/'),
+        url: createRequestPath('config/issue/creator/vulnerability/ticketchoice/'),
         dataType: "json",
         success: function (config) {
             console.log("success: get of ticketsChoice");
@@ -102,7 +102,7 @@ function readCreateVulnerabilityTicketsChoide() {
 
 function readCommentOnUpdateChoice() {
     AJS.$.ajax({
-        url: createRequestPath('commentOnIssueUpdatesChoice/'),
+        url: createRequestPath('config/issue/creator/comment/updatechoice'),
         dataType: "json",
         success: function (config) {
             console.log("success: get of commentOnIssueUpdatesChoice");
@@ -124,7 +124,7 @@ function readCommentOnUpdateChoice() {
 
 function readIntervalData() {
     AJS.$.ajax({
-        url: createRequestPath('interval/'),
+        url: createRequestPath('config/issue/creator/interval/'),
         dataType: "json",
         success: function (config) {
             updateValue("intervalBetweenChecks", config.intervalBetweenChecks);
@@ -140,7 +140,7 @@ function readIntervalData() {
 }
 
 function updateConfig() {
-    putConfig(createRequestPath(''), 'Save successful.', 'The configuration is not valid.');
+    putConfig(createRequestPath('config/issue/creator/'), 'Save successful.', 'The configuration is not valid.');
 }
 
 function putConfig(restUrl, successMessage, failureMessage) {

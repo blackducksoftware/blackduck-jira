@@ -58,12 +58,9 @@ public class AccessConfigController extends ConfigController {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     final GroupPickerSearchService groupPickerSearchService;
 
-    private final UserManager userManager;
-
     AccessConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final GroupPickerSearchService groupPickerSearchService) {
-        super(pluginSettingsFactory, transactionTemplate);
+        super(pluginSettingsFactory, transactionTemplate, userManager);
         this.groupPickerSearchService = groupPickerSearchService;
-        this.userManager = userManager;
     }
 
     @GET
@@ -71,11 +68,11 @@ public class AccessConfigController extends ConfigController {
     public Response getPluginAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
-            final String username = userManager.getRemoteUsername(request);
+            final String username = getUserManager().getRemoteUsername(request);
             if (username == null) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
+            final boolean userIsSysAdmin = getUserManager().isSystemAdmin(username);
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
             final String blackDuckJiraGroupsString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
 
@@ -86,7 +83,7 @@ public class AccessConfigController extends ConfigController {
                     final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
                     boolean userIsInGroups = false;
                     for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-                        if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
+                        if (getUserManager().isUserInGroup(username, blackDuckJiraGroup.trim())) {
                             userIsInGroups = true;
                             break;
                         }
@@ -131,11 +128,11 @@ public class AccessConfigController extends ConfigController {
     public Response updateBlackDuckAdminConfiguration(final BlackDuckAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
         final Object responseObject;
         try {
-            final String username = userManager.getRemoteUsername(request);
+            final String username = getUserManager().getRemoteUsername(request);
             if (username == null) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            final boolean userIsSysAdmin = userManager.isSystemAdmin(username);
+            final boolean userIsSysAdmin = getUserManager().isSystemAdmin(username);
 
             responseObject = getTransactionTemplate().execute(new TransactionCallback() {
                 @Override
