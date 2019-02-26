@@ -23,7 +23,7 @@
  */
 function readBlackduckServerData() {
     AJS.$.ajax({
-        url: createRequestPath('blackDuckDetails/read'),
+        url: createRequestPath('config/blackduck'),
         dataType: "json",
         success: function (config) {
             console.log("Successful get of hub details for " + config.hubUrl);
@@ -63,7 +63,7 @@ function readBlackduckServerData() {
 
 function readBlackduckProjectData() {
     AJS.$.ajax({
-        url: createRequestPath('blackDuckProjects/'),
+        url: createRequestPath('config/blackduck/projects/'),
         dataType: "json",
         success: function (response) {
             if (Array.isArray(response)) {
@@ -85,7 +85,7 @@ function readBlackduckProjectData() {
 
 function readBlackduckPolicyData() {
     AJS.$.ajax({
-        url: createRequestPath('blackDuckPolicies/'),
+        url: createRequestPath('config/blackduck/policies/'),
         dataType: "json",
         success: function (config) {
             addPolicyViolationRules(config.policyRules);
@@ -105,7 +105,7 @@ function readBlackduckPolicyData() {
 
 function readBlackduckTicketCreationErrors() {
     AJS.$.ajax({
-        url: createRequestPath('blackDuckJiraTicketErrors/'),
+        url: createRequestPath('config/blackduck/ticket/errors/'),
         dataType: "json",
         success: function (creationError) {
             updateTicketCreationErrors(creationError.hubJiraTicketErrors);
@@ -126,11 +126,11 @@ function readBlackduckTicketCreationErrors() {
 }
 
 function testConnection() {
-    putHubDetails(createRequestPath('blackDuckDetails/testConnection'), 'Test Connection successful.', 'Test Connection failed.');
+    putHubDetails(createRequestPath('config/blackduck/test'), 'Test Connection successful.', 'Test Connection failed.');
 }
 
 function updateHubDetails() {
-    putHubDetails(createRequestPath('blackDuckDetails/save'), 'Save successful.', 'The Hub details are not valid.');
+    putHubDetails(createRequestPath('config/blackduck'), 'Save successful.', 'The Hub details are not valid.');
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
