@@ -36,7 +36,6 @@ function readBlackduckServerData() {
             updateValue("proxyPort", config.hubProxyPort);
             updateValue("proxyUsername", config.hubProxyUser);
             updateValue("proxyPassword", config.hubProxyPassword);
-            updateValue("noProxyHost", config.hubNoProxyHosts);
 
             checkProxyConfig();
 
@@ -49,7 +48,6 @@ function readBlackduckServerData() {
             handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
             handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
             handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
-            handleErrorHubDetails('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
 
         }, error: function (response) {
             console.log("putConfig(): " + response.responseText);
@@ -144,7 +142,6 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
         apiToken: encodeURI(AJS.$("#bdApiToken").val()),
         hubProxyHost: encodeURI(AJS.$("#proxyHost").val()),
         hubProxyPort: encodeURI(AJS.$("#proxyPort").val()),
-        hubNoProxyHosts: encodeURI(AJS.$("#noProxyHost").val()),
         hubProxyUser: encodeURI(AJS.$("#proxyUsername").val()),
         hubProxyPassword: encodeURI(AJS.$("#proxyPassword").val())
     });
@@ -167,7 +164,6 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
             hideError('proxyPortErrorRow', 'proxyPortError');
             hideError('proxyUsernameErrorRow', 'proxyUsernameError');
             hideError('proxyPasswordErrorRow', 'proxyPasswordError');
-            hideError('noProxyHostErrorRow', 'noProxyHostError');
             hideError('configurationErrorRow', 'configurationError');
 
             showStatusMessage(successStatus, 'Success!', successMessage);
@@ -190,7 +186,6 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
             handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
             handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
             handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
-            handleErrorHubDetails('noProxyHostErrorRow', 'noProxyHostError', config.hubNoProxyHostsError);
             handleErrorHubDetails('configurationErrorRow', 'configurationError', config.testConnectionError);
 
             showStatusMessage(errorStatus, 'ERROR!', failureMessage);

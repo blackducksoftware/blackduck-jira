@@ -43,11 +43,10 @@ function toggleDisplayById(iconId, fieldId) {
 function checkProxyConfig() {
     const proxyHost = AJS.$("#proxyHost").val();
     const proxyPort = AJS.$("#proxyPort").val();
-    const noProxyHost = AJS.$("#noProxyHost").val();
     const proxyUsername = AJS.$("#proxyUsername").val();
     const proxyPassword = AJS.$("#proxyPassword").val();
 
-    if (!proxyHost && !proxyPort && !noProxyHost && !proxyUsername && !proxyPassword) {
+    if (!proxyHost && !proxyPort && !proxyUsername && !proxyPassword) {
         toggleDisplayById("proxyConfigDisplayIcon", 'proxyConfigArea');
     }
 }
