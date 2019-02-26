@@ -1,4 +1,29 @@
+/**
+ * Black Duck JIRA Plugin
+ *
+ * Copyright (C) 2019 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.jira.common;
+
+import java.util.Optional;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -28,7 +53,7 @@ public class PluginSettingsWrapper {
         setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, apiToken);
     }
 
-    public Integer getBlackDuckTimeout() {
+    public Optional<Integer> getBlackDuckTimeout() {
         return getIntegerValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
     }
 
@@ -68,7 +93,7 @@ public class PluginSettingsWrapper {
         setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
     }
 
-    public Integer getBlackDuckProxyPasswordLength() {
+    public Optional<Integer> getBlackDuckProxyPasswordLength() {
         return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
     }
 
@@ -76,7 +101,7 @@ public class PluginSettingsWrapper {
         setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, length);
     }
 
-    public Integer getBlackDuckProxyPort() {
+    public Optional<Integer> getBlackDuckProxyPort() {
         return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT);
     }
 
@@ -88,12 +113,12 @@ public class PluginSettingsWrapper {
         return (String) pluginSettings.get(key);
     }
 
-    public Integer getIntegerValue(final String key) {
-        if (NumberUtils.isParsable(key)) {
-            return Integer.parseInt(getStringValue(key));
+    public Optional<Integer> getIntegerValue(final String key) {
+        String value = getStringValue(key);
+        if (NumberUtils.isParsable(value)) {
+            return Optional.of(Integer.parseInt(value));
         }
-
-        return null;
+        return Optional.empty();
     }
 
     public Boolean getBooleanValue(final String key) {

@@ -134,7 +134,6 @@ function updateHubDetails() {
 }
 
 function putHubDetails(restUrl, successMessage, failureMessage) {
-    const apiTokenInput = AJS.$('#bdAuthenticationTypeToken')[0];
     const config = Object.assign({}, {
         hubUrl: encodeURI(AJS.$("#hubServerUrl").val()),
         timeout: encodeURI(AJS.$("#hubTimeout").val()),

@@ -45,13 +45,13 @@ public class BlackDuckConfigActions {
         final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
         final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
-        final Integer timeout = pluginSettingsWrapper.getBlackDuckTimeout();
+        final Optional<Integer> timeout = pluginSettingsWrapper.getBlackDuckTimeout();
         final Boolean trustCert = pluginSettingsWrapper.getBlackDuckAlwaysTrust();
         final String proxyHost = pluginSettingsWrapper.getBlackDuckProxyHost();
-        final Integer proxyPort = pluginSettingsWrapper.getBlackDuckProxyPort();
+        final Optional<Integer> proxyPort = pluginSettingsWrapper.getBlackDuckProxyPort();
         final String proxyUser = pluginSettingsWrapper.getBlackDuckProxyUser();
         final String proxyPassword = pluginSettingsWrapper.getBlackDuckProxyPassword();
-        final Integer proxyPasswordLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength();
+        final Optional<Integer> proxyPasswordLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength();
 
         final BlackDuckServerConfigSerializable config = new BlackDuckServerConfigSerializable();
         config.setHubUrl(blackDuckUrl);
@@ -59,16 +59,23 @@ public class BlackDuckConfigActions {
             config.setApiTokenLength(apiToken.length());
             config.setApiToken(config.getMaskedApiToken());
         }
-        config.setTimeout(String.valueOf(timeout));
+        timeout.ifPresent(value -> {
+            config.setTimeout(String.valueOf(value));
+        });
+
         config.setTrustCert(trustCert);
         config.setHubProxyHost(proxyHost);
-        config.setHubProxyPort(String.valueOf(proxyPort));
+        proxyPort.ifPresent(value -> {
+            config.setHubProxyPort(String.valueOf(value));
+        });
         config.setHubProxyUser(proxyUser);
         if (StringUtils.isNotBlank(proxyPassword)) {
-            if (proxyPasswordLength > 0) {
-                config.setHubProxyPasswordLength(proxyPasswordLength);
-                config.setHubProxyPassword(config.getMaskedProxyPassword());
-            }
+            proxyPasswordLength
+                .filter(value -> value > 0)
+                .ifPresent(value -> {
+                    config.setHubProxyPasswordLength(value);
+                    config.setHubProxyPassword(config.getMaskedProxyPassword());
+                });
         }
         validateAndUpdateErrorsOnConfig(config);
         return config;
@@ -80,11 +87,19 @@ public class BlackDuckConfigActions {
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
         pluginSettingsWrapper.setBlackDuckUrl(newConfig.getHubUrl());
-        pluginSettingsWrapper.setBlackDuckApiToken(newConfig.getApiToken());
+        if (StringUtils.isBlank(newConfig.getApiToken())) {
+            pluginSettingsWrapper.setBlackDuckApiToken(null);
+        } else if (!newConfig.isApiTokenMasked()) {
+            pluginSettingsWrapper.setBlackDuckApiToken(newConfig.getApiToken());
+        }
         pluginSettingsWrapper.setBlackDuckTimeout(Integer.parseInt(newConfig.getTimeout()));
         pluginSettingsWrapper.setBlackDuckAlwaysTrust(Boolean.parseBoolean(newConfig.getTrustCert()));
         pluginSettingsWrapper.setBlackDuckProxyHost(newConfig.getHubProxyHost());
-        pluginSettingsWrapper.setBlackDuckProxyPort(Integer.parseInt(newConfig.getHubProxyPort()));
+        Integer proxyPortValue = null;
+        if (StringUtils.isNotBlank(newConfig.getHubProxyPort())) {
+            proxyPortValue = Integer.parseInt(newConfig.getHubProxyPort());
+        }
+        pluginSettingsWrapper.setBlackDuckProxyPort(proxyPortValue);
         pluginSettingsWrapper.setBlackDuckProxyUser(newConfig.getHubProxyUser());
 
         final String proxyPassword = newConfig.getHubProxyPassword();
@@ -138,7 +153,7 @@ public class BlackDuckConfigActions {
         }
         if (StringUtils.isNotBlank(newConfig.getHubProxyPassword()) && newConfig.isProxyPasswordMasked()) {
             newConfig.setHubProxyPassword(pluginSettingsWrapper.getBlackDuckProxyPassword());
-            newConfig.setHubProxyPasswordLength(pluginSettingsWrapper.getBlackDuckProxyPasswordLength());
+            pluginSettingsWrapper.getBlackDuckProxyPasswordLength().ifPresent(newConfig::setHubProxyPasswordLength);
         }
 
         return newConfig;
