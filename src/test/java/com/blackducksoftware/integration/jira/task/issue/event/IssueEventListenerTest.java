@@ -133,7 +133,6 @@ public class IssueEventListenerTest {
 
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_HOST, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PORT, "");
-        settings.put(BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_USER, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS, "");
         settings.put(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, "");
