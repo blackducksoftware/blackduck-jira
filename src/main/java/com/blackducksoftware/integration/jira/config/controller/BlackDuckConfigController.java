@@ -43,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -89,7 +88,7 @@ public class BlackDuckConfigController extends ConfigController {
             return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable config = getTransactionTemplate().execute(() -> blackDuckConfigActions.getStoredBlackDuckConfig(pluginSettingsWrapper));
+        final BlackDuckServerConfigSerializable config = executeAsTransaction(() -> blackDuckConfigActions.getStoredBlackDuckConfig(pluginSettingsWrapper));
         return Response.ok(config).build();
     }
 
@@ -102,7 +101,7 @@ public class BlackDuckConfigController extends ConfigController {
             return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.updateBlackDuckConfig(config, pluginSettingsWrapper));
+        final BlackDuckServerConfigSerializable modifiedConfig = executeAsTransaction(() -> blackDuckConfigActions.updateBlackDuckConfig(config, pluginSettingsWrapper));
         if (modifiedConfig.hasErrors()) {
             return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
         }
@@ -120,7 +119,7 @@ public class BlackDuckConfigController extends ConfigController {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            final BlackDuckServerConfigSerializable modifiedConfig = getTransactionTemplate().execute(() -> blackDuckConfigActions.testConnection(config, pluginSettingsWrapper));
+            final BlackDuckServerConfigSerializable modifiedConfig = executeAsTransaction(() -> blackDuckConfigActions.testConnection(config, pluginSettingsWrapper));
             if (modifiedConfig.hasErrors()) {
                 return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
             }
@@ -157,21 +156,18 @@ public class BlackDuckConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            projectsConfig = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckServicesFactory blackDuckServicesFactory;
-                    try {
-                        blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
-                        final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
+            projectsConfig = executeAsTransaction(() -> {
+                final BlackDuckServicesFactory blackDuckServicesFactory;
+                try {
+                    blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
+                    final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
 
-                        if (blackDuckProjects.size() == 0) {
-                            return JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND;
-                        }
-                        return blackDuckProjects;
-                    } catch (final ConfigurationException e) {
-                        return e.getMessage();
+                    if (blackDuckProjects.size() == 0) {
+                        return JiraConfigErrorStrings.NO_BLACKDUCK_PROJECTS_FOUND;
                     }
+                    return blackDuckProjects;
+                } catch (final ConfigurationException e) {
+                    return e.getMessage();
                 }
             });
         } catch (final Exception e) {
@@ -196,27 +192,24 @@ public class BlackDuckConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
-                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+            config = executeAsTransaction(() -> {
+                final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+                final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
-                    if (StringUtils.isNotBlank(policyRulesJson)) {
-                        txConfig.setPolicyRulesJson(policyRulesJson);
-                    } else {
-                        txConfig.setPolicyRules(new ArrayList<>(0));
-                    }
-
-                    final BlackDuckServicesFactory blackDuckServicesFactory;
-                    try {
-                        blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
-                        setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
-                    } catch (final ConfigurationException e) {
-                        txConfig.setErrorMessage(e.getMessage());
-                    }
-                    return txConfig;
+                if (StringUtils.isNotBlank(policyRulesJson)) {
+                    txConfig.setPolicyRulesJson(policyRulesJson);
+                } else {
+                    txConfig.setPolicyRules(new ArrayList<>(0));
                 }
+
+                final BlackDuckServicesFactory blackDuckServicesFactory;
+                try {
+                    blackDuckServicesFactory = createBlackDuckServicesFactory(settings);
+                    setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
+                } catch (final ConfigurationException e) {
+                    txConfig.setErrorMessage(e.getMessage());
+                }
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -237,7 +230,7 @@ public class BlackDuckConfigController extends ConfigController {
         if (!validAuthentication) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        final Object obj = getTransactionTemplate().execute((TransactionCallback) () -> {
+        final Object obj = executeAsTransaction(() -> {
             final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
             final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);

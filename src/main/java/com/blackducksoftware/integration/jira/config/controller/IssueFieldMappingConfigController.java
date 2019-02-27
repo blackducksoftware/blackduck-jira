@@ -41,7 +41,6 @@ import org.apache.commons.lang.StringUtils;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
@@ -79,17 +78,14 @@ public class IssueFieldMappingConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
+            config = executeAsTransaction(() -> {
+                final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
 
-                    txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
+                txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 
-                    validateMapping(txConfig);
-                    return txConfig;
-                }
+                validateMapping(txConfig);
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -113,27 +109,24 @@ public class IssueFieldMappingConfigController extends ConfigController {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            sourceFields = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final Fields txSourceFields = new Fields();
-                    logger.debug("Adding source fields");
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
-                    txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
-                    Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
-                    logger.debug("sourceFields: " + txSourceFields);
-                    return txSourceFields;
-                }
+            sourceFields = executeAsTransaction(() -> {
+                final Fields txSourceFields = new Fields();
+                logger.debug("Adding source fields");
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
+                txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
+                Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                logger.debug("sourceFields: " + txSourceFields);
+                return txSourceFields;
             });
         } catch (final Exception e) {
             final Fields errorSourceFields = new Fields();
@@ -158,21 +151,18 @@ public class IssueFieldMappingConfigController extends ConfigController {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            targetFields = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    Fields txTargetFields;
-                    try {
-                        txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
-                    } catch (final JiraException e) {
-                        txTargetFields = new Fields();
-                        txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
-                        return txTargetFields;
-                    }
-                    Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
-                    logger.debug("targetFields: " + txTargetFields);
+            targetFields = executeAsTransaction(() -> {
+                Fields txTargetFields;
+                try {
+                    txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
+                } catch (final JiraException e) {
+                    txTargetFields = new Fields();
+                    txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
                     return txTargetFields;
                 }
+                Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+                logger.debug("targetFields: " + txTargetFields);
+                return txTargetFields;
             });
         } catch (final Exception e) {
             final Fields errorTargetFields = new Fields();
@@ -197,17 +187,14 @@ public class IssueFieldMappingConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
-                    final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
+            config = executeAsTransaction(() -> {
+                final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
+                final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
 
-                    logger.debug("Get /copies returning JSON: " + blackDuckFieldCopyMappingsJson);
-                    txConfig.setJson(blackDuckFieldCopyMappingsJson);
-                    logger.debug("BlackDuckJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
-                    return txConfig;
-                }
+                logger.debug("Get /copies returning JSON: " + blackDuckFieldCopyMappingsJson);
+                txConfig.setJson(blackDuckFieldCopyMappingsJson);
+                logger.debug("BlackDuckJiraFieldCopyConfigSerializable.getJson(): " + txConfig.getJson());
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -237,16 +224,13 @@ public class IssueFieldMappingConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    if (!isValid(fieldCopyConfig)) {
-                        return null;
-                    }
-
-                    pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
+            executeAsTransaction(() -> {
+                if (!isValid(fieldCopyConfig)) {
                     return null;
                 }
+
+                pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
+                return null;
             });
         } catch (final Exception e) {
             final String msg = "Exception during admin save: " + e.getMessage();

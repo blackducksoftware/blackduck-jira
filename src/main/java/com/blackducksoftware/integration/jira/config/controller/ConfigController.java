@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.config.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -78,6 +79,10 @@ public class ConfigController {
             logger.warn("Error reading property file: " + BlackDuckJiraConstants.PROPERTY_FILENAME);
         }
         logger.debug("i18nProperties: " + i18nProperties);
+    }
+
+    <T> T executeAsTransaction(Supplier<T> supplier) {
+        return getTransactionTemplate().execute(() -> supplier.get());
     }
 
     // This must be "package protected" to avoid synthetic access

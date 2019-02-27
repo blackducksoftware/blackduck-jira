@@ -44,7 +44,6 @@ import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -76,7 +75,7 @@ public class AccessConfigController extends ConfigController {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
-            adminConfig = getTransactionTemplate().execute((TransactionCallback) () -> {
+            adminConfig = executeAsTransaction(() -> {
                 final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
                 txAdminConfig.setHubJiraGroups(StringUtils.join(parsedBlackDuckConfigGroups, PluginSettingsWrapper.BLACK_DUCK_GROUPS_LIST_DELIMETER));
                 if (getAuthenticationChecker().isUserSystemAdmin(request)) {
@@ -112,7 +111,7 @@ public class AccessConfigController extends ConfigController {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
-            responseObject = getTransactionTemplate().execute((TransactionCallback) () -> {
+            responseObject = executeAsTransaction(() -> {
                 final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
                 final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
                 final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();

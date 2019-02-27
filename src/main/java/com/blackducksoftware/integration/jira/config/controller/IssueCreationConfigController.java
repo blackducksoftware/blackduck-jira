@@ -47,7 +47,6 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
@@ -83,7 +82,7 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute((TransactionCallback) () -> {
+            config = executeAsTransaction(() -> {
                 final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
                 final String creator = pluginSettingsWrapper.getIssueCreatorUser();
                 txConfig.setCreator(creator);
@@ -113,20 +112,17 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            projectsConfig = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-                    config.setCreatorCandidates(new TreeSet<String>());
+            projectsConfig = executeAsTransaction(() -> {
+                final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+                config.setCreatorCandidates(new TreeSet<String>());
 
-                    final SortedSet<String> creatorCandidates = getIssueCreatorCandidates(settings);
-                    config.setCreatorCandidates(creatorCandidates);
+                final SortedSet<String> creatorCandidates = getIssueCreatorCandidates(settings);
+                config.setCreatorCandidates(creatorCandidates);
 
-                    if (creatorCandidates.size() == 0) {
-                        config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_CANDIDATES_FOUND);
-                    }
-                    return config;
+                if (creatorCandidates.size() == 0) {
+                    config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_CANDIDATES_FOUND);
                 }
+                return config;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -150,19 +146,16 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            projectsConfig = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+            projectsConfig = executeAsTransaction(() -> {
+                final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
 
-                    final BlackDuckJiraConfigSerializable txProjectsConfig = new BlackDuckJiraConfigSerializable();
-                    txProjectsConfig.setJiraProjects(jiraProjects);
+                final BlackDuckJiraConfigSerializable txProjectsConfig = new BlackDuckJiraConfigSerializable();
+                txProjectsConfig.setJiraProjects(jiraProjects);
 
-                    if (jiraProjects.size() == 0) {
-                        txProjectsConfig.setJiraProjectsError(JiraConfigErrorStrings.NO_JIRA_PROJECTS_FOUND);
-                    }
-                    return txProjectsConfig;
+                if (jiraProjects.size() == 0) {
+                    txProjectsConfig.setJiraProjectsError(JiraConfigErrorStrings.NO_JIRA_PROJECTS_FOUND);
                 }
+                return txProjectsConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -187,16 +180,13 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    logger.debug("GET /vulnerability/ticketchoice transaction");
-                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final Boolean choice = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
-                    logger.debug("choice: " + choice);
-                    txConfig.setCreateVulnerabilityIssues(choice);
-                    return txConfig;
-                }
+            config = executeAsTransaction(() -> {
+                logger.debug("GET /vulnerability/ticketchoice transaction");
+                final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                final Boolean choice = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
+                logger.debug("choice: " + choice);
+                txConfig.setCreateVulnerabilityIssues(choice);
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -221,16 +211,13 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    logger.debug("GET /comment/updatechoice transaction");
-                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    final Boolean choice = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
-                    logger.debug("choice: " + choice);
-                    txConfig.setCommentOnIssueUpdatesChoice(choice);
-                    return txConfig;
-                }
+            config = executeAsTransaction(() -> {
+                logger.debug("GET /comment/updatechoice transaction");
+                final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                final Boolean choice = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
+                logger.debug("choice: " + choice);
+                txConfig.setCommentOnIssueUpdatesChoice(choice);
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -254,15 +241,12 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-                    pluginSettingsWrapper.getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
+            config = executeAsTransaction(() -> {
+                final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+                pluginSettingsWrapper.getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
 
-                    validateInterval(txConfig);
-                    return txConfig;
-                }
+                validateInterval(txConfig);
+                return txConfig;
             });
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
@@ -284,40 +268,37 @@ public class IssueCreationConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
-                    config.setJiraProjects(jiraProjects);
-                    validateInterval(config);
-                    validateCreator(config, settings);
-                    validateMapping(config);
-                    final String firstTimeSave = pluginSettingsWrapper.getFirstTimeSave();
-                    if (firstTimeSave == null) {
-                        pluginSettingsWrapper.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
-                    }
-
-                    final String issueCreatorJiraUser = config.getCreator();
-                    logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-                    pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
-                    pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
-                    pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
-                    final String username = getAuthenticationChecker().getUsername(request);
-                    pluginSettingsWrapper.setJiraAdminUser(username);
-                    final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
-                    final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
-                    pluginSettingsWrapper.setIntervalBetweenChecks(intervalBetweenChecks);
-                    updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
-                    logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
-                    final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
-                    logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
-                    pluginSettingsWrapper.setVulnerabilityIssuesChoice(createVulnerabilityIssuesChoice);
-                    final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
-                    logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
-                    pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
-
-                    return null;
+            executeAsTransaction(() -> {
+                final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
+                config.setJiraProjects(jiraProjects);
+                validateInterval(config);
+                validateCreator(config, settings);
+                validateMapping(config);
+                final String firstTimeSave = pluginSettingsWrapper.getFirstTimeSave();
+                if (firstTimeSave == null) {
+                    pluginSettingsWrapper.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
                 }
+
+                final String issueCreatorJiraUser = config.getCreator();
+                logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
+                pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
+                pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
+                pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
+                final String username = getAuthenticationChecker().getUsername(request);
+                pluginSettingsWrapper.setJiraAdminUser(username);
+                final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
+                final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
+                pluginSettingsWrapper.setIntervalBetweenChecks(intervalBetweenChecks);
+                updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
+                logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
+                final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
+                logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
+                pluginSettingsWrapper.setVulnerabilityIssuesChoice(createVulnerabilityIssuesChoice);
+                final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
+                logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
+                pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
+
+                return null;
             });
         } catch (final Exception e) {
             final String msg = "Exception during save: " + e.getMessage();

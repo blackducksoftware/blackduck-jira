@@ -49,7 +49,6 @@ import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
@@ -92,14 +91,11 @@ public class BlackDuckJiraConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            pluginInfo = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    logger.debug("Getting plugin version string");
-                    final String pluginVersion = BlackDuckPluginVersion.getVersion();
-                    logger.debug("pluginVersion: " + pluginVersion);
-                    return pluginVersion;
-                }
+            pluginInfo = executeAsTransaction(() -> {
+                logger.debug("Getting plugin version string");
+                final String pluginVersion = BlackDuckPluginVersion.getVersion();
+                logger.debug("pluginVersion: " + pluginVersion);
+                return pluginVersion;
             });
         } catch (final Exception e) {
             final String msg = "Error getting Plugin info: " + e.getMessage();
@@ -119,44 +115,41 @@ public class BlackDuckJiraConfigController extends ConfigController {
         if (!validAuthentication) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        final Object obj = getTransactionTemplate().execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
+        final Object obj = executeAsTransaction(() -> {
 
-                final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
+            final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
 
-                List<TicketCreationError> ticketErrors = null;
-                if (errorObject != null) {
-                    final String errorString = (String) errorObject;
-                    try {
-                        ticketErrors = TicketCreationError.fromJson(errorString);
-                    } catch (final Exception e) {
-                        ticketErrors = new ArrayList<>();
-                    }
-                } else {
+            List<TicketCreationError> ticketErrors = null;
+            if (errorObject != null) {
+                final String errorString = (String) errorObject;
+                try {
+                    ticketErrors = TicketCreationError.fromJson(errorString);
+                } catch (final Exception e) {
                     ticketErrors = new ArrayList<>();
                 }
+            } else {
+                ticketErrors = new ArrayList<>();
+            }
 
-                if (errorsToDelete.getHubJiraTicketErrors() != null && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
-                    for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
-                        try {
-                            final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
-                            final Iterator<TicketCreationError> iterator = ticketErrors.iterator();
-                            while (iterator.hasNext()) {
-                                final TicketCreationError error = iterator.next();
-                                if (errorMessage.equals(error.getStackTrace())) {
-                                    iterator.remove();
-                                    break;
-                                }
+            if (errorsToDelete.getHubJiraTicketErrors() != null && !errorsToDelete.getHubJiraTicketErrors().isEmpty()) {
+                for (final TicketCreationError creationError : errorsToDelete.getHubJiraTicketErrors()) {
+                    try {
+                        final String errorMessage = URLDecoder.decode(creationError.getStackTrace(), "UTF-8");
+                        final Iterator<TicketCreationError> iterator = ticketErrors.iterator();
+                        while (iterator.hasNext()) {
+                            final TicketCreationError error = iterator.next();
+                            if (errorMessage.equals(error.getStackTrace())) {
+                                iterator.remove();
+                                break;
                             }
-                        } catch (final UnsupportedEncodingException e) {
-
                         }
+                    } catch (final UnsupportedEncodingException e) {
+
                     }
                 }
-                setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
-                return null;
             }
+            setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+            return null;
         });
         if (obj != null) {
             return Response.ok(obj).status(Status.BAD_REQUEST).build();
@@ -178,22 +171,18 @@ public class BlackDuckJiraConfigController extends ConfigController {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            responseString = getTransactionTemplate().execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction() {
-                    try {
-                        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-                        final Date now = new Date();
-                        final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
-                        final String newLastRunDateString = BlackDuckPluginDateFormatter.format(now);
-                        logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
-                        setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newLastRunDateString);
-                        setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
-                    } catch (final Exception e) {
-                        return e.getMessage();
-                    }
-                    return null;
+            responseString = executeAsTransaction(() -> {
+                try {
+                    final Date now = new Date();
+                    final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
+                    final String newLastRunDateString = BlackDuckPluginDateFormatter.format(now);
+                    logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
+                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newLastRunDateString);
+                    setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
+                } catch (final Exception e) {
+                    return e.getMessage();
                 }
+                return null;
             });
         } catch (final Exception e) {
             final String msg = "Exception during reset: " + e.getMessage();
