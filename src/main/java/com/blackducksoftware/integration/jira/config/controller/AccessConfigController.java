@@ -36,12 +36,10 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.controller.action.AccessConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 import com.synopsys.integration.rest.HttpMethod;
@@ -64,10 +62,7 @@ public class AccessConfigController extends ConfigController {
     public Response getPluginAdminConfiguration(@Context final HttpServletRequest request) {
         final Object adminConfig;
         try {
-            final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(globalSettings);
-            final String[] parsedBlackDuckConfigGroups = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
-            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, parsedBlackDuckConfigGroups);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }

@@ -23,19 +23,18 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.function.Supplier;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.core.util.ClassLoaderUtils;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 
 public class ConfigController {
 
@@ -43,15 +42,11 @@ public class ConfigController {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
-    private final Properties i18nProperties;
     private final AuthenticationChecker authenticationChecker;
 
     public ConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
-        // TODO: May need to remove this. May only be needed by the field mapping controller.
-        i18nProperties = new Properties();
-        populateI18nProperties();
         authenticationChecker = new AuthenticationChecker(userManager);
     }
 
@@ -67,32 +62,13 @@ public class ConfigController {
         return authenticationChecker;
     }
 
-    private void populateI18nProperties() {
-        try (final InputStream stream = ClassLoaderUtils.getResourceAsStream(BlackDuckJiraConstants.PROPERTY_FILENAME, this.getClass())) {
-            if (stream != null) {
-                i18nProperties.load(stream);
-            } else {
-                logger.warn("Error opening property file: " + BlackDuckJiraConstants.PROPERTY_FILENAME);
-            }
-        } catch (final IOException e) {
-            logger.warn("Error reading property file: " + BlackDuckJiraConstants.PROPERTY_FILENAME);
-        }
-        logger.debug("i18nProperties: " + i18nProperties);
-    }
-
     <T> T executeAsTransaction(final Supplier<T> supplier) {
         return getTransactionTemplate().execute(() -> supplier.get());
     }
 
-    // This must be "package protected" to avoid synthetic access
-    String getI18nProperty(final String key) {
-        if (i18nProperties == null) {
-            return key;
-        }
-        final String value = i18nProperties.getProperty(key);
-        if (value == null) {
-            return key;
-        }
-        return value;
+    boolean isAuthorized(final HttpServletRequest request) {
+        final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(globalSettings);
+        return getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
     }
 }
