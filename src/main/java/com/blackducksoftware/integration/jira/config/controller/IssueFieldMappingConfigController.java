@@ -36,7 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -263,7 +263,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
                 }
             }
             if (hasEmptyMapping) {
-                config.setHubProjectMappingError(concatErrorMessage(config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
+                config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
             }
         }
     }

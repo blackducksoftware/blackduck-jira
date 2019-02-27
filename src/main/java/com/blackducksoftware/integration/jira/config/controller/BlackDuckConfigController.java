@@ -53,6 +53,7 @@ import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
+import com.blackducksoftware.integration.jira.config.controller.action.BlackDuckConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
@@ -377,7 +378,7 @@ public class BlackDuckConfigController extends ConfigController {
         }
         config.setPolicyRules(newPolicyRules);
         if (config.getPolicyRules().isEmpty()) {
-            config.setPolicyRulesError(concatErrorMessage(config.getPolicyRulesError(), JiraConfigErrorStrings.NO_POLICY_RULES_FOUND_ERROR));
+            config.setPolicyRulesError(StringUtils.joinWith(" : ", config.getPolicyRulesError(), JiraConfigErrorStrings.NO_POLICY_RULES_FOUND_ERROR));
         }
     }
 

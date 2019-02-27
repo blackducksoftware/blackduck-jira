@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
@@ -81,7 +80,7 @@ public class ConfigController {
         logger.debug("i18nProperties: " + i18nProperties);
     }
 
-    <T> T executeAsTransaction(Supplier<T> supplier) {
+    <T> T executeAsTransaction(final Supplier<T> supplier) {
         return getTransactionTemplate().execute(() -> supplier.get());
     }
 
@@ -95,15 +94,5 @@ public class ConfigController {
             return key;
         }
         return value;
-    }
-
-    String concatErrorMessage(final String originalMessage, final String newMessage) {
-        String errorMsg = "";
-        if (StringUtils.isNotBlank(originalMessage)) {
-            errorMsg = originalMessage;
-            errorMsg += " : ";
-        }
-        errorMsg += newMessage;
-        return errorMsg;
     }
 }

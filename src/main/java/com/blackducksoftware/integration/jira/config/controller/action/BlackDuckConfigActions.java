@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config.controller;
+package com.blackducksoftware.integration.jira.config.controller.action;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
