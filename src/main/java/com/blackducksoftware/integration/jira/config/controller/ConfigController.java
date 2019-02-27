@@ -42,12 +42,12 @@ public class ConfigController {
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
-    private final AuthenticationChecker authenticationChecker;
+    private final AuthorizationChecker authorizationChecker;
 
     public ConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
-        authenticationChecker = new AuthenticationChecker(userManager);
+        authorizationChecker = new AuthorizationChecker(userManager);
     }
 
     public PluginSettingsFactory getPluginSettingsFactory() {
@@ -58,8 +58,8 @@ public class ConfigController {
         return transactionTemplate;
     }
 
-    public AuthenticationChecker getAuthenticationChecker() {
-        return authenticationChecker;
+    public AuthorizationChecker getAuthorizationChecker() {
+        return authorizationChecker;
     }
 
     <T> T executeAsTransaction(final Supplier<T> supplier) {
@@ -69,6 +69,6 @@ public class ConfigController {
     boolean isAuthorized(final HttpServletRequest request) {
         final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
         final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(globalSettings);
-        return getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        return getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
     }
 }

@@ -35,16 +35,16 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
-import com.blackducksoftware.integration.jira.config.controller.AuthenticationChecker;
+import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 
 public class AccessConfigActions {
-    private final AuthenticationChecker authenticationChecker;
+    private final AuthorizationChecker authorizationChecker;
     private final GroupPickerSearchService groupPickerSearchService;
     private final PluginSettingsFactory pluginSettingsFactory;
 
-    public AccessConfigActions(final AuthenticationChecker authenticationChecker, final GroupPickerSearchService groupPickerSearchService, final PluginSettingsFactory pluginSettingsFactory) {
-        this.authenticationChecker = authenticationChecker;
+    public AccessConfigActions(final AuthorizationChecker authorizationChecker, final GroupPickerSearchService groupPickerSearchService, final PluginSettingsFactory pluginSettingsFactory) {
+        this.authorizationChecker = authorizationChecker;
         this.groupPickerSearchService = groupPickerSearchService;
         this.pluginSettingsFactory = pluginSettingsFactory;
     }
@@ -54,7 +54,7 @@ public class AccessConfigActions {
         final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
         final String blackDuckConfigGroups = pluginSettingsWrapper.getBlackDuckConfigGroups();
         txAdminConfig.setHubJiraGroups(blackDuckConfigGroups);
-        if (authenticationChecker.isUserSystemAdmin(request)) {
+        if (authorizationChecker.isUserSystemAdmin(request)) {
             final List<String> jiraGroups = new ArrayList<>();
 
             final Collection<Group> jiraGroupCollection = groupPickerSearchService.findGroups("");
@@ -72,7 +72,7 @@ public class AccessConfigActions {
         final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();
 
-        final boolean userSystemAdmin = authenticationChecker.isUserSystemAdmin(request);
+        final boolean userSystemAdmin = authorizationChecker.isUserSystemAdmin(request);
         if (!userSystemAdmin) {
             txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
             return txResponseObject;

@@ -35,11 +35,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueCreationConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
@@ -54,7 +52,7 @@ public class IssueCreationConfigController extends ConfigController {
         final BlackDuckMonitor blackDuckMonitor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.projectManager = projectManager;
-        issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthenticationChecker(), projectManager, blackDuckMonitor);
+        issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, blackDuckMonitor);
     }
 
     @GET
@@ -62,7 +60,7 @@ public class IssueCreationConfigController extends ConfigController {
     public Response getCreator(@Context final HttpServletRequest request) {
         final Object config;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -80,7 +78,7 @@ public class IssueCreationConfigController extends ConfigController {
         logger.debug("getCreatorCandidates()");
         final Object projectsConfig;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -97,7 +95,7 @@ public class IssueCreationConfigController extends ConfigController {
     public Response getJiraProjects(@Context final HttpServletRequest request) {
         final Object projectsConfig;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -119,7 +117,7 @@ public class IssueCreationConfigController extends ConfigController {
         logger.debug("GET /vulnerability/ticketchoice");
         final Object config;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -141,7 +139,7 @@ public class IssueCreationConfigController extends ConfigController {
         logger.debug("GET /comment/updatechoice");
         final Object config;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -162,7 +160,7 @@ public class IssueCreationConfigController extends ConfigController {
     public Response getInterval(@Context final HttpServletRequest request) {
         final Object config;
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -177,7 +175,7 @@ public class IssueCreationConfigController extends ConfigController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final BlackDuckJiraConfigSerializable config, @Context final HttpServletRequest request) {
         try {
-            final boolean validAuthentication = isValidAuthentication(request);
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -201,12 +199,6 @@ public class IssueCreationConfigController extends ConfigController {
         logger.error(msg, e);
         errorConfig.setGeneralSettingsError(msg);
         return Response.ok(errorConfig).build();
-    }
-
-    private boolean isValidAuthentication(final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-        return getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
     }
 
 }

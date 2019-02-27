@@ -87,7 +87,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
             final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -111,7 +111,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
     public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete, @Context final HttpServletRequest request) {
         final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
         final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-        final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
         if (!validAuthentication) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
@@ -166,7 +166,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
         try {
             final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
             final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-            final boolean validAuthentication = getAuthenticationChecker().isValidAuthentication(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }

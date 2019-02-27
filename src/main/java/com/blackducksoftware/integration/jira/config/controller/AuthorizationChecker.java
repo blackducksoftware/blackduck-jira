@@ -27,19 +27,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.sal.api.user.UserManager;
 
-public class AuthenticationChecker {
+public class AuthorizationChecker {
     private final UserManager userManager;
 
-    public AuthenticationChecker(final UserManager userManager) {
+    public AuthorizationChecker(final UserManager userManager) {
         this.userManager = userManager;
     }
 
-    public boolean isValidAuthentication(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
-        return isUserSystemAdmin(request) || isGroupAuthenticated(request, blackDuckJiraGroups);
+    public boolean isValidAuthorization(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
+        return isUserSystemAdmin(request) || isGroupAuthorized(request, blackDuckJiraGroups);
     }
 
-    public boolean isValidAuthentication(final String username, final String[] blackDuckJiraGroups) {
-        return isUserSystemAdmin(username) && isGroupAuthenticated(username, blackDuckJiraGroups);
+    public boolean isValidAuthorization(final String username, final String[] blackDuckJiraGroups) {
+        return isUserSystemAdmin(username) && isGroupAuthorized(username, blackDuckJiraGroups);
     }
 
     public String getUsername(final HttpServletRequest request) {
@@ -63,12 +63,12 @@ public class AuthenticationChecker {
         return userManager.isSystemAdmin(username);
     }
 
-    public boolean isGroupAuthenticated(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
+    public boolean isGroupAuthorized(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
         final String username = userManager.getRemoteUsername(request);
-        return isGroupAuthenticated(username, blackDuckJiraGroups);
+        return isGroupAuthorized(username, blackDuckJiraGroups);
     }
 
-    public boolean isGroupAuthenticated(final String username, final String[] blackDuckJiraGroups) {
+    public boolean isGroupAuthorized(final String username, final String[] blackDuckJiraGroups) {
         for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
             if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
                 return true;

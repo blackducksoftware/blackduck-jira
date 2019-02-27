@@ -46,21 +46,21 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.controller.AuthenticationChecker;
+import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 public class IssueCreationConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final PluginSettingsFactory pluginSettingsFactory;
-    private final AuthenticationChecker authenticationChecker;
+    private final AuthorizationChecker authorizationChecker;
     private final ProjectManager projectManager;
     private final BlackDuckMonitor blackDuckMonitor;
 
-    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthenticationChecker authenticationChecker, final ProjectManager projectManager,
+    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
         final BlackDuckMonitor blackDuckMonitor) {
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.authenticationChecker = authenticationChecker;
+        this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
         this.blackDuckMonitor = blackDuckMonitor;
     }
@@ -145,7 +145,7 @@ public class IssueCreationConfigActions {
         pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
         pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
         pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
-        final String username = authenticationChecker.getUsername(request);
+        final String username = authorizationChecker.getUsername(request);
         pluginSettingsWrapper.setJiraAdminUser(username);
         final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
@@ -167,7 +167,7 @@ public class IssueCreationConfigActions {
             config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_SPECIFIED_ERROR);
         }
         final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
-        if (authenticationChecker.isValidAuthentication(config.getCreator(), pluginSettingsWrapper.getParsedBlackDuckConfigGroups())) {
+        if (authorizationChecker.isValidAuthorization(config.getCreator(), pluginSettingsWrapper.getParsedBlackDuckConfigGroups())) {
             return;
         } else {
             config.setGeneralSettingsError(JiraConfigErrorStrings.UNAUTHORIZED_CREATOR_ERROR);

@@ -43,13 +43,13 @@ public class BlackDuckJiraServlet extends HttpServlet {
     private final LoginUriProvider loginUriProvider;
     private final TemplateRenderer renderer;
     private final PluginSettingsFactory pluginSettingsFactory;
-    private final AuthenticationChecker authenticationChecker;
+    private final AuthorizationChecker authorizationChecker;
 
     public BlackDuckJiraServlet(final UserManager userManager, final LoginUriProvider loginUriProvider, final TemplateRenderer renderer, final PluginSettingsFactory pluginSettingsFactory) {
         this.loginUriProvider = loginUriProvider;
         this.renderer = renderer;
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.authenticationChecker = new AuthenticationChecker(userManager);
+        this.authorizationChecker = new AuthorizationChecker(userManager);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class BlackDuckJiraServlet extends HttpServlet {
         final PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettings);
         final String[] parsedBlackDuckConfigGroups = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
-        if (!authenticationChecker.isValidAuthentication(request, parsedBlackDuckConfigGroups)) {
+        if (!authorizationChecker.isValidAuthorization(request, parsedBlackDuckConfigGroups)) {
             redirectToLogin(request, response);
             return;
         }

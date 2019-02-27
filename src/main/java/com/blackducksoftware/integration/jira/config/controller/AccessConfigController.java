@@ -54,7 +54,7 @@ public class AccessConfigController extends ConfigController {
     AccessConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final GroupPickerSearchService groupPickerSearchService) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.groupPickerSearchService = groupPickerSearchService;
-        this.accessConfigActions = new AccessConfigActions(getAuthenticationChecker(), groupPickerSearchService, pluginSettingsFactory);
+        this.accessConfigActions = new AccessConfigActions(getAuthorizationChecker(), groupPickerSearchService, pluginSettingsFactory);
     }
 
     @GET
@@ -79,7 +79,7 @@ public class AccessConfigController extends ConfigController {
     public Response updateBlackDuckAdminConfiguration(final BlackDuckAdminConfigSerializable adminConfig, @Context final HttpServletRequest request) {
         final Object responseObject;
         try {
-            final boolean userAvailable = getAuthenticationChecker().isUserAvailable(request);
+            final boolean userAvailable = getAuthorizationChecker().isUserAvailable(request);
             if (!userAvailable) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
