@@ -81,7 +81,7 @@ public class IssueCreationConfigActions {
         final SortedSet<String> creatorCandidates = getIssueCreatorCandidates();
         config.setCreatorCandidates(creatorCandidates);
 
-        if (creatorCandidates.size() == 0) {
+        if (creatorCandidates.isEmpty()) {
             config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_CANDIDATES_FOUND);
         }
         return config;
@@ -93,7 +93,7 @@ public class IssueCreationConfigActions {
         final BlackDuckJiraConfigSerializable txProjectsConfig = new BlackDuckJiraConfigSerializable();
         txProjectsConfig.setJiraProjects(jiraProjects);
 
-        if (jiraProjects.size() == 0) {
+        if (jiraProjects.isEmpty()) {
             txProjectsConfig.setJiraProjectsError(JiraConfigErrorStrings.NO_JIRA_PROJECTS_FOUND);
         }
         return txProjectsConfig;

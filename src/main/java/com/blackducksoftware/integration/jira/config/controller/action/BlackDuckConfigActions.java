@@ -291,6 +291,7 @@ public class BlackDuckConfigActions {
         return blackDuckProjects;
     }
 
+    // TODO create a BlackDuck class that handles most BlackDuck functionality and clean this method up
     private void setBlackDuckPolicyRules(final BlackDuckServicesFactory blackDuckServicesFactory, final BlackDuckJiraConfigSerializable config) {
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (blackDuckServicesFactory != null) {
