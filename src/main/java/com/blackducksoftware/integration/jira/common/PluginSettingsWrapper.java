@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.common;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 
+// TODO change these methods to all return optionals.
 public class PluginSettingsWrapper {
     public static final String BLACK_DUCK_GROUPS_LIST_DELIMETER = ",";
     private final PluginSettings pluginSettings;
@@ -89,11 +92,23 @@ public class PluginSettingsWrapper {
     }
 
     public String getBlackDuckProxyPassword() {
-        return getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        final String stringValue = getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+        if (StringUtils.isBlank(stringValue)) {
+            return stringValue;
+        }
+        final Base64.Decoder decoder = Base64.getDecoder();
+        final byte[] decode = decoder.decode(stringValue);
+        return new String(decode, StandardCharsets.UTF_8);
     }
 
     public void setBlackDuckProxyPassword(final String password) {
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
+        if (StringUtils.isBlank(password)) {
+            setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
+            return;
+        }
+        final Base64.Encoder encoder = Base64.getEncoder();
+        final String encodedPassword = encoder.encodeToString(password.getBytes());
+        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, encodedPassword);
     }
 
     public Optional<Integer> getBlackDuckProxyPasswordLength() {
@@ -209,7 +224,11 @@ public class PluginSettingsWrapper {
     }
 
     public String getStringValue(final String key) {
-        return (String) pluginSettings.get(key);
+        final Object foundObject = pluginSettings.get(key);
+        if (foundObject == null) {
+            return null;
+        }
+        return String.valueOf(foundObject);
     }
 
     public Optional<Integer> getIntegerValue(final String key) {

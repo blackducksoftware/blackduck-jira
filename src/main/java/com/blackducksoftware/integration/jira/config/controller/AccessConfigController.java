@@ -95,7 +95,7 @@ public class AccessConfigController extends ConfigController {
     }
 
     private Response createErrorResponse(final HttpMethod httpMethod, final Throwable e) {
-        final String msg = String.format("Exception performing {} : {}", httpMethod.name(), e.getMessage());
+        final String msg = String.format("Exception performing %s : %s", httpMethod.name(), e.getMessage());
         logger.error(msg, e);
         final BlackDuckAdminConfigSerializable errorResponseObject = new BlackDuckAdminConfigSerializable();
         errorResponseObject.setHubJiraGroupsError(msg);

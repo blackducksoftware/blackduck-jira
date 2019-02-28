@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -188,7 +188,7 @@ public class BlackDuckConfigActions {
         final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(policyRulesJson)) {
+        if (StringUtils.isNotBlank(policyRulesJson)) {
             txConfig.setPolicyRulesJson(policyRulesJson);
         } else {
             txConfig.setPolicyRules(new ArrayList<>(0));
@@ -291,6 +291,7 @@ public class BlackDuckConfigActions {
         return blackDuckProjects;
     }
 
+    // TODO create a BlackDuck class that handles most BlackDuck functionality and clean this method up
     private void setBlackDuckPolicyRules(final BlackDuckServicesFactory blackDuckServicesFactory, final BlackDuckJiraConfigSerializable config) {
         final List<PolicyRuleSerializable> newPolicyRules = new ArrayList<>();
         if (blackDuckServicesFactory != null) {

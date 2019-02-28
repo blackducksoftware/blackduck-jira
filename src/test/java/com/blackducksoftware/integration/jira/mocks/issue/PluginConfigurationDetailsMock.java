@@ -42,10 +42,8 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
         configBuilder.setProxyHost(getBlackDuckProxyHost());
         configBuilder.setProxyPort(getBlackDuckProxyPort());
-        //        configBuilder.setProxyIgnoredHosts(getBlackDuckProxyNoHost());
         configBuilder.setProxyUsername(getBlackDuckProxyUser());
-        configBuilder.setProxyPassword(getBlackDuckProxyPassEncrypted());
-        //        configBuilder.setProxyPasswordLength(NumberUtils.toInt(getBlackDuckProxyPassLength()));
+        configBuilder.setProxyPassword(getBlackDuckProxyPass());
 
         return configBuilder;
     }

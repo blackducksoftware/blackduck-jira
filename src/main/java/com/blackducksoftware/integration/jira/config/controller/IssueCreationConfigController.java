@@ -195,7 +195,7 @@ public class IssueCreationConfigController extends ConfigController {
 
     private Response createGeneralError(final String fieldName, final Throwable e) {
         final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
-        final String msg = String.format("Error getting {} config: ", fieldName, e.getMessage());
+        final String msg = String.format("Error getting %s config: %s", fieldName, e.getMessage());
         logger.error(msg, e);
         errorConfig.setGeneralSettingsError(msg);
         return Response.ok(errorConfig).build();
