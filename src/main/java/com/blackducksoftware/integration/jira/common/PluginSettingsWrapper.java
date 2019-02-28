@@ -104,6 +104,7 @@ public class PluginSettingsWrapper {
     public void setBlackDuckProxyPassword(final String password) {
         if (StringUtils.isBlank(password)) {
             setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
+            return;
         }
         final Base64.Encoder encoder = Base64.getEncoder();
         final String encodedPassword = encoder.encodeToString(password.getBytes());
