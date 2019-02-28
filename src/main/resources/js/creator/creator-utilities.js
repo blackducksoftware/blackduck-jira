@@ -176,9 +176,9 @@ function getJsonArrayFromPolicyRules() {
 }
 
 function getCreateVulnerabilityIssuesChoice() {
-    const createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
+    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
 
-    if (createVulnerabilityIssuesYesElement[0].checked) {
+    if (createVulnerabilityIssuesElement[0].checked) {
         return "true";
     } else {
         return "false";
@@ -186,46 +186,44 @@ function getCreateVulnerabilityIssuesChoice() {
 }
 
 function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
-    const createVulnerabilityIssuesYesElement = AJS.$("#" + "createVulnerabilityTicketsYes");
-    const createVulnerabilityIssuesNoElement = AJS.$("#" + "createVulnerabilityTicketsNo");
-    console.log("createVulnerabilityIssuesYesElement: " + createVulnerabilityIssuesYesElement);
-    console.log("createVulnerabilityIssuesNoElement: " + createVulnerabilityIssuesNoElement);
-    if (createVulnerabilityIssuesYesElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesYesElement is not ready");
+    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
+    console.log("createVulnerabilityIssuesElement: " + createVulnerabilityIssuesElement);
+    if (createVulnerabilityIssuesElement.length == 0) {
+        console.log("*** createVulnerabilityIssuesElement is not ready");
     }
-    if (createVulnerabilityIssuesNoElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesNoElement is not ready");
-    }
+
     if (createVulnerabilityIssues) {
         console.log("Setting createVulnerabilityIssuesChoice to Yes");
-        createVulnerabilityIssuesYesElement[0].checked = true;
-        createVulnerabilityIssuesNoElement[0].checked = false;
+        createVulnerabilityIssuesElement[0].checked = true;
     } else {
         console.log("Setting createVulnerabilityIssuesChoice to No");
-        createVulnerabilityIssuesYesElement[0].checked = false;
-        createVulnerabilityIssuesNoElement[0].checked = true;
+        createVulnerabilityIssuesElement[0].checked = false;
+    }
+}
+
+function getCommentOnIssueUpdatesChoice() {
+    const commentOnIssueUpdatesChoiceElement = AJS.$("#" + "commentOnIssueUpdatesChoice");
+
+    if (commentOnIssueUpdatesChoiceElement[0].checked) {
+        return "true";
+    } else {
+        return "false";
     }
 }
 
 function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
-    const commentOnIssueUpdatesChoiceYesElement = AJS.$("#" + "commentOnIssueUpdatesChoiceYes");
-    const commentOnIssueUpdatesChoiceNoElement = AJS.$("#" + "commentOnIssueUpdatesChoiceNo");
-    console.log("commentOnIssueUpdatesChoiceYesElement: " + commentOnIssueUpdatesChoiceYesElement);
-    console.log("commentOnIssueUpdatesChoiceNoElement: " + commentOnIssueUpdatesChoiceNoElement);
-    if (commentOnIssueUpdatesChoiceYesElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesYesElement is not ready");
+    const commentOnIssueUpdatesChoiceElement = AJS.$("#" + "commentOnIssueUpdatesChoice");
+    console.log("commentOnIssueUpdatesChoiceElement: " + commentOnIssueUpdatesChoiceElement);
+    if (commentOnIssueUpdatesChoiceElement.length == 0) {
+        console.log("*** commentOnIssueUpdatesChoiceElement is not ready");
     }
-    if (commentOnIssueUpdatesChoiceNoElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesNoElement is not ready");
-    }
-    if (commentOnIssueUpdatesChoice == undefined || commentOnIssueUpdatesChoice) {
-        console.log("Setting createVulnerabilityIssuesChoice to Yes");
-        commentOnIssueUpdatesChoiceYesElement[0].checked = true;
-        commentOnIssueUpdatesChoiceNoElement[0].checked = false;
+
+    if (commentOnIssueUpdatesChoice) {
+        console.log("Setting commentOnIssueUpdatesChoiceElement to Yes");
+        commentOnIssueUpdatesChoiceElement[0].checked = true;
     } else {
-        console.log("Setting createVulnerabilityIssuesChoice to No");
-        commentOnIssueUpdatesChoiceYesElement[0].checked = false;
-        commentOnIssueUpdatesChoiceNoElement[0].checked = true;
+        console.log("Setting commentOnIssueUpdatesChoiceElement to No");
+        commentOnIssueUpdatesChoiceElement[0].checked = false;
     }
 }
 

@@ -83,7 +83,7 @@ function readCreateVulnerabilityTicketsChoide() {
         url: createRequestPath('config/issue/creator/vulnerability/ticketchoice/'),
         dataType: "json",
         success: function (config) {
-            console.log("success: get of ticketsChoice");
+            console.log("success: get of ticketsChoice", config);
             setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
 
 //	      handleError(errorMessageFieldId, config.errorMessage, true, false);
@@ -105,7 +105,7 @@ function readCommentOnUpdateChoice() {
         url: createRequestPath('config/issue/creator/comment/updatechoice'),
         dataType: "json",
         success: function (config) {
-            console.log("success: get of commentOnIssueUpdatesChoice");
+            console.log("success: get of commentOnIssueUpdatesChoice", config);
             setCommentOnIssueUpdatesChoice(config.commentOnIssueUpdatesChoice);
 
 //	      handleError(errorMessageFieldId, config.errorMessage, true, false);
@@ -149,12 +149,15 @@ function putConfig(restUrl, successMessage, failureMessage) {
     const jsonMappingArray = getJsonArrayFromMapping();
     const policyRuleArray = getJsonArrayFromPolicyRules();
     const createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
+    const commentOnIssueUpdatesChoice = getCommentOnIssueUpdatesChoice();
     const requestData = Object.assign({}, {
         intervalBetweenChecks: encodeURI(AJS.$("#intervalBetweenChecks").val()),
         creator: creatorUsername,
         hubProjectMappings: jsonMappingArray,
         policyRules: policyRuleArray,
-        createVulnerabilityIssues: createVulnerabilityIssues
+        createVulnerabilityIssues: createVulnerabilityIssues,
+        commentOnIssueUpdatesChoice: commentOnIssueUpdatesChoice
+
     });
     AJS.$.ajax({
         url: restUrl,
