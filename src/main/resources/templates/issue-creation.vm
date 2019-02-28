@@ -134,11 +134,8 @@
                         <tr>
                             <td>
                                 <div id="vulnerabilityTicketCreation">
-                                    <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsYes" value="Yes" />$i18n.getText(
+                                    <input type="checkbox" name="createVulnerabilityTicketsOption" id="createVulnerabilityIssues" value="Yes" />$i18n.getText(
                                     "blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")
-                                    <br>
-                                    <input type="radio" name="createVulnerabilityTicketsOption" id="createVulnerabilityTicketsNo" value="No" />$i18n.getText(
-                                    "blackduck.integration.jira.doNotCreateVulnerabilityTicketsChoice.label")
                                 </div>
                             </td>
                         </tr>
@@ -148,8 +145,7 @@
                         <tr>
                             <td>
                                 <div id="toggleIssueComments">
-                                    <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceYes" value="Yes" />$i18n.getText("blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label")<br>
-                                    <input type="radio" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoiceNo" value="No" />$i18n.getText("blackduck.integration.jira.doNotCommentOnIssueUpdatesChoice.label")
+                                    <input type="checkbox" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoice" value="Yes" />$i18n.getText("blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label")<br>
                                 </div>
                             </td>
                         </tr>

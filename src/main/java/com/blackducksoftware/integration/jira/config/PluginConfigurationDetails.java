@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.config;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 
 public class PluginConfigurationDetails {
@@ -35,9 +36,8 @@ public class PluginConfigurationDetails {
     private final boolean blackDuckTrustCert;
     private final String blackDuckProxyHost;
     private final String blackDuckProxyPort;
-    private final String blackDuckProxyNoHost;
     private final String blackDuckProxyUser;
-    private final String blackDuckProxyPassEncrypted;
+    private final String blackDuckProxyPass;
     private final String blackDuckProxyPassLength;
     private final String intervalString;
     private final String projectMappingJson;
@@ -54,30 +54,30 @@ public class PluginConfigurationDetails {
 
     public PluginConfigurationDetails(final PluginSettings settings) {
         this.settings = settings;
-        blackDuckUrl = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
-        blackDuckApiToken = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-        blackDuckTimeoutString = getStringValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
-        blackDuckTrustCert = getBooleanValue(settings, BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
+        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
+        blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
+        blackDuckApiToken = pluginSettingsWrapper.getBlackDuckApiToken();
+        blackDuckTimeoutString = pluginSettingsWrapper.getBlackDuckTimeout().map(String::valueOf).orElse(null);
+        blackDuckTrustCert = pluginSettingsWrapper.getBlackDuckAlwaysTrust();
 
-        blackDuckProxyHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_HOST);
-        blackDuckProxyPort = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-        blackDuckProxyNoHost = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_NO_HOST);
-        blackDuckProxyUser = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_USER);
-        blackDuckProxyPassEncrypted = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS);
-        blackDuckProxyPassLength = getStringValue(settings, BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+        blackDuckProxyHost = pluginSettingsWrapper.getBlackDuckProxyHost();
+        blackDuckProxyPort = pluginSettingsWrapper.getBlackDuckProxyPort().map(String::valueOf).orElse(null);
+        blackDuckProxyUser = pluginSettingsWrapper.getBlackDuckProxyUser();
+        blackDuckProxyPass = pluginSettingsWrapper.getBlackDuckProxyPassword();
+        blackDuckProxyPassLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength().map(String::valueOf).orElse(null);
 
-        intervalString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-        projectMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON);
-        policyRulesJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
-        installDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
-        lastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
+        intervalString = pluginSettingsWrapper.getIntervalBetweenChecks().map(String::valueOf).orElse(null);
+        projectMappingJson = pluginSettingsWrapper.getProjectMappingsJson();
+        policyRulesJson = pluginSettingsWrapper.getPolicyRulesJson();
+        installDateString = pluginSettingsWrapper.getFirstTimeSave();
+        lastRunDateString = pluginSettingsWrapper.getLastRunDate();
 
-        defaultJiraIssueCreatorUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
-        jiraAdminUserName = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ADMIN_USER);
+        defaultJiraIssueCreatorUserName = pluginSettingsWrapper.getIssueCreatorUser();
+        jiraAdminUserName = pluginSettingsWrapper.getJiraAdminUser();
 
-        fieldCopyMappingJson = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON);
-        createVulnerabilityIssues = getBooleanValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
-        commentOnIssueUpdates = getBooleanValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
+        fieldCopyMappingJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
+        createVulnerabilityIssues = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
+        commentOnIssueUpdates = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
     }
 
     public PluginSettings getSettings() {
@@ -100,16 +100,12 @@ public class PluginConfigurationDetails {
         return blackDuckProxyPort;
     }
 
-    public String getBlackDuckProxyNoHost() {
-        return blackDuckProxyNoHost;
-    }
-
     public String getBlackDuckProxyUser() {
         return blackDuckProxyUser;
     }
 
-    public String getBlackDuckProxyPassEncrypted() {
-        return blackDuckProxyPassEncrypted;
+    public String getBlackDuckProxyPass() {
+        return blackDuckProxyPass;
     }
 
     public String getBlackDuckProxyPassLength() {
@@ -169,7 +165,7 @@ public class PluginConfigurationDetails {
         serverConfigBuilder.setProxyHost(blackDuckProxyHost);
         serverConfigBuilder.setProxyPort(blackDuckProxyPort);
         serverConfigBuilder.setProxyUsername(blackDuckProxyUser);
-        serverConfigBuilder.setProxyPassword(blackDuckProxyPassEncrypted);
+        serverConfigBuilder.setProxyPassword(blackDuckProxyPass);
 
         return serverConfigBuilder;
     }

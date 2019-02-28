@@ -36,7 +36,6 @@ public class BlackDuckConfigKeys {
     public static final String CONFIG_PROXY_USER = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubproxyuser";
     public static final String CONFIG_PROXY_PASS = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubproxypass";
     public static final String CONFIG_PROXY_PASS_LENGTH = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubproxypasslength";
-    public static final String CONFIG_PROXY_NO_HOST = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubproxynohost";
 
     public static final String BLACKDUCK_CONFIG_GROUPS = BLACKDUCK_CONFIG_KEY_PREFIX + ".hubGroups";
 

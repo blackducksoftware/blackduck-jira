@@ -82,16 +82,6 @@
         </div>
 
         <div class="blackduck-details-field-group">
-            <label class="blackDuckDetailsLabel" for="noProxyHost">$i18n.getText("blackduck.integration.jira.server.details.proxy.noproxyhost.label")</label>
-            <input type="text" id="noProxyHost" name="noProxyHost" class="longInput textStyle" />
-            <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.noproxyhost.description')"></span>
-        </div>
-        <div id="noProxyHostErrorRow" class="blackduck-details-field-group hidden">
-            <label> </label>
-            <div id="noProxyHostError" class="error "></div>
-        </div>
-
-        <div class="blackduck-details-field-group">
             <label class="blackDuckDetailsLabel" for="proxyUsername">$i18n.getText("blackduck.integration.jira.server.details.proxy.username.label")</label>
             <input type="text" id="proxyUsername" name="proxyUsername" class="longInput textStyle" />
             <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.server.details.proxy.username.description')"></span>

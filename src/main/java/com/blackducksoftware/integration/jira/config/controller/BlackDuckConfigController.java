@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,99 +37,64 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.TicketCreationError;
+import com.blackducksoftware.integration.jira.config.controller.action.BlackDuckConfigActions;
+import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 
-@Path("/blackDuckDetails")
-public class BlackDuckConfigController {
-    private final UserManager userManager;
-    private final PluginSettingsFactory pluginSettingsFactory;
-    private final TransactionTemplate transactionTemplate;
+@Path("/config/blackduck")
+public class BlackDuckConfigController extends ConfigController {
     private final BlackDuckConfigActions blackDuckConfigActions;
 
     public BlackDuckConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate) {
-        this.userManager = userManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.transactionTemplate = transactionTemplate;
-        this.blackDuckConfigActions = new BlackDuckConfigActions();
+        super(pluginSettingsFactory, transactionTemplate, userManager);
+        this.blackDuckConfigActions = new BlackDuckConfigActions(pluginSettingsFactory);
     }
 
-    private Response checkUserPermissions(final HttpServletRequest request, final PluginSettings settings) {
-        final String username = userManager.getRemoteUsername(request);
-        if (username == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        }
-        if (userManager.isSystemAdmin(username)) {
-            return null;
-        }
-
-        final String blackDuckJiraGroupsString = (String) settings.get(BlackDuckConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-
-        if (StringUtils.isNotBlank(blackDuckJiraGroupsString)) {
-            final String[] blackDuckJiraGroups = blackDuckJiraGroupsString.split(",");
-            boolean userIsInGroups = false;
-            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-                if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
-                    userIsInGroups = true;
-                    break;
-                }
-            }
-            if (userIsInGroups) {
-                return null;
-            }
-        }
-        return Response.status(Status.UNAUTHORIZED).build();
-    }
-
-    @Path("/read")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final boolean validAuthentication = isAuthorized(request);
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable config = (BlackDuckServerConfigSerializable) transactionTemplate.execute(() -> blackDuckConfigActions.getStoredBlackDuckConfig(settings));
+        final BlackDuckServerConfigSerializable config = executeAsTransaction(() -> blackDuckConfigActions.getStoredBlackDuckConfig());
         return Response.ok(config).build();
     }
 
-    @Path("/save")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response put(final BlackDuckServerConfigSerializable config, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        final Response response = checkUserPermissions(request, settings);
-        if (response != null) {
-            return response;
+        final boolean validAuthentication = isAuthorized(request);
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        final BlackDuckServerConfigSerializable modifiedConfig = (BlackDuckServerConfigSerializable) transactionTemplate.execute(() -> blackDuckConfigActions.updateBlackDuckConfig(config, settings));
+        final BlackDuckServerConfigSerializable modifiedConfig = executeAsTransaction(() -> blackDuckConfigActions.updateBlackDuckConfig(config));
         if (modifiedConfig.hasErrors()) {
             return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
     }
 
-    @Path("/testConnection")
+    @Path("/test")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response testConnection(final BlackDuckServerConfigSerializable config, @Context final HttpServletRequest request) {
         try {
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-            final Response response = checkUserPermissions(request, settings);
-            if (response != null) {
-                return response;
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
             }
 
-            final BlackDuckServerConfigSerializable modifiedConfig = (BlackDuckServerConfigSerializable) transactionTemplate.execute(() -> blackDuckConfigActions.testConnection(config, settings));
+            final BlackDuckServerConfigSerializable modifiedConfig = executeAsTransaction(() -> blackDuckConfigActions.testConnection(config));
             if (modifiedConfig.hasErrors()) {
                 return Response.ok(modifiedConfig).status(Status.BAD_REQUEST).build();
             }
@@ -147,6 +115,73 @@ public class BlackDuckConfigController {
             }
             return Response.ok(config).status(Status.BAD_REQUEST).build();
         }
+    }
+
+    @Path("/projects")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+
+    public Response getBlackDuckProjects(@Context final HttpServletRequest request) {
+        logger.debug("getBlackDuckProjects()");
+        final Object projectsConfig;
+        try {
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
+            }
+            projectsConfig = executeAsTransaction(() -> blackDuckConfigActions.getBlackDuckProjects());
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting Black Duck projects config: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setHubProjectsError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(projectsConfig).build();
+    }
+
+    @Path("/policies")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlackDuckPolicies(@Context final HttpServletRequest request) {
+        final Object config;
+        try {
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
+            }
+            config = executeAsTransaction(() -> blackDuckConfigActions.getBlackDuckPolicies());
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting policies: " + e.getMessage();
+            logger.error(msg, e);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
+    @Path("/ticket/errors")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlackDuckJiraTicketErrors(@Context final HttpServletRequest request) {
+        final boolean validAuthentication = isAuthorized(request);
+        if (!validAuthentication) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        final Object obj = executeAsTransaction(() -> {
+            final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
+
+            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
+            if (ticketErrors != null) {
+                Collections.sort(ticketErrors);
+                creationError.setHubJiraTicketErrors(ticketErrors);
+                logger.debug("Errors to UI : " + creationError.getHubJiraTicketErrors().size());
+            }
+            return creationError;
+        });
+
+        return Response.ok(obj).build();
     }
 
 }
