@@ -117,6 +117,7 @@ public class TicketGenerator {
             reportAnyErrors(blackDuckBucket);
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
+
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, shouldCommentOnIssueUpdates);

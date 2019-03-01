@@ -40,6 +40,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
     private final String projectVersionUri;
     private final String projectVersionNickname;
 
+    private final ApplicationUser componentReviewer;
     private final String componentName;
     private final String componentUri;
     private final String componentVersionName;
@@ -70,6 +71,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String projectVersionName
             ,final String projectVersionUri
             ,final String projectVersionNickname
+            ,final ApplicationUser componentReviewer
             ,final String componentName
             ,final String componentUri
             ,final String componentVersionName
@@ -85,6 +87,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         this.projectVersionName = projectVersionName;
         this.projectVersionUri = projectVersionUri;
         this.projectVersionNickname = projectVersionNickname;
+        this.componentReviewer = componentReviewer;
         this.componentName = componentName;
         this.componentUri = componentUri;
         this.componentVersionName = componentVersionName;
@@ -104,6 +107,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String projectVersionName
             ,final String projectVersionUri
             ,final String projectVersionNickname
+            ,final ApplicationUser componentReviewer
             ,final String componentName
             ,final String componentUri
             ,final String componentVersionName
@@ -118,7 +122,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String policyRuleDescription
             ,final String policyRuleSeverity
             ) {
-        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.POLICY);
+        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.POLICY);
         newTemplate.policyRuleName = policyRuleName;
         newTemplate.policyRuleUri = policyRuleUri;
         newTemplate.policyRuleOverridable = policyRuleOverridable;
@@ -135,6 +139,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String projectVersionName
             ,final String projectVersionUri
             ,final String projectVersionNickname
+            ,final ApplicationUser componentReviewer
             ,final String componentName
             ,final String componentVersionName
             ,final String componentVersionUri
@@ -145,7 +150,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
             ,final String componentVersionOriginName
             ,final String componentVersionOriginId
             ) {
-        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.VULNERABILITY);
+        final BlackDuckIssueFieldTemplate newTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, null, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, IssueCategory.VULNERABILITY);
         newTemplate.componentVersionOriginName = componentVersionOriginName;
         newTemplate.componentVersionOriginId = componentVersionOriginId;
         return newTemplate;
@@ -170,6 +175,10 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
 
     public String getProjectVersionNickname() {
         return projectVersionNickname;
+    }
+
+    public ApplicationUser getComponentReviewer() {
+        return componentReviewer;
     }
 
     public String getComponentName() {
@@ -238,7 +247,7 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
 
     public final Map<Long, String> createBlackDuckFieldMappings(final Map<PluginField, CustomField> customFields) {
         final Map<Long, String> blackDuckFieldMappings = new HashMap<>();
-        if (projectOwner != null) {
+        if (null != projectOwner) {
             addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_OWNER, projectOwner.getUsername());
         }
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT, projectName);
@@ -246,6 +255,9 @@ public class BlackDuckIssueFieldTemplate extends Stringable {
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, projectVersionUri);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME, projectVersionNickname);
 
+        if (null != componentReviewer) {
+            addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER, componentReviewer.getUsername());
+        }
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT, componentName);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_URL, componentUri);
         addCustomField(customFields, blackDuckFieldMappings, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, componentVersionName);

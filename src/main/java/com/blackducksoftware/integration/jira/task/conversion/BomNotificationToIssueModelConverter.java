@@ -57,6 +57,7 @@ import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueMod
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModelBuilder;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
+import com.synopsys.integration.blackduck.api.generated.component.ReviewedDetails;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.PolicySummaryStatusType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
@@ -274,7 +275,10 @@ public class BomNotificationToIssueModelConverter {
         builder.setJiraProject(jiraProject);
         builder.setAction(BlackDuckIssueAction.fromNotificationType(notificationType));
         builder.setLastBatchStartDate(batchStartDate);
-        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().getProjectOwner()), projectVersionWrapper, versionBomComponent);
+        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().getProjectOwner()),
+            getJiraComponentReviewer(versionBomComponent.getReviewedDetails()),
+            projectVersionWrapper,
+            versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
         builder.setIssueCreator(lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
         return builder;
@@ -299,15 +303,27 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private ApplicationUser getJiraProjectOwner(final String blackDuckProjectOwner) {
+        if (blackDuckProjectOwner != null) {
+            return lookupJiraUser(blackDuckProjectOwner);
+        }
+        return null;
+    }
+
+    private ApplicationUser getJiraComponentReviewer(final ReviewedDetails reviewedDetails) {
+        if (null != reviewedDetails) {
+            return lookupJiraUser(reviewedDetails.getReviewedBy());
+        }
+        return null;
+    }
+
+    private ApplicationUser lookupJiraUser(final String userUrl) {
         try {
-            if (blackDuckProjectOwner != null) {
-                final UserView projectOwner = blackDuckDataHelper.getResponse(blackDuckProjectOwner, UserView.class);
-                if (projectOwner != null) {
-                    final UserSearchService userSearchService = jiraServices.createUserSearchService();
-                    for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.getEmail())) {
-                        // We will assume that if users are configured correctly, they will have unique email addresses.
-                        return jiraUser;
-                    }
+            final UserView userView = blackDuckDataHelper.getResponse(userUrl, UserView.class);
+            if (null != userView) {
+                final UserSearchService userSearchService = jiraServices.createUserSearchService();
+                for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(userView.getEmail())) {
+                    // We will assume that if users are configured correctly, they will have unique email addresses.
+                    return jiraUser;
                 }
             }
         } catch (final Exception e) {

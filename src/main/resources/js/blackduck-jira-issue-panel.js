@@ -84,6 +84,10 @@ function replaceProjectOwnerField() {
     changeBlackDuckFieldInModule("Black Duck Project Owner", "Black Duck Owner", "peoplemodule", "li.people-details", "dt");
 }
 
+function replaceComponentReviewerField() {
+    changeBlackDuckFieldInModule("Black Duck Component Reviewer", "Black Duck Reviewer", "peoplemodule", "li.people-details", "dt");
+}
+
 function changeBlackDuckFieldInModule(fieldName, newValue, moduleId, innerListId, innerTagPropertyString) {
     var moduleObject = AJS.$('#' + moduleId);
     if (moduleObject != null) {
