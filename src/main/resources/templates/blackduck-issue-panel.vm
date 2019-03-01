@@ -55,7 +55,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
 <div class="bds-fieldSectionSeparator"></div>
 #end
 
-#if ($bdsComponent || $bdsComponentVersion || $bdsComponentUsage || $bdsComponentOrigin || $bdsComponentOriginId || $bdsLicenses || $bdsProjectVersionLastUpdated)
+#if ($bdsComponent || $bdsComponentVersion || $bdsComponentUsage || $bdsComponentOrigin || $bdsComponentOriginId || $bdsComponentReviewer || $bdsLicenses || $bdsProjectVersionLastUpdated)
 <div class="module">
     <div class="mod-header"><h5 class="toggle-title">$i18n.getText("blackduck.integration.jira.issue.custom.section.component.label")</h5></div>
     <ul class="property-list two-cols">
@@ -113,6 +113,20 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
             <div class="bds-wrap">
                 <strong class="bds-name">$i18n.getText("blackduck.integration.jira.issue.custom.component.origin.id.label"):</strong>
                 <div id="hubComponentOriginId" class="bds-value">$bdsComponentOriginId</div>
+            </div>
+        </li>
+        #end
+        #if ($bdsComponentReviewer)
+            #if ($side == "left")
+            <li class="item">
+                #set( $side = "right" )
+            #else
+            <li class="item-right bds-fiftyPercent">
+                #set( $side = "left" )
+            #end
+            <div class="bds-wrap">
+                <strong class="bds-name">$i18n.getText("blackduck.integration.jira.issue.custom.component.reviewer.label"):</strong>
+                <div id="hubComponentReviewer" class="bds-value">$bdsComponentReviewer</div>
             </div>
         </li>
         #end

@@ -42,6 +42,7 @@ public class V3PluginConstants {
     public static final String V3_SCREEN_TAB = "BDS Hub PlugIn Screen Tab";
 
     public static Map<String, String> V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP = new HashMap<>();
+
     static {
         // This should never be modified
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT);
@@ -58,6 +59,7 @@ public class V3PluginConstants {
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Licenses", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES);
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component License Url", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL);
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Usage", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE);
+        V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Reviewer", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER);
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN);
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Component Origin ID", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID);
         V3_TO_LATEST_CUSTOM_FIELD_NAME_MAP.put("BDS Hub Project Version Nickname", BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME);

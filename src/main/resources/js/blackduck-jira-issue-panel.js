@@ -30,7 +30,7 @@ var blackDuckCustomFields = [
     "Black Duck Component Url", "Black Duck Component Version", "Black Duck Component Version Url", "Black Duck Policy Rule",
     "Black Duck Policy Rule Description", "Black Duck Policy Rule Overridable", "Black Duck Policy Rule Severity",
     "Black Duck Policy Rule Url", "Black Duck Component Licenses", "Black Duck Component Usages", "Black Duck Component Origins",
-    "Black Duck Component Origin IDs", "Black Duck Project Version Nickname", "Black Duck Project Owner",
+    "Black Duck Component Origin IDs", "Black Duck Component Reviewer", "Black Duck Project Version Nickname", "Black Duck Project Owner",
     "Black Duck Project Version Last Updated", "Black Duck Component License Url"
 ];
 
