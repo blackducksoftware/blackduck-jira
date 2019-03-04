@@ -176,21 +176,22 @@ function putConfig(restUrl, successMessage, failureMessage) {
         },
         error: function (response) {
             try {
-                var config = JSON.parse(response.responseText);
-                handleError(errorMessageFieldId, config.errorMessage, true, true);
-                handleError('generalSettingsError', config.generalSettingsError, true, true);
-                handleError('hubProjectMappingsError', config.hubProjectMappingError, true, true);
-                handleError('policyRulesError', config.policyRulesError, true, true);
+                if (!redirectIfUnauthenticated(response)) {
+                    let config = JSON.parse(response.responseText);
+                    handleError(errorMessageFieldId, config.errorMessage, true, true);
+                    handleError('generalSettingsError', config.generalSettingsError, true, true);
+                    handleError('hubProjectMappingsError', config.hubProjectMappingError, true, true);
+                    handleError('policyRulesError', config.policyRulesError, true, true);
 
-                showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+                    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
 
-                console.log("errorMessage: " + config.errorMessage); // x
-                console.log("hubProjectMappingError: " + config.hubProjectMappingError);
-                console.log("hubProjectsError: " + config.hubProjectsError);
-                console.log("generalSettingsError: " + config.generalSettingsError);
-                console.log("jiraProjectsError: " + config.jiraProjectsError);
-                console.log("policyRulesError: " + config.policyRulesError);
-
+                    console.log("errorMessage: " + config.errorMessage); // x
+                    console.log("hubProjectMappingError: " + config.hubProjectMappingError);
+                    console.log("hubProjectsError: " + config.hubProjectsError);
+                    console.log("generalSettingsError: " + config.generalSettingsError);
+                    console.log("jiraProjectsError: " + config.jiraProjectsError);
+                    console.log("policyRulesError: " + config.policyRulesError);
+                }
             } catch (err) {
                 // in case the response is not our error object
                 alert(response.responseText);
