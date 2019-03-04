@@ -48,6 +48,10 @@ public class AuthorizationChecker {
 
     public boolean isUserAvailable(final HttpServletRequest request) {
         final String username = getUsername(request);
+        return isUserAvailable(username);
+    }
+
+    public boolean isUserAvailable(final String username) {
         return username != null;
     }
 
@@ -57,10 +61,7 @@ public class AuthorizationChecker {
     }
 
     public boolean isUserSystemAdmin(final String username) {
-        if (username == null) {
-            return false;
-        }
-        return userManager.isSystemAdmin(username);
+        return isUserAvailable(username) && userManager.isSystemAdmin(username);
     }
 
     public boolean isGroupAuthorized(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
@@ -69,6 +70,10 @@ public class AuthorizationChecker {
     }
 
     public boolean isGroupAuthorized(final String username, final String[] blackDuckJiraGroups) {
+        if (!isUserAvailable(username)) {
+            return false;
+        }
+
         for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
             if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
                 return true;

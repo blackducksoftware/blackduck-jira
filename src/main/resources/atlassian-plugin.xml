@@ -105,7 +105,7 @@
         <context>hub-jira</context>
     </web-resource>
 
-    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.BlackDuckJiraServlet">
+    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.servlet.BlackDuckJiraServlet">
         <url-pattern>/blackduck-jira-integration</url-pattern>
     </servlet>
 
