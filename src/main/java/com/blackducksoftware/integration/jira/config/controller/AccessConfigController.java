@@ -81,7 +81,7 @@ public class AccessConfigController extends ConfigController {
         try {
             final boolean userAvailable = getAuthorizationChecker().isUserAvailable(request);
             if (!userAvailable) {
-                return Response.status(Response.Status.CREATED).build();
+                return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
             responseObject = executeAsTransaction(() -> accessConfigActions.updateConfigWithJiraGroups(request, adminConfig.getHubJiraGroups()));
