@@ -227,7 +227,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL));
 
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE));
-        customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER));
+        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;
