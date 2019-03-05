@@ -78,7 +78,7 @@ function readJiraProjects() {
     });
 }
 
-function readCreateVulnerabilityTicketsChoide() {
+function readCreateVulnerabilityTicketsChoice() {
     AJS.$.ajax({
         url: createRequestPath('config/issue/creator/vulnerability/ticketchoice/'),
         dataType: "json",
