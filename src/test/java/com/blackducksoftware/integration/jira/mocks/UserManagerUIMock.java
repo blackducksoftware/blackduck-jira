@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.mocks;
 
+import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ import com.atlassian.sal.api.user.UserProfile;
 import com.atlassian.sal.api.user.UserResolutionException;
 
 public class UserManagerUIMock implements UserManager {
+
+    UserKey userKey = new UserKey("UserKey");
 
     String remoteUsername;
 
@@ -54,6 +57,10 @@ public class UserManagerUIMock implements UserManager {
         this.remoteUsername = remoteUsername;
     }
 
+    public void setUserKey(final UserKey userKey) {
+        this.userKey = userKey;
+    }
+
     @Override
     public String getRemoteUsername() {
         return remoteUsername;
@@ -62,13 +69,13 @@ public class UserManagerUIMock implements UserManager {
     @Nullable
     @Override
     public UserProfile getRemoteUser() {
-        return null;
+        return new MockUserProfile();
     }
 
     @Nullable
     @Override
     public UserKey getRemoteUserKey() {
-        return null;
+        return userKey;
     }
 
     @Override
@@ -79,25 +86,25 @@ public class UserManagerUIMock implements UserManager {
     @Nullable
     @Override
     public UserProfile getRemoteUser(final HttpServletRequest httpServletRequest) {
-        return null;
+        return new MockUserProfile();
     }
 
     @Nullable
     @Override
     public UserKey getRemoteUserKey(final HttpServletRequest httpServletRequest) {
-        return null;
+        return userKey;
     }
 
     @Nullable
     @Override
     public UserProfile getUserProfile(@Nullable final String s) {
-        return null;
+        return new MockUserProfile();
     }
 
     @Nullable
     @Override
     public UserProfile getUserProfile(@Nullable final UserKey userKey) {
-        return null;
+        return new MockUserProfile();
     }
 
     @Override
@@ -106,8 +113,8 @@ public class UserManagerUIMock implements UserManager {
     }
 
     @Override
-    public boolean isUserInGroup(@Nullable final UserKey userKey, @Nullable final String s) {
-        return false;
+    public boolean isUserInGroup(@Nullable final UserKey userKey, @Nullable final String group) {
+        return userGroups.contains(group);
     }
 
     public void setIsSystemAdmin(final boolean isSystemAdmin) {
@@ -121,7 +128,7 @@ public class UserManagerUIMock implements UserManager {
 
     @Override
     public boolean isSystemAdmin(@Nullable final UserKey userKey) {
-        return false;
+        return isSystemAdmin;
     }
 
     @Override
@@ -147,6 +154,44 @@ public class UserManagerUIMock implements UserManager {
     @Override
     public Iterable<String> findGroupNamesByPrefix(final String s, final int i, final int i1) {
         return null;
+    }
+
+    class MockUserProfile implements UserProfile {
+
+        @Override
+        public UserKey getUserKey() {
+            return userKey;
+        }
+
+        @Override
+        public String getUsername() {
+            return remoteUsername;
+        }
+
+        @Override
+        public String getFullName() {
+            return null;
+        }
+
+        @Override
+        public String getEmail() {
+            return null;
+        }
+
+        @Override
+        public URI getProfilePictureUri(final int width, final int height) {
+            return null;
+        }
+
+        @Override
+        public URI getProfilePictureUri() {
+            return null;
+        }
+
+        @Override
+        public URI getProfilePageUri() {
+            return null;
+        }
     }
 
 }

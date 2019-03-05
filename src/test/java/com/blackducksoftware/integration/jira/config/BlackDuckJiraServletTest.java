@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -158,8 +159,8 @@ public class BlackDuckJiraServletTest {
         final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
-        assertEquals("text/html;charset=utf-8", responseMock.getContentType());
-        assertEquals(TEMPLATE_NAME, rendererMock.getRenderedString());
+        assertNull(responseMock.getContentType());
+        assertNull(rendererMock.getRenderedString());
     }
 
     @Test
