@@ -139,6 +139,28 @@ function readIntervalData() {
     });
 }
 
+function readProjectReviewerNotificationsChoice() {
+    AJS.$.ajax({
+        url: createRequestPath('config/issue/creator/project/reviewerchoice'),
+        dataType: "json",
+        success: function (config) {
+            console.log("success: get of projectReviewerNotificationsChoice", config);
+            setProjectReviewerNotificationsChoice(config.projectReviewerNotificationsChoice);
+
+//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+            handleError('projectReviewerNotificationsChoiceError', config.projectReviewerNotificationsChoiceError, true, false);
+            console.log("Finished handling projectReviewerNotificationsChoice");
+        },
+        error: function (response) {
+            console.log("error: get of projectReviewerNotificationsChoice");
+            handleDataRetrievalError(response, "projectReviewerNotificationsChoiceError", "There was a problem retrieving the 'poject reviewer' choice.", "Black Duck Project Reviewer Choice Error");
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed get of projectReviewerNotificationsChoice: " + textStatus);
+        }
+    });
+}
+
 function updateConfig() {
     putConfig(createRequestPath('config/issue/creator/'), 'Save successful.', 'The configuration is not valid.');
 }
@@ -150,13 +172,15 @@ function putConfig(restUrl, successMessage, failureMessage) {
     const policyRuleArray = getJsonArrayFromPolicyRules();
     const createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
     const commentOnIssueUpdatesChoice = getCommentOnIssueUpdatesChoice();
+    const projectReviewerNotificationsChoice = getProjectReviewerNotificationsChoice();
     const requestData = Object.assign({}, {
         intervalBetweenChecks: encodeURI(AJS.$("#intervalBetweenChecks").val()),
         creator: creatorUsername,
         hubProjectMappings: jsonMappingArray,
         policyRules: policyRuleArray,
         createVulnerabilityIssues: createVulnerabilityIssues,
-        commentOnIssueUpdatesChoice: commentOnIssueUpdatesChoice
+        commentOnIssueUpdatesChoice: commentOnIssueUpdatesChoice,
+        projectReviewerNotificationsChoice: projectReviewerNotificationsChoice
 
     });
     AJS.$.ajax({

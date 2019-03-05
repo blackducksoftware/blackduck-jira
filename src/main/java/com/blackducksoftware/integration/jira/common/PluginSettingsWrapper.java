@@ -131,16 +131,16 @@ public class PluginSettingsWrapper {
         return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
     }
 
+    public void setBlackDuckConfigGroups(final String groups) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groups);
+    }
+
     public String[] getParsedBlackDuckConfigGroups() {
         final String blackDuckConfigGroupsString = getBlackDuckConfigGroups();
         if (StringUtils.isNotBlank(blackDuckConfigGroupsString)) {
             return blackDuckConfigGroupsString.split(BLACK_DUCK_GROUPS_LIST_DELIMETER);
         }
         return new String[0];
-    }
-
-    public void setBlackDuckConfigGroups(final String groups) {
-        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groups);
     }
 
     public String getIssueCreatorUser() {
@@ -205,6 +205,14 @@ public class PluginSettingsWrapper {
 
     public void setCommentOnIssuesUpdatesChoice(final Boolean choice) {
         setValue(PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE, choice);
+    }
+
+    public Boolean getProjectReviewerNotificationsChoice() {
+        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_PROJECT_REVIEWER_NOTIFICATIONS_CHOICE);
+    }
+
+    public void setProjectReviewerNotificationsChoice(final Boolean choice) {
+        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_PROJECT_REVIEWER_NOTIFICATIONS_CHOICE, choice);
     }
 
     public String getLastRunDate() {

@@ -149,6 +149,17 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr class="label">
+                            <td class="label">$i18n.getText('blackduck.integration.jira.projectReviewerNotifications.label')</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div id="vulnerabilityTicketCreation">
+                                    <input type="checkbox" name="toggleProjectReviewerOption" id="projectReviewerNotificationsChoice" value="Yes" />$i18n.getText(
+                                    "blackduck.integration.jira.doProjectReviewerNotificationsChoice.label")
+                                </div>
+                            </td>
+                        </tr>
                     </table>
                 </td>
             </tr>

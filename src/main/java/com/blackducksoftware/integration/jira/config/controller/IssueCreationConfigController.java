@@ -154,6 +154,28 @@ public class IssueCreationConfigController extends ConfigController {
         return Response.ok(config).build();
     }
 
+    @Path("/project/reviewerchoice")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectRevieweerNotificationsChoice(@Context final HttpServletRequest request) {
+        logger.debug("GET /project/reviewerchoice");
+        final Object config;
+        try {
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
+            }
+            config = executeAsTransaction(() -> issueCreationConfigActions.getProjectReviewerNotificationsChoice());
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error getting 'comment on issue updates' choice: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setProjectReviewerNotificationsChoiceError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
     @Path("/interval")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
