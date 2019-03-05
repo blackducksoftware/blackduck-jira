@@ -174,20 +174,22 @@ function putHubDetails(restUrl, successMessage, failureMessage) {
         },
         error: function (response) {
             console.log("putConfig(): " + response.responseText);
-            var config = JSON.parse(response.responseText);
+            if (!redirectIfUnauthenticated(response)) {
+                let config = JSON.parse(response.responseText);
 
-            handleError(errorMessageFieldId, config.errorMessage, true, true);
-            handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
-            handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
-            handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
-            handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
-            handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
-            handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
-            handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
-            handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
-            handleErrorHubDetails('configurationErrorRow', 'configurationError', config.testConnectionError);
+                handleError(errorMessageFieldId, config.errorMessage, true, true);
+                handleErrorHubDetails('hubServerUrlErrorRow', 'hubServerUrlError', config.hubUrlError);
+                handleErrorHubDetails('hubTimeoutErrorRow', 'hubTimeoutError', config.timeoutError);
+                handleErrorHubDetails('hubTrustCertErrorRow', 'hubTrustCertError', config.trustCertError);
+                handleErrorHubDetails('bdApiTokenErrorRow', 'bdApiTokenError', config.apiTokenError);
+                handleErrorHubDetails('proxyHostErrorRow', 'proxyHostError', config.hubProxyHostError);
+                handleErrorHubDetails('proxyPortErrorRow', 'proxyPortError', config.hubProxyPortError);
+                handleErrorHubDetails('proxyUsernameErrorRow', 'proxyUsernameError', config.hubProxyUserError);
+                handleErrorHubDetails('proxyPasswordErrorRow', 'proxyPasswordError', config.hubProxyPasswordError);
+                handleErrorHubDetails('configurationErrorRow', 'configurationError', config.testConnectionError);
 
-            showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+                showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+            }
         },
         complete: function (jqXHR, textStatus) {
             stopProgressSpinner('hubDetailsProgressSpinner');
