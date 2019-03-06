@@ -82,6 +82,7 @@ public class JiraIssueHandler {
         logger.debug("Handling event. Old key: " + blackDuckIssueModel.getEventKey());
         final BlackDuckIssueAction actionToTake = blackDuckIssueModel.getIssueAction();
         Issue jiraIssue = null;
+        //TODO: clean up code to find or create a jira issue and then add a comment if possible.
         if (BlackDuckIssueAction.OPEN.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = openIssue(blackDuckIssueModel);
             if (openedIssue != null) {

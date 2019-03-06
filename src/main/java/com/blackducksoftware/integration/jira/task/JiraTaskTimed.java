@@ -156,8 +156,7 @@ public class JiraTaskTimed implements Callable<String> {
 
         final NotificationsSetup notificationsSetup = getNotificationSchemeSetup(jiraSettingsService, jiraServices);
         // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow, notificationsSetup,
-            configDetails.isProjectReviewerEnabled());
+        adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
@@ -190,7 +189,7 @@ public class JiraTaskTimed implements Callable<String> {
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
         final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow, final NotificationsSetup notificationsSetup, final boolean sendProjectReviewerNotifications) {
+        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -213,12 +212,6 @@ public class JiraTaskTimed implements Callable<String> {
                                 workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
                             }
                         }
-
-                        //                        if (sendProjectReviewerNotifications) {
-                        //                            notificationsSetup.addNotificationSchemeToProject(jiraProject);
-                        //                        } else {
-                        //                            notificationsSetup.deleteNotificationSchemeFromProject(jiraProject);
-                        //                        }
                     }
                 }
             }
