@@ -53,6 +53,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.label.LabelManager;
+import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.notification.NotificationSchemeManager;
 import com.atlassian.jira.project.AssigneeTypes;
 import com.atlassian.jira.project.Project;
@@ -240,5 +241,9 @@ public class JiraServices {
     }
 
     public NotificationSchemeManager getNotificationSchemeManager() { return ComponentAccessor.getNotificationSchemeManager();}
+
+    public WatcherManager getWatcherManager() {
+        return ComponentAccessor.getWatcherManager();
+    }
 
 }

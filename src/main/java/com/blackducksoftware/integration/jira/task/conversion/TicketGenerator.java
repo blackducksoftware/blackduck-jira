@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.jira.common.notification.NotificationDe
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResults;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
@@ -78,14 +79,13 @@ public class TicketGenerator {
     private final JiraSettingsService jiraSettingsService;
     private final Map<PluginField, CustomField> customFields;
     private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
-    private final boolean shouldCreateVulnerabilityIssues;
-    private final boolean shouldCommentOnIssueUpdates;
+    private final PluginConfigurationDetails pluginConfigurationDetails;
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final BlackDuckService blackDuckService, final BlackDuckBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
         final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
-        final boolean shouldCreateVulnerabilityIssues, final boolean shouldCommentOnIssueUpdates, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        final PluginConfigurationDetails pluginConfigurationDetails, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
         this.notificationService = notificationService;
@@ -95,8 +95,7 @@ public class TicketGenerator {
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
         this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckService);
-        this.shouldCreateVulnerabilityIssues = shouldCreateVulnerabilityIssues;
-        this.shouldCommentOnIssueUpdates = shouldCommentOnIssueUpdates;
+        this.pluginConfigurationDetails = pluginConfigurationDetails;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
     }
@@ -120,13 +119,13 @@ public class TicketGenerator {
 
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, shouldCommentOnIssueUpdates);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, pluginConfigurationDetails);
 
                 final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
                 final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, logger, pluginConfigurationDetails);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
@@ -150,7 +149,7 @@ public class TicketGenerator {
 
     private void handleEachIssue(final BomNotificationToIssueModelConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final Date batchStartDate) {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
-            if (shouldCreateVulnerabilityIssues || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
+            if (pluginConfigurationDetails.isCreateVulnerabilityIssues() || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
                 final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
                 for (final BlackDuckIssueModel model : issueModels) {
                     try {

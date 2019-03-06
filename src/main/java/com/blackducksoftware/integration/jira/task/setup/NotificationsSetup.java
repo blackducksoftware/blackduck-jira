@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task.setup;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,27 +58,34 @@ public class NotificationsSetup {
         NotificationSchemeManager schemeManager = jiraServices.getNotificationSchemeManager();
         final CustomFieldManager customFieldManager = jiraServices.getCustomFieldManager();
         Scheme currentScheme = schemeManager.getSchemeFor(project);
-        Scheme schemeCopy = schemeManager.copyScheme(currentScheme);
         Collection<CustomField> reviewerFields = customFieldManager.getCustomFieldObjectsByName(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER);
         Collection<SchemeEntity> entities = new LinkedList<>();
-        entities.addAll(schemeCopy.getEntities());
+        entities.addAll(currentScheme.getEntities());
         if (null != reviewerFields) {
             Optional<CustomField> reviewerField = reviewerFields.stream().findFirst();
             if (reviewerField.isPresent()) {
                 CustomField field = reviewerField.get();
-                Set<Object> entityTypeIds = entities.stream().map(SchemeEntity::getEntityTypeId).collect(Collectors.toSet());
-                Collection<SchemeEntity> projectReviewerEntities = entityTypeIds.stream()
-                                                                       .map(typeId -> new SchemeEntity("USER_CUSTOM_FIELD_VALUE", field.getId(), typeId))
-                                                                       .collect(Collectors.toList());
-                entities.addAll(projectReviewerEntities);
+                final String userCustomFieldType = "User_Custom_Field_Value";
+                final boolean reviewerNotifictionsPresent = entities.stream()
+                                                                .filter(schemeEntity -> schemeEntity.getType().equals(userCustomFieldType))
+                                                                .anyMatch(schemeEntity -> schemeEntity.getParameter().equals(field.getId()));
+                if (!reviewerNotifictionsPresent) {
+                    Set<Object> entityTypeIds = entities.stream().map(SchemeEntity::getEntityTypeId).collect(Collectors.toSet());
+                    Collection<SchemeEntity> projectReviewerEntities = entityTypeIds.stream()
+                                                                           .map(typeId -> new SchemeEntity(null, userCustomFieldType, field.getId(), typeId, null, currentScheme.getId()))
+                                                                           .collect(Collectors.toList());
+
+                    entities.addAll(projectReviewerEntities);
+
+                    Scheme newScheme = new Scheme(new Random().nextLong(),
+                        currentScheme.getType(),
+                        currentScheme.getName(),
+                        currentScheme.getDescription(),
+                        entities);
+                    schemeManager.updateScheme(newScheme);
+                }
             }
         }
-        Scheme newScheme = new Scheme(schemeCopy.getId(),
-            schemeCopy.getType(),
-            schemeCopy.getName(),
-            schemeCopy.getDescription(),
-            entities);
-        updateSchemeForProject(schemeManager, project, newScheme);
     }
 
     public void deleteNotificationSchemeFromProject(final Project project) {
@@ -96,10 +104,5 @@ public class NotificationsSetup {
                 }
             }
         }
-    }
-
-    private void updateSchemeForProject(final NotificationSchemeManager schemeManager, final Project project, final Scheme scheme) {
-        schemeManager.removeSchemesFromProject(project);
-        schemeManager.addSchemeToProject(project, scheme);
     }
 }

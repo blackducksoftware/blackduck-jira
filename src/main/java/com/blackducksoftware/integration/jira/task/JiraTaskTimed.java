@@ -157,7 +157,7 @@ public class JiraTaskTimed implements Callable<String> {
         final NotificationsSetup notificationsSetup = getNotificationSchemeSetup(jiraSettingsService, jiraServices);
         // Associate these config objects with mapped projects
         adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow, notificationsSetup,
-            configDetails.isProjectReviewerNotifications());
+            configDetails.isProjectReviewerEnabled());
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
@@ -214,11 +214,11 @@ public class JiraTaskTimed implements Callable<String> {
                             }
                         }
 
-                        if (sendProjectReviewerNotifications) {
-                            notificationsSetup.addNotificationSchemeToProject(jiraProject);
-                        } else {
-                            notificationsSetup.deleteNotificationSchemeFromProject(jiraProject);
-                        }
+                        //                        if (sendProjectReviewerNotifications) {
+                        //                            notificationsSetup.addNotificationSchemeToProject(jiraProject);
+                        //                        } else {
+                        //                            notificationsSetup.deleteNotificationSchemeFromProject(jiraProject);
+                        //                        }
                     }
                 }
             }
