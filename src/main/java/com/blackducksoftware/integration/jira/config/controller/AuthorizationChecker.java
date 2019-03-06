@@ -23,9 +23,13 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
+import java.util.Optional;
+
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.sal.api.user.UserProfile;
 
 public class AuthorizationChecker {
     private final UserManager userManager;
@@ -39,38 +43,68 @@ public class AuthorizationChecker {
     }
 
     public boolean isValidAuthorization(final String username, final String[] blackDuckJiraGroups) {
-        return isUserSystemAdmin(username) && isGroupAuthorized(username, blackDuckJiraGroups);
+        return isUserSystemAdmin(username) || isGroupAuthorized(username, blackDuckJiraGroups);
     }
 
-    public String getUsername(final HttpServletRequest request) {
-        return userManager.getRemoteUsername(request);
+    public Optional<String> getUsername(final HttpServletRequest request) {
+        return getUser(request).map(UserProfile::getUsername);
+    }
+
+    public Optional<UserProfile> getUser(final HttpServletRequest request) {
+        return Optional.ofNullable(userManager.getRemoteUser(request));
+    }
+
+    public Optional<UserProfile> getUser(final String username) {
+        return Optional.ofNullable(userManager.getUserProfile(username));
+    }
+
+    public Optional<UserKey> getUserKey(final HttpServletRequest request) {
+        return getUser(request).map(UserProfile::getUserKey);
+    }
+
+    public Optional<UserKey> getUserKey(final String username) {
+        return getUser(username).map(UserProfile::getUserKey);
     }
 
     public boolean isUserAvailable(final HttpServletRequest request) {
-        final String username = getUsername(request);
-        return username != null;
+        return getUsername(request).isPresent();
     }
 
     public boolean isUserSystemAdmin(final HttpServletRequest request) {
-        final String username = getUsername(request);
-        return isUserSystemAdmin(username);
+        final Optional<UserKey> userKey = getUserKey(request);
+        return userKey.isPresent() && userManager.isSystemAdmin(userKey.get());
     }
 
     public boolean isUserSystemAdmin(final String username) {
-        if (username == null) {
-            return false;
-        }
-        return userManager.isSystemAdmin(username);
+        final Optional<UserKey> userKey = getUserKey(username);
+        return userKey.isPresent() && isUserSystemAdmin(userKey.get());
+    }
+
+    public boolean isUserSystemAdmin(final UserKey userKey) {
+        return userManager.isSystemAdmin(userKey);
     }
 
     public boolean isGroupAuthorized(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
-        final String username = userManager.getRemoteUsername(request);
-        return isGroupAuthorized(username, blackDuckJiraGroups);
+        final Optional<UserKey> userKey = getUserKey(request);
+        return isGroupAuthorized(userKey.get(), blackDuckJiraGroups);
     }
 
     public boolean isGroupAuthorized(final String username, final String[] blackDuckJiraGroups) {
+        final Optional<UserKey> userKeyOptional = getUserKey(username);
+        if (!isUserSystemAdmin(username) || !userKeyOptional.isPresent()) {
+            return false;
+        }
+
+        final UserKey userKey = userKeyOptional.get();
+        return isGroupAuthorized(userKey, blackDuckJiraGroups);
+    }
+
+    public boolean isGroupAuthorized(final UserKey userKey, final String[] blackDuckJiraGroups) {
+        if (!isUserSystemAdmin(userKey)) {
+            return false;
+        }
         for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-            if (userManager.isUserInGroup(username, blackDuckJiraGroup.trim())) {
+            if (userManager.isUserInGroup(userKey, blackDuckJiraGroup.trim())) {
                 return true;
             }
         }
