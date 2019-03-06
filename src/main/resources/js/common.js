@@ -265,3 +265,12 @@ function toggleDisplay(icon, fieldId) {
         removeClassFromFieldById(fieldId, hiddenClass);
     }
 }
+
+function redirectIfUnauthenticated(response) {
+    let status = response.status;
+    if (401 == status) {
+        location.reload(true);
+        return true;
+    }
+    return false;
+}

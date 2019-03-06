@@ -192,7 +192,7 @@ public class PluginSettingsWrapper {
     }
 
     public Boolean getVulnerabilityIssuesChoice() {
-        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE);
+        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, true);
     }
 
     public void setVulnerabilityIssuesChoice(final Boolean choice) {
@@ -200,7 +200,7 @@ public class PluginSettingsWrapper {
     }
 
     public Boolean getCommentOnIssuesUpdatesChoice() {
-        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE);
+        return getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_COMMENT_ON_ISSUE_UPDATES_CHOICE, false);
     }
 
     public void setCommentOnIssuesUpdatesChoice(final Boolean choice) {
@@ -248,7 +248,15 @@ public class PluginSettingsWrapper {
     }
 
     public Boolean getBooleanValue(final String key) {
-        return Boolean.parseBoolean(getStringValue(key));
+        return getBooleanValue(key, false);
+    }
+
+    public Boolean getBooleanValue(final String key, final Boolean defaultValue) {
+        final String stringValue = getStringValue(key);
+        if (StringUtils.isBlank(stringValue)) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(stringValue);
     }
 
     public void setValue(final String key, final Object value) {

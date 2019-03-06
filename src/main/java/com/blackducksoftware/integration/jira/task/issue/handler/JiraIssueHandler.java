@@ -402,10 +402,7 @@ public class JiraIssueHandler {
         logger.debug("Found this many actions : " + actions.size());
         if (actions.size() == 0) {
             final String errorMessage = "Can not transition this issue : " + issueToTransition.getKey() + ", from status : " + currentStatus.getName() + ". There are no steps from this status to any other status.";
-            logger.error(errorMessage);
-            final Project jiraProject = issueToTransition.getProjectObject();
-            jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
+            updateJiraSettings(issueToTransition, blackDuckIssueFieldTemplate, errorMessage);
         }
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(stepName)) {
@@ -422,19 +419,23 @@ public class JiraIssueHandler {
             }
         } else {
             final String errorMessage = "Could not find the action : " + stepName + " to transition this issue: " + issueToTransition.getKey();
-            logger.error(errorMessage);
-            final Project jiraProject = issueToTransition.getProjectObject();
-            jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
-                jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
+            updateJiraSettings(issueToTransition, blackDuckIssueFieldTemplate, errorMessage);
         }
         return null;
+    }
+
+    private void updateJiraSettings(final Issue issueToTransition, final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate, final String errorMessage) {
+        logger.error(errorMessage);
+        final Project jiraProject = issueToTransition.getProjectObject();
+        jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
+            jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
     }
 
     private boolean issueUsesBdsWorkflow(final Issue issue) {
         final JiraWorkflow issueWorkflow = issueServiceWrapper.getWorkflow(issue);
         if (issueWorkflow != null) {
             logger.debug("Issue " + issue.getKey() + " uses workflow " + issueWorkflow.getName());
-            return BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW.equals(issueWorkflow.getName());
+            return issueWorkflow.getName().contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         }
         return false;
     }

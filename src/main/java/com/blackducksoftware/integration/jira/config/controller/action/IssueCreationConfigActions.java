@@ -155,7 +155,7 @@ public class IssueCreationConfigActions {
         pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
         pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
         pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
-        final String username = authorizationChecker.getUsername(request);
+        final String username = authorizationChecker.getUsername(request).orElse(null);
         pluginSettingsWrapper.setJiraAdminUser(username);
         final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());

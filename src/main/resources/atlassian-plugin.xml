@@ -8,6 +8,8 @@
         <param name="atlassian-data-center-compatible">true</param>
         <param name="plugin-icon">images/Ducky-200.png</param>
         <param name="plugin-logo">images/Ducky-200.png</param>
+        <param name="configure.url">/plugins/servlet/blackduck-jira-integration</param>
+        <param name="post.install.url">/plugins/servlet/blackduck-jira-integration</param>
 
         <bundle-instructions>
             <Embed-Dependency>stream</Embed-Dependency>
@@ -105,7 +107,7 @@
         <context>hub-jira</context>
     </web-resource>
 
-    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.BlackDuckJiraServlet">
+    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.servlet.BlackDuckJiraServlet">
         <url-pattern>/blackduck-jira-integration</url-pattern>
     </servlet>
 

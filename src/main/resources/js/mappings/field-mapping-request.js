@@ -124,10 +124,12 @@ function putFieldCopyConfig(restUrl, successMessage, failureMessage) {
         },
         error: function (response) {
             try {
-                var admin = JSON.parse(response.responseText);
-                handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, true);
+                if (!redirectIfUnauthenticated(response)) {
+                    let admin = JSON.parse(response.responseText);
+                    handleError('hubJiraGroupsError', admin.hubJiraGroupsError, true, true);
 
-                showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+                    showStatusMessage(errorStatus, 'ERROR!', failureMessage);
+                }
             } catch (err) {
                 // in case the response is not our error object
                 alert(response.responseText);
