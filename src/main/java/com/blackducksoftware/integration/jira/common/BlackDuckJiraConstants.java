@@ -26,6 +26,8 @@ package com.blackducksoftware.integration.jira.common;
 public class BlackDuckJiraConstants {
     public static final int PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL = 4;
     public static final String BLACKDUCK_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
+    public static final String BLACKDUCK_JIRA_NOTIFICATION_SCHEME = "Black Duck Notification Scheme";
+    public static final String BLACKDUCK_JIRA_NOTIFICATION_SCHEME_DESCRIPTION = "Notification Scheme for Projects mapped to Black Duck projects";
     // Issue type names (user visible)
     public static final String BLACKDUCK_POLICY_VIOLATION_ISSUE = "Black Duck Policy Violation";
     public static final String BLACKDUCK_VULNERABILITY_ISSUE = "Black Duck Security Vulnerability";

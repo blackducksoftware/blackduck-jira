@@ -49,6 +49,7 @@ public class PluginConfigurationDetails {
     private final String fieldCopyMappingJson;
     private final boolean createVulnerabilityIssues;
     private final boolean commentOnIssueUpdates;
+    private final boolean projectReviewerNotifications;
 
     private final PluginSettings settings;
 
@@ -78,6 +79,7 @@ public class PluginConfigurationDetails {
         fieldCopyMappingJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
         createVulnerabilityIssues = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
         commentOnIssueUpdates = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
+        projectReviewerNotifications = pluginSettingsWrapper.getProjectReviewerNotificationsChoice();
     }
 
     public PluginSettings getSettings() {
@@ -154,6 +156,10 @@ public class PluginConfigurationDetails {
 
     public boolean isCommentOnIssueUpdates() {
         return commentOnIssueUpdates;
+    }
+
+    public boolean isProjectReviewerNotifications() {
+        return projectReviewerNotifications;
     }
 
     public BlackDuckServerConfigBuilder createServerConfigBuilder() {

@@ -42,6 +42,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager;
 import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.notification.NotificationSchemeManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
@@ -74,6 +75,7 @@ public class JiraServicesMock extends JiraServices {
     private FieldLayoutManager fieldLayoutManager;
     private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
     private SearchService searchService;
+    private NotificationSchemeManager notificationSchemeManager;
 
     @Override
     public UserUtil getUserUtil() {
@@ -97,10 +99,6 @@ public class JiraServicesMock extends JiraServices {
         this.projectManager = projectManager;
     }
 
-    public void setIssueService(final IssueService issueService) {
-        this.issueService = issueService;
-    }
-
     public void setJiraAuthenticationContext(final JiraAuthenticationContext jiraAuthenticationContext) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
     }
@@ -109,41 +107,13 @@ public class JiraServicesMock extends JiraServices {
         this.issuePropertyService = issuePropertyService;
     }
 
-    public void setProjectPropertyService(final ProjectPropertyService projectPropertyService) {
-        this.projectPropertyService = projectPropertyService;
-    }
-
-    public void setWorkflowManager(final WorkflowManager workflowManager) {
-        this.workflowManager = workflowManager;
-    }
-
-    public void setWorkflowSchemeManager(final WorkflowSchemeManager workflowSchemeManager) {
-        this.workflowSchemeManager = workflowSchemeManager;
-    }
-
-    public void setJsonEntityPropertyManager(final JsonEntityPropertyManager jsonEntityPropertyManager) {
-        this.jsonEntityPropertyManager = jsonEntityPropertyManager;
-    }
-
-    public void setCommentManager(final CommentManager commentManager) {
-        this.commentManager = commentManager;
-    }
-
-    public void setUserManager(final UserManager userManager) {
-        this.userManager = userManager;
-    }
-
-    public void setAvatarManager(final AvatarManager avatarManager) {
-        this.avatarManager = avatarManager;
-    }
-
-    public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
-        this.issueTypeSchemeManager = issueTypeSchemeManager;
-    }
-
     @Override
     public ConstantsManager getConstantsManager() {
         return constantsManager;
+    }
+
+    public void setConstantsManager(final ConstantsManager constantsManager) {
+        this.constantsManager = constantsManager;
     }
 
     @Override
@@ -151,8 +121,8 @@ public class JiraServicesMock extends JiraServices {
         return issueTypeSchemeManager;
     }
 
-    public void setConstantsManager(final ConstantsManager constantsManager) {
-        this.constantsManager = constantsManager;
+    public void setIssueTypeSchemeManager(final IssueTypeSchemeManager issueTypeSchemeManager) {
+        this.issueTypeSchemeManager = issueTypeSchemeManager;
     }
 
     @Override
@@ -165,9 +135,17 @@ public class JiraServicesMock extends JiraServices {
         return avatarManager;
     }
 
+    public void setAvatarManager(final AvatarManager avatarManager) {
+        this.avatarManager = avatarManager;
+    }
+
     @Override
     public IssueService getIssueService() {
         return issueService;
+    }
+
+    public void setIssueService(final IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Override
@@ -185,9 +163,17 @@ public class JiraServicesMock extends JiraServices {
         return projectPropertyService;
     }
 
+    public void setProjectPropertyService(final ProjectPropertyService projectPropertyService) {
+        this.projectPropertyService = projectPropertyService;
+    }
+
     @Override
     public WorkflowManager getWorkflowManager() {
         return workflowManager;
+    }
+
+    public void setWorkflowManager(final WorkflowManager workflowManager) {
+        this.workflowManager = workflowManager;
     }
 
     @Override
@@ -195,9 +181,17 @@ public class JiraServicesMock extends JiraServices {
         return workflowSchemeManager;
     }
 
+    public void setWorkflowSchemeManager(final WorkflowSchemeManager workflowSchemeManager) {
+        this.workflowSchemeManager = workflowSchemeManager;
+    }
+
     @Override
     public JsonEntityPropertyManager getJsonEntityPropertyManager() {
         return jsonEntityPropertyManager;
+    }
+
+    public void setJsonEntityPropertyManager(final JsonEntityPropertyManager jsonEntityPropertyManager) {
+        this.jsonEntityPropertyManager = jsonEntityPropertyManager;
     }
 
     @Override
@@ -205,9 +199,17 @@ public class JiraServicesMock extends JiraServices {
         return commentManager;
     }
 
+    public void setCommentManager(final CommentManager commentManager) {
+        this.commentManager = commentManager;
+    }
+
     @Override
     public UserManager getUserManager() {
         return userManager;
+    }
+
+    public void setUserManager(final UserManager userManager) {
+        this.userManager = userManager;
     }
 
     @Override
@@ -285,4 +287,12 @@ public class JiraServicesMock extends JiraServices {
         return "jira-base-url";
     }
 
+    @Override
+    public NotificationSchemeManager getNotificationSchemeManager() {
+        return notificationSchemeManager;
+    }
+
+    public void setNotificationSchemeManager(final NotificationSchemeManager notificationSchemeManager) {
+        this.notificationSchemeManager = notificationSchemeManager;
+    }
 }

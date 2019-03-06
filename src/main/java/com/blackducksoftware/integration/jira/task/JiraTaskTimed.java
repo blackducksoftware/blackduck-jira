@@ -62,6 +62,7 @@ import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldConfigura
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckWorkflowSetup;
+import com.blackducksoftware.integration.jira.task.setup.NotificationsSetup;
 
 public class JiraTaskTimed implements Callable<String> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -103,7 +104,7 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime beforeSetup = LocalDateTime.now();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(jiraServices, jiraSettingsService, configDetails.getProjectMappingJson(), ticketInfoFromSetup, jiraUserContext);
+            jiraSetup(jiraServices, jiraSettingsService, configDetails, ticketInfoFromSetup, jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
@@ -117,7 +118,7 @@ public class JiraTaskTimed implements Callable<String> {
         return runResult;
     }
 
-    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
+    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final PluginConfigurationDetails configDetails, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
         throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
@@ -153,8 +154,10 @@ public class JiraTaskTimed implements Callable<String> {
         final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira().orElseThrow(() -> new JiraException("Unable to add Black Duck workflow to JIRA."));
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
+        final NotificationsSetup notificationsSetup = getNotificationSchemeSetup(jiraSettingsService, jiraServices);
         // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
+        adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow, notificationsSetup,
+            configDetails.isProjectReviewerNotifications());
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
@@ -187,7 +190,7 @@ public class JiraTaskTimed implements Callable<String> {
 
     private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
         final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow, final NotificationsSetup notificationsSetup, final boolean sendProjectReviewerNotifications) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
@@ -210,6 +213,12 @@ public class JiraTaskTimed implements Callable<String> {
                                 workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
                             }
                         }
+
+                        if (sendProjectReviewerNotifications) {
+                            notificationsSetup.addNotificationSchemeToProject(jiraProject);
+                        } else {
+                            notificationsSetup.deleteNotificationSchemeFromProject(jiraProject);
+                        }
                     }
                 }
             }
@@ -230,6 +239,10 @@ public class JiraTaskTimed implements Callable<String> {
 
     private BlackDuckWorkflowSetup getBlackDuckWorkflowSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
+    }
+
+    private NotificationsSetup getNotificationSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
+        return new NotificationsSetup(jiraSettingsService, jiraServices);
     }
 
     private Optional<JiraUserContext> initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
