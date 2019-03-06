@@ -62,7 +62,6 @@ import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldConfigura
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldScreenSchemeSetup;
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckIssueTypeSetup;
 import com.blackducksoftware.integration.jira.task.setup.BlackDuckWorkflowSetup;
-import com.blackducksoftware.integration.jira.task.setup.NotificationsSetup;
 
 public class JiraTaskTimed implements Callable<String> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -154,7 +153,6 @@ public class JiraTaskTimed implements Callable<String> {
         final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira().orElseThrow(() -> new JiraException("Unable to add Black Duck workflow to JIRA."));
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
-        final NotificationsSetup notificationsSetup = getNotificationSchemeSetup(jiraSettingsService, jiraServices);
         // Associate these config objects with mapped projects
         adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
     }
@@ -232,10 +230,6 @@ public class JiraTaskTimed implements Callable<String> {
 
     private BlackDuckWorkflowSetup getBlackDuckWorkflowSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
         return new BlackDuckWorkflowSetup(jiraSettingsService, jiraServices);
-    }
-
-    private NotificationsSetup getNotificationSchemeSetup(final JiraSettingsService jiraSettingsService, final JiraServices jiraServices) {
-        return new NotificationsSetup(jiraSettingsService, jiraServices);
     }
 
     private Optional<JiraUserContext> initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
