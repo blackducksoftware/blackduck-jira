@@ -269,8 +269,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
             if (policyRuleUrl != null) {
                 blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
                     projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString,
-                    updatedTimeString,
-                    policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
+                    updatedTimeString, policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
             } else {
                 throw new IssueModelBuilderException("The field 'policyRuleUrl' is required for policy notifications.");
             }

@@ -55,7 +55,6 @@ import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.manual.view.NotificationUserView;
-import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 import com.synopsys.integration.blackduck.exception.BlackDuckItemTransformException;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.NotificationService;
@@ -101,7 +100,7 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) throws BlackDuckIntegrationException {
+    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) {
         if ((blackDuckProjectMappings == null) || (blackDuckProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
@@ -125,7 +124,7 @@ public class TicketGenerator {
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
                 final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, blackDuckService, logger);
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, logger);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }

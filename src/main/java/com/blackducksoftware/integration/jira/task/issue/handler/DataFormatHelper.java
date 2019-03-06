@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.model.NotificationVulnerability;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
@@ -45,7 +46,6 @@ import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
-import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class DataFormatHelper {
@@ -105,7 +105,7 @@ public class DataFormatHelper {
         }
     }
 
-    public String generateVulnerabilitiesComment(final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) {
+    public String generateVulnerabilitiesComment(final List<NotificationVulnerability> addedIds, final List<NotificationVulnerability> updatedIds, final List<NotificationVulnerability> deletedIds) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck plugin auto-generated comment)\n");
         appendVulnerabilitiesCommentText(commentText, addedIds, "added");
@@ -145,13 +145,13 @@ public class DataFormatHelper {
         stringBuilder.append(".\n");
     }
 
-    private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final List<VulnerabilitySourceQualifiedId> vulns, final String verb) {
+    private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final List<NotificationVulnerability> vulns, final String verb) {
         final boolean hasContent = vulns != null && !vulns.isEmpty();
-        final String formattedVerb = hasContent ? "*" + verb + "*" : "_" + verb + "_";
-        commentText.append("Vulnerabilities " + formattedVerb + ": ");
+        final String formattedVerb = hasContent ? String.format("*%s*", verb) : String.format("_%s_", verb);
+        commentText.append(String.format("Vulnerabilities %s: ", formattedVerb));
         int index = 0;
         if (hasContent) {
-            for (final VulnerabilitySourceQualifiedId vuln : vulns) {
+            for (final NotificationVulnerability vuln : vulns) {
                 commentText.append(vuln.getVulnerabilityId() + " (" + vuln.getSource() + ")");
                 if ((index + 1) < vulns.size()) {
                     commentText.append(", ");
