@@ -206,25 +206,19 @@ public class BomNotificationToIssueModelConverter {
 
         if (hasVulnerabilityRule(policyRule)) {
             final List<VulnerableComponentView> vulnerableComponentViews = blackDuckDataHelper.getAllResponses(projectVersionView, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE);
-            addVulnerabilityInfo(blackDuckIssueModelBuilder, notificationType, vulnerableComponentViews);
+            addVulnerabilityInfo(blackDuckIssueModelBuilder, vulnerableComponentViews);
         }
 
         return Optional.of(blackDuckIssueModelBuilder.build());
     }
 
-    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final List<VulnerableComponentView> allVulnerabilities) {
+    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final List<VulnerableComponentView> allVulnerabilities) {
         final List<NotificationVulnerability> notificationVulnerabilities = allVulnerabilities.stream()
                                                                                 .map(VulnerableComponentView::getVulnerabilityWithRemediation)
                                                                                 .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
                                                                                 .collect(Collectors.toList());
-        //        if (NotificationType.RULE_VIOLATION.equals(notificationType)) {
-        //            setVulnerabilityComment(blackDuckIssueModelBuilder, notificationVulnerabilities, Arrays.asList(), Arrays.asList());
-        //        } else if (NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
-        //            setVulnerabilityComment(blackDuckIssueModelBuilder, Arrays.asList(), Arrays.asList(), notificationVulnerabilities);
-        //        } else if (NotificationType.POLICY_OVERRIDE.equals(notificationType)) {
-        //            setVulnerabilityComment(blackDuckIssueModelBuilder, Arrays.asList(), notificationVulnerabilities, Arrays.asList());
-        //        }
-        setVulnerabilityComment(blackDuckIssueModelBuilder, notificationVulnerabilities, notificationVulnerabilities, notificationVulnerabilities);
+        final String comment = dataFormatHelper.generateVulnerabilitiesCommentForPolicy(notificationVulnerabilities);
+        blackDuckIssueModelBuilder.setJiraIssueComment(comment);
     }
 
     private Boolean hasVulnerabilityRule(final PolicyRuleView policyRuleView) {
@@ -243,7 +237,8 @@ public class BomNotificationToIssueModelConverter {
         final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) throws IntegrationException, ConfigurationException {
         logger.debug("Creating model for vulnerability");
 
-        setVulnerabilityComment(blackDuckIssueModelBuilder, convertToNotificationVulnerabilities(addedIds), convertToNotificationVulnerabilities(updatedIds), convertToNotificationVulnerabilities(deletedIds));
+        final String comment = dataFormatHelper.generateVulnerabilitiesComment(convertToNotificationVulnerabilities(addedIds), convertToNotificationVulnerabilities(updatedIds), convertToNotificationVulnerabilities(deletedIds));
+        blackDuckIssueModelBuilder.setVulnerabilityComments(comment);
 
         if (!NotificationType.BOM_EDIT.equals(notificationType)) {
             BlackDuckIssueAction action = BlackDuckIssueAction.ADD_COMMENT;
@@ -269,12 +264,6 @@ public class BomNotificationToIssueModelConverter {
         return ids.stream()
                    .map(id -> new NotificationVulnerability(id.getSource(), id.getVulnerabilityId()))
                    .collect(Collectors.toList());
-    }
-
-    private void setVulnerabilityComment(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final List<NotificationVulnerability> addedIds, final List<NotificationVulnerability> updatedIds,
-        final List<NotificationVulnerability> deletedIds) {
-        final String comment = dataFormatHelper.generateVulnerabilitiesComment(addedIds, updatedIds, deletedIds);
-        blackDuckIssueModelBuilder.setVulnerabilityComments(comment);
     }
 
     private Collection<BlackDuckIssueModel> createModelsForBomEdit(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final VersionBomComponentView versionBomComponent,

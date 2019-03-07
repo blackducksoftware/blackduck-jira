@@ -105,6 +105,13 @@ public class DataFormatHelper {
         }
     }
 
+    public String generateVulnerabilitiesCommentForPolicy(final List<NotificationVulnerability> vulnerabilities) {
+        final StringBuilder commentText = new StringBuilder();
+        commentText.append("(Black Duck plugin auto-generated comment)\n");
+        appendVulnerabilitiesCommentText(commentText, vulnerabilities, "found");
+        return commentText.toString();
+    }
+
     public String generateVulnerabilitiesComment(final List<NotificationVulnerability> addedIds, final List<NotificationVulnerability> updatedIds, final List<NotificationVulnerability> deletedIds) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck plugin auto-generated comment)\n");

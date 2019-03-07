@@ -90,6 +90,9 @@ public class JiraIssueHandler {
                 if (openedIssue.isIssueStateChangeBlocked()) {
                     addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
                 }
+                if (StringUtils.isNotBlank(blackDuckIssueModel.getJiraIssueComment())) {
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueComment(), jiraIssue);
+                }
             }
         } else if (BlackDuckIssueAction.RESOLVE.equals(actionToTake)) {
             final ExistenceAwareIssue resolvedIssue = closeIssue(blackDuckIssueModel);
@@ -195,7 +198,7 @@ public class JiraIssueHandler {
                 final Issue matchingIssue = issueServiceWrapper.getIssue(properties.getJiraIssueId());
                 final ExistenceAwareIssue closedIssue = closeIssue(blackDuckIssueModel, matchingIssue);
                 if (closedIssue != null && closedIssue.isIssueStateChangeBlocked()) {
-                    Issue jiraIssue = closedIssue.getIssue();
+                    final Issue jiraIssue = closedIssue.getIssue();
                     addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
                     addComponentReviewerAsWatcher(jiraIssue, blackDuckIssueModel);
                 }
@@ -528,7 +531,7 @@ public class JiraIssueHandler {
 
     private void addComponentReviewerAsWatcher(final Issue issue, final BlackDuckIssueModel model) {
         if (null != issue && pluginConfigurationDetails.isProjectReviewerEnabled()) {
-            ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
+            final ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
             if (null != componentReviewer) {
                 issueServiceWrapper.addWatcher(issue, componentReviewer);
             }
