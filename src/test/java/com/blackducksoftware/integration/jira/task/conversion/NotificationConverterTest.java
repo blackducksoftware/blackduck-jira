@@ -61,6 +61,7 @@ import com.blackducksoftware.integration.jira.common.notification.RuleViolationN
 import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -441,7 +442,7 @@ public class NotificationConverterTest {
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper,
-            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger);
+            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, Mockito.mock(PluginConfigurationDetails.class));
 
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
         assertEquals(expectedCount, issueModels.size());

@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
@@ -61,62 +62,74 @@ public class JiraIssueHandler {
     private final JiraUserContext jiraUserContext;
     private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
     private final BlackDuckIssueTrackerPropertyHandler blackDuckIssueTrackerPropertyHandler;
-    private final boolean commentOnIssueUpdates;
+    private final PluginConfigurationDetails pluginConfigurationDetails;
     private final Date instanceUniqueDate;
 
     public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler,
-        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final boolean commentOnIssueUpdates) {
+        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final PluginConfigurationDetails pluginConfigurationDetails) {
         this.issueServiceWrapper = issueServiceWrapper;
         this.jiraSettingsService = jiraSettingsService;
         this.authContext = authContext;
         this.jiraUserContext = jiraContext;
         this.blackDuckIssueTrackerHandler = blackDuckIssueTrackerHandler;
         this.blackDuckIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
-        this.commentOnIssueUpdates = commentOnIssueUpdates;
+        this.pluginConfigurationDetails = pluginConfigurationDetails;
         this.instanceUniqueDate = new Date();
     }
 
     public void handleBlackDuckIssue(final BlackDuckIssueModel blackDuckIssueModel) {
         logger.info(String.format("Performing action '%s' on BOM Component: %s", blackDuckIssueModel.getIssueAction(), blackDuckIssueModel.getBomComponentUri()));
         logger.debug("Handling event. Old key: " + blackDuckIssueModel.getEventKey());
-
         final BlackDuckIssueAction actionToTake = blackDuckIssueModel.getIssueAction();
+        Issue jiraIssue = null;
+        //TODO: clean up code to find or create a jira issue and then add a comment if possible.
         if (BlackDuckIssueAction.OPEN.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = openIssue(blackDuckIssueModel);
-            if (openedIssue != null && openedIssue.isIssueStateChangeBlocked()) {
-                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
+            if (openedIssue != null) {
+                jiraIssue = openedIssue.getIssue();
+                if (openedIssue.isIssueStateChangeBlocked()) {
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
+                }
             }
         } else if (BlackDuckIssueAction.RESOLVE.equals(actionToTake)) {
             final ExistenceAwareIssue resolvedIssue = closeIssue(blackDuckIssueModel);
-            if (resolvedIssue != null && resolvedIssue.isIssueStateChangeBlocked()) {
-                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), resolvedIssue.getIssue());
+            if (resolvedIssue != null) {
+                jiraIssue = resolvedIssue.getIssue();
+                if (resolvedIssue.isIssueStateChangeBlocked()) {
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
+                }
             }
         } else if (BlackDuckIssueAction.ADD_COMMENT.equals(actionToTake)) {
             final ExistenceAwareIssue issueToCommentOn = openIssue(blackDuckIssueModel);
             if (issueToCommentOn != null && issueToCommentOn.getIssue() != null) {
+                jiraIssue = issueToCommentOn.getIssue();
                 if (!issueToCommentOn.isExisted()) {
-                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueComment(), issueToCommentOn.getIssue());
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueComment(), jiraIssue);
                 } else if (issueToCommentOn.isIssueStateChangeBlocked()) {
-                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), issueToCommentOn.getIssue());
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
                 } else {
-                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentForExistingIssue(), issueToCommentOn.getIssue());
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentForExistingIssue(), jiraIssue);
                 }
             }
         } else if (BlackDuckIssueAction.ADD_COMMENT_IF_EXISTS.equals(actionToTake)) {
             final Issue existingIssue = findIssueAndUpdateModel(blackDuckIssueModel);
             if (existingIssue != null) {
+                jiraIssue = existingIssue;
                 addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
             }
         } else if (BlackDuckIssueAction.UPDATE_IF_EXISTS.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = updateIssueIfExists(blackDuckIssueModel);
             if (openedIssue != null && !openedIssue.isExisted()) {
-                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), openedIssue.getIssue());
+                jiraIssue = openedIssue.getIssue();
+                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
             }
         } else if (BlackDuckIssueAction.RESOLVE_ALL.equals(actionToTake)) {
             resolveAllRelatedIssues(blackDuckIssueModel);
         } else {
             logger.warn("No action to take for event data: " + blackDuckIssueModel);
         }
+        // add component reviewer for single issues.  resolve all handles
+        addComponentReviewerAsWatcher(jiraIssue, blackDuckIssueModel);
     }
 
     private ExistenceAwareIssue openIssue(final BlackDuckIssueModel blackDuckIssueModel) {
@@ -182,7 +195,9 @@ public class JiraIssueHandler {
                 final Issue matchingIssue = issueServiceWrapper.getIssue(properties.getJiraIssueId());
                 final ExistenceAwareIssue closedIssue = closeIssue(blackDuckIssueModel, matchingIssue);
                 if (closedIssue != null && closedIssue.isIssueStateChangeBlocked()) {
-                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), closedIssue.getIssue());
+                    Issue jiraIssue = closedIssue.getIssue();
+                    addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
+                    addComponentReviewerAsWatcher(jiraIssue, blackDuckIssueModel);
                 }
             }
         } catch (final JiraIssueException e) {
@@ -249,7 +264,7 @@ public class JiraIssueHandler {
 
     private void addComment(final BlackDuckIssueModel blackDuckIssueModel, final String comment, final Issue issue) {
         final String issueKey = issue.getKey();
-        if (!commentOnIssueUpdates) {
+        if (!pluginConfigurationDetails.isCommentOnIssueUpdates()) {
             logger.debug(String.format("Will not add a comment to issue %s because the plugin has been configured to not comment on issue updates", issueKey));
             return;
         }
@@ -508,6 +523,15 @@ public class JiraIssueHandler {
             jiraSettingsService.addBlackDuckError(exceptionMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
         } else {
             jiraSettingsService.addBlackDuckError(issueException, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+        }
+    }
+
+    private void addComponentReviewerAsWatcher(final Issue issue, final BlackDuckIssueModel model) {
+        if (null != issue && pluginConfigurationDetails.isProjectReviewerEnabled()) {
+            ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
+            if (null != componentReviewer) {
+                issueServiceWrapper.addWatcher(issue, componentReviewer);
+            }
         }
     }
 

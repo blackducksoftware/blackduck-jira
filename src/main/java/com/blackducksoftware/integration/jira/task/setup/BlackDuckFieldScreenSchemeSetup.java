@@ -175,7 +175,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             @SuppressWarnings("deprecation")
             // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
-                    CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
+                CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
                 customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }
@@ -227,6 +227,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL));
 
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE));
+        customFields.add(getOrderedUserFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER));
         customFields.add(getOrderedTextFieldFromCustomField(issueTypeList, PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
 
         return customFields;

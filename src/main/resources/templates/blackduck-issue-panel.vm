@@ -4,6 +4,7 @@ $webResourceManager.requireResource("com.blackducksoftware.integration.hub-jira:
     try {
         hideBlackDuckCustomFields();
         replaceProjectOwnerField();
+        replaceComponentReviewerField();
     } catch (error) {
     }
 </script>

@@ -45,6 +45,7 @@ import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.workflow.JiraWorkflow;
@@ -67,6 +68,7 @@ public class JiraIssueServiceWrapper {
     private final IssueManager jiraIssueManager;
     private final CommentManager commentManager;
     private final WorkflowManager workflowManager;
+    private final WatcherManager watcherManager;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
     private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
     private final ApplicationUser jiraAdminUser;
@@ -74,7 +76,7 @@ public class JiraIssueServiceWrapper {
     private final Gson gson;
 
     public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager, final JiraIssuePropertyWrapper issuePropertyWrapper,
-            final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson) {
+        final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson, final WatcherManager watcherManager) {
         this.jiraIssueService = jiraIssueService;
         this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
@@ -84,6 +86,7 @@ public class JiraIssueServiceWrapper {
         this.jiraAdminUser = jiraAdminUser;
         this.customFieldsMap = customFieldsMap;
         this.gson = gson;
+        this.watcherManager = watcherManager;
     }
 
     // @formatter:off
@@ -95,10 +98,10 @@ public class JiraIssueServiceWrapper {
                 ,jiraServices.getWorkflowManager()
                 ,jiraServices.createIssuePropertyWrapper()
                 ,new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFieldsMap)
-                ,jiraUserContext.getJiraAdminUser() 
+                ,jiraUserContext.getJiraAdminUser()
                 ,customFieldsMap
-                ,gson
-                );
+                ,gson,
+                jiraServices.getWatcherManager());
     }
     // @formatter:on
 
@@ -132,7 +135,7 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-                jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
 
         final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraIssueFieldTemplate.getIssueCreator(), issueInputParameters);
         if (validationResult.isValid()) {
@@ -158,7 +161,7 @@ public class JiraIssueServiceWrapper {
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
         final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-                jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
         final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraIssueFieldTemplate.getIssueCreator(), jiraIssueId, issueInputParameters);
         if (validationResult.isValid()) {
             final boolean sendMail = false;
@@ -238,6 +241,12 @@ public class JiraIssueServiceWrapper {
 
     public JiraWorkflow getWorkflow(final Issue issue) {
         return workflowManager.getWorkflow(issue);
+    }
+
+    public void addWatcher(final Issue issue, ApplicationUser watcher) {
+        if (!watcherManager.isWatching(watcher, issue)) {
+            watcherManager.startWatching(watcher, issue);
+        }
     }
 
     private void fixIssueAssignment(final MutableIssue mutableIssue, final String assigneeId) throws JiraIssueException {

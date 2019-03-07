@@ -119,6 +119,16 @@ public class IssueCreationConfigActions {
         return txConfig;
     }
 
+    public BlackDuckJiraConfigSerializable getProjectReviewerNotificationsChoice() {
+        logger.debug("GET /project/reviewerChoice transaction");
+        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
+        final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
+        final Boolean choice = pluginSettingsWrapper.getProjectReviewerNotificationsChoice();
+        logger.debug("choice: " + choice);
+        txConfig.setProjectReviewerNotificationsChoice(choice);
+        return txConfig;
+    }
+
     public BlackDuckJiraConfigSerializable getInterval() {
         final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
@@ -158,6 +168,9 @@ public class IssueCreationConfigActions {
         final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
         logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
         pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
+        final Boolean projectReviewerNotificationsChoice = config.getProjectReviewerNotificationsChoice();
+        logger.debug("Setting projectReviewerNotificationsChoice to " + projectReviewerNotificationsChoice.toString());
+        pluginSettingsWrapper.setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice);
 
         return config;
     }
