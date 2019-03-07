@@ -286,6 +286,10 @@ public class BlackDuckJiraConfigSerializableTest {
         builder.append(item1.getCommentOnIssueUpdatesChoice());
         builder.append(", commentOnIssueUpdatesChoiceError=");
         builder.append(item1.getCommentOnIssueUpdatesChoiceError());
+        builder.append(", projectReviewerNotificationsChoice=");
+        builder.append(item1.getProjectReviewerNotificationsChoice());
+        builder.append(", projectReviewerNotificationsChoiceError=");
+        builder.append(item1.getProjectReviewerNotificationsChoiceError());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());

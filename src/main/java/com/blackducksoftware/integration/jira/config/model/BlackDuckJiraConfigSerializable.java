@@ -101,7 +101,22 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     @XmlElement
     private String commentOnIssueUpdatesChoiceError;
 
+    @XmlElement
+    private boolean projectReviewerNotificationsChoice;
+
+    @XmlElement
+    private String projectReviewerNotificationsChoiceError;
+
     public BlackDuckJiraConfigSerializable() {
+    }
+
+    public static ErrorTracking fromJson(final String jsonString) {
+        if (StringUtils.isNotBlank(jsonString)) {
+            final Gson gson = new GsonBuilder().create();
+            final ErrorTracking config = gson.fromJson(jsonString, BlackDuckJiraConfigSerializable.class);
+            return config;
+        }
+        return null;
     }
 
     @Override
@@ -218,12 +233,12 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         return jiraProjects;
     }
 
-    public SortedSet<String> getCreatorCandidates() {
-        return creatorCandidates;
-    }
-
     public void setJiraProjects(final List<JiraProject> jiraProjects) {
         this.jiraProjects = jiraProjects;
+    }
+
+    public SortedSet<String> getCreatorCandidates() {
+        return creatorCandidates;
     }
 
     public void setCreatorCandidates(final SortedSet<String> creatorCandidates) {
@@ -270,6 +285,14 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.hubProjectMappings = hubProjectMappings;
     }
 
+    public String getHubProjectMappingsJson() {
+        if (hubProjectMappings != null) {
+            final Gson gson = new GsonBuilder().create();
+            return gson.toJson(hubProjectMappings);
+        }
+        return null;
+    }
+
     public void setHubProjectMappingsJson(final String hubProjectMappingsJson) {
         if (StringUtils.isNotBlank(hubProjectMappingsJson)) {
             final Gson gson = new GsonBuilder().create();
@@ -279,26 +302,9 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         }
     }
 
-    public String getHubProjectMappingsJson() {
-        if (hubProjectMappings != null) {
-            final Gson gson = new GsonBuilder().create();
-            return gson.toJson(hubProjectMappings);
-        }
-        return null;
-    }
-
     public String toJson() {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(this);
-    }
-
-    public static ErrorTracking fromJson(final String jsonString) {
-        if (StringUtils.isNotBlank(jsonString)) {
-            final Gson gson = new GsonBuilder().create();
-            final ErrorTracking config = gson.fromJson(jsonString, BlackDuckJiraConfigSerializable.class);
-            return config;
-        }
-        return null;
     }
 
     public String getHubProjectMappingError() {
@@ -325,6 +331,14 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
+    public String getPolicyRulesJson() {
+        if (policyRules != null) {
+            final Gson gson = new GsonBuilder().create();
+            return gson.toJson(policyRules);
+        }
+        return null;
+    }
+
     public void setPolicyRulesJson(final String policyRulesJson) {
         if (StringUtils.isNotBlank(policyRulesJson)) {
             final Gson gson = new GsonBuilder().create();
@@ -332,14 +346,6 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
             }.getType();
             this.policyRules = gson.fromJson(policyRulesJson, mappingType);
         }
-    }
-
-    public String getPolicyRulesJson() {
-        if (policyRules != null) {
-            final Gson gson = new GsonBuilder().create();
-            return gson.toJson(policyRules);
-        }
-        return null;
     }
 
     public String getPolicyRulesError() {
@@ -372,6 +378,22 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
 
     public void setCommentOnIssueUpdatesChoiceError(final String commentOnIssueUpdatesChoiceError) {
         this.commentOnIssueUpdatesChoiceError = commentOnIssueUpdatesChoiceError;
+    }
+
+    public boolean getProjectReviewerNotificationsChoice() {
+        return projectReviewerNotificationsChoice;
+    }
+
+    public void setProjectReviewerNotificationsChoice(final boolean projectReviewerNotificationsChoice) {
+        this.projectReviewerNotificationsChoice = projectReviewerNotificationsChoice;
+    }
+
+    public String getProjectReviewerNotificationsChoiceError() {
+        return projectReviewerNotificationsChoiceError;
+    }
+
+    public void setProjectReviewerNotificationsChoiceError(final String projectReviewerNotificationsChoiceError) {
+        this.projectReviewerNotificationsChoiceError = projectReviewerNotificationsChoiceError;
     }
 
     @Override
@@ -417,6 +439,10 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         builder.append(commentOnIssueUpdatesChoice);
         builder.append(", commentOnIssueUpdatesChoiceError=");
         builder.append(commentOnIssueUpdatesChoiceError);
+        builder.append(", projectReviewerNotificationsChoice=");
+        builder.append(projectReviewerNotificationsChoice);
+        builder.append(", projectReviewerNotificationsChoiceError=");
+        builder.append(projectReviewerNotificationsChoiceError);
         builder.append("]");
         return builder.toString();
     }

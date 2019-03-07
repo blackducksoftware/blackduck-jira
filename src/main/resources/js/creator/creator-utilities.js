@@ -227,6 +227,28 @@ function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
     }
 }
 
+function getProjectReviewerNotificationsChoice() {
+    const projectReviewerNotificationsChoiceElement = AJS.$("#" + "projectReviewerNotificationsChoice");
+
+    return projectReviewerNotificationsChoiceElement[0].checked.toString();
+}
+
+function setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice) {
+    const projectReviewerNotificationsChoiceElement = AJS.$("#" + "projectReviewerNotificationsChoice");
+    console.log("projectReviewerNotificationsChoiceElement: " + projectReviewerNotificationsChoiceElement);
+    if (projectReviewerNotificationsChoiceElement.length == 0) {
+        console.log("*** projectReviewerNotificationsChoiceElement is not ready");
+    }
+
+    if (projectReviewerNotificationsChoice) {
+        console.log("Setting projectReviewerNotificationsChoiceElement to Yes");
+        projectReviewerNotificationsChoiceElement[0].checked = true;
+    } else {
+        console.log("Setting projectReviewerNotificationsChoiceElement to No");
+        projectReviewerNotificationsChoiceElement[0].checked = false;
+    }
+}
+
 function onCreatorInputChange(inputField) {
     console.log("onCreatorInputChange()");
     const field = AJS.$(inputField);

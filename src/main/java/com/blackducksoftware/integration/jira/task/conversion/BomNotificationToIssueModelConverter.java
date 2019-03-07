@@ -35,6 +35,8 @@ import java.util.Set;
 
 import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
@@ -50,6 +52,7 @@ import com.blackducksoftware.integration.jira.common.notification.NotificationDe
 import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
@@ -57,6 +60,7 @@ import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueMod
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModelBuilder;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
+import com.synopsys.integration.blackduck.api.generated.component.ReviewedDetails;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.PolicySummaryStatusType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
@@ -64,7 +68,6 @@ import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
-import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
@@ -79,10 +82,11 @@ public class BomNotificationToIssueModelConverter {
     private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
     private final List<String> linksOfRulesToMonitor;
+    private final PluginConfigurationDetails pluginConfigurationDetails;
 
     public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
-        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper,
-        final BlackDuckService blackDuckService, final BlackDuckJiraLogger logger) {
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper, final BlackDuckJiraLogger logger,
+        final PluginConfigurationDetails pluginConfigurationDetails) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
@@ -92,6 +96,7 @@ public class BomNotificationToIssueModelConverter {
         this.linksOfRulesToMonitor = linksOfRulesToMonitor;
         this.blackDuckDataHelper = blackDuckDataHelper;
         this.logger = logger;
+        this.pluginConfigurationDetails = pluginConfigurationDetails;
     }
 
     public Collection<BlackDuckIssueModel> convertToModel(final NotificationDetailResult detailResult, final Date batchStartDate) {
@@ -274,9 +279,23 @@ public class BomNotificationToIssueModelConverter {
         builder.setJiraProject(jiraProject);
         builder.setAction(BlackDuckIssueAction.fromNotificationType(notificationType));
         builder.setLastBatchStartDate(batchStartDate);
-        builder.setBlackDuckFields(getJiraProjectOwner(projectVersionWrapper.getProjectView().getProjectOwner()), projectVersionWrapper, versionBomComponent);
+        Optional<ApplicationUser> projectOwner = getJiraProjectOwner(projectVersionWrapper.getProjectView().getProjectOwner());
+        Optional<ApplicationUser> componentReviewer = getJiraComponentReviewer(versionBomComponent.getReviewedDetails());
+        Optional<ApplicationUser> issueCreator = lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext);
+        Optional<ApplicationUser> defaultAssignedUser = getDefaultAssignee(jiraProject);
+
+        ApplicationUser owner = projectOwner.orElse(null);
+        ApplicationUser reviewer = null;
+        if (pluginConfigurationDetails.isProjectReviewerEnabled()) {
+            reviewer = componentReviewer.orElse(projectOwner.orElse(defaultAssignedUser.orElse(null)));
+        }
+
+        builder.setBlackDuckFields(owner,
+            reviewer,
+            projectVersionWrapper,
+            versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
-        builder.setIssueCreator(lookupIssueCreator(jiraProject.getIssueCreator(), jiraUserContext));
+        issueCreator.ifPresent(builder::setIssueCreator);
         return builder;
     }
 
@@ -298,30 +317,53 @@ public class BomNotificationToIssueModelConverter {
         throw new ConfigurationException("IssueType " + targetIssueTypeName + " not found");
     }
 
-    private ApplicationUser getJiraProjectOwner(final String blackDuckProjectOwner) {
+    private Optional<ApplicationUser> getJiraProjectOwner(final String blackDuckProjectOwner) {
+        if (blackDuckProjectOwner != null) {
+            return lookupJiraUser(blackDuckProjectOwner);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ApplicationUser> getJiraComponentReviewer(final ReviewedDetails reviewedDetails) {
+        if (null != reviewedDetails) {
+            return lookupJiraUser(reviewedDetails.getReviewedBy());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ApplicationUser> lookupJiraUser(final String userUrl) {
         try {
-            if (blackDuckProjectOwner != null) {
-                final UserView projectOwner = blackDuckDataHelper.getResponse(blackDuckProjectOwner, UserView.class);
-                if (projectOwner != null) {
-                    final UserSearchService userSearchService = jiraServices.createUserSearchService();
-                    for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(projectOwner.getEmail())) {
-                        // We will assume that if users are configured correctly, they will have unique email addresses.
-                        return jiraUser;
-                    }
+            final UserView userView = blackDuckDataHelper.getResponse(userUrl, UserView.class);
+            if (null != userView) {
+                final UserSearchService userSearchService = jiraServices.createUserSearchService();
+                for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(userView.getEmail())) {
+                    // We will assume that if users are configured correctly, they will have unique email addresses.
+                    return Optional.of(jiraUser);
                 }
             }
         } catch (final Exception e) {
             logger.warn("Unable to get the project owner for this notification: " + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
-    private ApplicationUser lookupIssueCreator(final String issueCreatorUsername, final JiraUserContext jiraUserContext) {
+    private Optional<ApplicationUser> getDefaultAssignee(final JiraProject jiraProject) {
+        try {
+            final ProjectManager projectManager = jiraServices.getJiraProjectManager();
+            Project project = projectManager.getProjectObjByKey(jiraProject.getProjectKey());
+            return Optional.ofNullable(project.getProjectLead());
+        } catch (Exception ex) {
+            logger.warn("Unable to get the default assignee for project" + jiraProject.getProjectName());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ApplicationUser> lookupIssueCreator(final String issueCreatorUsername, final JiraUserContext jiraUserContext) {
         final UserManager userManager = jiraServices.getUserManager();
         ApplicationUser issueCreator = userManager.getUserByName(issueCreatorUsername);
         if (issueCreator == null) {
             issueCreator = jiraUserContext.getDefaultJiraIssueCreatorUser();
         }
-        return issueCreator;
+        return Optional.ofNullable(issueCreator);
     }
 }

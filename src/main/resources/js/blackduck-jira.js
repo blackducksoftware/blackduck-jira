@@ -78,6 +78,7 @@ function populateFormBlackduckData() {
     readBlackduckPolicyData();
     readCreateVulnerabilityTicketsChoice();
     readCommentOnUpdateChoice();
+    readProjectReviewerNotificationsChoice();
     readMappingData();
 }
 

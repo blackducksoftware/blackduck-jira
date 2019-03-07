@@ -83,6 +83,7 @@ public class JiraFieldUtils {
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.equals(field.getName())
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.equals(field.getName())
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE.equals(field.getName())
+            || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER.equals(field.getName())
 
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED.equals(field.getName())
             || BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES.equals(field.getName())

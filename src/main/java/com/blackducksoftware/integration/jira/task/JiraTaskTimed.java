@@ -103,7 +103,7 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime beforeSetup = LocalDateTime.now();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(jiraServices, jiraSettingsService, configDetails.getProjectMappingJson(), ticketInfoFromSetup, jiraUserContext);
+            jiraSetup(jiraServices, jiraSettingsService, configDetails, ticketInfoFromSetup, jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
@@ -117,7 +117,7 @@ public class JiraTaskTimed implements Callable<String> {
         return runResult;
     }
 
-    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final String projectMappingJson, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
+    public void jiraSetup(final JiraServices jiraServices, final JiraSettingsService jiraSettingsService, final PluginConfigurationDetails configDetails, final TicketInfoFromSetup ticketInfoFromSetup, final JiraUserContext jiraContext)
         throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
@@ -154,7 +154,7 @@ public class JiraTaskTimed implements Callable<String> {
         logger.debug("Black Duck workflow Name: " + workflow.getName());
 
         // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, projectMappingJson, issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
+        adjustProjectsConfig(jiraServices, configDetails.getProjectMappingJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
     }
 
     public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {

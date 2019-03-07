@@ -72,6 +72,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
 
     // BlackDuckFields
     private ApplicationUser projectOwner;
+    private ApplicationUser componentReviewer;
     private String projectName;
     private String projectVersionName;
     private String projectVersionUri;
@@ -218,11 +219,12 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return this;
     }
 
-    public BlackDuckIssueModelBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
+    public BlackDuckIssueModelBuilder setBlackDuckFields(final ApplicationUser projectOwner, final ApplicationUser componentReviewer, final ProjectVersionWrapper projectVersionWrapper, final VersionBomComponentView versionBomComponent) {
         final ProjectView project = projectVersionWrapper.getProjectView();
         final ProjectVersionView projectVersion = projectVersionWrapper.getProjectVersionView();
 
         this.projectOwner = projectOwner;
+        this.componentReviewer = componentReviewer;
         this.projectName = project.getName();
         this.projectVersionName = projectVersion.getVersionName();
         this.projectVersionUri = blackDuckDataHelper.getHrefNullable(projectVersion);
@@ -268,20 +270,19 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         if (IssueCategory.POLICY.equals(issueCategory)) {
             if (policyRuleUrl != null) {
                 blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
-                    projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString,
-                    updatedTimeString,
-                    policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
+                    projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink,
+                    usagesString, updatedTimeString, policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
             } else {
                 throw new IssueModelBuilderException("The field 'policyRuleUrl' is required for policy notifications.");
             }
         } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createVulnerabilityIssueFieldTemplate(
-                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString,
-                originsString, originIdsString);
+                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString,
+                updatedTimeString, originsString, originIdsString);
         } else {
             issueCategory = IssueCategory.SPECIAL;
             blackDuckIssueFieldTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname,
-                componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
+                componentReviewer, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
         }
 
         String jiraIssueSummary = null;
@@ -318,7 +319,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         newBuilder.projectVersionName = projectVersionName;
         newBuilder.projectVersionUri = projectVersionUri;
         newBuilder.projectVersionNickname = projectVersionNickname;
-
+        newBuilder.componentReviewer = componentReviewer;
         newBuilder.componentName = componentName;
         newBuilder.componentUri = componentUri;
         newBuilder.componentVersionName = componentVersionName;

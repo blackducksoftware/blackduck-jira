@@ -63,6 +63,7 @@ public class BlackDuckIssuePanel extends AbstractJiraContextProvider {
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN, "bdsComponentOrigin");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID, "bdsComponentOriginId");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_USAGE, "bdsComponentUsage");
+            populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_REVIEWER, "bdsComponentReviewer");
 
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_NAMES, "bdsLicenses");
             populateContextMap(contextMap, currentIssue, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_LICENSE_URL, "bdsLicenseUrl");
