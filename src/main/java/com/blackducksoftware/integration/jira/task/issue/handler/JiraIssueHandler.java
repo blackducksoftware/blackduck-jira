@@ -527,12 +527,10 @@ public class JiraIssueHandler {
     }
 
     private void addComponentReviewerAsWatcher(final Issue issue, final BlackDuckIssueModel model) {
-        if (null != issue) {
-            if (pluginConfigurationDetails.isProjectReviewerEnabled()) {
-                ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
-                if (null != componentReviewer) {
-                    issueServiceWrapper.addWatcher(issue, componentReviewer);
-                }
+        if (null != issue && pluginConfigurationDetails.isProjectReviewerEnabled()) {
+            ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
+            if (null != componentReviewer) {
+                issueServiceWrapper.addWatcher(issue, componentReviewer);
             }
         }
     }

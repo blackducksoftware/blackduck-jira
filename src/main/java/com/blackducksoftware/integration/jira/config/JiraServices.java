@@ -54,7 +54,6 @@ import com.atlassian.jira.issue.fields.screen.issuetype.IssueTypeScreenSchemeMan
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.label.LabelManager;
 import com.atlassian.jira.issue.watchers.WatcherManager;
-import com.atlassian.jira.notification.NotificationSchemeManager;
 import com.atlassian.jira.project.AssigneeTypes;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -239,8 +238,6 @@ public class JiraServices {
     public SearchService getSearchService() {
         return ComponentAccessor.getComponent(SearchService.class);
     }
-
-    public NotificationSchemeManager getNotificationSchemeManager() { return ComponentAccessor.getNotificationSchemeManager();}
 
     public WatcherManager getWatcherManager() {
         return ComponentAccessor.getWatcherManager();

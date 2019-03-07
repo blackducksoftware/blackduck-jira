@@ -230,11 +230,7 @@ function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
 function getProjectReviewerNotificationsChoice() {
     const projectReviewerNotificationsChoiceElement = AJS.$("#" + "projectReviewerNotificationsChoice");
 
-    if (projectReviewerNotificationsChoiceElement[0].checked) {
-        return "true";
-    } else {
-        return "false";
-    }
+    return projectReviewerNotificationsChoiceElement[0].checked.toString();
 }
 
 function setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice) {

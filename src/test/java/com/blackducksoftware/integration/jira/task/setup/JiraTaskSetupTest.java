@@ -556,7 +556,6 @@ public class JiraTaskSetupTest {
         jiraServices.setFieldScreenManager(fieldScreenManager);
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
         jiraServices.setSearchService(searchService);
-        jiraServices.setNotificationSchemeManager(notificationSchemeManager);
 
         jiraServices = Mockito.spy(jiraServices);
 

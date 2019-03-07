@@ -146,8 +146,7 @@ function readProjectReviewerNotificationsChoice() {
         success: function (config) {
             console.log("success: get of projectReviewerNotificationsChoice", config);
             setProjectReviewerNotificationsChoice(config.projectReviewerNotificationsChoice);
-
-//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
+            
             handleError('projectReviewerNotificationsChoiceError', config.projectReviewerNotificationsChoiceError, true, false);
             console.log("Finished handling projectReviewerNotificationsChoice");
         },

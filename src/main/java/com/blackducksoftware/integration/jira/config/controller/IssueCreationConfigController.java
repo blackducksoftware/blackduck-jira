@@ -161,8 +161,7 @@ public class IssueCreationConfigController extends ConfigController {
         logger.debug("GET /project/reviewerchoice");
         final Object config;
         try {
-            final boolean validAuthentication = isAuthorized(request);
-            if (!validAuthentication) {
+            if (!isAuthorized(request)) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
             config = executeAsTransaction(() -> issueCreationConfigActions.getProjectReviewerNotificationsChoice());

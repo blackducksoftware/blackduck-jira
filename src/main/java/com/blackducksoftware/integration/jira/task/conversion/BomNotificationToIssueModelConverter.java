@@ -364,9 +364,6 @@ public class BomNotificationToIssueModelConverter {
         if (issueCreator == null) {
             issueCreator = jiraUserContext.getDefaultJiraIssueCreatorUser();
         }
-        if (null != issueCreator) {
-            return Optional.of(issueCreator);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(issueCreator);
     }
 }

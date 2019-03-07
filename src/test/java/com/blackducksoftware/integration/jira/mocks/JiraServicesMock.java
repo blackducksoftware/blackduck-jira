@@ -286,13 +286,5 @@ public class JiraServicesMock extends JiraServices {
     public String getJiraBaseUrl() {
         return "jira-base-url";
     }
-
-    @Override
-    public NotificationSchemeManager getNotificationSchemeManager() {
-        return notificationSchemeManager;
-    }
-
-    public void setNotificationSchemeManager(final NotificationSchemeManager notificationSchemeManager) {
-        this.notificationSchemeManager = notificationSchemeManager;
-    }
+    
 }
