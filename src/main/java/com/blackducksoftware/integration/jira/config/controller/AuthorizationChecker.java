@@ -86,7 +86,7 @@ public class AuthorizationChecker {
 
     public boolean isGroupAuthorized(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
         final Optional<UserKey> userKey = getUserKey(request);
-        return isGroupAuthorized(userKey.get(), blackDuckJiraGroups);
+        return userKey.isPresent() && isGroupAuthorized(userKey.get(), blackDuckJiraGroups);
     }
 
     public boolean isGroupAuthorized(final String username, final String[] blackDuckJiraGroups) {
