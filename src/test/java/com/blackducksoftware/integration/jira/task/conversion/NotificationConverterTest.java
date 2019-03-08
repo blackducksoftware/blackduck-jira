@@ -25,7 +25,6 @@ package com.blackducksoftware.integration.jira.task.conversion;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +73,7 @@ import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelpe
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
+import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionView;
 import com.synopsys.integration.blackduck.api.generated.component.ResourceLink;
 import com.synopsys.integration.blackduck.api.generated.component.ResourceMetadata;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
@@ -241,10 +241,10 @@ public class NotificationConverterTest {
     }
 
     @AfterClass
-    public static void tearDownAfterClass() throws Exception {
+    public static void tearDownAfterClass() {
     }
 
-    private static void mockHubServiceResponses(final BlackDuckService mockBlackDuckService) throws IntegrationException, MalformedURLException {
+    private static void mockHubServiceResponses(final BlackDuckService mockBlackDuckService) throws IntegrationException {
         final String blackDuckBaseUrl = "https://localhost:8080";
 
         final BlackDuckHttpClient mockRestConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, blackDuckBaseUrl, null, Credentials.NO_CREDENTIALS);
@@ -260,11 +260,6 @@ public class NotificationConverterTest {
         project.setName(BLACKDUCK_PROJECT_NAME);
         Mockito.when(mockBlackDuckService.getResponse(Mockito.any(), Mockito.eq(ProjectVersionView.PROJECT_LINK_RESPONSE))).thenReturn(Optional.of(project));
         Mockito.when(mockBlackDuckService.getResponse(PROJECT_VERSION_URL, ProjectVersionView.class)).thenReturn(createProjectVersionView());
-
-        //        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
-        //        Mockito.when(mockBlackDuckService.getFirstLink(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
-        //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.COMPONENTS_LINK))).thenReturn(COMPONENT_URL);
-        //        Mockito.when(mockBlackDuckService.getFirstLinkSafely(Mockito.any(), Mockito.eq(ProjectVersionView.VULNERABLE_COMPONENTS_LINK))).thenReturn(VULNERABLE_COMPONENTS_URL);
 
         Mockito.when(mockBlackDuckService.getAllResponses(Mockito.any(VersionBomComponentView.class), Mockito.eq(VersionBomComponentView.POLICY_RULES_LINK_RESPONSE)))
             .thenReturn(Arrays.asList(createPolicyRule(new Date(), POLICY_VIOLATION_EXPECTED_DESCRIPTION)));
@@ -393,7 +388,20 @@ public class NotificationConverterTest {
         policyRule.setUpdatedAt(createdAt);
         policyRule.setUpdatedBy("Shmario");
         policyRule.setUpdatedByUser("Bear");
+        policyRule.setExpression(createPolicyRuleExpressionSet());
         return policyRule;
+    }
+
+    private static PolicyRuleExpressionSetView createPolicyRuleExpressionSet() {
+        final PolicyRuleExpressionSetView policyRuleExpressionSetView = new PolicyRuleExpressionSetView();
+        policyRuleExpressionSetView.setExpressions(Arrays.asList(createPolicyRuleExpression()));
+        return policyRuleExpressionSetView;
+    }
+
+    private static PolicyRuleExpressionView createPolicyRuleExpression() {
+        final PolicyRuleExpressionView policyRuleExpressionView = new PolicyRuleExpressionView();
+        policyRuleExpressionView.setName("policy");
+        return policyRuleExpressionView;
     }
 
     @Test
