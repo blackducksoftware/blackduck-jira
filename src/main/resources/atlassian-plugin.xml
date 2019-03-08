@@ -139,7 +139,7 @@
     <!-- publish our component -->
 
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
-    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.IssueEventListener">
+    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.tracker.IssueEventListener">
         <description>Class that processes Jira issue events to modify Black Duck Issues</description>
     </component>
 

@@ -46,7 +46,7 @@ import com.blackducksoftware.integration.jira.mocks.ProjectMock;
 import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
-import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
@@ -54,7 +54,7 @@ import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
-public class BlackDuckIssueTrackerHandlerTest {
+public class IssueTrackerHandlerTest {
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
     private static final Long JIRA_PROJECT_ID = new Long(1);
     private static final String ISSUE_URL = "ISSUE URL";
@@ -64,7 +64,7 @@ public class BlackDuckIssueTrackerHandlerTest {
 
     private PluginSettingsMock settings;
     private IssueServiceMock issueServiceMock;
-    private BlackDuckIssueTrackerHandler issueHandler;
+    private IssueTrackerHandler issueHandler;
 
     @Before
     public void initTest() throws Exception {
@@ -75,7 +75,7 @@ public class BlackDuckIssueTrackerHandlerTest {
         Mockito.when(blackDuckService.getBlackDuckHttpClient()).thenReturn(restConnection);
 
         issueServiceMock = new IssueServiceMock(restConnection);
-        issueHandler = new BlackDuckIssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
+        issueHandler = new IssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {

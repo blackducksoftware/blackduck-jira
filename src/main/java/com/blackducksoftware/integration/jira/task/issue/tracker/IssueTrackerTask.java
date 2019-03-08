@@ -21,8 +21,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue;
+package com.blackducksoftware.integration.jira.task.issue.tracker;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -33,13 +34,10 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.config.JiraConfigDeserializer;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +57,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
     private final PluginSettings settings;
     private final String propertyKey;
     private final EntityProperty property;
+    private final JiraConfigDeserializer configDeserializer;
 
     public IssueTrackerTask(final Issue jiraIssue, final JiraIssuePropertyWrapper issueProperyWrapper, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
         this.jiraIssue = jiraIssue;
@@ -67,6 +66,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         this.settings = settings;
         this.propertyKey = propertyKey;
         this.property = property;
+        this.configDeserializer = new JiraConfigDeserializer();
     }
 
     @Override
@@ -76,19 +76,20 @@ public class IssueTrackerTask implements Callable<Boolean> {
             final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
             final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
+            final Optional<BlackDuckJiraConfigSerializable> config = createJiraConfig(configDetails);
+            if (config.filter(jiraConfig -> jiraConfig.getHubProjectMappings() == null || jiraConfig.getHubProjectMappings().isEmpty()).isPresent()) {
+                logger.debug("Black Duck JIRA configuration is incomplete");
+                return Boolean.FALSE;
+            }
+
             // only execute if hub 3.7 or higher with the issue tracker capability
             final BlackDuckServerConfig blackDuckServerConfig = createBlackDuckServerConfig(configDetails);
             if (blackDuckServerConfig == null) {
                 logger.error("Black Duck Server Configuration is invalid.  Cannot update Black Duck issue tracking data.");
             } else {
                 final BlackDuckServicesFactory servicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
-                final BlackDuckJiraConfigSerializable config = createJiraConfig(configDetails);
-                if (config.getHubProjectMappings() == null || config.getHubProjectMappings().isEmpty()) {
-                    logger.debug("Black Duck JIRA configuration is incomplete");
-                    return Boolean.FALSE;
-                }
 
-                final BlackDuckIssueTrackerHandler blackDuckIssueHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, servicesFactory.createBlackDuckService());
+                final IssueTrackerHandler blackDuckIssueHandler = new IssueTrackerHandler(jiraSettingsService, servicesFactory.createBlackDuckService());
                 handleIssue(eventTypeID, jiraIssue, blackDuckIssueHandler, property, propertyKey);
             }
         } catch (final Throwable throwable) {
@@ -136,37 +137,13 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
     }
 
-    private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
-        return deSerializeConfig(pluginConfigDetails);
+    private Optional<BlackDuckJiraConfigSerializable> createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
+        return configDeserializer.deserializeConfig(pluginConfigDetails);
     }
 
-    private BlackDuckJiraConfigSerializable deSerializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
-        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
-        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
-        if (config.getHubProjectMappings() != null) {
-            logger.debug("Mappings:");
-            for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                if (mapping != null) {
-                    logger.debug(mapping.toString());
-                }
-            }
-        }
-
-        if (config.getPolicyRules() != null) {
-            logger.debug("Policy Rules:");
-            for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-                if (rule != null) {
-                    logger.debug(rule.toString());
-                }
-            }
-        }
-        return config;
-    }
-
-    private void handleIssue(final Long eventTypeID, final Issue issue, final BlackDuckIssueTrackerHandler blackDuckIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
+    private void handleIssue(final Long eventTypeID, final Issue issue, final IssueTrackerHandler blackDuckIssueHandler, final EntityProperty property, final String propertyKey) throws IntegrationException {
         // final EntityProperty property = props.get(0);
-        final BlackDuckIssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
+        final IssueTrackerProperties properties = createIssueTrackerPropertiesFromJson(property.getValue());
         if (eventTypeID.equals(EventType.ISSUE_DELETED_ID)) {
             // || eventTypeID.equals(EventType.ISSUE_MOVED_ID))) { // move may be treated as delete in the future
             blackDuckIssueHandler.deleteBlackDuckIssue(properties.getBlackDuckIssueUrl(), issue);
@@ -180,9 +157,9 @@ public class IssueTrackerTask implements Callable<Boolean> {
         }
     }
 
-    private BlackDuckIssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
+    private IssueTrackerProperties createIssueTrackerPropertiesFromJson(final String json) {
         final Gson gson = new GsonBuilder().create();
-        return gson.fromJson(json, BlackDuckIssueTrackerProperties.class);
+        return gson.fromJson(json, IssueTrackerProperties.class);
     }
 
 }

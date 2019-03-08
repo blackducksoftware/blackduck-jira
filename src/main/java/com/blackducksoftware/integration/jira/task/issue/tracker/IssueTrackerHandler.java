@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.handler;
+package com.blackducksoftware.integration.jira.task.issue.tracker;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,7 +36,8 @@ import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
-public class BlackDuckIssueTrackerHandler {
+public class IssueTrackerHandler {
+    public final static String JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL = "bdsHubIssueURL";
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -44,9 +45,13 @@ public class BlackDuckIssueTrackerHandler {
     private final JiraSettingsService jiraSettingsService;
     private final BlackDuckService blackDuckService;
 
-    public BlackDuckIssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BlackDuckService blackDuckService) {
+    public IssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BlackDuckService blackDuckService) {
         this.jiraSettingsService = jiraSettingsService;
         this.blackDuckService = blackDuckService;
+    }
+
+    public static final String createEntityPropertyKey(final Long jiraIssueId) {
+        return String.format("%s_%s", IssueTrackerHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL, jiraIssueId);
     }
 
     public String createBlackDuckIssue(final String blackDuckIssueUrl, final Issue jiraIssue) {
@@ -125,7 +130,7 @@ public class BlackDuckIssueTrackerHandler {
         }
 
         blackDuckIssue.setIssueId(issueId);
-        blackDuckIssue.setIssueAssignee(assignee) ;
+        blackDuckIssue.setIssueAssignee(assignee);
         blackDuckIssue.setIssueStatus(status);
         blackDuckIssue.setIssueCreatedAt(jiraIssue.getCreated());
         blackDuckIssue.setIssueUpdatedAt(jiraIssue.getUpdated());

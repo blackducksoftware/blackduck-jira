@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue;
+package com.blackducksoftware.integration.jira.task.issue.tracker;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +39,6 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
@@ -47,7 +46,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private final EventPublisher eventPublisher;
     private final PluginSettingsFactory pluginSettingsFactory;
     private final JiraIssuePropertyWrapper issueProperyWrapper;
-    private final BlackDuckIssueTrackerPropertyHandler blackDuckIssueTrackerPropertyHandler;
 
     private final ExecutorService executorService;
 
@@ -55,7 +53,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.issueProperyWrapper = issueProperyWrapper;
-        this.blackDuckIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
         this.executorService = createExecutorService();
     }
 
@@ -85,7 +82,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Event Type ID:    %s", eventTypeID));
                 logger.debug(String.format("Issue:            %s", issue));
 
-                final String propertyKey = blackDuckIssueTrackerPropertyHandler.createEntityPropertyKey(issue.getId());
+                final String propertyKey = IssueTrackerHandler.createEntityPropertyKey(issue.getId());
                 final EntityProperty blackDuckIssueUrlProperty = issueProperyWrapper.findProperty(propertyKey);
 
                 if (blackDuckIssueUrlProperty == null) {

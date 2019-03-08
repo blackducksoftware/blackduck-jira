@@ -46,11 +46,12 @@ import com.blackducksoftware.integration.jira.common.exception.JiraIssueExceptio
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerProperties;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 
 public class JiraIssueHandler {
@@ -60,19 +61,17 @@ public class JiraIssueHandler {
     private final JiraSettingsService jiraSettingsService;
     private final JiraAuthenticationContext authContext;
     private final JiraUserContext jiraUserContext;
-    private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
-    private final BlackDuckIssueTrackerPropertyHandler blackDuckIssueTrackerPropertyHandler;
+    private final IssueTrackerHandler issueTrackerHandler;
     private final PluginConfigurationDetails pluginConfigurationDetails;
     private final Date instanceUniqueDate;
 
-    public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler,
+    public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final IssueTrackerHandler issueTrackerHandler,
         final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final PluginConfigurationDetails pluginConfigurationDetails) {
         this.issueServiceWrapper = issueServiceWrapper;
         this.jiraSettingsService = jiraSettingsService;
         this.authContext = authContext;
         this.jiraUserContext = jiraContext;
-        this.blackDuckIssueTrackerHandler = blackDuckIssueTrackerHandler;
-        this.blackDuckIssueTrackerPropertyHandler = new BlackDuckIssueTrackerPropertyHandler();
+        this.issueTrackerHandler = issueTrackerHandler;
         this.pluginConfigurationDetails = pluginConfigurationDetails;
         this.instanceUniqueDate = new Date();
     }
@@ -290,11 +289,11 @@ public class JiraIssueHandler {
     }
 
     private void updateIssueTrackerProperties(final BlackDuckIssueModel blackDuckIssueModel, final Issue issue) {
-        final String blackDuckIssueUrl = blackDuckIssueTrackerHandler.createBlackDuckIssue(blackDuckIssueModel.getComponentIssueUrl(), issue);
+        final String blackDuckIssueUrl = issueTrackerHandler.createBlackDuckIssue(blackDuckIssueModel.getComponentIssueUrl(), issue);
         if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
-            final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(blackDuckIssueUrl, blackDuckIssueModel.getJiraIssueId());
+            final IssueTrackerProperties issueTrackerProperties = new IssueTrackerProperties(blackDuckIssueUrl, blackDuckIssueModel.getJiraIssueId());
             try {
-                final String key = blackDuckIssueTrackerPropertyHandler.createEntityPropertyKey(blackDuckIssueModel.getJiraIssueId());
+                final String key = IssueTrackerHandler.createEntityPropertyKey(blackDuckIssueModel.getJiraIssueId());
                 issueServiceWrapper.addProjectProperty(blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectId(), key, issueTrackerProperties);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
