@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import com.blackducksoftware.integration.jira.mocks.StatusMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
 import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
+import com.synopsys.integration.blackduck.api.generated.component.ResourceMetadata;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
@@ -57,7 +59,7 @@ import com.synopsys.integration.rest.proxy.ProxyInfo;
 public class IssueTrackerHandlerTest {
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
     private static final Long JIRA_PROJECT_ID = new Long(1);
-    private static final String ISSUE_URL = "ISSUE URL";
+    private static final String ISSUE_URL = "api/project/1/versions/2/components/3/component-versions/4/issues";
     private static final String STATUS_NAME = "STATUS NAME";
     private static final String ISSUE_DESCRIPTION = "ISSUE DESCRIPTION";
     private static final String ASSIGNEE_USER_NAME = "assignedUser";
@@ -123,6 +125,18 @@ public class IssueTrackerHandlerTest {
         final ApplicationUserMock assignee = new ApplicationUserMock();
         assignee.setName(ASSIGNEE_USER_NAME);
         final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
+
+        final IssueView testIssue = new IssueView();
+        testIssue.setIssueId(issue.getKey());
+        testIssue.setIssueDescription(issue.getDescription());
+        testIssue.setIssueStatus("a status");
+        testIssue.setIssueCreatedAt(issue.getCreated());
+        testIssue.setIssueUpdatedAt(issue.getUpdated());
+        testIssue.setIssueAssignee("someRandomUser");
+        final ResourceMetadata meta = new ResourceMetadata();
+        meta.setHref(ISSUE_URL);
+        testIssue.setMeta(meta);
+        issueServiceMock.responseList = Arrays.asList(testIssue);
 
         issueHandler.updateBlackDuckIssue(ISSUE_URL, issue);
 

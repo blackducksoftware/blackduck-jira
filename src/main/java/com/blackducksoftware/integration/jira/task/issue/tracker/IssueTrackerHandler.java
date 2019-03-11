@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.tracker;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -58,7 +61,7 @@ public class IssueTrackerHandler {
         String url = "";
         try {
             if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
-                url = blackDuckService.post(blackDuckIssueUrl, createBlackDuckIssueView(jiraIssue));
+                url = blackDuckService.post(blackDuckIssueUrl, updateBlackDuckIssueView(jiraIssue, new IssueView()));
             } else {
                 final String message = "Error creating Black Duck issue; no component or component version found.";
                 logger.error(message);
@@ -77,7 +80,15 @@ public class IssueTrackerHandler {
             try {
                 if (StringUtils.isNotBlank(blackDuckIssueUrl)) {
                     logger.debug(String.format("Updating issue %s from Black Duck for jira issue %s", blackDuckIssueUrl, jiraIssue.getKey()));
-                    blackDuckService.put(createBlackDuckIssueView(jiraIssue));
+                    final Optional<IssueView> foundBlackduckIssue = findComponentIssue(jiraIssue, blackDuckIssueUrl);
+                    if (foundBlackduckIssue.isPresent()) {
+                        final IssueView issueView = foundBlackduckIssue.get();
+                        // FIXME: need to remove this code when Black Duck fixes the error where Black Duck sets the href field to null for component issues.
+                        issueView.getMeta().setHref(blackDuckIssueUrl);
+                        blackDuckService.put(updateBlackDuckIssueView(jiraIssue, foundBlackduckIssue.get()));
+                    } else {
+                        logger.debug(String.format("Black Duck Issue not found; cannot update Black Duck for jira issue %s", jiraIssue.getKey()));
+                    }
                 } else {
                     final String message = "Error updating Black Duck issue; no component or component version found.";
                     logger.error(message);
@@ -112,8 +123,7 @@ public class IssueTrackerHandler {
         }
     }
 
-    private IssueView createBlackDuckIssueView(final Issue jiraIssue) {
-        final IssueView blackDuckIssue = new IssueView();
+    private IssueView updateBlackDuckIssueView(final Issue jiraIssue, final IssueView issueToUpdate) {
         final String issueId = jiraIssue.getKey();
 
         final String assignee;
@@ -129,14 +139,37 @@ public class IssueTrackerHandler {
             status = jiraIssue.getStatus().getName();
         }
 
-        blackDuckIssue.setIssueId(issueId);
-        blackDuckIssue.setIssueAssignee(assignee);
-        blackDuckIssue.setIssueStatus(status);
-        blackDuckIssue.setIssueCreatedAt(jiraIssue.getCreated());
-        blackDuckIssue.setIssueUpdatedAt(jiraIssue.getUpdated());
-        blackDuckIssue.setIssueDescription(jiraIssue.getSummary());
-        blackDuckIssue.setIssueLink(String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey()));
-        return blackDuckIssue;
+        issueToUpdate.setIssueId(issueId);
+        issueToUpdate.setIssueAssignee(assignee);
+        issueToUpdate.setIssueStatus(status);
+        issueToUpdate.setIssueCreatedAt(jiraIssue.getCreated());
+        issueToUpdate.setIssueUpdatedAt(jiraIssue.getUpdated());
+        issueToUpdate.setIssueDescription(jiraIssue.getSummary());
+        issueToUpdate.setIssueLink(String.format("%s/browse/%s", getJiraBaseUrl(), jiraIssue.getKey()));
+        return issueToUpdate;
+    }
+
+    private Optional<IssueView> findComponentIssue(final Issue jiraIssue, final String blackDuckIssueUrl) throws IntegrationException {
+        final String issueId = jiraIssue.getKey();
+        final Optional<String> projectIssuesUrl = createUrl(blackDuckIssueUrl);
+        if (!projectIssuesUrl.isPresent()) {
+            return Optional.empty();
+        }
+        final List<IssueView> issues = getCurrentIssues(projectIssuesUrl.get());
+        return issues.stream().filter(issue -> issueId.equals(issue.getIssueId())).findFirst();
+    }
+
+    private Optional<String> createUrl(final String blackDuckIssueUrl) {
+        final String issuesSuffix = "/components";
+        final int indexOfComponents = blackDuckIssueUrl.lastIndexOf(issuesSuffix);
+        if (indexOfComponents <= 0) {
+            return Optional.empty();
+        }
+        return Optional.of(String.format("%s/issues", blackDuckIssueUrl.substring(0, indexOfComponents)));
+    }
+
+    private List<IssueView> getCurrentIssues(final String projectIssueUrl) throws IntegrationException {
+        return blackDuckService.getAllResponses(projectIssueUrl, IssueView.class);
     }
 
     // TODO find a better way to do this
