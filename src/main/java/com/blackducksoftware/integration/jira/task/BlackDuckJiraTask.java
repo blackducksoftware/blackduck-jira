@@ -112,8 +112,8 @@ public class BlackDuckJiraTask {
 
         final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
 
-        final Optional<BlackDuckJiraConfigSerializable> optionalConfig = configDeserializer.deserializeConfig(pluginConfigDetails);
-        if (!optionalConfig.isPresent()) {
+        final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
+        if (!config.hasProjectMappings() && !config.hasPolicyRules()) {
             return Optional.ofNullable(previousStartDate);
         }
         final Date startDate;
@@ -132,7 +132,6 @@ public class BlackDuckJiraTask {
 
         try {
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = configDeserializer.deserializeFieldCopyConfig(fieldCopyMappingJson);
-            final BlackDuckJiraConfigSerializable config = optionalConfig.get();
             final boolean getOldestNotificationsFirst = true;
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory, notificationService, getOldestNotificationsFirst, ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 

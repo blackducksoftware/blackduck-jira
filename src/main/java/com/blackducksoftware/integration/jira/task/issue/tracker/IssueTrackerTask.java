@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.tracker;
 
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -76,8 +75,8 @@ public class IssueTrackerTask implements Callable<Boolean> {
             final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(settings);
             final JiraSettingsService jiraSettingsService = new JiraSettingsService(settings);
 
-            final Optional<BlackDuckJiraConfigSerializable> config = createJiraConfig(configDetails);
-            if (config.filter(jiraConfig -> jiraConfig.getHubProjectMappings() == null || jiraConfig.getHubProjectMappings().isEmpty()).isPresent()) {
+            final BlackDuckJiraConfigSerializable config = createJiraConfig(configDetails);
+            if (!config.hasProjectMappings()) {
                 logger.debug("Black Duck JIRA configuration is incomplete");
                 return Boolean.FALSE;
             }
@@ -137,7 +136,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
         return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
     }
 
-    private Optional<BlackDuckJiraConfigSerializable> createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
+    private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {
         return configDeserializer.deserializeConfig(pluginConfigDetails);
     }
 

@@ -23,8 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.config;
 
-import java.util.Optional;
-
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -36,15 +34,15 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCop
 public class JiraConfigDeserializer {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public Optional<BlackDuckJiraConfigSerializable> deserializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
-        if (pluginConfigDetails.getProjectMappingJson() == null) {
-            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-            return Optional.empty();
-        }
-        if (pluginConfigDetails.getPolicyRulesJson() == null) {
-            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-            return Optional.empty();
-        }
+    public BlackDuckJiraConfigSerializable deserializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
+        //        if (pluginConfigDetails.getProjectMappingJson() == null) {
+        //            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
+        //            return Optional.empty();
+        //        }
+        //        if (pluginConfigDetails.getPolicyRulesJson() == null) {
+        //            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
+        //            return Optional.empty();
+        //        }
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
         config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
@@ -56,7 +54,7 @@ public class JiraConfigDeserializer {
         for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
             logger.debug(rule.toString());
         }
-        return Optional.of(config);
+        return config;
     }
 
     public BlackDuckJiraFieldCopyConfigSerializable deserializeFieldCopyConfig(final String fieldCopyMappingJson) {
