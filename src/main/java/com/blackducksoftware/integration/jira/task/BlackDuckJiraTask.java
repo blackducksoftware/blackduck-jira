@@ -46,10 +46,10 @@ import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatte
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.notification.CommonNotificationService;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetailFactory;
+import com.blackducksoftware.integration.jira.config.JiraConfigDeserializer;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -79,6 +79,7 @@ public class BlackDuckJiraTask {
     private final JiraSettingsService jiraSettingsService;
     private final TicketInfoFromSetup ticketInfoFromSetup;
     private final String fieldCopyMappingJson;
+    private final JiraConfigDeserializer configDeserializer;
 
     public BlackDuckJiraTask(final PluginConfigurationDetails configDetails, final JiraUserContext jiraContext, final JiraSettingsService jiraSettingsService, final TicketInfoFromSetup ticketInfoFromSetup) {
         this.pluginConfigDetails = configDetails;
@@ -93,6 +94,7 @@ public class BlackDuckJiraTask {
         this.fieldCopyMappingJson = configDetails.getFieldCopyMappingJson();
 
         logger.debug("createVulnerabilityIssues: " + configDetails.isCreateVulnerabilityIssues());
+        configDeserializer = new JiraConfigDeserializer();
     }
 
     /**
@@ -110,8 +112,8 @@ public class BlackDuckJiraTask {
 
         final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
 
-        final Optional<BlackDuckJiraConfigSerializable> optionalConfig = deSerializeConfig();
-        if (!optionalConfig.isPresent()) {
+        final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
+        if (!config.hasProjectMappings() && !config.hasPolicyRules()) {
             return Optional.ofNullable(previousStartDate);
         }
         final Date startDate;
@@ -129,8 +131,7 @@ public class BlackDuckJiraTask {
         final String fallbackDate = BlackDuckPluginDateFormatter.format(startDate);
 
         try {
-            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = deSerializeFieldCopyConfig();
-            final BlackDuckJiraConfigSerializable config = optionalConfig.get();
+            final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = configDeserializer.deserializeFieldCopyConfig(fieldCopyMappingJson);
             final boolean getOldestNotificationsFirst = true;
             final TicketGenerator ticketGenerator = initTicketGenerator(jiraContext, blackDuckServicesFactory, notificationService, getOldestNotificationsFirst, ticketInfoFromSetup, getRuleUrls(config), fieldCopyConfig);
 
@@ -228,35 +229,6 @@ public class BlackDuckJiraTask {
     private CommonNotificationService createCommonNotificationService(final BlackDuckServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
         final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), new JsonParser());
         return new CommonNotificationService(contentDetailFactory, notificationsOldestFirst);
-    }
-
-    private Optional<BlackDuckJiraConfigSerializable> deSerializeConfig() {
-        if (pluginConfigDetails.getProjectMappingJson() == null) {
-            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-            return Optional.empty();
-        }
-        if (pluginConfigDetails.getPolicyRulesJson() == null) {
-            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-            return Optional.empty();
-        }
-        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
-        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
-        logger.debug("Mappings:");
-        for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-            logger.debug(mapping.toString());
-        }
-        logger.debug("Policy Rules:");
-        for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-            logger.debug(rule.toString());
-        }
-        return Optional.of(config);
-    }
-
-    private BlackDuckJiraFieldCopyConfigSerializable deSerializeFieldCopyConfig() {
-        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = new BlackDuckJiraFieldCopyConfigSerializable();
-        fieldCopyConfig.setJson(fieldCopyMappingJson);
-        return fieldCopyConfig;
     }
 
     private Date deriveStartDate(final NotificationService notificationService, final String lastRunDateString) throws ParseException, IntegrationException {

@@ -285,6 +285,10 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.hubProjectMappings = hubProjectMappings;
     }
 
+    public boolean hasProjectMappings() {
+        return null != hubProjectMappings && !hubProjectMappings.isEmpty();
+    }
+
     public String getHubProjectMappingsJson() {
         if (hubProjectMappings != null) {
             final Gson gson = new GsonBuilder().create();
@@ -321,6 +325,10 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
 
     public void setPolicyRules(final List<PolicyRuleSerializable> policyRules) {
         this.policyRules = policyRules;
+    }
+
+    public boolean hasPolicyRules() {
+        return null != policyRules && !policyRules.isEmpty();
     }
 
     public boolean isCreateVulnerabilityIssues() {

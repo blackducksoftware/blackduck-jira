@@ -73,10 +73,10 @@ import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueServiceMock;
 import com.blackducksoftware.integration.jira.mocks.issue.JiraIssuePropertyWrapperMock;
-import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueTrackerProperties;
-import com.blackducksoftware.integration.jira.task.issue.IssueEventListener;
-import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerPropertyHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueEventListener;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
@@ -182,7 +182,7 @@ public class IssueEventListenerTest {
         return issue;
     }
 
-    private String createIssuePropertiesJSON(final BlackDuckIssueTrackerProperties issueProperties) {
+    private String createIssuePropertiesJSON(final IssueTrackerProperties issueProperties) {
         final Gson gson = new GsonBuilder().create();
         return gson.toJson(issueProperties);
     }
@@ -204,8 +204,8 @@ public class IssueEventListenerTest {
     private void createEntityProperty() {
         final EntityPropertyMock entityProperty = new EntityPropertyMock();
         entityProperty.setEntityName(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME);
-        entityProperty.setKey(BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL);
-        final BlackDuckIssueTrackerProperties issueTrackerProperties = new BlackDuckIssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
+        entityProperty.setKey(IssueTrackerHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL);
+        final IssueTrackerProperties issueTrackerProperties = new IssueTrackerProperties(ISSUE_URL, JIRA_PROJECT_ID);
         entityProperty.setValue(createIssuePropertiesJSON(issueTrackerProperties));
         final List<EntityProperty> propList = new ArrayList<>(1);
         propList.add(entityProperty);

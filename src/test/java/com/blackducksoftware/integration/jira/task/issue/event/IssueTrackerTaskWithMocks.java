@@ -28,7 +28,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
-import com.blackducksoftware.integration.jira.task.issue.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;

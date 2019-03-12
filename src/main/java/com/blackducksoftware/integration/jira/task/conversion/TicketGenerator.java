@@ -47,7 +47,7 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.issue.handler.BlackDuckIssueTrackerHandler;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
@@ -77,7 +77,7 @@ public class TicketGenerator {
     private final JiraServices jiraServices;
     private final JiraSettingsService jiraSettingsService;
     private final Map<PluginField, CustomField> customFields;
-    private final BlackDuckIssueTrackerHandler blackDuckIssueTrackerHandler;
+    private final IssueTrackerHandler issueTrackerHandler;
     private final PluginConfigurationDetails pluginConfigurationDetails;
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
@@ -93,7 +93,7 @@ public class TicketGenerator {
         this.jiraUserContext = jiraUserContext;
         this.jiraSettingsService = jiraSettingsService;
         this.customFields = customFields;
-        this.blackDuckIssueTrackerHandler = new BlackDuckIssueTrackerHandler(jiraSettingsService, blackDuckService);
+        this.issueTrackerHandler = new IssueTrackerHandler(jiraSettingsService, blackDuckService);
         this.pluginConfigurationDetails = pluginConfigurationDetails;
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
@@ -118,7 +118,7 @@ public class TicketGenerator {
 
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, blackDuckIssueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, pluginConfigurationDetails);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, pluginConfigurationDetails);
 
                 final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);

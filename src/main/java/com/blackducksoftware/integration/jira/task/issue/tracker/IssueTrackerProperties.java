@@ -21,13 +21,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.handler;
+package com.blackducksoftware.integration.jira.task.issue.tracker;
 
-public class BlackDuckIssueTrackerPropertyHandler {
-    public final static String JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL = "bdsHubIssueURL";
+import com.google.gson.annotations.SerializedName;
 
-    public String createEntityPropertyKey(final Long jiraIssueId) {
-        return String.format("%s_%s", BlackDuckIssueTrackerPropertyHandler.JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL, jiraIssueId);
+public class IssueTrackerProperties {
+    // TODO this might break backwards compatibility with the issue tracker
+    @SerializedName("hubIssueUrl")
+    private final String blackDuckIssueUrl;
+    private final Long jiraIssueId;
+
+    public IssueTrackerProperties(final String blackDuckIssueUrl, final Long jiraIssueId) {
+        this.blackDuckIssueUrl = blackDuckIssueUrl;
+        this.jiraIssueId = jiraIssueId;
+    }
+
+    public Long getJiraIssueId() {
+        return jiraIssueId;
+    }
+
+    public String getBlackDuckIssueUrl() {
+        return blackDuckIssueUrl;
     }
 
 }

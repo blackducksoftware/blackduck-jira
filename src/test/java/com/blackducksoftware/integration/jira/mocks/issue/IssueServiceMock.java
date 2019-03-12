@@ -24,9 +24,12 @@
 package com.blackducksoftware.integration.jira.mocks.issue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckView;
+import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
@@ -39,9 +42,15 @@ public class IssueServiceMock extends BlackDuckService {
     public final static String CREATION_FAILURE_URL = "";
     public final static String TEST_PUT_URL = "testPut";
     public Map<String, Object> issueMap = new HashMap<>();
+    public List<IssueView> responseList;
 
     public IssueServiceMock(final BlackDuckHttpClient blackDuckHttpClient) {
         super(new PrintStreamIntLogger(System.out, LogLevel.DEBUG), blackDuckHttpClient, BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper());
+    }
+
+    @Override
+    public <T extends BlackDuckResponse> List<T> getAllResponses(final String uri, final Class<T> responseClass) throws IntegrationException {
+        return (List<T>) responseList;
     }
 
     @Override
