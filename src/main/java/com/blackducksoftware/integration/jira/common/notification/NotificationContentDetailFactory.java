@@ -99,21 +99,23 @@ public class NotificationContentDetailFactory {
     public void populateContentDetails(final List<NotificationContentDetail> notificationContentDetails, final String notificationGroup, final RuleViolationNotificationContent content) {
         final Map<String, String> uriToName = content.getPolicyInfos().stream().collect(Collectors.toMap(policyInfo -> policyInfo.getPolicy(), policyInfo -> policyInfo.getPolicyName()));
         for (final ComponentVersionStatus componentVersionStatus : content.getComponentVersionStatuses()) {
-            for (final String policyUri : componentVersionStatus.getPolicies()) {
-                final String policyName = uriToName.get(policyUri);
-                final String componentValue;
-                if (componentVersionStatus.getComponentVersion() != null) {
-                    componentValue = null;
-                } else {
-                    componentValue = componentVersionStatus.getComponent();
+            if (null != componentVersionStatus.getPolicies()) {
+                for (final String policyUri : componentVersionStatus.getPolicies()) {
+                    final String policyName = uriToName.get(policyUri);
+                    final String componentValue;
+                    if (componentVersionStatus.getComponentVersion() != null) {
+                        componentValue = null;
+                    } else {
+                        componentValue = componentVersionStatus.getComponent();
+                    }
+                    final NotificationContentDetail detail = NotificationContentDetail
+                                                                 .createDetail(notificationGroup, Optional.of(content.getProjectName()), Optional.of(content.getProjectVersionName()), Optional.of(content.getProjectVersion()),
+                                                                     Optional.of(componentVersionStatus.getComponentName()), Optional.ofNullable(componentValue), Optional.ofNullable(componentVersionStatus.getComponentVersionName()),
+                                                                     Optional.ofNullable(componentVersionStatus.getComponentVersion()),
+                                                                     Optional.of(policyName), Optional.of(policyUri), Optional.empty(), Optional.ofNullable(componentVersionStatus.getComponentIssueLink()), Optional.empty(),
+                                                                     Optional.ofNullable(componentVersionStatus.getBomComponent()));
+                    notificationContentDetails.add(detail);
                 }
-                final NotificationContentDetail detail = NotificationContentDetail
-                                                             .createDetail(notificationGroup, Optional.of(content.getProjectName()), Optional.of(content.getProjectVersionName()), Optional.of(content.getProjectVersion()),
-                                                                 Optional.of(componentVersionStatus.getComponentName()), Optional.ofNullable(componentValue), Optional.ofNullable(componentVersionStatus.getComponentVersionName()),
-                                                                 Optional.ofNullable(componentVersionStatus.getComponentVersion()),
-                                                                 Optional.of(policyName), Optional.of(policyUri), Optional.empty(), Optional.ofNullable(componentVersionStatus.getComponentIssueLink()), Optional.empty(),
-                                                                 Optional.ofNullable(componentVersionStatus.getBomComponent()));
-                notificationContentDetails.add(detail);
             }
         }
     }
@@ -121,21 +123,23 @@ public class NotificationContentDetailFactory {
     public void populateContentDetails(final List<NotificationContentDetail> notificationContentDetails, final String notificationGroup, final RuleViolationClearedNotificationContent content) {
         final Map<String, String> uriToName = content.getPolicyInfos().stream().collect(Collectors.toMap(policyInfo -> policyInfo.getPolicy(), policyInfo -> policyInfo.getPolicyName()));
         for (final ComponentVersionStatus componentVersionStatus : content.getComponentVersionStatuses()) {
-            for (final String policyUri : componentVersionStatus.getPolicies()) {
-                final String policyName = uriToName.get(policyUri);
-                final String componentValue;
-                if (componentVersionStatus.getComponentVersion() != null) {
-                    componentValue = null;
-                } else {
-                    componentValue = componentVersionStatus.getComponent();
+            if (null != componentVersionStatus.getPolicies()) {
+                for (final String policyUri : componentVersionStatus.getPolicies()) {
+                    final String policyName = uriToName.get(policyUri);
+                    final String componentValue;
+                    if (componentVersionStatus.getComponentVersion() != null) {
+                        componentValue = null;
+                    } else {
+                        componentValue = componentVersionStatus.getComponent();
+                    }
+                    final NotificationContentDetail detail = NotificationContentDetail
+                                                                 .createDetail(notificationGroup, Optional.of(content.getProjectName()), Optional.of(content.getProjectVersionName()), Optional.of(content.getProjectVersion()),
+                                                                     Optional.of(componentVersionStatus.getComponentName()), Optional.ofNullable(componentValue), Optional.ofNullable(componentVersionStatus.getComponentVersionName()),
+                                                                     Optional.ofNullable(componentVersionStatus.getComponentVersion()),
+                                                                     Optional.of(policyName), Optional.of(policyUri), Optional.empty(), Optional.of(componentVersionStatus.getComponentIssueLink()), Optional.empty(),
+                                                                     Optional.ofNullable(componentVersionStatus.getBomComponent()));
+                    notificationContentDetails.add(detail);
                 }
-                final NotificationContentDetail detail = NotificationContentDetail
-                                                             .createDetail(notificationGroup, Optional.of(content.getProjectName()), Optional.of(content.getProjectVersionName()), Optional.of(content.getProjectVersion()),
-                                                                 Optional.of(componentVersionStatus.getComponentName()), Optional.ofNullable(componentValue), Optional.ofNullable(componentVersionStatus.getComponentVersionName()),
-                                                                 Optional.ofNullable(componentVersionStatus.getComponentVersion()),
-                                                                 Optional.of(policyName), Optional.of(policyUri), Optional.empty(), Optional.of(componentVersionStatus.getComponentIssueLink()), Optional.empty(),
-                                                                 Optional.ofNullable(componentVersionStatus.getBomComponent()));
-                notificationContentDetails.add(detail);
             }
         }
     }
