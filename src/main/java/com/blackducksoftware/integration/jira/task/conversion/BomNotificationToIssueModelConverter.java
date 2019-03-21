@@ -169,10 +169,9 @@ public class BomNotificationToIssueModelConverter {
                 Optional<BlackDuckIssueModel> issueModel = Optional.empty();
                 if (detail.isPolicy()) {
                     final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail.getPolicy().get();
-                    final Optional<UriSingleResponse<VersionBomComponentView>> bomComponent = detail.getBomComponent();
-
+                    final String componentName = detail.getComponentName().orElse("");
                     final PolicyRuleView policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
-                    issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule, projectVersionView);
+                    issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule, projectVersionView, componentName);
                 } else if (detail.isVulnerability()) {
                     final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
                     issueModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.getSecurityRiskProfile(),
@@ -190,7 +189,7 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private Optional<BlackDuckIssueModel> populateModelForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final PolicyRuleView policyRule,
-        final ProjectVersionView projectVersionView)
+        final ProjectVersionView projectVersionView, final String componentName)
         throws IntegrationException, ConfigurationException {
         final String policyRuleUrl = policyRule.getHref().orElse(null);
         if (!linksOfRulesToMonitor.contains(policyRuleUrl)) {
@@ -206,17 +205,18 @@ public class BomNotificationToIssueModelConverter {
 
         if (hasVulnerabilityRule(policyRule)) {
             final List<VulnerableComponentView> vulnerableComponentViews = blackDuckDataHelper.getAllResponses(projectVersionView, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE);
-            addVulnerabilityInfo(blackDuckIssueModelBuilder, vulnerableComponentViews);
+            final List<NotificationVulnerability> notificationVulnerabilities = vulnerableComponentViews.stream()
+                                                                                    .filter(vulnerableComponentView -> vulnerableComponentView.getComponentName().equals(componentName))
+                                                                                    .map(VulnerableComponentView::getVulnerabilityWithRemediation)
+                                                                                    .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
+                                                                                    .collect(Collectors.toList());
+            addVulnerabilityInfo(blackDuckIssueModelBuilder, notificationVulnerabilities);
         }
 
         return Optional.of(blackDuckIssueModelBuilder.build());
     }
 
-    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final List<VulnerableComponentView> allVulnerabilities) {
-        final List<NotificationVulnerability> notificationVulnerabilities = allVulnerabilities.stream()
-                                                                                .map(VulnerableComponentView::getVulnerabilityWithRemediation)
-                                                                                .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
-                                                                                .collect(Collectors.toList());
+    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final List<NotificationVulnerability> notificationVulnerabilities) {
         final String comment = dataFormatHelper.generateVulnerabilitiesCommentForPolicy(notificationVulnerabilities);
         blackDuckIssueModelBuilder.setJiraIssueComment(comment);
     }
@@ -267,8 +267,7 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private Collection<BlackDuckIssueModel> createModelsForBomEdit(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final VersionBomComponentView versionBomComponent,
-        final ProjectVersionView projectVersionView)
-        throws IntegrationException {
+        final ProjectVersionView projectVersionView) throws IntegrationException {
         logger.debug("Populating event data for BOM Component");
         final List<BlackDuckIssueModel> issueWrappersForEdits = new ArrayList<>();
 
@@ -291,7 +290,8 @@ public class BomNotificationToIssueModelConverter {
                 if (linksOfRulesToMonitor.contains(blackDuckDataHelper.getHrefNullable(rule))) {
                     try {
                         final BlackDuckIssueModelBuilder policyWrapperBuilder = blackDuckIssueModelBuilder.copy();
-                        final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, notificationType, rule, projectVersionView);
+                        final String componentName = versionBomComponent.getComponentName();
+                        final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, notificationType, rule, projectVersionView, componentName);
                         policyModel.ifPresent(model -> issueWrappersForEdits.add(model));
                     } catch (final Exception e) {
                         logger.error("Unable to create policy template for BOM component.", e);
