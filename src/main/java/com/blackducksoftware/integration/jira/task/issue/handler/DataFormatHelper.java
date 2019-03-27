@@ -25,8 +25,10 @@ package com.blackducksoftware.integration.jira.task.issue.handler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -105,7 +107,7 @@ public class DataFormatHelper {
         }
     }
 
-    public String generateVulnerabilitiesCommentForPolicy(final List<NotificationVulnerability> vulnerabilities) {
+    public String generateVulnerabilitiesCommentForPolicy(final Set<NotificationVulnerability> vulnerabilities) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck plugin auto-generated comment)\n");
         appendVulnerabilitiesCommentText(commentText, vulnerabilities, "found");
@@ -152,7 +154,7 @@ public class DataFormatHelper {
         stringBuilder.append(".\n");
     }
 
-    private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final List<NotificationVulnerability> vulns, final String verb) {
+    private void appendVulnerabilitiesCommentText(final StringBuilder commentText, final Collection<NotificationVulnerability> vulns, final String verb) {
         final boolean hasContent = vulns != null && !vulns.isEmpty();
         final String formattedVerb = hasContent ? String.format("*%s*", verb) : String.format("_%s_", verb);
         commentText.append(String.format("Vulnerabilities %s: ", formattedVerb));

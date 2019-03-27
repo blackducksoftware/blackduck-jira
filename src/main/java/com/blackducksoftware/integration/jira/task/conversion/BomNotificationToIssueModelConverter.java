@@ -206,19 +206,19 @@ public class BomNotificationToIssueModelConverter {
 
         if (hasVulnerabilityRule(policyRule)) {
             final List<VulnerableComponentView> vulnerableComponentViews = blackDuckDataHelper.getAllResponses(projectVersionView, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE);
-            final List<NotificationVulnerability> notificationVulnerabilities = vulnerableComponentViews.stream()
-                                                                                    .filter(vulnerableComponentView -> vulnerableComponentView.getComponentName().equals(componentName))
-                                                                                    .filter(vulnerableComponentView -> vulnerableComponentView.getComponentVersionName().equals(versionName))
-                                                                                    .map(VulnerableComponentView::getVulnerabilityWithRemediation)
-                                                                                    .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
-                                                                                    .collect(Collectors.toList());
+            final Set<NotificationVulnerability> notificationVulnerabilities = vulnerableComponentViews.stream()
+                                                                                   .filter(vulnerableComponentView -> vulnerableComponentView.getComponentName().equals(componentName))
+                                                                                   .filter(vulnerableComponentView -> vulnerableComponentView.getComponentVersionName().equals(versionName))
+                                                                                   .map(VulnerableComponentView::getVulnerabilityWithRemediation)
+                                                                                   .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
+                                                                                   .collect(Collectors.toSet());
             addVulnerabilityInfo(blackDuckIssueModelBuilder, notificationVulnerabilities);
         }
 
         return Optional.of(blackDuckIssueModelBuilder.build());
     }
 
-    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final List<NotificationVulnerability> notificationVulnerabilities) {
+    private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final Set<NotificationVulnerability> notificationVulnerabilities) {
         final String comment = dataFormatHelper.generateVulnerabilitiesCommentForPolicy(notificationVulnerabilities);
         blackDuckIssueModelBuilder.setJiraIssueComment(comment);
     }
