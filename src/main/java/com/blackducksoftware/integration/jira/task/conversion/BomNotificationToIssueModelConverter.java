@@ -170,8 +170,9 @@ public class BomNotificationToIssueModelConverter {
                 if (detail.isPolicy()) {
                     final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail.getPolicy().get();
                     final String componentName = detail.getComponentName().orElse("");
+                    final String versionName = detail.getComponentVersionName().orElse("");
                     final PolicyRuleView policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
-                    issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule, projectVersionView, componentName);
+                    issueModel = populateModelForPolicy(blackDuckIssueModelBuilder, notificationType, policyRule, projectVersionView, componentName, versionName);
                 } else if (detail.isVulnerability()) {
                     final VulnerabilityNotificationContent vulnerabilityContent = (VulnerabilityNotificationContent) notificationContent;
                     issueModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, versionBomComponent.getSecurityRiskProfile(),
@@ -189,7 +190,7 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private Optional<BlackDuckIssueModel> populateModelForPolicy(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final PolicyRuleView policyRule,
-        final ProjectVersionView projectVersionView, final String componentName)
+        final ProjectVersionView projectVersionView, final String componentName, final String versionName)
         throws IntegrationException, ConfigurationException {
         final String policyRuleUrl = policyRule.getHref().orElse(null);
         if (!linksOfRulesToMonitor.contains(policyRuleUrl)) {
@@ -207,6 +208,7 @@ public class BomNotificationToIssueModelConverter {
             final List<VulnerableComponentView> vulnerableComponentViews = blackDuckDataHelper.getAllResponses(projectVersionView, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE);
             final List<NotificationVulnerability> notificationVulnerabilities = vulnerableComponentViews.stream()
                                                                                     .filter(vulnerableComponentView -> vulnerableComponentView.getComponentName().equals(componentName))
+                                                                                    .filter(vulnerableComponentView -> vulnerableComponentView.getComponentVersionName().equals(versionName))
                                                                                     .map(VulnerableComponentView::getVulnerabilityWithRemediation)
                                                                                     .map(vulnerabilityView -> new NotificationVulnerability(vulnerabilityView.getSource().name(), vulnerabilityView.getVulnerabilityName()))
                                                                                     .collect(Collectors.toList());
@@ -291,7 +293,8 @@ public class BomNotificationToIssueModelConverter {
                     try {
                         final BlackDuckIssueModelBuilder policyWrapperBuilder = blackDuckIssueModelBuilder.copy();
                         final String componentName = versionBomComponent.getComponentName();
-                        final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, notificationType, rule, projectVersionView, componentName);
+                        final String versionName = versionBomComponent.getComponentVersionName();
+                        final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, notificationType, rule, projectVersionView, componentName, versionName);
                         policyModel.ifPresent(model -> issueWrappersForEdits.add(model));
                     } catch (final Exception e) {
                         logger.error("Unable to create policy template for BOM component.", e);
