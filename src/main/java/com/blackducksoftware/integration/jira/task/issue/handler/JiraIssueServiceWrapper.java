@@ -144,7 +144,7 @@ public class JiraIssueServiceWrapper {
             if (!errors.hasAnyErrors()) {
                 final MutableIssue jiraIssue = result.getIssue();
                 issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
-                // TODO Fixing the issue assignment should be separate from creating the issue (if an exception is thrown, the issue will be missing pieces).
+                // TODO Fixing the issue assignment should be separate from creating the issue (if an exception is thrown, the issue will be missing pieces AND the issue won be added in Black Duck).
                 fixIssueAssignment(jiraIssue, jiraIssueFieldTemplate.getAssigneeId());
                 return jiraIssue;
             }
@@ -243,7 +243,7 @@ public class JiraIssueServiceWrapper {
         return workflowManager.getWorkflow(issue);
     }
 
-    public void addWatcher(final Issue issue, ApplicationUser watcher) {
+    public void addWatcher(final Issue issue, final ApplicationUser watcher) {
         if (!watcherManager.isWatching(watcher, issue)) {
             watcherManager.startWatching(watcher, issue);
         }
