@@ -89,17 +89,17 @@ public class BlackDuckDataHelper {
     }
 
     public ProjectVersionWrapper getProjectVersionWrapper(final NotificationContentDetail detail) throws IntegrationException {
-        final ProjectVersionWrapper projectVersionWrapper;
-        if (detail.getProjectVersion().isPresent()) {
-            final UriSingleResponse<ProjectVersionView> projectVersionResponse = detail.getProjectVersion().get();
-            projectVersionWrapper = getProjectVersionWrapper(projectVersionResponse.getUri());
-        } else if (detail.getBomComponent().isPresent()) {
-            final VersionBomComponentView versionBomComponent = getResponse(detail.getBomComponent().get());
-            projectVersionWrapper = getProjectVersionWrapper(versionBomComponent);
-        } else {
-            throw new IntegrationException("No Black Duck project data available from the notification.");
+        final Optional<String> optionalProjectVersionUri = detail.getProjectVersion().map(UriSingleResponse::getUri);
+        if (optionalProjectVersionUri.isPresent()) {
+            return getProjectVersionWrapper(optionalProjectVersionUri.get());
         }
-        return projectVersionWrapper;
+
+        final Optional<UriSingleResponse<VersionBomComponentView>> optionalBomComponentResponse = detail.getBomComponent();
+        if (optionalBomComponentResponse.isPresent()) {
+            final VersionBomComponentView versionBomComponent = getResponse(optionalBomComponentResponse.get());
+            return getProjectVersionWrapper(versionBomComponent);
+        }
+        throw new IntegrationException("No Black Duck project data available from the notification.");
     }
 
     public ProjectVersionWrapper getProjectVersionWrapper(final VersionBomComponentView versionBomComponent) throws IntegrationException {

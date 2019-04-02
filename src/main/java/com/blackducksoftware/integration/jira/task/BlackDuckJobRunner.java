@@ -80,13 +80,15 @@ public class BlackDuckJobRunner implements JobRunner {
                 logger.info("blackduck-jira periodic task has not been configured, or has a run interval < 1 minute");
                 return JobRunnerResponse.aborted("The plugin has not been configured correctly.");
             }
-        }
 
-        final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes.intValue();
-        logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
+            final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes.intValue();
+            logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
-        if (executorService.canAcceptNewTasks()) {
-            return scheduleTask(taskIntervalMinutes, taskTimeoutMinutes);
+            if (executorService.canAcceptNewTasks()) {
+                return scheduleTask(taskIntervalMinutes, taskTimeoutMinutes);
+            }
+        } else {
+            logger.warn("No task interval was configured.");
         }
         return JobRunnerResponse.aborted("Too many tasks are currently scheduled.");
     }
@@ -111,13 +113,14 @@ public class BlackDuckJobRunner implements JobRunner {
             if (future != null && !future.isDone()) {
                 future.cancel();
             }
-            if (reasonForFailure != null) {
-                logger.error(reasonForFailure);
-                if (failureException != null) {
-                    logger.error(failureException);
-                }
-                return JobRunnerResponse.failed(reasonForFailure);
+        }
+
+        if (reasonForFailure != null) {
+            logger.error(reasonForFailure);
+            if (failureException != null) {
+                logger.error(failureException);
             }
+            return JobRunnerResponse.failed(reasonForFailure);
         }
         return JobRunnerResponse.success();
     }

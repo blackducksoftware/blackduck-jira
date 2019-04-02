@@ -78,6 +78,8 @@ import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
+
 public class BomNotificationToIssueModelConverter {
     private final BlackDuckJiraLogger logger;
     private final JiraServices jiraServices;
@@ -151,8 +153,9 @@ public class BomNotificationToIssueModelConverter {
 
     private Collection<BlackDuckIssueModel> populateModelFromContentDetail(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final NotificationType notificationType,
         final NotificationContentDetail detail, final NotificationContent notificationContent, final Date batchStartDate) throws IntegrationException, ConfigurationException {
-        if (detail.getBomComponent().isPresent()) {
-            final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = detail.getBomComponent().get();
+        final Optional<UriSingleResponse<VersionBomComponentView>> optionalBomComponentResponse = detail.getBomComponent();
+        if (optionalBomComponentResponse.isPresent()) {
+            final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = optionalBomComponentResponse.get();
             logger.debug("BOM Component was present: " + bomComponentUriSingleResponse.getUri());
             final VersionBomComponentView versionBomComponent;
             try {
@@ -168,7 +171,9 @@ public class BomNotificationToIssueModelConverter {
             } else {
                 Optional<BlackDuckIssueModel> issueModel = Optional.empty();
                 if (detail.isPolicy()) {
-                    final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail.getPolicy().get();
+                    final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail
+                                                                                    .getPolicy()
+                                                                                    .orElseThrow(() -> new InternalException("A policy notification was received, but no policy information was present"));
                     final String componentName = detail.getComponentName().orElse("");
                     final String versionName = detail.getComponentVersionName().orElse("");
                     final PolicyRuleView policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
@@ -315,9 +320,8 @@ public class BomNotificationToIssueModelConverter {
             builder.setLastBatchStartDate(batchStartDate);
             builder.setAllIssueComments(BlackDuckJiraConstants.BLACKDUCK_COMPONENT_DELETED);
             builder.setIssueCreator(jiraUserContext.getDefaultJiraIssueCreatorUser());
-            if (detail.getBomComponent().isPresent()) {
-                builder.setBomComponentUri(detail.getBomComponent().get().getUri());
-            }
+            detail.getBomComponent().map(UriSingleResponse::getUri).ifPresent(builder::setBomComponentUri);
+
             return Arrays.asList(builder.build());
         }
         throw restException;
