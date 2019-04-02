@@ -78,8 +78,6 @@ import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
-
 public class BomNotificationToIssueModelConverter {
     private final BlackDuckJiraLogger logger;
     private final JiraServices jiraServices;
@@ -173,7 +171,7 @@ public class BomNotificationToIssueModelConverter {
                 if (detail.isPolicy()) {
                     final UriSingleResponse<PolicyRuleView> uriSingleResponse = detail
                                                                                     .getPolicy()
-                                                                                    .orElseThrow(() -> new InternalException("A policy notification was received, but no policy information was present"));
+                                                                                    .orElseThrow(() -> new IntegrationException("A policy notification was received, but no policy information was present"));
                     final String componentName = detail.getComponentName().orElse("");
                     final String versionName = detail.getComponentVersionName().orElse("");
                     final PolicyRuleView policyRule = blackDuckDataHelper.getResponse(uriSingleResponse);
