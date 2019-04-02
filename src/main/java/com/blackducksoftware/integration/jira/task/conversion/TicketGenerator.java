@@ -47,11 +47,11 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueServiceWrapper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerHandler;
 import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
@@ -128,8 +128,10 @@ public class TicketGenerator {
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
-            if (results.getLatestNotificationCreatedAtDate().isPresent()) {
-                return results.getLatestNotificationCreatedAtDate().get();
+
+            final Optional<Date> optionalCreatedAtDate = results.getLatestNotificationCreatedAtDate();
+            if (optionalCreatedAtDate.isPresent()) {
+                return optionalCreatedAtDate.get();
             }
         } catch (final Exception e) {
             logger.error(e);
@@ -183,4 +185,5 @@ public class TicketGenerator {
             }
         });
     }
+
 }

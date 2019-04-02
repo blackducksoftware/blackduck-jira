@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -388,10 +389,8 @@ public class BomNotificationToIssueModelConverter {
             final UserView userView = blackDuckDataHelper.getResponse(userUrl, UserView.class);
             if (null != userView) {
                 final UserSearchService userSearchService = jiraServices.createUserSearchService();
-                for (final ApplicationUser jiraUser : userSearchService.findUsersByEmail(userView.getEmail())) {
-                    // We will assume that if users are configured correctly, they will have unique email addresses.
-                    return Optional.of(jiraUser);
-                }
+                final Iterable<ApplicationUser> usersByEmail = userSearchService.findUsersByEmail(userView.getEmail());
+                return StreamSupport.stream(usersByEmail.spliterator(), false).findFirst();
             }
         } catch (final Exception e) {
             logger.warn("Unable to get the project owner for this notification: " + e.getMessage());
@@ -418,4 +417,5 @@ public class BomNotificationToIssueModelConverter {
         }
         return Optional.ofNullable(issueCreator);
     }
+
 }
