@@ -95,6 +95,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     private String policyDescription;
     private Boolean policyOverridable;
     private String policySeverity;
+    private boolean includeRemediationInfo = false;
 
     // Comments
     private String jiraIssueComment;
@@ -257,6 +258,11 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         return this;
     }
 
+    public BlackDuckIssueModelBuilder includeRemediationInfo(final boolean includeRemediationInfo) {
+        this.includeRemediationInfo = includeRemediationInfo;
+        return this;
+    }
+
     // TODO throw exception if missing required fields
     public BlackDuckIssueModel build() throws IntegrationException {
         if (action == null) {
@@ -289,7 +295,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         String issueDescription = null;
         if (!IssueCategory.SPECIAL.equals(issueCategory)) {
             jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri);
+            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri, includeRemediationInfo);
         }
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreator, issueDescription, assigneeId);
 

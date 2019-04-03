@@ -225,6 +225,7 @@ public class BomNotificationToIssueModelConverter {
     private void addVulnerabilityInfo(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final Set<NotificationVulnerability> notificationVulnerabilities) {
         final String comment = dataFormatHelper.generateVulnerabilitiesCommentForPolicy(notificationVulnerabilities);
         blackDuckIssueModelBuilder.setJiraIssueComment(comment);
+        blackDuckIssueModelBuilder.includeRemediationInfo(true);
     }
 
     private Boolean hasVulnerabilityRule(final PolicyRuleView policyRuleView) {
@@ -260,6 +261,7 @@ public class BomNotificationToIssueModelConverter {
         blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
         blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
 
+        blackDuckIssueModelBuilder.includeRemediationInfo(true);
         return Optional.of(blackDuckIssueModelBuilder.build());
     }
 

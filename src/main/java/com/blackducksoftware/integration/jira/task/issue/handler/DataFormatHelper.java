@@ -58,7 +58,7 @@ public class DataFormatHelper {
         this.blackDuckDataHelper = blackDuckDataHelper;
     }
 
-    public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentVersionUrl) {
+    public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentVersionUrl, final boolean includeRemediationInfo) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
@@ -88,7 +88,7 @@ public class DataFormatHelper {
                 issueDescription.append("KB Component license(s): ");
                 issueDescription.append(licenseText);
             }
-            if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
+            if (includeRemediationInfo) {
                 appendRemediationOptionsText(issueDescription, componentVersion);
             }
         }
