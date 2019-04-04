@@ -150,15 +150,13 @@ public class TicketGenerator {
 
     private void handleEachIssue(final BomNotificationToIssueModelConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final Date batchStartDate) {
         for (final NotificationDetailResult detailResult : notificationDetailResults) {
-            if (pluginConfigurationDetails.isCreateVulnerabilityIssues() || !NotificationType.VULNERABILITY.equals(detailResult.getType())) {
-                final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
-                for (final BlackDuckIssueModel model : issueModels) {
-                    try {
-                        issueHandler.handleBlackDuckIssue(model);
-                    } catch (final Exception e) {
-                        logger.error(e);
-                        jiraSettingsService.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
-                    }
+            final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
+            for (final BlackDuckIssueModel model : issueModels) {
+                try {
+                    issueHandler.handleBlackDuckIssue(model);
+                } catch (final Exception e) {
+                    logger.error(e);
+                    jiraSettingsService.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                 }
             }
         }

@@ -213,4 +213,5 @@ public class BlackDuckJiraConfigController extends ConfigController {
             settings.put(key, value);
         }
     }
+
 }

@@ -109,8 +109,12 @@ public class BomNotificationToIssueModelConverter {
     public Collection<BlackDuckIssueModel> convertToModel(final NotificationDetailResult detailResult, final Date batchStartDate) {
         logger.debug("Using BOM Notification Converter");
         final NotificationType notificationType = detailResult.getType();
-        logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
+        if (NotificationType.VULNERABILITY.equals(notificationType) && !pluginConfigurationDetails.isCreateVulnerabilityIssues()) {
+            logger.debug("Ignoring a vulnerability notification because it is disabled for all projects");
+            return Collections.emptySet();
+        }
 
+        logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
         final Set<BlackDuckIssueModel> issueWrappers = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             try {
@@ -138,6 +142,10 @@ public class BomNotificationToIssueModelConverter {
         final List<JiraProject> jiraProjects = blackDuckProjectMappings.getJiraProjects(blackDuckProjectName);
         logger.debug(String.format("There are %d jira projects configured", jiraProjects.size()));
         for (final JiraProject jiraProject : jiraProjects) {
+            if (NotificationType.VULNERABILITY.equals(notificationType) && !jiraProject.isConfiguredForVulnerabilities()) {
+                logger.debug("Ignoring a vulnerability notification because it is disabled for this project: " + jiraProject.getProjectName());
+                continue;
+            }
             try {
                 final Collection<BlackDuckIssueModel> createdIssueWrappers = populateModelFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, batchStartDate);
                 issueWrapperList.addAll(createdIssueWrappers);

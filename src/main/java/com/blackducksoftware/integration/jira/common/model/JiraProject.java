@@ -39,21 +39,18 @@ public class JiraProject extends Stringable implements Serializable {
 
     @XmlElement
     private String projectName;
-
     @XmlElement
     private Long projectId;
-
     @XmlElement
     private String issueCreator;
-
     @XmlElement
     private String assigneeUserId;
-
     @XmlElement
     private String projectKey;
-
     @XmlElement
     private String projectError;
+    @XmlElement
+    private Boolean configuredForVulnerabilities;
 
     public JiraProject() {
     }
@@ -106,6 +103,15 @@ public class JiraProject extends Stringable implements Serializable {
         this.projectError = projectError;
     }
 
+    public Boolean isConfiguredForVulnerabilities() {
+        // Defaults to true because it can be globally overridden
+        return configuredForVulnerabilities != null ? configuredForVulnerabilities : Boolean.TRUE;
+    }
+
+    public void setConfiguredForVulnerabilities(final Boolean configuredForVulnerabilities) {
+        this.configuredForVulnerabilities = configuredForVulnerabilities;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -121,7 +127,10 @@ public class JiraProject extends Stringable implements Serializable {
         builder.append(assigneeUserId);
         builder.append(", projectError=");
         builder.append(projectError);
+        builder.append(", configuredForVulnerabilities=");
+        builder.append(configuredForVulnerabilities);
         builder.append("]");
         return builder.toString();
     }
+
 }

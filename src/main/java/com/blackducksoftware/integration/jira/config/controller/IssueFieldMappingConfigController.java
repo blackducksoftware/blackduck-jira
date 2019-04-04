@@ -126,7 +126,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFieldCopyMappings(@Context final HttpServletRequest request) {
-        Object config = null;
+        Object config;
         try {
             logger.debug("Get /copies");
             final boolean validAuthentication = isAuthorized(request);
