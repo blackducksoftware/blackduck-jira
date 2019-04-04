@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
@@ -37,10 +36,10 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 
 public class ConfigController {
-
     // This must be "package protected" to avoid synthetic access
     final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    final PluginSettingsFactory pluginSettingsFactory;
+
+    private final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
     private final AuthorizationChecker authorizationChecker;
 
@@ -62,13 +61,16 @@ public class ConfigController {
         return authorizationChecker;
     }
 
+    public PluginSettingsWrapper createPluginSettingsWrapper() {
+        return new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+    }
+
     <T> T executeAsTransaction(final Supplier<T> supplier) {
         return getTransactionTemplate().execute(() -> supplier.get());
     }
 
     boolean isAuthorized(final HttpServletRequest request) {
-        final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(globalSettings);
-        return getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        return getAuthorizationChecker().isValidAuthorization(request, createPluginSettingsWrapper().getParsedBlackDuckConfigGroups());
     }
+
 }

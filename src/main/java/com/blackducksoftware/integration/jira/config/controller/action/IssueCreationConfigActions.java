@@ -37,12 +37,9 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -50,25 +47,24 @@ import com.blackducksoftware.integration.jira.config.controller.AuthorizationChe
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
-public class IssueCreationConfigActions {
+public class IssueCreationConfigActions extends ConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettingsFactory pluginSettingsFactory;
     private final AuthorizationChecker authorizationChecker;
     private final ProjectManager projectManager;
     private final BlackDuckMonitor blackDuckMonitor;
+    private final ProjectMappingConfigActions projectMappingConfigActions;
 
-    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
-        final BlackDuckMonitor blackDuckMonitor) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
+    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager, final BlackDuckMonitor blackDuckMonitor) {
+        super(pluginSettingsFactory);
         this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
         this.blackDuckMonitor = blackDuckMonitor;
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory);
     }
 
     public BlackDuckJiraConfigSerializable getCreator() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final String creator = pluginSettingsWrapper.getIssueCreatorUser();
+        final String creator = getPluginSettingsWrapper().getIssueCreatorUser();
         txConfig.setCreator(creator);
         validateCreator(txConfig);
         return txConfig;
@@ -101,9 +97,8 @@ public class IssueCreationConfigActions {
 
     public BlackDuckJiraConfigSerializable getCreateVulnerabilityTickets() {
         logger.debug("GET /vulnerability/ticketchoice transaction");
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
+        final Boolean choice = getPluginSettingsWrapper().getVulnerabilityIssuesChoice();
         logger.debug("choice: " + choice);
         txConfig.setCreateVulnerabilityIssues(choice);
         return txConfig;
@@ -111,9 +106,8 @@ public class IssueCreationConfigActions {
 
     public BlackDuckJiraConfigSerializable getCommentOnIssueUpdates() {
         logger.debug("GET /comment/updatechoice transaction");
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
+        final Boolean choice = getPluginSettingsWrapper().getCommentOnIssuesUpdatesChoice();
         logger.debug("choice: " + choice);
         txConfig.setCommentOnIssueUpdatesChoice(choice);
         return txConfig;
@@ -121,56 +115,53 @@ public class IssueCreationConfigActions {
 
     public BlackDuckJiraConfigSerializable getProjectReviewerNotificationsChoice() {
         logger.debug("GET /project/reviewerChoice transaction");
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getProjectReviewerNotificationsChoice();
+        final Boolean choice = getPluginSettingsWrapper().getProjectReviewerNotificationsChoice();
         logger.debug("choice: " + choice);
         txConfig.setProjectReviewerNotificationsChoice(choice);
         return txConfig;
     }
 
     public BlackDuckJiraConfigSerializable getInterval() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        pluginSettingsWrapper.getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
+        getPluginSettingsWrapper().getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
 
         validateInterval(txConfig);
         return txConfig;
     }
 
     public BlackDuckJiraConfigSerializable updateConfig(final BlackDuckJiraConfigSerializable config, final HttpServletRequest request) {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final List<JiraProject> jiraProjects = getJiraProjects(projectManager.getProjectObjects());
         config.setJiraProjects(jiraProjects);
         validateInterval(config);
         validateCreator(config);
-        validateMapping(config);
-        final String firstTimeSave = pluginSettingsWrapper.getFirstTimeSave();
+        projectMappingConfigActions.validateMapping(config);
+        final String firstTimeSave = getPluginSettingsWrapper().getFirstTimeSave();
         if (firstTimeSave == null) {
-            pluginSettingsWrapper.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
+            getPluginSettingsWrapper().setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
         }
 
         final String issueCreatorJiraUser = config.getCreator();
         logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-        pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
-        pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
-        pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
+        getPluginSettingsWrapper().setIssueCreatorUser(issueCreatorJiraUser);
+        getPluginSettingsWrapper().setPolicyRulesJson(config.getPolicyRulesJson());
+        getPluginSettingsWrapper().setProjectMappingsJson(config.getHubProjectMappingsJson());
         final String username = authorizationChecker.getUsername(request).orElse(null);
-        pluginSettingsWrapper.setJiraAdminUser(username);
-        final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
+        getPluginSettingsWrapper().setJiraAdminUser(username);
+        final Optional<Integer> previousInterval = getPluginSettingsWrapper().getIntervalBetweenChecks();
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
-        pluginSettingsWrapper.setIntervalBetweenChecks(intervalBetweenChecks);
+        getPluginSettingsWrapper().setIntervalBetweenChecks(intervalBetweenChecks);
         updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
         logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
         final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
         logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
-        pluginSettingsWrapper.setVulnerabilityIssuesChoice(createVulnerabilityIssuesChoice);
+        getPluginSettingsWrapper().setVulnerabilityIssuesChoice(createVulnerabilityIssuesChoice);
         final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
         logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
-        pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
+        getPluginSettingsWrapper().setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
         final Boolean projectReviewerNotificationsChoice = config.getProjectReviewerNotificationsChoice();
         logger.debug("Setting projectReviewerNotificationsChoice to " + projectReviewerNotificationsChoice.toString());
-        pluginSettingsWrapper.setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice);
+        getPluginSettingsWrapper().setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice);
 
         return config;
     }
@@ -179,8 +170,7 @@ public class IssueCreationConfigActions {
         if (StringUtils.isBlank(config.getCreator())) {
             config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_SPECIFIED_ERROR);
         }
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
-        if (authorizationChecker.isValidAuthorization(config.getCreator(), pluginSettingsWrapper.getParsedBlackDuckConfigGroups())) {
+        if (authorizationChecker.isValidAuthorization(config.getCreator(), getPluginSettingsWrapper().getParsedBlackDuckConfigGroups())) {
             return;
         } else {
             config.setGeneralSettingsError(JiraConfigErrorStrings.UNAUTHORIZED_CREATOR_ERROR);
@@ -188,9 +178,8 @@ public class IssueCreationConfigActions {
     }
 
     private SortedSet<String> getIssueCreatorCandidates() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final SortedSet<String> jiraUsernames = new TreeSet<>();
-        final String[] groupNames = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
+        final String[] groupNames = getPluginSettingsWrapper().getParsedBlackDuckConfigGroups();
         for (final String groupName : groupNames) {
             jiraUsernames.addAll(new JiraServices().getGroupManager().getUserNamesInGroup(groupName));
         }
@@ -237,32 +226,4 @@ public class IssueCreationConfigActions {
         }
     }
 
-    private void validateMapping(final BlackDuckJiraConfigSerializable config) {
-        if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
-            boolean hasEmptyMapping = false;
-            for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                boolean jiraProjectBlank = true;
-                boolean blackDuckProjectBlank = true;
-                if (mapping.getJiraProject() != null) {
-                    if (mapping.getJiraProject().getProjectId() != null) {
-                        jiraProjectBlank = false;
-                    }
-                }
-                if (StringUtils.isNotBlank(mapping.getBlackDuckProjectName())) {
-                    blackDuckProjectBlank = false;
-                }
-                if (jiraProjectBlank || blackDuckProjectBlank) {
-                    hasEmptyMapping = true;
-                }
-            }
-            if (hasEmptyMapping) {
-                config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
-            }
-        }
-    }
-
-    private PluginSettingsWrapper createPluginSettingsWrapper() {
-        final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-        return new PluginSettingsWrapper(globalSettings);
-    }
 }
