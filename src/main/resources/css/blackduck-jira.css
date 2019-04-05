@@ -137,6 +137,10 @@
     height: 300px;
 }
 
+.mappingTableRowDivider {
+    background-color: #F2F2F2;
+}
+
 .mappingTableCell {
     text-align: center;
 }
