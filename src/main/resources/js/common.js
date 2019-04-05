@@ -55,6 +55,7 @@ const jiraProjectErrorId = "jiraProjectError";
 const jiraProjectDisplayName = "projectName";
 const jiraProjectKey = "projectId";
 const jiraProjectIssueCreatorDisplayName = "issueCreator";
+const jiraProjectConfiguredForVulnerabilitiesDisplayName = "configuredForVulnerabilities";
 
 const policyRuleTicketCreation = "policyRuleTicketCreation";
 const policyRuleName = "name";

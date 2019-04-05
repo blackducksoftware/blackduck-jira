@@ -44,7 +44,6 @@ import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 @Path("/config/issue/creator")
 public class IssueCreationConfigController extends ConfigController {
-
     final ProjectManager projectManager;
     private final IssueCreationConfigActions issueCreationConfigActions;
 

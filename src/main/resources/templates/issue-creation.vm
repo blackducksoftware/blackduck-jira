@@ -44,12 +44,11 @@
             <thead>
             <tr>
                 <td class="mappingTableCell" />
-                <td class="mappingTableCell error" id="jiraProjectListError">
-                </td>
+                <td class="mappingTableCell error" id="jiraProjectListError" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
-                <td class="mappingTableCell error" id="hubProjectListError">
-                </td>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell error" id="hubProjectListError" />
                 <td class="mappingTableCell" />
             </tr>
             <tr>
@@ -57,7 +56,9 @@
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
                 </td>
-                <td class="mappingTableCell"></td>
+                <td class="mappingTableCell">
+                    $i18n.getText("blackduck.integration.jira.enableVulnerabilityTickets.label")
+                </td>
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.creator.label')
                 </td>
@@ -81,7 +82,9 @@
                     <div id="jiraProjectError">
                     </div>
                 </td>
-                <td class="mappingTableCell" width="10px" margin="auto"></td>
+                <td class="mappingTableCell">
+                    <input type="checkbox" id="configuredForVulnerabilities" name="configuredForVulnerabilitiesOption" />
+                </td>
                 <td class="mappingTableCell">
                     <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
                            list="creatorCandidates" oninput="onCreatorInputChange(this);" />

@@ -124,6 +124,9 @@ function getJsonArrayFromMapping() {
         let currentJiraProjectValue = currentJiraProject.attr('projectKey');
         let currentJiraProjectError = currentJiraProject.attr('projectError');
 
+        let currentConfiguredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
+        let currentJiraProjectConfiguredForVulnerabilities = currentConfiguredForVulnerabilities[0].checked;
+
         let currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
         let currentJiraProjectIssueCreator = currentIssueCreator.val();
 
@@ -142,9 +145,9 @@ function getJsonArrayFromMapping() {
         jsonArray.push({
             jiraProject: {
                 [jiraProjectDisplayName]: currentJiraProjectDisplayName,
-
                 [jiraProjectKey]: currentJiraProjectValue,
-                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator
+                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator,
+                [jiraProjectConfiguredForVulnerabilitiesDisplayName]: currentJiraProjectConfiguredForVulnerabilities
             },
             blackDuckProjectName: currentHubProjectDisplayName
         });

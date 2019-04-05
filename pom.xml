@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>blackduck-common</artifactId>
-      <version>42.0.0</version>
+      <version>42.4.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.blackducksoftware.integration</groupId>
@@ -104,7 +104,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>integration-common</artifactId>
-      <version>15.4.0</version>
+      <version>17.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
