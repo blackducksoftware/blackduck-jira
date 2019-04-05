@@ -57,7 +57,8 @@
                     $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
                 </td>
                 <td class="mappingTableCell">
-                    $i18n.getText("blackduck.integration.jira.enableVulnerabilityTickets.label")
+                    $i18n.getText('blackduck.integration.jira.enableVulnerabilityTickets.label')
+                    <i title="$i18n.getText('blackduck.integration.jira.enableVulnerabilityTickets.description.label')" class="fa fa-info-circle infoIcon" />
                 </td>
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.creator.label')
@@ -66,6 +67,17 @@
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')
                 </td>
+                <td class="mappingTableCell" />
+            </tr>
+            <tr>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell">
+                    <input type="checkbox" onclick="onSelectAllCheckedOrUnchecked(this);" />
+                </td>
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
             </tr>
             </thead>
@@ -83,7 +95,7 @@
                     </div>
                 </td>
                 <td class="mappingTableCell">
-                    <input type="checkbox" id="configuredForVulnerabilities" name="configuredForVulnerabilitiesOption" />
+                    <input type="checkbox" name="configuredForVulnerabilitiesOption" />
                 </td>
                 <td class="mappingTableCell">
                     <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
@@ -113,7 +125,7 @@
 </fieldset>
 
 <fieldset class="fieldSection">
-    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText("blackduck.integration.jira.ticketCriteriaSection.label")</legend>
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCriteriaArea');"> </i> $i18n.getText('blackduck.integration.jira.ticketCriteriaSection.label')</legend>
     <div id="ticketCriteriaArea">
         <table class="ticketCriteriaTable">
             <thead>
@@ -137,8 +149,9 @@
                         <tr>
                             <td>
                                 <div id="vulnerabilityTicketCreation">
-                                    <input type="checkbox" name="createVulnerabilityTicketsOption" id="createVulnerabilityIssues" value="Yes" />$i18n.getText(
-                                    "blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label")
+                                    <input type="checkbox" name="createVulnerabilityTicketsOption" id="createVulnerabilityIssues" value="Yes" />
+                                    $i18n.getText('blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.label')
+                                    <i title="$i18n.getText('blackduck.integration.jira.doCreateVulnerabilityTicketsChoice.description.label')" class="fa fa-info-circle infoIcon"></i>
                                 </div>
                             </td>
                         </tr>
@@ -148,7 +161,7 @@
                         <tr>
                             <td>
                                 <div id="toggleIssueComments">
-                                    <input type="checkbox" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoice" value="Yes" />$i18n.getText("blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label")<br>
+                                    <input type="checkbox" name="toggleIssueCommentsOption" id="commentOnIssueUpdatesChoice" value="Yes" />$i18n.getText('blackduck.integration.jira.doCommentOnIssueUpdatesChoice.label')<br>
                                 </div>
                             </td>
                         </tr>
@@ -158,8 +171,7 @@
                         <tr>
                             <td>
                                 <div id="vulnerabilityTicketCreation">
-                                    <input type="checkbox" name="toggleProjectReviewerOption" id="projectReviewerNotificationsChoice" value="Yes" />$i18n.getText(
-                                    "blackduck.integration.jira.doProjectReviewerNotificationsChoice.label")
+                                    <input type="checkbox" name="toggleProjectReviewerOption" id="projectReviewerNotificationsChoice" value="Yes" />$i18n.getText('blackduck.integration.jira.doProjectReviewerNotificationsChoice.label')
                                 </div>
                             </td>
                         </tr>

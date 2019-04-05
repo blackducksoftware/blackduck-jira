@@ -148,7 +148,6 @@ function fillInMapping(mappingElement, storedMapping) {
     currentJiraProject.attr("projectKey", storedJiraProjectValue);
 
     const configuredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
-    console.log("Setting val: " + configuredForVulnerabilities);
     configuredForVulnerabilities.prop("checked", storedJiraProject.configuredForVulnerabilities);
 
     const currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");

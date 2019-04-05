@@ -314,3 +314,14 @@ function onMappingInputChange(inputField) {
         }
     }
 }
+
+function onSelectAllCheckedOrUnchecked(selectAllCheckbox) {
+    const boxIsChecked = selectAllCheckbox.checked;
+
+    const mappingTable = AJS.$("#hubProjectMappingTable");
+    const projectMappingCheckboxes = AJS.$(mappingTable).find("input[name*='configuredForVulnerabilitiesOption']")
+    for (let i = 0; i < projectMappingCheckboxes.length; i++) {
+        const mappingCheckbox = projectMappingCheckboxes[i];
+        mappingCheckbox.checked = boxIsChecked;
+    }
+}
