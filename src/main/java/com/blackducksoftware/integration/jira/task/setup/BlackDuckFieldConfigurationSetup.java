@@ -71,10 +71,6 @@ public class BlackDuckFieldConfigurationSetup {
                     logger.debug("Field Configuration Scheme " + BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION_SCHEME_NAME + " already exists");
                     fieldConfigurationScheme = existingFieldConfigurationScheme;
                     break;
-                } else if (V3PluginConstants.V3_FIELD_CONFIGURATION_SCHEME_NAME.equals(existingName)) {
-                    renameFieldConfigurationScheme(fieldLayoutManager, existingFieldConfigurationScheme);
-                    fieldConfigurationScheme = existingFieldConfigurationScheme;
-                    break;
                 }
             }
         }
@@ -134,12 +130,6 @@ public class BlackDuckFieldConfigurationSetup {
                     if (BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION.equals(layoutName)) {
                         logger.debug("addBlackDuckFieldConfigurationToJira(): found Black Duck field configuration: " + layout.getName());
                         blackDuckFieldLayout = layout;
-                        break;
-                    } else if (V3PluginConstants.V3_FIELD_CONFIGURATION.equals(layoutName)) {
-                        logger.debug("Updating Field Layout name...");
-                        layout.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION);
-                        blackDuckFieldLayout = layout;
-                        fieldConfigurationNeedsUpdate = true;
                         break;
                     }
                 }
