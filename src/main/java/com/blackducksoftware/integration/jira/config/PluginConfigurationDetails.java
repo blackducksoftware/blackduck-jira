@@ -187,6 +187,6 @@ public class PluginConfigurationDetails {
 
     private boolean getBooleanValue(final PluginSettings settings, final String key) {
         final String valueString = (String) getValue(settings, key);
-        return "true".equalsIgnoreCase(valueString);
+        return Boolean.parseBoolean(valueString);
     }
 }
