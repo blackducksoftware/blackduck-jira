@@ -85,6 +85,7 @@ function readCommentOnUpdateChoice() {
         success: function (config) {
             console.log("success: get of commentOnIssueUpdatesChoice", config);
             setCommentOnIssueUpdatesChoice(config.commentOnIssueUpdatesChoice);
+            handleError('commentOnIssueUpdatesChoiceError', config.commentOnIssueUpdatesChoiceError, true, false);
             console.log("Finished handling commentOnIssueUpdatesChoice");
         },
         error: function (response) {
