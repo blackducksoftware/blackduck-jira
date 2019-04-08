@@ -57,24 +57,26 @@ import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
-public class BlackDuckConfigActions extends ConfigActions {
-    final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+public class BlackDuckConfigActions {
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+
+    private final PluginSettingsWrapper pluginSettingsWrapper;
 
     public BlackDuckConfigActions(final PluginSettingsFactory pluginSettingsFactory) {
-        super(pluginSettingsFactory);
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
     }
 
     public BlackDuckServerConfigSerializable getStoredBlackDuckConfig() {
-        final String blackDuckUrl = getPluginSettingsWrapper().getBlackDuckUrl();
+        final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
-        final String apiToken = getPluginSettingsWrapper().getBlackDuckApiToken();
-        final Optional<Integer> timeout = getPluginSettingsWrapper().getBlackDuckTimeout();
-        final Boolean trustCert = getPluginSettingsWrapper().getBlackDuckAlwaysTrust();
-        final String proxyHost = getPluginSettingsWrapper().getBlackDuckProxyHost();
-        final Optional<Integer> proxyPort = getPluginSettingsWrapper().getBlackDuckProxyPort();
-        final String proxyUser = getPluginSettingsWrapper().getBlackDuckProxyUser();
-        final String proxyPassword = getPluginSettingsWrapper().getBlackDuckProxyPassword();
-        final Optional<Integer> proxyPasswordLength = getPluginSettingsWrapper().getBlackDuckProxyPasswordLength();
+        final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
+        final Optional<Integer> timeout = pluginSettingsWrapper.getBlackDuckTimeout();
+        final Boolean trustCert = pluginSettingsWrapper.getBlackDuckAlwaysTrust();
+        final String proxyHost = pluginSettingsWrapper.getBlackDuckProxyHost();
+        final Optional<Integer> proxyPort = pluginSettingsWrapper.getBlackDuckProxyPort();
+        final String proxyUser = pluginSettingsWrapper.getBlackDuckProxyUser();
+        final String proxyPassword = pluginSettingsWrapper.getBlackDuckProxyPassword();
+        final Optional<Integer> proxyPasswordLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength();
 
         final BlackDuckServerConfigSerializable config = new BlackDuckServerConfigSerializable();
         config.setHubUrl(blackDuckUrl);
@@ -106,29 +108,29 @@ public class BlackDuckConfigActions extends ConfigActions {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
-        getPluginSettingsWrapper().setBlackDuckUrl(newConfig.getHubUrl());
+        pluginSettingsWrapper.setBlackDuckUrl(newConfig.getHubUrl());
         if (StringUtils.isBlank(newConfig.getApiToken())) {
-            getPluginSettingsWrapper().setBlackDuckApiToken(null);
+            pluginSettingsWrapper.setBlackDuckApiToken(null);
         } else if (!newConfig.isApiTokenMasked()) {
-            getPluginSettingsWrapper().setBlackDuckApiToken(newConfig.getApiToken());
+            pluginSettingsWrapper.setBlackDuckApiToken(newConfig.getApiToken());
         }
-        getPluginSettingsWrapper().setBlackDuckTimeout(Integer.parseInt(newConfig.getTimeout()));
-        getPluginSettingsWrapper().setBlackDuckAlwaysTrust(Boolean.parseBoolean(newConfig.getTrustCert()));
-        getPluginSettingsWrapper().setBlackDuckProxyHost(newConfig.getHubProxyHost());
+        pluginSettingsWrapper.setBlackDuckTimeout(Integer.parseInt(newConfig.getTimeout()));
+        pluginSettingsWrapper.setBlackDuckAlwaysTrust(Boolean.parseBoolean(newConfig.getTrustCert()));
+        pluginSettingsWrapper.setBlackDuckProxyHost(newConfig.getHubProxyHost());
         Integer proxyPortValue = null;
         if (StringUtils.isNotBlank(newConfig.getHubProxyPort())) {
             proxyPortValue = Integer.parseInt(newConfig.getHubProxyPort());
         }
-        getPluginSettingsWrapper().setBlackDuckProxyPort(proxyPortValue);
-        getPluginSettingsWrapper().setBlackDuckProxyUser(newConfig.getHubProxyUser());
+        pluginSettingsWrapper.setBlackDuckProxyPort(proxyPortValue);
+        pluginSettingsWrapper.setBlackDuckProxyUser(newConfig.getHubProxyUser());
 
         final String proxyPassword = newConfig.getHubProxyPassword();
         if (StringUtils.isBlank(proxyPassword)) {
-            getPluginSettingsWrapper().setBlackDuckProxyPassword(null);
-            getPluginSettingsWrapper().setBlackDuckProxyPasswordLength(null);
+            pluginSettingsWrapper.setBlackDuckProxyPassword(null);
+            pluginSettingsWrapper.setBlackDuckProxyPasswordLength(null);
         } else if (!newConfig.isProxyPasswordMasked()) {
             // only update the stored password if it is not the masked password used for display
-            getPluginSettingsWrapper().setBlackDuckProxyPassword(proxyPassword);
+            pluginSettingsWrapper.setBlackDuckProxyPassword(proxyPassword);
         }
         validateAndUpdateErrorsOnConfig(newConfig);
         return newConfig;
@@ -136,7 +138,7 @@ public class BlackDuckConfigActions extends ConfigActions {
 
     public Object getBlackDuckProjects() {
         try {
-            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(getPluginSettingsWrapper());
+            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(pluginSettingsWrapper);
             final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
 
             if (blackDuckProjects.size() == 0) {
@@ -179,7 +181,7 @@ public class BlackDuckConfigActions extends ConfigActions {
     }
 
     public BlackDuckJiraConfigSerializable getBlackDuckPolicies() {
-        final String policyRulesJson = getPluginSettingsWrapper().getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+        final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
         if (StringUtils.isNotBlank(policyRulesJson)) {
@@ -190,7 +192,7 @@ public class BlackDuckConfigActions extends ConfigActions {
 
         final BlackDuckServicesFactory blackDuckServicesFactory;
         try {
-            blackDuckServicesFactory = createBlackDuckServicesFactory(getPluginSettingsWrapper());
+            blackDuckServicesFactory = createBlackDuckServicesFactory(pluginSettingsWrapper);
             setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
         } catch (final ConfigurationException e) {
             txConfig.setErrorMessage(e.getMessage());
@@ -202,11 +204,11 @@ public class BlackDuckConfigActions extends ConfigActions {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(currentConfig);
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
-            newConfig.setApiToken(getPluginSettingsWrapper().getBlackDuckApiToken());
+            newConfig.setApiToken(pluginSettingsWrapper.getBlackDuckApiToken());
         }
         if (StringUtils.isNotBlank(newConfig.getHubProxyPassword()) && newConfig.isProxyPasswordMasked()) {
-            newConfig.setHubProxyPassword(getPluginSettingsWrapper().getBlackDuckProxyPassword());
-            getPluginSettingsWrapper().getBlackDuckProxyPasswordLength().ifPresent(newConfig::setHubProxyPasswordLength);
+            newConfig.setHubProxyPassword(pluginSettingsWrapper.getBlackDuckProxyPassword());
+            pluginSettingsWrapper.getBlackDuckProxyPasswordLength().ifPresent(newConfig::setHubProxyPasswordLength);
         }
 
         return newConfig;

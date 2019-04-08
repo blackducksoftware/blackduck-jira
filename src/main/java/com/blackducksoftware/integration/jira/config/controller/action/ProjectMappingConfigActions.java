@@ -26,18 +26,21 @@ package com.blackducksoftware.integration.jira.config.controller.action;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
-public class ProjectMappingConfigActions extends ConfigActions {
+public class ProjectMappingConfigActions {
+    private final PluginSettingsWrapper pluginSettingsWrapper;
+
     public ProjectMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory) {
-        super(pluginSettingsFactory);
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
     }
 
     public BlackDuckJiraConfigSerializable getMappings() {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final String blackDuckProjectMappingsJson = getPluginSettingsWrapper().getProjectMappingsJson();
+        final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
 
         txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 

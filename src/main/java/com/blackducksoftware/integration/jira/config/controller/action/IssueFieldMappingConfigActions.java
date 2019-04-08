@@ -47,13 +47,14 @@ import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
 
-public class IssueFieldMappingConfigActions extends ConfigActions {
-    final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+public class IssueFieldMappingConfigActions {
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final PluginSettingsWrapper pluginSettingsWrapper;
     private final Properties i18nProperties;
     private final FieldManager fieldManager;
 
     public IssueFieldMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory, final Properties i18nProperties, final FieldManager fieldManager) {
-        super(pluginSettingsFactory);
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
         this.i18nProperties = i18nProperties;
         this.fieldManager = fieldManager;
         populateI18nProperties();
@@ -94,7 +95,6 @@ public class IssueFieldMappingConfigActions extends ConfigActions {
     }
 
     public BlackDuckJiraFieldCopyConfigSerializable getFieldCopyMappings() {
-        final PluginSettingsWrapper pluginSettingsWrapper = getPluginSettingsWrapper();
         final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
         final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
 
@@ -109,7 +109,6 @@ public class IssueFieldMappingConfigActions extends ConfigActions {
             return null;
         }
 
-        final PluginSettingsWrapper pluginSettingsWrapper = getPluginSettingsWrapper();
         pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
         return null;
     }

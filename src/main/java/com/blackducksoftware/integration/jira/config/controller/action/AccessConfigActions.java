@@ -32,23 +32,25 @@ import javax.servlet.http.HttpServletRequest;
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 
-public class AccessConfigActions extends ConfigActions {
+public class AccessConfigActions {
+    private final PluginSettingsWrapper pluginSettingsWrapper;
     private final AuthorizationChecker authorizationChecker;
     private final GroupPickerSearchService groupPickerSearchService;
 
     public AccessConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final GroupPickerSearchService groupPickerSearchService) {
-        super(pluginSettingsFactory);
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
         this.authorizationChecker = authorizationChecker;
         this.groupPickerSearchService = groupPickerSearchService;
     }
 
     public BlackDuckAdminConfigSerializable getConfigWithJiraGroups(final HttpServletRequest request) {
         final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
-        final String blackDuckConfigGroups = getPluginSettingsWrapper().getBlackDuckConfigGroups();
+        final String blackDuckConfigGroups = pluginSettingsWrapper.getBlackDuckConfigGroups();
         txAdminConfig.setHubJiraGroups(blackDuckConfigGroups);
         if (authorizationChecker.isUserSystemAdmin(request)) {
             final List<String> jiraGroups = new ArrayList<>();
@@ -72,7 +74,7 @@ public class AccessConfigActions extends ConfigActions {
             txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
             return txResponseObject;
         } else {
-            getPluginSettingsWrapper().setBlackDuckConfigGroups(blackDuckJiraGroups);
+            pluginSettingsWrapper.setBlackDuckConfigGroups(blackDuckJiraGroups);
         }
         return null;
     }
