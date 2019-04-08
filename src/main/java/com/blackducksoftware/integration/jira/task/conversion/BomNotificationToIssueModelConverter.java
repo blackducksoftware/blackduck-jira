@@ -345,10 +345,7 @@ public class BomNotificationToIssueModelConverter {
             reviewer = componentReviewer.orElse(projectOwner.orElse(defaultAssignedUser.orElse(null)));
         }
 
-        builder.setBlackDuckFields(owner,
-            reviewer,
-            projectVersionWrapper,
-            versionBomComponent);
+        builder.setBlackDuckFields(owner, reviewer, projectVersionWrapper, versionBomComponent);
         builder.setProjectFieldCopyMappings(fieldCopyConfig.getProjectFieldCopyMappings());
         issueCreator.ifPresent(builder::setIssueCreator);
         return builder;
