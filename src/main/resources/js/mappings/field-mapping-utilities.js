@@ -142,7 +142,6 @@ function fillInMapping(mappingElement, storedMapping) {
     const storedJiraProject = storedMapping.jiraProject;
     const storedJiraProjectDisplayName = storedJiraProject.projectName;
     const storedJiraProjectValue = storedJiraProject.projectId;
-    const storedJiraProjectError = storedJiraProject.projectError;
 
     currentJiraProject.val(storedJiraProjectDisplayName);
     currentJiraProject.attr("projectKey", storedJiraProjectValue);

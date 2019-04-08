@@ -78,28 +78,6 @@ function readJiraProjects() {
     });
 }
 
-function readCreateVulnerabilityTicketsChoice() {
-    AJS.$.ajax({
-        url: createRequestPath('config/issue/creator/vulnerability/ticketchoice/'),
-        dataType: "json",
-        success: function (config) {
-            console.log("success: get of ticketsChoice", config);
-            setCreateVulnerabilityIssuesChoice(config.createVulnerabilityIssues);
-
-//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
-            handleError('createVulnerabilityIssuesChoiceError', config.createVulnerabilityIssuesError, true, false);
-            console.log("Finished handling ticketsChoice");
-        },
-        error: function (response) {
-            console.log("error: get of ticketsChoice");
-            handleDataRetrievalError(response, "createVulnerabilityIssuesError", "There was a problem retrieving the 'create vulnerability issues' choice.", "Black Duck Create Vulnerability Issues Choice Error");
-        },
-        complete: function (jqXHR, textStatus) {
-            console.log("Completed get of ticketsChoice: " + textStatus);
-        }
-    });
-}
-
 function readCommentOnUpdateChoice() {
     AJS.$.ajax({
         url: createRequestPath('config/issue/creator/comment/updatechoice'),
@@ -107,9 +85,6 @@ function readCommentOnUpdateChoice() {
         success: function (config) {
             console.log("success: get of commentOnIssueUpdatesChoice", config);
             setCommentOnIssueUpdatesChoice(config.commentOnIssueUpdatesChoice);
-
-//	      handleError(errorMessageFieldId, config.errorMessage, true, false);
-            handleError('createVulnerabilityIssuesChoiceError', config.commentOnIssueUpdatesChoiceError, true, false);
             console.log("Finished handling commentOnIssueUpdatesChoice");
         },
         error: function (response) {
@@ -146,7 +121,7 @@ function readProjectReviewerNotificationsChoice() {
         success: function (config) {
             console.log("success: get of projectReviewerNotificationsChoice", config);
             setProjectReviewerNotificationsChoice(config.projectReviewerNotificationsChoice);
-            
+
             handleError('projectReviewerNotificationsChoiceError', config.projectReviewerNotificationsChoiceError, true, false);
             console.log("Finished handling projectReviewerNotificationsChoice");
         },
@@ -169,7 +144,6 @@ function putConfig(restUrl, successMessage, failureMessage) {
     console.log("putConfig(): " + creatorUsername);
     const jsonMappingArray = getJsonArrayFromMapping();
     const policyRuleArray = getJsonArrayFromPolicyRules();
-    const createVulnerabilityIssues = getCreateVulnerabilityIssuesChoice();
     const commentOnIssueUpdatesChoice = getCommentOnIssueUpdatesChoice();
     const projectReviewerNotificationsChoice = getProjectReviewerNotificationsChoice();
     const requestData = Object.assign({}, {
@@ -177,7 +151,6 @@ function putConfig(restUrl, successMessage, failureMessage) {
         creator: creatorUsername,
         hubProjectMappings: jsonMappingArray,
         policyRules: policyRuleArray,
-        createVulnerabilityIssues: createVulnerabilityIssues,
         commentOnIssueUpdatesChoice: commentOnIssueUpdatesChoice,
         projectReviewerNotificationsChoice: projectReviewerNotificationsChoice
 

@@ -97,15 +97,6 @@ public class IssueCreationConfigActions {
         return txProjectsConfig;
     }
 
-    public BlackDuckJiraConfigSerializable getCreateVulnerabilityTickets() {
-        logger.debug("GET /vulnerability/ticketchoice transaction");
-        final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getVulnerabilityIssuesChoice();
-        logger.debug("choice: " + choice);
-        txConfig.setCreateVulnerabilityIssues(choice);
-        return txConfig;
-    }
-
     public BlackDuckJiraConfigSerializable getCommentOnIssueUpdates() {
         logger.debug("GET /comment/updatechoice transaction");
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
@@ -154,10 +145,6 @@ public class IssueCreationConfigActions {
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
         pluginSettingsWrapper.setIntervalBetweenChecks(intervalBetweenChecks);
         updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
-        logger.debug("User input: createVulnerabilityIssues: " + config.isCreateVulnerabilityIssues());
-        final Boolean createVulnerabilityIssuesChoice = config.isCreateVulnerabilityIssues();
-        logger.debug("Setting createVulnerabilityIssuesChoice to " + createVulnerabilityIssuesChoice.toString());
-        pluginSettingsWrapper.setVulnerabilityIssuesChoice(createVulnerabilityIssuesChoice);
         final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
         logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
         pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);

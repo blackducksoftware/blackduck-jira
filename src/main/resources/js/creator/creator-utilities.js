@@ -178,32 +178,6 @@ function getJsonArrayFromPolicyRules() {
     return jsonArray;
 }
 
-function getCreateVulnerabilityIssuesChoice() {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-
-    if (createVulnerabilityIssuesElement[0].checked) {
-        return "true";
-    } else {
-        return "false";
-    }
-}
-
-function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-    console.log("createVulnerabilityIssuesElement: " + createVulnerabilityIssuesElement);
-    if (createVulnerabilityIssuesElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesElement is not ready");
-    }
-
-    if (createVulnerabilityIssues) {
-        console.log("Setting createVulnerabilityIssuesChoice to Yes");
-        createVulnerabilityIssuesElement[0].checked = true;
-    } else {
-        console.log("Setting createVulnerabilityIssuesChoice to No");
-        createVulnerabilityIssuesElement[0].checked = false;
-    }
-}
-
 function getCommentOnIssueUpdatesChoice() {
     const commentOnIssueUpdatesChoiceElement = AJS.$("#" + "commentOnIssueUpdatesChoice");
 

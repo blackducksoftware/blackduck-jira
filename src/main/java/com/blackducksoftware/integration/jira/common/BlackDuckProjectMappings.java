@@ -72,6 +72,7 @@ public class BlackDuckProjectMappings {
             try {
                 jiraProject = jiraServices.getJiraProject(mappingJiraProject.getProjectId());
                 jiraProject.setIssueCreator(mappingJiraProject.getIssueCreator());
+                jiraProject.setConfiguredForVulnerabilities(mappingJiraProject.isConfiguredForVulnerabilities());
             } catch (final BlackDuckIntegrationException e) {
                 logger.warn("Mapped project '" + mappingJiraProject.getProjectName() + "' with ID " + mappingJiraProject.getProjectId() + " not found in JIRA; skipping this notification");
                 continue;

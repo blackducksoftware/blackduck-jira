@@ -35,7 +35,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JiraProject extends Stringable implements Serializable {
-    private static final long serialVersionUID = -943699199632688043L;
+    private static final long serialVersionUID = 7346976408604399035L;
 
     @XmlElement
     private String projectName;
@@ -104,8 +104,7 @@ public class JiraProject extends Stringable implements Serializable {
     }
 
     public Boolean isConfiguredForVulnerabilities() {
-        // Defaults to true because it can be globally overridden
-        return configuredForVulnerabilities != null ? configuredForVulnerabilities : Boolean.TRUE;
+        return configuredForVulnerabilities != null ? configuredForVulnerabilities : Boolean.FALSE;
     }
 
     public void setConfiguredForVulnerabilities(final Boolean configuredForVulnerabilities) {

@@ -109,28 +109,6 @@ public class IssueCreationConfigController extends ConfigController {
         return Response.ok(projectsConfig).build();
     }
 
-    @Path("/vulnerability/ticketchoice")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
-        logger.debug("GET /vulnerability/ticketchoice");
-        final Object config;
-        try {
-            final boolean validAuthentication = isAuthorized(request);
-            if (!validAuthentication) {
-                return Response.status(Status.UNAUTHORIZED).build();
-            }
-            config = executeAsTransaction(() -> issueCreationConfigActions.getCreateVulnerabilityTickets());
-        } catch (final Exception e) {
-            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
-            final String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
-            logger.error(msg, e);
-            errorConfig.setCreateVulnerabilityIssuesError(msg);
-            return Response.ok(errorConfig).build();
-        }
-        return Response.ok(config).build();
-    }
-
     @Path("/comment/updatechoice")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

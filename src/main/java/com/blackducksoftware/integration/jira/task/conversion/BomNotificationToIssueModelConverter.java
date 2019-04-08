@@ -109,12 +109,8 @@ public class BomNotificationToIssueModelConverter {
     public Collection<BlackDuckIssueModel> convertToModel(final NotificationDetailResult detailResult, final Date batchStartDate) {
         logger.debug("Using BOM Notification Converter");
         final NotificationType notificationType = detailResult.getType();
-        if (NotificationType.VULNERABILITY.equals(notificationType) && !pluginConfigurationDetails.isCreateVulnerabilityIssues()) {
-            logger.debug("Ignoring a vulnerability notification because it is disabled for all projects");
-            return Collections.emptySet();
-        }
-
         logger.debug(String.format("%s Notification: %s", notificationType, detailResult.getNotificationContent()));
+
         final Set<BlackDuckIssueModel> issueWrappers = new HashSet<>();
         for (final NotificationContentDetail detail : detailResult.getNotificationContentDetails()) {
             try {
