@@ -28,9 +28,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.layout.field.EditableDefaultFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldConfigurationScheme;
@@ -64,7 +67,7 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
     }
 
     public void setCreatedFieldLayoutSchemeEntities(
-            final Collection<FieldLayoutSchemeEntity> createdFieldLayoutSchemeEntities) {
+        final Collection<FieldLayoutSchemeEntity> createdFieldLayoutSchemeEntities) {
         this.createdFieldLayoutSchemeEntities = new ArrayList<>();
         this.createdFieldLayoutSchemeEntities.addAll(createdFieldLayoutSchemeEntities);
     }
@@ -108,7 +111,7 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
 
     @Override
     public FieldLayoutSchemeEntity createFieldLayoutSchemeEntity(final FieldLayoutScheme arg0, final String arg1,
-            final Long arg2) {
+        final Long arg2) {
         System.out.println("createFieldLayoutSchemeEntity(); returning null");
         return createdFieldLayoutSchemeEntities.get(createdFieldLayoutSchemeEntitiesIndex++);
     }
@@ -297,6 +300,11 @@ public class FieldLayoutManagerMock implements FieldLayoutManager {
     public boolean isFieldLayoutsVisiblyEquivalent(final Long arg0, final Long arg1) {
 
         return false;
+    }
+
+    @Override
+    public void updateFieldLayoutItemAttributesForCustomField(@Nonnull final CustomField customField, @Nonnull final String s, final boolean b, final boolean b1) {
+
     }
 
     @Override
