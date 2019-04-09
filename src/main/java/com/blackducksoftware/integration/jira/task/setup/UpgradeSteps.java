@@ -56,10 +56,10 @@ public class UpgradeSteps {
 
     public void upgradeToV6FromAny(final PluginSettings pluginSettings) {
         final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
-        final PluginSettingsWrapper settingsWrapper = new PluginSettingsWrapper(pluginSettings);
+        final boolean vulnerabilityTicketsEnabled = pluginConfigDetails.isCreateVulnerabilityIssues();
+
         final JiraConfigDeserializer configDeserializer = new JiraConfigDeserializer();
         final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
-        final boolean vulnerabilityTicketsEnabled = config.isCreateVulnerabilityIssues();
 
         for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
             final JiraProject jiraProject = mapping.getJiraProject();
@@ -67,6 +67,8 @@ public class UpgradeSteps {
                 jiraProject.setConfiguredForVulnerabilities(vulnerabilityTicketsEnabled);
             }
         }
+
+        final PluginSettingsWrapper settingsWrapper = new PluginSettingsWrapper(pluginSettings);
         settingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
     }
 
