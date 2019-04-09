@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.synopsys.integration.blackduck.api.core.BlackDuckComponent;
 import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckView;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
@@ -41,7 +42,7 @@ public class IssueServiceMock extends BlackDuckService {
     public final static String CREATION_SUCCESS_URL = "SUCCESS_URL";
     public final static String CREATION_FAILURE_URL = "";
     public final static String TEST_PUT_URL = "testPut";
-    public Map<String, Object> issueMap = new HashMap<>();
+    public Map<String, BlackDuckComponent> issueMap = new HashMap<>();
     public List<IssueView> responseList;
 
     public IssueServiceMock(final BlackDuckHttpClient blackDuckHttpClient) {
@@ -59,8 +60,8 @@ public class IssueServiceMock extends BlackDuckService {
     }
 
     @Override
-    public String post(final String uri, final Object object) {
-        issueMap.put(uri, object);
+    public String post(final String uri, final BlackDuckComponent blackDuckComponent) {
+        issueMap.put(uri, blackDuckComponent);
         return CREATION_SUCCESS_URL;
     }
 

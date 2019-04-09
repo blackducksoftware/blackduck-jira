@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
@@ -39,18 +38,17 @@ import com.blackducksoftware.integration.jira.config.controller.AuthorizationChe
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 
 public class AccessConfigActions {
+    private final PluginSettingsWrapper pluginSettingsWrapper;
     private final AuthorizationChecker authorizationChecker;
     private final GroupPickerSearchService groupPickerSearchService;
-    private final PluginSettingsFactory pluginSettingsFactory;
 
-    public AccessConfigActions(final AuthorizationChecker authorizationChecker, final GroupPickerSearchService groupPickerSearchService, final PluginSettingsFactory pluginSettingsFactory) {
+    public AccessConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final GroupPickerSearchService groupPickerSearchService) {
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
         this.authorizationChecker = authorizationChecker;
         this.groupPickerSearchService = groupPickerSearchService;
-        this.pluginSettingsFactory = pluginSettingsFactory;
     }
 
     public BlackDuckAdminConfigSerializable getConfigWithJiraGroups(final HttpServletRequest request) {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
         final String blackDuckConfigGroups = pluginSettingsWrapper.getBlackDuckConfigGroups();
         txAdminConfig.setHubJiraGroups(blackDuckConfigGroups);
@@ -69,7 +67,6 @@ public class AccessConfigActions {
     }
 
     public BlackDuckAdminConfigSerializable updateConfigWithJiraGroups(final HttpServletRequest request, final String blackDuckJiraGroups) {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckAdminConfigSerializable txResponseObject = new BlackDuckAdminConfigSerializable();
 
         final boolean userSystemAdmin = authorizationChecker.isUserSystemAdmin(request);
@@ -82,8 +79,4 @@ public class AccessConfigActions {
         return null;
     }
 
-    private PluginSettingsWrapper createPluginSettingsWrapper() {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        return new PluginSettingsWrapper(settings);
-    }
 }

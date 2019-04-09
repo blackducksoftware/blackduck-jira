@@ -176,6 +176,7 @@ public class NotificationConverterTest {
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private static BlackDuckDataHelper blackDuckDataHelper;
     private static DataFormatHelper dataFormatHelper;
+    private static PluginConfigurationDetails pluginConfigurationDetails;
 
     @BeforeClass
     // Mock the objects that the Converter needs
@@ -238,6 +239,10 @@ public class NotificationConverterTest {
         // EventData Format Helper
         blackDuckDataHelper = new BlackDuckDataHelper(mockLogger, mockBlackDuckSerivce, mockBlackDuckBucket);
         dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
+
+        // Plugin Config Details
+        pluginConfigurationDetails = Mockito.mock(PluginConfigurationDetails.class);
+        Mockito.when(pluginConfigurationDetails.isCreateVulnerabilityIssues()).thenReturn(Boolean.TRUE);
     }
 
     @AfterClass
@@ -287,6 +292,7 @@ public class NotificationConverterTest {
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         jiraProject.setProjectId(JIRA_PROJECT_ID);
         jiraProject.setAssigneeUserId(ASSIGNEE_USER_ID);
+        jiraProject.setConfiguredForVulnerabilities(true);
         return jiraProject;
     }
 
@@ -442,7 +448,7 @@ public class NotificationConverterTest {
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper,
-            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, Mockito.mock(PluginConfigurationDetails.class));
+            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, pluginConfigurationDetails);
 
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
         assertEquals(expectedCount, issueModels.size());

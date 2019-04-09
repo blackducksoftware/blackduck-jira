@@ -75,8 +75,8 @@ public class IssueTrackerHandlerTest {
         final BlackDuckHttpClient restConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, url, null, Credentials.NO_CREDENTIALS);
         final BlackDuckService blackDuckService = Mockito.mock(BlackDuckService.class);
         Mockito.when(blackDuckService.getBlackDuckHttpClient()).thenReturn(restConnection);
-
         issueServiceMock = new IssueServiceMock(restConnection);
+
         issueHandler = new IssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
     }
 

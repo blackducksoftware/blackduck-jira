@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.task.setup.UpgradeSteps;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
 public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
@@ -75,7 +76,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     @Override
     public void onStart() {
         logger.trace(BlackDuckMonitor.class.getName() + " onStart() called.");
-        updateInstallDate(new Date());
+        runUpgrade(new Date());
         if (executorService.isShutdown()) {
             executorService.restart();
         }
@@ -87,7 +88,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         logger.debug(BlackDuckMonitor.class.getName() + ".onStop() called; Unscheduling " + CURRENT_JOB_NAME);
         schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
 
-        final String installDate = getInstallDateString();
+        final String installDate = UpgradeSteps.getInstallDateString(pluginSettings);
         logger.debug("Install date was: " + installDate);
         logger.debug("Removing install date...");
         final Object removedSetting = pluginSettings.remove(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
@@ -117,7 +118,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         final long actualInterval = getIntervalMillisec();
         final Schedule schedule;
         try {
-            final String installDateString = getInstallDateString();
+            final String installDateString = UpgradeSteps.getInstallDateString(pluginSettings);
             schedule = Schedule.forInterval(actualInterval, BlackDuckPluginDateFormatter.parse(installDateString));
         } catch (final Exception e) {
             logger.error("Could not get the install date. Please disable, and then reenable, this plugin or restart Jira.", e);
@@ -202,19 +203,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         return intervalMillisec;
     }
 
-    private void updateInstallDate(final Date installDate) {
-        final String installDateString = BlackDuckPluginDateFormatter.format(installDate);
-
-        logger.debug("Updating install date...");
-        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, installDateString);
-        logger.debug("The previous install date was: " + oldInstallDate);
-
-        final String newInstallDate = getInstallDateString();
-        logger.debug("The new install date is: " + newInstallDate);
-    }
-
-    private String getInstallDateString() {
-        return (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+    private void runUpgrade(final Date installDate) {
+        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger);
+        upgradeSteps.updateInstallDate(pluginSettings, installDate);
+        upgradeSteps.upgradeToV6FromAny(pluginSettings);
     }
 
 }

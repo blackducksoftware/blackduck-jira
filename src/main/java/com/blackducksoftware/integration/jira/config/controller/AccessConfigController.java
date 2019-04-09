@@ -54,7 +54,7 @@ public class AccessConfigController extends ConfigController {
     AccessConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final GroupPickerSearchService groupPickerSearchService) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.groupPickerSearchService = groupPickerSearchService;
-        this.accessConfigActions = new AccessConfigActions(getAuthorizationChecker(), groupPickerSearchService, pluginSettingsFactory);
+        this.accessConfigActions = new AccessConfigActions(pluginSettingsFactory, getAuthorizationChecker(), groupPickerSearchService);
     }
 
     @GET

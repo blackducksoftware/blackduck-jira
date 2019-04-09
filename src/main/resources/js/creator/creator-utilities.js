@@ -124,6 +124,9 @@ function getJsonArrayFromMapping() {
         let currentJiraProjectValue = currentJiraProject.attr('projectKey');
         let currentJiraProjectError = currentJiraProject.attr('projectError');
 
+        let currentConfiguredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
+        let currentJiraProjectConfiguredForVulnerabilities = currentConfiguredForVulnerabilities[0].checked;
+
         let currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
         let currentJiraProjectIssueCreator = currentIssueCreator.val();
 
@@ -142,9 +145,9 @@ function getJsonArrayFromMapping() {
         jsonArray.push({
             jiraProject: {
                 [jiraProjectDisplayName]: currentJiraProjectDisplayName,
-
                 [jiraProjectKey]: currentJiraProjectValue,
-                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator
+                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator,
+                [jiraProjectConfiguredForVulnerabilitiesDisplayName]: currentJiraProjectConfiguredForVulnerabilities
             },
             blackDuckProjectName: currentHubProjectDisplayName
         });
@@ -173,32 +176,6 @@ function getJsonArrayFromPolicyRules() {
         });
     }
     return jsonArray;
-}
-
-function getCreateVulnerabilityIssuesChoice() {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-
-    if (createVulnerabilityIssuesElement[0].checked) {
-        return "true";
-    } else {
-        return "false";
-    }
-}
-
-function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-    console.log("createVulnerabilityIssuesElement: " + createVulnerabilityIssuesElement);
-    if (createVulnerabilityIssuesElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesElement is not ready");
-    }
-
-    if (createVulnerabilityIssues) {
-        console.log("Setting createVulnerabilityIssuesChoice to Yes");
-        createVulnerabilityIssuesElement[0].checked = true;
-    } else {
-        console.log("Setting createVulnerabilityIssuesChoice to No");
-        createVulnerabilityIssuesElement[0].checked = false;
-    }
 }
 
 function getCommentOnIssueUpdatesChoice() {
@@ -309,5 +286,16 @@ function onMappingInputChange(inputField) {
         if (!field.hasClass('error')) {
             field.addClass('error');
         }
+    }
+}
+
+function onSelectAllCheckedOrUnchecked(selectAllCheckbox) {
+    const boxIsChecked = selectAllCheckbox.checked;
+
+    const mappingTable = AJS.$("#hubProjectMappingTable");
+    const projectMappingCheckboxes = AJS.$(mappingTable).find("input[name*='configuredForVulnerabilitiesOption']")
+    for (let i = 0; i < projectMappingCheckboxes.length; i++) {
+        const mappingCheckbox = projectMappingCheckboxes[i];
+        mappingCheckbox.checked = boxIsChecked;
     }
 }

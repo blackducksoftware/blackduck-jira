@@ -35,25 +35,22 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JiraProject extends Stringable implements Serializable {
-    private static final long serialVersionUID = -943699199632688043L;
+    private static final long serialVersionUID = 7346976408604399035L;
 
     @XmlElement
     private String projectName;
-
     @XmlElement
     private Long projectId;
-
     @XmlElement
     private String issueCreator;
-
     @XmlElement
     private String assigneeUserId;
-
     @XmlElement
     private String projectKey;
-
     @XmlElement
     private String projectError;
+    @XmlElement
+    private Boolean configuredForVulnerabilities;
 
     public JiraProject() {
     }
@@ -106,6 +103,14 @@ public class JiraProject extends Stringable implements Serializable {
         this.projectError = projectError;
     }
 
+    public Boolean isConfiguredForVulnerabilities() {
+        return configuredForVulnerabilities != null ? configuredForVulnerabilities : Boolean.FALSE;
+    }
+
+    public void setConfiguredForVulnerabilities(final Boolean configuredForVulnerabilities) {
+        this.configuredForVulnerabilities = configuredForVulnerabilities;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -121,7 +126,10 @@ public class JiraProject extends Stringable implements Serializable {
         builder.append(assigneeUserId);
         builder.append(", projectError=");
         builder.append(projectError);
+        builder.append(", configuredForVulnerabilities=");
+        builder.append(configuredForVulnerabilities);
         builder.append("]");
         return builder.toString();
     }
+
 }
