@@ -49,10 +49,8 @@ import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.NotificationVulnerability;
-import com.blackducksoftware.integration.jira.common.notification.NotificationContent;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
-import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -74,6 +72,8 @@ import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.api.generated.view.VulnerableComponentView;
+import com.synopsys.integration.blackduck.api.manual.component.NotificationContentComponent;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilityNotificationContent;
 import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
@@ -129,7 +129,7 @@ public class BomNotificationToIssueModelConverter {
         return issueWrappers;
     }
 
-    private Collection<BlackDuckIssueModel> populateModelFromContentDetail(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContent notificationContent, final Date batchStartDate)
+    private Collection<BlackDuckIssueModel> populateModelFromContentDetail(final NotificationType notificationType, final NotificationContentDetail detail, final NotificationContentComponent notificationContent, final Date batchStartDate)
         throws IntegrationException {
         final List<BlackDuckIssueModel> issueWrapperList = new ArrayList<>();
 
@@ -155,7 +155,7 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private Collection<BlackDuckIssueModel> populateModelFromContentDetail(final JiraProject jiraProject, final ProjectVersionWrapper projectVersionWrapper, final NotificationType notificationType,
-        final NotificationContentDetail detail, final NotificationContent notificationContent, final Date batchStartDate) throws IntegrationException, ConfigurationException {
+        final NotificationContentDetail detail, final NotificationContentComponent notificationContent, final Date batchStartDate) throws IntegrationException, ConfigurationException {
         final Optional<UriSingleResponse<VersionBomComponentView>> optionalBomComponentResponse = detail.getBomComponent();
         if (optionalBomComponentResponse.isPresent()) {
             final UriSingleResponse<VersionBomComponentView> bomComponentUriSingleResponse = optionalBomComponentResponse.get();

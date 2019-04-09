@@ -52,13 +52,8 @@ import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.common.notification.BomEditContent;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
-import com.blackducksoftware.integration.jira.common.notification.PolicyOverrideNotificationContent;
-import com.blackducksoftware.integration.jira.common.notification.RuleViolationClearedNotificationContent;
-import com.blackducksoftware.integration.jira.common.notification.RuleViolationNotificationContent;
-import com.blackducksoftware.integration.jira.common.notification.VulnerabilityNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -93,8 +88,13 @@ import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.api.manual.component.AffectedProjectVersion;
+import com.synopsys.integration.blackduck.api.manual.component.BomEditNotificationContent;
 import com.synopsys.integration.blackduck.api.manual.component.ComponentVersionStatus;
 import com.synopsys.integration.blackduck.api.manual.component.PolicyInfo;
+import com.synopsys.integration.blackduck.api.manual.component.PolicyOverrideNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.RuleViolationClearedNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.RuleViolationNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilityNotificationContent;
 import com.synopsys.integration.blackduck.api.manual.component.VulnerabilitySourceQualifiedId;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
@@ -527,22 +527,22 @@ public class NotificationConverterTest {
         addedVulnList.add(vuln);
 
         final VulnerabilityNotificationContent content = new VulnerabilityNotificationContent();
-        content.componentName = COMPONENT_NAME;
-        content.componentVersion = COMPONENT_VERSION_URL;
-        content.versionName = COMPONENT_VERSION_NAME;
-        content.newVulnerabilityIds = addedVulnList;
-        content.newVulnerabilityCount = addedVulnList.size();
-        content.updatedVulnerabilityIds = updatedVulnList;
-        content.updatedVulnerabilityCount = updatedVulnList.size();
-        content.deletedVulnerabilityIds = deletedVulnList;
-        content.deletedVulnerabilityCount = deletedVulnList.size();
+        content.setComponentName(COMPONENT_NAME);
+        content.setComponentVersion(COMPONENT_VERSION_URL);
+        content.setVersionName(COMPONENT_VERSION_NAME);
+        content.setNewVulnerabilityIds(addedVulnList);
+        content.setNewVulnerabilityCount(addedVulnList.size());
+        content.setUpdatedVulnerabilityIds(updatedVulnList);
+        content.setUpdatedVulnerabilityCount(updatedVulnList.size());
+        content.setDeletedVulnerabilityIds(deletedVulnList);
+        content.setDeletedVulnerabilityCount(deletedVulnList.size());
 
         final AffectedProjectVersion affected = new AffectedProjectVersion();
         affected.setProjectName(BLACKDUCK_PROJECT_NAME);
         affected.setProjectVersion(PROJECT_VERSION_URL);
         affected.setProjectVersionName(PROJECT_VERSION_NAME);
         affected.setBomComponent(BOM_COMPONENT_URI);
-        content.affectedProjectVersions = Arrays.asList(affected);
+        content.setAffectedProjectVersions(Arrays.asList(affected));
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
@@ -569,12 +569,12 @@ public class NotificationConverterTest {
         final ComponentVersionStatus componentVersionStatus = createComponentVersionStatus();
 
         final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-        content.componentVersionStatuses = Arrays.asList(componentVersionStatus);
-        content.componentVersionsInViolation = content.componentVersionStatuses.size();
-        content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = BLACKDUCK_PROJECT_NAME;
-        content.projectVersion = PROJECT_VERSION_URL;
-        content.projectVersionName = PROJECT_VERSION_NAME;
+        content.setComponentVersionStatuses(Arrays.asList(componentVersionStatus));
+        content.setComponentVersionsInViolation(content.getComponentVersionStatuses().size());
+        content.setPolicyInfos(Arrays.asList(policyInfo));
+        content.setProjectName(BLACKDUCK_PROJECT_NAME);
+        content.setProjectVersion(PROJECT_VERSION_URL);
+        content.setProjectVersionName(PROJECT_VERSION_NAME);
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
@@ -602,12 +602,12 @@ public class NotificationConverterTest {
         final ComponentVersionStatus componentVersionStatus = createComponentVersionStatus();
 
         final RuleViolationClearedNotificationContent content = new RuleViolationClearedNotificationContent();
-        content.componentVersionStatuses = Arrays.asList(componentVersionStatus);
-        content.componentVersionsCleared = content.componentVersionStatuses.size();
-        content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = BLACKDUCK_PROJECT_NAME;
-        content.projectVersion = PROJECT_VERSION_URL;
-        content.projectVersionName = PROJECT_VERSION_NAME;
+        content.setComponentVersionStatuses(Arrays.asList(componentVersionStatus));
+        content.setComponentVersionsCleared(content.getComponentVersionStatuses().size());
+        content.setPolicyInfos(Arrays.asList(policyInfo));
+        content.setProjectName(BLACKDUCK_PROJECT_NAME);
+        content.setProjectVersion(PROJECT_VERSION_URL);
+        content.setProjectVersionName(PROJECT_VERSION_NAME);
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
@@ -634,18 +634,18 @@ public class NotificationConverterTest {
         final PolicyInfo policyInfo = createPolicyInfo();
 
         final PolicyOverrideNotificationContent content = new PolicyOverrideNotificationContent();
-        content.bomComponentVersionPolicyStatus = "???";
-        content.component = COMPONENT_URL;
-        content.componentName = COMPONENT_NAME;
-        content.componentVersion = COMPONENT_VERSION_URL;
-        content.componentVersionName = COMPONENT_VERSION_NAME;
-        content.firstName = OVERRIDER_FIRST_NAME;
-        content.lastName = OVERRIDER_LAST_NAME;
-        content.policies = Arrays.asList(policyInfo.getPolicyName());
-        content.policyInfos = Arrays.asList(policyInfo);
-        content.projectName = BLACKDUCK_PROJECT_NAME;
-        content.projectVersion = PROJECT_VERSION_URL;
-        content.projectVersionName = PROJECT_VERSION_NAME;
+        content.setBomComponentVersionPolicyStatus("???");
+        content.setComponent(COMPONENT_URL);
+        content.setComponentName(COMPONENT_NAME);
+        content.setComponentVersion(COMPONENT_VERSION_URL);
+        content.setComponentVersionName(COMPONENT_VERSION_NAME);
+        content.setFirstName(OVERRIDER_FIRST_NAME);
+        content.setLastName(OVERRIDER_LAST_NAME);
+        content.setPolicies(Arrays.asList(policyInfo.getPolicyName()));
+        content.setPolicyInfos(Arrays.asList(policyInfo));
+        content.setProjectName(BLACKDUCK_PROJECT_NAME);
+        content.setProjectVersion(PROJECT_VERSION_URL);
+        content.setProjectVersionName(PROJECT_VERSION_NAME);
 
         final Optional<String> projectName = Optional.of(BLACKDUCK_PROJECT_NAME);
         final Optional<String> projectVersionName = Optional.of(PROJECT_VERSION_NAME);
@@ -664,8 +664,8 @@ public class NotificationConverterTest {
     }
 
     private NotificationDetailResult createVulnerabilityBomEditNotif(final Date createdAt) {
-        final BomEditContent content = new BomEditContent();
-        content.bomComponent = BOM_COMPONENT_URI;
+        final BomEditNotificationContent content = new BomEditNotificationContent();
+        content.setBomComponent(BOM_COMPONENT_URI);
 
         final NotificationContentDetail detail = NotificationContentDetail.createDetail(NotificationContentDetail.CONTENT_KEY_GROUP_BOM_EDIT, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(BOM_COMPONENT_URI));
