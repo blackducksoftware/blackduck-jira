@@ -30,7 +30,6 @@ import org.apache.commons.lang3.EnumUtils;
 
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckView;
@@ -142,11 +141,13 @@ public class BlackDuckDataHelper {
         // TODO remove when blackduck-common-api supports this field
         if (policyRule.getEnabled()) {
             final String jsonFieldName = "policyApprovalStatus";
-            final JsonObject policyObject = policyRule.getJsonElement().getAsJsonObject();
-            final JsonElement approvalStatusElement = policyObject.get(jsonFieldName);
-            if (null != approvalStatusElement && approvalStatusElement.isJsonPrimitive()) {
-                final String approvalStatusName = approvalStatusElement.getAsString();
-                return Optional.of(EnumUtils.getEnum(PolicySummaryStatusType.class, approvalStatusName));
+            final JsonElement policyElement = policyRule.getJsonElement();
+            if (null != policyElement && policyElement.isJsonObject()) {
+                final JsonElement approvalStatusElement = policyElement.getAsJsonObject().get(jsonFieldName);
+                if (null != approvalStatusElement && approvalStatusElement.isJsonPrimitive()) {
+                    final String approvalStatusName = approvalStatusElement.getAsString();
+                    return Optional.of(EnumUtils.getEnum(PolicySummaryStatusType.class, approvalStatusName));
+                }
             }
         }
         return Optional.empty();
