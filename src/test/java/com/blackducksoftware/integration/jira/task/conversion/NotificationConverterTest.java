@@ -66,6 +66,7 @@ import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIs
 import com.blackducksoftware.integration.jira.task.conversion.output.OldIssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
+import com.google.gson.Gson;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionSetView;
 import com.synopsys.integration.blackduck.api.generated.component.PolicyRuleExpressionView;
@@ -166,6 +167,8 @@ public class NotificationConverterTest {
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
     private final static String VULN_EXPECTED_SUMMARY = "Vulnerability: Project " + "'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion'";
+
+    private static final Gson gson = new Gson();
     private static JiraServices jiraServices;
     private static JiraSettingsService jiraSettingsService;
     private static JiraUserContext jiraContext;
@@ -395,6 +398,7 @@ public class NotificationConverterTest {
         policyRule.setUpdatedBy("Shmario");
         policyRule.setUpdatedByUser("Bear");
         policyRule.setExpression(createPolicyRuleExpressionSet());
+        policyRule.setJsonElement(gson.toJsonTree(policyRule));
         return policyRule;
     }
 
@@ -418,7 +422,7 @@ public class NotificationConverterTest {
 
     @Test
     public void testBomEdit() throws URISyntaxException, IntegrationException {
-        test(NotificationType.BOM_EDIT, BlackDuckIssueAction.UPDATE_IF_EXISTS, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
+        test(NotificationType.BOM_EDIT, BlackDuckIssueAction.UPDATE_OR_OPEN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
             VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY, 2);
     }
 

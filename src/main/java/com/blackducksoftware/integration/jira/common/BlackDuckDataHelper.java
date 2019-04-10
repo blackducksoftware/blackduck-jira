@@ -26,16 +26,23 @@ package com.blackducksoftware.integration.jira.common;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.EnumUtils;
+
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckView;
 import com.synopsys.integration.blackduck.api.core.LinkMultipleResponses;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
+import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.PolicySummaryStatusType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.RiskCountType;
 import com.synopsys.integration.blackduck.api.generated.response.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
+import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
@@ -77,7 +84,7 @@ public class BlackDuckDataHelper {
     }
 
     public Optional<RemediationOptionsView> getRemediationInformation(final ComponentVersionView componentVersionView) {
-        // TODO use the HubService once the Black Duck APIs have the link.
+        // TODO use the BlackDuckService once the Black Duck APIs have the link.
         final ComponentService componentService = new ComponentService(blackDuckService, logger);
         try {
             return componentService.getRemediationInformation(componentVersionView);
@@ -114,6 +121,35 @@ public class BlackDuckDataHelper {
         }
 
         return new ProjectVersionWrapper();
+    }
+
+    public Optional<NotificationType> getNotificationTypeFromPolicyRule(final PolicyRuleView policyRule) {
+        final Optional<PolicySummaryStatusType> optionalPolicySummaryStatusType = getPolicySummaryStatusTypeFromRule(policyRule);
+        if (optionalPolicySummaryStatusType.isPresent()) {
+            switch (optionalPolicySummaryStatusType.get()) {
+                case IN_VIOLATION:
+                    return Optional.of(NotificationType.RULE_VIOLATION);
+                case NOT_IN_VIOLATION:
+                    return Optional.of(NotificationType.RULE_VIOLATION_CLEARED);
+                case IN_VIOLATION_OVERRIDDEN:
+                    return Optional.of(NotificationType.POLICY_OVERRIDE);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<PolicySummaryStatusType> getPolicySummaryStatusTypeFromRule(final PolicyRuleView policyRule) {
+        // TODO remove when blackduck-common-api supports this field
+        if (policyRule.getEnabled()) {
+            final String jsonFieldName = "policyApprovalStatus";
+            final JsonObject policyObject = policyRule.getJsonElement().getAsJsonObject();
+            final JsonElement approvalStatusElement = policyObject.get(jsonFieldName);
+            if (null != approvalStatusElement && approvalStatusElement.isJsonPrimitive()) {
+                final String approvalStatusName = approvalStatusElement.getAsString();
+                return Optional.of(EnumUtils.getEnum(PolicySummaryStatusType.class, approvalStatusName));
+            }
+        }
+        return Optional.empty();
     }
 
     private ProjectVersionWrapper getProjectVersionWrapper(final String projectVersionUri) throws IntegrationException {

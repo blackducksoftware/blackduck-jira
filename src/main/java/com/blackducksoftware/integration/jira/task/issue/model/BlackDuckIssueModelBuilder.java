@@ -313,6 +313,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         newBuilder.bomComponentUri = bomComponentUri;
         newBuilder.componentIssueUrl = componentIssueUrl;
         newBuilder.lastBatchStartDate = lastBatchStartDate;
+        newBuilder.includeRemediationInfo = includeRemediationInfo;
 
         newBuilder.jiraProjectId = jiraProjectId;
         newBuilder.jiraProjectName = jiraProjectName;

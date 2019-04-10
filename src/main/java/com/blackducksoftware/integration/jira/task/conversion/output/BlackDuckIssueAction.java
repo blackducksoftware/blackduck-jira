@@ -31,7 +31,7 @@ public enum BlackDuckIssueAction {
     OPEN,
     RESOLVE,
     RESOLVE_ALL,
-    UPDATE_IF_EXISTS;
+    UPDATE_OR_OPEN;
 
     public static BlackDuckIssueAction fromNotificationType(final NotificationType notificationType) {
         if (NotificationType.POLICY_OVERRIDE.equals(notificationType) || NotificationType.RULE_VIOLATION_CLEARED.equals(notificationType)) {
@@ -42,7 +42,7 @@ public enum BlackDuckIssueAction {
             // This seems to be the safest option of the many possibilities for vulnerability notifications
             return ADD_COMMENT_IF_EXISTS;
         } else if (NotificationType.BOM_EDIT.equals(notificationType)) {
-            return UPDATE_IF_EXISTS;
+            return UPDATE_OR_OPEN;
         } else {
             throw new IllegalArgumentException(String.format("Cannot determine an action from non-policy NotificationType: %s", notificationType));
         }

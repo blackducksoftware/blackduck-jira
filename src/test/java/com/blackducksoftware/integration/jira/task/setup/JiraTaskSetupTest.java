@@ -393,8 +393,8 @@ public class JiraTaskSetupTest {
     private void mockCreationMethods(final JiraTaskTimed jiraTask, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
         throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
-        buildInfoUtil.setVersion("7.3.0");
-        final int[] versionNumbers = { 7, 3, 0 };
+        buildInfoUtil.setVersion("7.4.5");
+        final int[] versionNumbers = { 7, 4, 5 };
         buildInfoUtil.setVersionNumbers(versionNumbers);
         final JiraVersionCheck jiraVersionCheck = new JiraVersionCheck(buildInfoUtil);
         Mockito.when(jiraTask.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
