@@ -73,6 +73,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     @XmlElement
     private String hubProjectMappingError;
     @XmlElement
+    @Deprecated
     private boolean createVulnerabilityIssues;
     @XmlElement
     private List<PolicyRuleSerializable> policyRules;
@@ -299,6 +300,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.hubProjectMappingError = hubProjectMappingError;
     }
 
+    @Deprecated
     public boolean isCreateVulnerabilityIssues() {
         return createVulnerabilityIssues;
     }

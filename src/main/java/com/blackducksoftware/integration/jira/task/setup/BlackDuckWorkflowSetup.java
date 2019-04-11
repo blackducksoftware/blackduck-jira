@@ -72,7 +72,7 @@ public class BlackDuckWorkflowSetup {
     public Optional<JiraWorkflow> addBlackDuckWorkflowToJira() {
         try {
             final WorkflowManager workflowManager = jiraServices.getWorkflowManager();
-            final JiraWorkflow blackDuckWorkflow = jiraServices.getWorkflowManager().getWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            final JiraWorkflow blackDuckWorkflow = workflowManager.getWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
             if (blackDuckWorkflow == null) {
                 final Optional<ApplicationUser> jiraAppUser = getJiraSystemAdmin();
                 if (!jiraAppUser.isPresent()) {
@@ -80,7 +80,7 @@ public class BlackDuckWorkflowSetup {
                     return Optional.empty();
                 }
                 final Optional<WorkflowDescriptor> workflowDescriptor = getWorkflowDescriptorFromResource();
-                final Optional<JiraWorkflow> workflowOptional = workflowDescriptor.map(descriptor -> new ConfigurableJiraWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW, descriptor, jiraServices.getWorkflowManager()));
+                final Optional<JiraWorkflow> workflowOptional = workflowDescriptor.map(descriptor -> new ConfigurableJiraWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW, descriptor, workflowManager));
                 workflowOptional.ifPresent(workflow -> {
                     workflowManager.createWorkflow(jiraAppUser.get(), workflow);
                     logger.debug("Created the Black Duck Workflow : " + BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
@@ -108,6 +108,7 @@ public class BlackDuckWorkflowSetup {
         return Optional.ofNullable(WorkflowUtil.convertXMLtoWorkflowDescriptor(workflowXml));
     }
 
+    // FIXME this should happen when the global project mappings are saved
     public void addWorkflowToProjectsWorkflowScheme(final JiraWorkflow blackDuckWorkflow, final Project project, final List<IssueType> issueTypes) {
         try {
             final AssignableWorkflowScheme projectWorkflowScheme = jiraServices.getWorkflowSchemeManager().getWorkflowSchemeObj(project);

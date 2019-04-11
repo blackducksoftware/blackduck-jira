@@ -34,8 +34,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.atlassian.jira.config.IssueTypeManager;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
@@ -50,10 +51,10 @@ public class IssueCreationConfigController extends ConfigController {
     private final IssueCreationConfigActions issueCreationConfigActions;
 
     public IssueCreationConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final ProjectManager projectManager,
-        final WorkflowManager workflowManager, final BlackDuckMonitor blackDuckMonitor) {
+        final WorkflowSchemeManager workflowSchemeManager, final IssueTypeManager issueTypeManager, final BlackDuckMonitor blackDuckMonitor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.projectManager = projectManager;
-        final WorkflowHelper workflowHelper = new WorkflowHelper(workflowManager);
+        final WorkflowHelper workflowHelper = new WorkflowHelper(workflowSchemeManager, issueTypeManager);
         issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, workflowHelper, blackDuckMonitor);
     }
 
@@ -151,6 +152,23 @@ public class IssueCreationConfigController extends ConfigController {
             logger.error(msg, e);
             errorConfig.setProjectReviewerNotificationsChoiceError(msg);
             return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
+    }
+
+    @Path("/workflowStatus")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getWorkflowStatus(@Context final HttpServletRequest request) {
+        final Object config;
+        try {
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
+            }
+            config = executeAsTransaction(() -> issueCreationConfigActions.getWorkflowStatus());
+        } catch (final Exception e) {
+            return createGeneralError("workflowStatus", e);
         }
         return Response.ok(config).build();
     }

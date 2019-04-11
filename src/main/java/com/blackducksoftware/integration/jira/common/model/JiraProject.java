@@ -51,8 +51,6 @@ public class JiraProject extends Stringable implements Serializable {
     private String projectError;
     @XmlElement
     private Boolean configuredForVulnerabilities;
-    @XmlElement
-    private String workflowStatus;
 
     public JiraProject() {
     }
@@ -113,14 +111,6 @@ public class JiraProject extends Stringable implements Serializable {
         this.configuredForVulnerabilities = configuredForVulnerabilities;
     }
 
-    public String getWorkflowStatus() {
-        return workflowStatus;
-    }
-
-    public void setWorkflowStatus(final String workflowStatus) {
-        this.workflowStatus = workflowStatus;
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -138,8 +128,6 @@ public class JiraProject extends Stringable implements Serializable {
         builder.append(projectError);
         builder.append(", configuredForVulnerabilities=");
         builder.append(configuredForVulnerabilities);
-        builder.append(", workflowStatus=");
-        builder.append(workflowStatus);
         builder.append("]");
         return builder.toString();
     }

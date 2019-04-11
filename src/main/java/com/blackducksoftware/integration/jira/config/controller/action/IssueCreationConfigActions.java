@@ -120,6 +120,11 @@ public class IssueCreationConfigActions {
         return txConfig;
     }
 
+    public String getWorkflowStatus() {
+        final BlackDuckWorkflowStatus blackDuckWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus();
+        return blackDuckWorkflowStatus.getPrettyPrintName();
+    }
+
     public BlackDuckJiraConfigSerializable getInterval() {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
         pluginSettingsWrapper.getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
@@ -188,9 +193,6 @@ public class IssueCreationConfigActions {
                 final JiraProject newProject = new JiraProject();
                 newProject.setProjectName(oldProject.getName());
                 newProject.setProjectId(oldProject.getId());
-
-                final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(oldProject);
-                newProject.setWorkflowStatus(workflowStatus.name());
 
                 newJiraProjects.add(newProject);
             }
