@@ -35,7 +35,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JiraProject extends Stringable implements Serializable {
-    private static final long serialVersionUID = 7346976408604399035L;
+    private static final long serialVersionUID = 7739038743028968165L;
 
     @XmlElement
     private String projectName;
