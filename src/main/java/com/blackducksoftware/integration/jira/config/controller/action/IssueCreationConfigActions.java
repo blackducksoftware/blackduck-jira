@@ -66,7 +66,7 @@ public class IssueCreationConfigActions {
         this.projectManager = projectManager;
         this.workflowHelper = workflowHelper;
         this.blackDuckMonitor = blackDuckMonitor;
-        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory);
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory, workflowHelper);
     }
 
     public BlackDuckJiraConfigSerializable getCreator() {
@@ -118,11 +118,6 @@ public class IssueCreationConfigActions {
         logger.debug("choice: " + choice);
         txConfig.setProjectReviewerNotificationsChoice(choice);
         return txConfig;
-    }
-
-    public String getWorkflowStatus() {
-        final BlackDuckWorkflowStatus blackDuckWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus();
-        return blackDuckWorkflowStatus.getPrettyPrintName();
     }
 
     public BlackDuckJiraConfigSerializable getInterval() {
@@ -193,6 +188,9 @@ public class IssueCreationConfigActions {
                 final JiraProject newProject = new JiraProject();
                 newProject.setProjectName(oldProject.getName());
                 newProject.setProjectId(oldProject.getId());
+
+                final BlackDuckWorkflowStatus projectWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus(oldProject);
+                newProject.setWorkflowStatus(projectWorkflowStatus.getPrettyPrintName());
 
                 newJiraProjects.add(newProject);
             }

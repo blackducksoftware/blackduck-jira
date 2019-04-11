@@ -23,31 +23,43 @@
  */
 package com.blackducksoftware.integration.jira.common;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
-import com.atlassian.jira.config.IssueTypeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.workflow.WorkflowScheme;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.workflow.AssignableWorkflowScheme;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
 public class WorkflowHelper {
     private WorkflowSchemeManager workflowSchemeManager;
-    private IssueTypeManager issueTypeManager;
+    private ProjectManager projectManager;
 
-    public WorkflowHelper(final WorkflowSchemeManager workflowSchemeManager, final IssueTypeManager issueTypeManager) {
+    public WorkflowHelper(final WorkflowSchemeManager workflowSchemeManager, final ProjectManager projectManager) {
         this.workflowSchemeManager = workflowSchemeManager;
-        this.issueTypeManager = issueTypeManager;
+        this.projectManager = projectManager;
     }
 
-    public BlackDuckWorkflowStatus getBlackDuckWorkflowStatus() {
-        final WorkflowScheme workflowScheme = workflowSchemeManager.getWorkflowSchemeObj(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
-        final Map<String, String> issueTypeIdToWorkflowName = workflowScheme.getMappings();
+    public BlackDuckWorkflowStatus getBlackDuckWorkflowStatus(final Long jiraProjectId) {
+        if (null != jiraProjectId) {
+            final Project jiraProject = projectManager.getProjectObj(jiraProjectId);
+            return getBlackDuckWorkflowStatus(jiraProject);
+        }
+        return BlackDuckWorkflowStatus.DISABLED;
+    }
 
-        final IssueType policyIssueType = issueTypeManager.getIssueType(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-        final IssueType vulnIssueType = issueTypeManager.getIssueType(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+    public BlackDuckWorkflowStatus getBlackDuckWorkflowStatus(final Project jiraProject) {
+        final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(jiraProject);
+        final Map<String, String> issueTypeIdToWorkflowName = projectWorkflowScheme.getMappings();
 
-        boolean policyUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, policyIssueType.getId());
-        boolean vulnUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, vulnIssueType.getId());
+        final Collection<IssueType> issueTypes = jiraProject.getIssueTypes();
+        final IssueType policyIssueType = getIssueTypeByName(issueTypes, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE).orElse(null);
+        final IssueType vulnIssueType = getIssueTypeByName(issueTypes, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE).orElse(null);
+
+        boolean policyUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, policyIssueType);
+        boolean vulnUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, vulnIssueType);
 
         if (policyUsesBlackDuckWorkflow && vulnUsesBlackDuckWorkflow) {
             return BlackDuckWorkflowStatus.ENABLED;
@@ -59,9 +71,19 @@ public class WorkflowHelper {
         return BlackDuckWorkflowStatus.DISABLED;
     }
 
-    public boolean usesBlackduckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final String issueTypeId) {
-        final String workflowName = issueTypeIdToWorkflowName.get(issueTypeId);
-        return BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW.equals(workflowName);
+    public boolean usesBlackduckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final IssueType issueType) {
+        if (null != issueType) {
+            final String workflowName = issueTypeIdToWorkflowName.get(issueType.getId());
+            return BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW.equals(workflowName);
+        }
+        return false;
+    }
+
+    public Optional<IssueType> getIssueTypeByName(final Collection<IssueType> issueTypes, final String name) {
+        return issueTypes
+                   .stream()
+                   .filter(issueType -> name.equals(issueType.getName()))
+                   .findFirst();
     }
 
 }

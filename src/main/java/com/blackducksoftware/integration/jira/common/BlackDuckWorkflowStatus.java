@@ -24,10 +24,10 @@
 package com.blackducksoftware.integration.jira.common;
 
 public enum BlackDuckWorkflowStatus {
-    ENABLED("Enabled."),
-    POLICY_ONLY("Enabled for policy notifications only."),
-    VULN_ONLY("Enabled for vulnerability notifications only."),
-    DISABLED("Disabled.");
+    ENABLED("Enabled"),
+    POLICY_ONLY("Policy only"),
+    VULN_ONLY("Vulnerability only"),
+    DISABLED("Disabled");
 
     private final String prettyPrintName;
 

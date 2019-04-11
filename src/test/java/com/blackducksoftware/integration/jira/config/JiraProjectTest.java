@@ -99,6 +99,8 @@ public class JiraProjectTest {
         builder.append(item1.getProjectError());
         builder.append(", configuredForVulnerabilities=");
         builder.append(item1.isConfiguredForVulnerabilities());
+        builder.append(", workflowStatus=");
+        builder.append(item1.getWorkflowStatus());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());
