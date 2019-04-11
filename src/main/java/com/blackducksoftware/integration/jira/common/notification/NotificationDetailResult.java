@@ -29,9 +29,10 @@ import java.util.Optional;
 
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationStateRequestStateType;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
+import com.synopsys.integration.blackduck.api.manual.component.NotificationContentComponent;
 
 public class NotificationDetailResult {
-    private final NotificationContent notificationContent;
+    private final NotificationContentComponent notificationContent;
     private final String contentType;
     private final Date createdAt;
     private final NotificationType type;
@@ -40,7 +41,7 @@ public class NotificationDetailResult {
 
     private final List<NotificationContentDetail> notificationContentDetails;
 
-    public NotificationDetailResult(final NotificationContent notificationContent, final String contentType, final Date createdAt, final NotificationType type, final String notificationGroup,
+    public NotificationDetailResult(final NotificationContentComponent notificationContent, final String contentType, final Date createdAt, final NotificationType type, final String notificationGroup,
         final Optional<NotificationStateRequestStateType> notificationState, final List<NotificationContentDetail> notificationContentDetails) {
         this.notificationContent = notificationContent;
         this.contentType = contentType;
@@ -51,7 +52,7 @@ public class NotificationDetailResult {
         this.notificationContentDetails = notificationContentDetails;
     }
 
-    public NotificationContent getNotificationContent() {
+    public NotificationContentComponent getNotificationContent() {
         return notificationContent;
     }
 

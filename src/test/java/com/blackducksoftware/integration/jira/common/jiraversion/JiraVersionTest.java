@@ -107,8 +107,11 @@ public class JiraVersionTest {
     @Test
     public void testJira7_3() throws ConfigurationException {
         final int[] versionNumbers = { 7, 3, 0 };
-        final JiraVersionCheck jiraVersionCheck = getJiraVersion("7.3.0", versionNumbers);
-        assertTrue(jiraVersionCheck.isSupported());
+        try {
+            getJiraVersion("7.3", versionNumbers);
+            fail("Expected configuration exception");
+        } catch (final ConfigurationException e) {
+        }
     }
 
     @Test
