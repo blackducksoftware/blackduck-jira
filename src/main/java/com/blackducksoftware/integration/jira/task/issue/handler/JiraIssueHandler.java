@@ -119,11 +119,11 @@ public class JiraIssueHandler {
                 jiraIssue = existingIssue;
                 addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), existingIssue);
             }
-        } else if (BlackDuckIssueAction.UPDATE_IF_EXISTS.equals(actionToTake)) {
+        } else if (BlackDuckIssueAction.UPDATE_OR_OPEN.equals(actionToTake)) {
             final ExistenceAwareIssue openedIssue = updateIssueIfExists(blackDuckIssueModel);
             if (openedIssue != null && !openedIssue.isExisted()) {
                 jiraIssue = openedIssue.getIssue();
-                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
+                addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueComment(), jiraIssue);
             }
         } else if (BlackDuckIssueAction.RESOLVE_ALL.equals(actionToTake)) {
             resolveAllRelatedIssues(blackDuckIssueModel);
@@ -237,9 +237,7 @@ public class JiraIssueHandler {
     private ExistenceAwareIssue updateIssueIfExists(final BlackDuckIssueModel blackDuckIssueModel) {
         final Issue existingIssue = findIssueAndUpdateModel(blackDuckIssueModel);
         if (existingIssue == null) {
-            // TODO do this this when Black Duck supports per-policy status information on bom components
-            // return openIssue(blackDuckIssueModel);
-            return null;
+            return openIssue(blackDuckIssueModel);
         }
         if (!blockStateChange(existingIssue, blackDuckIssueModel)) {
             updateBlackDuckFieldsAndDescription(blackDuckIssueModel);
