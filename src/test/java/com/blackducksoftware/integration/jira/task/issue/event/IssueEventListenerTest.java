@@ -28,7 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +39,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.entity.property.EntityPropertyQuery;
@@ -90,7 +87,7 @@ public class IssueEventListenerTest {
     private static final String JIRA_USER = "auser";
     private static final String BLACKDUCK_PROJECT_NAME = "HubProjectName";
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
-    private static final Long JIRA_PROJECT_ID = new Long(1);
+    private static final Long JIRA_PROJECT_ID = 1L;
     private static final String ISSUE_URL = "ISSUE URL";
     private static final String STATUS_NAME = "STATUS NAME";
     private static final String ISSUE_DESCRIPTION = "ISSUE DESCRIPTION";
@@ -99,14 +96,13 @@ public class IssueEventListenerTest {
     private final EventPublisherMock eventPublisher = new EventPublisherMock();
     private IssueEventListener listener;
     private PluginSettingsMock settings;
-    private PluginSettingsFactoryMock pluginSettingsFactory;
     private JiraServicesMock jiraServices;
     private IssueServiceMock issueServiceMock;
 
     @Before
-    public void initTest() throws MalformedURLException {
+    public void initTest() {
         settings = createPluginSettings();
-        pluginSettingsFactory = new PluginSettingsFactoryMock(settings);
+        final PluginSettingsFactoryMock pluginSettingsFactory = new PluginSettingsFactoryMock(settings);
         jiraServices = new JiraServicesMock();
         jiraServices.setJsonEntityPropertyManager(new JSonEntityPropertyManagerMock());
         final UserManagerMock userManager = new UserManagerMock();
@@ -166,12 +162,12 @@ public class IssueEventListenerTest {
         return new IssueEvent(issue, new HashMap<>(), createApplicationUser(), eventTypeId);
     }
 
-    private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {
+    private Issue createIssue(final Long projectId, final Status status, final ApplicationUser assignee) {
         final IssueMock issue = new IssueMock();
-        issue.setId(id);
+        issue.setId(1L);
         final ProjectMock project = new ProjectMock();
         project.setId(projectId);
-        project.setName(projectName);
+        project.setName(JIRA_PROJECT_NAME);
         issue.setProject(project);
         issue.setStatusObject(status);
         issue.setDescription(ISSUE_DESCRIPTION);
@@ -215,19 +211,8 @@ public class IssueEventListenerTest {
         Mockito.when(executableQuery.maxResults(Mockito.anyInt())).thenReturn(executableQuery);
         Mockito.when(executableQuery.find()).thenReturn(propList);
         final JSonEntityPropertyManagerMock jsonManager = Mockito.mock(JSonEntityPropertyManagerMock.class);
-        Mockito.when(jsonManager.query()).thenAnswer(new Answer<EntityPropertyQuery<?>>() {
-
-            @Override
-            public EntityPropertyQuery<?> answer(final InvocationOnMock invocation) throws Throwable {
-                return query;
-            }
-
-        });
+        Mockito.when(jsonManager.query()).thenAnswer(invocation -> query);
         jiraServices.setJsonEntityPropertyManager(jsonManager);
-        // jiraServices.getJsonEntityPropertyManager().put(BlackDuckJiraConstants.ISSUE_PROPERTY_ENTITY_NAME,
-        // JIRA_PROJECT_ID,
-        // entityProperty.getKey(),
-        // entityProperty.getValue());
     }
 
     private Issue createValidIssue() {
@@ -235,7 +220,7 @@ public class IssueEventListenerTest {
         status.setName(STATUS_NAME);
         final ApplicationUserMock assignee = new ApplicationUserMock();
         assignee.setName(ASSIGNEE_USER_NAME);
-        return createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
+        return createIssue(JIRA_PROJECT_ID, status, assignee);
     }
 
     private void assertIssueCreated(final Long eventTypeId) {
@@ -279,7 +264,7 @@ public class IssueEventListenerTest {
 
     @Test
     public void testCreatedEventId() {
-        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final Issue issue = createIssue(1L, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_CREATED_ID);
         listener.onIssueEvent(event);
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -287,7 +272,7 @@ public class IssueEventListenerTest {
 
     @Test
     public void testEmptyProjectMapping() {
-        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final Issue issue = createIssue(1L, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -295,7 +280,7 @@ public class IssueEventListenerTest {
 
     @Test
     public void testEventType() {
-        final Issue issue = createIssue(new Long(1), new Long(1), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final Issue issue = createIssue(1L, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -304,7 +289,7 @@ public class IssueEventListenerTest {
     @Test
     public void testUpdateEventWithJiraProjectNotMapped() {
         populateProjectSettings();
-        final Issue issue = createIssue(new Long(1), new Long(999), JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final Issue issue = createIssue(999L, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -313,7 +298,7 @@ public class IssueEventListenerTest {
     @Test
     public void testUpdateEventWithNullEntityProperty() {
         populateProjectSettings();
-        final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, new StatusMock(), new ApplicationUserMock());
+        final Issue issue = createIssue(JIRA_PROJECT_ID, new StatusMock(), new ApplicationUserMock());
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_UPDATED_ID);
         listener.onIssueEvent(event);
         assertTrue(issueServiceMock.issueMap.isEmpty());
@@ -375,7 +360,7 @@ public class IssueEventListenerTest {
         status.setName(STATUS_NAME);
         final ApplicationUserMock assignee = new ApplicationUserMock();
         assignee.setName(ASSIGNEE_USER_NAME);
-        final Issue issue = createIssue(new Long(1), JIRA_PROJECT_ID, JIRA_PROJECT_NAME, status, assignee);
+        final Issue issue = createIssue(JIRA_PROJECT_ID, status, assignee);
         final IssueEvent event = createIssueEvent(issue, EventType.ISSUE_DELETED_ID);
 
         final IssueView blackDuckIssue = new IssueView();
