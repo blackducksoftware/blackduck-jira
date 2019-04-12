@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.common.settings;
 
 public class BlackDuckConfigKeys {
     public static final String BLACKDUCK_CONFIG_KEY_PREFIX = "com.blackducksoftware.integration.hub.configuration";

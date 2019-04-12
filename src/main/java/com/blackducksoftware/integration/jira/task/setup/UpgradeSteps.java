@@ -33,11 +33,11 @@ import org.apache.commons.lang3.StringUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigDeserializer;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 

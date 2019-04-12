@@ -27,7 +27,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 
 public class PluginSettingsWrapperTest {

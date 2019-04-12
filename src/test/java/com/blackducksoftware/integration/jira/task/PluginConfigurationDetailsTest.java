@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 
 public class PluginConfigurationDetailsTest {

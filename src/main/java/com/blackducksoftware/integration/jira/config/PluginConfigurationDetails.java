@@ -26,7 +26,7 @@ package com.blackducksoftware.integration.jira.config;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 

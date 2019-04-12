@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;

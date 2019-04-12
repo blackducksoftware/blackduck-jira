@@ -1,0 +1,53 @@
+package com.blackducksoftware.integration.jira.common.settings;
+
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+
+public class JiraSettingsAccessor {
+    private PluginSettings pluginSettings;
+
+    public JiraSettingsAccessor(final PluginSettings pluginSettings) {
+        this.pluginSettings = pluginSettings;
+    }
+
+    public String getStringValue(final String key) {
+        final Object foundObject = pluginSettings.get(key);
+        if (foundObject == null) {
+            return null;
+        }
+        return String.valueOf(foundObject);
+    }
+
+    public Optional<Integer> getIntegerValue(final String key) {
+        final String value = getStringValue(key);
+        if (NumberUtils.isParsable(value)) {
+            return Optional.of(Integer.parseInt(value));
+        }
+        return Optional.empty();
+    }
+
+    public Boolean getBooleanValue(final String key) {
+        return getBooleanValue(key, false);
+    }
+
+    public Boolean getBooleanValue(final String key, final Boolean defaultValue) {
+        final String stringValue = getStringValue(key);
+        if (StringUtils.isBlank(stringValue)) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(stringValue);
+    }
+
+    public void setValue(final String key, final Object value) {
+        if (value == null) {
+            pluginSettings.remove(key);
+        } else {
+            pluginSettings.put(key, String.valueOf(value));
+        }
+    }
+
+}

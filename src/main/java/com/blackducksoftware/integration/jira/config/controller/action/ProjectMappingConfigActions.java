@@ -29,10 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 

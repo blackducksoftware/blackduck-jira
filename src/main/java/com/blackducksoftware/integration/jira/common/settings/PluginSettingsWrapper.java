@@ -21,18 +21,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.common.settings;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.config.BlackDuckConfigKeys;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
 
 // TODO change these methods to all return optionals.
 public class PluginSettingsWrapper {
@@ -43,105 +39,105 @@ public class PluginSettingsWrapper {
         this.pluginSettings = pluginSettings;
     }
 
-    public String getBlackDuckUrl() {
-        return getStringValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
-    }
-
-    public void setBlackDuckUrl(final String url) {
-        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, url);
-    }
-
-    public String getBlackDuckApiToken() {
-        return getStringValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
-    }
-
-    public void setBlackDuckApiToken(final String apiToken) {
-        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, apiToken);
-    }
-
-    public Optional<Integer> getBlackDuckTimeout() {
-        return getIntegerValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
-    }
-
-    public void setBlackDuckTimeout(final Integer timeout) {
-        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, timeout);
-    }
-
-    public Boolean getBlackDuckAlwaysTrust() {
-        return getBooleanValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
-    }
-
-    public void setBlackDuckAlwaysTrust(final Boolean alwaysTrust) {
-        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, alwaysTrust);
-    }
-
-    public String getBlackDuckProxyHost() {
-        return getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_HOST);
-    }
-
-    public void setBlackDuckProxyHost(final String host) {
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_HOST, host);
-    }
-
-    public String getBlackDuckProxyUser() {
-        return getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_USER);
-    }
-
-    public void setBlackDuckProxyUser(final String user) {
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_USER, user);
-    }
-
-    public String getBlackDuckProxyPassword() {
-        final String stringValue = getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS);
-        if (StringUtils.isBlank(stringValue)) {
-            return stringValue;
-        }
-        final Base64.Decoder decoder = Base64.getDecoder();
-        final byte[] decode = decoder.decode(stringValue);
-        return new String(decode, StandardCharsets.UTF_8);
-    }
-
-    public void setBlackDuckProxyPassword(final String password) {
-        if (StringUtils.isBlank(password)) {
-            setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
-            return;
-        }
-        final Base64.Encoder encoder = Base64.getEncoder();
-        final String encodedPassword = encoder.encodeToString(password.getBytes());
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, encodedPassword);
-    }
-
-    public Optional<Integer> getBlackDuckProxyPasswordLength() {
-        return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
-    }
-
-    public void setBlackDuckProxyPasswordLength(final Integer length) {
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, length);
-    }
-
-    public Optional<Integer> getBlackDuckProxyPort() {
-        return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT);
-    }
-
-    public void setBlackDuckProxyPort(final Integer port) {
-        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT, port);
-    }
-
-    public String getBlackDuckConfigGroups() {
-        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
-    }
-
-    public void setBlackDuckConfigGroups(final String groups) {
-        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groups);
-    }
-
-    public String[] getParsedBlackDuckConfigGroups() {
-        final String blackDuckConfigGroupsString = getBlackDuckConfigGroups();
-        if (StringUtils.isNotBlank(blackDuckConfigGroupsString)) {
-            return blackDuckConfigGroupsString.split(BLACK_DUCK_GROUPS_LIST_DELIMETER);
-        }
-        return new String[0];
-    }
+    //    public String getBlackDuckUrl() {
+    //        return getStringValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL);
+    //    }
+    //
+    //    public void setBlackDuckUrl(final String url) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_URL, url);
+    //    }
+    //
+    //    public String getBlackDuckApiToken() {
+    //        return getStringValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN);
+    //    }
+    //
+    //    public void setBlackDuckApiToken(final String apiToken) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_API_TOKEN, apiToken);
+    //    }
+    //
+    //    public Optional<Integer> getBlackDuckTimeout() {
+    //        return getIntegerValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT);
+    //    }
+    //
+    //    public void setBlackDuckTimeout(final Integer timeout) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TIMEOUT, timeout);
+    //    }
+    //
+    //    public Boolean getBlackDuckAlwaysTrust() {
+    //        return getBooleanValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT);
+    //    }
+    //
+    //    public void setBlackDuckAlwaysTrust(final Boolean alwaysTrust) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_BLACKDUCK_TRUST_CERT, alwaysTrust);
+    //    }
+    //
+    //    public String getBlackDuckProxyHost() {
+    //        return getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_HOST);
+    //    }
+    //
+    //    public void setBlackDuckProxyHost(final String host) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_PROXY_HOST, host);
+    //    }
+    //
+    //    public String getBlackDuckProxyUser() {
+    //        return getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_USER);
+    //    }
+    //
+    //    public void setBlackDuckProxyUser(final String user) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_PROXY_USER, user);
+    //    }
+    //
+    //    public String getBlackDuckProxyPassword() {
+    //        final String stringValue = getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS);
+    //        if (StringUtils.isBlank(stringValue)) {
+    //            return stringValue;
+    //        }
+    //        final Base64.Decoder decoder = Base64.getDecoder();
+    //        final byte[] decode = decoder.decode(stringValue);
+    //        return new String(decode, StandardCharsets.UTF_8);
+    //    }
+    //
+    //    public void setBlackDuckProxyPassword(final String password) {
+    //        if (StringUtils.isBlank(password)) {
+    //            setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, password);
+    //            return;
+    //        }
+    //        final Base64.Encoder encoder = Base64.getEncoder();
+    //        final String encodedPassword = encoder.encodeToString(password.getBytes());
+    //        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS, encodedPassword);
+    //    }
+    //
+    //    public Optional<Integer> getBlackDuckProxyPasswordLength() {
+    //        return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH);
+    //    }
+    //
+    //    public void setBlackDuckProxyPasswordLength(final Integer length) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS_LENGTH, length);
+    //    }
+    //
+    //    public Optional<Integer> getBlackDuckProxyPort() {
+    //        return getIntegerValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT);
+    //    }
+    //
+    //    public void setBlackDuckProxyPort(final Integer port) {
+    //        setValue(BlackDuckConfigKeys.CONFIG_PROXY_PORT, port);
+    //    }
+    //
+    //    public String getBlackDuckConfigGroups() {
+    //        return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
+    //    }
+    //
+    //    public void setBlackDuckConfigGroups(final String groups) {
+    //        setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groups);
+    //    }
+    //
+    //    public String[] getParsedBlackDuckConfigGroups() {
+    //        final String blackDuckConfigGroupsString = getBlackDuckConfigGroups();
+    //        if (StringUtils.isNotBlank(blackDuckConfigGroupsString)) {
+    //            return blackDuckConfigGroupsString.split(BLACK_DUCK_GROUPS_LIST_DELIMETER);
+    //        }
+    //        return new String[0];
+    //    }
 
     public String getIssueCreatorUser() {
         return getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
