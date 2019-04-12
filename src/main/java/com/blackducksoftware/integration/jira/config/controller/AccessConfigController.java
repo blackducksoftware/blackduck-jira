@@ -40,6 +40,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.config.controller.action.AccessConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckAdminConfigSerializable;
 import com.synopsys.integration.rest.HttpMethod;
@@ -54,7 +56,9 @@ public class AccessConfigController extends ConfigController {
     AccessConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final GroupPickerSearchService groupPickerSearchService) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.groupPickerSearchService = groupPickerSearchService;
-        this.accessConfigActions = new AccessConfigActions(pluginSettingsFactory, getAuthorizationChecker(), groupPickerSearchService);
+
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
+        this.accessConfigActions = new AccessConfigActions(new GlobalConfigurationAccessor(jiraSettingsAccessor), getAuthorizationChecker(), groupPickerSearchService);
     }
 
     @GET

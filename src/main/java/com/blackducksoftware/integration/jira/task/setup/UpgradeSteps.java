@@ -35,9 +35,11 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
-import com.blackducksoftware.integration.jira.config.JiraConfigDeserializer;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
@@ -68,11 +70,16 @@ public class UpgradeSteps {
 
     // Delete in V8
     public void upgradeToV6FromAny() {
-        final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
-        final boolean vulnerabilityTicketsEnabled = pluginConfigDetails.isCreateVulnerabilityIssues();
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
 
-        final JiraConfigDeserializer configDeserializer = new JiraConfigDeserializer();
-        final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
+        final boolean vulnerabilityTicketsEnabled = globalConfigurationAccessor.getVulnerabilityIssuesChoice();
+
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final ProjectMappingConfigModel projectMappingModel = issueCreationConfig.getProjectMapping();
+
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        config.setHubProjectMappingsJson(projectMappingModel.getMappingsJson());
 
         for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
             final JiraProject jiraProject = mapping.getJiraProject();
@@ -81,8 +88,9 @@ public class UpgradeSteps {
             }
         }
 
-        final PluginSettingsWrapper settingsWrapper = new PluginSettingsWrapper(pluginSettings);
-        settingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
+        final ProjectMappingConfigModel mappingConfig = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+        final PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), mappingConfig, issueCreationConfig.getTicketCriteria());
+        globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
     }
 
     // Delete when customers all upgrade to 4.2.0+

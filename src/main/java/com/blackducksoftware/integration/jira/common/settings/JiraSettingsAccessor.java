@@ -14,6 +14,10 @@ public class JiraSettingsAccessor {
         this.pluginSettings = pluginSettings;
     }
 
+    public Object getObjectValue(final String key) {
+        return pluginSettings.get(key);
+    }
+
     public String getStringValue(final String key) {
         final Object foundObject = pluginSettings.get(key);
         if (foundObject == null) {

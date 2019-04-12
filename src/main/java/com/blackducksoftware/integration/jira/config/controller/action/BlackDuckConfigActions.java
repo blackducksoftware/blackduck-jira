@@ -33,13 +33,14 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
@@ -60,45 +61,34 @@ import com.synopsys.integration.util.IntEnvironmentVariables;
 public class BlackDuckConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final PluginSettingsWrapper pluginSettingsWrapper;
+    private final GlobalConfigurationAccessor globalConfigurationAccessor;
 
-    public BlackDuckConfigActions(final PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+    public BlackDuckConfigActions(final JiraSettingsAccessor jiraSettingsAccessor) {
+        this.globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
     }
 
     public BlackDuckServerConfigSerializable getStoredBlackDuckConfig() {
-        final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
-        logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
-        final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
-        final Optional<Integer> timeout = pluginSettingsWrapper.getBlackDuckTimeout();
-        final Boolean trustCert = pluginSettingsWrapper.getBlackDuckAlwaysTrust();
-        final String proxyHost = pluginSettingsWrapper.getBlackDuckProxyHost();
-        final Optional<Integer> proxyPort = pluginSettingsWrapper.getBlackDuckProxyPort();
-        final String proxyUser = pluginSettingsWrapper.getBlackDuckProxyUser();
-        final String proxyPassword = pluginSettingsWrapper.getBlackDuckProxyPassword();
-        final Optional<Integer> proxyPasswordLength = pluginSettingsWrapper.getBlackDuckProxyPasswordLength();
-
         final BlackDuckServerConfigSerializable config = new BlackDuckServerConfigSerializable();
+        final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
+
+        final String blackDuckUrl = blackDuckServerConfig.getUrl();
+        logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
+
         config.setHubUrl(blackDuckUrl);
-        if (StringUtils.isNotBlank(apiToken)) {
-            config.setApiTokenLength(apiToken.length());
+        if (StringUtils.isNotBlank(blackDuckServerConfig.getApiToken())) {
+            config.setApiTokenLength(blackDuckServerConfig.getApiToken().length());
             config.setApiToken(config.getMaskedApiToken());
         }
-        timeout.ifPresent(value -> config.setTimeout(String.valueOf(value)));
 
-        config.setTrustCert(trustCert);
-        config.setHubProxyHost(proxyHost);
-        proxyPort.ifPresent(value -> {
+        config.setTrustCert(blackDuckServerConfig.getTrustCert());
+        config.setHubProxyHost(blackDuckServerConfig.getProxyHost());
+        blackDuckServerConfig.getProxyPort().ifPresent(value -> {
             config.setHubProxyPort(String.valueOf(value));
         });
-        config.setHubProxyUser(proxyUser);
-        if (StringUtils.isNotBlank(proxyPassword)) {
-            proxyPasswordLength
-                .filter(value -> value > 0)
-                .ifPresent(value -> {
-                    config.setHubProxyPasswordLength(value);
-                    config.setHubProxyPassword(config.getMaskedProxyPassword());
-                });
+        config.setHubProxyUser(blackDuckServerConfig.getProxyUsername());
+        if (StringUtils.isNotBlank(blackDuckServerConfig.getProxyPassword())) {
+            config.setHubProxyPasswordLength(blackDuckServerConfig.getProxyPassword().length());
+            config.setHubProxyPassword(config.getMaskedProxyPassword());
         }
         validateAndUpdateErrorsOnConfig(config);
         return config;
@@ -107,38 +97,23 @@ public class BlackDuckConfigActions {
     public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
 
-        logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
-        pluginSettingsWrapper.setBlackDuckUrl(newConfig.getHubUrl());
-        if (StringUtils.isBlank(newConfig.getApiToken())) {
-            pluginSettingsWrapper.setBlackDuckApiToken(null);
-        } else if (!newConfig.isApiTokenMasked()) {
-            pluginSettingsWrapper.setBlackDuckApiToken(newConfig.getApiToken());
-        }
-        pluginSettingsWrapper.setBlackDuckTimeout(Integer.parseInt(newConfig.getTimeout()));
-        pluginSettingsWrapper.setBlackDuckAlwaysTrust(Boolean.parseBoolean(newConfig.getTrustCert()));
-        pluginSettingsWrapper.setBlackDuckProxyHost(newConfig.getHubProxyHost());
-        Integer proxyPortValue = null;
-        if (StringUtils.isNotBlank(newConfig.getHubProxyPort())) {
-            proxyPortValue = Integer.parseInt(newConfig.getHubProxyPort());
-        }
-        pluginSettingsWrapper.setBlackDuckProxyPort(proxyPortValue);
-        pluginSettingsWrapper.setBlackDuckProxyUser(newConfig.getHubProxyUser());
+        final Integer intTimeout = null != newConfig.getTimeout() ? Integer.parseInt(newConfig.getTimeout()) : null;
+        final Integer proxyPort = null != newConfig.getHubProxyPort() ? Integer.parseInt(newConfig.getHubProxyPort()) : null;
+        final Boolean trustCert = Boolean.parseBoolean(newConfig.getTrustCert());
+        final PluginBlackDuckServerConfigModel pluginBlackDuckServerConfigModel =
+            new PluginBlackDuckServerConfigModel(newConfig.getHubUrl(), newConfig.getApiToken(), intTimeout, trustCert, newConfig.getHubProxyHost(), proxyPort, newConfig.getHubProxyUser(), newConfig.getHubProxyPassword());
 
-        final String proxyPassword = newConfig.getHubProxyPassword();
-        if (StringUtils.isBlank(proxyPassword)) {
-            pluginSettingsWrapper.setBlackDuckProxyPassword(null);
-            pluginSettingsWrapper.setBlackDuckProxyPasswordLength(null);
-        } else if (!newConfig.isProxyPasswordMasked()) {
-            // only update the stored password if it is not the masked password used for display
-            pluginSettingsWrapper.setBlackDuckProxyPassword(proxyPassword);
-        }
+        logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
+        globalConfigurationAccessor.setBlackDuckServerConfig(pluginBlackDuckServerConfigModel);
+
         validateAndUpdateErrorsOnConfig(newConfig);
         return newConfig;
     }
 
     public Object getBlackDuckProjects() {
         try {
-            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(pluginSettingsWrapper);
+            final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
+            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig.createBlackDuckServerConfigBuilder());
             final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
 
             if (blackDuckProjects.size() == 0) {
@@ -181,7 +156,8 @@ public class BlackDuckConfigActions {
     }
 
     public BlackDuckJiraConfigSerializable getBlackDuckPolicies() {
-        final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final String policyRulesJson = issueCreationConfig.getTicketCriteria().getPolicyRulesJson();
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
         if (StringUtils.isNotBlank(policyRulesJson)) {
@@ -192,7 +168,8 @@ public class BlackDuckConfigActions {
 
         final BlackDuckServicesFactory blackDuckServicesFactory;
         try {
-            blackDuckServicesFactory = createBlackDuckServicesFactory(pluginSettingsWrapper);
+            final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
+            blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig.createBlackDuckServerConfigBuilder());
             setBlackDuckPolicyRules(blackDuckServicesFactory, txConfig);
         } catch (final ConfigurationException e) {
             txConfig.setErrorMessage(e.getMessage());
@@ -201,59 +178,43 @@ public class BlackDuckConfigActions {
     }
 
     private BlackDuckServerConfigSerializable getUnMaskedConfig(final BlackDuckServerConfigSerializable currentConfig) {
+        final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(currentConfig);
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
-            newConfig.setApiToken(pluginSettingsWrapper.getBlackDuckApiToken());
+            newConfig.setApiToken(blackDuckServerConfig.getApiToken());
         }
         if (StringUtils.isNotBlank(newConfig.getHubProxyPassword()) && newConfig.isProxyPasswordMasked()) {
-            newConfig.setHubProxyPassword(pluginSettingsWrapper.getBlackDuckProxyPassword());
-            pluginSettingsWrapper.getBlackDuckProxyPasswordLength().ifPresent(newConfig::setHubProxyPasswordLength);
+            final String proxyPassword = blackDuckServerConfig.getProxyPassword();
+            if (null != proxyPassword) {
+                newConfig.setHubProxyPassword(proxyPassword);
+                newConfig.setHubProxyPasswordLength(proxyPassword.length());
+            }
         }
 
         return newConfig;
     }
 
-    private BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettingsWrapper settings) throws ConfigurationException {
-        final BlackDuckHttpClient restConnection = createRestConnection(settings);
+    private BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws ConfigurationException {
+        final BlackDuckHttpClient restConnection = createRestConnection(blackDuckServerConfigBuilder);
         return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
     }
 
-    private BlackDuckHttpClient createRestConnection(final PluginSettingsWrapper settings) throws ConfigurationException {
-        final String blackDuckUrl = settings.getBlackDuckUrl();
-        final String blackDuckApiToken = settings.getBlackDuckApiToken();
-        final Optional<Integer> blackDuckTimeout = settings.getBlackDuckTimeout();
-        final Boolean blackDuckTrustCert = settings.getBlackDuckAlwaysTrust();
-
-        if (org.apache.commons.lang3.StringUtils.isBlank(blackDuckApiToken)) {
+    private BlackDuckHttpClient createRestConnection(final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws ConfigurationException {
+        if (StringUtils.isBlank(blackDuckServerConfigBuilder.getApiToken())) {
             throw new ConfigurationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }
 
-        final String blackDuckProxyHost = settings.getBlackDuckProxyHost();
-        final Optional<Integer> blackDuckProxyPort = settings.getBlackDuckProxyPort();
-        final String blackDuckProxyUser = settings.getBlackDuckProxyUser();
-        final String encBlackDuckProxyPassword = settings.getBlackDuckProxyPassword();
+        final BlackDuckServerConfig serverConfig;
+        try {
+            serverConfig = blackDuckServerConfigBuilder.build();
+        } catch (final IllegalStateException e) {
+            logger.error("Error in Black Duck server configuration: " + e.getMessage());
+            throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
+        }
 
         final BlackDuckHttpClient restConnection;
         try {
-            final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
-            configBuilder.setUrl(blackDuckUrl);
-            configBuilder.setApiToken(blackDuckApiToken);
-            configBuilder.setTimeoutInSeconds(blackDuckTimeout.orElse(300));
-            configBuilder.setTrustCert(blackDuckTrustCert);
-            configBuilder.setProxyHost(blackDuckProxyHost);
-            blackDuckProxyPort.ifPresent(configBuilder::setProxyPort);
-            configBuilder.setProxyUsername(blackDuckProxyUser);
-            configBuilder.setProxyPassword(encBlackDuckProxyPassword);
-
-            final BlackDuckServerConfig serverConfig;
-            try {
-                serverConfig = configBuilder.build();
-            } catch (final IllegalStateException e) {
-                logger.error("Error in Black Duck server configuration: " + e.getMessage());
-                throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
-            }
-
             restConnection = serverConfig.createBlackDuckHttpClient(logger);
         } catch (final IllegalArgumentException e) {
             throw new ConfigurationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());

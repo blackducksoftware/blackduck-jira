@@ -33,12 +33,13 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.fields.FieldManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.common.settings.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueFieldConfigModel;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
@@ -49,12 +50,12 @@ import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
 
 public class IssueFieldMappingConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettingsWrapper pluginSettingsWrapper;
+    private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final Properties i18nProperties;
     private final FieldManager fieldManager;
 
-    public IssueFieldMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory, final Properties i18nProperties, final FieldManager fieldManager) {
-        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+    public IssueFieldMappingConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final Properties i18nProperties, final FieldManager fieldManager) {
+        this.globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
         this.i18nProperties = i18nProperties;
         this.fieldManager = fieldManager;
         populateI18nProperties();
@@ -96,7 +97,8 @@ public class IssueFieldMappingConfigActions {
 
     public BlackDuckJiraFieldCopyConfigSerializable getFieldCopyMappings() {
         final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
-        final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
+        final PluginIssueFieldConfigModel fieldMappingConfig = globalConfigurationAccessor.getFieldMappingConfig();
+        final String blackDuckFieldCopyMappingsJson = fieldMappingConfig.getFieldMappingJson();
 
         logger.debug("Get /copies returning JSON: " + blackDuckFieldCopyMappingsJson);
         txConfig.setJson(blackDuckFieldCopyMappingsJson);
@@ -109,7 +111,8 @@ public class IssueFieldMappingConfigActions {
             return null;
         }
 
-        pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
+        final PluginIssueFieldConfigModel fieldConfig = new PluginIssueFieldConfigModel(fieldCopyConfig.getJson());
+        globalConfigurationAccessor.setFieldMappingConfig(fieldConfig);
         return null;
     }
 

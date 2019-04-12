@@ -1,5 +1,7 @@
 package com.blackducksoftware.integration.jira.common.settings.model;
 
+import java.util.Optional;
+
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 import com.synopsys.integration.util.Stringable;
@@ -35,8 +37,8 @@ public class PluginBlackDuckServerConfigModel extends Stringable {
         return apiToken;
     }
 
-    public Integer getTimeoutInSeconds() {
-        return timeoutInSeconds;
+    public Optional<Integer> getTimeoutInSeconds() {
+        return Optional.ofNullable(timeoutInSeconds);
     }
 
     public Boolean getTrustCert() {
@@ -47,8 +49,8 @@ public class PluginBlackDuckServerConfigModel extends Stringable {
         return proxyHost;
     }
 
-    public Integer getProxyPort() {
-        return proxyPort;
+    public Optional<Integer> getProxyPort() {
+        return Optional.ofNullable(proxyPort);
     }
 
     public String getProxyUsername() {
@@ -66,7 +68,9 @@ public class PluginBlackDuckServerConfigModel extends Stringable {
         builder.setTimeoutInSeconds(timeoutInSeconds);
         builder.setTrustCert(trustCert);
         builder.setProxyHost(proxyHost);
-        builder.setProxyPort(proxyPort);
+        if (null != proxyPort) {
+            builder.setProxyPort(proxyPort);
+        }
         builder.setProxyUsername(proxyUsername);
         builder.setProxyPassword(proxyPassword);
         return builder;
