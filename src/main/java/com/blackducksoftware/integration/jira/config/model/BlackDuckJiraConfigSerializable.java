@@ -48,7 +48,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckJiraConfigSerializable extends Stringable implements Serializable, ErrorTracking {
-    private static final long serialVersionUID = 7607084689366817200L;
+    private static final long serialVersionUID = -9111974442254941071L;
 
     @XmlElement
     private String errorMessage;
@@ -73,6 +73,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     @XmlElement
     private String hubProjectMappingError;
     @XmlElement
+    @Deprecated
     private boolean createVulnerabilityIssues;
     @XmlElement
     private List<PolicyRuleSerializable> policyRules;
@@ -299,6 +300,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.hubProjectMappingError = hubProjectMappingError;
     }
 
+    @Deprecated
     public boolean isCreateVulnerabilityIssues() {
         return createVulnerabilityIssues;
     }

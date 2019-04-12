@@ -60,6 +60,7 @@ function fillInJiraProjects(jiraProjects) {
             let newOption = AJS.$('<option>', {
                 value: jiraProjects[j].projectName,
                 projectKey: String(jiraProjects[j].projectId),
+                projectWorkflowStatus: String(jiraProjects[j].workflowStatus),
                 projectError: jiraProjects[j].projectError
             });
 
@@ -204,6 +205,29 @@ function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
     }
 }
 
+function setWorkflowStatus(workflowStatusSpan, newStatus) {
+    console.log("workflowStatusElement: " + workflowStatusSpan);
+    while (workflowStatusSpan.firstChild) {
+        workflowStatusSpan.removeChild(workflowStatusSpan.firstChild);
+    }
+    workflowStatusSpan.appendChild(document.createTextNode(newStatus));
+
+    const parentDivClassList = workflowStatusSpan.parentElement.classList;
+    if (newStatus === 'Enabled') {
+        parentDivClassList.add('workflowStatusEnabled');
+        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusPartial');
+    } else if (newStatus === 'Disabled') {
+        parentDivClassList.remove('workflowStatusEnabled');
+        parentDivClassList.add('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusPartial');
+    } else {
+        parentDivClassList.remove('workflowStatusEnabled');
+        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.add('workflowStatusPartial');
+    }
+}
+
 function getProjectReviewerNotificationsChoice() {
     const projectReviewerNotificationsChoiceElement = AJS.$("#" + "projectReviewerNotificationsChoice");
 
@@ -277,6 +301,10 @@ function onMappingInputChange(inputField) {
                     field.removeClass('error');
                 }
             }
+
+            const mappingRow = inputField.parentElement.parentElement;
+            const workflowStatusSpan = AJS.$(mappingRow).find("span[name='workflowStatus']")[0];
+            setWorkflowStatus(workflowStatusSpan, option.attr("projectWorkflowStatus"));
 
             break;
         }

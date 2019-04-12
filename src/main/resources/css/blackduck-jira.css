@@ -15,7 +15,7 @@
 }
 
 .error {
-    color: #c00;
+    /* color: #c00; */
 }
 
 .ticketCreationError {
@@ -66,9 +66,9 @@
 }
 
 .longInput {
-    max-width: 400px;
-    min-width: 120px;
-    width: 100%;
+    max-width: 250px;
+    min-width: 100px;
+    width: 95%;
     border: 1px solid #ccc;
     border-radius: 3.01px;
     box-shadow: inset 0 1px 3px #ccc;
@@ -79,7 +79,6 @@
     min: 1;
     max: 999;
     maxlength: 3;
-    size: 3;
     border: 1px solid #ccc;
     border-radius: 3.01px;
     box-shadow: inset 0 1px 3px #ccc;
@@ -163,6 +162,27 @@
 .buttonContainer {
     padding-top: 10px;
     float: right;
+}
+
+.workflowStatusSection {
+    all: unset;
+    color: white;
+    max-width: 100px;
+    white-space: nowrap;
+    border-radius: 5px 5px;
+    padding: 1px 4px;
+}
+
+.workflowStatusEnabled {
+    background-color: #205081;
+}
+
+.workflowStatusDisabled {
+    background-color: #c00000;
+}
+
+.workflowStatusPartial {
+    background-color: #ffa500;
 }
 
 ::-webkit-scrollbar {

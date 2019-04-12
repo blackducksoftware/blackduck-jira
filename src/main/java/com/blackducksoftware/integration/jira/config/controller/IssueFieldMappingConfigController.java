@@ -37,9 +37,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueFieldMappingConfigActions;
 import com.blackducksoftware.integration.jira.config.controller.action.ProjectMappingConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
@@ -55,11 +59,11 @@ public class IssueFieldMappingConfigController extends ConfigController {
     private final ProjectMappingConfigActions projectMappingConfigActions;
 
     public IssueFieldMappingConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final FieldManager fieldManager,
-        final Properties i18nProperties) {
+        final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, ProjectManager projectManager, final Properties i18nProperties) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.fieldManager = fieldManager;
         this.issueFieldMappingConfigActions = new IssueFieldMappingConfigActions(pluginSettingsFactory, i18nProperties, fieldManager);
-        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory);
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory, new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager));
     }
 
     @GET

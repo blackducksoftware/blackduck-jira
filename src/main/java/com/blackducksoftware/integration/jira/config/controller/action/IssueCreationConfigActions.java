@@ -40,7 +40,9 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
+import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
@@ -53,15 +55,18 @@ public class IssueCreationConfigActions {
     private final PluginSettingsWrapper pluginSettingsWrapper;
     private final AuthorizationChecker authorizationChecker;
     private final ProjectManager projectManager;
+    private final WorkflowHelper workflowHelper;
     private final BlackDuckMonitor blackDuckMonitor;
     private final ProjectMappingConfigActions projectMappingConfigActions;
 
-    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager, final BlackDuckMonitor blackDuckMonitor) {
+    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
+        final WorkflowHelper workflowHelper, final BlackDuckMonitor blackDuckMonitor) {
         this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
         this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
+        this.workflowHelper = workflowHelper;
         this.blackDuckMonitor = blackDuckMonitor;
-        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory);
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory, workflowHelper);
     }
 
     public BlackDuckJiraConfigSerializable getCreator() {
@@ -183,6 +188,9 @@ public class IssueCreationConfigActions {
                 final JiraProject newProject = new JiraProject();
                 newProject.setProjectName(oldProject.getName());
                 newProject.setProjectId(oldProject.getId());
+
+                final BlackDuckWorkflowStatus projectWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus(oldProject);
+                newProject.setWorkflowStatus(projectWorkflowStatus.getPrettyPrintName());
 
                 newJiraProjects.add(newProject);
             }

@@ -146,6 +146,9 @@ function fillInMapping(mappingElement, storedMapping) {
     currentJiraProject.val(storedJiraProjectDisplayName);
     currentJiraProject.attr("projectKey", storedJiraProjectValue);
 
+    const workflowStatusSpan = AJS.$(mappingElement).find("span[name*='workflowStatus']")[0];
+    setWorkflowStatus(workflowStatusSpan, storedJiraProject.workflowStatus);
+
     const configuredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
     configuredForVulnerabilities.prop("checked", storedJiraProject.configuredForVulnerabilities);
 

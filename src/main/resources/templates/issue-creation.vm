@@ -48,6 +48,7 @@
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
                 <td class="mappingTableCell error" id="hubProjectListError" />
                 <td class="mappingTableCell" />
             </tr>
@@ -55,6 +56,10 @@
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.jiraProjectPlaceHolder.label')
+                </td>
+                <td class="mappingTableCell">
+                    $i18n.getText('blackduck.integration.jira.currentWorkflowStatus.label')
+                    <i title="$i18n.getText('blackduck.integration.jira.currentWorkflowStatus.description.label')" class="fa fa-info-circle infoIcon" />
                 </td>
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.enableVulnerabilityTickets.label')
@@ -70,6 +75,7 @@
                 <td class="mappingTableCell" />
             </tr>
             <tr class="mappingTableRowDivider">
+                <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell">
@@ -92,6 +98,11 @@
                     </datalist>
                     </input>
                     <div id="jiraProjectError">
+                    </div>
+                </td>
+                <td class="mappingTableCell">
+                    <div class="workflowStatusSection">
+                        <span name="workflowStatus"></span>
                     </div>
                 </td>
                 <td class="mappingTableCell">

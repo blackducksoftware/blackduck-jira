@@ -83,7 +83,7 @@
 
     <!-- Note: if property keys need to change (MAJOR versions only), this must reference a new file name (preferably with the major version number appended, e.g. i18n_1, i18n_2, etc) -->
     <!-- This file is also referenced in com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants.java -->
-    <resource type="i18n" name="i18n" location="com.blackducksoftware.integration.jira.i18n_4"/>
+    <resource type="i18n" name="i18n" location="com.blackducksoftware.integration.jira.i18n_6"/>
 
     <!-- add our web resources -->
     <web-resource key="blackduck-jira-resources" name="Black Duck Jira Web Resources">

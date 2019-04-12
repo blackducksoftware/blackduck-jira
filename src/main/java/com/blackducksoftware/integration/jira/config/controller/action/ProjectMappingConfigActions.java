@@ -23,27 +23,34 @@
  */
 package com.blackducksoftware.integration.jira.config.controller.action;
 
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
 public class ProjectMappingConfigActions {
     private final PluginSettingsWrapper pluginSettingsWrapper;
+    private final WorkflowHelper workflowHelper;
 
-    public ProjectMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory) {
+    public ProjectMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory, final WorkflowHelper workflowHelper) {
         this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+        this.workflowHelper = workflowHelper;
     }
 
     public BlackDuckJiraConfigSerializable getMappings() {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
         final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
-
         txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 
+        addWorkflowStatusToMappings(txConfig);
         validateMapping(txConfig);
         return txConfig;
     }
@@ -69,6 +76,16 @@ public class ProjectMappingConfigActions {
             if (hasEmptyMapping) {
                 config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
             }
+        }
+    }
+
+    private void addWorkflowStatusToMappings(final BlackDuckJiraConfigSerializable config) {
+        final Set<BlackDuckProjectMapping> projectMappings = config.getHubProjectMappings();
+        for (final BlackDuckProjectMapping mapping : projectMappings) {
+            final JiraProject jiraProject = mapping.getJiraProject();
+
+            final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
+            jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
         }
     }
 
