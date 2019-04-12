@@ -48,62 +48,43 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckJiraConfigSerializable extends Stringable implements Serializable, ErrorTracking {
-    private static final long serialVersionUID = -8798933499737490438L;
+    private static final long serialVersionUID = -9111974442254941071L;
 
     @XmlElement
     private String errorMessage;
-
     @XmlElement
     private String intervalBetweenChecks;
-
     @XmlElement
     private String generalSettingsError;
-
     @XmlElement
     private List<JiraProject> jiraProjects;
-
     @XmlElement
     private String jiraProjectsError;
-
     @XmlElement
     private SortedSet<String> creatorCandidates;
-
     @XmlElement
     private String creator;
-
     @XmlElement
     private List<String> hubProjects;
-
     @XmlElement
     private String hubProjectsError;
-
     @XmlElement
     private Set<BlackDuckProjectMapping> hubProjectMappings;
-
     @XmlElement
     private String hubProjectMappingError;
-
+    @XmlElement
+    @Deprecated
+    private boolean createVulnerabilityIssues;
     @XmlElement
     private List<PolicyRuleSerializable> policyRules;
-
-    @XmlElement
-    private boolean createVulnerabilityIssues;
-
     @XmlElement
     private String policyRulesError;
-
-    @XmlElement
-    private String createVulnerabilityIssuesError;
-
     @XmlElement
     private boolean commentOnIssueUpdatesChoice;
-
     @XmlElement
     private String commentOnIssueUpdatesChoiceError;
-
     @XmlElement
     private boolean projectReviewerNotificationsChoice;
-
     @XmlElement
     private String projectReviewerNotificationsChoiceError;
 
@@ -319,6 +300,11 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
         this.hubProjectMappingError = hubProjectMappingError;
     }
 
+    @Deprecated
+    public boolean isCreateVulnerabilityIssues() {
+        return createVulnerabilityIssues;
+    }
+
     public List<PolicyRuleSerializable> getPolicyRules() {
         return policyRules;
     }
@@ -329,14 +315,6 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
 
     public boolean hasPolicyRules() {
         return null != policyRules && !policyRules.isEmpty();
-    }
-
-    public boolean isCreateVulnerabilityIssues() {
-        return createVulnerabilityIssues;
-    }
-
-    public void setCreateVulnerabilityIssues(final boolean createVulnerabilityIssues) {
-        this.createVulnerabilityIssues = createVulnerabilityIssues;
     }
 
     public String getPolicyRulesJson() {
@@ -362,14 +340,6 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
 
     public void setPolicyRulesError(final String policyRulesError) {
         this.policyRulesError = policyRulesError;
-    }
-
-    public String getCreateVulnerabilityIssuesError() {
-        return createVulnerabilityIssuesError;
-    }
-
-    public void setCreateVulnerabilityIssuesError(final String createVulnerabilityIssuesError) {
-        this.createVulnerabilityIssuesError = createVulnerabilityIssuesError;
     }
 
     public boolean getCommentOnIssueUpdatesChoice() {

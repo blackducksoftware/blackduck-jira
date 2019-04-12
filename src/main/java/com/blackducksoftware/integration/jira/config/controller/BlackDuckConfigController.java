@@ -171,7 +171,7 @@ public class BlackDuckConfigController extends ConfigController {
         final Object obj = executeAsTransaction(() -> {
             final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
             final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
             if (ticketErrors != null) {
                 Collections.sort(ticketErrors);

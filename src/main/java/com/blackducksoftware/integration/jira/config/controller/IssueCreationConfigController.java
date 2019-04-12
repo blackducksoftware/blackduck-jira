@@ -35,24 +35,27 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueCreationConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 @Path("/config/issue/creator")
 public class IssueCreationConfigController extends ConfigController {
-
     final ProjectManager projectManager;
     private final IssueCreationConfigActions issueCreationConfigActions;
 
     public IssueCreationConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final ProjectManager projectManager,
-        final BlackDuckMonitor blackDuckMonitor) {
+        final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, final BlackDuckMonitor blackDuckMonitor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.projectManager = projectManager;
-        issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, blackDuckMonitor);
+        final WorkflowHelper workflowHelper = new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager);
+        issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, workflowHelper, blackDuckMonitor);
     }
 
     @GET
@@ -108,28 +111,6 @@ public class IssueCreationConfigController extends ConfigController {
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
-    }
-
-    @Path("/vulnerability/ticketchoice")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCreateVulnerabilityTicketsChoice(@Context final HttpServletRequest request) {
-        logger.debug("GET /vulnerability/ticketchoice");
-        final Object config;
-        try {
-            final boolean validAuthentication = isAuthorized(request);
-            if (!validAuthentication) {
-                return Response.status(Status.UNAUTHORIZED).build();
-            }
-            config = executeAsTransaction(() -> issueCreationConfigActions.getCreateVulnerabilityTickets());
-        } catch (final Exception e) {
-            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
-            final String msg = "Error getting 'create vulnerability issues' choice: " + e.getMessage();
-            logger.error(msg, e);
-            errorConfig.setCreateVulnerabilityIssuesError(msg);
-            return Response.ok(errorConfig).build();
-        }
-        return Response.ok(config).build();
     }
 
     @Path("/comment/updatechoice")

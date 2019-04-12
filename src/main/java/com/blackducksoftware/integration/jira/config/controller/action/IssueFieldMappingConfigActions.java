@@ -33,17 +33,14 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.fields.FieldManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.config.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
-import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.Fields;
 import com.blackducksoftware.integration.jira.config.model.IdToNameMapping;
@@ -51,27 +48,16 @@ import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMappi
 import com.blackducksoftware.integration.jira.task.issue.ui.JiraFieldUtils;
 
 public class IssueFieldMappingConfigActions {
-    final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettingsFactory pluginSettingsFactory;
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final PluginSettingsWrapper pluginSettingsWrapper;
     private final Properties i18nProperties;
     private final FieldManager fieldManager;
 
     public IssueFieldMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory, final Properties i18nProperties, final FieldManager fieldManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
         this.i18nProperties = i18nProperties;
         this.fieldManager = fieldManager;
         populateI18nProperties();
-    }
-
-    public BlackDuckJiraConfigSerializable getMappings() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
-        final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
-
-        txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
-
-        validateMapping(txConfig);
-        return txConfig;
     }
 
     public Fields getSourceFields() {
@@ -109,7 +95,6 @@ public class IssueFieldMappingConfigActions {
     }
 
     public BlackDuckJiraFieldCopyConfigSerializable getFieldCopyMappings() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckJiraFieldCopyConfigSerializable txConfig = new BlackDuckJiraFieldCopyConfigSerializable();
         final String blackDuckFieldCopyMappingsJson = pluginSettingsWrapper.getFieldMappingsCopyJson();
 
@@ -124,34 +109,8 @@ public class IssueFieldMappingConfigActions {
             return null;
         }
 
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         pluginSettingsWrapper.setFieldMappingsCopyJson(fieldCopyConfig.getJson());
         return null;
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    private void validateMapping(final BlackDuckJiraConfigSerializable config) {
-        if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
-            boolean hasEmptyMapping = false;
-            for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                boolean jiraProjectBlank = true;
-                boolean blackDuckProjectBlank = true;
-                if (mapping.getJiraProject() != null) {
-                    if (mapping.getJiraProject().getProjectId() != null) {
-                        jiraProjectBlank = false;
-                    }
-                }
-                if (StringUtils.isNotBlank(mapping.getBlackDuckProjectName())) {
-                    blackDuckProjectBlank = false;
-                }
-                if (jiraProjectBlank || blackDuckProjectBlank) {
-                    hasEmptyMapping = true;
-                }
-            }
-            if (hasEmptyMapping) {
-                config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
-            }
-        }
     }
 
     private boolean isValid(final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
@@ -205,8 +164,4 @@ public class IssueFieldMappingConfigActions {
         logger.debug("i18nProperties: " + i18nProperties);
     }
 
-    private PluginSettingsWrapper createPluginSettingsWrapper() {
-        final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-        return new PluginSettingsWrapper(globalSettings);
-    }
 }

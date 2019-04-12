@@ -85,7 +85,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
     public Response getPluginVersion(@Context final HttpServletRequest request) {
         final Object pluginInfo;
         try {
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
             final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
             final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
             if (!validAuthentication) {
@@ -109,7 +109,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete, @Context final HttpServletRequest request) {
-        final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+        final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
         final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
         final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
         if (!validAuthentication) {
@@ -164,7 +164,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
         logger.debug("Reset called with parameter: " + object);
         final Object responseString;
         try {
-            final PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
+            final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
             final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
             final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
             if (!validAuthentication) {
@@ -213,4 +213,5 @@ public class BlackDuckJiraConfigController extends ConfigController {
             settings.put(key, value);
         }
     }
+
 }

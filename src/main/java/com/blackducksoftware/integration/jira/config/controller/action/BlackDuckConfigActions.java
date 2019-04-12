@@ -33,7 +33,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
@@ -59,15 +58,15 @@ import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class BlackDuckConfigActions {
-    final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettingsFactory pluginSettingsFactory;
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+
+    private final PluginSettingsWrapper pluginSettingsWrapper;
 
     public BlackDuckConfigActions(final PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
+        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
     }
 
     public BlackDuckServerConfigSerializable getStoredBlackDuckConfig() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final String blackDuckUrl = pluginSettingsWrapper.getBlackDuckUrl();
         logger.debug(String.format("Returning Black Duck details for %s", blackDuckUrl));
         final String apiToken = pluginSettingsWrapper.getBlackDuckApiToken();
@@ -106,7 +105,6 @@ public class BlackDuckConfigActions {
     }
 
     public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config) {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
@@ -140,7 +138,6 @@ public class BlackDuckConfigActions {
 
     public Object getBlackDuckProjects() {
         try {
-            final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
             final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(pluginSettingsWrapper);
             final List<String> blackDuckProjects = getBlackDuckProjects(blackDuckServicesFactory);
 
@@ -184,7 +181,6 @@ public class BlackDuckConfigActions {
     }
 
     public BlackDuckJiraConfigSerializable getBlackDuckPolicies() {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final String policyRulesJson = pluginSettingsWrapper.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_POLICY_RULES_JSON);
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
 
@@ -205,7 +201,6 @@ public class BlackDuckConfigActions {
     }
 
     private BlackDuckServerConfigSerializable getUnMaskedConfig(final BlackDuckServerConfigSerializable currentConfig) {
-        final PluginSettingsWrapper pluginSettingsWrapper = createPluginSettingsWrapper();
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(currentConfig);
 
         if (StringUtils.isNotBlank(newConfig.getApiToken()) && newConfig.isApiTokenMasked()) {
@@ -442,11 +437,6 @@ public class BlackDuckConfigActions {
         } else if (StringUtils.isBlank(proxyUser) && StringUtils.isNotBlank(proxyPassword)) {
             config.setHubProxyUserError("Proxy user not specified.");
         }
-    }
-
-    private PluginSettingsWrapper createPluginSettingsWrapper() {
-        final PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-        return new PluginSettingsWrapper(globalSettings);
     }
 
 }

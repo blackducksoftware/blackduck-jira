@@ -21,39 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common.notification;
+package com.blackducksoftware.integration.jira.common;
 
-import java.util.Collections;
-import java.util.List;
+public enum BlackDuckWorkflowStatus {
+    ENABLED("Enabled"),
+    POLICY_ONLY("Policy only"),
+    VULN_ONLY("Vulnerability only"),
+    DISABLED("Disabled");
 
-import com.synopsys.integration.blackduck.service.model.ProjectVersionDescription;
+    private final String prettyPrintName;
 
-public class BomEditContent extends NotificationContent {
-    public String bomComponent;
-
-    @Override
-    public boolean providesPolicyDetails() {
-        return false;
+    BlackDuckWorkflowStatus(final String prettyPrintName) {
+        this.prettyPrintName = prettyPrintName;
     }
 
-    @Override
-    public boolean providesVulnerabilityDetails() {
-        return false;
-    }
-
-    @Override
-    public boolean providesProjectComponentDetails() {
-        return false;
-    }
-
-    @Override
-    public boolean providesLicenseDetails() {
-        return false;
-    }
-
-    @Override
-    public List<ProjectVersionDescription> getAffectedProjectVersionDescriptions() {
-        return Collections.emptyList();
+    public String getPrettyPrintName() {
+        return prettyPrintName;
     }
 
 }

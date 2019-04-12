@@ -34,8 +34,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.manual.component.AffectedProjectVersion;
+import com.synopsys.integration.blackduck.api.manual.component.BomEditNotificationContent;
 import com.synopsys.integration.blackduck.api.manual.component.ComponentVersionStatus;
+import com.synopsys.integration.blackduck.api.manual.component.NotificationContentComponent;
 import com.synopsys.integration.blackduck.api.manual.component.PolicyInfo;
+import com.synopsys.integration.blackduck.api.manual.component.PolicyOverrideNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.RuleViolationClearedNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.RuleViolationNotificationContent;
+import com.synopsys.integration.blackduck.api.manual.component.VulnerabilityNotificationContent;
 
 public class NotificationContentDetailFactory {
     private final Gson gson;
@@ -51,7 +57,7 @@ public class NotificationContentDetailFactory {
         final String notificationJson = view.getJson();
         final JsonObject jsonObject = jsonParser.parse(notificationJson).getAsJsonObject();
 
-        NotificationContent notificationContent = null;
+        NotificationContentComponent notificationContent = null;
         String notificationGroup = null;
         final List<NotificationContentDetail> notificationContentDetails = new ArrayList<>();
 
@@ -72,9 +78,9 @@ public class NotificationContentDetailFactory {
             notificationGroup = NotificationContentDetail.CONTENT_KEY_GROUP_VULNERABILITY;
             populateContentDetails(notificationContentDetails, notificationGroup, (VulnerabilityNotificationContent) notificationContent);
         } else if (NotificationType.BOM_EDIT.equals(type)) {
-            notificationContent = gson.fromJson(jsonObject.get("content"), BomEditContent.class);
+            notificationContent = gson.fromJson(jsonObject.get("content"), BomEditNotificationContent.class);
             notificationGroup = NotificationContentDetail.CONTENT_KEY_GROUP_BOM_EDIT;
-            populateContentDetails(notificationContentDetails, notificationGroup, (BomEditContent) notificationContent);
+            populateContentDetails(notificationContentDetails, notificationGroup, (BomEditNotificationContent) notificationContent);
         }
 
         return new NotificationDetailResult(notificationContent, view.getContentType(), view.getCreatedAt(), view.getType(), notificationGroup, Optional.ofNullable(view.getNotificationState()), notificationContentDetails);
@@ -156,10 +162,10 @@ public class NotificationContentDetailFactory {
         }
     }
 
-    private void populateContentDetails(final List<NotificationContentDetail> notificationContentDetails, final String notificationGroup, final BomEditContent notificationContent) {
+    private void populateContentDetails(final List<NotificationContentDetail> notificationContentDetails, final String notificationGroup, final BomEditNotificationContent notificationContent) {
         final NotificationContentDetail detail = NotificationContentDetail
                                                      .createDetail(notificationGroup, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                                                         Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.ofNullable(notificationContent.bomComponent));
+                                                         Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.ofNullable(notificationContent.getBomComponent()));
         notificationContentDetails.add(detail);
     }
 

@@ -44,7 +44,6 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
-import com.blackducksoftware.integration.jira.common.notification.RuleViolationNotificationContent;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
@@ -61,6 +60,7 @@ import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
 import com.synopsys.integration.blackduck.api.manual.component.PolicyInfo;
+import com.synopsys.integration.blackduck.api.manual.component.RuleViolationNotificationContent;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 
@@ -80,8 +80,8 @@ public class BomNotificationToIssueModelConverterTest {
         policyInfo.setPolicy(DIFFERENT_POLICY_RULE_LINK);
 
         final RuleViolationNotificationContent content = new RuleViolationNotificationContent();
-        content.projectName = TEST_PROJECT;
-        content.policyInfos = Collections.singletonList(policyInfo);
+        content.setProjectName(TEST_PROJECT);
+        content.setPolicyInfos(Collections.singletonList(policyInfo));
 
         final String notificationGroup = NotificationContentDetail.CONTENT_KEY_GROUP_POLICY;
         final String bomComponentLink = "bom component";

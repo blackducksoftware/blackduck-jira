@@ -113,6 +113,7 @@ public class BlackDuckJiraTask {
         final NotificationService notificationService = blackDuckServicesFactory.createNotificationService();
 
         final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
+        // FIXME the policy check here is unnecessary
         if (!config.hasProjectMappings() && !config.hasPolicyRules()) {
             return Optional.ofNullable(previousStartDate);
         }

@@ -37,10 +37,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueFieldMappingConfigActions;
+import com.blackducksoftware.integration.jira.config.controller.action.ProjectMappingConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.Fields;
@@ -51,16 +56,19 @@ public class IssueFieldMappingConfigController extends ConfigController {
 
     final FieldManager fieldManager;
     private final IssueFieldMappingConfigActions issueFieldMappingConfigActions;
+    private final ProjectMappingConfigActions projectMappingConfigActions;
 
     public IssueFieldMappingConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final FieldManager fieldManager,
-        final Properties i18nProperties) {
+        final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, ProjectManager projectManager, final Properties i18nProperties) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.fieldManager = fieldManager;
-        issueFieldMappingConfigActions = new IssueFieldMappingConfigActions(pluginSettingsFactory, i18nProperties, fieldManager);
+        this.issueFieldMappingConfigActions = new IssueFieldMappingConfigActions(pluginSettingsFactory, i18nProperties, fieldManager);
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory, new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    // FIXME move this to a ProjectMappingConfigController in the next major version
     public Response getMappings(@Context final HttpServletRequest request) {
         final Object config;
         try {
@@ -68,7 +76,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
-            config = executeAsTransaction(() -> issueFieldMappingConfigActions.getMappings());
+            config = executeAsTransaction(() -> projectMappingConfigActions.getMappings());
         } catch (final Exception e) {
             final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
             final String msg = "Error getting project mappings: " + e.getMessage();
@@ -126,7 +134,7 @@ public class IssueFieldMappingConfigController extends ConfigController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFieldCopyMappings(@Context final HttpServletRequest request) {
-        Object config = null;
+        Object config;
         try {
             logger.debug("Get /copies");
             final boolean validAuthentication = isAuthorized(request);

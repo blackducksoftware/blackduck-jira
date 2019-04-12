@@ -63,8 +63,12 @@ public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fi
 
     @Override
     public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screenScheme) {
-
         return screenScheme.getFieldScreenSchemeItems();
+    }
+
+    @Override
+    public boolean screenSchemeNameExists(final String s) {
+        return updatedSchemes.stream().anyMatch(x -> x.getName().equals(s));
     }
 
     @Override

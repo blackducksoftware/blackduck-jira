@@ -10,7 +10,7 @@
 
   <!-- If the group or artifact changes then you must update JiraServices.getPluginVersion() -->
   <artifactId>hub-jira</artifactId>
-  <version>5.0.0-SNAPSHOT</version>
+  <version>6.0.0-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>Black Duck JIRA Plugin</name>
@@ -21,7 +21,7 @@
     <!-- To use quickReload, use: amps.version: 6.2.4 jira.version: 7.1.4 -->
     <amps.version>8.0.0</amps.version>
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-    <jira.version>7.3.0</jira.version>
+    <jira.version>7.4.5</jira.version>
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
     <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
     <testkit.version>5.2.26</testkit.version>
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>blackduck-common</artifactId>
-      <version>42.0.0</version>
+      <version>42.4.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.blackducksoftware.integration</groupId>
@@ -104,7 +104,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>integration-common</artifactId>
-      <version>15.4.0</version>
+      <version>17.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>

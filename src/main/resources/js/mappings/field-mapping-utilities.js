@@ -55,7 +55,7 @@ function removeFieldCopyMappingErrorStatus(mappingElement) {
 }
 
 function addNewFieldCopyMappingElement(fieldId) {
-    const elementToAdd = AJS.$("#" + fieldId).clone(); // TODO typo?
+    const elementToAdd = AJS.$("#" + fieldId).clone();
     mappingElementCounter = mappingElementCounter + 1;
     elementToAdd.attr("id", elementToAdd.attr("id") + mappingElementCounter);
     elementToAdd.appendTo("#" + fieldCopyMappingContainer);
@@ -142,10 +142,15 @@ function fillInMapping(mappingElement, storedMapping) {
     const storedJiraProject = storedMapping.jiraProject;
     const storedJiraProjectDisplayName = storedJiraProject.projectName;
     const storedJiraProjectValue = storedJiraProject.projectId;
-    const storedJiraProjectError = storedJiraProject.projectError;
 
     currentJiraProject.val(storedJiraProjectDisplayName);
     currentJiraProject.attr("projectKey", storedJiraProjectValue);
+
+    const workflowStatusSpan = AJS.$(mappingElement).find("span[name*='workflowStatus']")[0];
+    setWorkflowStatus(workflowStatusSpan, storedJiraProject.workflowStatus);
+
+    const configuredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
+    configuredForVulnerabilities.prop("checked", storedJiraProject.configuredForVulnerabilities);
 
     const currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
     currentIssueCreator.val(storedJiraProject.issueCreator);

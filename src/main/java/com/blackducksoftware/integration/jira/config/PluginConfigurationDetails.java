@@ -27,6 +27,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 
 public class PluginConfigurationDetails {
@@ -163,10 +164,10 @@ public class PluginConfigurationDetails {
     }
 
     public BlackDuckServerConfigBuilder createServerConfigBuilder() {
-        final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
+        final BlackDuckServerConfigBuilder serverConfigBuilder = BlackDuckServerConfig.newBuilder();
         serverConfigBuilder.setUrl(blackDuckUrl);
         serverConfigBuilder.setApiToken(blackDuckApiToken);
-        serverConfigBuilder.setTimeout(blackDuckTimeoutString);
+        serverConfigBuilder.setTimeoutInSeconds(blackDuckTimeoutString);
         serverConfigBuilder.setTrustCert(blackDuckTrustCert);
         serverConfigBuilder.setProxyHost(blackDuckProxyHost);
         serverConfigBuilder.setProxyPort(blackDuckProxyPort);
@@ -186,9 +187,6 @@ public class PluginConfigurationDetails {
 
     private boolean getBooleanValue(final PluginSettings settings, final String key) {
         final String valueString = (String) getValue(settings, key);
-        if ("true".equalsIgnoreCase(valueString)) {
-            return true;
-        }
-        return false;
+        return Boolean.parseBoolean(valueString);
     }
 }

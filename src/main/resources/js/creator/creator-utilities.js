@@ -60,6 +60,7 @@ function fillInJiraProjects(jiraProjects) {
             let newOption = AJS.$('<option>', {
                 value: jiraProjects[j].projectName,
                 projectKey: String(jiraProjects[j].projectId),
+                projectWorkflowStatus: String(jiraProjects[j].workflowStatus),
                 projectError: jiraProjects[j].projectError
             });
 
@@ -124,6 +125,9 @@ function getJsonArrayFromMapping() {
         let currentJiraProjectValue = currentJiraProject.attr('projectKey');
         let currentJiraProjectError = currentJiraProject.attr('projectError');
 
+        let currentConfiguredForVulnerabilities = AJS.$(mappingElement).find("input[name*='configuredForVulnerabilitiesOption']");
+        let currentJiraProjectConfiguredForVulnerabilities = currentConfiguredForVulnerabilities[0].checked;
+
         let currentIssueCreator = AJS.$(mappingElement).find("input[name*='issueCreator']");
         let currentJiraProjectIssueCreator = currentIssueCreator.val();
 
@@ -142,9 +146,9 @@ function getJsonArrayFromMapping() {
         jsonArray.push({
             jiraProject: {
                 [jiraProjectDisplayName]: currentJiraProjectDisplayName,
-
                 [jiraProjectKey]: currentJiraProjectValue,
-                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator
+                [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator,
+                [jiraProjectConfiguredForVulnerabilitiesDisplayName]: currentJiraProjectConfiguredForVulnerabilities
             },
             blackDuckProjectName: currentHubProjectDisplayName
         });
@@ -175,32 +179,6 @@ function getJsonArrayFromPolicyRules() {
     return jsonArray;
 }
 
-function getCreateVulnerabilityIssuesChoice() {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-
-    if (createVulnerabilityIssuesElement[0].checked) {
-        return "true";
-    } else {
-        return "false";
-    }
-}
-
-function setCreateVulnerabilityIssuesChoice(createVulnerabilityIssues) {
-    const createVulnerabilityIssuesElement = AJS.$("#" + "createVulnerabilityIssues");
-    console.log("createVulnerabilityIssuesElement: " + createVulnerabilityIssuesElement);
-    if (createVulnerabilityIssuesElement.length == 0) {
-        console.log("*** createVulnerabilityIssuesElement is not ready");
-    }
-
-    if (createVulnerabilityIssues) {
-        console.log("Setting createVulnerabilityIssuesChoice to Yes");
-        createVulnerabilityIssuesElement[0].checked = true;
-    } else {
-        console.log("Setting createVulnerabilityIssuesChoice to No");
-        createVulnerabilityIssuesElement[0].checked = false;
-    }
-}
-
 function getCommentOnIssueUpdatesChoice() {
     const commentOnIssueUpdatesChoiceElement = AJS.$("#" + "commentOnIssueUpdatesChoice");
 
@@ -224,6 +202,29 @@ function setCommentOnIssueUpdatesChoice(commentOnIssueUpdatesChoice) {
     } else {
         console.log("Setting commentOnIssueUpdatesChoiceElement to No");
         commentOnIssueUpdatesChoiceElement[0].checked = false;
+    }
+}
+
+function setWorkflowStatus(workflowStatusSpan, newStatus) {
+    console.log("workflowStatusElement: " + workflowStatusSpan);
+    while (workflowStatusSpan.firstChild) {
+        workflowStatusSpan.removeChild(workflowStatusSpan.firstChild);
+    }
+    workflowStatusSpan.appendChild(document.createTextNode(newStatus));
+
+    const parentDivClassList = workflowStatusSpan.parentElement.classList;
+    if (newStatus === 'Enabled') {
+        parentDivClassList.add('workflowStatusEnabled');
+        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusPartial');
+    } else if (newStatus === 'Disabled') {
+        parentDivClassList.remove('workflowStatusEnabled');
+        parentDivClassList.add('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusPartial');
+    } else {
+        parentDivClassList.remove('workflowStatusEnabled');
+        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.add('workflowStatusPartial');
     }
 }
 
@@ -301,6 +302,10 @@ function onMappingInputChange(inputField) {
                 }
             }
 
+            const mappingRow = inputField.parentElement.parentElement;
+            const workflowStatusSpan = AJS.$(mappingRow).find("span[name='workflowStatus']")[0];
+            setWorkflowStatus(workflowStatusSpan, option.attr("projectWorkflowStatus"));
+
             break;
         }
     }
@@ -309,5 +314,16 @@ function onMappingInputChange(inputField) {
         if (!field.hasClass('error')) {
             field.addClass('error');
         }
+    }
+}
+
+function onSelectAllCheckedOrUnchecked(selectAllCheckbox) {
+    const boxIsChecked = selectAllCheckbox.checked;
+
+    const mappingTable = AJS.$("#hubProjectMappingTable");
+    const projectMappingCheckboxes = AJS.$(mappingTable).find("input[name*='configuredForVulnerabilitiesOption']")
+    for (let i = 0; i < projectMappingCheckboxes.length; i++) {
+        const mappingCheckbox = projectMappingCheckboxes[i];
+        mappingCheckbox.checked = boxIsChecked;
     }
 }

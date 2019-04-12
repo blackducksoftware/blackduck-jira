@@ -50,18 +50,21 @@ public class JiraProjectTest {
         item1.setProjectKey(key1);
         item1.setAssigneeUserId("assigneeUserId1");
         item1.setProjectError(projectError1);
+        item1.setConfiguredForVulnerabilities(true);
         final JiraProject item2 = new JiraProject();
         item2.setProjectName(name2);
         item2.setProjectId(id2);
         item2.setProjectKey(key2);
         item2.setAssigneeUserId("assigneeUserId2");
         item2.setProjectError(projectError2);
+        item2.setConfiguredForVulnerabilities(true);
         final JiraProject item3 = new JiraProject();
         item3.setProjectName(name1);
         item3.setProjectId(id1);
         item3.setProjectKey(key1);
         item3.setAssigneeUserId("assigneeUserId1");
         item3.setProjectError(projectError1);
+        item3.setConfiguredForVulnerabilities(true);
 
         assertEquals(name1, item1.getProjectName());
         assertEquals(id1, item1.getProjectId());
@@ -94,6 +97,10 @@ public class JiraProjectTest {
         builder.append(item1.getAssigneeUserId());
         builder.append(", projectError=");
         builder.append(item1.getProjectError());
+        builder.append(", configuredForVulnerabilities=");
+        builder.append(item1.isConfiguredForVulnerabilities());
+        builder.append(", workflowStatus=");
+        builder.append(item1.getWorkflowStatus());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());

@@ -94,7 +94,7 @@ public class BlackDuckJiraConstants {
     public static final String VERSIONS_FIELD_ID = "versions";
     public static final String COMPONENTS_FIELD_ID = "components";
     // i18n.properties file location
-    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n_4.properties";
+    public static final String PROPERTY_FILENAME = "com/blackducksoftware/integration/jira/i18n_6.properties";
     // String used to join conjunctive and adjunctive licenses together into a string for display
     public static final String LICENSE_NAME_JOINER_OR = " OR ";
     public static final String LICENSE_NAME_JOINER_AND = " AND ";
