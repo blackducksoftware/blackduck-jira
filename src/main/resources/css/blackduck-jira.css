@@ -15,7 +15,7 @@
 }
 
 .error {
-    color: #c00;
+    /* color: #c00; */
 }
 
 .ticketCreationError {
@@ -168,7 +168,7 @@
     all: unset;
     color: white;
     max-width: 100px;
-    overflow-wrap: break-word;
+    white-space: nowrap;
     border-radius: 5px 5px;
     padding: 1px 4px;
 }

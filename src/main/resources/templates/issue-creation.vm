@@ -49,7 +49,6 @@
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
-                <td class="mappingTableCell" />
                 <td class="mappingTableCell error" id="hubProjectListError" />
                 <td class="mappingTableCell" />
             </tr>

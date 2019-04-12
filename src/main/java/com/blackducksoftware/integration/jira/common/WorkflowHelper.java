@@ -31,13 +31,17 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.workflow.AssignableWorkflowScheme;
+import com.atlassian.jira.workflow.JiraWorkflow;
+import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
 public class WorkflowHelper {
+    private WorkflowManager workflowManager;
     private WorkflowSchemeManager workflowSchemeManager;
     private ProjectManager projectManager;
 
-    public WorkflowHelper(final WorkflowSchemeManager workflowSchemeManager, final ProjectManager projectManager) {
+    public WorkflowHelper(final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, final ProjectManager projectManager) {
+        this.workflowManager = workflowManager;
         this.workflowSchemeManager = workflowSchemeManager;
         this.projectManager = projectManager;
     }
@@ -51,12 +55,18 @@ public class WorkflowHelper {
     }
 
     public BlackDuckWorkflowStatus getBlackDuckWorkflowStatus(final Project jiraProject) {
-        final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(jiraProject);
-        final Map<String, String> issueTypeIdToWorkflowName = projectWorkflowScheme.getMappings();
-
         final Collection<IssueType> issueTypes = jiraProject.getIssueTypes();
         final IssueType policyIssueType = getIssueTypeByName(issueTypes, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE).orElse(null);
         final IssueType vulnIssueType = getIssueTypeByName(issueTypes, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE).orElse(null);
+
+        final JiraWorkflow blackduckWorkflow = workflowManager.getWorkflow(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+        if (!doesBlackDuckDataExistYet(blackduckWorkflow, policyIssueType, vulnIssueType)) {
+            // No mappings have been created, so this will get enabled on the first run of the timed tasks.
+            return BlackDuckWorkflowStatus.ENABLED;
+        }
+
+        final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(jiraProject);
+        final Map<String, String> issueTypeIdToWorkflowName = projectWorkflowScheme.getMappings();
 
         boolean policyUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, policyIssueType);
         boolean vulnUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, vulnIssueType);
@@ -84,6 +94,10 @@ public class WorkflowHelper {
                    .stream()
                    .filter(issueType -> name.equals(issueType.getName()))
                    .findFirst();
+    }
+
+    public boolean doesBlackDuckDataExistYet(final JiraWorkflow blackduckWorkflowNullable, final IssueType policyIssueTypeNullable, final IssueType vulnIssueTypeNullable) {
+        return null != blackduckWorkflowNullable || null != policyIssueTypeNullable || null != vulnIssueTypeNullable;
     }
 
 }

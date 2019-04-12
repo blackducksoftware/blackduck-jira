@@ -215,16 +215,16 @@ function setWorkflowStatus(workflowStatusSpan, newStatus) {
     const parentDivClassList = workflowStatusSpan.parentElement.classList;
     if (newStatus === 'Enabled') {
         parentDivClassList.add('workflowStatusEnabled');
+        parentDivClassList.remove('workflowStatusDisabled');
         parentDivClassList.remove('workflowStatusPartial');
-        parentDivClassList.remove('workflowStatusDisabled');
-    } else if (newStatus.includes('only')) {
+    } else if (newStatus === 'Disabled') {
         parentDivClassList.remove('workflowStatusEnabled');
-        parentDivClassList.add('workflowStatusPartial');
-        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.add('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusPartial');
     } else {
         parentDivClassList.remove('workflowStatusEnabled');
-        parentDivClassList.remove('workflowStatusPartial');
-        parentDivClassList.add('workflowStatusDisabled');
+        parentDivClassList.remove('workflowStatusDisabled');
+        parentDivClassList.add('workflowStatusPartial');
     }
 }
 

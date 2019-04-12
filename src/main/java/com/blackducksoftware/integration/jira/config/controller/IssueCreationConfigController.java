@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
@@ -50,10 +51,10 @@ public class IssueCreationConfigController extends ConfigController {
     private final IssueCreationConfigActions issueCreationConfigActions;
 
     public IssueCreationConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager, final ProjectManager projectManager,
-        final WorkflowSchemeManager workflowSchemeManager, final BlackDuckMonitor blackDuckMonitor) {
+        final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, final BlackDuckMonitor blackDuckMonitor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.projectManager = projectManager;
-        final WorkflowHelper workflowHelper = new WorkflowHelper(workflowSchemeManager, projectManager);
+        final WorkflowHelper workflowHelper = new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager);
         issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, workflowHelper, blackDuckMonitor);
     }
 
