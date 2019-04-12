@@ -82,8 +82,6 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
         final StringBuilder builder = new StringBuilder();
         builder.append("BlackDuckProjectMapping [jiraProject=");
         builder.append(jiraProject);
-        builder.append(", hubProject=");
-        builder.append(hubProject);
         builder.append(", blackDuckProjectName=");
         builder.append(blackDuckProjectName);
         builder.append("]");

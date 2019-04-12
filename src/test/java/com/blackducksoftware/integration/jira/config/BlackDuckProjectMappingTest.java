@@ -86,8 +86,6 @@ public class BlackDuckProjectMappingTest {
         final StringBuilder builder = new StringBuilder();
         builder.append("BlackDuckProjectMapping [jiraProject=");
         builder.append(item1.getJiraProject());
-        builder.append(", hubProject=");
-        builder.append(item1.getHubProject());
         builder.append(", blackDuckProjectName=");
         builder.append(item1.getBlackDuckProjectName());
         builder.append("]");

@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.UrlParser;
 import com.blackducksoftware.integration.jira.common.exception.IssueModelBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
@@ -47,7 +46,6 @@ import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.VersionBomComponentView;
-import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.Stringable;
@@ -301,7 +299,6 @@ public class BlackDuckIssueModelBuilder extends Stringable {
 
         final BlackDuckIssueModel model = new BlackDuckIssueModel(action, jiraIssueFieldTemplate, blackDuckIssueFieldTemplate, projectFieldCopyMappings, bomComponentUri, componentIssueUrl, lastBatchStartDate);
         addComments(model);
-        model.setEventKey(generateEventKey());
         return model;
     }
 
@@ -362,72 +359,11 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         wrapper.setJiraIssueResolveComment(jiraIssueResolveComment);
     }
 
-    // This must remain consistent among non-major versions
-    private String generateEventKey() throws IntegrationException {
-        final String blackDuckProjectVersionUrl = projectVersionUri;
-        final String blackDuckComponentVersionUrl = componentVersionUri;
-        final String blackDuckComponentUrl = componentUri;
-        final StringBuilder keyBuilder = new StringBuilder();
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_NAME);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        if (IssueCategory.POLICY.equals(issueCategory)) {
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_POLICY);
-        } else {
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_ISSUE_TYPE_VALUE_VULNERABILITY);
-        }
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_JIRA_PROJECT_ID_NAME);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(jiraProjectId);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_PROJECT_VERSION_REL_URL_HASHED_NAME);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckProjectVersionUrl)));
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_REL_URL_HASHED_NAME);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        if (blackDuckComponentVersionUrl == null && IssueCategory.POLICY.equals(issueCategory)) {
-            keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentUrl)));
-        } else {
-            // Vulnerabilities do not have a component URL
-        }
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_COMPONENT_VERSION_REL_URL_HASHED_NAME);
-        keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-        keyBuilder.append(hashString(UrlParser.getRelativeUrl(blackDuckComponentVersionUrl)));
-
-        if (IssueCategory.POLICY.equals(issueCategory)) {
-            if (policyRuleUrl == null) {
-                throw new BlackDuckIntegrationException("Policy Rule URL is null");
-            }
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_PAIR_SEPARATOR);
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_BLACKDUCK_POLICY_RULE_REL_URL_HASHED_NAME);
-            keyBuilder.append(BlackDuckJiraConstants.ISSUE_PROPERTY_KEY_NAME_VALUE_SEPARATOR);
-            keyBuilder.append(hashString(UrlParser.getRelativeUrl(policyRuleUrl)));
-        }
-
-        final String key = keyBuilder.toString();
-        return key;
-    }
-
-    public final String hashString(final String origString) {
-        final String hashString;
-        if (origString == null) {
-            hashString = "";
-        } else {
-            hashString = String.valueOf(origString.hashCode());
-        }
-        return hashString;
-    }
-
     private <T> String createCommaSeparatedString(final List<T> list, final Function<T, String> reductionFunction) {
         if (list != null && !list.isEmpty()) {
             return list.stream().map(reductionFunction).collect(Collectors.joining(", "));
         }
         return null;
     }
+
 }

@@ -462,7 +462,6 @@ public class NotificationConverterTest {
                 assertEquals(expectedDescription, model.getJiraIssueFieldTemplate().getIssueDescription());
                 assertEquals(expectedSummary, model.getJiraIssueFieldTemplate().getSummary());
                 assertEquals(issueTypeId, model.getJiraIssueFieldTemplate().getIssueTypeId());
-                assertEquals(expectedPropertyKey, model.getEventKey());
                 verifyGeneratedComments(model, expectedComment, expectedCommentIfExists, expectedReOpenComment, expectedResolveComment, expectedCommentInLieuOfStateChange);
             }
         }

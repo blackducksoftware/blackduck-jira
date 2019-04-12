@@ -46,9 +46,6 @@ public class BlackDuckIssueModel extends Stringable {
     private String jiraIssueResolveComment = null;
     private String jiraIssueCommentInLieuOfStateChange = null;
 
-    @Deprecated
-    private String eventKey;
-
     // @formatter:off
     public BlackDuckIssueModel(
              final BlackDuckIssueAction issueAction
@@ -147,16 +144,6 @@ public class BlackDuckIssueModel extends Stringable {
 
     public void setJiraIssueCommentInLieuOfStateChange(final String jiraIssueCommentInLieuOfStateChange) {
         this.jiraIssueCommentInLieuOfStateChange = jiraIssueCommentInLieuOfStateChange;
-    }
-
-    @Deprecated
-    public String getEventKey() {
-        return eventKey;
-    }
-
-    @Deprecated
-    public void setEventKey(final String eventKey) {
-        this.eventKey = eventKey;
     }
 
     public boolean isPolicy() {

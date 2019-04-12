@@ -25,11 +25,9 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -87,7 +85,6 @@ public class JiraTaskTimed implements Callable<String> {
         logger.debug("Retrieved plugin settings");
         logger.debug("Last run date based on SAL: " + settings.get(PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE));
         logger.debug("Last run date based on config details: " + configDetails.getLastRunDateString());
-        configDetails = updateOldMappingsIfNeeded(configDetails, settings);
 
         final Optional<JiraUserContext> optionalJiraUserContext = initJiraContext(configDetails.getJiraAdminUserName(), configDetails.getDefaultJiraIssueCreatorUserName(), jiraServices.getUserManager());
         if (!optionalJiraUserContext.isPresent()) {
@@ -267,31 +264,4 @@ public class JiraTaskTimed implements Callable<String> {
         return false;
     }
 
-    // Delete when customers all upgrade to 4.2.0+
-    private PluginConfigurationDetails updateOldMappingsIfNeeded(final PluginConfigurationDetails pluginConfigurationDetails, final PluginSettings pluginSettings) {
-        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        if (StringUtils.isNotBlank(pluginConfigurationDetails.getProjectMappingJson())) {
-            config.setHubProjectMappingsJson(pluginConfigurationDetails.getProjectMappingJson());
-            if (!config.getHubProjectMappings().isEmpty()) {
-                final Optional<BlackDuckProjectMapping> blackDuckProjectMappingOptional = config.getHubProjectMappings().stream().findFirst();
-                if (blackDuckProjectMappingOptional.isPresent()) {
-                    final BlackDuckProjectMapping blackDuckProjectMapping = blackDuckProjectMappingOptional.get();
-                    if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
-                        logger.debug("Updating the old project mappings.");
-                        final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
-                        for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                            final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
-                            newMapping.setJiraProject(mapping.getJiraProject());
-                            newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
-                            newProjectMappings.add(newMapping);
-                        }
-                        config.setHubProjectMappings(newProjectMappings);
-                        pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
-                        return new PluginConfigurationDetails(pluginSettings);
-                    }
-                }
-            }
-        }
-        return pluginConfigurationDetails;
-    }
 }

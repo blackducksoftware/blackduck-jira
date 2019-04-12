@@ -183,9 +183,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     }
 
     private void runUpgrade(final Date installDate) {
-        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger);
-        upgradeSteps.updateInstallDate(pluginSettings, installDate);
-        upgradeSteps.upgradeToV6FromAny(pluginSettings);
+        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger, pluginSettings);
+        upgradeSteps.updateInstallDate(installDate);
+        upgradeSteps.updateOldMappingsIfNeeded();
+        upgradeSteps.upgradeToV6FromAny();
     }
 
 }

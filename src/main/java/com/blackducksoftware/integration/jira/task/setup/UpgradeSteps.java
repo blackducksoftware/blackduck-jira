@@ -24,6 +24,11 @@
 package com.blackducksoftware.integration.jira.task.setup;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -38,12 +43,19 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSe
 
 public class UpgradeSteps {
     private final BlackDuckJiraLogger logger;
+    private final PluginSettings pluginSettings;
 
-    public UpgradeSteps(final BlackDuckJiraLogger logger) {
-        this.logger = logger;
+    public static String getInstallDateString(final PluginSettings pluginSettings) {
+        return (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
     }
 
-    public void updateInstallDate(final PluginSettings pluginSettings, final Date installDate) {
+    public UpgradeSteps(final BlackDuckJiraLogger logger, final PluginSettings pluginSettings) {
+        this.logger = logger;
+        this.pluginSettings = pluginSettings;
+    }
+
+    // For every upgrade
+    public void updateInstallDate(final Date installDate) {
         final String installDateString = BlackDuckPluginDateFormatter.format(installDate);
 
         logger.debug("Updating install date...");
@@ -54,7 +66,8 @@ public class UpgradeSteps {
         logger.debug("The new install date is: " + newInstallDate);
     }
 
-    public void upgradeToV6FromAny(final PluginSettings pluginSettings) {
+    // Delete in V8
+    public void upgradeToV6FromAny() {
         final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
         final boolean vulnerabilityTicketsEnabled = pluginConfigDetails.isCreateVulnerabilityIssues();
 
@@ -72,8 +85,35 @@ public class UpgradeSteps {
         settingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
     }
 
-    public static String getInstallDateString(final PluginSettings pluginSettings) {
-        return (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+    // Delete when customers all upgrade to 4.2.0+
+    public void updateOldMappingsIfNeeded() {
+        final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        if (StringUtils.isBlank(pluginConfigDetails.getProjectMappingJson())) {
+            return;
+        }
+
+        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
+        if (config.getHubProjectMappings().isEmpty()) {
+            return;
+        }
+
+        final Optional<BlackDuckProjectMapping> blackDuckProjectMappingOptional = config.getHubProjectMappings().stream().findFirst();
+        if (blackDuckProjectMappingOptional.isPresent()) {
+            final BlackDuckProjectMapping blackDuckProjectMapping = blackDuckProjectMappingOptional.get();
+            if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
+                logger.debug("Updating the old project mappings.");
+                final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
+                for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                    final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
+                    newMapping.setJiraProject(mapping.getJiraProject());
+                    newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
+                    newProjectMappings.add(newMapping);
+                }
+                config.setHubProjectMappings(newProjectMappings);
+                pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+            }
+        }
     }
 
 }
