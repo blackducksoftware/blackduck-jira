@@ -47,4 +47,5 @@ public class PluginConfigurationDetailsMock extends PluginConfigurationDetails {
 
         return configBuilder;
     }
+
 }

@@ -34,7 +34,6 @@ import org.apache.log4j.Logger;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.scheduling.PluginScheduler;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
 import com.atlassian.scheduler.config.JobConfig;
@@ -53,20 +52,16 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
     private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
     private static final String CURRENT_JOB_NAME = BlackDuckMonitor.class.getName() + ":job";
-    private static final String V1_JOB_NAME = "com.blackducksoftware.integration.jira.impl.HubMonitor:job";
-    private static final String V3_JOB_NAME = "com.blackducksoftware.integration.jira.task.HubMonitor:job";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final SchedulerService schedulerService;
-    private final PluginScheduler pluginSchedulerDeprecated;
     private final PluginSettings pluginSettings;
     private final PluginExecutorService executorService;
 
     @Inject
-    public BlackDuckMonitor(final SchedulerService schedulerService, final PluginScheduler pluginSchedulerDeprecated, final PluginSettingsFactory pluginSettingsFactory, final PluginExecutorService executorService) {
+    public BlackDuckMonitor(final SchedulerService schedulerService, final PluginSettingsFactory pluginSettingsFactory, final PluginExecutorService executorService) {
         logger.trace(BlackDuckMonitor.class.getName() + " ctor called.");
         this.schedulerService = schedulerService;
-        this.pluginSchedulerDeprecated = pluginSchedulerDeprecated;
         this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
         this.executorService = executorService;
 
@@ -147,26 +142,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
     public String getName() {
         logger.trace(BlackDuckMonitor.class.getName() + ".getName() called");
-        if (pluginSchedulerDeprecated != null) {
-            return "blackDuckMonitor with pluginScheduler:" + pluginSchedulerDeprecated.toString();
-        }
-
         return "blackDuckMonitor";
     }
 
     private void unscheduleOldJobs() {
-        try {
-            pluginSchedulerDeprecated.unscheduleJob(V1_JOB_NAME);
-            logger.debug("Unscheduled job " + V1_JOB_NAME);
-        } catch (final Exception e) {
-            logger.debug("Job " + V1_JOB_NAME + " wasn't scheduled");
-        }
-        try {
-            pluginSchedulerDeprecated.unscheduleJob(V3_JOB_NAME);
-            logger.debug("Unscheduled job " + V3_JOB_NAME);
-        } catch (final Exception e) {
-            logger.debug("Job " + V3_JOB_NAME + " wasn't scheduled");
-        }
         try {
             schedulerService.unscheduleJob(JobId.of(CURRENT_JOB_NAME));
         } catch (final Exception e) {
@@ -204,9 +183,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     }
 
     private void runUpgrade(final Date installDate) {
-        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger);
-        upgradeSteps.updateInstallDate(pluginSettings, installDate);
-        upgradeSteps.upgradeToV6FromAny(pluginSettings);
+        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger, pluginSettings);
+        upgradeSteps.updateInstallDate(installDate);
+        upgradeSteps.updateOldMappingsIfNeeded();
+        upgradeSteps.upgradeToV6FromAny();
     }
 
 }

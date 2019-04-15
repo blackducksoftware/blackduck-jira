@@ -83,23 +83,12 @@ public class BlackDuckIssueTypeSetup {
         blackDuckAvatars = new BlackDuckAvatars(jiraServices, jiraUser);
     }
 
-    public List<IssueType> addBdsIssueTypesToJira() throws JiraException {
+    public List<IssueType> addBdsIssueTypesToJira() {
         final List<IssueType> bdIssueTypes = new ArrayList<>();
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
-            final int indexOfV3PolicyType = existingBdIssueTypeNames.indexOf(V3PluginConstants.V3_POLICY_VIOLATION_ISSUE);
-            if (indexOfV3PolicyType >= 0) {
-                renameBdsIssueType(bdIssueTypes, indexOfV3PolicyType, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-            } else {
-                addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-            }
-
-            final int indexOfV3VulnType = existingBdIssueTypeNames.indexOf(V3PluginConstants.V3_VULNERABILITY_ISSUE);
-            if (indexOfV3VulnType >= 0) {
-                renameBdsIssueType(bdIssueTypes, indexOfV3VulnType, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-            } else {
-                addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-            }
+            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         } catch (final Exception e) {
             logger.error(e);
             settingService.addBlackDuckError(e, "addIssueTypesToJira()");
@@ -112,10 +101,7 @@ public class BlackDuckIssueTypeSetup {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
             final String issueTypeName = issueType.getName();
-            if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)
-                    || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)
-                    || issueTypeName.equals(V3PluginConstants.V3_POLICY_VIOLATION_ISSUE)
-                    || issueTypeName.equals(V3PluginConstants.V3_VULNERABILITY_ISSUE)) {
+            if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
                 existingBdIssueTypeNames.add(issueTypeName);
             }
@@ -252,7 +238,7 @@ public class BlackDuckIssueTypeSetup {
                     break;
                 } else if (existingIssueTypeId == issueType.getId()) {
                     logger.debug("issueType " + issueType.getName() + " is associated with FieldScreenScheme "
-                            + existingFieldScreenScheme.getName() + " which is wrong. Will remove this association");
+                                     + existingFieldScreenScheme.getName() + " which is wrong. Will remove this association");
                     entitiesToRemove.add(existingEntity);
                 }
             }
@@ -271,7 +257,7 @@ public class BlackDuckIssueTypeSetup {
     private List<IssueType> getExistingIssueTypes(final IssueTypeScreenScheme issueTypeScreenScheme) {
         final List<IssueType> origIssueTypes = new ArrayList<>();
         final Collection<IssueTypeScreenSchemeEntity> origIssueTypeScreenSchemeEntities = issueTypeScreenScheme
-                .getEntities();
+                                                                                              .getEntities();
         if (origIssueTypeScreenSchemeEntities == null) {
             return origIssueTypes;
         }
@@ -291,8 +277,8 @@ public class BlackDuckIssueTypeSetup {
      * Returns true if this setup had already been done.
      */
     public boolean associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(final Project project,
-            final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes,
-            final FieldLayout fieldConfiguration) {
+        final FieldLayoutScheme bdsFieldConfigurationScheme, final List<IssueType> issueTypes,
+        final FieldLayout fieldConfiguration) {
         boolean wasAlreadySetUp = true;
         final FieldConfigurationScheme projectFieldConfigurationScheme = getProjectFieldConfigScheme(project);
         if (projectFieldConfigurationScheme == null) {
@@ -351,7 +337,7 @@ public class BlackDuckIssueTypeSetup {
 
     private FieldLayoutScheme getFieldLayoutScheme(final FieldConfigurationScheme fieldConfigurationScheme) {
         final FieldLayoutScheme fls = jiraServices.getFieldLayoutManager()
-                .getMutableFieldLayoutScheme(fieldConfigurationScheme.getId());
+                                          .getMutableFieldLayoutScheme(fieldConfigurationScheme.getId());
         logger.debug("getFieldLayoutScheme(): FieldConfigurationScheme: " + fieldConfigurationScheme.getName() + " ==> FieldLayoutScheme: " + fls.getName());
         return fls;
     }
@@ -369,7 +355,7 @@ public class BlackDuckIssueTypeSetup {
             logger.debug("Project " + project.getName() + " field config scheme: Default Field Configuration Scheme");
         } else {
             logger.debug(
-                    "Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
+                "Project " + project.getName() + " field config scheme: " + projectFieldConfigScheme.getName());
         }
         return projectFieldConfigScheme;
     }

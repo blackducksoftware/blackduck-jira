@@ -199,9 +199,7 @@ public class BlackDuckJiraTask {
 
     private BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig blackDuckServerConfig) {
         final BlackDuckHttpClient restConnection = blackDuckServerConfig.createBlackDuckHttpClient(logger);
-        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
-            restConnection, logger);
-        return blackDuckServicesFactory;
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
     }
 
     private List<String> getRuleUrls(final BlackDuckJiraConfigSerializable config) {

@@ -113,17 +113,6 @@ public class JiraIssueServiceWrapper {
         throw new JiraIssueException("getIssue", result.getErrorCollection());
     }
 
-    public Issue findIssueByContentKey(final String notificationUniqueKey) throws JiraIssueException {
-        logger.debug("Find issue: " + notificationUniqueKey);
-        final EntityProperty property = issuePropertyWrapper.findProperty(notificationUniqueKey);
-        if (property != null) {
-            final IssueProperties propertyValue = createIssuePropertiesFromJson(property.getValue());
-            logger.debug("findIssueByContentKey(): propertyValue (converted from JSON): " + propertyValue);
-            return getIssue(propertyValue.getJiraIssueId());
-        }
-        return null;
-    }
-
     public Issue createIssue(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
         logger.debug("Create issue: " + blackDuckIssueModel);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(blackDuckIssueModel);

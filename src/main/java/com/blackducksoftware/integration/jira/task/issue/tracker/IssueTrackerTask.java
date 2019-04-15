@@ -133,7 +133,7 @@ public class IssueTrackerTask implements Callable<Boolean> {
 
     public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) {
         final BlackDuckHttpClient restConnection = config.createBlackDuckHttpClient(logger);
-        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), restConnection, logger);
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
     }
 
     private BlackDuckJiraConfigSerializable createJiraConfig(final PluginConfigurationDetails pluginConfigDetails) {

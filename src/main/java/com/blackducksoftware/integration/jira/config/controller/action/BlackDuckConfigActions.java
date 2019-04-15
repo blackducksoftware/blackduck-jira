@@ -161,7 +161,7 @@ public class BlackDuckConfigActions {
             final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
             serverConfigBuilder.setLogger(logger);
             serverConfigBuilder.setUrl(newConfig.getHubUrl());
-            serverConfigBuilder.setTimeout(newConfig.getTimeout());
+            serverConfigBuilder.setTimeoutInSeconds(newConfig.getTimeout());
             serverConfigBuilder.setApiToken(newConfig.getApiToken());
             serverConfigBuilder.setTrustCert(newConfig.getTrustCert());
 
@@ -216,9 +216,7 @@ public class BlackDuckConfigActions {
 
     private BlackDuckServicesFactory createBlackDuckServicesFactory(final PluginSettingsWrapper settings) throws ConfigurationException {
         final BlackDuckHttpClient restConnection = createRestConnection(settings);
-        final BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(),
-            restConnection, logger);
-        return blackDuckServicesFactory;
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
     }
 
     private BlackDuckHttpClient createRestConnection(final PluginSettingsWrapper settings) throws ConfigurationException {
@@ -241,7 +239,7 @@ public class BlackDuckConfigActions {
             final BlackDuckServerConfigBuilder configBuilder = new BlackDuckServerConfigBuilder();
             configBuilder.setUrl(blackDuckUrl);
             configBuilder.setApiToken(blackDuckApiToken);
-            configBuilder.setTimeout(blackDuckTimeout.orElse(300));
+            configBuilder.setTimeoutInSeconds(blackDuckTimeout.orElse(300));
             configBuilder.setTrustCert(blackDuckTrustCert);
             configBuilder.setProxyHost(blackDuckProxyHost);
             blackDuckProxyPort.ifPresent(configBuilder::setProxyPort);
