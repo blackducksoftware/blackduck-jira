@@ -84,7 +84,7 @@ public class GlobalConfigurationAccessor {
     }
 
     public PluginIssueCreationConfigModel getIssueCreationConfig() {
-        final Integer interval = jiraSettingsAccessor.getIntegerValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS).orElse(10);
+        final Integer interval = jiraSettingsAccessor.getIntegerValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS).orElse(null);
         final String defaultIssueCreator = jiraSettingsAccessor.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER);
         final GeneralIssueCreationConfigModel general = new GeneralIssueCreationConfigModel(interval, defaultIssueCreator);
 

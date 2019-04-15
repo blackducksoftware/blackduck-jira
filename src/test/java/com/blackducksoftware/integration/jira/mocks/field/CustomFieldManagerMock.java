@@ -89,13 +89,11 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public CustomField getCustomFieldObjectByName(final String name) {
-        return customFields.parallelStream().filter((field) -> field.getName().equals(name))
-                .findAny().orElse(null);
+        return customFields.parallelStream().filter((field) -> field.getName().equals(name)).findAny().orElse(null);
     }
 
     @Override
     public List<CustomField> getCustomFieldObjects() {
-
         return customFields;
     }
 
@@ -201,7 +199,7 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public void removeCustomFieldPossiblyLeavingOrphanedData(final Long arg0)
-            throws RemoveException, IllegalArgumentException {
+        throws RemoveException, IllegalArgumentException {
 
     }
 
@@ -217,7 +215,7 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public void updateCustomField(final Long arg0, final String arg1, final String arg2,
-            final CustomFieldSearcher arg3) {
+        final CustomFieldSearcher arg3) {
 
     }
 

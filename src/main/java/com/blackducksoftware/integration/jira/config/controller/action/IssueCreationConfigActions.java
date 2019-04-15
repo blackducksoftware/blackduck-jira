@@ -137,10 +137,8 @@ public class IssueCreationConfigActions {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
         final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
 
-        final Integer intervalBetweenChecks = issueCreationConfig.getGeneral().getInterval();
-        if (null != intervalBetweenChecks) {
-            txConfig.setIntervalBetweenChecks(String.valueOf(intervalBetweenChecks));
-        }
+        final Optional<Integer> intervalBetweenChecks = issueCreationConfig.getGeneral().getInterval();
+        intervalBetweenChecks.map(String::valueOf).ifPresent(txConfig::setIntervalBetweenChecks);
 
         validateInterval(txConfig);
         return txConfig;
@@ -164,7 +162,7 @@ public class IssueCreationConfigActions {
         final PluginIssueCreationConfigModel previousIssueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
 
         final String issueCreatorJiraUser = config.getCreator();
-        final Optional<Integer> previousInterval = Optional.ofNullable(previousIssueCreationConfig.getGeneral().getInterval());
+        final Optional<Integer> previousInterval = previousIssueCreationConfig.getGeneral().getInterval();
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
         final GeneralIssueCreationConfigModel general = new GeneralIssueCreationConfigModel(intervalBetweenChecks, issueCreatorJiraUser);
 

@@ -84,11 +84,13 @@ public class ProjectMappingConfigActions {
 
     private void addWorkflowStatusToMappings(final BlackDuckJiraConfigSerializable config) {
         final Set<BlackDuckProjectMapping> projectMappings = config.getHubProjectMappings();
-        for (final BlackDuckProjectMapping mapping : projectMappings) {
-            final JiraProject jiraProject = mapping.getJiraProject();
+        if (projectMappings != null) {
+            for (final BlackDuckProjectMapping mapping : projectMappings) {
+                final JiraProject jiraProject = mapping.getJiraProject();
 
-            final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
-            jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
+                final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
+                jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
+            }
         }
     }
 

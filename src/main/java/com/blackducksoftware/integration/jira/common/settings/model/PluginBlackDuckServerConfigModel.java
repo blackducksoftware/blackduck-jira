@@ -24,6 +24,9 @@
 package com.blackducksoftware.integration.jira.common.settings.model;
 
 import java.util.Optional;
+import java.util.function.Function;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
@@ -86,17 +89,29 @@ public class PluginBlackDuckServerConfigModel extends Stringable {
 
     public BlackDuckServerConfigBuilder createBlackDuckServerConfigBuilder() {
         final BlackDuckServerConfigBuilder builder = BlackDuckServerConfig.newBuilder();
-        builder.setUrl(url);
-        builder.setApiToken(apiToken);
-        builder.setTimeoutInSeconds(timeoutInSeconds);
-        builder.setTrustCert(trustCert);
+        setBuilderStringValue(builder::setUrl, url);
+        setBuilderStringValue(builder::setApiToken, apiToken);
+        if (null != timeoutInSeconds) {
+            builder.setTimeoutInSeconds(timeoutInSeconds);
+        }
+        if (null != trustCert) {
+            builder.setTrustCert(trustCert);
+        }
+
         builder.setProxyHost(proxyHost);
         if (null != proxyPort) {
             builder.setProxyPort(proxyPort);
         }
-        builder.setProxyUsername(proxyUsername);
-        builder.setProxyPassword(proxyPassword);
+
+        setBuilderStringValue(builder::setProxyUsername, proxyUsername);
+        setBuilderStringValue(builder::setProxyPassword, proxyPassword);
         return builder;
+    }
+
+    private void setBuilderStringValue(final Function<String, BlackDuckServerConfigBuilder> builderFunction, final String value) {
+        if (StringUtils.isNotBlank(value)) {
+            builderFunction.apply(value);
+        }
     }
 
 }

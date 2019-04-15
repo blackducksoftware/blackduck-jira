@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -123,15 +124,8 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
             return;
         }
 
-        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
-        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
-        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
-        final GeneralIssueCreationConfigModel generalConfig = issueCreationConfig.getGeneral();
-
-        final int configuredIntervalMinutes = generalConfig.getInterval();
-
         final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
-        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, new Integer(configuredIntervalMinutes));
+        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, actualInterval);
 
         final JobConfig jobConfig = JobConfig
                                         .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)
@@ -165,11 +159,21 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
             logger.error("Unable to get plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
         }
-        final String intervalString = (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS);
-        if (intervalString == null) {
+
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final GeneralIssueCreationConfigModel generalConfig = issueCreationConfig.getGeneral();
+        final Optional<String> optionalIntervalString = generalConfig.getInterval().map(String::valueOf);
+
+        final String intervalString;
+        if (optionalIntervalString.isPresent()) {
+            intervalString = optionalIntervalString.get();
+        } else {
             logger.error("Unable to get interval from plugin settings");
             return DEFAULT_INTERVAL_MILLISEC;
         }
+
         int intervalMinutes;
         try {
             intervalMinutes = Integer.parseInt(intervalString);

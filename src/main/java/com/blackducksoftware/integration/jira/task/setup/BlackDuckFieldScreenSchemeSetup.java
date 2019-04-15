@@ -150,9 +150,8 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField, final BiFunction<List<IssueType>, String, CustomField> createCustomFieldFunction) {
         try {
-            @SuppressWarnings("deprecation")
             // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
-                CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
+            CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
             if (customField == null) {
                 customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }

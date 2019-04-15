@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.common.settings.model;
 
+import java.util.Optional;
+
 public class GeneralIssueCreationConfigModel {
     private Integer interval;
     private String defaultIssueCreator;
@@ -32,8 +34,8 @@ public class GeneralIssueCreationConfigModel {
         this.defaultIssueCreator = defaultIssueCreator;
     }
 
-    public Integer getInterval() {
-        return interval;
+    public Optional<Integer> getInterval() {
+        return Optional.ofNullable(interval);
     }
 
     public String getDefaultIssueCreator() {
