@@ -44,15 +44,16 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerMock;
-import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueModel;
+import com.google.gson.Gson;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
@@ -68,6 +69,8 @@ public class BomNotificationToIssueModelConverterTest {
     private static final String TEST_PROJECT = "test project";
     private static final String POLICY_RULE_LINK = "test policy";
     private static final String DIFFERENT_POLICY_RULE_LINK = "test policy";
+
+    public static final Gson GSON = new Gson();
 
     @Test
     public void ifNoPolicyRulesSelectedNoPolicyIssuesCreatedTest() throws IntegrationException {
@@ -108,14 +111,14 @@ public class BomNotificationToIssueModelConverterTest {
 
         final JiraServices jiraServices = createMockJiraServices();
         final JiraUserContext jiraUserContext = Mockito.mock(JiraUserContext.class);
-        final JiraSettingsService jiraSettingsService = new JiraSettingsService(pluginSettingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(pluginSettingsMock));
         final BlackDuckProjectMappings blackDuckProjectMappings = createMockBlackDuckProjectMappings(mappings);
         final BlackDuckDataHelper blackDuckDataHelper = createMockBlackDuckDataHelper();
         final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
-        final PluginConfigurationDetails pluginConfigurationDetails = new PluginConfigurationDetailsMock(pluginSettingsMock);
+        final TicketCriteriaConfigModel ticketCriteriaConfig = new TicketCriteriaConfigModel(GSON.toJson(linksOfRulesToMonitor), true, true);
 
-        return new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper,
-            blackDuckJiraLogger, pluginConfigurationDetails);
+        return new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper,
+            blackDuckJiraLogger, ticketCriteriaConfig);
     }
 
     private JiraServices createMockJiraServices() {

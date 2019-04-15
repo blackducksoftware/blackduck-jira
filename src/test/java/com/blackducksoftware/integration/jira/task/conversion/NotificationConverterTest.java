@@ -54,9 +54,10 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
@@ -170,7 +171,7 @@ public class NotificationConverterTest {
 
     private static final Gson gson = new Gson();
     private static JiraServices jiraServices;
-    private static JiraSettingsService jiraSettingsService;
+    private static PluginErrorAccessor pluginErrorAccessor;
     private static JiraUserContext jiraContext;
     private static BlackDuckService mockBlackDuckSerivce;
     private static BlackDuckBucket mockBlackDuckBucket;
@@ -179,7 +180,6 @@ public class NotificationConverterTest {
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private static BlackDuckDataHelper blackDuckDataHelper;
     private static DataFormatHelper dataFormatHelper;
-    private static PluginConfigurationDetails pluginConfigurationDetails;
 
     @BeforeClass
     // Mock the objects that the Converter needs
@@ -211,7 +211,8 @@ public class NotificationConverterTest {
         Mockito.when(jiraServices.getJiraProject(JIRA_PROJECT_ID)).thenReturn(jiraProject);
 
         // Jira Settings Service
-        jiraSettingsService = new JiraSettingsService(new PluginSettingsMock());
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(new PluginSettingsMock());
+        pluginErrorAccessor = new PluginErrorAccessor(jiraSettingsAccessor);
 
         // Jira Context
         final ApplicationUserMock jiraAdminUser = new ApplicationUserMock();
@@ -242,10 +243,6 @@ public class NotificationConverterTest {
         // EventData Format Helper
         blackDuckDataHelper = new BlackDuckDataHelper(mockLogger, mockBlackDuckSerivce, mockBlackDuckBucket);
         dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
-
-        // Plugin Config Details
-        pluginConfigurationDetails = Mockito.mock(PluginConfigurationDetails.class);
-        Mockito.when(pluginConfigurationDetails.isCreateVulnerabilityIssues()).thenReturn(Boolean.TRUE);
     }
 
     @AfterClass
@@ -451,8 +448,8 @@ public class NotificationConverterTest {
         final Date startDate = new Date();
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
-        final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, jiraSettingsService, projectMappingObject, fieldCopyConfig, dataFormatHelper,
-            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, pluginConfigurationDetails);
+        final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, pluginErrorAccessor, projectMappingObject, fieldCopyConfig, dataFormatHelper,
+            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, new TicketCriteriaConfigModel("{}", true, true));
 
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
         assertEquals(expectedCount, issueModels.size());
