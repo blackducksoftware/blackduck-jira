@@ -53,44 +53,38 @@ public class FieldScreenSchemeMock implements FieldScreenScheme {
 
     @Override
     public String getDescription() {
-
         return null;
     }
 
     @Override
     public FieldScreen getFieldScreen(final IssueOperation arg0) {
-
         return null;
     }
 
     @Override
     public FieldScreenSchemeItem getFieldScreenSchemeItem(final IssueOperation issueOperation) {
         return schemeItems.parallelStream()
-                .filter((schemeItem) -> schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey()))
-                .findAny().orElse(null);
+                   .filter((schemeItem) -> schemeItem.getIssueOperation().getNameKey().equals(issueOperation.getNameKey()))
+                   .findAny().orElse(null);
     }
 
     @Override
     public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems() {
-
         return schemeItems;
     }
 
     @Override
     public GenericValue getGenericValue() {
-
         return null;
     }
 
     @Override
     public Long getId() {
-
         return null;
     }
 
     @Override
     public String getName() {
-
         return name;
     }
 
@@ -101,29 +95,24 @@ public class FieldScreenSchemeMock implements FieldScreenScheme {
 
     @Override
     public FieldScreenSchemeItem removeFieldScreenSchemeItem(final IssueOperation arg0) {
-
         return null;
     }
 
     @Override
     public void setDescription(final String arg0) {
-
     }
 
     @Override
     public void setGenericValue(final GenericValue arg0) {
-
     }
 
     @Override
     public void setId(final Long arg0) {
-
     }
 
     @Override
     public void setName(final String name) {
         this.name = name;
-
     }
 
     @Override

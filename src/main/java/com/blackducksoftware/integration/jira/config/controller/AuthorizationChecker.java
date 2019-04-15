@@ -40,7 +40,8 @@ public class AuthorizationChecker {
     }
 
     public boolean isValidAuthorization(final HttpServletRequest request, final Collection<String> blackDuckJiraGroups) {
-        return isValidAuthorization(request, (String[]) blackDuckJiraGroups.toArray());
+        String[] groupsArray = {};
+        return isValidAuthorization(request, blackDuckJiraGroups.toArray(groupsArray));
     }
 
     public boolean isValidAuthorization(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
@@ -48,7 +49,8 @@ public class AuthorizationChecker {
     }
 
     public boolean isValidAuthorization(final String username, final Collection<String> blackDuckJiraGroups) {
-        return isValidAuthorization(username, (String[]) blackDuckJiraGroups.toArray());
+        String[] groupsArray = {};
+        return isValidAuthorization(username, blackDuckJiraGroups.toArray(groupsArray));
     }
 
     public boolean isValidAuthorization(final String username, final String[] blackDuckJiraGroups) {

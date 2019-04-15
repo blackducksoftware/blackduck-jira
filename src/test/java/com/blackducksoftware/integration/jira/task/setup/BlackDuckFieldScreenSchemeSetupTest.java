@@ -87,7 +87,6 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
         final FieldScreen screen = new FieldScreenMock();
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenReturn(screen);
-        // Mockito.doReturn(screen).when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)));
 
         // Create a custom field
         jiraServices.setCustomFieldManager(customFieldManagerMock);
@@ -103,7 +102,6 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         // See how this handles the incomplete config
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(blackDuckIssueTypes);
 
-        assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing one or more IssueType associations"));
     }
 

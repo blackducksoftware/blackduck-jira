@@ -53,7 +53,8 @@ public class LoginRedirect {
         final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
 
         final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
-        final String[] parsedBlackDuckConfigGroups = (String[]) groupsConfig.getGroups().toArray();
+        String[] parsedBlackDuckConfigGroups = {};
+        parsedBlackDuckConfigGroups = groupsConfig.getGroups().toArray(parsedBlackDuckConfigGroups);
         if (!authorizationChecker.isValidAuthorization(request, parsedBlackDuckConfigGroups)) {
             redirectToLogin(request, response);
             return true;

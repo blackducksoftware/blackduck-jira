@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
-import java.util.Collection;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,8 +76,7 @@ public class ConfigController {
     protected boolean isAuthorized(final HttpServletRequest request) {
         final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
-        final Collection<String> groups = groupsConfig.getGroups();
-        return getAuthorizationChecker().isValidAuthorization(request, (String[]) groups.toArray());
+        return getAuthorizationChecker().isValidAuthorization(request, groupsConfig.getGroups());
     }
 
 }
