@@ -2,7 +2,6 @@ package com.blackducksoftware.integration.jira.common.settings;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,8 +14,6 @@ import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappi
 import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 
 public class GlobalConfigurationAccessor {
-    public static final String BLACK_DUCK_GROUPS_LIST_DELIMETER = ",";
-
     private JiraSettingsAccessor jiraSettingsAccessor;
 
     public GlobalConfigurationAccessor(final JiraSettingsAccessor jiraSettingsAccessor) {
@@ -26,15 +23,13 @@ public class GlobalConfigurationAccessor {
     public PluginGroupsConfigModel getGroupsConfig() {
         final String blackDuckConfigGroupsString = jiraSettingsAccessor.getStringValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS);
         if (StringUtils.isNotBlank(blackDuckConfigGroupsString)) {
-            final String[] groups = blackDuckConfigGroupsString.split(BLACK_DUCK_GROUPS_LIST_DELIMETER);
-            return PluginGroupsConfigModel.of(groups);
+            return PluginGroupsConfigModel.fromDelimitedString(blackDuckConfigGroupsString);
         }
         return PluginGroupsConfigModel.none();
     }
 
     public void setGroupsConfig(final PluginGroupsConfigModel groupsModel) {
-        final Collection<String> groups = groupsModel.getGroups();
-        final String groupsString = StringUtils.join(groups, BLACK_DUCK_GROUPS_LIST_DELIMETER);
+        final String groupsString = groupsModel.getGroupsStringDelimited();
         jiraSettingsAccessor.setValue(PluginConfigKeys.BLACKDUCK_CONFIG_GROUPS, groupsString);
     }
 

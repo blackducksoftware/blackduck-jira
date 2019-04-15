@@ -36,7 +36,6 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
 
 public class ConfigController {
@@ -67,12 +66,8 @@ public class ConfigController {
         return authorizationChecker;
     }
 
-    public GlobalConfigurationAccessor createGlobalConfigurationAccessor() {
-        return new GlobalConfigurationAccessor(jiraSettingsAccessor);
-    }
-
-    public PluginConfigurationAccessor createPluginConfigurationAccessor() {
-        return new PluginConfigurationAccessor(jiraSettingsAccessor);
+    public JiraSettingsAccessor getJiraSettingsAccessor() {
+        return jiraSettingsAccessor;
     }
 
     protected <T> T executeAsTransaction(final Supplier<T> supplier) {
@@ -80,7 +75,8 @@ public class ConfigController {
     }
 
     protected boolean isAuthorized(final HttpServletRequest request) {
-        final PluginGroupsConfigModel groupsConfig = createGlobalConfigurationAccessor().getGroupsConfig();
+        final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
+        final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
         final Collection<String> groups = groupsConfig.getGroups();
         return getAuthorizationChecker().isValidAuthorization(request, (String[]) groups.toArray());
     }

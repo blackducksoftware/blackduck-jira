@@ -42,8 +42,11 @@ import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.task.setup.UpgradeSteps;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
@@ -120,8 +123,12 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
             return;
         }
 
-        final PluginConfigurationDetails configDetails = new PluginConfigurationDetails(pluginSettings);
-        final int configuredIntervalMinutes = configDetails.getIntervalMinutes();
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final GeneralIssueCreationConfigModel generalConfig = issueCreationConfig.getGeneral();
+
+        final int configuredIntervalMinutes = generalConfig.getInterval();
 
         final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
         blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, new Integer(configuredIntervalMinutes));

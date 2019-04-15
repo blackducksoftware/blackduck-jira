@@ -39,6 +39,7 @@ import com.atlassian.scheduler.config.JobRunnerKey;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService.PluginFuture;
@@ -48,11 +49,11 @@ public class BlackDuckJobRunner implements JobRunner {
     public static final String HUMAN_READABLE_TASK_NAME = "Black Duck notification check task";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettings pluginSettings;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
     private final PluginExecutorService executorService;
 
     public BlackDuckJobRunner(final PluginSettings pluginSettings, final PluginExecutorService executorService) {
-        this.pluginSettings = pluginSettings;
+        this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
         this.executorService = executorService;
     }
 
@@ -98,7 +99,7 @@ public class BlackDuckJobRunner implements JobRunner {
         Exception failureException = null;
         PluginFuture future = null;
         try {
-            future = executorService.submit(new JiraTaskTimed(pluginSettings, new JiraServices(), taskIntervalMinutes));
+            future = executorService.submit(new JiraTaskTimed(jiraSettingsAccessor, new JiraServices(), taskIntervalMinutes));
             final String result = future.get(taskTimeoutMinutes);
             logger.info("The timed task completed with result: " + result);
         } catch (final ExecutionException e) {

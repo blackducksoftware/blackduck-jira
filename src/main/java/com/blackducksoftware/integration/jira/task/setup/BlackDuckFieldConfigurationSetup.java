@@ -41,17 +41,17 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckFieldConfigurationSetup {
     public final List<String> requiredDefaultFields = new ArrayList<>();
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final JiraSettingsService settingService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;
 
-    public BlackDuckFieldConfigurationSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
-        this.settingService = settingService;
+    public BlackDuckFieldConfigurationSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.jiraServices = jiraServices;
         requiredDefaultFields.add("summary");
         requiredDefaultFields.add("issuetype");
@@ -160,7 +160,7 @@ public class BlackDuckFieldConfigurationSetup {
                                 logger.debug(msg);
                             } else {
                                 logger.error(msg);
-                                settingService.addBlackDuckError(msg, "addBlackDuckFieldConfigurationToJira");
+                                pluginErrorAccessor.addBlackDuckError(msg, "addBlackDuckFieldConfigurationToJira");
                             }
                         }
                     }
@@ -173,7 +173,7 @@ public class BlackDuckFieldConfigurationSetup {
             }
         } catch (final Exception e) {
             logger.error(e);
-            settingService.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
+            pluginErrorAccessor.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
         }
         return blackDuckFieldLayout;
     }

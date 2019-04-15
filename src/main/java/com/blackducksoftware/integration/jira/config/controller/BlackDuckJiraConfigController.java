@@ -111,7 +111,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
         }
 
         final Object obj = executeAsTransaction(() -> {
-            final PluginConfigurationAccessor pluginConfigurationAccessor = createPluginConfigurationAccessor();
+            final PluginConfigurationAccessor pluginConfigurationAccessor = getJiraSettingsAccessor().createPluginConfigurationAccessor();
             final Object errorObject = pluginConfigurationAccessor.getPluginError();
 
             List<TicketCreationError> ticketErrors = null;
@@ -165,7 +165,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
             }
 
             responseString = executeAsTransaction(() -> {
-                final PluginConfigurationAccessor pluginConfigurationAccessor = createPluginConfigurationAccessor();
+                final PluginConfigurationAccessor pluginConfigurationAccessor = getJiraSettingsAccessor().createPluginConfigurationAccessor();
                 try {
                     final Date now = new Date();
                     final String oldLastRunDateString = pluginConfigurationAccessor.getLastRunDate();

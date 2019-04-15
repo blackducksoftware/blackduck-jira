@@ -42,7 +42,7 @@ public class ProjectMappingConfigActions {
     private final WorkflowHelper workflowHelper;
 
     public ProjectMappingConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final WorkflowHelper workflowHelper) {
-        this.globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         this.workflowHelper = workflowHelper;
     }
 

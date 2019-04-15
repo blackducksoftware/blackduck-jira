@@ -53,9 +53,9 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.NotificationVulnerability;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
@@ -84,27 +84,27 @@ public class BomNotificationToIssueModelConverter {
     private final BlackDuckJiraLogger logger;
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
-    private final JiraSettingsService jiraSettingsService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final BlackDuckProjectMappings blackDuckProjectMappings;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
     private final List<String> linksOfRulesToMonitor;
-    private final PluginConfigurationDetails pluginConfigurationDetails;
+    private final TicketCriteriaConfigModel ticketCriteria;
 
-    public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final BlackDuckProjectMappings blackDuckProjectMappings,
+    public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final PluginErrorAccessor pluginErrorAccessor, final BlackDuckProjectMappings blackDuckProjectMappings,
         final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper, final BlackDuckJiraLogger logger,
-        final PluginConfigurationDetails pluginConfigurationDetails) {
+        final TicketCriteriaConfigModel ticketCriteria) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
-        this.jiraSettingsService = jiraSettingsService;
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.blackDuckProjectMappings = blackDuckProjectMappings;
         this.fieldCopyConfig = fieldCopyConfig;
         this.dataFormatHelper = dataFormatHelper;
         this.linksOfRulesToMonitor = linksOfRulesToMonitor;
         this.blackDuckDataHelper = blackDuckDataHelper;
         this.logger = logger;
-        this.pluginConfigurationDetails = pluginConfigurationDetails;
+        this.ticketCriteria = ticketCriteria;
     }
 
     public Collection<BlackDuckIssueModel> convertToModel(final NotificationDetailResult detailResult, final Date batchStartDate) {
@@ -124,7 +124,7 @@ public class BomNotificationToIssueModelConverter {
                 }
             } catch (final Exception e) {
                 logger.error(e);
-                jiraSettingsService.addBlackDuckError(e.getMessage(), "convertToModel");
+                pluginErrorAccessor.addBlackDuckError(e.getMessage(), "convertToModel");
             }
         }
         return issueWrappers;
@@ -148,7 +148,7 @@ public class BomNotificationToIssueModelConverter {
                 issueWrapperList.addAll(createdIssueWrappers);
             } catch (final Exception e) {
                 logger.error(e);
-                jiraSettingsService.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
+                pluginErrorAccessor.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
                     jiraUserContext.getDefaultJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
             }
         }
@@ -350,7 +350,7 @@ public class BomNotificationToIssueModelConverter {
 
         final ApplicationUser owner = projectOwner.orElse(null);
         ApplicationUser reviewer = null;
-        if (pluginConfigurationDetails.isProjectReviewerEnabled()) {
+        if (ticketCriteria.getAddComponentReviewerToTickets()) {
             reviewer = componentReviewer.orElse(projectOwner.orElse(defaultAssignedUser.orElse(null)));
         }
 

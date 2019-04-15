@@ -56,23 +56,19 @@ import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckFieldScreenSchemeSetup {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraSettingsService settingService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;
     private final Map<PluginField, CustomField> customFields = new HashMap<>();
 
-    public BlackDuckFieldScreenSchemeSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
-        this.settingService = settingService;
+    public BlackDuckFieldScreenSchemeSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.jiraServices = jiraServices;
-    }
-
-    public JiraSettingsService getSettingService() {
-        return settingService;
     }
 
     public JiraServices getJiraServices() {
@@ -99,7 +95,7 @@ public class BlackDuckFieldScreenSchemeSetup {
             }
         } catch (final Exception e) {
             logger.error(e);
-            settingService.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
+            pluginErrorAccessor.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
         }
         return fieldScreenSchemes;
     }
@@ -174,20 +170,20 @@ public class BlackDuckFieldScreenSchemeSetup {
                     // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                     final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
                     logger.error(msg);
-                    settingService.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
+                    pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
                 }
             } else {
                 // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
                 final String msg = "The custom field " + customField.getName() + " has no IssueType associations.";
                 logger.error(msg);
-                settingService.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
+                pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
             }
             customFields.put(pluginField, customField);
             final OrderableField myField = jiraServices.getFieldManager().getOrderableField(customField.getId());
             return myField;
         } catch (final Exception e) {
             logger.error("Error in getOrderedFieldFromCustomField(): " + e.getMessage(), e);
-            settingService.addBlackDuckError(e, "getOrderedFieldFromCustomField");
+            pluginErrorAccessor.addBlackDuckError(e, "getOrderedFieldFromCustomField");
         }
         return null;
     }
@@ -330,13 +326,13 @@ public class BlackDuckFieldScreenSchemeSetup {
         if (myTab == null) {
             msg = "addBlackDuckTabToScreen(): Black Duck screen tab is null";
             logger.error(msg);
-            settingService.addBlackDuckError(msg, "addBlackDuckTabToScreen");
+            pluginErrorAccessor.addBlackDuckError(msg, "addBlackDuckTabToScreen");
             isOk = false;
         }
         if (layoutItem == null) {
             msg = "addBlackDuckTabToScreen(): layoutItem is null";
             logger.error(msg);
-            settingService.addBlackDuckError(msg, "addBlackDuckTabToScreen");
+            pluginErrorAccessor.addBlackDuckError(msg, "addBlackDuckTabToScreen");
             return false;
         }
         if (layoutItem.getOrderableField() == null) {

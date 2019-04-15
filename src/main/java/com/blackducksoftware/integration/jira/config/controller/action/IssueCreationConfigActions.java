@@ -69,8 +69,8 @@ public class IssueCreationConfigActions {
 
     public IssueCreationConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
         final WorkflowHelper workflowHelper, final BlackDuckMonitor blackDuckMonitor) {
-        this.pluginConfigurationAccessor = new PluginConfigurationAccessor(jiraSettingsAccessor);
-        this.globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        this.pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
+        this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
         this.workflowHelper = workflowHelper;

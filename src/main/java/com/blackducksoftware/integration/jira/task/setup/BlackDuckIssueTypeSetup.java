@@ -50,21 +50,21 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 
 public class BlackDuckIssueTypeSetup {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraServices jiraServices;
-    private final JiraSettingsService settingService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final Collection<IssueType> issueTypes;
     private final ApplicationUser jiraUser;
     private final BlackDuckAvatars blackDuckAvatars;
 
-    public BlackDuckIssueTypeSetup(final JiraServices jiraServices, final JiraSettingsService settingService, final Collection<IssueType> issueTypes, final String jiraUserName) throws ConfigurationException {
+    public BlackDuckIssueTypeSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final Collection<IssueType> issueTypes, final String jiraUserName) throws ConfigurationException {
         this.jiraServices = jiraServices;
-        this.settingService = settingService;
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.issueTypes = issueTypes;
 
         if (jiraUserName != null) {
@@ -91,7 +91,7 @@ public class BlackDuckIssueTypeSetup {
             addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         } catch (final Exception e) {
             logger.error(e);
-            settingService.addBlackDuckError(e, "addIssueTypesToJira()");
+            pluginErrorAccessor.addBlackDuckError(e, "addIssueTypesToJira()");
         }
 
         return bdIssueTypes;
@@ -164,7 +164,7 @@ public class BlackDuckIssueTypeSetup {
             if (jiraProject != null) {
                 jiraProjectName = jiraProject.getName();
             }
-            settingService.addBlackDuckError(e, null, null, jiraProjectName, null, null, "addIssueTypesToProjectIssueTypeScheme()");
+            pluginErrorAccessor.addBlackDuckError(e, null, null, jiraProjectName, null, null, "addIssueTypesToProjectIssueTypeScheme()");
         }
     }
 

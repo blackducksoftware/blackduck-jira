@@ -64,7 +64,7 @@ public class BlackDuckConfigActions {
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
 
     public BlackDuckConfigActions(final JiraSettingsAccessor jiraSettingsAccessor) {
-        this.globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
     }
 
     public BlackDuckServerConfigSerializable getStoredBlackDuckConfig() {

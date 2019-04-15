@@ -41,7 +41,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
 import com.blackducksoftware.integration.jira.config.controller.action.BlackDuckConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
@@ -50,11 +51,13 @@ import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSe
 
 @Path("/config/blackduck")
 public class BlackDuckConfigController extends ConfigController {
+    private final JiraSettingsAccessor jiraSettingsAccessor;
     private final BlackDuckConfigActions blackDuckConfigActions;
 
     public BlackDuckConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
-        this.blackDuckConfigActions = new BlackDuckConfigActions(pluginSettingsFactory);
+        this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
+        this.blackDuckConfigActions = new BlackDuckConfigActions(jiraSettingsAccessor);
     }
 
     @GET
@@ -172,7 +175,7 @@ public class BlackDuckConfigController extends ConfigController {
             final TicketCreationErrorSerializable creationError = new TicketCreationErrorSerializable();
 
             final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
-            final List<TicketCreationError> ticketErrors = JiraSettingsService.expireOldErrors(settings);
+            final List<TicketCreationError> ticketErrors = PluginErrorAccessor.expireOldErrors(jiraSettingsAccessor);
             if (ticketErrors != null) {
                 Collections.sort(ticketErrors);
                 creationError.setHubJiraTicketErrors(ticketErrors);

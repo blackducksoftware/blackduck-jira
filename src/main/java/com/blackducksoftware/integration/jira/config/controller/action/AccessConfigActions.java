@@ -29,8 +29,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
@@ -53,7 +51,7 @@ public class AccessConfigActions {
     public BlackDuckAdminConfigSerializable getConfigWithJiraGroups(final HttpServletRequest request) {
         final BlackDuckAdminConfigSerializable txAdminConfig = new BlackDuckAdminConfigSerializable();
         final PluginGroupsConfigModel pluginGroupsConfigModel = globalConfigurationAccessor.getGroupsConfig();
-        final String blackDuckConfigGroups = StringUtils.join(pluginGroupsConfigModel.getGroups(), GlobalConfigurationAccessor.BLACK_DUCK_GROUPS_LIST_DELIMETER);
+        final String blackDuckConfigGroups = pluginGroupsConfigModel.getGroupsStringDelimited();
         txAdminConfig.setHubJiraGroups(blackDuckConfigGroups);
         if (authorizationChecker.isUserSystemAdmin(request)) {
             final List<String> jiraGroups = new ArrayList<>();
@@ -77,7 +75,7 @@ public class AccessConfigActions {
             txResponseObject.setHubJiraGroupsError(JiraConfigErrorStrings.NON_SYSTEM_ADMINS_CANT_CHANGE_GROUPS);
             return txResponseObject;
         } else {
-            final PluginGroupsConfigModel groupsConfig = PluginGroupsConfigModel.of(blackDuckJiraGroups.split(GlobalConfigurationAccessor.BLACK_DUCK_GROUPS_LIST_DELIMETER));
+            final PluginGroupsConfigModel groupsConfig = PluginGroupsConfigModel.fromDelimitedString(blackDuckJiraGroups);
             globalConfigurationAccessor.setGroupsConfig(groupsConfig);
         }
         return null;

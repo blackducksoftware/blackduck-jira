@@ -423,7 +423,7 @@ public class JiraTaskSetupTest {
             }
         });
 
-        Mockito.doReturn(fieldConfigSetup).when(jiraTask).getBlackDuckFieldScreenSchemeSetup(
+        Mockito.doReturn(fieldConfigSetup).when(jiraTask).createBlackDuckFieldScreenSchemeSetup(
             Mockito.any(JiraSettingsService.class), Mockito.any(JiraServices.class));
     }
 

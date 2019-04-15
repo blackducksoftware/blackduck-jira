@@ -14,6 +14,18 @@ public class JiraSettingsAccessor {
         this.pluginSettings = pluginSettings;
     }
 
+    public PluginConfigurationAccessor createPluginConfigurationAccessor() {
+        return new PluginConfigurationAccessor(this);
+    }
+
+    public PluginErrorAccessor createPluginErrorAccessor() {
+        return new PluginErrorAccessor(this);
+    }
+
+    public GlobalConfigurationAccessor createGlobalConfigurationAccessor() {
+        return new GlobalConfigurationAccessor(this);
+    }
+
     public Object getObjectValue(final String key) {
         return pluginSettings.get(key);
     }
