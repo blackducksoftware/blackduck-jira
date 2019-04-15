@@ -515,8 +515,10 @@ public class JiraIssueHandler {
                 jiraSettingsService.addBlackDuckError(errorMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
             }
         } else if (exceptionMessage != null) {
+            logger.error("Exception: " + exceptionMessage, issueException);
             jiraSettingsService.addBlackDuckError(exceptionMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
         } else {
+            logger.error("Issue Exception: " + issueException.getMessage(), issueException);
             jiraSettingsService.addBlackDuckError(issueException, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
         }
     }
