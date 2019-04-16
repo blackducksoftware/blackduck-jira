@@ -132,7 +132,7 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
         final JiraUserContext jiraContext = new JiraUserContext(jiraUser, jiraUser);
 
-        final JiraTaskTimed task = jiraEnv.getJiraTask();
+        final PreTaskSetup preTaskSetup = new PreTaskSetup();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         jiraEnv.getPluginSettingsMock().put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, jiraEnv.getMappingJson());
         jiraEnv.getPluginSettingsMock().put(PluginConfigKeys.BLACKDUCK_CONFIG_PROJECT_REVIEWER_NOTIFICATIONS_CHOICE, String.valueOf(Boolean.FALSE));
@@ -141,7 +141,7 @@ public class JiraTaskSetupTest {
         final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(jiraSettingsAccessor);
         final ProjectMappingConfigModel projectMappingConfigModel = new ProjectMappingConfigModel(jiraEnv.getMappingJson());
 
-        task.jiraSetup(jiraEnv.getJiraServices(), pluginErrorAccessor, projectMappingConfigModel, ticketInfoFromSetup, jiraContext);
+        preTaskSetup.runPluginSetup(jiraEnv.getJiraServices(), pluginErrorAccessor, projectMappingConfigModel, ticketInfoFromSetup, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
@@ -194,7 +194,7 @@ public class JiraTaskSetupTest {
         Mockito.when(jiraUser.getName()).thenReturn(JIRA_USER);
         final JiraUserContext jiraContext = new JiraUserContext(jiraUser, jiraUser);
 
-        final JiraTaskTimed task = jiraEnv.getJiraTask();
+        final PreTaskSetup preTaskSetup = new PreTaskSetup();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         jiraEnv.getPluginSettingsMock().put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, jiraEnv.getMappingJson());
         jiraEnv.getPluginSettingsMock().put(PluginConfigKeys.BLACKDUCK_CONFIG_PROJECT_REVIEWER_NOTIFICATIONS_CHOICE, String.valueOf(Boolean.FALSE));
@@ -203,7 +203,7 @@ public class JiraTaskSetupTest {
         final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(jiraSettingsAccessor);
         final ProjectMappingConfigModel projectMappingConfigModel = new ProjectMappingConfigModel(jiraEnv.getMappingJson());
 
-        task.jiraSetup(jiraEnv.getJiraServices(), pluginErrorAccessor, projectMappingConfigModel, ticketInfoFromSetup, jiraContext);
+        preTaskSetup.runPluginSetup(jiraEnv.getJiraServices(), pluginErrorAccessor, projectMappingConfigModel, ticketInfoFromSetup, jiraContext);
 
         assertTrue(jiraEnv.getWorkflowManagerMock().getAttemptedCreateWorkflow());
         assertTrue(jiraEnv.getWorkflowSchemeManagerMock().getAttemptedWorkflowUpdate());
@@ -340,10 +340,10 @@ public class JiraTaskSetupTest {
 
         BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
-        JiraTaskTimed jiraTask = new JiraTaskTimed(jiraSettingsAccessor, jiraServices, 1);
-        jiraTask = Mockito.spy(jiraTask);
+        PreTaskSetup preTaskSetup = new PreTaskSetup();
+        preTaskSetup = Mockito.spy(preTaskSetup);
 
-        mockCreationMethods(jiraTask, fieldScreenSchemeSetup);
+        mockCreationMethods(preTaskSetup, fieldScreenSchemeSetup);
 
         final String mappingJson = getProjectMappingJson(true, JIRA_PROJECT_NAME, JIRA_PROJECT_ID);
 
@@ -370,7 +370,7 @@ public class JiraTaskSetupTest {
                                               .setIssueTypeSchemeManagerMock(issueTypeSchemeManager)
                                               .setIssueTypeScreenSchemeManagerMock(issueTypeScreenSchemeManager)
                                               .setIssueTypeScreenSchemeMock(issueTypeScreenScheme).setJiraServices(jiraServices)
-                                              .setPluginErrorAccessor(pluginErrorAccessor).setJiraTask(jiraTask).setMappingJson(mappingJson)
+                                              .setPluginErrorAccessor(pluginErrorAccessor).setMappingJson(mappingJson)
                                               .setOrderableFieldMock(orderableField).setPluginSettingsMock(settingsMock)
                                               .setProjectManagerMock(projectManager).setUserManagerMock(userManager).setUserUtil(userUtil)
                                               .setWorkflowManagerMock(workflowManager).setWorkflowSchemeManagerMock(workflowSchemeManager)
@@ -400,19 +400,19 @@ public class JiraTaskSetupTest {
         return fieldScreen;
     }
 
-    private void mockCreationMethods(final JiraTaskTimed jiraTask, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
+    private void mockCreationMethods(final PreTaskSetup preTaskSetup, final BlackDuckFieldScreenSchemeSetup fieldConfigSetup)
         throws ConfigurationException {
         final MockBuildUtilsInfoImpl buildInfoUtil = new MockBuildUtilsInfoImpl();
         buildInfoUtil.setVersion("7.4.5");
         final int[] versionNumbers = { 7, 4, 5 };
         buildInfoUtil.setVersionNumbers(versionNumbers);
         final JiraVersionCheck jiraVersionCheck = new JiraVersionCheck(buildInfoUtil);
-        Mockito.when(jiraTask.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
+        Mockito.when(preTaskSetup.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
 
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
         Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
-        Mockito.doReturn(fieldConfigSetup).when(jiraTask).createBlackDuckFieldScreenSchemeSetup(Mockito.any(PluginErrorAccessor.class), Mockito.any(JiraServices.class));
+        Mockito.doReturn(fieldConfigSetup).when(preTaskSetup).createBlackDuckFieldScreenSchemeSetup(Mockito.any(PluginErrorAccessor.class), Mockito.any(JiraServices.class));
     }
 
     private FieldLayoutManagerMock getFieldLayoutManagerMock() {
