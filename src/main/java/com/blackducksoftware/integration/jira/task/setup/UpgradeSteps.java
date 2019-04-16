@@ -33,46 +33,55 @@ import org.apache.commons.lang3.StringUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.config.JiraConfigDeserializer;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
 public class UpgradeSteps {
     private final BlackDuckJiraLogger logger;
-    private final PluginSettings pluginSettings;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
 
     public static String getInstallDateString(final PluginSettings pluginSettings) {
-        return (String) pluginSettings.get(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME);
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
+        return pluginConfigurationAccessor.getFirstTimeSave();
     }
 
     public UpgradeSteps(final BlackDuckJiraLogger logger, final PluginSettings pluginSettings) {
         this.logger = logger;
-        this.pluginSettings = pluginSettings;
+        this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
     }
 
     // For every upgrade
     public void updateInstallDate(final Date installDate) {
         final String installDateString = BlackDuckPluginDateFormatter.format(installDate);
 
-        logger.debug("Updating install date...");
-        final String oldInstallDate = (String) pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_FIRST_SAVE_TIME, installDateString);
-        logger.debug("The previous install date was: " + oldInstallDate);
+        final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
 
-        final String newInstallDate = getInstallDateString(pluginSettings);
-        logger.debug("The new install date is: " + newInstallDate);
+        logger.debug("Updating install date...");
+        final String previousFirstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
+        pluginConfigurationAccessor.setFirstTimeSave(installDateString);
+        logger.debug("The previous install date was: " + previousFirstTimeSave);
+
+        logger.debug("The new install date is: " + pluginConfigurationAccessor.getFirstTimeSave());
     }
 
     // Delete in V8
     public void upgradeToV6FromAny() {
-        final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
-        final boolean vulnerabilityTicketsEnabled = pluginConfigDetails.isCreateVulnerabilityIssues();
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
 
-        final JiraConfigDeserializer configDeserializer = new JiraConfigDeserializer();
-        final BlackDuckJiraConfigSerializable config = configDeserializer.deserializeConfig(pluginConfigDetails);
+        final boolean vulnerabilityTicketsEnabled = globalConfigurationAccessor.getVulnerabilityIssuesChoice();
+
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final ProjectMappingConfigModel projectMappingModel = issueCreationConfig.getProjectMapping();
+
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        config.setHubProjectMappingsJson(projectMappingModel.getMappingsJson());
 
         for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
             final JiraProject jiraProject = mapping.getJiraProject();
@@ -81,19 +90,23 @@ public class UpgradeSteps {
             }
         }
 
-        final PluginSettingsWrapper settingsWrapper = new PluginSettingsWrapper(pluginSettings);
-        settingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
+        final ProjectMappingConfigModel mappingConfig = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+        final PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), mappingConfig, issueCreationConfig.getTicketCriteria());
+        globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
     }
 
     // Delete when customers all upgrade to 4.2.0+
     public void updateOldMappingsIfNeeded() {
-        final PluginConfigurationDetails pluginConfigDetails = new PluginConfigurationDetails(pluginSettings);
+        final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final String projectMappingJson = issueCreationConfig.getProjectMapping().getMappingsJson();
+
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        if (StringUtils.isBlank(pluginConfigDetails.getProjectMappingJson())) {
+        if (StringUtils.isBlank(projectMappingJson)) {
             return;
         }
 
-        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
+        config.setHubProjectMappingsJson(projectMappingJson);
         if (config.getHubProjectMappings().isEmpty()) {
             return;
         }
@@ -111,7 +124,10 @@ public class UpgradeSteps {
                     newProjectMappings.add(newMapping);
                 }
                 config.setHubProjectMappings(newProjectMappings);
-                pluginSettings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, config.getHubProjectMappingsJson());
+
+                final ProjectMappingConfigModel newProjectMapping = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+                final PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), newProjectMapping, issueCreationConfig.getTicketCriteria());
+                globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
             }
         }
     }

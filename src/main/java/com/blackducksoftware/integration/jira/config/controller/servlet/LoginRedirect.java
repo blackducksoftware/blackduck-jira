@@ -30,10 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
 import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 
 public class LoginRedirect {
@@ -48,9 +49,12 @@ public class LoginRedirect {
     }
 
     public boolean redirectIfUnauthorized(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        final PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettings);
-        final String[] parsedBlackDuckConfigGroups = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+
+        final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
+        String[] parsedBlackDuckConfigGroups = {};
+        parsedBlackDuckConfigGroups = groupsConfig.getGroups().toArray(parsedBlackDuckConfigGroups);
         if (!authorizationChecker.isValidAuthorization(request, parsedBlackDuckConfigGroups)) {
             redirectToLogin(request, response);
             return true;
@@ -70,4 +74,5 @@ public class LoginRedirect {
         }
         return URI.create(builder.toString());
     }
+
 }

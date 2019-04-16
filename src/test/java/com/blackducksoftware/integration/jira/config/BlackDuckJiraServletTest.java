@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.config.controller.servlet.BlackDuckJiraServlet;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;

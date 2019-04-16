@@ -26,10 +26,8 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
-import com.blackducksoftware.integration.jira.mocks.issue.PluginConfigurationDetailsMock;
-import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerTask;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerTask;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 
@@ -47,9 +45,4 @@ public class IssueTrackerTaskWithMocks extends IssueTrackerTask {
         return blackDuckServicesFactory;
     }
 
-    @Override
-    public BlackDuckServerConfig createBlackDuckServerConfig(final PluginConfigurationDetails configDetails) {
-        final PluginConfigurationDetailsMock testConfigDetails = new PluginConfigurationDetailsMock(configDetails.getSettings());
-        return super.createBlackDuckServerConfig(testConfigDetails);
-    }
 }

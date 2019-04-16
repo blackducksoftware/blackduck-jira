@@ -33,8 +33,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
@@ -49,7 +47,8 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
@@ -73,7 +72,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraOneMissingIssueTypeAssoc() throws GenericEntityException {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
         final CustomFieldManagerMock customFieldManagerMock = new CustomFieldManagerMock();
@@ -84,19 +83,11 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         final FieldScreenSchemeManager fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
 
-        final BlackDuckFieldScreenSchemeSetup fieldConfigSetupOrig = new BlackDuckFieldScreenSchemeSetup(settingService,
-            jiraServices);
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetupOrig = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = Mockito.spy(fieldConfigSetupOrig);
-        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-            .thenAnswer(new Answer<FieldScreenScheme>() {
-                @Override
-                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenSchemeMock();
-                }
-            });
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
         final FieldScreen screen = new FieldScreenMock();
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenReturn(screen);
-        // Mockito.doReturn(screen).when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)));
 
         // Create a custom field
         jiraServices.setCustomFieldManager(customFieldManagerMock);
@@ -112,19 +103,18 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         // See how this handles the incomplete config
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(blackDuckIssueTypes);
 
-        assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing one or more IssueType associations"));
     }
 
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNullIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setCustomFieldManager(new CustomFieldManagerMock());
 
-        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(null);
 
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
@@ -133,12 +123,12 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNoIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setCustomFieldManager(new CustomFieldManagerMock());
-        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService, jiraServices);
-        fieldConfigSetup.addBlackDuckFieldConfigurationToJira(new ArrayList<IssueType>());
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira(new ArrayList<>());
 
         assertNull(settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR));
     }
@@ -146,7 +136,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
         final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
@@ -161,33 +151,12 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
-        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-            jiraServices);
+        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
-        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-            .thenAnswer(new Answer<FieldScreen>() {
-                @Override
-                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenMock();
-                }
-            });
-
-        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-            .thenAnswer(new Answer<FieldScreenScheme>() {
-                @Override
-                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenSchemeMock();
-                }
-            });
-
-        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-            Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-            @Override
-            public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                return new FieldScreenSchemeItemMock();
-            }
-        });
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
@@ -244,7 +213,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             expectedVulnerabilityFields++;
         }
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
         final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
@@ -261,8 +230,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
-        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-            jiraServices);
+        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
         mockCreationMethods(fieldConfigSetup);
@@ -311,7 +279,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     // TODO This test is not easily maintainable and should be improved
     public void testAddBlackDuckFieldConfigurationToJiraWithUserChanges() throws Exception {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final CustomFieldManagerMock customFieldManager = new CustomFieldManagerMock();
         final FieldManagerMock fieldManager = new FieldManagerMock(customFieldManager);
@@ -328,8 +296,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         final List<IssueType> issueTypes = getBlackDuckIssueTypes();
 
-        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(settingService,
-            jiraServices);
+        BlackDuckFieldScreenSchemeSetup fieldConfigSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
 
         mockCreationMethods(fieldConfigSetup);
@@ -411,29 +378,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     private void mockCreationMethods(final BlackDuckFieldScreenSchemeSetup fieldConfigSetup) {
-        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-            .thenAnswer(new Answer<FieldScreen>() {
-                @Override
-                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenMock();
-                }
-            });
-
-        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-            .thenAnswer(new Answer<FieldScreenScheme>() {
-                @Override
-                public FieldScreenScheme answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenSchemeMock();
-                }
-            });
-
-        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-            Mockito.any(FieldScreenManager.class))).thenAnswer(new Answer<FieldScreenSchemeItem>() {
-            @Override
-            public FieldScreenSchemeItem answer(final InvocationOnMock invocation) throws Throwable {
-                return new FieldScreenSchemeItemMock();
-            }
-        });
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
     }
 
     private FieldScreen getDefaultFieldScreen(final boolean includeSomeNullFields) {

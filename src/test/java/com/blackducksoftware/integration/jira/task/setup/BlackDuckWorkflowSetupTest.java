@@ -39,7 +39,8 @@ import org.junit.Test;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
@@ -57,7 +58,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddBlackDuckWorkflowToJiraNoUser() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
         final UserUtilMock userUtil = new UserUtilMock();
@@ -70,7 +71,7 @@ public class BlackDuckWorkflowSetupTest {
         final String jiraUserName = "FakeUser";
         final ApplicationUserMock user = new ApplicationUserMock();
         user.setName(jiraUserName);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
         final Optional<JiraWorkflow> jiraWorkflow = workflowSetup.addBlackDuckWorkflowToJira();
 
         assertFalse(jiraWorkflow.isPresent());
@@ -81,7 +82,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddBlackDuckWorkflowToJiraAlreadyExisting() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final JiraWorkflowMock workflowExisitng = new JiraWorkflowMock();
         workflowExisitng.setName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
@@ -104,7 +105,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
 
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
         final Optional<JiraWorkflow> jiraWorkflow = workflowSetup.addBlackDuckWorkflowToJira();
 
         assertTrue(jiraWorkflow.isPresent());
@@ -116,7 +117,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddBlackDuckWorkflowToJira() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final WorkflowSchemeManagerMock workflowSchemeManager = new WorkflowSchemeManagerMock();
 
@@ -131,7 +132,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final Optional<JiraWorkflow> workflow = workflowSetup.addBlackDuckWorkflowToJira();
 
@@ -143,7 +144,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddWorkflowToProjectsWorkflowSchemeNoWorkflow() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
 
         final String workflowName = "TestWorkflow";
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
@@ -159,7 +160,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -176,7 +177,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddWorkflowToProjectsWorkflowSchemeNoIssueTypes() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final String workflowName = "TestWorkflow";
 
@@ -202,7 +203,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -219,7 +220,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNotInScheme() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final String workflowName = "TestWorkflow";
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final String issueTypeName = "CustomIssueType";
@@ -253,7 +254,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -270,7 +271,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNeedUpdate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final String workflowName = "TestWorkflow";
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final String issueTypeName = "CustomIssueType";
@@ -306,7 +307,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);
@@ -328,7 +329,7 @@ public class BlackDuckWorkflowSetupTest {
     @Test
     public void testAddWorkflowToProjectsWorkflowSchemeIssueTypesNoUpdate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final String workflowName = "TestWorkflow";
         final WorkflowManagerMock workflowManager = new WorkflowManagerMock();
         final String issueTypeName = "CustomIssueType";
@@ -363,7 +364,7 @@ public class BlackDuckWorkflowSetupTest {
         services.setWorkflowManager(workflowManager);
         services.setWorkflowSchemeManager(workflowSchemeManager);
         services.setUserUtil(userUtil);
-        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(settingService, services);
+        final BlackDuckWorkflowSetup workflowSetup = new BlackDuckWorkflowSetup(pluginErrorAccessor, services);
 
         final JiraWorkflowMock workflow = new JiraWorkflowMock();
         workflow.setName(workflowName);

@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.config.controller;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,8 +39,18 @@ public class AuthorizationChecker {
         this.userManager = userManager;
     }
 
+    public boolean isValidAuthorization(final HttpServletRequest request, final Collection<String> blackDuckJiraGroups) {
+        String[] groupsArray = {};
+        return isValidAuthorization(request, blackDuckJiraGroups.toArray(groupsArray));
+    }
+
     public boolean isValidAuthorization(final HttpServletRequest request, final String[] blackDuckJiraGroups) {
         return isUserSystemAdmin(request) || isGroupAuthorized(request, blackDuckJiraGroups);
+    }
+
+    public boolean isValidAuthorization(final String username, final Collection<String> blackDuckJiraGroups) {
+        String[] groupsArray = {};
+        return isValidAuthorization(username, blackDuckJiraGroups.toArray(groupsArray));
     }
 
     public boolean isValidAuthorization(final String username, final String[] blackDuckJiraGroups) {

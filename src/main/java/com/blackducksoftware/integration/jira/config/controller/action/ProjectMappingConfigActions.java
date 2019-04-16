@@ -27,27 +27,30 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
 public class ProjectMappingConfigActions {
-    private final PluginSettingsWrapper pluginSettingsWrapper;
+    final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final WorkflowHelper workflowHelper;
 
-    public ProjectMappingConfigActions(final PluginSettingsFactory pluginSettingsFactory, final WorkflowHelper workflowHelper) {
-        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+    public ProjectMappingConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final WorkflowHelper workflowHelper) {
+        this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         this.workflowHelper = workflowHelper;
     }
 
     public BlackDuckJiraConfigSerializable getMappings() {
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final String blackDuckProjectMappingsJson = pluginSettingsWrapper.getProjectMappingsJson();
+        final String blackDuckProjectMappingsJson = issueCreationConfig.getProjectMapping().getMappingsJson();
         txConfig.setHubProjectMappingsJson(blackDuckProjectMappingsJson);
 
         addWorkflowStatusToMappings(txConfig);
@@ -81,11 +84,13 @@ public class ProjectMappingConfigActions {
 
     private void addWorkflowStatusToMappings(final BlackDuckJiraConfigSerializable config) {
         final Set<BlackDuckProjectMapping> projectMappings = config.getHubProjectMappings();
-        for (final BlackDuckProjectMapping mapping : projectMappings) {
-            final JiraProject jiraProject = mapping.getJiraProject();
+        if (projectMappings != null) {
+            for (final BlackDuckProjectMapping mapping : projectMappings) {
+                final JiraProject jiraProject = mapping.getJiraProject();
 
-            final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
-            jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
+                final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
+                jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
+            }
         }
     }
 

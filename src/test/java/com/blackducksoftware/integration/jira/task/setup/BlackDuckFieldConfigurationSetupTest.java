@@ -37,7 +37,8 @@ import org.mockito.stubbing.Answer;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.EditableDefaultFieldLayoutMock;
@@ -51,7 +52,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreate() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
         addDefaultFieldLayoutItems(defaultFieldLayout);
         addDefaultFieldLayoutItem(defaultFieldLayout, "custom", true);
@@ -60,7 +61,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
@@ -75,7 +76,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraFirstTimeCreateNoCustomRequiredFields() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
         addDefaultFieldLayoutItems(defaultFieldLayout);
         final FieldLayoutManagerMock fieldLayoutManager = new FieldLayoutManagerMock();
@@ -83,7 +84,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
@@ -97,7 +98,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraNotFound() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final EditableDefaultFieldLayoutMock defaultFieldLayout = new EditableDefaultFieldLayoutMock();
         addDefaultFieldLayoutItems(defaultFieldLayout);
         addDefaultFieldLayoutItem(defaultFieldLayout, "custom", true);
@@ -113,7 +114,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService, jiraServices);
+        BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
         fieldConfigSetup = Mockito.spy(fieldConfigSetup);
         final EditableFieldLayoutMock fieldLayout = mockCreateEditableFieldLayout(fieldConfigSetup);
 
@@ -128,7 +129,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraAlreadyAdded() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
         fieldLayout.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
@@ -138,8 +139,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService,
-                jiraServices);
+        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
@@ -152,7 +152,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     @Test
     public void testAddBlackDuckFieldConfigurationToJiraAlreadyAddedNoCustomRequiredFields() {
         final PluginSettingsMock settingsMock = new PluginSettingsMock();
-        final JiraSettingsService settingService = new JiraSettingsService(settingsMock);
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
         fieldLayout.setName(BlackDuckJiraConstants.BLACKDUCK_FIELD_CONFIGURATION);
         addFieldLayoutItems(fieldLayout);
@@ -161,8 +161,7 @@ public class BlackDuckFieldConfigurationSetupTest {
         final JiraServicesMock jiraServices = new JiraServicesMock();
         jiraServices.setFieldLayoutManager(fieldLayoutManager);
 
-        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(settingService,
-                jiraServices);
+        final BlackDuckFieldConfigurationSetup fieldConfigSetup = new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira();
 
@@ -172,19 +171,19 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     private EditableFieldLayoutMock mockCreateEditableFieldLayout(
-            final BlackDuckFieldConfigurationSetup fieldConfigSetupSpy) {
+        final BlackDuckFieldConfigurationSetup fieldConfigSetupSpy) {
         final EditableFieldLayoutMock fieldLayout = new EditableFieldLayoutMock();
 
         Mockito.when(fieldConfigSetupSpy.createEditableFieldLayout(Mockito.anyList()))
-                .thenAnswer(new Answer<EditableFieldLayout>() {
-                    @Override
-                    public EditableFieldLayout answer(final InvocationOnMock invocation) throws Throwable {
-                        final Object[] arguments = invocation.getArguments();
-                        final List<FieldLayoutItem> fields = (List<FieldLayoutItem>) arguments[0];
-                        fieldLayout.setFieldLayoutItems(fields);
-                        return fieldLayout;
-                    }
-                });
+            .thenAnswer(new Answer<EditableFieldLayout>() {
+                @Override
+                public EditableFieldLayout answer(final InvocationOnMock invocation) throws Throwable {
+                    final Object[] arguments = invocation.getArguments();
+                    final List<FieldLayoutItem> fields = (List<FieldLayoutItem>) arguments[0];
+                    fieldLayout.setFieldLayoutItems(fields);
+                    return fieldLayout;
+                }
+            });
         return fieldLayout;
     }
 
@@ -195,7 +194,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     private void addDefaultFieldLayoutItem(final EditableDefaultFieldLayoutMock defaultFieldLayout, final String name,
-            final boolean isRequired) {
+        final boolean isRequired) {
         final FieldLayoutItemMock fieldLayoutItem = new FieldLayoutItemMock();
         final OrderableFieldMock field = new OrderableFieldMock();
         field.setName(name);
@@ -211,7 +210,7 @@ public class BlackDuckFieldConfigurationSetupTest {
     }
 
     private void addFieldLayoutItem(final EditableFieldLayoutMock fieldLayout, final String name,
-            final boolean isRequired) {
+        final boolean isRequired) {
         final FieldLayoutItemMock fieldLayoutItem = new FieldLayoutItemMock();
         final OrderableFieldMock field = new OrderableFieldMock();
         field.setName(name);

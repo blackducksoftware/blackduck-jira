@@ -43,8 +43,8 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.task.conversion.output.BlackDuckIssueAction;
 import com.blackducksoftware.integration.jira.task.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.task.issue.model.BlackDuckIssueFieldTemplate;
@@ -58,21 +58,21 @@ public class JiraIssueHandler {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final JiraIssueServiceWrapper issueServiceWrapper;
-    private final JiraSettingsService jiraSettingsService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraAuthenticationContext authContext;
     private final JiraUserContext jiraUserContext;
     private final IssueTrackerHandler issueTrackerHandler;
-    private final PluginConfigurationDetails pluginConfigurationDetails;
+    private final TicketCriteriaConfigModel ticketCriteria;
     private final Date instanceUniqueDate;
 
-    public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final JiraSettingsService jiraSettingsService, final IssueTrackerHandler issueTrackerHandler,
-        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final PluginConfigurationDetails pluginConfigurationDetails) {
+    public JiraIssueHandler(final JiraIssueServiceWrapper issueServiceWrapper, final PluginErrorAccessor pluginErrorAccessor, final IssueTrackerHandler issueTrackerHandler,
+        final JiraAuthenticationContext authContext, final JiraUserContext jiraContext, final TicketCriteriaConfigModel ticketCriteria) {
         this.issueServiceWrapper = issueServiceWrapper;
-        this.jiraSettingsService = jiraSettingsService;
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.authContext = authContext;
         this.jiraUserContext = jiraContext;
         this.issueTrackerHandler = issueTrackerHandler;
-        this.pluginConfigurationDetails = pluginConfigurationDetails;
+        this.ticketCriteria = ticketCriteria;
         this.instanceUniqueDate = new Date();
     }
 
@@ -265,7 +265,7 @@ public class JiraIssueHandler {
 
     private void addComment(final BlackDuckIssueModel blackDuckIssueModel, final String comment, final Issue issue) {
         final String issueKey = issue.getKey();
-        if (!pluginConfigurationDetails.isCommentOnIssueUpdates()) {
+        if (!ticketCriteria.getCommentOnIssueUpdates()) {
             logger.debug(String.format("Will not add a comment to issue %s because the plugin has been configured to not comment on issue updates", issueKey));
             return;
         }
@@ -422,7 +422,7 @@ public class JiraIssueHandler {
     private void updateJiraSettings(final Issue issueToTransition, final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate, final String errorMessage) {
         logger.error(errorMessage);
         final Project jiraProject = issueToTransition.getProjectObject();
-        jiraSettingsService.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
+        pluginErrorAccessor.addBlackDuckError(errorMessage, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), jiraProject.getName(), jiraUserContext.getJiraAdminUser().getUsername(),
             jiraUserContext.getDefaultJiraIssueCreatorUser().getUsername(), "transitionIssue");
     }
 
@@ -508,23 +508,23 @@ public class JiraIssueHandler {
             for (final Entry<String, String> error : errorCollection.getErrors().entrySet()) {
                 final String errorMessage = error.getKey() + " / " + error.getValue();
                 logger.error(errorMessage);
-                jiraSettingsService.addBlackDuckError(errorMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+                pluginErrorAccessor.addBlackDuckError(errorMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
             }
             for (final String errorMessage : errorCollection.getErrorMessages()) {
                 logger.error(errorMessage);
-                jiraSettingsService.addBlackDuckError(errorMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+                pluginErrorAccessor.addBlackDuckError(errorMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
             }
         } else if (exceptionMessage != null) {
             logger.error("Exception: " + exceptionMessage, issueException);
-            jiraSettingsService.addBlackDuckError(exceptionMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+            pluginErrorAccessor.addBlackDuckError(exceptionMessage, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
         } else {
             logger.error("Issue Exception: " + issueException.getMessage(), issueException);
-            jiraSettingsService.addBlackDuckError(issueException, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
+            pluginErrorAccessor.addBlackDuckError(issueException, blackDuckProjectName, blackDuckProjectVersionName, jiraProjectName, jiraAdminUsername, jiraIssueCreatorUsername, methodAttempt);
         }
     }
 
     private void addComponentReviewerAsWatcher(final Issue issue, final BlackDuckIssueModel model) {
-        if (null != issue && pluginConfigurationDetails.isProjectReviewerEnabled()) {
+        if (null != issue && ticketCriteria.getAddComponentReviewerToTickets()) {
             final ApplicationUser componentReviewer = model.getBlackDuckIssueTemplate().getComponentReviewer();
             if (null != componentReviewer) {
                 issueServiceWrapper.addWatcher(issue, componentReviewer);

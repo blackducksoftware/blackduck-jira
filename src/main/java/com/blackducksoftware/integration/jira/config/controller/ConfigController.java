@@ -33,7 +33,9 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
 
 public class ConfigController {
     // This must be "package protected" to avoid synthetic access
@@ -42,11 +44,13 @@ public class ConfigController {
     private final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
     private final AuthorizationChecker authorizationChecker;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
 
     public ConfigController(final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate, final UserManager userManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
         authorizationChecker = new AuthorizationChecker(userManager);
+        jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
     }
 
     public PluginSettingsFactory getPluginSettingsFactory() {
@@ -61,16 +65,18 @@ public class ConfigController {
         return authorizationChecker;
     }
 
-    public PluginSettingsWrapper createPluginSettingsWrapper() {
-        return new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+    public JiraSettingsAccessor getJiraSettingsAccessor() {
+        return jiraSettingsAccessor;
     }
 
-    <T> T executeAsTransaction(final Supplier<T> supplier) {
+    protected <T> T executeAsTransaction(final Supplier<T> supplier) {
         return getTransactionTemplate().execute(() -> supplier.get());
     }
 
-    boolean isAuthorized(final HttpServletRequest request) {
-        return getAuthorizationChecker().isValidAuthorization(request, createPluginSettingsWrapper().getParsedBlackDuckConfigGroups());
+    protected boolean isAuthorized(final HttpServletRequest request) {
+        final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
+        final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
+        return getAuthorizationChecker().isValidAuthorization(request, groupsConfig.getGroups());
     }
 
 }

@@ -28,24 +28,22 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 
 public class JiraConfigDeserializer {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public BlackDuckJiraConfigSerializable deserializeConfig(final PluginConfigurationDetails pluginConfigDetails) {
-        //        if (pluginConfigDetails.getProjectMappingJson() == null) {
-        //            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-        //            return Optional.empty();
-        //        }
-        //        if (pluginConfigDetails.getPolicyRulesJson() == null) {
-        //            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-        //            return Optional.empty();
-        //        }
+    public BlackDuckJiraConfigSerializable deserializeConfig(final PluginIssueCreationConfigModel issueCreationConfig) {
+        final ProjectMappingConfigModel projectMapping = issueCreationConfig.getProjectMapping();
+        final TicketCriteriaConfigModel ticketCriteria = issueCreationConfig.getTicketCriteria();
+
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-        config.setHubProjectMappingsJson(pluginConfigDetails.getProjectMappingJson());
-        config.setPolicyRulesJson(pluginConfigDetails.getPolicyRulesJson());
+        config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
+        config.setPolicyRulesJson(ticketCriteria.getPolicyRulesJson());
         logger.debug("Mappings:");
         for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
             logger.debug(mapping.toString());

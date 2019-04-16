@@ -34,7 +34,8 @@ import org.mockito.Mockito;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 
 public class JiraSettingsServiceTest {
 
@@ -50,27 +51,28 @@ public class JiraSettingsServiceTest {
     public void testNull() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
         Mockito.when(pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).thenReturn(null);
-        assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
+        assertNull(PluginErrorAccessor.expireOldErrors(new JiraSettingsAccessor(pluginSettings)));
     }
 
     @Test
     public void testOld() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
         Mockito.when(pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).thenReturn(new HashMap<String, String>());
-        assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
+        assertNull(PluginErrorAccessor.expireOldErrors(new JiraSettingsAccessor(pluginSettings)));
     }
 
     @Test
     public void testInvalidJson() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
         Mockito.when(pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).thenReturn("abc");
-        assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
+        assertNull(PluginErrorAccessor.expireOldErrors(new JiraSettingsAccessor(pluginSettings)));
     }
 
     @Test
     public void testEmptyJson() {
         final PluginSettings pluginSettings = Mockito.mock(PluginSettings.class);
         Mockito.when(pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).thenReturn("");
-        assertNull(JiraSettingsService.expireOldErrors(pluginSettings));
+        assertNull(PluginErrorAccessor.expireOldErrors(new JiraSettingsAccessor(pluginSettings)));
     }
+
 }

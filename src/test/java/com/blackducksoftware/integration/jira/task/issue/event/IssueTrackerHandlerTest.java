@@ -40,7 +40,8 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.ProjectMock;
@@ -75,9 +76,10 @@ public class IssueTrackerHandlerTest {
         final BlackDuckHttpClient restConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, url, null, Credentials.NO_CREDENTIALS);
         final BlackDuckService blackDuckService = Mockito.mock(BlackDuckService.class);
         Mockito.when(blackDuckService.getBlackDuckHttpClient()).thenReturn(restConnection);
-        issueServiceMock = new IssueServiceMock(restConnection);
 
-        issueHandler = new IssueTrackerHandler(new JiraSettingsService(settings), issueServiceMock);
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(settings);
+        issueServiceMock = new IssueServiceMock(restConnection);
+        issueHandler = new IssueTrackerHandler(new PluginErrorAccessor(jiraSettingsAccessor), issueServiceMock);
     }
 
     private Issue createIssue(final Long id, final Long projectId, final String projectName, final Status status, final ApplicationUser assignee) {

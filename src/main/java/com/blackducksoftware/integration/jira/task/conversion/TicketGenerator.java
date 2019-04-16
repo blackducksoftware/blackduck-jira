@@ -43,9 +43,9 @@ import com.blackducksoftware.integration.jira.common.notification.CommonNotifica
 import com.blackducksoftware.integration.jira.common.notification.CommonNotificationView;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResult;
 import com.blackducksoftware.integration.jira.common.notification.NotificationDetailResults;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
-import com.blackducksoftware.integration.jira.config.PluginConfigurationDetails;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.issue.handler.DataFormatHelper;
 import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssueHandler;
@@ -75,31 +75,29 @@ public class TicketGenerator {
     private final CommonNotificationService commonNotificationService;
     private final JiraUserContext jiraUserContext;
     private final JiraServices jiraServices;
-    private final JiraSettingsService jiraSettingsService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final Map<PluginField, CustomField> customFields;
     private final IssueTrackerHandler issueTrackerHandler;
-    private final PluginConfigurationDetails pluginConfigurationDetails;
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
     public TicketGenerator(final BlackDuckService blackDuckService, final BlackDuckBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-        final JiraServices jiraServices, final JiraUserContext jiraUserContext, final JiraSettingsService jiraSettingsService, final Map<PluginField, CustomField> customFields,
-        final PluginConfigurationDetails pluginConfigurationDetails, final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        final JiraServices jiraServices, final JiraUserContext jiraUserContext, final PluginErrorAccessor pluginErrorAccessor, final Map<PluginField, CustomField> customFields,
+        final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
         this.notificationService = notificationService;
         this.commonNotificationService = commonNotificationService;
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
-        this.jiraSettingsService = jiraSettingsService;
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.customFields = customFields;
-        this.issueTrackerHandler = new IssueTrackerHandler(jiraSettingsService, blackDuckService);
-        this.pluginConfigurationDetails = pluginConfigurationDetails;
+        this.issueTrackerHandler = new IssueTrackerHandler(pluginErrorAccessor, blackDuckService);
         this.linksOfRulesToMonitor = listOfRulesToMonitor;
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final Date startDate, final Date endDate) {
+    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final TicketCriteriaConfigModel ticketCriteria, final Date startDate, final Date endDate) {
         if ((blackDuckProjectMappings == null) || (blackDuckProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
@@ -118,13 +116,13 @@ public class TicketGenerator {
 
             if (!notificationDetailResults.isEmpty()) {
                 final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, jiraSettingsService, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, pluginConfigurationDetails);
+                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, pluginErrorAccessor, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, ticketCriteria);
 
                 final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
-                final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, jiraSettingsService, blackDuckProjectMappings, fieldCopyConfig,
-                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, logger, pluginConfigurationDetails);
+                final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig,
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, logger, ticketCriteria);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
@@ -135,7 +133,7 @@ public class TicketGenerator {
             }
         } catch (final Exception e) {
             logger.error(e);
-            jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
+            pluginErrorAccessor.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
         }
         return startDate;
     }
@@ -156,7 +154,7 @@ public class TicketGenerator {
                     issueHandler.handleBlackDuckIssue(model);
                 } catch (final Exception e) {
                     logger.error(e);
-                    jiraSettingsService.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
+                    pluginErrorAccessor.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                 }
             }
         }
@@ -173,12 +171,12 @@ public class TicketGenerator {
                             + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
                         e.getMessage());
                     logger.warn(msg);
-                    jiraSettingsService.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
+                    pluginErrorAccessor.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
                 } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
                     logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else {
                     logger.error("Error retrieving notifications: " + e.getMessage(), e);
-                    jiraSettingsService.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
+                    pluginErrorAccessor.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
                 }
             }
         });

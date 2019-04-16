@@ -39,6 +39,7 @@ import com.atlassian.scheduler.config.JobRunnerKey;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService.PluginFuture;
@@ -48,11 +49,11 @@ public class BlackDuckJobRunner implements JobRunner {
     public static final String HUMAN_READABLE_TASK_NAME = "Black Duck notification check task";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettings pluginSettings;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
     private final PluginExecutorService executorService;
 
     public BlackDuckJobRunner(final PluginSettings pluginSettings, final PluginExecutorService executorService) {
-        this.pluginSettings = pluginSettings;
+        this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
         this.executorService = executorService;
     }
 
@@ -66,6 +67,7 @@ public class BlackDuckJobRunner implements JobRunner {
             logger.info("The blackduck-jira periodic task has completed.");
             return result;
         } catch (final Exception e) {
+            logger.error("An error occurred in the Black Duck Job Runner", e);
             return JobRunnerResponse.failed(e);
         }
     }
@@ -73,15 +75,16 @@ public class BlackDuckJobRunner implements JobRunner {
     private JobRunnerResponse executeTimedTask(final JobConfig jobConfig) {
         final Map<String, Serializable> parameterMap = jobConfig.getParameters();
 
-        final Integer taskIntervalMinutes = (Integer) parameterMap.get(BlackDuckMonitor.KEY_CONFIGURED_INTERVAL_MINUTES);
-        if (taskIntervalMinutes != null) {
+        final Number configuredIntervalMinutes = (Number) parameterMap.get(BlackDuckMonitor.KEY_CONFIGURED_INTERVAL_MINUTES);
+        if (configuredIntervalMinutes != null) {
+            final int taskIntervalMinutes = configuredIntervalMinutes.intValue();
             logger.debug("Task interval (minutes): " + taskIntervalMinutes);
             if (taskIntervalMinutes < 1) {
                 logger.info("blackduck-jira periodic task has not been configured, or has a run interval < 1 minute");
                 return JobRunnerResponse.aborted("The plugin has not been configured correctly.");
             }
 
-            final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes.intValue();
+            final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
             logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
             if (executorService.canAcceptNewTasks()) {
@@ -98,7 +101,7 @@ public class BlackDuckJobRunner implements JobRunner {
         Exception failureException = null;
         PluginFuture future = null;
         try {
-            future = executorService.submit(new JiraTaskTimed(pluginSettings, new JiraServices(), taskIntervalMinutes));
+            future = executorService.submit(new JiraTaskTimed(jiraSettingsAccessor, new JiraServices(), taskIntervalMinutes));
             final String result = future.get(taskTimeoutMinutes);
             logger.info("The timed task completed with result: " + result);
         } catch (final ExecutionException e) {

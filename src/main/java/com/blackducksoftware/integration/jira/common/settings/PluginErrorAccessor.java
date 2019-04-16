@@ -21,12 +21,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.common.settings;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,16 +35,17 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.config.TicketCreationError;
 
-public class JiraSettingsService {
-    private final static BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(JiraSettingsService.class.getName()));
-    private final PluginSettings settings;
+public class PluginErrorAccessor {
+    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(PluginErrorAccessor.class.getName()));
 
-    public JiraSettingsService(final PluginSettings settings) {
-        this.settings = settings;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
+
+    public PluginErrorAccessor(final JiraSettingsAccessor jiraSettingsAccessor) {
+        this.jiraSettingsAccessor = jiraSettingsAccessor;
     }
 
     public void addBlackDuckError(final Throwable throwable, final String methodAttempt) {
@@ -66,7 +66,7 @@ public class JiraSettingsService {
     public void addBlackDuckError(final String errorMessage, final String blackDuckProjectName, final String blackDuckProjectVersionName, final String jiraProject, final String jiraAdminUsername, final String jiraIssueCreatorUsername,
         final String methodAttempt) {
         logger.debug("Sending error to UI");
-        List<TicketCreationError> ticketErrors = expireOldErrors(settings);
+        List<TicketCreationError> ticketErrors = expireOldErrors(jiraSettingsAccessor);
         if (ticketErrors == null) {
             ticketErrors = new ArrayList<>();
         }
@@ -116,19 +116,19 @@ public class JiraSettingsService {
             ticketErrors.subList(maxErrorSize, ticketErrors.size()).clear();
         }
         logger.info("Saving " + ticketErrors.size() + " error messages to settings");
-        settings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        jiraSettingsAccessor.setValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
     }
 
-    public static List<TicketCreationError> expireOldErrors(final PluginSettings pluginSettings) {
+    public static List<TicketCreationError> expireOldErrors(final JiraSettingsAccessor jiraSettingsAccessor) {
         logger.debug("Pulling error messages from settings");
-        final Object errorObject = pluginSettings.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
+        final Object errorObject = jiraSettingsAccessor.getObjectValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
         if (errorObject == null) {
             logger.debug("No error messages found in settings");
             return null;
         }
         if (!(errorObject instanceof String)) {
             logger.warn("The error object in settings is invalid (probably stored by an older version of the plugin); discarding it");
-            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
+            jiraSettingsAccessor.setValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
             return null;
         }
 
@@ -138,7 +138,7 @@ public class JiraSettingsService {
             ticketErrors = TicketCreationError.fromJson(ticketErrorsString);
         } catch (final Exception e) {
             logger.warn("Error deserializing JSON string pulled from settings: " + e.getMessage() + "; resettting error message list");
-            pluginSettings.remove(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
+            jiraSettingsAccessor.setValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
             return null;
         }
         if ((ticketErrors == null) || ticketErrors.isEmpty()) {
@@ -158,24 +158,8 @@ public class JiraSettingsService {
             }
         }
         logger.debug("Saving " + ticketErrors.size() + " non-expired error messages in settings");
-        pluginSettings.put(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+        jiraSettingsAccessor.setValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
         return ticketErrors;
-    }
-
-    public LocalDate getLastPhoneHome() {
-        try {
-            final String stringDate = (String) settings.get(BlackDuckJiraConstants.DATE_LAST_PHONED_HOME);
-            return LocalDate.parse(stringDate);
-        } catch (final Exception e) {
-            logger.warn("Cannot find the date of last phone-home: " + e.getMessage());
-        }
-        return LocalDate.MIN;
-    }
-
-    public void setLastPhoneHome(final LocalDate date) {
-        if (date != null) {
-            settings.put(BlackDuckJiraConstants.DATE_LAST_PHONED_HOME, date.toString());
-        }
     }
 
 }

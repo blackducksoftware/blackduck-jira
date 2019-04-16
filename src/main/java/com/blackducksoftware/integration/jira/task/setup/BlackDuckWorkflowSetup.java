@@ -45,24 +45,20 @@ import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
 import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 public class BlackDuckWorkflowSetup {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraSettingsService settingService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;
 
-    public BlackDuckWorkflowSetup(final JiraSettingsService settingService, final JiraServices jiraServices) {
-        this.settingService = settingService;
+    public BlackDuckWorkflowSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.jiraServices = jiraServices;
-    }
-
-    public JiraSettingsService getSettingService() {
-        return settingService;
     }
 
     public JiraServices getJiraServices() {
@@ -90,7 +86,7 @@ public class BlackDuckWorkflowSetup {
             return Optional.of(blackDuckWorkflow);
         } catch (final Exception e) {
             logger.error("Failed to add the Black Duck JIRA workflow.", e);
-            settingService.addBlackDuckError(e, "addBlackDuckWorkflow");
+            pluginErrorAccessor.addBlackDuckError(e, "addBlackDuckWorkflow");
         }
         return Optional.empty();
     }
@@ -100,7 +96,7 @@ public class BlackDuckWorkflowSetup {
         final InputStream inputStream = ClassLoaderUtils.getResourceAsStream(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW_RESOURCE, this.getClass());
         if (inputStream == null) {
             logger.error("Could not find the Black Duck JIRA workflow resource.");
-            settingService.addBlackDuckError("Could not find the Black Duck JIRA workflow resource.", "addBlackDuckWorkflow");
+            pluginErrorAccessor.addBlackDuckError("Could not find the Black Duck JIRA workflow resource.", "addBlackDuckWorkflow");
             return Optional.empty();
         }
         final String workflowXml = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
@@ -124,7 +120,7 @@ public class BlackDuckWorkflowSetup {
             }
         } catch (final Exception e) {
             logger.error("Failed to add the Black Duck JIRA worflow to the Black Duck scheme.", e);
-            settingService.addBlackDuckError(e, null, null, project.getName(), null, null, "addWorkflowToProjectsWorkflowScheme");
+            pluginErrorAccessor.addBlackDuckError(e, null, null, project.getName(), null, null, "addWorkflowToProjectsWorkflowScheme");
         }
     }
 

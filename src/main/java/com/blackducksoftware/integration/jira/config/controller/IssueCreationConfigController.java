@@ -41,6 +41,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueCreationConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
@@ -54,8 +55,10 @@ public class IssueCreationConfigController extends ConfigController {
         final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, final BlackDuckMonitor blackDuckMonitor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.projectManager = projectManager;
+
         final WorkflowHelper workflowHelper = new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager);
-        issueCreationConfigActions = new IssueCreationConfigActions(pluginSettingsFactory, getAuthorizationChecker(), projectManager, workflowHelper, blackDuckMonitor);
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
+        this.issueCreationConfigActions = new IssueCreationConfigActions(jiraSettingsAccessor, getAuthorizationChecker(), projectManager, workflowHelper, blackDuckMonitor);
     }
 
     @GET

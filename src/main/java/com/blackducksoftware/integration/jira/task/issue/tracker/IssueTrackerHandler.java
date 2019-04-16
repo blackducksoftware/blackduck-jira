@@ -33,7 +33,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.config.JiraSettingsService;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.exception.IntegrationException;
@@ -45,11 +45,11 @@ public class IssueTrackerHandler {
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    private final JiraSettingsService jiraSettingsService;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final BlackDuckService blackDuckService;
 
-    public IssueTrackerHandler(final JiraSettingsService jiraSettingsService, final BlackDuckService blackDuckService) {
-        this.jiraSettingsService = jiraSettingsService;
+    public IssueTrackerHandler(final PluginErrorAccessor pluginErrorAccessor, final BlackDuckService blackDuckService) {
+        this.pluginErrorAccessor = pluginErrorAccessor;
         this.blackDuckService = blackDuckService;
     }
 
@@ -65,11 +65,11 @@ public class IssueTrackerHandler {
             } else {
                 final String message = "Error creating Black Duck issue; no component or component version found.";
                 logger.error(message);
-                jiraSettingsService.addBlackDuckError(message, "createBlackDuckIssue");
+                pluginErrorAccessor.addBlackDuckError(message, "createBlackDuckIssue");
             }
         } catch (final IntegrationException ex) {
             logger.error("Error creating Black Duck Issue", ex);
-            jiraSettingsService.addBlackDuckError(ex, "createBlackDuckIssue");
+            pluginErrorAccessor.addBlackDuckError(ex, "createBlackDuckIssue");
         }
 
         return url;
@@ -92,7 +92,7 @@ public class IssueTrackerHandler {
                 } else {
                     final String message = "Error updating Black Duck issue; no component or component version found.";
                     logger.error(message);
-                    jiraSettingsService.addBlackDuckError(message, "updateBlackDuckIssue");
+                    pluginErrorAccessor.addBlackDuckError(message, "updateBlackDuckIssue");
                 }
             } catch (final IntegrationRestException restException) {
                 if (restException.getHttpStatusCode() == 404) {
@@ -103,7 +103,7 @@ public class IssueTrackerHandler {
             }
         } catch (final IntegrationException intException) {
             logger.error("Error updating Black Duck Issue", intException);
-            jiraSettingsService.addBlackDuckError(intException, "updateBlackDuckIssue");
+            pluginErrorAccessor.addBlackDuckError(intException, "updateBlackDuckIssue");
         }
     }
 
@@ -115,11 +115,11 @@ public class IssueTrackerHandler {
             } else {
                 final String message = "Error deleting Black Duck issue; no component or component version found.";
                 logger.error(message);
-                jiraSettingsService.addBlackDuckError(message, "deleteBlackDuckIssue");
+                pluginErrorAccessor.addBlackDuckError(message, "deleteBlackDuckIssue");
             }
         } catch (final IntegrationException ex) {
             logger.error("Error deleting Black Duck Issue", ex);
-            jiraSettingsService.addBlackDuckError(ex, "deleteBlackDuckIssue");
+            pluginErrorAccessor.addBlackDuckError(ex, "deleteBlackDuckIssue");
         }
     }
 

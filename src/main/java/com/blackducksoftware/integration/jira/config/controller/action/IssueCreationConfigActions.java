@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.config.controller.action;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,13 +38,19 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
@@ -52,26 +59,30 @@ import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 public class IssueCreationConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
-    private final PluginSettingsWrapper pluginSettingsWrapper;
+    private final PluginConfigurationAccessor pluginConfigurationAccessor;
+    private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final AuthorizationChecker authorizationChecker;
     private final ProjectManager projectManager;
     private final WorkflowHelper workflowHelper;
     private final BlackDuckMonitor blackDuckMonitor;
     private final ProjectMappingConfigActions projectMappingConfigActions;
 
-    public IssueCreationConfigActions(final PluginSettingsFactory pluginSettingsFactory, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
+    public IssueCreationConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
         final WorkflowHelper workflowHelper, final BlackDuckMonitor blackDuckMonitor) {
-        this.pluginSettingsWrapper = new PluginSettingsWrapper(pluginSettingsFactory.createGlobalSettings());
+        this.pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
+        this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
         this.workflowHelper = workflowHelper;
         this.blackDuckMonitor = blackDuckMonitor;
-        this.projectMappingConfigActions = new ProjectMappingConfigActions(pluginSettingsFactory, workflowHelper);
+        this.projectMappingConfigActions = new ProjectMappingConfigActions(jiraSettingsAccessor, workflowHelper);
     }
 
     public BlackDuckJiraConfigSerializable getCreator() {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final String creator = pluginSettingsWrapper.getIssueCreatorUser();
+
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final String creator = issueCreationConfig.getGeneral().getDefaultIssueCreator();
         txConfig.setCreator(creator);
         validateCreator(txConfig);
         return txConfig;
@@ -105,7 +116,8 @@ public class IssueCreationConfigActions {
     public BlackDuckJiraConfigSerializable getCommentOnIssueUpdates() {
         logger.debug("GET /comment/updatechoice transaction");
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getCommentOnIssuesUpdatesChoice();
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final Boolean choice = issueCreationConfig.getTicketCriteria().getCommentOnIssueUpdates();
         logger.debug("choice: " + choice);
         txConfig.setCommentOnIssueUpdatesChoice(choice);
         return txConfig;
@@ -114,7 +126,8 @@ public class IssueCreationConfigActions {
     public BlackDuckJiraConfigSerializable getProjectReviewerNotificationsChoice() {
         logger.debug("GET /project/reviewerChoice transaction");
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        final Boolean choice = pluginSettingsWrapper.getProjectReviewerNotificationsChoice();
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final Boolean choice = issueCreationConfig.getTicketCriteria().getAddComponentReviewerToTickets();
         logger.debug("choice: " + choice);
         txConfig.setProjectReviewerNotificationsChoice(choice);
         return txConfig;
@@ -122,7 +135,10 @@ public class IssueCreationConfigActions {
 
     public BlackDuckJiraConfigSerializable getInterval() {
         final BlackDuckJiraConfigSerializable txConfig = new BlackDuckJiraConfigSerializable();
-        pluginSettingsWrapper.getIntervalBetweenChecks().ifPresent(integer -> txConfig.setIntervalBetweenChecks(String.valueOf(integer)));
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+
+        final Optional<Integer> intervalBetweenChecks = issueCreationConfig.getGeneral().getInterval();
+        intervalBetweenChecks.map(String::valueOf).ifPresent(txConfig::setIntervalBetweenChecks);
 
         validateInterval(txConfig);
         return txConfig;
@@ -134,28 +150,36 @@ public class IssueCreationConfigActions {
         validateInterval(config);
         validateCreator(config);
         projectMappingConfigActions.validateMapping(config);
-        final String firstTimeSave = pluginSettingsWrapper.getFirstTimeSave();
+
+        final String username = authorizationChecker.getUsername(request).orElse(null);
+        pluginConfigurationAccessor.setJiraAdminUser(username);
+
+        final String firstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
         if (firstTimeSave == null) {
-            pluginSettingsWrapper.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
+            pluginConfigurationAccessor.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
         }
 
+        final PluginIssueCreationConfigModel previousIssueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+
         final String issueCreatorJiraUser = config.getCreator();
-        logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
-        pluginSettingsWrapper.setIssueCreatorUser(issueCreatorJiraUser);
-        pluginSettingsWrapper.setPolicyRulesJson(config.getPolicyRulesJson());
-        pluginSettingsWrapper.setProjectMappingsJson(config.getHubProjectMappingsJson());
-        final String username = authorizationChecker.getUsername(request).orElse(null);
-        pluginSettingsWrapper.setJiraAdminUser(username);
-        final Optional<Integer> previousInterval = pluginSettingsWrapper.getIntervalBetweenChecks();
+        final Optional<Integer> previousInterval = previousIssueCreationConfig.getGeneral().getInterval();
         final Integer intervalBetweenChecks = Integer.parseInt(config.getIntervalBetweenChecks());
-        pluginSettingsWrapper.setIntervalBetweenChecks(intervalBetweenChecks);
-        updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
+        final GeneralIssueCreationConfigModel general = new GeneralIssueCreationConfigModel(intervalBetweenChecks, issueCreatorJiraUser);
+
+        final ProjectMappingConfigModel projectMapping = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+
         final Boolean commentOnIssueUpdatesChoice = config.getCommentOnIssueUpdatesChoice();
-        logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
-        pluginSettingsWrapper.setCommentOnIssuesUpdatesChoice(commentOnIssueUpdatesChoice);
         final Boolean projectReviewerNotificationsChoice = config.getProjectReviewerNotificationsChoice();
+        final TicketCriteriaConfigModel ticketCriteria = new TicketCriteriaConfigModel(config.getPolicyRulesJson(), commentOnIssueUpdatesChoice, projectReviewerNotificationsChoice);
+
+        final PluginIssueCreationConfigModel issueCreationConfig = new PluginIssueCreationConfigModel(general, projectMapping, ticketCriteria);
+
+        logger.debug("Setting issue creator jira user to: " + issueCreatorJiraUser);
+        logger.debug("Setting commentOnIssueUpdatesChoice to " + commentOnIssueUpdatesChoice.toString());
         logger.debug("Setting projectReviewerNotificationsChoice to " + projectReviewerNotificationsChoice.toString());
-        pluginSettingsWrapper.setProjectReviewerNotificationsChoice(projectReviewerNotificationsChoice);
+
+        globalConfigurationAccessor.setIssueCreationConfig(issueCreationConfig);
+        updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
 
         return config;
     }
@@ -164,7 +188,9 @@ public class IssueCreationConfigActions {
         if (StringUtils.isBlank(config.getCreator())) {
             config.setGeneralSettingsError(JiraConfigErrorStrings.NO_CREATOR_SPECIFIED_ERROR);
         }
-        if (authorizationChecker.isValidAuthorization(config.getCreator(), pluginSettingsWrapper.getParsedBlackDuckConfigGroups())) {
+
+        final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
+        if (authorizationChecker.isValidAuthorization(config.getCreator(), groupsConfig.getGroups())) {
             return;
         } else {
             config.setGeneralSettingsError(JiraConfigErrorStrings.UNAUTHORIZED_CREATOR_ERROR);
@@ -173,7 +199,8 @@ public class IssueCreationConfigActions {
 
     private SortedSet<String> getIssueCreatorCandidates() {
         final SortedSet<String> jiraUsernames = new TreeSet<>();
-        final String[] groupNames = pluginSettingsWrapper.getParsedBlackDuckConfigGroups();
+        final PluginGroupsConfigModel groupsConfig = globalConfigurationAccessor.getGroupsConfig();
+        final Collection<String> groupNames = groupsConfig.getGroups();
         for (final String groupName : groupNames) {
             jiraUsernames.addAll(new JiraServices().getGroupManager().getUserNamesInGroup(groupName));
         }

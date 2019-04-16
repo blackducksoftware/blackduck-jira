@@ -52,11 +52,9 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.PluginSettingsWrapper;
-import com.blackducksoftware.integration.jira.config.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
 import com.blackducksoftware.integration.jira.config.model.TicketCreationErrorSerializable;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
@@ -85,9 +83,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
     public Response getPluginVersion(@Context final HttpServletRequest request) {
         final Object pluginInfo;
         try {
-            final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
-            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-            final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
@@ -109,15 +105,14 @@ public class BlackDuckJiraConfigController extends ConfigController {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removeErrors(final TicketCreationErrorSerializable errorsToDelete, @Context final HttpServletRequest request) {
-        final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
-        final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-        final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+        final boolean validAuthentication = isAuthorized(request);
         if (!validAuthentication) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        final Object obj = executeAsTransaction(() -> {
 
-            final Object errorObject = getValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR);
+        final Object obj = executeAsTransaction(() -> {
+            final PluginConfigurationAccessor pluginConfigurationAccessor = getJiraSettingsAccessor().createPluginConfigurationAccessor();
+            final Object errorObject = pluginConfigurationAccessor.getPluginError();
 
             List<TicketCreationError> ticketErrors = null;
             if (errorObject != null) {
@@ -148,7 +143,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
                     }
                 }
             }
-            setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, TicketCreationError.toJson(ticketErrors));
+            pluginConfigurationAccessor.setPluginError(TicketCreationError.toJson(ticketErrors));
             return null;
         });
         if (obj != null) {
@@ -164,21 +159,21 @@ public class BlackDuckJiraConfigController extends ConfigController {
         logger.debug("Reset called with parameter: " + object);
         final Object responseString;
         try {
-            final PluginSettings settings = getPluginSettingsFactory().createGlobalSettings();
-            final PluginSettingsWrapper pluginSettingsWrapper = new PluginSettingsWrapper(settings);
-            final boolean validAuthentication = getAuthorizationChecker().isValidAuthorization(request, pluginSettingsWrapper.getParsedBlackDuckConfigGroups());
+            final boolean validAuthentication = isAuthorized(request);
             if (!validAuthentication) {
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
             responseString = executeAsTransaction(() -> {
+                final PluginConfigurationAccessor pluginConfigurationAccessor = getJiraSettingsAccessor().createPluginConfigurationAccessor();
                 try {
                     final Date now = new Date();
-                    final String oldLastRunDateString = getStringValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE);
+                    final String oldLastRunDateString = pluginConfigurationAccessor.getLastRunDate();
                     final String newLastRunDateString = BlackDuckPluginDateFormatter.format(now);
                     logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
-                    setValue(settings, PluginConfigKeys.BLACKDUCK_CONFIG_LAST_RUN_DATE, newLastRunDateString);
-                    setValue(settings, BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, null);
+
+                    pluginConfigurationAccessor.setLastRunDate(newLastRunDateString);
+                    pluginConfigurationAccessor.setPluginError(null);
                 } catch (final Exception e) {
                     return e.getMessage();
                 }
