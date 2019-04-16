@@ -302,9 +302,11 @@ function onMappingInputChange(inputField) {
                 }
             }
 
-            const mappingRow = inputField.parentElement.parentElement;
-            const workflowStatusSpan = AJS.$(mappingRow).find("span[name='workflowStatus']")[0];
-            setWorkflowStatus(workflowStatusSpan, option.attr("projectWorkflowStatus"));
+            if (inputField.getAttribute('name') === 'jiraProject') {
+                const mappingRow = inputField.parentElement.parentElement;
+                const workflowStatusSpan = AJS.$(mappingRow).find("span[name='workflowStatus']")[0];
+                setWorkflowStatus(workflowStatusSpan, option.attr('projectWorkflowStatus'));
+            }
 
             break;
         }

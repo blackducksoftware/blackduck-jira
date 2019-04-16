@@ -97,8 +97,8 @@ public class BlackDuckConfigActions {
     public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
 
-        final Integer intTimeout = null != newConfig.getTimeout() ? Integer.parseInt(newConfig.getTimeout()) : null;
-        final Integer proxyPort = null != newConfig.getHubProxyPort() ? Integer.parseInt(newConfig.getHubProxyPort()) : null;
+        final Integer intTimeout = StringUtils.isNotBlank(newConfig.getTimeout()) ? Integer.parseInt(newConfig.getTimeout()) : null;
+        final Integer proxyPort = StringUtils.isNotBlank(newConfig.getHubProxyPort()) ? Integer.parseInt(newConfig.getHubProxyPort()) : null;
         final Boolean trustCert = Boolean.parseBoolean(newConfig.getTrustCert());
         final PluginBlackDuckServerConfigModel pluginBlackDuckServerConfigModel =
             new PluginBlackDuckServerConfigModel(newConfig.getHubUrl(), newConfig.getApiToken(), intTimeout, trustCert, newConfig.getHubProxyHost(), proxyPort, newConfig.getHubProxyUser(), newConfig.getHubProxyPassword());

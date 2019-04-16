@@ -101,7 +101,7 @@ public class GlobalConfigurationAccessor {
 
     public void setIssueCreationConfig(final PluginIssueCreationConfigModel pluginIssueCreationConfigModel) {
         final GeneralIssueCreationConfigModel general = pluginIssueCreationConfigModel.getGeneral();
-        jiraSettingsAccessor.setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, general.getInterval());
+        jiraSettingsAccessor.setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_INTERVAL_BETWEEN_CHECKS, general.getInterval().orElse(null));
         jiraSettingsAccessor.setValue(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER, general.getDefaultIssueCreator());
 
         final ProjectMappingConfigModel projectMapping = pluginIssueCreationConfigModel.getProjectMapping();
