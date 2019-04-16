@@ -101,6 +101,7 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldLayoutSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeItemMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
@@ -408,16 +409,9 @@ public class JiraTaskSetupTest {
         final JiraVersionCheck jiraVersionCheck = new JiraVersionCheck(buildInfoUtil);
         Mockito.when(jiraTask.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
 
-        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-            .thenAnswer(new Answer<FieldScreen>() {
-                @Override
-                public FieldScreen answer(final InvocationOnMock invocation) throws Throwable {
-                    return new FieldScreenMock();
-                }
-            });
-
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
-        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
         Mockito.doReturn(fieldConfigSetup).when(jiraTask).createBlackDuckFieldScreenSchemeSetup(Mockito.any(PluginErrorAccessor.class), Mockito.any(JiraServices.class));
     }
 

@@ -56,6 +56,7 @@ import com.blackducksoftware.integration.jira.mocks.field.CustomFieldMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeItemMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
@@ -155,7 +156,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
-        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
 
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
 
@@ -377,14 +378,9 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     private void mockCreationMethods(final BlackDuckFieldScreenSchemeSetup fieldConfigSetup) {
-        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class)))
-            .thenAnswer(x -> new FieldScreenSchemeMock());
-
-        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class)))
-            .thenAnswer(x -> new FieldScreenSchemeMock());
-
-        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class),
-            Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        Mockito.when(fieldConfigSetup.createNewFieldScreenSchemeItemImpl(Mockito.any(FieldScreenSchemeManager.class), Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenSchemeItemMock());
     }
 
     private FieldScreen getDefaultFieldScreen(final boolean includeSomeNullFields) {
