@@ -32,9 +32,7 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenSchemeItem;
 
 public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fields.screen.FieldScreenSchemeManager {
-
     private final List<FieldScreenScheme> updatedSchemes = new ArrayList<>();
-
     private final List<FieldScreenSchemeItem> updatedSchemeItems = new ArrayList<>();
 
     public List<FieldScreenScheme> getUpdatedSchemes() {
@@ -57,13 +55,13 @@ public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fi
 
     @Override
     public FieldScreenScheme getFieldScreenScheme(final Long arg0) {
-
         return null;
     }
 
     @Override
     public Collection<FieldScreenSchemeItem> getFieldScreenSchemeItems(final FieldScreenScheme screenScheme) {
-        return screenScheme.getFieldScreenSchemeItems();
+        return new ArrayList<>();
+        // return screenScheme.getFieldScreenSchemeItems();
     }
 
     @Override
@@ -73,34 +71,28 @@ public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fi
 
     @Override
     public Collection<FieldScreenScheme> getFieldScreenSchemes() {
-
         return updatedSchemes;
     }
 
     @Override
     public Collection<FieldScreenScheme> getFieldScreenSchemes(final FieldScreen arg0) {
-
         return null;
     }
 
     @Override
     public void refresh() {
-
     }
 
     @Override
     public void removeFieldSchemeItems(final FieldScreenScheme arg0) {
-
     }
 
     @Override
     public void removeFieldScreenScheme(final FieldScreenScheme arg0) {
-
     }
 
     @Override
     public void removeFieldScreenSchemeItem(final FieldScreenSchemeItem arg0) {
-
     }
 
     @Override
@@ -111,7 +103,6 @@ public class FieldScreenSchemeManagerMock implements com.atlassian.jira.issue.fi
     @Override
     public void updateFieldScreenSchemeItem(final FieldScreenSchemeItem schemeItem) {
         updatedSchemeItems.add(schemeItem);
-
     }
 
 }

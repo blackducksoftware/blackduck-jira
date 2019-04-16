@@ -62,49 +62,41 @@ public class FieldManagerMock implements FieldManager {
 
     @Override
     public Set<SearchableField> getAllSearchableFields() {
-
         return null;
     }
 
     @Override
     public ConfigurableField getConfigurableField(final String arg0) {
-
         return null;
     }
 
     @Override
     public CustomField getCustomField(final String arg0) {
-
         return null;
     }
 
     @Override
     public Field getField(final String arg0) {
-
         return null;
     }
 
     @Override
     public HideableField getHideableField(final String arg0) {
-
         return null;
     }
 
     @Override
     public IssueTypeField getIssueTypeField() {
-
         return null;
     }
 
     @Override
     public NavigableField getNavigableField(final String arg0) {
-
         return null;
     }
 
     @Override
     public Set<NavigableField> getNavigableFields() {
-
         return null;
     }
 
@@ -115,156 +107,132 @@ public class FieldManagerMock implements FieldManager {
             return null;
         }
         return customFields.parallelStream().filter((field) -> field.getName().equals(fieldName))
-                .findAny().orElse(null);
+                   .findAny().orElse(null);
     }
 
     @Override
     @SuppressWarnings("rawtypes")
     public Set<OrderableField> getOrderableFields() {
-
         return null;
     }
 
     @Override
     public ProjectField getProjectField() {
-
         return null;
     }
 
     @Override
     public RequirableField getRequiredField(final String arg0) {
-
         return null;
     }
 
     @Override
     public Set<SearchableField> getSystemSearchableFields() {
-
         return null;
     }
 
     @Override
     public Set<Field> getUnavailableFields() {
-
         return null;
     }
 
     @Override
     public boolean isCustomField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isCustomField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isFieldHidden(final Set<FieldLayout> arg0, final Field arg1) {
-
         return false;
     }
 
     @Override
     public boolean isHideableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isHideableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isMandatoryField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isMandatoryField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isNavigableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isNavigableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isOrderableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isOrderableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isRenderableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isRenderableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isRequirableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isRequirableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public boolean isTimeTrackingOn() {
-
         return false;
     }
 
     @Override
     public boolean isUnscreenableField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isUnscreenableField(final Field arg0) {
-
         return false;
     }
 
     @Override
     public void refresh() {
-
     }
 
     @Override
     public Set<CustomField> getAvailableCustomFields(final ApplicationUser arg0, final Issue arg1)
-            throws FieldException {
+        throws FieldException {
         // Auto-generated method stub
         return null;
     }
@@ -283,7 +251,7 @@ public class FieldManagerMock implements FieldManager {
 
     @Override
     public Set<NavigableField> getAvailableNavigableFieldsWithScope(final ApplicationUser arg0, final QueryContext arg1)
-            throws FieldException {
+        throws FieldException {
         // Auto-generated method stub
         return null;
     }

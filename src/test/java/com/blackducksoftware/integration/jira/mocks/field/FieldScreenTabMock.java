@@ -34,11 +34,9 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenLayoutItem;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 
 public class FieldScreenTabMock implements FieldScreenTab {
-
     private String name;
-
+    private int position = 0;
     private FieldScreen screen;
-
     private final List<FieldScreenLayoutItem> layoutItems = new ArrayList<>();
 
     @Override
@@ -58,120 +56,102 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public void addFieldScreenLayoutItem(final String arg0, final int arg1) {
+        addFieldScreenLayoutItem(arg0);
         System.out.println("FieldScreenTabMock.addFieldScreenLayoutItem(String, int) called.");
     }
 
     @Override
     public FieldScreen getFieldScreen() {
-
         return screen;
     }
 
     @Override
-    public FieldScreenLayoutItem getFieldScreenLayoutItem(final int arg0) {
-
-        return null;
+    public FieldScreenLayoutItem getFieldScreenLayoutItem(final int pos) {
+        return layoutItems.stream().filter(layoutItem -> layoutItem.getPosition() == pos).findFirst().orElse(null);
     }
 
     @Override
     public FieldScreenLayoutItem getFieldScreenLayoutItem(final String id) {
         return layoutItems.parallelStream()
-                .filter((layoutItem) -> layoutItem.getOrderableField().getId().equals(id))
-                .findAny().orElse(null);
+                   .filter((layoutItem) -> layoutItem.getOrderableField().getId().equals(id))
+                   .findAny().orElse(null);
     }
 
     @Override
     public List<FieldScreenLayoutItem> getFieldScreenLayoutItems() {
-
         return layoutItems;
     }
 
     @Override
     public GenericValue getGenericValue() {
-
         return null;
     }
 
     @Override
     public Long getId() {
-
         return null;
     }
 
     @Override
     public String getName() {
-
         return name;
     }
 
     @Override
     public int getPosition() {
-
-        return 0;
+        return position;
     }
 
     @Override
     public boolean isContainsField(final String arg0) {
-
         return false;
     }
 
     @Override
     public boolean isModified() {
-
         return false;
     }
 
     @Override
     public void moveFieldScreenLayoutItemDown(final int arg0) {
-
     }
 
     @Override
     public void moveFieldScreenLayoutItemFirst(final int arg0) {
-
     }
 
     @Override
     public void moveFieldScreenLayoutItemLast(final int arg0) {
-
     }
 
     @Override
     public void moveFieldScreenLayoutItemToPosition(final Map<Integer, FieldScreenLayoutItem> arg0) {
-
     }
 
     @Override
     public void moveFieldScreenLayoutItemUp(final int arg0) {
-
     }
 
     @Override
     public void remove() {
-
     }
 
     @Override
     public FieldScreenLayoutItem removeFieldScreenLayoutItem(final int arg0) {
-
         return null;
     }
 
     @Override
     public void rename(final String arg0) {
-
     }
 
     @Override
     public void setFieldScreen(final FieldScreen screen) {
         this.screen = screen;
-
     }
 
     @Override
     public void setGenericValue(final GenericValue arg0) {
-
     }
 
     @Override
@@ -182,7 +162,7 @@ public class FieldScreenTabMock implements FieldScreenTab {
 
     @Override
     public void setPosition(final int arg0) {
-
+        this.position = arg0;
     }
 
     @Override
