@@ -40,14 +40,7 @@ public class JiraConfigDeserializer {
     public BlackDuckJiraConfigSerializable deserializeConfig(final PluginIssueCreationConfigModel issueCreationConfig) {
         final ProjectMappingConfigModel projectMapping = issueCreationConfig.getProjectMapping();
         final TicketCriteriaConfigModel ticketCriteria = issueCreationConfig.getTicketCriteria();
-        //        if (pluginConfigDetails.getProjectMappingJson() == null) {
-        //            logger.debug("BlackDuckNotificationCheckTask: Project Mappings not configured, therefore there is nothing to do.");
-        //            return Optional.empty();
-        //        }
-        //        if (pluginConfigDetails.getPolicyRulesJson() == null) {
-        //            logger.debug("BlackDuckNotificationCheckTask: Policy Rules not configured, therefore there is nothing to do.");
-        //            return Optional.empty();
-        //        }
+
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
         config.setPolicyRulesJson(ticketCriteria.getPolicyRulesJson());
