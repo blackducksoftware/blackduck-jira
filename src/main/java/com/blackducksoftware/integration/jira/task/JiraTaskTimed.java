@@ -91,7 +91,6 @@ public class JiraTaskTimed implements Callable<String> {
         try {
             final PreTaskSetup preTaskSetup = new PreTaskSetup();
             preTaskSetup.runPluginSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), ticketInfoFromSetup, jiraUserContext);
-            // runPluginSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), ticketInfoFromSetup, jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
