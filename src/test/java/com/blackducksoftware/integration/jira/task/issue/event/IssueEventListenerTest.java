@@ -50,7 +50,6 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.settings.BlackDuckConfigKeys;
@@ -190,9 +189,7 @@ public class IssueEventListenerTest {
         jiraProject.setProjectId(JIRA_PROJECT_ID);
         jiraProject.setProjectName(JIRA_PROJECT_NAME);
         mapping.setJiraProject(jiraProject);
-        final BlackDuckProject blackDuckProject = new BlackDuckProject();
-        blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
-        mapping.setHubProject(blackDuckProject);
+        mapping.setBlackDuckProjectName(BLACKDUCK_PROJECT_NAME);
         projectSet.add(mapping);
         settings.put(PluginConfigKeys.BLACKDUCK_CONFIG_JIRA_PROJECT_MAPPINGS_JSON, createProjectJSon(projectSet));
     }

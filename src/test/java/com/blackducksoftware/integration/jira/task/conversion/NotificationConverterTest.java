@@ -111,25 +111,28 @@ public class NotificationConverterTest {
     private static final String OVERRIDER_LAST_NAME = "lastName";
     private static final String OVERRIDER_FIRST_NAME = "firstName";
     private static final String RULE_URL = "http://localhost:8080/api/rules/ruleId";
+    private static final String COMPONENT_NAME = "componentName";
+    private static final String COMPONENT_VERSION_NAME = "componentVersion";
     private static final String VULNERABLE_COMPONENTS_URL = "http://localhost:8080/api/projects/x/versions/y/vulnerable-components";
+    private static final String VULNERABLE_COMPONENTS_QUERY_PARAMS = "?q=componentName:" + COMPONENT_NAME;
     private static final String RULE_NAME = "Test Rule";
     private static final String POLICY_EXPECTED_PROPERTY_KEY = "t=p|jp=123|hpv=-32224582|hc=|hcv=1816144506|hr=1736320804";
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT;
     private static final String POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_DESCRIPTION = "Black Duck has detected a policy violation.  \n\n";
     private static final String POLICY_CLEARED_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-    private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion', Rule 'Test Rule'";
+    private static final String POLICY_CLEARED_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component '" + COMPONENT_NAME + "' / '" + COMPONENT_VERSION_NAME + "', Rule 'Test Rule'";
     private static final String POLICY_CLEARED_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN;
     private static final String POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_CLEARED_RESOLVE;
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
     private static final String POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_OVERRIDDEN_COMMENT;
     private static final String POLICY_OVERRIDE_EXPECTED_DESCRIPTION = POLICY_VIOLATION_EXPECTED_DESCRIPTION;
-    private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion', Rule 'Test Rule'";
+    private static final String POLICY_OVERRIDE_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component '" + COMPONENT_NAME + "' / '" + COMPONENT_VERSION_NAME + "', Rule 'Test Rule'";
     private static final String POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN;
     private static final String POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE;
     private static final String POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_RESOLVE;
     private static final String POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_REOPEN;
-    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion', Rule '" + RULE_NAME + "'";
+    private static final String POLICY_VIOLATION_EXPECTED_SUMMARY = "Policy Violation: Project 'hubProjectName' / 'projectVersionName', Component '" + COMPONENT_NAME + "' / '" + COMPONENT_VERSION_NAME + "', Rule '" + RULE_NAME + "'";
     private static final String POLICY_EXPECTED_COMMENT_IF_EXISTS = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_DETECTED_AGAIN_COMMENT;
     private static final String POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = POLICY_EXPECTED_COMMENT_IF_EXISTS;
     private static final String VULNERABILITY_ISSUE_TYPE_ID = "Black Duck Security Vulnerability ID";
@@ -145,8 +148,6 @@ public class NotificationConverterTest {
     private static final String PROJECT_VERSION_URL = "http://localhost:8080/api/projects/projectId/versions/versionId";
     private static final String COMPONENT_VERSION_URL = "http://localhost:8080/api/components/componentId/versions/versionId";
     private static final String COMPONENT_URL = "http://localhost:8080/api/components/componentId";
-    private static final String COMPONENT_VERSION_NAME = "componentVersion";
-    private static final String COMPONENT_NAME = "componentName";
     private static final String BOM_COMPONENT_URI = "http://localhost:8080/api/projects/projectId/versions/versionId/components/componentId";
     private static final String BOM_EDIT_COMMENT_VULN = "(Black Duck plugin auto-generated comment)\nVulnerabilities _added_: None\nVulnerabilities _updated_: None\nVulnerabilities _deleted_: None\n";
     private static final String ASSIGNEE_USER_ID = "assigneeUserId";
@@ -166,7 +167,8 @@ public class NotificationConverterTest {
                                                             + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
-    private final static String VULN_EXPECTED_DESCRIPTION = "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + "] in Black Duck.  \n\n";
+    private final static String VULN_EXPECTED_DESCRIPTION =
+        "Black Duck has detected vulnerabilities. For details, see the comments below, or the project's [vulnerabilities|" + VULNERABLE_COMPONENTS_URL + VULNERABLE_COMPONENTS_QUERY_PARAMS + "] in Black Duck.  \n\n";
     private final static String VULN_EXPECTED_SUMMARY = "Vulnerability: Project " + "'hubProjectName' / 'projectVersionName', Component 'componentName' / 'componentVersion'";
 
     private static final Gson gson = new Gson();

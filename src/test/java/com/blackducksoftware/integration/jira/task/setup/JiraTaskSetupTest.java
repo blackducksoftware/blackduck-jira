@@ -71,7 +71,6 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProject;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
@@ -570,9 +569,7 @@ public class JiraTaskSetupTest {
             jiraProject.setProjectName(jiraProjectName);
             jiraProject.setProjectId(jiraProjectId);
             mapping.setJiraProject(jiraProject);
-            final BlackDuckProject blackDuckProject = new BlackDuckProject();
-            blackDuckProject.setProjectName(BLACKDUCK_PROJECT_NAME);
-            mapping.setHubProject(blackDuckProject);
+            mapping.setBlackDuckProjectName(BLACKDUCK_PROJECT_NAME);
             mappings.add(mapping);
         }
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
