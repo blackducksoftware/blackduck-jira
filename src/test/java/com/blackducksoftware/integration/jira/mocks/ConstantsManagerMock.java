@@ -176,7 +176,7 @@ public class ConstantsManagerMock implements ConstantsManager {
 
     @Override
     public IssueType insertIssueType(final String name, final Long arg1, final String arg2, final String description,
-            final String arg4) throws CreateException {
+        final String arg4) throws CreateException {
         final IssueType issueType = generateMockIssueType(name, description);
         issueTypes.add(issueType);
 
@@ -194,8 +194,7 @@ public class ConstantsManagerMock implements ConstantsManager {
     }
 
     @Override
-    public IssueType insertIssueType(final String name, final Long arg1, final String arg2, final String description,
-            final Long arg4) throws CreateException {
+    public IssueType insertIssueType(final String name, final Long arg1, final String arg2, final String description, final Long arg4) throws CreateException {
         final IssueType issueType = generateMockIssueType(name, description);
         issueTypes.add(issueType);
         return issueType;
@@ -207,65 +206,50 @@ public class ConstantsManagerMock implements ConstantsManager {
 
     @Override
     public void invalidateAll() {
-
     }
 
     @Override
     public void refresh() {
-
     }
 
     @Override
     public void refreshIssueTypes() {
-
     }
 
     @Override
     public void refreshPriorities() {
-
     }
 
     @Override
     public void refreshResolutions() {
-
     }
 
     @Override
     public void refreshStatuses() {
-
     }
 
     @Override
     public void removeIssueType(final String arg0) throws RemoveException {
-
     }
 
     @Override
     public void storeIssueTypes(final List<GenericValue> arg0) throws DataAccessException {
-
     }
 
     @Override
-    public void updateIssueType(final String arg0, final String arg1, final Long arg2, final String arg3,
-            final String arg4, final String arg5) throws DataAccessException {
-
+    public void updateIssueType(final String arg0, final String arg1, final Long arg2, final String arg3, final String arg4, final String arg5) throws DataAccessException {
     }
 
     @Override
-    public void updateIssueType(final String arg0, final String arg1, final Long arg2, final String arg3,
-            final String arg4, final Long arg5) {
-
+    public void updateIssueType(final String arg0, final String arg1, final Long arg2, final String arg3, final String arg4, final Long arg5) {
     }
 
     @Override
-    public void validateCreateIssueType(final String arg0, final String arg1, final String arg2, final String arg3,
-            final ErrorCollection arg4, final String arg5) {
-
+    public void validateCreateIssueType(final String arg0, final String arg1, final String arg2, final String arg3, final ErrorCollection arg4, final String arg5) {
     }
 
     @Override
-    public void validateCreateIssueTypeWithAvatar(final String arg0, final String arg1, final String arg2,
-            final String arg3, final ErrorCollection arg4, final String arg5) {
+    public void validateCreateIssueTypeWithAvatar(final String arg0, final String arg1, final String arg2, final String arg3, final ErrorCollection arg4, final String arg5) {
     }
 
     @Override
@@ -279,79 +263,62 @@ public class ConstantsManagerMock implements ConstantsManager {
 
     @Override
     public List<IssueConstant> getConstantsByIds(final CONSTANT_TYPE arg0, final Collection<String> arg1) {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Priority getDefaultPriority() {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public IssueType getIssueType(final String arg0) {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Resolution getResolution(final String arg0) {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Status getStatus(final String arg0) {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public void recalculateIssueTypeSequencesAndStore(final List<IssueType> arg0) {
-        // Auto-generated method stub
-
     }
 
     @Override
     public void recalculatePrioritySequencesAndStore(final List<Priority> arg0) {
-        // Auto-generated method stub
-
     }
 
     @Override
     public void recalculateResolutionSequencesAndStore(final List<Resolution> arg0) {
-        // Auto-generated method stub
-
     }
 
     @Override
     public void recalculateStatusSequencesAndStore(final List<Status> arg0) {
-        // Auto-generated method stub
-
     }
 
     @Override
     public List<IssueType> getEditableSubTaskIssueTypes() {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Priority> getPriorities() {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Resolution> getResolutions() {
-        // Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<Status> getStatuses() {
-        // Auto-generated method stub
         return null;
     }
 

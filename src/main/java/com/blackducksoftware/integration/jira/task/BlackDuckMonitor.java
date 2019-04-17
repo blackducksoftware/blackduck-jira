@@ -125,7 +125,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         }
 
         final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
-        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, actualInterval);
+        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, actualInterval / 1000);
 
         final JobConfig jobConfig = JobConfig
                                         .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)

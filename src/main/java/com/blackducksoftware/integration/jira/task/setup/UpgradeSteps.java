@@ -37,6 +37,7 @@ import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMappi
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
@@ -74,8 +75,7 @@ public class UpgradeSteps {
     // Delete in V8
     public void upgradeToV6FromAny() {
         final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
-
-        final boolean vulnerabilityTicketsEnabled = globalConfigurationAccessor.getVulnerabilityIssuesChoice();
+        final boolean vulnerabilityTicketsEnabled = jiraSettingsAccessor.getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, true);
 
         final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
         final ProjectMappingConfigModel projectMappingModel = issueCreationConfig.getProjectMapping();

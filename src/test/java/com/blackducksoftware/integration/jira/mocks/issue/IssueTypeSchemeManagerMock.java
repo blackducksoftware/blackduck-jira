@@ -40,9 +40,7 @@ import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
 @SuppressWarnings("rawtypes")
 public class IssueTypeSchemeManagerMock implements IssueTypeSchemeManager {
     private FieldConfigScheme fieldConfigScheme;
-
     private Collection<IssueType> issueTypes;
-
     private final ConstantsManagerMock constantsManagerMock;
 
     public IssueTypeSchemeManagerMock(final ConstantsManagerMock constantsManagerMock) {
@@ -151,12 +149,10 @@ public class IssueTypeSchemeManagerMock implements IssueTypeSchemeManager {
 
     @Override
     public void removeOptionFromAllSchemes(final String arg0) {
-
     }
 
     @Override
     public void setDefaultValue(final FieldConfig arg0, final String arg1) {
-
     }
 
     @Override

@@ -122,11 +122,6 @@ public class GlobalConfigurationAccessor {
         jiraSettingsAccessor.setValue(PluginConfigKeys.BLACKDUCK_CONFIG_FIELD_COPY_MAPPINGS_JSON, fieldMappingConfig.getFieldMappingJson());
     }
 
-    @Deprecated
-    public Boolean getVulnerabilityIssuesChoice() {
-        return jiraSettingsAccessor.getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, true);
-    }
-
     private String getBlackDuckProxyPassword() {
         final String stringValue = jiraSettingsAccessor.getStringValue(BlackDuckConfigKeys.CONFIG_PROXY_PASS);
         if (StringUtils.isBlank(stringValue)) {

@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -80,11 +81,11 @@ public class BlackDuckConfigActions {
             config.setApiToken(config.getMaskedApiToken());
         }
 
+        blackDuckServerConfig.getTimeoutInSeconds().map(Objects::toString).ifPresent(config::setTimeout);
         config.setTrustCert(blackDuckServerConfig.getTrustCert());
+
         config.setHubProxyHost(blackDuckServerConfig.getProxyHost());
-        blackDuckServerConfig.getProxyPort().ifPresent(value -> {
-            config.setHubProxyPort(String.valueOf(value));
-        });
+        blackDuckServerConfig.getProxyPort().map(String::valueOf).ifPresent(config::setHubProxyPort);
         config.setHubProxyUser(blackDuckServerConfig.getProxyUsername());
         if (StringUtils.isNotBlank(blackDuckServerConfig.getProxyPassword())) {
             config.setHubProxyPasswordLength(blackDuckServerConfig.getProxyPassword().length());
