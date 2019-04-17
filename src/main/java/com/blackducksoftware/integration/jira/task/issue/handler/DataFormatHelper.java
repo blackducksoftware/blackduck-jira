@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,6 +61,10 @@ public class DataFormatHelper {
     }
 
     public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentVersionUrl, final boolean includeRemediationInfo) {
+        return getIssueDescription(issueCategory, projectVersionUrl, null, componentVersionUrl, includeRemediationInfo);
+    }
+
+    public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentName, final String componentVersionUrl, final boolean includeRemediationInfo) {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
@@ -72,8 +78,9 @@ public class DataFormatHelper {
                 vulnerableComponentsLink = blackDuckDataHelper.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
             if (vulnerableComponentsLink != null) {
+                final String vulnerableComponentsLinkWithQueryParams = createVulnerableComponentsLink(componentName, vulnerableComponentsLink);
                 issueDescription.append("[vulnerabilities|");
-                issueDescription.append(vulnerableComponentsLink);
+                issueDescription.append(vulnerableComponentsLinkWithQueryParams);
                 issueDescription.append("]");
             } else {
                 issueDescription.append("vulnerabilities");
@@ -93,6 +100,19 @@ public class DataFormatHelper {
             }
         }
         return issueDescription.toString();
+    }
+
+    public String createVulnerableComponentsLink(final String componentName, final String baseVulnerableComponentsLink) {
+        if (StringUtils.isNotBlank(componentName)) {
+            final String encodedComponentName;
+            try {
+                encodedComponentName = URLEncoder.encode(componentName, "UTF-8");
+                return String.format("%s?q=componentName:%s", baseVulnerableComponentsLink, encodedComponentName);
+            } catch (UnsupportedEncodingException e) {
+                logger.debug("Error encoding vulnerable components link: " + e.getMessage());
+            }
+        }
+        return baseVulnerableComponentsLink;
     }
 
     public String createIssueSummary(final IssueCategory issueCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {

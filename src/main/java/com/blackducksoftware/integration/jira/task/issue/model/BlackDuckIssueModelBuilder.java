@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.jira.task.issue.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,7 +51,7 @@ import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.util.Stringable;
 
-public class BlackDuckIssueModelBuilder extends Stringable {
+public class BlackDuckIssueModelBuilder extends Stringable implements Cloneable {
     private final BlackDuckDataHelper blackDuckDataHelper;
     private final DataFormatHelper dataFormatHelper;
 
@@ -293,7 +294,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
         String issueDescription = null;
         if (!IssueCategory.SPECIAL.equals(issueCategory)) {
             jiraIssueSummary = dataFormatHelper.createIssueSummary(issueCategory, projectName, projectVersionName, componentName, componentVersionName, policyRuleName);
-            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentVersionUri, includeRemediationInfo);
+            issueDescription = dataFormatHelper.getIssueDescription(issueCategory, projectVersionUri, componentName, componentVersionUri, includeRemediationInfo);
         }
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = new JiraIssueFieldTemplate(jiraProjectId, jiraProjectName, jiraIssueTypeId, jiraIssueSummary, issueCreator, issueDescription, assigneeId);
 
@@ -306,7 +307,7 @@ public class BlackDuckIssueModelBuilder extends Stringable {
     public BlackDuckIssueModelBuilder copy() {
         final BlackDuckIssueModelBuilder newBuilder = new BlackDuckIssueModelBuilder(blackDuckDataHelper, dataFormatHelper);
         newBuilder.action = action;
-        newBuilder.projectFieldCopyMappings = projectFieldCopyMappings;
+        newBuilder.projectFieldCopyMappings = new HashSet<>(projectFieldCopyMappings);
         newBuilder.bomComponentUri = bomComponentUri;
         newBuilder.componentIssueUrl = componentIssueUrl;
         newBuilder.lastBatchStartDate = lastBatchStartDate;
