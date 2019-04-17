@@ -50,8 +50,7 @@ public class PreTaskSetup {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     public void runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final TicketInfoFromSetup ticketInfoFromSetup,
-        final JiraUserContext jiraContext)
-        throws ConfigurationException, JiraException {
+        final JiraUserContext jiraContext) throws ConfigurationException, JiraException {
         // Make sure current JIRA version is supported throws exception if not
         getJiraVersionCheck();
 
@@ -110,9 +109,9 @@ public class PreTaskSetup {
         return new BlackDuckWorkflowSetup(pluginErrorAccessor, jiraServices);
     }
 
-    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
+    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup, final List<IssueType> issueTypes,
+        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration, final FieldLayoutScheme fieldConfigurationScheme,
+        final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
         if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
             final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
             // Converts Json to list of mappings
