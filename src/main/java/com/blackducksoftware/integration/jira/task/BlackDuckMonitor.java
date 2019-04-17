@@ -54,7 +54,7 @@ import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
 
-    private static final long DEFAULT_INTERVAL_MILLISEC = 1000L;
+    private static final int DEFAULT_INTERVAL_MINUTES = 1;
     private static final String CURRENT_JOB_NAME = BlackDuckMonitor.class.getName() + ":job";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -114,18 +114,20 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
         unscheduleOldJobs();
 
-        final long actualInterval = getIntervalMillisec();
+        final Number actualIntervalInMinutes = getIntervalInMinutes();
+        final Number actualIntervalInMilliseconds = getIntervalMillisec(actualIntervalInMinutes);
+
         final Schedule schedule;
         try {
             final String installDateString = UpgradeSteps.getInstallDateString(pluginSettings);
-            schedule = Schedule.forInterval(actualInterval, BlackDuckPluginDateFormatter.parse(installDateString));
+            schedule = Schedule.forInterval(actualIntervalInMilliseconds.longValue(), BlackDuckPluginDateFormatter.parse(installDateString));
         } catch (final Exception e) {
             logger.error("Could not get the install date. Please disable, and then reenable, this plugin or restart Jira.", e);
             return;
         }
 
         final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
-        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, actualInterval / 1000);
+        blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, actualIntervalInMinutes);
 
         final JobConfig jobConfig = JobConfig
                                         .forJobRunnerKey(BlackDuckJobRunner.JOB_RUNNER_KEY)
@@ -135,7 +137,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
         try {
             schedulerService.scheduleJob(JobId.of(CURRENT_JOB_NAME), jobConfig);
-            logger.info(String.format("%s scheduled to run every %dms", BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, actualInterval));
+            logger.info(String.format("%s scheduled to run every %dms", BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, actualIntervalInMilliseconds));
         } catch (final SchedulerServiceException e) {
             logger.error(String.format("Could not schedule %s." + BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME), e);
         }
@@ -154,43 +156,20 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         }
     }
 
-    private long getIntervalMillisec() {
-        if (pluginSettings == null) {
-            logger.error("Unable to get plugin settings");
-            return DEFAULT_INTERVAL_MILLISEC;
+    private Number getIntervalMillisec(final Number intervalInMinutes) {
+        if (null != intervalInMinutes) {
+            int intervalMinutes = intervalInMinutes.intValue();
+            if (intervalMinutes < 1) {
+                logger.warn("Invalid interval string; setting interval to " + DEFAULT_INTERVAL_MINUTES + " minute(s)");
+                intervalMinutes = DEFAULT_INTERVAL_MINUTES;
+            }
+            logger.info("Interval in minutes: " + intervalMinutes);
+            // Lop off 30 seconds to give the task room to run. Otherwise, the runtime of the task pushes
+            // the next scheduled runtime out beyond the targeted once-a-minute opportunity to run
+            final long intervalSeconds = (intervalMinutes * 60L) - 30L;
+            return intervalSeconds * 1000L;
         }
-
-        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
-        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
-        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
-        final GeneralIssueCreationConfigModel generalConfig = issueCreationConfig.getGeneral();
-        final Optional<String> optionalIntervalString = generalConfig.getInterval().map(String::valueOf);
-
-        final String intervalString;
-        if (optionalIntervalString.isPresent()) {
-            intervalString = optionalIntervalString.get();
-        } else {
-            logger.error("Unable to get interval from plugin settings");
-            return DEFAULT_INTERVAL_MILLISEC;
-        }
-
-        int intervalMinutes;
-        try {
-            intervalMinutes = Integer.parseInt(intervalString);
-        } catch (final NumberFormatException e) {
-            logger.error("Unable to convert interval string '" + intervalString + "' to an integer");
-            return DEFAULT_INTERVAL_MILLISEC;
-        }
-        if (intervalMinutes < 1) {
-            logger.warn("Invalid interval string; setting interval to 1 minute");
-            intervalMinutes = 1;
-        }
-        logger.info("Interval in minutes: " + intervalMinutes);
-        // Lop off 30 seconds to give the task room to run. Otherwise, the runtime of the task pushes
-        // the next scheduled runtime out beyond the targeted once-a-minute opportunity to run
-        final long intervalSeconds = (intervalMinutes * 60) - 30l;
-        final long intervalMillisec = intervalSeconds * 1000;
-        return intervalMillisec;
+        return DEFAULT_INTERVAL_MINUTES * 60 * 1000;
     }
 
     private void runUpgrade(final Date installDate) {
@@ -198,6 +177,26 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         upgradeSteps.updateInstallDate(installDate);
         upgradeSteps.updateOldMappingsIfNeeded();
         upgradeSteps.upgradeToV6FromAny();
+    }
+
+    private Number getIntervalInMinutes() {
+        if (pluginSettings == null) {
+            logger.error("Unable to get plugin settings");
+            return DEFAULT_INTERVAL_MINUTES;
+        }
+
+        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        final GeneralIssueCreationConfigModel generalConfig = issueCreationConfig.getGeneral();
+
+        final Optional<Integer> optionalInterval = generalConfig.getInterval();
+        if (optionalInterval.isPresent()) {
+            return optionalInterval.get();
+        }
+
+        logger.error("Unable to get interval from plugin settings");
+        return DEFAULT_INTERVAL_MINUTES;
     }
 
 }

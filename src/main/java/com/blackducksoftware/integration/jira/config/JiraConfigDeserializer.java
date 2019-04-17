@@ -23,14 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.config;
 
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
@@ -48,21 +43,8 @@ public class JiraConfigDeserializer {
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
         config.setPolicyRulesJson(ticketCriteria.getPolicyRulesJson());
 
-        logger.debug("Mappings:");
-        final Set<BlackDuckProjectMapping> projectMappings = config.getHubProjectMappings();
-        if (null != projectMappings) {
-            for (final BlackDuckProjectMapping mapping : projectMappings) {
-                logger.debug(mapping.toString());
-            }
-        }
-
-        logger.debug("Policy Rules:");
-        final List<PolicyRuleSerializable> policyRules = config.getPolicyRules();
-        if (null != policyRules) {
-            for (final PolicyRuleSerializable rule : policyRules) {
-                logger.debug(rule.toString());
-            }
-        }
+        logger.debug("Mappings: " + config.getHubProjectMappings());
+        logger.debug("Policy Rules: " + config.getPolicyRules());
 
         return config;
     }

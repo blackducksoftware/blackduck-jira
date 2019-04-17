@@ -155,12 +155,8 @@ public class BlackDuckFieldScreenSchemeSetup {
                                                             .getCustomFieldObjectsByName(pluginField.getName())
                                                             .stream()
                                                             .findFirst();
-            final CustomField customField;
-            if (optionalCustomField.isPresent()) {
-                customField = optionalCustomField.get();
-            } else {
-                customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
-            }
+            final CustomField customField = optionalCustomField
+                                                .orElseGet(() -> createCustomFieldFunction.apply(issueTypeList, pluginField.getName()));
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
                 final List<IssueType> associatatedIssueTypeList = customField.getAssociatedIssueTypes();
                 boolean needToUpdateCustomField = false;
