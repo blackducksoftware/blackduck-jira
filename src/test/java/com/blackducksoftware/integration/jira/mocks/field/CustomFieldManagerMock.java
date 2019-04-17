@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.mocks.field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
@@ -65,25 +66,21 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public boolean exists(final String arg0) {
-
         return false;
     }
 
     @Override
     public CustomField getCustomFieldInstance(final GenericValue arg0) {
-
         return null;
     }
 
     @Override
     public CustomField getCustomFieldObject(final Long arg0) {
-
         return null;
     }
 
     @Override
     public CustomField getCustomFieldObject(final String arg0) {
-
         return null;
     }
 
@@ -99,102 +96,85 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public List<CustomField> getCustomFieldObjects(final SearchContext arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomField> getCustomFieldObjects(final GenericValue arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomField> getCustomFieldObjects(final Issue arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomField> getCustomFieldObjects(final Long arg0, final String arg1) {
-
         return null;
     }
 
     @Override
     public List<CustomField> getCustomFieldObjects(final Long arg0, final List<String> arg1) {
-
         return null;
     }
 
     @Override
-    public Collection<CustomField> getCustomFieldObjectsByName(final String arg0) {
-
-        return null;
+    public Collection<CustomField> getCustomFieldObjectsByName(final String name) {
+        return customFields.parallelStream().filter((field) -> field.getName().equals(name)).collect(Collectors.toList());
     }
 
     @Override
     public CustomFieldSearcher getCustomFieldSearcher(final String arg0) {
-
         return null;
     }
 
     @Override
     public Class<? extends CustomFieldSearcher> getCustomFieldSearcherClass(final String arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomFieldSearcher> getCustomFieldSearchers(final CustomFieldType arg0) {
-
         return null;
     }
 
     @Override
     public CustomFieldType getCustomFieldType(final String arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomFieldType<?, ?>> getCustomFieldTypes() {
-
         return null;
     }
 
     @Override
     public CustomFieldSearcher getDefaultSearcher(final CustomFieldType<?, ?> arg0) {
-
         return null;
     }
 
     @Override
     public List<CustomField> getGlobalCustomFieldObjects() {
-
         return null;
     }
 
     @Override
     public boolean isCustomField(final String arg0) {
-
         return false;
     }
 
     @Override
     public void refresh() {
-
     }
 
     @Override
     public void refreshConfigurationSchemes(final Long arg0) {
-
     }
 
     @Override
     public void removeCustomField(final CustomField field) throws RemoveException {
         customFields.remove(field);
-
     }
 
     @Override
@@ -205,18 +185,14 @@ public class CustomFieldManagerMock implements CustomFieldManager {
 
     @Override
     public void removeCustomFieldValues(final GenericValue arg0) throws GenericEntityException {
-
     }
 
     @Override
     public void removeProjectAssociations(final Project arg0) {
-
     }
 
     @Override
-    public void updateCustomField(final Long arg0, final String arg1, final String arg2,
-        final CustomFieldSearcher arg3) {
-
+    public void updateCustomField(final Long arg0, final String arg1, final String arg2, final CustomFieldSearcher arg3) {
     }
 
 }

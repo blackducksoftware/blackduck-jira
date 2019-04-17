@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.config;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
@@ -44,14 +47,23 @@ public class JiraConfigDeserializer {
         final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
         config.setPolicyRulesJson(ticketCriteria.getPolicyRulesJson());
+
         logger.debug("Mappings:");
-        for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-            logger.debug(mapping.toString());
+        final Set<BlackDuckProjectMapping> projectMappings = config.getHubProjectMappings();
+        if (null != projectMappings) {
+            for (final BlackDuckProjectMapping mapping : projectMappings) {
+                logger.debug(mapping.toString());
+            }
         }
+
         logger.debug("Policy Rules:");
-        for (final PolicyRuleSerializable rule : config.getPolicyRules()) {
-            logger.debug(rule.toString());
+        final List<PolicyRuleSerializable> policyRules = config.getPolicyRules();
+        if (null != policyRules) {
+            for (final PolicyRuleSerializable rule : policyRules) {
+                logger.debug(rule.toString());
+            }
         }
+
         return config;
     }
 
@@ -60,4 +72,5 @@ public class JiraConfigDeserializer {
         fieldCopyConfig.setJson(fieldCopyMappingJson);
         return fieldCopyConfig;
     }
+
 }

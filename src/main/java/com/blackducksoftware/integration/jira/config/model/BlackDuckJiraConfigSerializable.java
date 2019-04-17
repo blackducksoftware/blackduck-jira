@@ -281,8 +281,7 @@ public class BlackDuckJiraConfigSerializable extends Stringable implements Seria
     public void setHubProjectMappingsJson(final String hubProjectMappingsJson) {
         if (StringUtils.isNotBlank(hubProjectMappingsJson)) {
             final Gson gson = new GsonBuilder().create();
-            final Type mappingType = new TypeToken<Set<BlackDuckProjectMapping>>() {
-            }.getType();
+            final Type mappingType = new TypeToken<Set<BlackDuckProjectMapping>>() {}.getType();
             this.hubProjectMappings = gson.fromJson(hubProjectMappingsJson, mappingType);
         }
     }

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.apache.log4j.Logger;
@@ -150,9 +151,14 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField, final BiFunction<List<IssueType>, String, CustomField> createCustomFieldFunction) {
         try {
-            // The method is deprecated because custom fields are no longer guaranteed to be unique. This impl will get the first (if there are multiple options).
-            CustomField customField = jiraServices.getCustomFieldManager().getCustomFieldObjectByName(pluginField.getName());
-            if (customField == null) {
+            Optional<CustomField> optionalCustomField = jiraServices.getCustomFieldManager()
+                                                            .getCustomFieldObjectsByName(pluginField.getName())
+                                                            .stream()
+                                                            .findFirst();
+            final CustomField customField;
+            if (optionalCustomField.isPresent()) {
+                customField = optionalCustomField.get();
+            } else {
                 customField = createCustomFieldFunction.apply(issueTypeList, pluginField.getName());
             }
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {

@@ -84,7 +84,6 @@ public class IssueTrackerTask implements Callable<Boolean> {
                 return Boolean.FALSE;
             }
 
-            // only execute if hub 3.7 or higher with the issue tracker capability
             final BlackDuckServerConfig blackDuckServerConfig =
                 createBlackDuckServerConfig(jiraSettingsAccessor.createPluginConfigurationAccessor(), globalConfigurationAccessor.getBlackDuckServerConfig(), issueCreationConfig);
             if (blackDuckServerConfig == null) {
