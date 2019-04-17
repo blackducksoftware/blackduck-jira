@@ -32,11 +32,8 @@ import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
 
 public class FieldScreenMock implements FieldScreen {
-
     private String name;
-
     private boolean attemptedScreenStore;
-
     private final List<FieldScreenTab> tabs = new ArrayList<>();
 
     public boolean getAttemptedScreenStore() {
@@ -59,95 +56,78 @@ public class FieldScreenMock implements FieldScreen {
 
     @Override
     public boolean containsField(final String arg0) {
-
         return false;
     }
 
     @Override
     public String getDescription() {
-
         return null;
     }
 
     @Override
     public GenericValue getGenericValue() {
-
         return null;
     }
 
     @Override
     public Long getId() {
-
         return null;
     }
 
     @Override
     public String getName() {
-
         return name;
     }
 
     @Override
-    public FieldScreenTab getTab(final int arg0) {
-
-        return null;
+    public FieldScreenTab getTab(final int pos) {
+        return tabs.stream().filter(tab -> tab.getPosition() == pos).findFirst().orElse(null);
     }
 
     @Override
     public List<FieldScreenTab> getTabs() {
-
         return tabs;
     }
 
     @Override
     public boolean isModified() {
-
         return false;
     }
 
     @Override
     public void moveFieldScreenTabLeft(final int arg0) {
-
     }
 
     @Override
     public void moveFieldScreenTabRight(final int arg0) {
-
     }
 
     @Override
     public void moveFieldScreenTabToPosition(final int arg0, final int arg1) {
-
     }
 
     @Override
     public void remove() {
-
     }
 
     @Override
     public void removeFieldScreenLayoutItem(final String arg0) {
-
     }
 
     @Override
     public void removeTab(final int arg0) {
-
     }
 
     @Override
     public void resequence() {
-
     }
 
     @Override
     public void setDescription(final String arg0) {
-
     }
 
     @Override
     public void setGenericValue(final GenericValue arg0) {
-
     }
 
     @Override
@@ -156,14 +136,12 @@ public class FieldScreenMock implements FieldScreen {
 
     @Override
     public void setName(final String name) {
-
         this.name = name;
     }
 
     @Override
     public void store() {
         attemptedScreenStore = true;
-
     }
 
 }

@@ -25,30 +25,18 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
-import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
-import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
-import com.atlassian.jira.issue.issuetype.IssueType;
-import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
-import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.jira.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
@@ -56,13 +44,8 @@ import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccesso
 import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.common.settings.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
-import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldConfigurationSetup;
-import com.blackducksoftware.integration.jira.task.setup.BlackDuckFieldScreenSchemeSetup;
-import com.blackducksoftware.integration.jira.task.setup.BlackDuckIssueTypeSetup;
-import com.blackducksoftware.integration.jira.task.setup.BlackDuckWorkflowSetup;
+import com.blackducksoftware.integration.jira.task.setup.PreTaskSetup;
 
 public class JiraTaskTimed implements Callable<String> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -106,7 +89,8 @@ public class JiraTaskTimed implements Callable<String> {
         final LocalDateTime beforeSetup = LocalDateTime.now();
         final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
         try {
-            jiraSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), ticketInfoFromSetup, jiraUserContext);
+            final PreTaskSetup preTaskSetup = new PreTaskSetup();
+            preTaskSetup.runPluginSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), ticketInfoFromSetup, jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
@@ -118,51 +102,6 @@ public class JiraTaskTimed implements Callable<String> {
         final String runResult = runBlackDuckJiraTaskAndSetLastRunDate(processor, pluginConfigurationAccessor);
         logger.info("blackduck-jira periodic timed task has completed");
         return runResult;
-    }
-
-    public void jiraSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final TicketInfoFromSetup ticketInfoFromSetup,
-        final JiraUserContext jiraContext)
-        throws ConfigurationException, JiraException {
-        // Make sure current JIRA version is supported throws exception if not
-        getJiraVersionCheck();
-
-        // Create Issue Types, workflow, etc.
-        final BlackDuckIssueTypeSetup issueTypeSetup;
-        try {
-            issueTypeSetup = createBlackDuckIssueTypeSetup(pluginErrorAccessor, jiraServices, jiraContext.getJiraAdminUser().getName());
-        } catch (final ConfigurationException e) {
-            throw new JiraException("Unable to create IssueTypes; Perhaps configuration is not ready; Will try again next time");
-        }
-        final List<IssueType> issueTypes = issueTypeSetup.addBdsIssueTypesToJira();
-        if (issueTypes == null || issueTypes.isEmpty()) {
-            throw new JiraException("No Black Duck Issue Types found or created");
-        }
-        logger.debug("Number of Black Duck issue types found or created: " + issueTypes.size());
-
-        final BlackDuckFieldScreenSchemeSetup fieldConfigurationSetup = createBlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
-
-        final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType = fieldConfigurationSetup.addBlackDuckFieldConfigurationToJira(issueTypes);
-        if (screenSchemesByIssueType.isEmpty()) {
-            throw new JiraException("No Black Duck Screen Schemes found or created");
-        }
-        ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
-
-        logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
-
-        final BlackDuckFieldConfigurationSetup blackDuckFieldConfigurationSetup = createBlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
-        final EditableFieldLayout fieldConfiguration = blackDuckFieldConfigurationSetup.addBlackDuckFieldConfigurationToJira();
-        final FieldLayoutScheme fieldConfigurationScheme = blackDuckFieldConfigurationSetup.createFieldConfigurationScheme(issueTypes, fieldConfiguration);
-
-        final BlackDuckWorkflowSetup workflowSetup = createBlackDuckWorkflowSetup(pluginErrorAccessor, jiraServices);
-        final JiraWorkflow workflow = workflowSetup.addBlackDuckWorkflowToJira().orElseThrow(() -> new JiraException("Unable to add Black Duck workflow to JIRA."));
-        logger.debug("Black Duck workflow Name: " + workflow.getName());
-
-        // Associate these config objects with mapped projects
-        adjustProjectsConfig(jiraServices, projectMappingConfig.getMappingsJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
-    }
-
-    public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
-        return new JiraVersionCheck();
     }
 
     // Set the last run date immediately so that if the task is rescheduled on a different thread before this one completes, data will not be duplicated.
@@ -187,53 +126,6 @@ public class JiraTaskTimed implements Callable<String> {
         }
         // TODO determine if an else case is needed to revert to old last run date
         return runStatus;
-    }
-
-    private void adjustProjectsConfig(final JiraServices jiraServices, final String projectMappingJson, final BlackDuckIssueTypeSetup issueTypeSetup,
-        final List<IssueType> issueTypes, final Map<IssueType, FieldScreenScheme> screenSchemesByIssueType, final EditableFieldLayout fieldConfiguration,
-        final FieldLayoutScheme fieldConfigurationScheme, final BlackDuckWorkflowSetup workflowSetup, final JiraWorkflow workflow) {
-        if (projectMappingJson != null && issueTypes != null && !issueTypes.isEmpty()) {
-            final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-            // Converts Json to list of mappings
-            config.setHubProjectMappingsJson(projectMappingJson);
-            if (!config.getHubProjectMappings().isEmpty()) {
-                for (final BlackDuckProjectMapping projectMapping : config.getHubProjectMappings()) {
-                    if (projectMapping.getJiraProject() != null
-                            && projectMapping.getJiraProject().getProjectId() != null) {
-                        // Get jira Project object by Id from the JiraProject in the mapping
-                        final Project jiraProject = jiraServices.getJiraProjectManager()
-                                                        .getProjectObj(projectMapping.getJiraProject().getProjectId());
-                        if (jiraProject != null) {
-                            // add issuetypes to this project
-                            issueTypeSetup.addIssueTypesToProjectIssueTypeScheme(jiraProject, issueTypes);
-                            issueTypeSetup.addIssueTypesToProjectIssueTypeScreenSchemes(jiraProject, screenSchemesByIssueType);
-                            final boolean wasAlreadySetUp = issueTypeSetup.associateIssueTypesWithFieldConfigurationsOnProjectFieldConfigurationScheme(jiraProject, fieldConfigurationScheme, issueTypes, fieldConfiguration);
-                            if (wasAlreadySetUp) {
-                                logger.debug("It appears the project's WorkflowScheme has already been configured; leaving it unchanged");
-                            } else {
-                                workflowSetup.addWorkflowToProjectsWorkflowScheme(workflow, jiraProject, issueTypes);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public BlackDuckFieldScreenSchemeSetup createBlackDuckFieldScreenSchemeSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
-        return new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
-    }
-
-    private BlackDuckIssueTypeSetup createBlackDuckIssueTypeSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices, final String jiraUserName) throws ConfigurationException {
-        return new BlackDuckIssueTypeSetup(jiraServices, pluginErrorAccessor, jiraServices.getIssueTypes(), jiraUserName);
-    }
-
-    private BlackDuckFieldConfigurationSetup createBlackDuckFieldConfigurationSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
-        return new BlackDuckFieldConfigurationSetup(pluginErrorAccessor, jiraServices);
-    }
-
-    private BlackDuckWorkflowSetup createBlackDuckWorkflowSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
-        return new BlackDuckWorkflowSetup(pluginErrorAccessor, jiraServices);
     }
 
     private Optional<JiraUserContext> initJiraContext(final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {

@@ -33,63 +33,52 @@ import com.atlassian.jira.issue.fields.OrderableField;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
 import com.atlassian.jira.issue.fields.screen.FieldScreenLayoutItem;
 import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
+import com.synopsys.integration.util.Stringable;
 
 import webwork.action.Action;
 
 @SuppressWarnings("rawtypes")
-public class FieldScreenLayoutItemMock implements FieldScreenLayoutItem {
+public class FieldScreenLayoutItemMock extends Stringable implements FieldScreenLayoutItem {
     private Long id;
     private OrderableField field;
 
     @Override
-    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3) {
-
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3) {
         return null;
     }
 
     @Override
-    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3, final Map<String, Object> arg4) {
-
+    public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3, final Map<String, Object> arg4) {
         return null;
     }
 
     @Override
-    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3) {
-
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3) {
         return null;
     }
 
     @Override
-    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3, final Map<String, Object> arg4) {
-
+    public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3, final Map<String, Object> arg4) {
         return null;
     }
 
     @Override
     public String getFieldId() {
-
         return null;
     }
 
     @Override
     public FieldScreenTab getFieldScreenTab() {
-
         return null;
     }
 
     @Override
     public GenericValue getGenericValue() {
-
         return null;
     }
 
     @Override
     public Long getId() {
-
         return id;
     }
 
@@ -99,7 +88,6 @@ public class FieldScreenLayoutItemMock implements FieldScreenLayoutItem {
 
     @Override
     public OrderableField getOrderableField() {
-
         return field;
     }
 
@@ -109,27 +97,21 @@ public class FieldScreenLayoutItemMock implements FieldScreenLayoutItem {
 
     @Override
     public int getPosition() {
-
         return 0;
     }
 
     @Override
-    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3) {
-
+    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3) {
         return null;
     }
 
     @Override
-    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3, final Map<String, Object> arg4) {
-
+    public String getViewHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2, final Issue arg3, final Map<String, Object> arg4) {
         return null;
     }
 
     @Override
     public boolean isShown(final Issue arg0) {
-
         return false;
     }
 
