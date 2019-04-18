@@ -33,8 +33,11 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.notification.CommonNotificationService;
+import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
+import com.google.gson.JsonParser;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
@@ -49,6 +52,17 @@ public class BlackDuckConnectionHelper {
     public BlackDuckConnectionHelper() {
     }
 
+    public Optional<BlackDuckServicesFactory> createBlackDuckServicesFactorySafely(final BlackDuckJiraLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) {
+        try {
+            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(logger, blackDuckServerConfigBuilder);
+            return Optional.ofNullable(blackDuckServicesFactory);
+        } catch (final IntegrationException e) {
+            logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
     public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckJiraLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws IntegrationException {
         final BlackDuckHttpClient restConnection = createRestConnection(logger, blackDuckServerConfigBuilder);
         return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
@@ -61,7 +75,9 @@ public class BlackDuckConnectionHelper {
 
         final BlackDuckServerConfig serverConfig;
         try {
+            logger.debug("Building Black Duck configuration");
             serverConfig = blackDuckServerConfigBuilder.build();
+            logger.debug("Finished building Black Duck configuration for " + serverConfig.getBlackDuckUrl());
         } catch (final IllegalStateException e) {
             logger.error("Error in Black Duck server configuration: " + e.getMessage());
             throw new IntegrationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
@@ -74,6 +90,11 @@ public class BlackDuckConnectionHelper {
             throw new IntegrationException(JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION + " :: " + e.getMessage());
         }
         return restConnection;
+    }
+
+    public CommonNotificationService createCommonNotificationService(final BlackDuckServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
+        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), new JsonParser());
+        return new CommonNotificationService(contentDetailFactory, notificationsOldestFirst);
     }
 
     public List<String> getBlackDuckProjects(final BlackDuckServicesFactory blackDuckServicesFactory) throws IntegrationException {
