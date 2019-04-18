@@ -21,13 +21,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.common.blackduck;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.EnumUtils;
 
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;
 import com.google.gson.JsonElement;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;

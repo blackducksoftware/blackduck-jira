@@ -46,9 +46,9 @@ import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatte
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
 import com.blackducksoftware.integration.jira.common.notification.CommonNotificationService;
-import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetailFactory;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
@@ -60,18 +60,13 @@ import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.task.conversion.TicketGenerator;
-import com.google.gson.JsonParser;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
-import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
 import com.synopsys.integration.blackduck.phonehome.BlackDuckPhoneHomeHelper;
-import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.blackduck.service.NotificationService;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class BlackDuckJiraTask {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -85,6 +80,7 @@ public class BlackDuckJiraTask {
     private final TicketInfoFromSetup ticketInfoFromSetup;
     private final JiraConfigDeserializer configDeserializer;
     private final BlackDuckPluginDateFormatter pluginDateFormatter;
+    private final BlackDuckConnectionHelper blackDuckConnectionHelper;
 
     public BlackDuckJiraTask(final GlobalConfigurationAccessor globalConfigurationAccessor, final PluginConfigurationAccessor pluginConfigurationAccessor, final PluginErrorAccessor pluginErrorAccessor,
         final JiraUserContext jiraUserContext, final TicketInfoFromSetup ticketInfoFromSetup) {
@@ -100,6 +96,7 @@ public class BlackDuckJiraTask {
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.configDeserializer = new JiraConfigDeserializer();
         this.pluginDateFormatter = new BlackDuckPluginDateFormatter();
+        this.blackDuckConnectionHelper = new BlackDuckConnectionHelper();
     }
 
     /**
@@ -108,7 +105,9 @@ public class BlackDuckJiraTask {
      */
     public Optional<String> execute(final String previousStartDate) {
         logger.debug("Previous start date: " + previousStartDate);
-        final Optional<BlackDuckServicesFactory> optionalHubServicesFactory = getBlackDuckServicesFactory();
+
+        final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
+        final Optional<BlackDuckServicesFactory> optionalHubServicesFactory = blackDuckConnectionHelper.createBlackDuckServicesFactorySafely(logger, blackDuckServerConfig.createBlackDuckServerConfigBuilder());
         if (!optionalHubServicesFactory.isPresent()) {
             return Optional.ofNullable(previousStartDate);
         }
@@ -125,10 +124,19 @@ public class BlackDuckJiraTask {
         if (!config.hasProjectMappings() && !config.hasPolicyRules()) {
             return Optional.ofNullable(previousStartDate);
         }
+
+        logger.debug("Attempting to get the Black Duck user...");
+        final Optional<UserView> optionalUserView = getBlackDuckUser(blackDuckServicesFactory.createBlackDuckService());
+        if (!optionalUserView.isPresent()) {
+            logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
+            return Optional.of(previousStartDate);
+        }
+        final UserView blackDuckUser = optionalUserView.get();
+
         final Date startDate;
         try {
             logger.debug("Determining what to use as the start date...");
-            startDate = deriveStartDate(notificationService, previousStartDate);
+            startDate = deriveStartDate(notificationService, blackDuckUser, previousStartDate);
             logger.debug("Derived start date: " + startDate);
         } catch (final ParseException parseException) {
             logger.info("This is the first run, but the plugin install date cannot be parsed; Not doing anything this time, will record collection start time and start collecting notifications next time");
@@ -146,15 +154,9 @@ public class BlackDuckJiraTask {
 
             final BlackDuckProjectMappings blackDuckProjectMappings = new BlackDuckProjectMappings(jiraServices, config.getHubProjectMappings());
 
-            logger.debug("Attempting to get the Black Duck user...");
-            final Optional<UserView> blackDuckUserItem = getBlackDuckUser(blackDuckServicesFactory.createBlackDuckService());
-            if (!blackDuckUserItem.isPresent()) {
-                logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
-                return Optional.of(fallbackDate);
-            }
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Black Duck notifications from " + startDate + " to " + runDate);
-            final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUserItem.get(), blackDuckProjectMappings, issueCreationConfig.getTicketCriteria(), startDate, runDate);
+            final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUser, blackDuckProjectMappings, issueCreationConfig.getTicketCriteria(), startDate, runDate);
             logger.debug("Finished running ticket generator. Last notification date: " + pluginDateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
             return Optional.of(pluginDateFormatter.format(nextRunDate));
@@ -205,11 +207,6 @@ public class BlackDuckJiraTask {
         return Optional.ofNullable(userView);
     }
 
-    private BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig blackDuckServerConfig) {
-        final BlackDuckHttpClient restConnection = blackDuckServerConfig.createBlackDuckHttpClient(logger);
-        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
-    }
-
     private List<String> getRuleUrls(final BlackDuckJiraConfigSerializable config) {
         final List<String> ruleUrls = new ArrayList<>();
         final List<PolicyRuleSerializable> rules = config.getPolicyRules();
@@ -227,40 +224,19 @@ public class BlackDuckJiraTask {
         final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         logger.debug("JIRA user: " + this.jiraUserContext.getJiraAdminUser().getName());
 
-        final CommonNotificationService commonNotificationService = createCommonNotificationService(blackDuckServicesFactory, notificationsOldestFirst);
+        final CommonNotificationService commonNotificationService = blackDuckConnectionHelper.createCommonNotificationService(blackDuckServicesFactory, notificationsOldestFirst);
         return new TicketGenerator(blackDuckServicesFactory.createBlackDuckService(), blackDuckServicesFactory.createBlackDuckBucketService(), notificationService, commonNotificationService, jiraServices, jiraUserContext,
             pluginErrorAccessor, ticketInfoFromSetup.getCustomFields(), linksOfRulesToMonitor, fieldCopyConfig);
     }
 
-    private CommonNotificationService createCommonNotificationService(final BlackDuckServicesFactory blackDuckServicesFactory, final boolean notificationsOldestFirst) {
-        final NotificationContentDetailFactory contentDetailFactory = new NotificationContentDetailFactory(blackDuckServicesFactory.getGson(), new JsonParser());
-        return new CommonNotificationService(contentDetailFactory, notificationsOldestFirst);
-    }
-
-    private Date deriveStartDate(final NotificationService notificationService, final String lastRunDateString) throws ParseException, IntegrationException {
+    private Date deriveStartDate(final NotificationService notificationService, final UserView user, final String lastRunDateString) throws ParseException, IntegrationException {
         if (lastRunDateString == null) {
             logger.info("No lastRunDate set, using the last notification date from Black Duck to determine the start date");
-            final Date lastBlackDuckNotificationDate = notificationService.getLatestNotificationDate();
+            final Date lastBlackDuckNotificationDate = notificationService.getLatestUserNotificationDate(user);
             final LocalDateTime lastBlackDuckNotificationDateLocal = pluginDateFormatter.toLocalDateTime(lastBlackDuckNotificationDate);
             return pluginDateFormatter.fromLocalDateTime(lastBlackDuckNotificationDateLocal.plus(1L, ChronoUnit.MILLIS));
         }
         return pluginDateFormatter.parse(lastRunDateString);
-    }
-
-    private Optional<BlackDuckServicesFactory> getBlackDuckServicesFactory() {
-        final PluginBlackDuckServerConfigModel blackDuckServerConfigModel = globalConfigurationAccessor.getBlackDuckServerConfig();
-        final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder = blackDuckServerConfigModel.createBlackDuckServerConfigBuilder();
-        try {
-            logger.debug("Building Black Duck configuration");
-            BlackDuckServerConfig blackDuckServerConfig = blackDuckServerConfigBuilder.build();
-            logger.debug("Finished building Black Duck configuration for " + blackDuckServerConfig.getBlackDuckUrl());
-            final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(blackDuckServerConfig);
-            return Optional.ofNullable(blackDuckServicesFactory);
-        } catch (final IllegalStateException e) {
-            logger.error("Unable to connect to Black Duck. This could mean Black Duck is currently unreachable, or that the Black Duck JIRA plugin is not (yet) configured correctly: " + e.getMessage());
-        }
-
-        return Optional.empty();
     }
 
 }

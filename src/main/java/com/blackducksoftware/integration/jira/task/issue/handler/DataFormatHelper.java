@@ -36,9 +36,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.model.NotificationVulnerability;
 import com.blackducksoftware.integration.jira.task.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;

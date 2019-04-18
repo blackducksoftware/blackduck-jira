@@ -41,6 +41,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.config.TicketCreationError;
@@ -57,7 +58,7 @@ public class BlackDuckConfigController extends ConfigController {
     public BlackDuckConfigController(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory, final TransactionTemplate transactionTemplate) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
-        this.blackDuckConfigActions = new BlackDuckConfigActions(jiraSettingsAccessor);
+        this.blackDuckConfigActions = new BlackDuckConfigActions(jiraSettingsAccessor, new BlackDuckConnectionHelper());
     }
 
     @GET
