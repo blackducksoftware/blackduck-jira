@@ -169,7 +169,7 @@ public class BlackDuckJiraConfigController extends ConfigController {
                 try {
                     final Date now = new Date();
                     final String oldLastRunDateString = pluginConfigurationAccessor.getLastRunDate();
-                    final String newLastRunDateString = BlackDuckPluginDateFormatter.format(now);
+                    final String newLastRunDateString = new BlackDuckPluginDateFormatter().format(now);
                     logger.warn("Resetting last run date from " + oldLastRunDateString + " to " + newLastRunDateString + "; this will skip over any notifications generated between those times");
 
                     pluginConfigurationAccessor.setLastRunDate(newLastRunDateString);

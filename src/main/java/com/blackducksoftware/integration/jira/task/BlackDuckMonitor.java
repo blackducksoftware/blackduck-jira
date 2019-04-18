@@ -120,7 +120,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         final Schedule schedule;
         try {
             final String installDateString = UpgradeSteps.getInstallDateString(pluginSettings);
-            schedule = Schedule.forInterval(actualIntervalInMilliseconds.longValue(), BlackDuckPluginDateFormatter.parse(installDateString));
+            schedule = Schedule.forInterval(actualIntervalInMilliseconds.longValue(), new BlackDuckPluginDateFormatter().parse(installDateString));
         } catch (final Exception e) {
             logger.error("Could not get the install date. Please disable, and then reenable, this plugin or restart Jira.", e);
             return;

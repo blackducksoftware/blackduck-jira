@@ -84,6 +84,7 @@ public class BlackDuckJiraTask {
     private final PluginErrorAccessor pluginErrorAccessor;
     private final TicketInfoFromSetup ticketInfoFromSetup;
     private final JiraConfigDeserializer configDeserializer;
+    private final BlackDuckPluginDateFormatter pluginDateFormatter;
 
     public BlackDuckJiraTask(final GlobalConfigurationAccessor globalConfigurationAccessor, final PluginConfigurationAccessor pluginConfigurationAccessor, final PluginErrorAccessor pluginErrorAccessor,
         final JiraUserContext jiraUserContext, final TicketInfoFromSetup ticketInfoFromSetup) {
@@ -98,6 +99,7 @@ public class BlackDuckJiraTask {
         this.pluginErrorAccessor = pluginErrorAccessor;
         this.ticketInfoFromSetup = ticketInfoFromSetup;
         this.configDeserializer = new JiraConfigDeserializer();
+        this.pluginDateFormatter = new BlackDuckPluginDateFormatter();
     }
 
     /**
@@ -135,7 +137,7 @@ public class BlackDuckJiraTask {
             logger.error("Could not determine the last notification date from Black Duck. Please ensure that a connection can be established.");
             return Optional.ofNullable(previousStartDate);
         }
-        final String fallbackDate = BlackDuckPluginDateFormatter.format(startDate);
+        final String fallbackDate = pluginDateFormatter.format(startDate);
 
         try {
             final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig = configDeserializer.deserializeFieldCopyConfig(fieldMappingConfig.getFieldMappingJson());
@@ -153,9 +155,9 @@ public class BlackDuckJiraTask {
             // Generate JIRA Issues based on recent notifications
             logger.info("Getting Black Duck notifications from " + startDate + " to " + runDate);
             final Date lastNotificationDate = ticketGenerator.generateTicketsForNotificationsInDateRange(blackDuckUserItem.get(), blackDuckProjectMappings, issueCreationConfig.getTicketCriteria(), startDate, runDate);
-            logger.debug("Finished running ticket generator. Last notification date: " + BlackDuckPluginDateFormatter.format(lastNotificationDate));
+            logger.debug("Finished running ticket generator. Last notification date: " + pluginDateFormatter.format(lastNotificationDate));
             final Date nextRunDate = new Date(lastNotificationDate.getTime() + 1l);
-            return Optional.of(BlackDuckPluginDateFormatter.format(nextRunDate));
+            return Optional.of(pluginDateFormatter.format(nextRunDate));
         } catch (final Exception e) {
             logger.error("Error processing Black Duck notifications or generating JIRA issues: " + e.getMessage(), e);
             pluginErrorAccessor.addBlackDuckError(e, "executeBlackDuckJiraTask");
@@ -164,7 +166,7 @@ public class BlackDuckJiraTask {
     }
 
     public String getRunDateString() {
-        return BlackDuckPluginDateFormatter.format(runDate);
+        return pluginDateFormatter.format(runDate);
     }
 
     private void phoneHome(final BlackDuckServicesFactory blackDuckServicesFactory) {
@@ -239,10 +241,10 @@ public class BlackDuckJiraTask {
         if (lastRunDateString == null) {
             logger.info("No lastRunDate set, using the last notification date from Black Duck to determine the start date");
             final Date lastBlackDuckNotificationDate = notificationService.getLatestNotificationDate();
-            final LocalDateTime lastBlackDuckNotificationDateLocal = BlackDuckPluginDateFormatter.toLocalDateTime(lastBlackDuckNotificationDate);
-            return BlackDuckPluginDateFormatter.fromLocalDateTime(lastBlackDuckNotificationDateLocal.plus(1L, ChronoUnit.MILLIS));
+            final LocalDateTime lastBlackDuckNotificationDateLocal = pluginDateFormatter.toLocalDateTime(lastBlackDuckNotificationDate);
+            return pluginDateFormatter.fromLocalDateTime(lastBlackDuckNotificationDateLocal.plus(1L, ChronoUnit.MILLIS));
         }
-        return BlackDuckPluginDateFormatter.parse(lastRunDateString);
+        return pluginDateFormatter.parse(lastRunDateString);
     }
 
     private Optional<BlackDuckServicesFactory> getBlackDuckServicesFactory() {

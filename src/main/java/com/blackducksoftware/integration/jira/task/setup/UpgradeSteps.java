@@ -60,7 +60,8 @@ public class UpgradeSteps {
 
     // For every upgrade
     public void updateInstallDate(final Date installDate) {
-        final String installDateString = BlackDuckPluginDateFormatter.format(installDate);
+        final BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
+        final String installDateString = pluginDateFormatter.format(installDate);
 
         final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
 

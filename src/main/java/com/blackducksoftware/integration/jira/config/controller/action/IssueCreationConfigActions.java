@@ -156,7 +156,8 @@ public class IssueCreationConfigActions {
 
         final String firstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
         if (firstTimeSave == null) {
-            pluginConfigurationAccessor.setFirstTimeSave(BlackDuckPluginDateFormatter.format(new Date()));
+            final BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
+            pluginConfigurationAccessor.setFirstTimeSave(pluginDateFormatter.format(new Date()));
         }
 
         final PluginIssueCreationConfigModel previousIssueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
