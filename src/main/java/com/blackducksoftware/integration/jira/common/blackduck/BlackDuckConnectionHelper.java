@@ -115,33 +115,31 @@ public class BlackDuckConnectionHelper {
     }
 
     public Optional<String> validateBlackDuckUrl(final String url) {
-        if (StringUtils.isBlank(url)) {
-            return Optional.of("No Hub Url was found.");
-        } else {
+        if (StringUtils.isNotBlank(url)) {
             try {
                 final URL hubURL = new URL(url);
                 hubURL.toURI();
+                return Optional.empty();
             } catch (final MalformedURLException | URISyntaxException e) {
                 return Optional.of("The Hub Url is not a valid URL.");
             }
         }
-        return Optional.empty();
+        return Optional.of("No Hub Url was found.");
     }
 
     public Optional<String> validateBlackDuckTimeout(final String timeout) {
-        if (StringUtils.isBlank(timeout)) {
-            return Optional.of("No Hub Timeout was found.");
-        } else {
+        if (StringUtils.isNotBlank(timeout)) {
             try {
                 final Integer intTimeout = Integer.valueOf(timeout);
                 if (intTimeout <= 0) {
                     return Optional.of("Timeout must be greater than 0.");
                 }
+                return Optional.empty();
             } catch (final NumberFormatException e) {
                 return Optional.of(String.format("The String : %s, is not an Integer.", timeout));
             }
         }
-        return Optional.empty();
+        return Optional.of("No Hub Timeout was found.");
     }
 
     public Optional<String> validateBlackDuckApiToken(final String apiToken) {
