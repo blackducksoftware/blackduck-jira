@@ -36,10 +36,10 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.notification.NotificationContentDetail;

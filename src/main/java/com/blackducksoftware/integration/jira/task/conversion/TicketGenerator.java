@@ -34,10 +34,10 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.issue.fields.CustomField;
-import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.notification.CommonNotificationService;
 import com.blackducksoftware.integration.jira.common.notification.CommonNotificationView;

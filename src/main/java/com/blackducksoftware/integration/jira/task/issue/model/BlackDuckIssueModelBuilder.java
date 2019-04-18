@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
+import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.exception.IssueModelBuilderException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
