@@ -64,12 +64,15 @@ public class BlackDuckProjectMappingTest {
         final BlackDuckProjectMapping item1 = new BlackDuckProjectMapping();
         item1.setJiraProject(jira1);
         item1.setBlackDuckProjectName(blackDuckName1);
+        item1.setProjectPattern(Boolean.FALSE);
         final BlackDuckProjectMapping item2 = new BlackDuckProjectMapping();
         item2.setJiraProject(jira2);
         item2.setBlackDuckProjectName(blackDuckName2);
+        item2.setProjectPattern(Boolean.FALSE);
         final BlackDuckProjectMapping item3 = new BlackDuckProjectMapping();
         item3.setJiraProject(jira1);
         item3.setBlackDuckProjectName(blackDuckName1);
+        item3.setProjectPattern(Boolean.FALSE);
 
         assertEquals(jira1, item1.getJiraProject());
         assertEquals(blackDuckName1, item1.getBlackDuckProjectName());
@@ -88,6 +91,8 @@ public class BlackDuckProjectMappingTest {
         builder.append(item1.getJiraProject());
         builder.append(", blackDuckProjectName=");
         builder.append(item1.getBlackDuckProjectName());
+        builder.append(", isProjectPattern=");
+        builder.append(item1.isProjectPattern());
         builder.append("]");
 
         assertEquals(builder.toString(), item1.toString());

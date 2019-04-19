@@ -35,7 +35,7 @@ import com.synopsys.integration.util.Stringable;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlackDuckProjectMapping extends Stringable implements Serializable {
-    private static final long serialVersionUID = -1650687378205611080L;
+    private static final long serialVersionUID = 5192135042677646484L;
 
     @XmlElement
     private JiraProject jiraProject;
@@ -47,6 +47,9 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
 
     @XmlElement
     private String blackDuckProjectName;
+
+    @XmlElement
+    private Boolean isProjectPattern;
 
     public BlackDuckProjectMapping() {
     }
@@ -77,6 +80,14 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
         return blackDuckProjectName;
     }
 
+    public Boolean isProjectPattern() {
+        return null != isProjectPattern ? isProjectPattern : Boolean.FALSE;
+    }
+
+    public void setProjectPattern(final Boolean isProjectPattern) {
+        this.isProjectPattern = isProjectPattern;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -84,6 +95,8 @@ public class BlackDuckProjectMapping extends Stringable implements Serializable 
         builder.append(jiraProject);
         builder.append(", blackDuckProjectName=");
         builder.append(blackDuckProjectName);
+        builder.append(", isProjectPattern=");
+        builder.append(isProjectPattern);
         builder.append("]");
         return builder.toString();
     }

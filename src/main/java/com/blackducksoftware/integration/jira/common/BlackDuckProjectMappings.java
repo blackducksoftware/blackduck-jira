@@ -82,7 +82,7 @@ public class BlackDuckProjectMappings {
             } else {
                 logger.debug("JIRA Project: " + jiraProject);
                 final String blackDuckProject = mapping.getBlackDuckProjectName();
-                if (appliesForBlackDuckProject(blackDuckProject, blackDuckProjectName)) {
+                if (appliesForBlackDuckProject(blackDuckProject, blackDuckProjectName, mapping.isProjectPattern())) {
                     logger.debug("Match!");
                     matchingJiraProjects.add(jiraProject);
                 }
@@ -99,13 +99,19 @@ public class BlackDuckProjectMappings {
         return mappings.size();
     }
 
-    private boolean appliesForBlackDuckProject(final String blackDuckProjectNameFromMapping, final String blackDuckProjectNameFromNotification) {
-        // Check by name because the notifications may be for Black Duck projects that the User doesn't have access to
-        logger.debug("blackDuckProject.getProjectName() (from config mapping): " + blackDuckProjectNameFromMapping);
+    private boolean appliesForBlackDuckProject(final String blackDuckProjectNameFromMapping, final String blackDuckProjectNameFromNotification, final boolean isProjectPattern) {
         logger.debug("blackDuckProjectName (from notification content)       : " + blackDuckProjectNameFromNotification);
+        if (isProjectPattern) {
+            logger.debug("blackDuckProjectPattern (from config mapping): " + blackDuckProjectNameFromMapping);
+            return blackDuckProjectNameFromNotification.matches(blackDuckProjectNameFromMapping);
+        }
+
+        logger.debug("blackDuckProject (from config mapping): " + blackDuckProjectNameFromMapping);
         if (MAP_ALL_PROJECTS.equals(blackDuckProjectNameFromMapping)) {
             return true;
         }
-        return (!StringUtils.isBlank(blackDuckProjectNameFromMapping) && (blackDuckProjectNameFromMapping.equals(blackDuckProjectNameFromNotification)));
+        // Check by name because the notifications may be for Black Duck projects that the User doesn't have access to
+        return StringUtils.isNotBlank(blackDuckProjectNameFromMapping) && (blackDuckProjectNameFromMapping.equals(blackDuckProjectNameFromNotification));
     }
+
 }
