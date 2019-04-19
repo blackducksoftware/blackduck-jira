@@ -161,6 +161,9 @@ function fillInMapping(mappingElement, storedMapping) {
 
     currentHubProject.val(storedBlackDuckProject);
     currentHubProject.attr("projectKey", storedBlackDuckProject);
+
+    const projectPatternOption = AJS.$(mappingElement).find("input[name*='projectPatternOption']");
+    projectPatternOption.prop("checked", storedMapping.isProjectPattern);
 }
 
 function fillInFieldCopyMapping(mappingElement, storedMapping) {

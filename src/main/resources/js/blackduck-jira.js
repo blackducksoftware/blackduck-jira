@@ -253,11 +253,16 @@ AJS.$(document).ajaxComplete(function (event, xhr, settings) {
                 }
 
                 let currentHubProject = AJS.$(mappingElements[m]).find("input[name*='hubProject']");
+                let currentProjectPatternOption = AJS.$(mappingElements[m]).find("input[name*='projectPatternOption']")[0];
                 let hubProjectError = true;
                 if (currentHubProject != null) {
+                    let isProjectPattern = currentProjectPatternOption.checked;
                     let key = String(currentHubProject.attr("projectkey"));
                     console.log("ajaxComplete(): Black Duck project key: " + key);
-                    if (key) {
+                    console.log("ajaxComplete(): Black Duck project pattern: " + isProjectPattern);
+                    if (isProjectPattern) {
+                        hubProjectError = false;
+                    } else if (key) {
                         let hubProject = hubProjectMap.get(key);
                         if (hubProject) {
                             hubProjectError = false;

@@ -136,6 +136,8 @@ function getJsonArrayFromMapping() {
         let currentHubProjectDisplayName = currentHubProject.val();
         let currentHubProjectError = currentHubProject.attr('projectError');
 
+        let currentProjectPatternOption = AJS.$(mappingElement).find("input[name*='projectPatternOption']");
+        let currentBlackDuckProjectPatternOption = currentProjectPatternOption[0].checked;
 
         if (isNullOrWhitespace(currentJiraProjectValue) || currentJiraProjectError || currentHubProjectError) {
             addMappingErrorStatus(mappingElement);
@@ -150,7 +152,8 @@ function getJsonArrayFromMapping() {
                 [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator,
                 [jiraProjectConfiguredForVulnerabilitiesDisplayName]: currentJiraProjectConfiguredForVulnerabilities
             },
-            blackDuckProjectName: currentHubProjectDisplayName
+            blackDuckProjectName: currentHubProjectDisplayName,
+            isProjectPattern: currentBlackDuckProjectPatternOption
         });
     }
     return jsonArray;
