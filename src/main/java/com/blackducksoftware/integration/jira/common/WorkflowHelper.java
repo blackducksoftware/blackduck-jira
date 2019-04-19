@@ -42,6 +42,13 @@ public class WorkflowHelper {
     private WorkflowSchemeManager workflowSchemeManager;
     private ProjectManager projectManager;
 
+    public static boolean matchesBlackDuckWorkflowName(final String workflowName) {
+        if (StringUtils.isNotBlank(workflowName)) {
+            return workflowName.contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+        }
+        return false;
+    }
+
     public WorkflowHelper(final WorkflowManager workflowManager, final WorkflowSchemeManager workflowSchemeManager, final ProjectManager projectManager) {
         this.workflowManager = workflowManager;
         this.workflowSchemeManager = workflowSchemeManager;
@@ -70,8 +77,8 @@ public class WorkflowHelper {
         final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(jiraProject);
         final Map<String, String> issueTypeIdToWorkflowName = projectWorkflowScheme.getMappings();
 
-        boolean policyUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, policyIssueType);
-        boolean vulnUsesBlackDuckWorkflow = usesBlackduckWorkflow(issueTypeIdToWorkflowName, vulnIssueType);
+        boolean policyUsesBlackDuckWorkflow = usesBlackDuckWorkflow(issueTypeIdToWorkflowName, policyIssueType);
+        boolean vulnUsesBlackDuckWorkflow = usesBlackDuckWorkflow(issueTypeIdToWorkflowName, vulnIssueType);
 
         if (policyUsesBlackDuckWorkflow && vulnUsesBlackDuckWorkflow) {
             return BlackDuckWorkflowStatus.ENABLED;
@@ -83,12 +90,10 @@ public class WorkflowHelper {
         return BlackDuckWorkflowStatus.DISABLED;
     }
 
-    public boolean usesBlackduckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final IssueType issueType) {
+    public boolean usesBlackDuckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final IssueType issueType) {
         if (null != issueType) {
             final String workflowName = issueTypeIdToWorkflowName.get(issueType.getId());
-            if (StringUtils.isNotBlank(workflowName)) {
-                return workflowName.contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
-            }
+            return matchesBlackDuckWorkflowName(workflowName);
         }
         return false;
     }
