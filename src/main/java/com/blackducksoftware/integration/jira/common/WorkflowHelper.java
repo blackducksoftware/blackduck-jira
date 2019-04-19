@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -84,7 +86,9 @@ public class WorkflowHelper {
     public boolean usesBlackduckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final IssueType issueType) {
         if (null != issueType) {
             final String workflowName = issueTypeIdToWorkflowName.get(issueType.getId());
-            return BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW.equals(workflowName);
+            if (StringUtils.isNotBlank(workflowName)) {
+                return workflowName.contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            }
         }
         return false;
     }
