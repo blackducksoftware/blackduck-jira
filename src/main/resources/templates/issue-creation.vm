@@ -42,6 +42,7 @@
         <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
         <table id='hubProjectMappingTable' width="100%">
             <thead>
+            <!-- Error row -->
             <tr>
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell error" id="jiraProjectListError" />
@@ -53,6 +54,7 @@
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
             </tr>
+            <!-- Label row -->
             <tr>
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell">
@@ -78,6 +80,7 @@
                 </td>
                 <td class="mappingTableCell" />
             </tr>
+            <!-- Spacing row (for things like "select all") -->
             <tr class="mappingTableRowDivider">
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
@@ -95,6 +98,7 @@
             </tr>
             </thead>
             <tbody id="hubProjectMappingContainer">
+            <!-- Data row (where project mappings will actually be inserted) -->
             <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
                 <td class="mappingTableCell" id="mappingStatus">
                 </td>
