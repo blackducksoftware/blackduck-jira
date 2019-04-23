@@ -344,6 +344,13 @@ function onToggleProjectPattern(arbitraryInputElement) {
 }
 
 function renderSelectField(dataCell, projectNames) {
+    if (!gotHubProjects) {
+        removeSelectField(dataCell);
+        let messageSelectField = createOrGetSelectField(dataCell);
+        createOptionForSelect(messageSelectField, "Project matches will be listed here", true);
+        return;
+    }
+
     try {
         let newSelectField = createOrGetSelectField(dataCell);
         newSelectField.innerHTML = '';
@@ -355,8 +362,8 @@ function renderSelectField(dataCell, projectNames) {
     } catch (err) {
         console.log('Error in onToggleProjectPattern: ' + err.message);
         removeSelectField(dataCell);
-        let newSelectField = createOrGetSelectField(dataCell);
-        createOptionForSelect(newSelectField, "Error: Invalid Pattern", true);
+        let errorSelectField = createOrGetSelectField(dataCell);
+        createOptionForSelect(errorSelectField, "Error: Invalid Pattern", true);
     }
 }
 

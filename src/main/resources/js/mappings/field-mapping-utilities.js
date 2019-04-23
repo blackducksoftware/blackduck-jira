@@ -164,6 +164,8 @@ function fillInMapping(mappingElement, storedMapping) {
 
     const projectPatternOption = AJS.$(mappingElement).find("input[name*='projectPatternOption']");
     projectPatternOption.prop("checked", storedMapping.isProjectPattern);
+
+    onToggleProjectPattern(projectPatternOption[0]);
 }
 
 function fillInFieldCopyMapping(mappingElement, storedMapping) {
