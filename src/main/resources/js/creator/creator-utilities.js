@@ -25,6 +25,8 @@ let gotCreatorCandidates = false;
 let gotJiraProjects = false;
 let jiraProjectMap = new Map();
 
+let blackDuckProjectState = [];
+
 function fillInCreatorCandidates(creatorCandidates) {
     console.log("fillInCreatorCandidates()");
     for (let i = 0; i < creatorCandidates.length; i++) {
@@ -136,6 +138,8 @@ function getJsonArrayFromMapping() {
         let currentHubProjectDisplayName = currentHubProject.val();
         let currentHubProjectError = currentHubProject.attr('projectError');
 
+        let currentProjectPatternOption = AJS.$(mappingElement).find("input[name*='projectPatternOption']");
+        let currentBlackDuckProjectPatternOption = currentProjectPatternOption[0].checked;
 
         if (isNullOrWhitespace(currentJiraProjectValue) || currentJiraProjectError || currentHubProjectError) {
             addMappingErrorStatus(mappingElement);
@@ -150,7 +154,8 @@ function getJsonArrayFromMapping() {
                 [jiraProjectIssueCreatorDisplayName]: currentJiraProjectIssueCreator,
                 [jiraProjectConfiguredForVulnerabilitiesDisplayName]: currentJiraProjectConfiguredForVulnerabilities
             },
-            blackDuckProjectName: currentHubProjectDisplayName
+            blackDuckProjectName: currentHubProjectDisplayName,
+            isProjectPattern: currentBlackDuckProjectPatternOption
         });
     }
     return jsonArray;
@@ -302,10 +307,13 @@ function onMappingInputChange(inputField) {
                 }
             }
 
-            if (inputField.getAttribute('name') === 'jiraProject') {
-                const mappingRow = inputField.parentElement.parentElement;
+            const mappingRow = inputField.parentElement.parentElement;
+            const inputFieldName = inputField.getAttribute('name');
+            if (inputFieldName === 'jiraProject') {
                 const workflowStatusSpan = AJS.$(mappingRow).find("span[name='workflowStatus']")[0];
                 setWorkflowStatus(workflowStatusSpan, option.attr('projectWorkflowStatus'));
+            } else if (inputFieldName === 'hubProject') {
+                onToggleProjectPattern(mappingRow, inputField);
             }
 
             break;
@@ -319,11 +327,83 @@ function onMappingInputChange(inputField) {
     }
 }
 
-function onSelectAllCheckedOrUnchecked(selectAllCheckbox) {
+function onToggleProjectPattern(arbitraryInputElement) {
+    const mappingRow = arbitraryInputElement.parentElement.parentElement;
+    const projectPatternCheckbox = AJS.$(mappingRow).find("input[name='projectPatternOption']")[0];
+    const blackDuckProjectInput = AJS.$(mappingRow).find("input[name='hubProject']")[0];
+    const dataCell = blackDuckProjectInput.parentElement;
+
+
+    const isRegex = projectPatternCheckbox.checked;
+    if (isRegex) {
+        const regexString = blackDuckProjectInput.value;
+        filterByRegexRequest(dataCell, regexString, blackDuckProjectState);
+    } else {
+        removeSelectField(dataCell);
+    }
+}
+
+function renderSelectField(dataCell, projectNames) {
+    if (!gotHubProjects) {
+        removeSelectField(dataCell);
+        let messageSelectField = createOrGetSelectField(dataCell);
+        createOptionForSelect(messageSelectField, "Project matches will be listed here", true);
+        return;
+    }
+
+    try {
+        let newSelectField = createOrGetSelectField(dataCell);
+        newSelectField.innerHTML = '';
+        createOptionForSelect(newSelectField, "This pattern matches " + projectNames.length + " projects:", true);
+
+        for (let i = 0; i < projectNames.length; i++) {
+            createOptionForSelect(newSelectField, projectNames[i], false);
+        }
+    } catch (err) {
+        console.log('Error in onToggleProjectPattern: ' + err.message);
+        removeSelectField(dataCell);
+        let errorSelectField = createOrGetSelectField(dataCell);
+        createOptionForSelect(errorSelectField, "Error: Invalid Pattern", true);
+    }
+}
+
+function createOrGetSelectField(dataCell) {
+    let newSelectField = AJS.$(dataCell).find("select[name='regexSelect']")[0];
+    if (!newSelectField) {
+        newSelectField = document.createElement('select');
+        newSelectField.setAttribute('name', 'regexSelect');
+        newSelectField.setAttribute('class', 'blackDuckProjectRegexSelect');
+    }
+    dataCell.appendChild(newSelectField);
+    return newSelectField;
+}
+
+function removeSelectField(dataCell) {
+    let selectField = AJS.$(dataCell).find("select[name='regexSelect']")[0];
+    if (selectField != undefined && selectField != null) {
+        try {
+            dataCell.removeChild(selectField);
+        } catch (err) {
+            console.log('Error hiding select field : ' + err.message);
+        }
+    }
+}
+
+function createOptionForSelect(selectField, optionValue, enabled) {
+    let selectOption = document.createElement('option');
+    if (!enabled) {
+        selectOption.setAttribute('disabled', 'true');
+    }
+    selectOption.innerHTML = optionValue;
+    selectOption.value = optionValue;
+    selectField.appendChild(selectOption);
+}
+
+function onSelectAllCheckedOrUnchecked(selectAllCheckbox, checkboxName) {
     const boxIsChecked = selectAllCheckbox.checked;
 
     const mappingTable = AJS.$("#hubProjectMappingTable");
-    const projectMappingCheckboxes = AJS.$(mappingTable).find("input[name*='configuredForVulnerabilitiesOption']")
+    const projectMappingCheckboxes = AJS.$(mappingTable).find("input[name*='" + checkboxName + "']");
     for (let i = 0; i < projectMappingCheckboxes.length; i++) {
         const mappingCheckbox = projectMappingCheckboxes[i];
         mappingCheckbox.checked = boxIsChecked;

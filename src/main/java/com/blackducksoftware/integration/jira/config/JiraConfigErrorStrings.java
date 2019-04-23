@@ -31,8 +31,8 @@ public class JiraConfigErrorStrings {
     public static final String MAPPING_HAS_EMPTY_ERROR = "There are invalid mapping(s).";
     public static final String NO_JIRA_PROJECTS_FOUND = "Could not find any JIRA Projects.";
     public static final String NO_BLACKDUCK_PROJECTS_FOUND = "Could not find any Black Duck Projects for this User. This Black Duck user may not be assigned to any projects.";
+    public static final String BLACKDUCK_PROJECT_PATTERN_INVALID = "There are invalid project name patterns.";
 
-    public static final String BLACKDUCK_SERVER_NO_POLICY_SUPPORT_ERROR = "This version of Black Duck does not support Policies.";
     public static final String NO_POLICY_RULES_FOUND_ERROR = "No Policy rules were found in the configured Black Duck server.";
     public static final String NO_POLICY_LICENSE_FOUND = "Valid Policy License was not found";
     public static final String POLICY_RULE_URL_ERROR = "Error getting policy rule URL";

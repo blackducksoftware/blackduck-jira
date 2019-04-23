@@ -62,6 +62,7 @@ function fillInHubProjects(hubProjects) {
         for (let h = 0; h < hubProjects.length; h++) {
             hubProjectMap.set(hubProjects[h], hubProjects[h]);
             console.log("fillInHubProjects(): adding: " + hubProjects[h]);
+            blackDuckProjectState.push(hubProjects[h]);
             let newOption = AJS.$('<option>', {
                 value: hubProjects[h],
                 projectKey: hubProjects[h]

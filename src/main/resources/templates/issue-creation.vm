@@ -42,6 +42,7 @@
         <div id="projectMappingSpinner" class="largeIcon fa fa-spinner fa-spin fa-fw"></div>
         <table id='hubProjectMappingTable' width="100%">
             <thead>
+            <!-- Error row -->
             <tr>
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell error" id="jiraProjectListError" />
@@ -51,7 +52,9 @@
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell error" id="hubProjectListError" />
                 <td class="mappingTableCell" />
+                <td class="mappingTableCell" />
             </tr>
+            <!-- Label row -->
             <tr>
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell">
@@ -72,22 +75,30 @@
                 <td class="mappingTableCell">
                     $i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')
                 </td>
+                <td class="mappingTableCell">
+                    $i18n.getText('blackduck.integration.jira.project.pattern.label')
+                </td>
                 <td class="mappingTableCell" />
             </tr>
+            <!-- Spacing row (for things like "select all") -->
             <tr class="mappingTableRowDivider">
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell">
-                    <input type="checkbox" onclick="onSelectAllCheckedOrUnchecked(this);" />
+                    <input type="checkbox" onclick="onSelectAllCheckedOrUnchecked(this, 'configuredForVulnerabilitiesOption');" />
                 </td>
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
                 <td class="mappingTableCell" />
+                <td class="mappingTableCell">
+                    <input type="checkbox" onclick="onSelectAllCheckedOrUnchecked(this, 'projectPatternOption');" />
+                </td>
                 <td class="mappingTableCell" />
             </tr>
             </thead>
             <tbody id="hubProjectMappingContainer">
+            <!-- Data row (where project mappings will actually be inserted) -->
             <tr class="hidden" name="hubProjectMappingElement" id="hubProjectMappingElement">
                 <td class="mappingTableCell" id="mappingStatus">
                 </td>
@@ -106,22 +117,25 @@
                     </div>
                 </td>
                 <td class="mappingTableCell">
-                    <input type="checkbox" name="configuredForVulnerabilitiesOption" />
+                    <input type="checkbox" name="configuredForVulnerabilitiesOption" oninput="" />
                 </td>
                 <td class="mappingTableCell">
-                    <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')"
-                           list="creatorCandidates" oninput="onCreatorInputChange(this);" />
+                    <input type="text" id="issueCreator" name="issueCreator" class="intervalInput" placeholder="$i18n.getText('blackduck.integration.jira.creator.placeholder')" list="creatorCandidates"
+                           oninput="onCreatorInputChange(this);" />
                     <datalist id="creatorCandidates">
                     </datalist>
                     </input>
                 </td>
                 <td class="mappingTableCell" width="10%" min-width="20px" margin="auto"> =</td>
                 <td class="mappingTableCell">
-                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);"
+                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" onchange="onMappingInputChange(this);" onkeyup="onToggleProjectPattern(this);" onfocus="onToggleProjectPattern(this);"
                            placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
-                    <datalist id="hubProjects">
+                    <datalist id="hubProjects" name="hubProjectsData">
                     </datalist>
                     </input>
+                </td>
+                <td class="mappingTableCell">
+                    <input type="checkbox" name="projectPatternOption" onclick="onToggleProjectPattern(this);" />
                 </td>
                 <td class="mappingTableCell" width="100px">
                     <div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('blackduck.integration.jira.removeProjectMapping.label')"></div>

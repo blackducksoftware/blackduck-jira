@@ -78,6 +78,32 @@ function readJiraProjects() {
     });
 }
 
+function filterByRegexRequest(dataCell, regexString, projects) {
+    const requestData = Object.assign({}, {
+        regexString: regexString,
+        projects: projects,
+    });
+
+    AJS.$.ajax({
+        url: createRequestPath('config/issue/creator/pattern/'),
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(requestData),
+        processData: false,
+        success: function (config) {
+            renderSelectField(dataCell, config.projects);
+        },
+        error: function (response) {
+            let config = JSON.parse(response.responseText);
+            console.log("hubProjectsError: " + config.errorMessage);
+        },
+        complete: function (jqXHR, textStatus) {
+            console.log("Completed filtering by regex: " + textStatus);
+        }
+    });
+}
+
 function readCommentOnUpdateChoice() {
     AJS.$.ajax({
         url: createRequestPath('config/issue/creator/comment/updatechoice'),

@@ -24,6 +24,8 @@
 package com.blackducksoftware.integration.jira.config.controller.action;
 
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,6 +63,7 @@ public class ProjectMappingConfigActions {
     public void validateMapping(final BlackDuckJiraConfigSerializable config) {
         if (config.getHubProjectMappings() != null && !config.getHubProjectMappings().isEmpty()) {
             boolean hasEmptyMapping = false;
+            boolean isPatternValid = true;
             for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
                 boolean jiraProjectBlank = true;
                 boolean blackDuckProjectBlank = true;
@@ -69,15 +72,22 @@ public class ProjectMappingConfigActions {
                         jiraProjectBlank = false;
                     }
                 }
-                if (StringUtils.isNotBlank(mapping.getBlackDuckProjectName())) {
+                final String blackDuckProjectName = mapping.getBlackDuckProjectName();
+                if (StringUtils.isNotBlank(blackDuckProjectName)) {
                     blackDuckProjectBlank = false;
                 }
                 if (jiraProjectBlank || blackDuckProjectBlank) {
                     hasEmptyMapping = true;
                 }
+                if (isPatternValid && mapping.isProjectPattern()) {
+                    isPatternValid = isPatternValid(blackDuckProjectName);
+                }
             }
             if (hasEmptyMapping) {
-                config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR));
+                addError(config, JiraConfigErrorStrings.MAPPING_HAS_EMPTY_ERROR);
+            }
+            if (!isPatternValid) {
+                addError(config, JiraConfigErrorStrings.BLACKDUCK_PROJECT_PATTERN_INVALID);
             }
         }
     }
@@ -92,6 +102,21 @@ public class ProjectMappingConfigActions {
                 jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
             }
         }
+    }
+
+    private void addError(final BlackDuckJiraConfigSerializable config, final String messages) {
+        config.setHubProjectMappingError(StringUtils.joinWith(" : ", config.getHubProjectMappingError(), messages));
+    }
+
+    private boolean isPatternValid(final String pattern) {
+        if (StringUtils.isNotBlank(pattern)) {
+            try {
+                Pattern.compile(pattern);
+                return true;
+            } catch (final PatternSyntaxException e) {
+            }
+        }
+        return false;
     }
 
 }
