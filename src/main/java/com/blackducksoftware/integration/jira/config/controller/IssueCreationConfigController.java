@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.config.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -44,6 +45,7 @@ import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.config.controller.action.IssueCreationConfigActions;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.ProjectPatternRestModel;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 @Path("/config/issue/creator")
@@ -114,6 +116,28 @@ public class IssueCreationConfigController extends ConfigController {
             return Response.ok(errorConfig).build();
         }
         return Response.ok(projectsConfig).build();
+    }
+
+    @Path("/pattern")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response filterByRegex(final ProjectPatternRestModel model, @Context final HttpServletRequest request) {
+        logger.debug("POST /pattern");
+        final Object config;
+        try {
+            final boolean validAuthentication = isAuthorized(request);
+            if (!validAuthentication) {
+                return Response.status(Status.UNAUTHORIZED).build();
+            }
+            config = executeAsTransaction(() -> issueCreationConfigActions.filterByRegex(model));
+        } catch (final Exception e) {
+            final BlackDuckJiraConfigSerializable errorConfig = new BlackDuckJiraConfigSerializable();
+            final String msg = "Error filtering by regex: " + e.getMessage();
+            logger.error(msg, e);
+            errorConfig.setHubProjectsError(msg);
+            return Response.ok(errorConfig).build();
+        }
+        return Response.ok(config).build();
     }
 
     @Path("/comment/updatechoice")

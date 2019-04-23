@@ -25,11 +25,15 @@ package com.blackducksoftware.integration.jira.config.controller.action;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,6 +59,7 @@ import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.config.model.ProjectPatternRestModel;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 
 public class IssueCreationConfigActions {
@@ -76,6 +81,27 @@ public class IssueCreationConfigActions {
         this.workflowHelper = workflowHelper;
         this.blackDuckMonitor = blackDuckMonitor;
         this.projectMappingConfigActions = new ProjectMappingConfigActions(jiraSettingsAccessor, workflowHelper);
+    }
+
+    public ProjectPatternRestModel filterByRegex(final ProjectPatternRestModel model) {
+        final String regexString = StringUtils.defaultString(model.getRegexString());
+        try {
+            Pattern.compile(regexString);
+        } catch (final Exception e) {
+            logger.debug(String.format("Invalid pattern tested: %s. Error message: %s", regexString, e.getMessage()));
+            model.setProjects(Collections.emptySet());
+            model.setErrorMessage("Invalid pattern: " + e.getMessage());
+        }
+
+        final Set<String> matchedProjects = new HashSet<>();
+        for (final String projectName : model.getProjects()) {
+            if (projectName.matches(regexString)) {
+                matchedProjects.add(projectName);
+            }
+        }
+
+        model.setProjects(matchedProjects);
+        return model;
     }
 
     public BlackDuckJiraConfigSerializable getCreator() {

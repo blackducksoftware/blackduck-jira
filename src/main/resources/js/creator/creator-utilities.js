@@ -25,7 +25,7 @@ let gotCreatorCandidates = false;
 let gotJiraProjects = false;
 let jiraProjectMap = new Map();
 
-let previousBlackDuckProjectOptions = [];
+let blackDuckProjectState = [];
 
 function fillInCreatorCandidates(creatorCandidates) {
     console.log("fillInCreatorCandidates()");
@@ -332,35 +332,31 @@ function onToggleProjectPattern(arbitraryInputElement) {
     const projectPatternCheckbox = AJS.$(mappingRow).find("input[name='projectPatternOption']")[0];
     const blackDuckProjectInput = AJS.$(mappingRow).find("input[name='hubProject']")[0];
     const dataCell = blackDuckProjectInput.parentElement;
-    const datalist = blackDuckProjectInput.list;
-    const options = datalist.options;
 
 
     const isRegex = projectPatternCheckbox.checked;
     if (isRegex) {
         const regexString = blackDuckProjectInput.value;
-        try {
-            const regex = new RegExp(regexString);
-            let newOptions = [];
-            for (let i = 0; i < options.length; i++) {
-                const option = options[i].value;
-                if (regex.test(option)) {
-                    newOptions.push(option);
-                }
-            }
-
-            let newSelectField = createOrGetSelectField(dataCell);
-            newSelectField.innerHTML = '';
-            createOptionForSelect(newSelectField, "This pattern matches " + newOptions.length + " projects:", true);
-
-            for (let i = 0; i < newOptions.length; i++) {
-                createOptionForSelect(newSelectField, newOptions[i], false);
-            }
-        } catch (err) {
-            console.log('Error in onToggleProjectPattern: ' + err.message);
-        }
+        filterByRegexRequest(dataCell, regexString, blackDuckProjectState);
     } else {
         removeSelectField(dataCell);
+    }
+}
+
+function renderSelectField(dataCell, projectNames) {
+    try {
+        let newSelectField = createOrGetSelectField(dataCell);
+        newSelectField.innerHTML = '';
+        createOptionForSelect(newSelectField, "This pattern matches " + projectNames.length + " projects:", true);
+
+        for (let i = 0; i < projectNames.length; i++) {
+            createOptionForSelect(newSelectField, projectNames[i], false);
+        }
+    } catch (err) {
+        console.log('Error in onToggleProjectPattern: ' + err.message);
+        removeSelectField(dataCell);
+        let newSelectField = createOrGetSelectField(dataCell);
+        createOptionForSelect(newSelectField, "Error: Invalid Pattern", true);
     }
 }
 
@@ -369,8 +365,7 @@ function createOrGetSelectField(dataCell) {
     if (!newSelectField) {
         newSelectField = document.createElement('select');
         newSelectField.setAttribute('name', 'regexSelect');
-        newSelectField.style.maxWidth = '200px';
-        newSelectField.style.width = 'auto';
+        newSelectField.setAttribute('class', 'blackDuckProjectRegexSelect');
     }
     dataCell.appendChild(newSelectField);
     return newSelectField;

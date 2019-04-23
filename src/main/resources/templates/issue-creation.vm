@@ -128,7 +128,7 @@
                 </td>
                 <td class="mappingTableCell" width="10%" min-width="20px" margin="auto"> =</td>
                 <td class="mappingTableCell">
-                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" oninput="onMappingInputChange(this);" onkeydown="onToggleProjectPattern(this);"
+                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" onchange="onMappingInputChange(this);" onkeyup="onToggleProjectPattern(this);"
                            placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
                     <datalist id="hubProjects" name="hubProjectsData">
                     </datalist>
