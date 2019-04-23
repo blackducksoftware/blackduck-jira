@@ -42,6 +42,7 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
+import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.common.settings.model.TicketCriteriaConfigModel;
@@ -430,7 +431,7 @@ public class JiraIssueHandler {
         final JiraWorkflow issueWorkflow = issueServiceWrapper.getWorkflow(issue);
         if (issueWorkflow != null) {
             logger.debug("Issue " + issue.getKey() + " uses workflow " + issueWorkflow.getName());
-            return issueWorkflow.getName().contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            return WorkflowHelper.matchesBlackDuckWorkflowName(issueWorkflow.getName());
         }
         return false;
     }
