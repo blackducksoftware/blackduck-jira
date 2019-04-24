@@ -137,7 +137,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
         try {
             schedulerService.scheduleJob(JobId.of(CURRENT_JOB_NAME), jobConfig);
-            logger.info(String.format("%s scheduled to run every %dms", BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, actualIntervalInMilliseconds));
+            logger.info(String.format("%s scheduled to run every %sms", BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, actualIntervalInMilliseconds));
         } catch (final SchedulerServiceException e) {
             logger.error(String.format("Could not schedule %s." + BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME), e);
         }
