@@ -110,8 +110,9 @@ public class BlackDuckJobRunner implements JobRunner {
         } catch (final TimeoutException e) {
             reasonForFailure = "The timed task timed out";
         } catch (final InterruptedException e) {
-            // Since the exception was caught, the thread hasn't been interrupted yet; it will be manually interrupted (by future.cancel()) in the finally block.
-            reasonForFailure = "The timed task was interrupted";
+            // It is bad practice to catch an InterruptedException without interrupting the Thread.
+            logger.error("The timed task was interrupted", e);
+            Thread.currentThread().interrupt();
         } finally {
             if (future != null && !future.isDone()) {
                 future.cancel();
