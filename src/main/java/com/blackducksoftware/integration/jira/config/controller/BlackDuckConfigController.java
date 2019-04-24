@@ -124,7 +124,6 @@ public class BlackDuckConfigController extends ConfigController {
     @Path("/projects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-
     public Response getBlackDuckProjects(@Context final HttpServletRequest request) {
         logger.debug("getBlackDuckProjects()");
         final Object projectsConfig;

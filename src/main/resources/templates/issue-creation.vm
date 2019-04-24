@@ -126,9 +126,10 @@
                     </datalist>
                     </input>
                 </td>
-                <td class="mappingTableCell" width="10%" min-width="20px" margin="auto"> =</td>
+                <td class="mappingTableCell" style="padding-left: 10px; padding-right: 10px;">&harr;</td>
                 <td class="mappingTableCell">
-                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey="" onchange="onMappingInputChange(this);" onkeyup="onToggleProjectPattern(this);" onfocus="onToggleProjectPattern(this);"
+                    <input class="longInput textStyle" type="text" name="hubProject" list="hubProjects" projectKey=""
+                           onchange="onMappingInputChange(this);" onkeyup="onToggleProjectPattern(this);" onfocus="onToggleProjectPattern(this);"
                            placeholder="$i18n.getText('blackduck.integration.jira.blackduckProjectPlaceHolder.label')">
                     <datalist id="hubProjects" name="hubProjectsData">
                     </datalist>
@@ -137,7 +138,7 @@
                 <td class="mappingTableCell">
                     <input type="checkbox" name="projectPatternOption" onclick="onToggleProjectPattern(this);" />
                 </td>
-                <td class="mappingTableCell" width="100px">
+                <td class="mappingTableCell">
                     <div class="largeIcon fa fa-trash-o" onclick="removeMappingElement(this);" title="$i18n.getText('blackduck.integration.jira.removeProjectMapping.label')"></div>
                 </td>
             </tr>
