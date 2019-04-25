@@ -56,6 +56,7 @@ import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.manual.view.NotificationUserView;
+import com.synopsys.integration.blackduck.exception.BlackDuckApiException;
 import com.synopsys.integration.blackduck.exception.BlackDuckItemTransformException;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.NotificationService;
@@ -172,6 +173,8 @@ public class TicketGenerator {
                         e.getMessage());
                     logger.warn(msg);
                     pluginErrorAccessor.addBlackDuckError(msg, "generateTicketsForNotificationsInDateRange");
+                } else if (e instanceof BlackDuckApiException && ((BlackDuckApiException) e).getOriginalIntegrationRestException().getHttpStatusCode() == 404) {
+                    logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else if (e instanceof IntegrationRestException && ((IntegrationRestException) e).getHttpStatusCode() == 404) {
                     logger.debug(String.format("The Black Duck resource located at %s no longer exists. All tickets associated with that resource will be updated to reflect this.", uri));
                 } else {
