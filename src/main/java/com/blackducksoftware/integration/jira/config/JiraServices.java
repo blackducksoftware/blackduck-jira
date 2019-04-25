@@ -195,7 +195,7 @@ public class JiraServices {
 
     private String getAssigneeUserId(final Project jiraProject) {
         final Long assigneeType = jiraProject.getAssigneeType();
-        if (assigneeType != null && AssigneeTypes.UNASSIGNED == assigneeType) {
+        if (null != assigneeType && AssigneeTypes.UNASSIGNED == assigneeType) {
             return null;
         }
         // There other AssigneeTypes, but we use Project Lead for all of them
