@@ -195,9 +195,7 @@ public class JiraServices {
 
     private String getAssigneeUserId(final Project jiraProject) {
         final Long assigneeType = jiraProject.getAssigneeType();
-        if (assigneeType == null) {
-            return jiraProject.getProjectLead().getKey();
-        } else if (assigneeType.equals(AssigneeTypes.UNASSIGNED)) {
+        if (null != assigneeType && AssigneeTypes.UNASSIGNED == assigneeType) {
             return null;
         }
         // There other AssigneeTypes, but we use Project Lead for all of them
@@ -205,8 +203,7 @@ public class JiraServices {
     }
 
     public Avatar createIssueTypeAvatarTemplate(final String filename, final String contentType, final String userId) {
-        final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId,
-            IconType.ISSUE_TYPE_ICON_TYPE);
+        final Avatar avatarTemplate = AvatarImpl.createCustomAvatar(filename, contentType, userId, IconType.ISSUE_TYPE_ICON_TYPE);
         return avatarTemplate;
     }
 
