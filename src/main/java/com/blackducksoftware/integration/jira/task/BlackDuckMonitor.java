@@ -177,6 +177,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         upgradeSteps.updateInstallDate(installDate);
         upgradeSteps.updateOldMappingsIfNeeded();
         upgradeSteps.upgradeToV6FromAny();
+        upgradeSteps.assignUserToBlackDuckProject();
     }
 
     private Number getIntervalInMinutes() {

@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
+import com.blackducksoftware.integration.jira.common.BlackDuckAssignUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
@@ -71,6 +72,7 @@ public class IssueCreationConfigActions {
     private final WorkflowHelper workflowHelper;
     private final BlackDuckMonitor blackDuckMonitor;
     private final ProjectMappingConfigActions projectMappingConfigActions;
+    private transient Thread assignmentThread;
 
     public IssueCreationConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
         final WorkflowHelper workflowHelper, final BlackDuckMonitor blackDuckMonitor) {
@@ -207,6 +209,16 @@ public class IssueCreationConfigActions {
 
         globalConfigurationAccessor.setIssueCreationConfig(issueCreationConfig);
         updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
+
+        if (null != assignmentThread && assignmentThread.isAlive()) {
+            assignmentThread.interrupt();
+        }
+        final Runnable runnable = () -> {
+            final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
+            blackDuckAssignUtil.assignUserToBlackDuckProject(globalConfigurationAccessor);
+        };
+        assignmentThread = new Thread(runnable);
+        assignmentThread.start();
 
         return config;
     }
