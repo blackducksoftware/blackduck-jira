@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
@@ -51,6 +53,7 @@ import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
@@ -67,17 +70,20 @@ public class IssueCreationConfigActions {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final PluginConfigurationAccessor pluginConfigurationAccessor;
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
+    private final PluginErrorAccessor pluginErrorAccessor;
     private final AuthorizationChecker authorizationChecker;
     private final ProjectManager projectManager;
     private final WorkflowHelper workflowHelper;
     private final BlackDuckMonitor blackDuckMonitor;
     private final ProjectMappingConfigActions projectMappingConfigActions;
+
     private transient Thread assignmentThread;
 
     public IssueCreationConfigActions(final JiraSettingsAccessor jiraSettingsAccessor, final AuthorizationChecker authorizationChecker, final ProjectManager projectManager,
         final WorkflowHelper workflowHelper, final BlackDuckMonitor blackDuckMonitor) {
         this.pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
         this.globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
+        this.pluginErrorAccessor = jiraSettingsAccessor.createPluginErrorAccessor();
         this.authorizationChecker = authorizationChecker;
         this.projectManager = projectManager;
         this.workflowHelper = workflowHelper;
@@ -210,17 +216,31 @@ public class IssueCreationConfigActions {
         globalConfigurationAccessor.setIssueCreationConfig(issueCreationConfig);
         updatePluginTaskInterval(previousInterval.orElse(0), intervalBetweenChecks);
 
+        startUserAssignment();
+
+        return config;
+    }
+
+    private void startUserAssignment() {
         if (null != assignmentThread && assignmentThread.isAlive()) {
             assignmentThread.interrupt();
         }
-        final Runnable runnable = () -> {
-            final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
-            blackDuckAssignUtil.assignUserToBlackDuckProject(globalConfigurationAccessor);
+        assignmentThread = new Thread("userAssignmentThread") {
+            @Override
+            public void run() {
+                final Thread self = this;
+                final Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        self.interrupt();
+                    }
+                }, 300000);
+                final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
+                blackDuckAssignUtil.assignUserToBlackDuckProject(pluginErrorAccessor, globalConfigurationAccessor);
+            }
         };
-        assignmentThread = new Thread(runnable);
         assignmentThread.start();
-
-        return config;
     }
 
     private void validateCreator(final BlackDuckJiraConfigSerializable config) {

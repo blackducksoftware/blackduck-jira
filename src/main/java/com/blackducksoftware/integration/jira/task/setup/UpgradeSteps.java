@@ -136,7 +136,7 @@ public class UpgradeSteps {
 
     public void assignUserToBlackDuckProject() {
         final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
-        blackDuckAssignUtil.assignUserToBlackDuckProject(jiraSettingsAccessor.createGlobalConfigurationAccessor());
+        blackDuckAssignUtil.assignUserToBlackDuckProject(jiraSettingsAccessor.createPluginErrorAccessor(), jiraSettingsAccessor.createGlobalConfigurationAccessor());
     }
 
 }

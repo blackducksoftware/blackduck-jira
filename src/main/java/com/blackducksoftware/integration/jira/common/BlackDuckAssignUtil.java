@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.common.settings.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.synopsys.integration.blackduck.api.generated.component.AssignedUserRequest;
@@ -51,7 +52,7 @@ import com.synopsys.integration.exception.IntegrationException;
 public class BlackDuckAssignUtil {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
-    public void assignUserToBlackDuckProject(final GlobalConfigurationAccessor globalConfigurationAccessor) {
+    public void assignUserToBlackDuckProject(final PluginErrorAccessor pluginErrorAccessor, final GlobalConfigurationAccessor globalConfigurationAccessor) {
         try {
             if (null == globalConfigurationAccessor.getIssueCreationConfig() && null == globalConfigurationAccessor.getIssueCreationConfig().getProjectMapping()) {
                 logger.debug("There is no issue creation configuration or project mappings. Skipping assigning the user to the BD Project.");
@@ -102,12 +103,15 @@ public class BlackDuckAssignUtil {
                 if (projectUsersLinkOptional.isPresent()) {
                     blackDuckService.post(projectUsersLinkOptional.get(), assignedUserRequest);
                 } else {
-                    logger.error(String.format("Could not assign the user, %s, to the project %s because there is no users link.", currentUser.getUserName(), projectView.getName()));
+                    final String errorMessage = String.format("Could not assign the user, %s, to the project %s because there is no users link.", currentUser.getUserName(), projectView.getName());
+                    logger.error(errorMessage);
+                    pluginErrorAccessor.addBlackDuckError(errorMessage, "assignUserToBlackDuckProject");
                 }
             }
 
         } catch (final IntegrationException e) {
             logger.error("Could not assign the Black Duck user to the configured Black Duck projects. " + e.getMessage(), e);
+            pluginErrorAccessor.addBlackDuckError(e, "assignUserToBlackDuckProject");
         }
     }
 
