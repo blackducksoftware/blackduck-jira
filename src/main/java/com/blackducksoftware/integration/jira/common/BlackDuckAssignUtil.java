@@ -42,6 +42,7 @@ import com.blackducksoftware.integration.jira.common.settings.model.PluginBlackD
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 import com.synopsys.integration.blackduck.api.generated.component.AssignedUserRequest;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
+import com.synopsys.integration.blackduck.api.generated.response.AssignedProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
@@ -90,7 +91,6 @@ public class BlackDuckAssignUtil {
         config.setHubProjectMappingsJson(projectMappingJson);
         if (config.getHubProjectMappings().isEmpty()) {
             logger.debug("There are no project mappings in the mapping json. Skipping assigning the user to the BD Project.");
-            return new HashSet<>();
         }
         return config.getHubProjectMappings();
     }
@@ -109,7 +109,7 @@ public class BlackDuckAssignUtil {
     }
 
     public Set<ProjectView> getMatchingBDProjects(final Set<BlackDuckProjectMapping> projectMappings, final List<ProjectView> allProjects) throws IntegrationException {
-        final Map<String, ProjectView> projectMap = allProjects.stream().collect(Collectors.toMap(project -> project.getName(), Function.identity()));
+        final Map<String, ProjectView> projectMap = allProjects.stream().collect(Collectors.toMap(ProjectView::getName, Function.identity()));
 
         final Set<ProjectView> matchingProjects = new HashSet<>();
         for (final BlackDuckProjectMapping blackDuckProjectMapping : projectMappings) {
@@ -126,7 +126,6 @@ public class BlackDuckAssignUtil {
         }
         if (matchingProjects.isEmpty()) {
             logger.debug("There are no BD projects that map the projects configured in the project mappings. Skipping assigning the user to the BD Project.");
-            return new HashSet<>();
         }
         return matchingProjects;
     }
@@ -138,7 +137,7 @@ public class BlackDuckAssignUtil {
     public Set<ProjectView> getProjectsThatNeedAssigning(final BlackDuckService blackDuckService, final UserView currentUser, final Set<ProjectView> matchingProjects) throws IntegrationException {
         final Set<String> assignedProjects = blackDuckService.getAllResponses(currentUser, UserView.PROJECTS_LINK_RESPONSE)
                                                  .stream()
-                                                 .map(assignedProject -> assignedProject.getName())
+                                                 .map(AssignedProjectView::getName)
                                                  .collect(Collectors.toSet());
         final Set<ProjectView> nonAssignedProjects = matchingProjects.stream()
                                                          .filter(project -> !assignedProjects.contains(project.getName()))
@@ -146,7 +145,6 @@ public class BlackDuckAssignUtil {
 
         if (nonAssignedProjects.isEmpty()) {
             logger.debug("There are no BD projects that need to have this User assigned to them. Skipping assigning the user to the BD Project.");
-            return new HashSet<>();
         }
         return nonAssignedProjects;
     }
