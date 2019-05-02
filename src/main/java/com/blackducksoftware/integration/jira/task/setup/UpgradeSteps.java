@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.blackducksoftware.integration.jira.common.BlackDuckAssignUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
@@ -131,6 +132,11 @@ public class UpgradeSteps {
                 globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
             }
         }
+    }
+
+    public void assignUserToBlackDuckProject() {
+        final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
+        blackDuckAssignUtil.assignUserToBlackDuckProject(jiraSettingsAccessor.createPluginErrorAccessor(), jiraSettingsAccessor.createGlobalConfigurationAccessor());
     }
 
 }

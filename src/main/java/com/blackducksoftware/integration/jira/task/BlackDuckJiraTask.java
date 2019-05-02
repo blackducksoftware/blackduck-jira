@@ -129,7 +129,7 @@ public class BlackDuckJiraTask {
         final Optional<UserView> optionalUserView = getBlackDuckUser(blackDuckServicesFactory.createBlackDuckService());
         if (!optionalUserView.isPresent()) {
             logger.warn("Will not request notifications from Black Duck because of an invalid user configuration");
-            return Optional.of(previousStartDate);
+            return Optional.ofNullable(previousStartDate);
         }
         final UserView blackDuckUser = optionalUserView.get();
 
