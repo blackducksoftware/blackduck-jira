@@ -54,70 +54,62 @@ public class BlackDuckAssignUtil {
 
     public void assignUserToBlackDuckProject(final PluginErrorAccessor pluginErrorAccessor, final GlobalConfigurationAccessor globalConfigurationAccessor) {
         try {
-            if (null == globalConfigurationAccessor.getIssueCreationConfig() && null == globalConfigurationAccessor.getIssueCreationConfig().getProjectMapping()) {
-                logger.debug("There is no issue creation configuration or project mappings. Skipping assigning the user to the BD Project.");
+            final Set<BlackDuckProjectMapping> blackDuckProjectMappings = getBlackDuckProjectMappings(globalConfigurationAccessor);
+            if (blackDuckProjectMappings.isEmpty()) {
                 return;
             }
-            final String projectMappingJson = globalConfigurationAccessor.getIssueCreationConfig().getProjectMapping().getMappingsJson();
-            if (StringUtils.isBlank(projectMappingJson)) {
-                logger.debug("There are no project mappings. Skipping assigning the user to the BD Project.");
-                return;
-            }
-            final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
-            config.setHubProjectMappingsJson(projectMappingJson);
-            if (config.getHubProjectMappings().isEmpty()) {
-                logger.debug("There are no project mappings in the mapping json. Skipping assigning the user to the BD Project.");
-                return;
-            }
-
-            final BlackDuckConnectionHelper blackDuckConnectionHelper = new BlackDuckConnectionHelper();
-
-            final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
-            final BlackDuckServicesFactory blackDuckServicesFactory = blackDuckConnectionHelper.createBlackDuckServicesFactory(logger, blackDuckServerConfig.createBlackDuckServerConfigBuilder());
-
-            final BlackDuckService blackDuckService = blackDuckServicesFactory.createBlackDuckService();
-            final Set<ProjectView> matchingProjects = getMatchingBDProjects(config.getHubProjectMappings(), blackDuckService);
-
+            final BlackDuckService blackDuckService = getBlackDuckService(globalConfigurationAccessor);
+            final List<ProjectView> allProjects = getAllBDProjects(blackDuckService);
+            final Set<ProjectView> matchingProjects = getMatchingBDProjects(blackDuckProjectMappings, allProjects);
             if (matchingProjects.isEmpty()) {
-                logger.debug("There are no BD projects that map the projects configured in the project mappings. Skipping assigning the user to the BD Project.");
                 return;
             }
-            final UserView currentUser = blackDuckService.getResponse(ApiDiscovery.CURRENT_USER_LINK_RESPONSE);
-            final Set<String> assignedProjects = blackDuckService.getAllResponses(currentUser, UserView.PROJECTS_LINK_RESPONSE)
-                                                     .stream()
-                                                     .map(assignedProject -> assignedProject.getName())
-                                                     .collect(Collectors.toSet());
-            final Set<ProjectView> nonAssignedProjects = matchingProjects.stream()
-                                                             .filter(project -> !assignedProjects.contains(project.getName()))
-                                                             .collect(Collectors.toSet());
-
+            final UserView currentUser = getCurrentUser(blackDuckService);
+            final Set<ProjectView> nonAssignedProjects = getProjectsThatNeedAssigning(blackDuckService, currentUser, matchingProjects);
             if (nonAssignedProjects.isEmpty()) {
-                logger.debug("There are no BD projects that need to have this User assigned to them. Skipping assigning the user to the BD Project.");
                 return;
             }
-
-            final AssignedUserRequest assignedUserRequest = new AssignedUserRequest();
-            assignedUserRequest.setUser(currentUser.getHref().orElseThrow(() -> new IntegrationException(String.format("The current user, %s, does not have an href.", currentUser.getUserName()))));
-            for (final ProjectView projectView : nonAssignedProjects) {
-                final Optional<String> projectUsersLinkOptional = projectView.getFirstLink(ProjectView.USERS_LINK);
-                if (projectUsersLinkOptional.isPresent()) {
-                    blackDuckService.post(projectUsersLinkOptional.get(), assignedUserRequest);
-                } else {
-                    final String errorMessage = String.format("Could not assign the user, %s, to the project %s because there is no users link.", currentUser.getUserName(), projectView.getName());
-                    logger.error(errorMessage);
-                    pluginErrorAccessor.addBlackDuckError(errorMessage, "assignUserToBlackDuckProject");
-                }
-            }
-
+            assignUserToProjects(pluginErrorAccessor, blackDuckService, currentUser, nonAssignedProjects);
         } catch (final IntegrationException e) {
             logger.error("Could not assign the Black Duck user to the configured Black Duck projects. " + e.getMessage(), e);
             pluginErrorAccessor.addBlackDuckError(e, "assignUserToBlackDuckProject");
         }
     }
 
-    private Set<ProjectView> getMatchingBDProjects(final Set<BlackDuckProjectMapping> projectMappings, final BlackDuckService blackDuckService) throws IntegrationException {
-        final List<ProjectView> projects = blackDuckService.getAllResponses(ApiDiscovery.PROJECTS_LINK_RESPONSE);
-        final Map<String, ProjectView> projectMap = projects.stream().collect(Collectors.toMap(project -> project.getName(), Function.identity()));
+    public Set<BlackDuckProjectMapping> getBlackDuckProjectMappings(final GlobalConfigurationAccessor globalConfigurationAccessor) {
+        if (null == globalConfigurationAccessor.getIssueCreationConfig() && null == globalConfigurationAccessor.getIssueCreationConfig().getProjectMapping()) {
+            logger.debug("There is no issue creation configuration or project mappings. Skipping assigning the user to the BD Project.");
+            return new HashSet<>();
+        }
+        final String projectMappingJson = globalConfigurationAccessor.getIssueCreationConfig().getProjectMapping().getMappingsJson();
+        if (StringUtils.isBlank(projectMappingJson)) {
+            logger.debug("There are no project mappings. Skipping assigning the user to the BD Project.");
+            return new HashSet<>();
+        }
+        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        config.setHubProjectMappingsJson(projectMappingJson);
+        if (config.getHubProjectMappings().isEmpty()) {
+            logger.debug("There are no project mappings in the mapping json. Skipping assigning the user to the BD Project.");
+            return new HashSet<>();
+        }
+        return config.getHubProjectMappings();
+    }
+
+    public BlackDuckService getBlackDuckService(final GlobalConfigurationAccessor globalConfigurationAccessor) throws IntegrationException {
+        final BlackDuckConnectionHelper blackDuckConnectionHelper = new BlackDuckConnectionHelper();
+
+        final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
+        final BlackDuckServicesFactory blackDuckServicesFactory = blackDuckConnectionHelper.createBlackDuckServicesFactory(logger, blackDuckServerConfig.createBlackDuckServerConfigBuilder());
+
+        return blackDuckServicesFactory.createBlackDuckService();
+    }
+
+    public List<ProjectView> getAllBDProjects(final BlackDuckService blackDuckService) throws IntegrationException {
+        return blackDuckService.getAllResponses(ApiDiscovery.PROJECTS_LINK_RESPONSE);
+    }
+
+    public Set<ProjectView> getMatchingBDProjects(final Set<BlackDuckProjectMapping> projectMappings, final List<ProjectView> allProjects) throws IntegrationException {
+        final Map<String, ProjectView> projectMap = allProjects.stream().collect(Collectors.toMap(project -> project.getName(), Function.identity()));
 
         final Set<ProjectView> matchingProjects = new HashSet<>();
         for (final BlackDuckProjectMapping blackDuckProjectMapping : projectMappings) {
@@ -132,6 +124,45 @@ public class BlackDuckAssignUtil {
                 matchingProjects.add(projectView);
             }
         }
+        if (matchingProjects.isEmpty()) {
+            logger.debug("There are no BD projects that map the projects configured in the project mappings. Skipping assigning the user to the BD Project.");
+            return new HashSet<>();
+        }
         return matchingProjects;
+    }
+
+    public UserView getCurrentUser(final BlackDuckService blackDuckService) throws IntegrationException {
+        return blackDuckService.getResponse(ApiDiscovery.CURRENT_USER_LINK_RESPONSE);
+    }
+
+    public Set<ProjectView> getProjectsThatNeedAssigning(final BlackDuckService blackDuckService, final UserView currentUser, final Set<ProjectView> matchingProjects) throws IntegrationException {
+        final Set<String> assignedProjects = blackDuckService.getAllResponses(currentUser, UserView.PROJECTS_LINK_RESPONSE)
+                                                 .stream()
+                                                 .map(assignedProject -> assignedProject.getName())
+                                                 .collect(Collectors.toSet());
+        final Set<ProjectView> nonAssignedProjects = matchingProjects.stream()
+                                                         .filter(project -> !assignedProjects.contains(project.getName()))
+                                                         .collect(Collectors.toSet());
+
+        if (nonAssignedProjects.isEmpty()) {
+            logger.debug("There are no BD projects that need to have this User assigned to them. Skipping assigning the user to the BD Project.");
+            return new HashSet<>();
+        }
+        return nonAssignedProjects;
+    }
+
+    public void assignUserToProjects(final PluginErrorAccessor pluginErrorAccessor, final BlackDuckService blackDuckService, final UserView currentUser, final Set<ProjectView> projectsToAssign) throws IntegrationException {
+        final AssignedUserRequest assignedUserRequest = new AssignedUserRequest();
+        assignedUserRequest.setUser(currentUser.getHref().orElseThrow(() -> new IntegrationException(String.format("The current user, %s, does not have an href.", currentUser.getUserName()))));
+        for (final ProjectView projectView : projectsToAssign) {
+            final Optional<String> projectUsersLinkOptional = projectView.getFirstLink(ProjectView.USERS_LINK);
+            if (projectUsersLinkOptional.isPresent()) {
+                blackDuckService.post(projectUsersLinkOptional.get(), assignedUserRequest);
+            } else {
+                final String errorMessage = String.format("Could not assign the user, %s, to the project %s because there is no users link.", currentUser.getUserName(), projectView.getName());
+                logger.error(errorMessage);
+                pluginErrorAccessor.addBlackDuckError(errorMessage, "assignUserToBlackDuckProject");
+            }
+        }
     }
 }

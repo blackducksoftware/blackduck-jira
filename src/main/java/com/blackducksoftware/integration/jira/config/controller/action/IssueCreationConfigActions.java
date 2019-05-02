@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
@@ -44,7 +42,6 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.jira.common.BlackDuckAssignUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
@@ -225,21 +222,7 @@ public class IssueCreationConfigActions {
         if (null != assignmentThread && assignmentThread.isAlive()) {
             assignmentThread.interrupt();
         }
-        assignmentThread = new Thread("userAssignmentThread") {
-            @Override
-            public void run() {
-                final Thread self = this;
-                final Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        self.interrupt();
-                    }
-                }, 300000);
-                final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
-                blackDuckAssignUtil.assignUserToBlackDuckProject(pluginErrorAccessor, globalConfigurationAccessor);
-            }
-        };
+        assignmentThread = new UserAssignThread("userAssignmentThread", logger, globalConfigurationAccessor, pluginErrorAccessor);
         assignmentThread.start();
     }
 
