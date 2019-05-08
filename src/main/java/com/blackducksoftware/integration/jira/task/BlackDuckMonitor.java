@@ -37,6 +37,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
+import com.atlassian.scheduler.config.IntervalScheduleInfo;
 import com.atlassian.scheduler.config.JobConfig;
 import com.atlassian.scheduler.config.JobId;
 import com.atlassian.scheduler.config.JobRunnerKey;
@@ -136,9 +137,13 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         scheduleJob(primaryJobId, BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, primaryTaskSchedule, primaryTaskIntervalInMinutes, primaryTaskIntervalInMilliseconds);
 
         // Schedule maintenance task
-        // FIXME give this its own schedule
+        final Schedule maintenanceTaskSchedule = Schedule.forCronExpression(BlackDuckMaintenanceJobRunner.DEFAULT_CRON);
+        final IntervalScheduleInfo maintenanceScheduleInfo = maintenanceTaskSchedule.getIntervalScheduleInfo();
+        final Number maintenanceTaskIntervalInMilliseconds = maintenanceScheduleInfo.getIntervalInMillis();
+        final Number maintenanceTaskIntervalInMinutes = maintenanceTaskIntervalInMilliseconds.intValue() / (1000 * 60);
+
         final JobId maintenanceJobId = JobId.of(MAINTENANCE_JOB_NAME);
-        scheduleJob(maintenanceJobId, BlackDuckMaintenanceJobRunner.HUMAN_READABLE_TASK_NAME, primaryTaskSchedule, primaryTaskIntervalInMinutes, primaryTaskIntervalInMilliseconds);
+        scheduleJob(maintenanceJobId, BlackDuckMaintenanceJobRunner.HUMAN_READABLE_TASK_NAME, maintenanceTaskSchedule, maintenanceTaskIntervalInMinutes, maintenanceTaskIntervalInMilliseconds);
     }
 
     public String getName() {

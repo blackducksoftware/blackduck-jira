@@ -32,6 +32,7 @@ public class JiraUserContext {
     private final ApplicationUser jiraAdminUser;
     private final ApplicationUser defaultJiraIssueCreatorUser;
 
+    // This could be moved to a static factory class if preferred.
     public static Optional<JiraUserContext> create(final BlackDuckJiraLogger logger, final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
         logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
         if (jiraIssueCreatorUsername == null) {
