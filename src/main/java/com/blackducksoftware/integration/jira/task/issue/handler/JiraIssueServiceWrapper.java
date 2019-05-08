@@ -108,7 +108,7 @@ public class JiraIssueServiceWrapper {
     // @formatter:on
 
     public List<Issue> queryForIssues(final ApplicationUser searchUser, final Query jqlQuery, final int startingOffset, final int resultLimit) throws JiraIssueException {
-        final PagerFilter queryPageLimiter = PagerFilter.newPageAlignedFilter(0, resultLimit);
+        final PagerFilter queryPageLimiter = PagerFilter.newPageAlignedFilter(startingOffset, resultLimit);
         try {
             final SearchResults searchResults = jiraSearchService.search(searchUser, jqlQuery, queryPageLimiter);
             return searchResults.getIssues();

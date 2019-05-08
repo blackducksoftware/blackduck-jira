@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.task.maintenance;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -76,10 +77,12 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
+    private final HashSet<String> badProjectVersionUrlCache;
 
     public CleanUpOrphanedTicketsTask(final JiraSettingsAccessor jiraSettingsAccessor) {
         this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.jiraServices = new JiraServices();
+        this.badProjectVersionUrlCache = new HashSet<>();
     }
 
     @Override
@@ -149,18 +152,29 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         for (final Issue issue : issuesToProcess) {
             final String projectVersionUrl = (String) issue.getCustomFieldValue(projectVersionUrlField);
             if (StringUtils.isNotBlank(projectVersionUrl)) {
-                try {
-                    blackDuckService.get(projectVersionUrl);
-                } catch (final BlackDuckApiException apiEception) {
-                    final IntegrationRestException restException = apiEception.getOriginalIntegrationRestException();
-                    final int statusCode = restException.getHttpStatusCode();
-                    if (404 == statusCode) {
-                        logger.debug("The Black Duck project version for " + issue.getKey() + " was not found on the current Black Duck server.");
-                        resolveIssue(issueServiceWrapper, issue);
-                    }
+                if (isProjectVersionInvalid(projectVersionUrl, blackDuckService)) {
+                    logger.debug("The Black Duck project version for " + issue.getKey() + " was not found on the current Black Duck server.");
+                    resolveIssue(issueServiceWrapper, issue);
                 }
             }
         }
+    }
+
+    private boolean isProjectVersionInvalid(final String projectVersionUrl, final BlackDuckService blackDuckService) throws IntegrationException {
+        if (badProjectVersionUrlCache.contains(projectVersionUrl)) {
+            return true;
+        }
+        try {
+            blackDuckService.get(projectVersionUrl);
+        } catch (final BlackDuckApiException apiException) {
+            final IntegrationRestException restException = apiException.getOriginalIntegrationRestException();
+            final int statusCode = restException.getHttpStatusCode();
+            if (404 == statusCode) {
+                badProjectVersionUrlCache.add(projectVersionUrl);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void resolveIssue(final JiraIssueServiceWrapper issueServiceWrapper, final Issue issue) throws JiraIssueException {

@@ -139,8 +139,8 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         // Schedule maintenance task
         final Schedule maintenanceTaskSchedule = Schedule.forCronExpression(BlackDuckMaintenanceJobRunner.DEFAULT_CRON);
         final IntervalScheduleInfo maintenanceScheduleInfo = maintenanceTaskSchedule.getIntervalScheduleInfo();
-        final Number maintenanceTaskIntervalInMilliseconds = maintenanceScheduleInfo.getIntervalInMillis();
-        final Number maintenanceTaskIntervalInMinutes = maintenanceTaskIntervalInMilliseconds.intValue() / (1000 * 60);
+        final Number maintenanceTaskIntervalInMinutes = 60;
+        final Number maintenanceTaskIntervalInMilliseconds = getIntervalMillisec(maintenanceTaskIntervalInMinutes);
 
         final JobId maintenanceJobId = JobId.of(MAINTENANCE_JOB_NAME);
         scheduleJob(maintenanceJobId, BlackDuckMaintenanceJobRunner.HUMAN_READABLE_TASK_NAME, maintenanceTaskSchedule, maintenanceTaskIntervalInMinutes, maintenanceTaskIntervalInMilliseconds);
