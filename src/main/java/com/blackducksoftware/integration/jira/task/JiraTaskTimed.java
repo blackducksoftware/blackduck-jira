@@ -52,12 +52,10 @@ public class JiraTaskTimed implements Callable<String> {
 
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
-    private final Integer configuredTaskInterval;
 
-    public JiraTaskTimed(final JiraSettingsAccessor jiraSettingsAccessor, final JiraServices jiraServices, final Integer configuredTaskInterval) {
+    public JiraTaskTimed(final JiraSettingsAccessor jiraSettingsAccessor, final JiraServices jiraServices) {
         this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.jiraServices = jiraServices;
-        this.configuredTaskInterval = configuredTaskInterval;
     }
 
     @Override
