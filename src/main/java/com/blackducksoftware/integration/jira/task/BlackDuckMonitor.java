@@ -37,7 +37,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
-import com.atlassian.scheduler.config.IntervalScheduleInfo;
 import com.atlassian.scheduler.config.JobConfig;
 import com.atlassian.scheduler.config.JobId;
 import com.atlassian.scheduler.config.JobRunnerKey;
@@ -58,9 +57,10 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
 
     private static final int DEFAULT_INTERVAL_MINUTES = 1;
-    private static final JobRunnerKey JOB_RUNNER_KEY = JobRunnerKey.of(BlackDuckMonitor.class.getName());
     private static final String PRIMARY_JOB_NAME = BlackDuckMonitor.class.getName() + ":job";
     private static final String MAINTENANCE_JOB_NAME = BlackDuckMonitor.class.getName() + ":maintenance-job";
+    private static final JobRunnerKey PRIMARY_JOB_RUNNER_KEY = JobRunnerKey.of(PRIMARY_JOB_NAME);
+    private static final JobRunnerKey MAINTENANCE_JOB_RUNNER_KEY = JobRunnerKey.of(MAINTENANCE_JOB_NAME);
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final SchedulerService schedulerService;
@@ -74,8 +74,8 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         this.pluginSettings = pluginSettingsFactory.createGlobalSettings();
         this.executorService = executorService;
 
-        schedulerService.registerJobRunner(JOB_RUNNER_KEY, new BlackDuckJobRunner(pluginSettings, executorService));
-        schedulerService.registerJobRunner(JOB_RUNNER_KEY, new BlackDuckMaintenanceJobRunner(pluginSettings));
+        schedulerService.registerJobRunner(PRIMARY_JOB_RUNNER_KEY, new BlackDuckJobRunner(pluginSettings, executorService));
+        schedulerService.registerJobRunner(MAINTENANCE_JOB_RUNNER_KEY, new BlackDuckMaintenanceJobRunner(pluginSettings));
     }
 
     @Override
@@ -90,8 +90,8 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
 
     @Override
     public void onStop() {
-        logger.debug(BlackDuckMonitor.class.getName() + ".onStop() called; Unscheduling " + PRIMARY_JOB_NAME);
-        schedulerService.unscheduleJob(JobId.of(PRIMARY_JOB_NAME));
+        logger.debug(BlackDuckMonitor.class.getName() + ".onStop() called");
+        unscheduleOldJobs();
 
         final String installDate = UpgradeSteps.getInstallDateString(pluginSettings);
         logger.debug("Install date was: " + installDate);
@@ -133,17 +133,14 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         }
 
         // Schedule primary task
-        final JobId primaryJobId = JobId.of(PRIMARY_JOB_NAME);
-        scheduleJob(primaryJobId, BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, primaryTaskSchedule, primaryTaskIntervalInMinutes, primaryTaskIntervalInMilliseconds);
+        scheduleJob(PRIMARY_JOB_NAME, BlackDuckJobRunner.HUMAN_READABLE_TASK_NAME, primaryTaskSchedule, primaryTaskIntervalInMinutes, primaryTaskIntervalInMilliseconds);
 
         // Schedule maintenance task
-        final Schedule maintenanceTaskSchedule = Schedule.forCronExpression(BlackDuckMaintenanceJobRunner.DEFAULT_CRON);
-        final IntervalScheduleInfo maintenanceScheduleInfo = maintenanceTaskSchedule.getIntervalScheduleInfo();
+        final Schedule maintenanceTaskSchedule = Schedule.forCronExpression(BlackDuckMaintenanceJobRunner.DEFAULT_ATLASSIAN_CRON_EXPRESSION);
         final Number maintenanceTaskIntervalInMinutes = 60;
         final Number maintenanceTaskIntervalInMilliseconds = getIntervalMillisec(maintenanceTaskIntervalInMinutes);
 
-        final JobId maintenanceJobId = JobId.of(MAINTENANCE_JOB_NAME);
-        scheduleJob(maintenanceJobId, BlackDuckMaintenanceJobRunner.HUMAN_READABLE_TASK_NAME, maintenanceTaskSchedule, maintenanceTaskIntervalInMinutes, maintenanceTaskIntervalInMilliseconds);
+        scheduleJob(MAINTENANCE_JOB_NAME, BlackDuckMaintenanceJobRunner.HUMAN_READABLE_TASK_NAME, maintenanceTaskSchedule, maintenanceTaskIntervalInMinutes, maintenanceTaskIntervalInMilliseconds);
     }
 
     public String getName() {
@@ -151,29 +148,35 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         return "blackDuckMonitor";
     }
 
-    private void scheduleJob(final JobId jobId, final String humanReadableTaskName, final Schedule schedule, final Number intervalInMinutes, final Number intervalInMilliseconds) {
+    private void scheduleJob(final String jobName, final String humanReadableTaskName, final Schedule schedule, final Number intervalInMinutes, final Number intervalInMilliseconds) {
         final HashMap<String, Serializable> blackDuckJobRunnerProperties = new HashMap<>();
         blackDuckJobRunnerProperties.put(KEY_CONFIGURED_INTERVAL_MINUTES, intervalInMinutes);
 
+        final JobRunnerKey jobRunnerKey = JobRunnerKey.of(jobName);
         final JobConfig jobConfig = JobConfig
-                                        .forJobRunnerKey(JOB_RUNNER_KEY)
+                                        .forJobRunnerKey(jobRunnerKey)
                                         .withRunMode(RunMode.RUN_LOCALLY)
                                         .withParameters(blackDuckJobRunnerProperties)
                                         .withSchedule(schedule);
         try {
+            final JobId jobId = JobId.of(jobName);
             schedulerService.scheduleJob(jobId, jobConfig);
             logger.info(String.format("%s scheduled to run every %sms", humanReadableTaskName, intervalInMilliseconds));
         } catch (final SchedulerServiceException e) {
-            logger.error(String.format("Could not schedule %s." + humanReadableTaskName), e);
+            logger.error(String.format("Could not schedule %s.", humanReadableTaskName), e);
         }
     }
 
     private void unscheduleOldJobs() {
         try {
             schedulerService.unscheduleJob(JobId.of(PRIMARY_JOB_NAME));
-            schedulerService.unscheduleJob(JobId.of(MAINTENANCE_JOB_NAME));
         } catch (final Exception e) {
             logger.debug("Job " + PRIMARY_JOB_NAME + " wasn't scheduled");
+        }
+        try {
+            schedulerService.unscheduleJob(JobId.of(MAINTENANCE_JOB_NAME));
+        } catch (final Exception e) {
+            logger.debug("Job " + MAINTENANCE_JOB_NAME + " wasn't scheduled");
         }
     }
 

@@ -61,6 +61,7 @@ import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.rest.request.Response;
 
 public class CleanUpOrphanedTicketsTask implements Callable<String> {
     private static final String JIRA_QUERY_PARAM_NAME_ISSUE_STATUS = "status";
@@ -70,8 +71,10 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
 
     // TODO determine reasonable numbers here
     private static final Integer MAX_BATCH_SIZE = 100;
-    private static final Integer MAX_BATCHES_PER_RUN = 10;
+    private static final Integer MAX_BATCHES_PER_RUN = 100;
+
     private static final String DEFAULT_STATUS_MESSAGE = "COMPLETED";
+    private static final String NOT_CONFIGURED_STATUS_MESSAGE = "NOT CONFIGURED";
     private static final String ERROR_STATUS_MESSAGE = "ERROR";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
@@ -89,12 +92,17 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
     public String call() {
         final CustomFieldManager customFieldManager = jiraServices.getCustomFieldManager();
         final Optional<CustomField> optionalProjectVersionUrlField = customFieldManager.getCustomFieldObjectsByName(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL).stream().findFirst();
+        final Optional<CustomField> optionalProjectVersionLastUpdatedField = customFieldManager.getCustomFieldObjectsByName(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED).stream().findFirst();
+
         final CustomField projectVersionUrlField;
-        if (optionalProjectVersionUrlField.isPresent()) {
+        final CustomField projectVersionLastUpdatedField;
+        if (optionalProjectVersionUrlField.isPresent() && optionalProjectVersionLastUpdatedField.isPresent()) {
             projectVersionUrlField = optionalProjectVersionUrlField.get();
+            projectVersionLastUpdatedField = optionalProjectVersionLastUpdatedField.get();
         } else {
-            logger.warn("Cannot find the custom field necessary for this task: " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL);
-            return ERROR_STATUS_MESSAGE;
+            logger.warn(String.format("Cannot find the custom field(s) necessary for this task: %s, %s",
+                BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_URL, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_LAST_UPDATED));
+            return NOT_CONFIGURED_STATUS_MESSAGE;
         }
 
         final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
@@ -107,7 +115,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
             jiraUserContext = optionalJiraUserContext.get();
         } else {
             logger.warn("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
-            return ERROR_STATUS_MESSAGE;
+            return NOT_CONFIGURED_STATUS_MESSAGE;
         }
 
         final Optional<Query> optionalOrphanedTicketQuery = createOrphanedTicketQuery();
@@ -118,14 +126,24 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
             return ERROR_STATUS_MESSAGE;
         }
 
+        final BlackDuckService blackDuckService;
         try {
             final PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
             final BlackDuckConnectionHelper blackDuckConnectionHelper = new BlackDuckConnectionHelper();
-            final BlackDuckServicesFactory blackDuckServicesFactory = blackDuckConnectionHelper.createBlackDuckServicesFactory(logger, blackDuckServerConfig.createBlackDuckServerConfigBuilder());
-            final BlackDuckService blackDuckService = blackDuckServicesFactory.createBlackDuckService();
-            final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new Gson(), ImmutableMap.of());
+            final BlackDuckServicesFactory blackDuckServicesFactory;
+            blackDuckServicesFactory = blackDuckConnectionHelper.createBlackDuckServicesFactory(logger, blackDuckServerConfig.createBlackDuckServerConfigBuilder());
+            blackDuckService = blackDuckServicesFactory.createBlackDuckService();
 
-            findAndUpdateIssuesInBatches(issueServiceWrapper, jiraUserContext.getJiraAdminUser(), searchQuery, projectVersionUrlField, blackDuckService);
+            final Response connectionAttemptResponse = blackDuckService.get(blackDuckServerConfig.getUrl());
+            connectionAttemptResponse.throwExceptionForError();
+        } catch (final IntegrationException e) {
+            logger.warn("Could not establish a connection to the Black Duck server.");
+            return NOT_CONFIGURED_STATUS_MESSAGE;
+        }
+
+        try {
+            final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new Gson(), ImmutableMap.of());
+            findAndUpdateIssuesInBatches(issueServiceWrapper, jiraUserContext.getJiraAdminUser(), searchQuery, projectVersionUrlField, projectVersionLastUpdatedField, blackDuckService);
         } catch (final Exception e) {
             logger.warn("There was a problem while attempting to clean up orphan tickets: " + e.getMessage());
             return ERROR_STATUS_MESSAGE;
@@ -133,7 +151,8 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         return DEFAULT_STATUS_MESSAGE;
     }
 
-    private void findAndUpdateIssuesInBatches(final JiraIssueServiceWrapper issueServiceWrapper, final ApplicationUser user, final Query query, final CustomField projectVersionUrlField, final BlackDuckService blackDuckService)
+    private void findAndUpdateIssuesInBatches(final JiraIssueServiceWrapper issueServiceWrapper, final ApplicationUser user, final Query query, final CustomField projectVersionUrlField, final CustomField projectVersionLastUpdatedField,
+        final BlackDuckService blackDuckService)
         throws JiraIssueException, IntegrationException {
         int batchCount = 0;
         int offset = 0;
@@ -142,19 +161,22 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         do {
             foundIssues = issueServiceWrapper.queryForIssues(user, query, offset, limit);
             offset += limit;
-            processBatch(issueServiceWrapper, foundIssues, projectVersionUrlField, blackDuckService);
+            processBatch(issueServiceWrapper, user, foundIssues, projectVersionUrlField, projectVersionLastUpdatedField, blackDuckService);
             batchCount++;
         } while (foundIssues.size() == limit || batchCount <= MAX_BATCHES_PER_RUN);
     }
 
-    private void processBatch(final JiraIssueServiceWrapper issueServiceWrapper, final List<Issue> issuesToProcess, final CustomField projectVersionUrlField, final BlackDuckService blackDuckService)
-        throws IntegrationException, JiraIssueException {
+    private void processBatch(final JiraIssueServiceWrapper issueServiceWrapper, final ApplicationUser admin, final List<Issue> issuesToProcess, final CustomField projectVersionUrlField, final CustomField projectVersionLastUpdatedField,
+        final BlackDuckService blackDuckService) throws IntegrationException, JiraIssueException {
         for (final Issue issue : issuesToProcess) {
             final String projectVersionUrl = (String) issue.getCustomFieldValue(projectVersionUrlField);
             if (StringUtils.isNotBlank(projectVersionUrl)) {
                 if (isProjectVersionInvalid(projectVersionUrl, blackDuckService)) {
                     logger.debug("The Black Duck project version for " + issue.getKey() + " was not found on the current Black Duck server.");
                     resolveIssue(issueServiceWrapper, issue);
+                } else {
+                    // Update this issue so it is not processed the next time we query for the least-recently updated issues.
+                    updateIssueMetadata(issueServiceWrapper, issue, admin, projectVersionLastUpdatedField);
                 }
             }
         }
@@ -200,9 +222,21 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         if (optionalResolveActionId.isPresent()) {
             final Issue updatedIssue = issueServiceWrapper.transitionIssue(issue, optionalResolveActionId.get());
             if (updatedIssue != null) {
-                issueServiceWrapper.addComment(issue, "This issue was auto-resolved by the Black Duck Plugin because the Project Version no longer exists on the Black Duck server");
+                issueServiceWrapper.addComment(issue, "This issue was auto-resolved by the Black Duck Plugin because the Project Version no longer exists on the Black Duck server.");
             }
         }
+    }
+
+    private void updateIssueMetadata(final JiraIssueServiceWrapper issueServiceWrapper, final Issue issue, final ApplicationUser admin, final CustomField lastUpdatedByBlackDuckField) throws JiraIssueException {
+        final String lastUpdatedCurrentValue = (String) issue.getCustomFieldValue(lastUpdatedByBlackDuckField);
+        final String lastUpdatedNewValue;
+        if (StringUtils.endsWith(lastUpdatedCurrentValue, StringUtils.SPACE)) {
+            lastUpdatedNewValue = StringUtils.trimToEmpty(lastUpdatedCurrentValue);
+        } else {
+            lastUpdatedNewValue = lastUpdatedCurrentValue + StringUtils.SPACE;
+        }
+
+        issueServiceWrapper.updateCustomField(issue, admin, lastUpdatedByBlackDuckField, lastUpdatedNewValue);
     }
 
     private Optional<Query> createOrphanedTicketQuery() {

@@ -40,6 +40,7 @@ import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.CustomField;
@@ -67,6 +68,7 @@ public class JiraIssueServiceWrapper {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final IssueService jiraIssueService;
+    private final IssueManager jiraIssueManager;
     private final CommentManager commentManager;
     private final WorkflowManager workflowManager;
     private final WatcherManager watcherManager;
@@ -77,9 +79,11 @@ public class JiraIssueServiceWrapper {
     private final Map<PluginField, CustomField> customFieldsMap;
     private final Gson gson;
 
-    public JiraIssueServiceWrapper(final IssueService jiraIssueService, final CommentManager commentManager, final WorkflowManager workflowManager, final SearchService searchService, final JiraIssuePropertyWrapper issuePropertyWrapper,
+    public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager,
+        final SearchService searchService, final JiraIssuePropertyWrapper issuePropertyWrapper,
         final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson, final WatcherManager watcherManager) {
         this.jiraIssueService = jiraIssueService;
+        this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
         this.workflowManager = workflowManager;
         this.jiraSearchService = searchService;
@@ -95,6 +99,7 @@ public class JiraIssueServiceWrapper {
     public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
         return new JiraIssueServiceWrapper(
                  jiraServices.getIssueService()
+                ,jiraServices.getIssueManager()
                 ,jiraServices.getCommentManager()
                 ,jiraServices.getWorkflowManager()
                 ,jiraServices.getSearchService()
@@ -174,6 +179,17 @@ public class JiraIssueServiceWrapper {
             throw new JiraIssueException("updateIssue", errors);
         }
         throw new JiraIssueException("updateIssue", validationResult.getErrorCollection());
+    }
+
+    public Issue updateCustomField(final Issue issue, final ApplicationUser updater, final CustomField customField, final Object newFieldValue) throws JiraIssueException {
+        try {
+            final MutableIssue mutableIssue = jiraIssueManager.getIssueByCurrentKey(issue.getKey());
+            mutableIssue.setCustomFieldValue(customField, newFieldValue);
+
+            return jiraIssueManager.updateIssue(updater, mutableIssue, EventDispatchOption.DO_NOT_DISPATCH, false);
+        } catch (final Exception e) {
+            throw new JiraIssueException("Problem updating issue: " + e.getMessage(), "updateCustomField");
+        }
     }
 
     public Issue transitionIssue(final Issue existingIssue, final int transitionActionId) throws JiraIssueException {

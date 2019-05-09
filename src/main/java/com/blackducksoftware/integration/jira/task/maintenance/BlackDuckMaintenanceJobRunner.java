@@ -36,7 +36,7 @@ import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
 public class BlackDuckMaintenanceJobRunner implements JobRunner {
     public static final String HUMAN_READABLE_TASK_NAME = "Black Duck maintenance task";
-    public static final String DEFAULT_CRON = "0 0 * * *";
+    public static final String DEFAULT_ATLASSIAN_CRON_EXPRESSION = "0 0 0 * * ? *";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final JiraSettingsAccessor jiraSettingsAccessor;
