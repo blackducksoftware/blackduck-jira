@@ -35,6 +35,7 @@ import com.atlassian.jira.issue.Issue;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
+import com.synopsys.integration.blackduck.exception.BlackDuckApiException;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
@@ -94,6 +95,8 @@ public class IssueTrackerHandler {
                     logger.error(message);
                     pluginErrorAccessor.addBlackDuckError(message, "updateBlackDuckIssue");
                 }
+            } catch (final BlackDuckApiException apiException) {
+                throw apiException.getOriginalIntegrationRestException();
             } catch (final IntegrationRestException restException) {
                 if (restException.getHttpStatusCode() == 404) {
                     logger.debug("The Black Duck issue tracker was not found. The project/version it was associated with was probably deleted.");

@@ -35,18 +35,24 @@ import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
 import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.query.Query;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
@@ -62,20 +68,25 @@ public class JiraIssueServiceWrapper {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
 
     private final IssueService jiraIssueService;
+    private final IssueManager jiraIssueManager;
     private final CommentManager commentManager;
     private final WorkflowManager workflowManager;
     private final WatcherManager watcherManager;
+    private final SearchService jiraSearchService;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
     private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
     private final ApplicationUser jiraAdminUser;
     private final Map<PluginField, CustomField> customFieldsMap;
     private final Gson gson;
 
-    public JiraIssueServiceWrapper(final IssueService jiraIssueService, final CommentManager commentManager, final WorkflowManager workflowManager, final JiraIssuePropertyWrapper issuePropertyWrapper,
+    public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager,
+        final SearchService searchService, final JiraIssuePropertyWrapper issuePropertyWrapper,
         final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson, final WatcherManager watcherManager) {
         this.jiraIssueService = jiraIssueService;
+        this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
         this.workflowManager = workflowManager;
+        this.jiraSearchService = searchService;
         this.issuePropertyWrapper = issuePropertyWrapper;
         this.issueFieldCopyHandler = issueFieldCopyHandler;
         this.jiraAdminUser = jiraAdminUser;
@@ -88,8 +99,10 @@ public class JiraIssueServiceWrapper {
     public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
         return new JiraIssueServiceWrapper(
                  jiraServices.getIssueService()
+                ,jiraServices.getIssueManager()
                 ,jiraServices.getCommentManager()
                 ,jiraServices.getWorkflowManager()
+                ,jiraServices.getSearchService()
                 ,jiraServices.createIssuePropertyWrapper()
                 ,new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFieldsMap)
                 ,jiraUserContext.getJiraAdminUser()
@@ -98,6 +111,16 @@ public class JiraIssueServiceWrapper {
                 ,jiraServices.getWatcherManager());
     }
     // @formatter:on
+
+    public List<Issue> queryForIssues(final ApplicationUser searchUser, final Query jqlQuery, final int startingOffset, final int resultLimit) throws JiraIssueException {
+        final PagerFilter queryPageLimiter = PagerFilter.newPageAlignedFilter(startingOffset, resultLimit);
+        try {
+            final SearchResults searchResults = jiraSearchService.search(searchUser, jqlQuery, queryPageLimiter);
+            return searchResults.getIssues();
+        } catch (final SearchException e) {
+            throw new JiraIssueException("Error executing query: " + jqlQuery.getQueryString() + " | Error Message: " + e.getMessage(), "queryForIssues");
+        }
+    }
 
     public Issue getIssue(final Long issueId) throws JiraIssueException {
         final IssueResult result = jiraIssueService.getIssue(jiraAdminUser, issueId);
@@ -156,6 +179,17 @@ public class JiraIssueServiceWrapper {
             throw new JiraIssueException("updateIssue", errors);
         }
         throw new JiraIssueException("updateIssue", validationResult.getErrorCollection());
+    }
+
+    public Issue updateCustomField(final Issue issue, final ApplicationUser updater, final CustomField customField, final Object newFieldValue) throws JiraIssueException {
+        try {
+            final MutableIssue mutableIssue = jiraIssueManager.getIssueByCurrentKey(issue.getKey());
+            mutableIssue.setCustomFieldValue(customField, newFieldValue);
+
+            return jiraIssueManager.updateIssue(updater, mutableIssue, EventDispatchOption.DO_NOT_DISPATCH, false);
+        } catch (final Exception e) {
+            throw new JiraIssueException("Problem updating issue: " + e.getMessage(), "updateCustomField");
+        }
     }
 
     public Issue transitionIssue(final Issue existingIssue, final int transitionActionId) throws JiraIssueException {

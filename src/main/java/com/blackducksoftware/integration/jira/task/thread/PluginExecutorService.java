@@ -40,10 +40,18 @@ public class PluginExecutorService {
     public static final int MAX_QUEUED_TASKS = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL + 1;
 
     /* package */ final List<Future<String>> queuedTasks;
+    private Integer queuedTaskLimit;
     private ExecutorService executorService;
+
+    public static PluginExecutorService restricted(final int maxAllowedTasks) {
+        final PluginExecutorService pluginExecutorService = new PluginExecutorService();
+        pluginExecutorService.queuedTaskLimit = maxAllowedTasks;
+        return pluginExecutorService;
+    }
 
     public PluginExecutorService() {
         this.queuedTasks = new ArrayList<>();
+        this.queuedTaskLimit = MAX_QUEUED_TASKS;
         start();
     }
 
@@ -75,7 +83,7 @@ public class PluginExecutorService {
     }
 
     public boolean canAcceptNewTasks() {
-        return !isShutdown() && queuedTasks.size() < MAX_QUEUED_TASKS;
+        return !isShutdown() && queuedTasks.size() < queuedTaskLimit;
     }
 
     private void start() throws IllegalStateException {

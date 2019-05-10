@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task;
+package com.blackducksoftware.integration.jira.task.maintenance;
 
 import org.apache.log4j.Logger;
 
@@ -29,31 +29,36 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.scheduler.JobRunner;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
-import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.blackducksoftware.integration.jira.task.BlackDuckJobRunnerUtil;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
-public class BlackDuckJobRunner implements JobRunner {
-    public static final String HUMAN_READABLE_TASK_NAME = "Black Duck notification check task";
+public class BlackDuckMaintenanceJobRunner implements JobRunner {
+    public static final String HUMAN_READABLE_TASK_NAME = "Black Duck maintenance task";
+    public static final String DEFAULT_ATLASSIAN_CRON_EXPRESSION = "0 0 0 * * ? *";
 
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     private final JiraSettingsAccessor jiraSettingsAccessor;
-    private final PluginExecutorService executorService;
 
-    public BlackDuckJobRunner(final PluginSettings pluginSettings, final PluginExecutorService executorService) {
+    public BlackDuckMaintenanceJobRunner(final PluginSettings pluginSettings) {
         this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
-        this.executorService = executorService;
     }
 
     @Override
     public JobRunnerResponse runJob(final JobRunnerRequest request) {
-        final JiraTaskTimed jiraTaskTimed = new JiraTaskTimed(jiraSettingsAccessor, new JiraServices());
+        PluginExecutorService pluginExecutorService = null;
+        try {
+            final CleanUpOrphanedTicketsTask cleanUpTask = new CleanUpOrphanedTicketsTask(jiraSettingsAccessor);
 
-        logger.info("blackduck-jira plugin version: " + BlackDuckPluginVersion.getVersion());
-        final BlackDuckJobRunnerUtil blackDuckJobRunnerUtil = new BlackDuckJobRunnerUtil(logger, executorService, "periodic");
-        return blackDuckJobRunnerUtil.runJob(request, jiraTaskTimed);
+            pluginExecutorService = PluginExecutorService.restricted(1);
+            final BlackDuckJobRunnerUtil blackDuckJobRunnerUtil = new BlackDuckJobRunnerUtil(logger, pluginExecutorService, "maintenance");
+            return blackDuckJobRunnerUtil.runJob(request, cleanUpTask);
+        } finally {
+            if (null != pluginExecutorService) {
+                pluginExecutorService.shutdownNow();
+            }
+        }
     }
 
 }

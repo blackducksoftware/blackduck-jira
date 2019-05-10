@@ -343,7 +343,7 @@ public class JiraTaskSetupTest {
         BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
 
-        JiraTaskTimed jiraTask = new JiraTaskTimed(jiraSettingsAccessor, jiraServices, 1);
+        JiraTaskTimed jiraTask = new JiraTaskTimed(jiraSettingsAccessor, jiraServices);
         PreTaskSetup preTaskSetup = new PreTaskSetup();
         preTaskSetup = Mockito.spy(preTaskSetup);
 

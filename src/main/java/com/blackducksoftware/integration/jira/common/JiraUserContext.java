@@ -23,11 +23,38 @@
  */
 package com.blackducksoftware.integration.jira.common;
 
+import java.util.Optional;
+
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 
 public class JiraUserContext {
     private final ApplicationUser jiraAdminUser;
     private final ApplicationUser defaultJiraIssueCreatorUser;
+
+    // This could be moved to a static factory class if preferred.
+    public static Optional<JiraUserContext> create(final BlackDuckJiraLogger logger, final String jiraAdminUsername, String jiraIssueCreatorUsername, final UserManager userManager) {
+        logger.debug(String.format("Checking JIRA users: Admin: %s; Issue creator: %s", jiraAdminUsername, jiraIssueCreatorUsername));
+        if (jiraIssueCreatorUsername == null) {
+            logger.warn(String.format("The JIRA Issue Creator user has not been configured, using the admin user (%s) to create issues. This can be changed via the Issue Creation configuration", jiraAdminUsername));
+            jiraIssueCreatorUsername = jiraAdminUsername;
+        }
+        final Optional<ApplicationUser> jiraAdminUser = getJiraUser(logger, jiraAdminUsername, userManager);
+        final Optional<ApplicationUser> jiraIssueCreatorUser = getJiraUser(logger, jiraIssueCreatorUsername, userManager);
+        if (!jiraAdminUser.isPresent() || !jiraIssueCreatorUser.isPresent()) {
+            return Optional.empty();
+        }
+        final JiraUserContext jiraContext = new JiraUserContext(jiraAdminUser.get(), jiraIssueCreatorUser.get());
+        return Optional.of(jiraContext);
+    }
+
+    private static Optional<ApplicationUser> getJiraUser(final BlackDuckJiraLogger logger, final String jiraUsername, final UserManager userManager) {
+        final ApplicationUser jiraUser = userManager.getUserByName(jiraUsername);
+        if (jiraUser == null) {
+            logger.error(String.format("Could not find the JIRA user %s", jiraUsername));
+        }
+        return Optional.ofNullable(jiraUser);
+    }
 
     public JiraUserContext(final ApplicationUser jiraAdminUser, final ApplicationUser defaultJiraIssueCreatorUser) {
         this.jiraAdminUser = jiraAdminUser;
@@ -41,4 +68,5 @@ public class JiraUserContext {
     public ApplicationUser getDefaultJiraIssueCreatorUser() {
         return defaultJiraIssueCreatorUser;
     }
+
 }
