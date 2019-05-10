@@ -51,7 +51,13 @@ public class UpgradeSteps {
     public static String getInstallDateString(final PluginSettings pluginSettings) {
         final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
         final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
-        return pluginConfigurationAccessor.getFirstTimeSave();
+        final String firstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
+        if (StringUtils.isNotBlank(firstTimeSave)) {
+            return firstTimeSave;
+        }
+
+        final BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
+        return pluginDateFormatter.format(new Date());
     }
 
     public UpgradeSteps(final BlackDuckJiraLogger logger, final PluginSettings pluginSettings) {

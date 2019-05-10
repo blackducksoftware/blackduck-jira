@@ -24,10 +24,14 @@
 package com.blackducksoftware.integration.jira.task;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
@@ -48,6 +52,7 @@ public class BlackDuckJobRunnerUtil {
     }
 
     public JobRunnerResponse runJob(final JobRunnerRequest request, final Callable<String> actualTask) {
+        final Instant jobStartTime = Instant.now();
         try {
             logger.info("Running the blackduck-jira " + taskName + " task.");
             final JobConfig jobConfig = request.getJobConfig();
@@ -57,6 +62,12 @@ public class BlackDuckJobRunnerUtil {
         } catch (final Exception e) {
             logger.error("An error occurred in the Black Duck Job Runner", e);
             return JobRunnerResponse.failed(e);
+        } finally {
+            final Instant jobEndTime = Instant.now();
+            final Duration jobRunTime = Duration.between(jobStartTime, jobEndTime);
+
+            final String formattedDuration = DurationFormatUtils.formatDurationHMS(jobRunTime.toMillis());
+            logger.debug("blackduck-jira " + taskName + " task took " + formattedDuration);
         }
     }
 
