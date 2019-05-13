@@ -93,6 +93,7 @@ public class UserAssignThread extends Thread {
             pluginErrorAccessor.addBlackDuckError(e, "assignUserToBlackDuckProject");
         } catch (final InterruptedException e) {
             logger.warn("The user assignment thread was interrupted.");
+            Thread.currentThread().interrupt();
         } catch (final TimeoutException e) {
             logger.error("The user assignment thread timed out after 10 minutes.");
         }
