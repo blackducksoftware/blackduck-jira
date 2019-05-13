@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>blackduck-common</artifactId>
-      <version>42.4.0</version>
+      <version>42.6.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.blackducksoftware.integration</groupId>
