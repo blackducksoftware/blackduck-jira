@@ -106,9 +106,10 @@ public class DataFormatHelper {
     }
 
     public Optional<String> createUrlWithComponentNameQuery(final String url, final String componentName) {
-        if (StringUtils.isNotBlank(componentName) && StringUtils.isNotBlank(componentName)) {
+        if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(componentName)) {
             try {
                 // Black Duck does not encode query parameters in the traditional way (UTF-8), so we must do a little extra work to ensure the encoding will match.
+                // https://stackoverflow.com/a/49796882/6921621
                 final String unencodedUrl = String.format("%s?q=componentName:%s", url, componentName);
                 URL encodedUrl = new URL(unencodedUrl);
                 URI uri = new URI(encodedUrl.getProtocol(), encodedUrl.getUserInfo(), IDN.toASCII(encodedUrl.getHost()), encodedUrl.getPort(), encodedUrl.getPath(), encodedUrl.getQuery(), encodedUrl.getRef());
