@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.task.issue.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -272,22 +273,26 @@ public class BlackDuckIssueModelBuilder extends Stringable implements Cloneable 
         }
 
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
+        final Optional<String> projectVersionComponentQueryLink = dataFormatHelper.createUrlWithComponentNameQuery(this.projectVersionUri, this.componentName);
+        final String componentUiLink = projectVersionComponentQueryLink.orElse(componentUri);
+        final String componentVersionUiLink = projectVersionComponentQueryLink.orElse(componentVersionUri);
+
         if (IssueCategory.POLICY.equals(issueCategory)) {
             if (policyRuleUrl != null) {
                 blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
-                    projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink,
+                    projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentUiLink, componentVersionName, componentVersionUiLink, licenseString, licenseLink,
                     usagesString, updatedTimeString, policyRuleName, policyRuleUrl, policyOverridable.toString(), policyDescription, policySeverity);
             } else {
                 throw new IssueModelBuilderException("The field 'policyRuleUrl' is required for policy notifications.");
             }
         } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createVulnerabilityIssueFieldTemplate(
-                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString,
+                projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentVersionName, componentVersionUiLink, licenseString, licenseLink, usagesString,
                 updatedTimeString, originsString, originIdsString);
         } else {
             issueCategory = IssueCategory.SPECIAL;
             blackDuckIssueFieldTemplate = new BlackDuckIssueFieldTemplate(projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname,
-                componentReviewer, componentName, componentUri, componentVersionName, componentVersionUri, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
+                componentReviewer, componentName, componentUiLink, componentVersionName, componentVersionUiLink, licenseString, licenseLink, usagesString, updatedTimeString, issueCategory);
         }
 
         String jiraIssueSummary = null;
