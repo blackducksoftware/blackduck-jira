@@ -23,8 +23,11 @@
  */
 package com.blackducksoftware.integration.jira.task.issue.handler;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +81,7 @@ public class DataFormatHelper {
                 vulnerableComponentsLink = blackDuckDataHelper.getFirstLinkSafely(projectVersion, ProjectVersionView.VULNERABLE_COMPONENTS_LINK);
             }
             if (vulnerableComponentsLink != null) {
-                final String vulnerableComponentsLinkWithQueryParams = createVulnerableComponentsLink(componentName, vulnerableComponentsLink);
+                final String vulnerableComponentsLinkWithQueryParams = createUrlWithComponentNameQuery(vulnerableComponentsLink, componentName).orElse(null);
                 issueDescription.append("[vulnerabilities|");
                 issueDescription.append(vulnerableComponentsLinkWithQueryParams);
                 issueDescription.append("]");
@@ -102,17 +105,21 @@ public class DataFormatHelper {
         return issueDescription.toString();
     }
 
-    public String createVulnerableComponentsLink(final String componentName, final String baseVulnerableComponentsLink) {
-        if (StringUtils.isNotBlank(componentName)) {
-            final String encodedComponentName;
+    public Optional<String> createUrlWithComponentNameQuery(final String url, final String componentName) {
+        if (StringUtils.isNotBlank(componentName) && StringUtils.isNotBlank(componentName)) {
             try {
-                encodedComponentName = URLEncoder.encode(componentName, "UTF-8");
-                return String.format("%s?q=componentName:%s", baseVulnerableComponentsLink, encodedComponentName);
-            } catch (UnsupportedEncodingException e) {
-                logger.debug("Error encoding vulnerable components link: " + e.getMessage());
+                // Black Duck does not encode query parameters in the traditional way (UTF-8), so we must do a little extra work to ensure the encoding will match.
+                final String unencodedUrl = String.format("%s?q=componentName:%s", url, componentName);
+                URL encodedUrl = new URL(unencodedUrl);
+                URI uri = new URI(encodedUrl.getProtocol(), encodedUrl.getUserInfo(), IDN.toASCII(encodedUrl.getHost()), encodedUrl.getPort(), encodedUrl.getPath(), encodedUrl.getQuery(), encodedUrl.getRef());
+
+                final String asciiString = uri.toASCIIString();
+                return Optional.of(asciiString);
+            } catch (final MalformedURLException | URISyntaxException e) {
+                logger.debug("Error encoding url: " + e.getMessage());
             }
         }
-        return baseVulnerableComponentsLink;
+        return Optional.empty();
     }
 
     public String createIssueSummary(final IssueCategory issueCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {

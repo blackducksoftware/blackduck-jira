@@ -146,6 +146,7 @@ public class NotificationConverterTest {
     private static final String WILDCARD_STRING = "*";
     private static final String PROJECT_VERSION_NAME = "projectVersionName";
     private static final String PROJECT_VERSION_URL = "http://localhost:8080/api/projects/projectId/versions/versionId";
+    private static final String PROJECT_VERSION_URL_COMPONENT_QUERY = PROJECT_VERSION_URL + "?q=componentName:" + COMPONENT_NAME;
     private static final String COMPONENT_VERSION_URL = "http://localhost:8080/api/components/componentId/versions/versionId";
     private static final String COMPONENT_URL = "http://localhost:8080/api/components/componentId";
     private static final String BOM_COMPONENT_URI = "http://localhost:8080/api/projects/projectId/versions/versionId/components/componentId";
@@ -244,6 +245,7 @@ public class NotificationConverterTest {
 
         // EventData Format Helper
         blackDuckDataHelper = new BlackDuckDataHelper(mockLogger, mockBlackDuckSerivce, mockBlackDuckBucket);
+        Mockito.when(blackDuckDataHelper.getResponseNullable(COMPONENT_VERSION_URL, ComponentVersionView.class)).thenReturn(createComponentVersionView());
         dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
     }
 
@@ -348,6 +350,8 @@ public class NotificationConverterTest {
         componentVersion.setReleasedOn(new Date());
         componentVersion.setSource(OriginSourceType.KB);
         componentVersion.setVersionName(COMPONENT_VERSION_NAME);
+        componentVersion.setMeta(new ResourceMetadata());
+        componentVersion.getMeta().setHref(COMPONENT_VERSION_URL);
         return componentVersion;
     }
 
