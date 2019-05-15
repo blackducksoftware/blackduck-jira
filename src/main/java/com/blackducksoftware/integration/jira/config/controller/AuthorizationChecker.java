@@ -102,21 +102,17 @@ public class AuthorizationChecker {
 
     public boolean isGroupAuthorized(final String username, final String[] blackDuckJiraGroups) {
         final Optional<UserKey> userKeyOptional = getUserKey(username);
-        if (!isUserSystemAdmin(username) || !userKeyOptional.isPresent()) {
-            return false;
-        }
-
-        final UserKey userKey = userKeyOptional.get();
-        return isGroupAuthorized(userKey, blackDuckJiraGroups);
+        return userKeyOptional
+                   .filter(userKey -> isGroupAuthorized(userKey, blackDuckJiraGroups))
+                   .isPresent();
     }
 
     public boolean isGroupAuthorized(final UserKey userKey, final String[] blackDuckJiraGroups) {
-        if (!isUserSystemAdmin(userKey)) {
-            return false;
-        }
-        for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
-            if (userManager.isUserInGroup(userKey, blackDuckJiraGroup.trim())) {
-                return true;
+        if (null != userKey && null != blackDuckJiraGroups) {
+            for (final String blackDuckJiraGroup : blackDuckJiraGroups) {
+                if (userManager.isUserInGroup(userKey, blackDuckJiraGroup.trim())) {
+                    return true;
+                }
             }
         }
         return false;
