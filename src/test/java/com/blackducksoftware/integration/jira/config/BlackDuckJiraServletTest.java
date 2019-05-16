@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -138,7 +137,7 @@ public class BlackDuckJiraServletTest {
     }
 
     @Test
-    public void testDoGetUserNotAdminInGroup() throws Exception {
+    public void testDoGetUserNotAdminButInGroup() throws Exception {
         final String userName = "TestUser";
         final String redirectUrl = "http://testRedirect";
         final StringBuffer requestUrl = new StringBuffer();
@@ -160,8 +159,8 @@ public class BlackDuckJiraServletTest {
         final BlackDuckJiraServlet servlet = new BlackDuckJiraServlet(managerMock, loginProviderMock, rendererMock, pluginSettingsFactory);
         servlet.doGet(requestMock, responseMock);
 
-        assertNull(responseMock.getContentType());
-        assertNull(rendererMock.getRenderedString());
+        assertEquals("text/html;charset=utf-8", responseMock.getContentType());
+        assertEquals(TEMPLATE_NAME, rendererMock.getRenderedString());
     }
 
     @Test

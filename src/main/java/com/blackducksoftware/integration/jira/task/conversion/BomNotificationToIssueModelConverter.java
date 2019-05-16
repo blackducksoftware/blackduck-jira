@@ -171,7 +171,7 @@ public class BomNotificationToIssueModelConverter {
             final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder = createCommonBlackDuckIssueBuilder(jiraProject, notificationType, batchStartDate, projectVersionWrapper, versionBomComponent);
             final ProjectVersionView projectVersionView = projectVersionWrapper.getProjectVersionView();
             if (detail.isBomEdit()) {
-                return createModelsForBomEdit(blackDuckIssueModelBuilder, notificationType, versionBomComponent, projectVersionView);
+                return createModelsForBomEdit(blackDuckIssueModelBuilder, notificationType, versionBomComponent, projectVersionView, jiraProject.isConfiguredForVulnerabilities());
             } else {
                 Optional<BlackDuckIssueModel> issueModel = Optional.empty();
                 if (detail.isPolicy()) {
@@ -280,19 +280,21 @@ public class BomNotificationToIssueModelConverter {
     }
 
     private Collection<BlackDuckIssueModel> createModelsForBomEdit(final BlackDuckIssueModelBuilder blackDuckIssueModelBuilder, final NotificationType notificationType, final VersionBomComponentView versionBomComponent,
-        final ProjectVersionView projectVersionView) throws IntegrationException {
+        final ProjectVersionView projectVersionView, final boolean isConfiguredForVulnerabilities) throws IntegrationException {
         logger.debug("Populating event data for BOM Component: " + versionBomComponent.getComponentName());
         final List<BlackDuckIssueModel> issueWrappersForEdits = new ArrayList<>();
 
         // Vulnerability
-        try {
-            final RiskProfileView securityRiskProfile = versionBomComponent.getSecurityRiskProfile();
-            if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
-                final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, securityRiskProfile, null, null, null);
-                vulnModel.ifPresent(issueWrappersForEdits::add);
+        if (isConfiguredForVulnerabilities) {
+            try {
+                final RiskProfileView securityRiskProfile = versionBomComponent.getSecurityRiskProfile();
+                if (blackDuckDataHelper.doesSecurityRiskProfileHaveVulnerabilities(securityRiskProfile)) {
+                    final Optional<BlackDuckIssueModel> vulnModel = createModelForVulnerability(blackDuckIssueModelBuilder, notificationType, securityRiskProfile, null, null, null);
+                    vulnModel.ifPresent(issueWrappersForEdits::add);
+                }
+            } catch (final Exception e) {
+                logger.error("Unable to create vulnerability template for BOM component.", e);
             }
-        } catch (final Exception e) {
-            logger.error("Unable to create vulnerability template for BOM component.", e);
         }
 
         // Policy
