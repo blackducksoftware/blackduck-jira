@@ -200,7 +200,7 @@ public class BlackDuckJiraTask {
         try {
             userView = blackDuckService.getResponse(ApiDiscovery.CURRENT_USER_LINK_RESPONSE);
         } catch (final IntegrationException e) {
-            final String message = "Could not get the logged in user for Black Duck.";
+            final String message = "Could not get the logged in user for Black Duck: " + e.getMessage();
             logger.error(message, e);
             pluginErrorAccessor.addBlackDuckError(message, "getCurrentUser");
         }
