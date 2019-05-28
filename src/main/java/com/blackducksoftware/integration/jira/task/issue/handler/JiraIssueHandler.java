@@ -178,8 +178,9 @@ public class JiraIssueHandler {
                 updateIssueTrackerProperties(blackDuckIssueModel, issue);
                 updateDefaultIssueProperties(blackDuckIssueModel);
                 addLastBatchStartKeyToIssue(blackDuckIssueModel);
+                return new ExistenceAwareIssue(issue, false, false);
             }
-            return new ExistenceAwareIssue(issue, false, false);
+            return null;
         }
     }
 
@@ -265,6 +266,10 @@ public class JiraIssueHandler {
     }
 
     private void addComment(final BlackDuckIssueModel blackDuckIssueModel, final String comment, final Issue issue) {
+        if (null == issue) {
+            logger.error("Can not add a comment to an issue that does not exist.");
+            return;
+        }
         final String issueKey = issue.getKey();
         if (!ticketCriteria.getCommentOnIssueUpdates()) {
             logger.debug(String.format("Will not add a comment to issue %s because the plugin has been configured to not comment on issue updates", issueKey));
