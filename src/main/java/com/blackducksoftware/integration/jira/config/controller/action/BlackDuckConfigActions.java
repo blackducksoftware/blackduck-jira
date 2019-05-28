@@ -44,11 +44,14 @@ import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSe
 import com.blackducksoftware.integration.jira.config.model.BlackDuckServerConfigSerializable;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.view.PolicyRuleView;
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBuilder;
+import com.synopsys.integration.blackduck.configuration.ConnectionResult;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class BlackDuckConfigActions {
@@ -141,12 +144,21 @@ public class BlackDuckConfigActions {
             serverConfigBuilder.setProxyUsername(newConfig.getHubProxyUser());
             serverConfigBuilder.setProxyPassword(newConfig.getHubProxyPassword());
 
+            final BlackDuckServerConfig serverConfig;
             try {
-                serverConfigBuilder.build();
+                serverConfig = serverConfigBuilder.build();
+
+                final ConnectionResult connectionResult = serverConfig.attemptConnection(logger);
+                if (connectionResult.isFailure()) {
+                    if (RestConstants.UNAUTHORIZED_401 == connectionResult.getHttpStatusCode()) {
+                        newConfig.setApiTokenError(String.format("Invalid credential(s) for: %s.", newConfig.getHubUrl()));
+                    } else {
+                        newConfig.setTestConnectionError(String.format("Could not connect to: %s. %s", newConfig.getHubUrl(), connectionResult.getFailureMessage().orElse("")));
+                    }
+                }
             } catch (final IllegalStateException e) {
                 newConfig.setTestConnectionError(e.getMessage());
             }
-
             return newConfig;
         }
     }
