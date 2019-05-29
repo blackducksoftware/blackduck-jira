@@ -110,7 +110,7 @@ public class BlackDuckIssueTypeSetup {
     }
 
     private void addBdsIssueType(final List<IssueType> bdIssueTypes, final List<String> existingBdIssueTypeNames, final String issueTypeName) throws JiraException {
-        Long avatarId;
+        final Long avatarId;
         if (!existingBdIssueTypeNames.contains(issueTypeName)) {
             avatarId = blackDuckAvatars.getAvatarId(issueTypeName);
             logger.debug("Creating issue type " + issueTypeName + " with avatar ID " + avatarId);
@@ -221,8 +221,8 @@ public class BlackDuckIssueTypeSetup {
                 final FieldScreenScheme existingFieldScreenScheme = existingEntity.getFieldScreenScheme();
                 final IssueType existingIssueType = existingEntity.getIssueType();
                 final IssueTypeScreenScheme existingIssueTypeScreenScheme = existingEntity.getIssueTypeScreenScheme();
-                String existingIssueTypeName;
-                String existingIssueTypeId;
+                final String existingIssueTypeName;
+                final String existingIssueTypeId;
                 if (existingIssueType == null) {
                     existingIssueTypeName = null;
                     existingIssueTypeId = null;
@@ -347,7 +347,7 @@ public class BlackDuckIssueTypeSetup {
         try {
             logger.debug("Getting field configuration scheme for project " + project.getName() + " [ID: " + project.getId() + "]");
             projectFieldConfigScheme = jiraServices.getFieldLayoutManager().getFieldConfigurationSchemeForProject(project.getId());
-            logger.debug("\tprojectFieldConfigScheme: " + projectFieldConfigScheme);
+            logger.debug("\tprojectFieldConfigScheme: " + projectFieldConfigScheme.getName());
         } catch (final Exception e) {
             logger.error(e.getMessage());
         }
