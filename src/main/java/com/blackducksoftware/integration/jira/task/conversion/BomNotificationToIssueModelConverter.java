@@ -308,7 +308,7 @@ public class BomNotificationToIssueModelConverter {
                     final String versionName = versionBomComponent.getComponentVersionName();
 
                     final NotificationType updatedNotificationType = blackDuckDataHelper.getNotificationTypeFromPolicyRule(rule).orElse(notificationType);
-                    blackDuckIssueModelBuilder.setAction(BlackDuckIssueAction.fromNotificationType(updatedNotificationType));
+                    policyWrapperBuilder.setAction(BlackDuckIssueAction.fromNotificationType(updatedNotificationType));
 
                     final Optional<BlackDuckIssueModel> policyModel = populateModelForPolicy(policyWrapperBuilder, updatedNotificationType, rule, projectVersionView, componentName, versionName);
                     policyModel.ifPresent(issueWrappersForEdits::add);
