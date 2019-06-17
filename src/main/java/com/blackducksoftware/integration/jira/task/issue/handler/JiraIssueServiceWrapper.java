@@ -1,8 +1,8 @@
 /**
  * Black Duck JIRA Plugin
  *
- * Copyright (C) 2019 Black Duck Software, Inc.
- * http://www.blackducksoftware.com/
+ * Copyright (C) 2019 Synopsys, Inc.
+ * https://www.synopsys.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -144,6 +144,7 @@ public class JiraIssueServiceWrapper {
             jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
 
         final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraIssueFieldTemplate.getIssueCreator(), issueInputParameters);
+
         if (validationResult.isValid()) {
             final IssueResult result = jiraIssueService.create(jiraIssueFieldTemplate.getIssueCreator(), validationResult);
             final ErrorCollection errors = result.getErrorCollection();

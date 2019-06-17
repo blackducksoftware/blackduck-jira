@@ -15,6 +15,24 @@
 
   <name>Black Duck JIRA Plugin</name>
   <description>Black Duck JIRA Integration</description>
+  <organization>
+    <name>Synopsys, Inc.</name>
+    <url>https://www.synopsys.com/</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <id>integrations</id>
+      <name>Synopsys Integrations</name>
+      <email>integrations@synopsys.com</email>
+      <organization>Synopsys, Inc.</organization>
+      <organizationUrl>https://www.synopsys.com/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+    </developer>
+  </developers>
 
   <properties>
     <!--  For production builds, use: amps.version: 5.0.13 jira.version: 5.2.11 -->
