@@ -52,6 +52,12 @@ public class ConverterTestUtils {
         Mockito.when(policyIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         Mockito.when(policyIssueType.getId()).thenReturn("policyIssueTypeId");
         issueTypes.add(policyIssueType);
+
+        final IssueType securityPolicyIssueType = Mockito.mock(IssueType.class);
+        Mockito.when(securityPolicyIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+        Mockito.when(securityPolicyIssueType.getId()).thenReturn("securityPolicyIssueTypeId");
+        issueTypes.add(securityPolicyIssueType);
+
         final IssueType vulnerabilityIssueType = Mockito.mock(IssueType.class);
         Mockito.when(vulnerabilityIssueType.getName()).thenReturn(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         Mockito.when(vulnerabilityIssueType.getId()).thenReturn("vulnerabilityIssueTypeId");

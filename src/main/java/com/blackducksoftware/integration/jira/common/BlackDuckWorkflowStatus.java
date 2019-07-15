@@ -23,10 +23,19 @@
  */
 package com.blackducksoftware.integration.jira.common;
 
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
+
 public enum BlackDuckWorkflowStatus {
     ENABLED("Enabled"),
-    POLICY_ONLY("Policy only"),
-    VULN_ONLY("Vulnerability only"),
+    POLICY("Policy"),
+    SECURITY_POLICY("Security Policy"),
+    VULN("Vulnerability"),
     DISABLED("Disabled");
 
     private final String prettyPrintName;
@@ -37,6 +46,19 @@ public enum BlackDuckWorkflowStatus {
 
     public String getPrettyPrintName() {
         return prettyPrintName;
+    }
+
+    public static String getPrettyListNames(final EnumSet<BlackDuckWorkflowStatus> statuses) throws JiraException {
+        if (statuses.contains(POLICY) || statuses.contains(SECURITY_POLICY) || statuses.contains(VULN)) {
+            final List<String> prettyStatuses = statuses.stream().map(BlackDuckWorkflowStatus::getPrettyPrintName).collect(Collectors.toList());
+            final String joinedStatus = StringUtils.join(prettyStatuses, ", ");
+            return joinedStatus + " Only";
+        } else if (1 == statuses.size()) {
+            return statuses.stream().map(BlackDuckWorkflowStatus::getPrettyPrintName).findFirst().orElse("");
+        }
+        final List<String> names = statuses.stream().map(BlackDuckWorkflowStatus::name).collect(Collectors.toList());
+        final String joinedNames = StringUtils.join(names, ", ");
+        throw new JiraException("This is an invalid list of status's. " + joinedNames);
     }
 
 }

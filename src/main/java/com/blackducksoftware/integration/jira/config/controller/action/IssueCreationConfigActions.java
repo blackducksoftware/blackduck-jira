@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +47,7 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
@@ -258,9 +260,14 @@ public class IssueCreationConfigActions {
                 newProject.setProjectName(oldProject.getName());
                 newProject.setProjectId(oldProject.getId());
 
-                final BlackDuckWorkflowStatus projectWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus(oldProject);
-                newProject.setWorkflowStatus(projectWorkflowStatus.getPrettyPrintName());
-
+                final EnumSet<BlackDuckWorkflowStatus> projectWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus(oldProject);
+                try {
+                    final String status = BlackDuckWorkflowStatus.getPrettyListNames(projectWorkflowStatus);
+                    newProject.setWorkflowStatus(status);
+                } catch (final JiraException e) {
+                    logger.error(e.getMessage());
+                    newProject.setWorkflowStatus("ERROR");
+                }
                 newJiraProjects.add(newProject);
             }
         }

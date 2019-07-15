@@ -85,7 +85,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         try {
             if (blackDuckIssueTypes != null && !blackDuckIssueTypes.isEmpty()) {
                 for (final IssueType issueType : blackDuckIssueTypes) {
-                    if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE)) {
+                    if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE)) {
                         final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType, blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
                     } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
@@ -151,7 +151,7 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField, final BiFunction<List<IssueType>, String, CustomField> createCustomFieldFunction) {
         try {
-            Optional<CustomField> optionalCustomField = jiraServices.getCustomFieldManager()
+            final Optional<CustomField> optionalCustomField = jiraServices.getCustomFieldManager()
                                                             .getCustomFieldObjectsByName(pluginField.getName())
                                                             .stream()
                                                             .findFirst();
@@ -235,7 +235,7 @@ public class BlackDuckFieldScreenSchemeSetup {
     private FieldScreen createScreen(final String screenName, final List<OrderableField> blackDuckCustomFields) {
         final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
 
-        boolean needToUpdateScreen = false;
+        final boolean needToUpdateScreen = false;
         FieldScreen blackDuckScreen = null;
         if (fieldScreens != null && !fieldScreens.isEmpty()) {
             for (final FieldScreen fieldScreen : fieldScreens) {
@@ -359,7 +359,7 @@ public class BlackDuckFieldScreenSchemeSetup {
     private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
         final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager().getFieldScreenSchemes();
 
-        boolean blackDuckScreenSchemeNeedsUpdate = false;
+        final boolean blackDuckScreenSchemeNeedsUpdate = false;
         FieldScreenScheme blackDuckScreenScheme = null;
         if (fieldScreenSchemes != null && !fieldScreenSchemes.isEmpty()) {
             for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {

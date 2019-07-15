@@ -417,6 +417,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     private List<IssueType> getBlackDuckIssueTypes() {
         final List<IssueType> issueTypes = new ArrayList<>();
         addPolicyIssueType(issueTypes);
+        addSecurityPolicyIssueType(issueTypes);
         addVulnIssueType(issueTypes);
         return issueTypes;
     }
@@ -435,5 +436,13 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         policyIssueType.setId(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         policyIssueType.setValue(Mockito.mock(GenericValue.class));
         issueTypes.add(policyIssueType);
+    }
+
+    private void addSecurityPolicyIssueType(final List<IssueType> issueTypes) {
+        final IssueTypeMock securityPolicyIssueType = new IssueTypeMock();
+        securityPolicyIssueType.setName(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+        securityPolicyIssueType.setId(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+        securityPolicyIssueType.setValue(Mockito.mock(GenericValue.class));
+        issueTypes.add(securityPolicyIssueType);
     }
 }

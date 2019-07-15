@@ -150,6 +150,10 @@ public class BlackDuckIssueModel extends Stringable {
         return IssueCategory.POLICY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
     }
 
+    public boolean isSecurityPolicy() {
+        return IssueCategory.SECURITY_POLICY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
+    }
+
     public boolean isVulnerability() {
         return IssueCategory.VULNERABILITY.equals(blackDuckIssueFieldTemplate.getIssueCategory());
     }
