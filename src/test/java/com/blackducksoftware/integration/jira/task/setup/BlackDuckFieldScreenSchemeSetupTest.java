@@ -166,7 +166,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
         }
-        assertEquals(2, fieldScreenManager.getUpdatedTabs().size());
+        assertEquals(3, fieldScreenManager.getUpdatedTabs().size());
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
@@ -176,7 +176,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
                 assertEquals(NUM_FIELDS_VULNERABILITY, tab.getFieldScreenLayoutItems().size());
             }
         }
-        assertEquals(2, fieldScreenManager.getUpdatedScreens().size());
+        assertEquals(3, fieldScreenManager.getUpdatedScreens().size());
         for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemeManager.getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
@@ -189,7 +189,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             }
         }
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
-        assertEquals(6, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
+        assertEquals(9, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
         assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
     }
@@ -243,7 +243,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             final FieldScreenMock fieldScreenMock = (FieldScreenMock) fieldScreen;
             assertTrue(fieldScreenMock.getAttemptedScreenStore());
         }
-        assertTrue(fieldScreenManager.getUpdatedTabs().size() == 2);
+        assertTrue(fieldScreenManager.getUpdatedTabs().size() == 3);
 
         for (final FieldScreenTab tab : fieldScreenManager.getUpdatedTabs()) {
             final String screenName = tab.getFieldScreen().getName();
@@ -253,7 +253,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
                 assertEquals(expectedVulnerabilityFields, tab.getFieldScreenLayoutItems().size());
             }
         }
-        assertTrue(fieldScreenManager.getUpdatedScreens().size() == 2);
+        assertTrue(fieldScreenManager.getUpdatedScreens().size() == 3);
         for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemeManager.getUpdatedSchemes()) {
             final FieldScreenSchemeMock fieldScreenSchemeMock = (FieldScreenSchemeMock) fieldScreenScheme;
             assertTrue(fieldScreenSchemeMock.getAttemptedScreenSchemeStore());
@@ -266,7 +266,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
             }
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
-        assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
+        assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 9);
         if (includeSomeNullCustomFields) {
             assertNotNull(settingsMock);
             assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
