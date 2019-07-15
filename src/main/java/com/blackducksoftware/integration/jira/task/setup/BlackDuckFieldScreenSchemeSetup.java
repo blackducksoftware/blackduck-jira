@@ -84,14 +84,18 @@ public class BlackDuckFieldScreenSchemeSetup {
         final Map<IssueType, FieldScreenScheme> fieldScreenSchemes = new HashMap<>();
         try {
             if (blackDuckIssueTypes != null && !blackDuckIssueTypes.isEmpty()) {
+                final List<IssueType> policyIssueTypes = new ArrayList<>();
                 for (final IssueType issueType : blackDuckIssueTypes) {
                     if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE)) {
-                        final FieldScreenScheme fss = createPolicyViolationScreenScheme(issueType, blackDuckIssueTypes);
-                        fieldScreenSchemes.put(issueType, fss);
+                        policyIssueTypes.add(issueType);
                     } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
                         final FieldScreenScheme fss = createSecurityScreenScheme(blackDuckIssueTypes);
                         fieldScreenSchemes.put(issueType, fss);
                     }
+                }
+                final FieldScreenScheme fss = createPolicyViolationScreenScheme(policyIssueTypes, blackDuckIssueTypes);
+                for (final IssueType policyIssueType : policyIssueTypes) {
+                    fieldScreenSchemes.put(policyIssueType, fss);
                 }
             }
         } catch (final Exception e) {
@@ -111,10 +115,6 @@ public class BlackDuckFieldScreenSchemeSetup {
 
     public FieldScreenSchemeItem createNewFieldScreenSchemeItemImpl(final FieldScreenSchemeManager fieldScreenSchemeManager, final FieldScreenManager fieldScreenManager) {
         return new FieldScreenSchemeItemImpl(fieldScreenSchemeManager, fieldScreenManager);
-    }
-
-    private IssueType getIssueTypeObject(final IssueType blackDuckIssueType) {
-        return blackDuckIssueType;
     }
 
     private CustomField createCustomTextField(final List<IssueType> issueTypeList, final String fieldName) throws RuntimeException {
@@ -152,9 +152,9 @@ public class BlackDuckFieldScreenSchemeSetup {
     private OrderableField getOrderedFieldFromCustomField(final List<IssueType> issueTypeList, final PluginField pluginField, final BiFunction<List<IssueType>, String, CustomField> createCustomFieldFunction) {
         try {
             final Optional<CustomField> optionalCustomField = jiraServices.getCustomFieldManager()
-                                                            .getCustomFieldObjectsByName(pluginField.getName())
-                                                            .stream()
-                                                            .findFirst();
+                                                                  .getCustomFieldObjectsByName(pluginField.getName())
+                                                                  .stream()
+                                                                  .findFirst();
             final CustomField customField = optionalCustomField
                                                 .orElseGet(() -> createCustomFieldFunction.apply(issueTypeList, pluginField.getName()));
             if (customField.getAssociatedIssueTypes() != null && !customField.getAssociatedIssueTypes().isEmpty()) {
@@ -211,15 +211,13 @@ public class BlackDuckFieldScreenSchemeSetup {
         return customFields;
     }
 
-    private List<OrderableField> createPolicyViolationFields(final IssueType issueType, final List<IssueType> issueTypeList) {
+    private List<OrderableField> createPolicyViolationFields(final List<IssueType> policyIssueTypes, final List<IssueType> issueTypeList) {
         final List<OrderableField> customFields = new ArrayList<>();
-        final List<IssueType> policyViolationIssueTypeObjectList = new ArrayList<>();
-        policyViolationIssueTypeObjectList.add(getIssueTypeObject(issueType));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
-        customFields.add(getOrderedTextFieldFromCustomField(policyViolationIssueTypeObjectList, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL));
+        customFields.add(getOrderedTextFieldFromCustomField(policyIssueTypes, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyIssueTypes, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_OVERRIDABLE));
+        customFields.add(getOrderedTextFieldFromCustomField(policyIssueTypes, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_SEVERITY));
+        customFields.add(getOrderedTextFieldFromCustomField(policyIssueTypes, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_DESCRIPTION));
+        customFields.add(getOrderedTextFieldFromCustomField(policyIssueTypes, PluginField.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE_URL));
         customFields.addAll(createCommonFields(issueTypeList));
         return customFields;
     }
@@ -344,8 +342,8 @@ public class BlackDuckFieldScreenSchemeSetup {
         return isOk;
     }
 
-    private FieldScreen createPolicyViolationScreen(final IssueType issueType, final List<IssueType> issueTypeList) {
-        final List<OrderableField> blackDuckCustomFields = createPolicyViolationFields(issueType, issueTypeList);
+    private FieldScreen createPolicyViolationScreen(final List<IssueType> policyIssueTypes, final List<IssueType> issueTypeList) {
+        final List<OrderableField> blackDuckCustomFields = createPolicyViolationFields(policyIssueTypes, issueTypeList);
         final FieldScreen screen = createScreen(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_NAME, blackDuckCustomFields);
         return screen;
     }
@@ -416,8 +414,8 @@ public class BlackDuckFieldScreenSchemeSetup {
         return blackDuckScreenSchemeNeedsUpdate;
     }
 
-    private FieldScreenScheme createPolicyViolationScreenScheme(final IssueType issueType, final List<IssueType> issueTypeList) {
-        final FieldScreen screen = createPolicyViolationScreen(issueType, issueTypeList);
+    private FieldScreenScheme createPolicyViolationScreenScheme(final List<IssueType> policyIssueTypes, final List<IssueType> issueTypeList) {
+        final FieldScreen screen = createPolicyViolationScreen(policyIssueTypes, issueTypeList);
         final FieldScreenScheme fieldScreenScheme = createScreenScheme(BlackDuckJiraConstants.BLACKDUCK_POLICY_SCREEN_SCHEME_NAME, screen);
         return fieldScreenScheme;
     }

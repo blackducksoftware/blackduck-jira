@@ -125,7 +125,7 @@ public class BlackDuckIssueModelTest {
     private BlackDuckIssueModel createBlackDuckIssueModel(final IssueCategory issueCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         final String jiraIssueSummary;
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
-        if (IssueCategory.POLICY.equals(issueCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory) || IssueCategory.SECURITY_POLICY.equals(issueCategory)) {
             blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(null,
                 "blackDuckProjectName",
                 "blackDuckProjectVersion",

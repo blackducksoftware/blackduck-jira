@@ -343,7 +343,7 @@ public class JiraIssueHandler {
                     // There should only be one vulnerability issue per bomComponent
                     final Issue vulnerabilityIssue = issueServiceWrapper.getIssue(candidateIssueId);
                     return Optional.ofNullable(vulnerabilityIssue);
-                } else if (IssueCategory.POLICY.equals(candidateIssueType)) {
+                } else if (IssueCategory.POLICY.equals(candidateIssueType) || IssueCategory.SECURITY_POLICY.equals(candidateIssueType)) {
                     final Optional<String> optionalRuleName = candidate.getRuleName();
                     if (optionalRuleName.isPresent() && optionalRuleName.get().equals(blackDuckIssueFieldTemplate.getPolicyRuleName())) {
                         final Issue policyIssue = issueServiceWrapper.getIssue(candidateIssueId);
