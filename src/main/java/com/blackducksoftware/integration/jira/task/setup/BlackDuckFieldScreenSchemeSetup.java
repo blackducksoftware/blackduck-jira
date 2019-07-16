@@ -89,13 +89,13 @@ public class BlackDuckFieldScreenSchemeSetup {
                     if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE)) {
                         policyIssueTypes.add(issueType);
                     } else if (issueType.getName().equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
-                        final FieldScreenScheme fss = createSecurityScreenScheme(blackDuckIssueTypes);
-                        fieldScreenSchemes.put(issueType, fss);
+                        final FieldScreenScheme fieldScreenScheme = createSecurityScreenScheme(blackDuckIssueTypes);
+                        fieldScreenSchemes.put(issueType, fieldScreenScheme);
                     }
                 }
-                final FieldScreenScheme fss = createPolicyViolationScreenScheme(policyIssueTypes, blackDuckIssueTypes);
+                final FieldScreenScheme fieldScreenScheme = createPolicyViolationScreenScheme(policyIssueTypes, blackDuckIssueTypes);
                 for (final IssueType policyIssueType : policyIssueTypes) {
-                    fieldScreenSchemes.put(policyIssueType, fss);
+                    fieldScreenSchemes.put(policyIssueType, fieldScreenScheme);
                 }
             }
         } catch (final Exception e) {
@@ -233,7 +233,6 @@ public class BlackDuckFieldScreenSchemeSetup {
     private FieldScreen createScreen(final String screenName, final List<OrderableField> blackDuckCustomFields) {
         final Collection<FieldScreen> fieldScreens = jiraServices.getFieldScreenManager().getFieldScreens();
 
-        final boolean needToUpdateScreen = false;
         FieldScreen blackDuckScreen = null;
         if (fieldScreens != null && !fieldScreens.isEmpty()) {
             for (final FieldScreen fieldScreen : fieldScreens) {
@@ -257,7 +256,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         }
 
         final boolean wasTabUpdated = addBlackDuckTabToScreen(blackDuckScreen, blackDuckCustomFields, defaultTabs);
-        if (needToUpdateScreen || wasTabUpdated) {
+        if (wasTabUpdated) {
             jiraServices.getFieldScreenManager().updateFieldScreen(blackDuckScreen);
         }
 
@@ -357,7 +356,6 @@ public class BlackDuckFieldScreenSchemeSetup {
     private FieldScreenScheme createScreenScheme(final String screenSchemeName, final FieldScreen screen) {
         final Collection<FieldScreenScheme> fieldScreenSchemes = jiraServices.getFieldScreenSchemeManager().getFieldScreenSchemes();
 
-        final boolean blackDuckScreenSchemeNeedsUpdate = false;
         FieldScreenScheme blackDuckScreenScheme = null;
         if (fieldScreenSchemes != null && !fieldScreenSchemes.isEmpty()) {
             for (final FieldScreenScheme fieldScreenScheme : fieldScreenSchemes) {
@@ -383,7 +381,7 @@ public class BlackDuckFieldScreenSchemeSetup {
         final List<ScreenableIssueOperation> issueOpertationsForDefaultScreen = new ArrayList<>();
         issueOpertations.add(IssueOperations.EDIT_ISSUE_OPERATION);
 
-        if (blackDuckScreenSchemeNeedsUpdate || settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen)) {
+        if (settingScreenForIssueOperation(issueOpertations, blackDuckScreenScheme, screen) || settingScreenForIssueOperation(issueOpertationsForDefaultScreen, blackDuckScreenScheme, defaultScreen)) {
             jiraServices.getFieldScreenSchemeManager().updateFieldScreenScheme(blackDuckScreenScheme);
         }
         return blackDuckScreenScheme;
