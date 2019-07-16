@@ -187,7 +187,7 @@ public class BlackDuckJiraTask {
             final ExecutorService executorService = Executors.newSingleThreadExecutor();
             try {
                 final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper = BlackDuckPhoneHomeHelper.createAsynchronousPhoneHomeHelper(blackDuckServicesFactory, executorService);
-                blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion());
+                blackDuckPhoneHomeHelper.handlePhoneHome("blackduck-jira", jiraServices.getPluginVersion(), phoneHomeMetaData);
                 pluginConfigurationAccessor.setLastPhoneHome(LocalDate.now());
             } finally {
                 executorService.shutdown();
