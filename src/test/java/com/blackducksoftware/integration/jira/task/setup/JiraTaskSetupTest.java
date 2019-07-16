@@ -343,7 +343,7 @@ public class JiraTaskSetupTest {
         BlackDuckFieldScreenSchemeSetup fieldScreenSchemeSetup = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         fieldScreenSchemeSetup = Mockito.spy(fieldScreenSchemeSetup);
 
-        JiraTaskTimed jiraTask = new JiraTaskTimed(jiraSettingsAccessor, jiraServices);
+        final JiraTaskTimed jiraTask = new JiraTaskTimed(jiraSettingsAccessor, jiraServices);
         PreTaskSetup preTaskSetup = new PreTaskSetup();
         preTaskSetup = Mockito.spy(preTaskSetup);
 
@@ -456,10 +456,13 @@ public class JiraTaskSetupTest {
         if (workflowMappedToOurIssueTypes) {
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE,
                 BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE,
+                BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE,
                 BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         } else {
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, "Fake Workflow");
+            blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE, "Fake Workflow");
             blackDuckWorkflow.addMappingIssueToWorkflow(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, "Fake Workflow");
         }
         final AssignableWorkflowSchemeBuilderMock builder = new AssignableWorkflowSchemeBuilderMock();
@@ -509,6 +512,13 @@ public class JiraTaskSetupTest {
             policyViolationIssue.setId(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
             policyViolationIssue.setValue(Mockito.mock(GenericValue.class));
             issueTypes.add(policyViolationIssue);
+
+            final IssueTypeMock securityPolicyViolationIssue = new IssueTypeMock();
+            securityPolicyViolationIssue.setName(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+            securityPolicyViolationIssue.setId(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+            securityPolicyViolationIssue.setValue(Mockito.mock(GenericValue.class));
+            issueTypes.add(securityPolicyViolationIssue);
+
             final IssueTypeMock securityIssue = new IssueTypeMock();
             securityIssue.setName(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
             securityIssue.setId(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);

@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.jira.task.issue.model;
 
 public enum IssueCategory {
     POLICY,
+    SECURITY_POLICY,
     VULNERABILITY,
     SPECIAL
 }

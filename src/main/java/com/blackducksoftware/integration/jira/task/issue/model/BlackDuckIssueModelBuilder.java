@@ -277,7 +277,7 @@ public class BlackDuckIssueModelBuilder extends Stringable implements Cloneable 
         final String componentUiLink = projectVersionComponentQueryLink.orElse(componentUri);
         final String componentVersionUiLink = projectVersionComponentQueryLink.orElse(componentVersionUri);
 
-        if (IssueCategory.POLICY.equals(issueCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory) || IssueCategory.SECURITY_POLICY.equals(issueCategory)) {
             if (policyRuleUrl != null) {
                 blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(
                     projectOwner, projectName, projectVersionName, projectVersionUri, projectVersionNickname, componentReviewer, componentName, componentUiLink, componentVersionName, componentVersionUiLink, licenseString, licenseLink,

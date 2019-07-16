@@ -71,7 +71,7 @@ public class DataFormatHelper {
         final StringBuilder issueDescription = new StringBuilder();
 
         issueDescription.append("Black Duck has detected ");
-        if (IssueCategory.POLICY.equals(issueCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory) || IssueCategory.SECURITY_POLICY.equals(issueCategory)) {
             issueDescription.append("a policy violation.  \n\n");
         } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {
             issueDescription.append("vulnerabilities. For details, see the comments below, or the project's ");
@@ -111,8 +111,8 @@ public class DataFormatHelper {
                 // Black Duck does not encode query parameters in the traditional way (UTF-8), so we must do a little extra work to ensure the encoding will match.
                 // https://stackoverflow.com/a/49796882/6921621
                 final String unencodedUrl = String.format("%s?q=componentName:%s", url, componentName);
-                URL encodedUrl = new URL(unencodedUrl);
-                URI uri = new URI(encodedUrl.getProtocol(), encodedUrl.getUserInfo(), IDN.toASCII(encodedUrl.getHost()), encodedUrl.getPort(), encodedUrl.getPath(), encodedUrl.getQuery(), encodedUrl.getRef());
+                final URL encodedUrl = new URL(unencodedUrl);
+                final URI uri = new URI(encodedUrl.getProtocol(), encodedUrl.getUserInfo(), IDN.toASCII(encodedUrl.getHost()), encodedUrl.getPort(), encodedUrl.getPath(), encodedUrl.getQuery(), encodedUrl.getRef());
 
                 final String asciiString = uri.toASCIIString();
                 return Optional.of(asciiString);
@@ -124,7 +124,7 @@ public class DataFormatHelper {
     }
 
     public String createIssueSummary(final IssueCategory issueCategory, final String projectName, final String projectVersionName, final String componentName, final String componentVersionName, final String ruleName) {
-        if (IssueCategory.POLICY.equals(issueCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory) || IssueCategory.SECURITY_POLICY.equals(issueCategory)) {
             final String policySummaryTemplate = "Policy Violation: Project '%s' / '%s', Component '%s', Rule '%s'";
             return String.format(policySummaryTemplate, projectName, projectVersionName, getComponentString(componentName, componentVersionName), ruleName);
         } else if (IssueCategory.VULNERABILITY.equals(issueCategory)) {

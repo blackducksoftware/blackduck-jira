@@ -23,14 +23,18 @@
  */
 package com.blackducksoftware.integration.jira.config.controller.action;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
+import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
@@ -40,6 +44,7 @@ import com.blackducksoftware.integration.jira.config.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
 
 public class ProjectMappingConfigActions {
+    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
     final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final WorkflowHelper workflowHelper;
 
@@ -98,8 +103,14 @@ public class ProjectMappingConfigActions {
             for (final BlackDuckProjectMapping mapping : projectMappings) {
                 final JiraProject jiraProject = mapping.getJiraProject();
 
-                final BlackDuckWorkflowStatus workflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
-                jiraProject.setWorkflowStatus(workflowStatus.getPrettyPrintName());
+                final EnumSet<BlackDuckWorkflowStatus> projectWorkflowStatus = workflowHelper.getBlackDuckWorkflowStatus(jiraProject.getProjectId());
+                try {
+                    final String status = BlackDuckWorkflowStatus.getPrettyListNames(projectWorkflowStatus);
+                    jiraProject.setWorkflowStatus(status);
+                } catch (final JiraException e) {
+                    logger.error(e.getMessage());
+                    jiraProject.setWorkflowStatus("ERROR");
+                }
             }
         }
     }

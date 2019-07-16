@@ -88,6 +88,7 @@ public class BlackDuckIssueTypeSetup {
         try {
             final List<String> existingBdIssueTypeNames = collectExistingBdsIssueTypeNames(bdIssueTypes);
             addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
+            addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
             addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         } catch (final Exception e) {
             logger.error(e);
@@ -101,7 +102,8 @@ public class BlackDuckIssueTypeSetup {
         final List<String> existingBdIssueTypeNames = new ArrayList<>();
         for (final IssueType issueType : issueTypes) {
             final String issueTypeName = issueType.getName();
-            if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
+            if (issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE) || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE)
+                    || issueTypeName.equals(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE)) {
                 bdIssueTypes.add(issueType);
                 existingBdIssueTypeNames.add(issueTypeName);
             }

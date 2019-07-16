@@ -156,7 +156,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         throws JiraIssueException, IntegrationException {
         int batchCount = 0;
         int offset = 0;
-        int limit = MAX_BATCH_SIZE;
+        final int limit = MAX_BATCH_SIZE;
         List<Issue> foundIssues;
         do {
             foundIssues = issueServiceWrapper.queryForIssues(user, query, offset, limit);
@@ -243,6 +243,8 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         final StringBuilder queryBuilder = new StringBuilder();
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         queryBuilder.append(JIRA_QUERY_DISJUNCTION);
+        appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
+        queryBuilder.append(JIRA_QUERY_DISJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         queryBuilder.append(JIRA_QUERY_CONJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_STATUS, "Open");
@@ -254,7 +256,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
             final JqlQueryParser queryParser = new DefaultJqlQueryParser();
             final Query orphanQuery = queryParser.parseQuery(queryString);
             return Optional.of(orphanQuery);
-        } catch (JqlParseException e) {
+        } catch (final JqlParseException e) {
             logger.warn("The query generated to search for orphan issues was invalid: " + queryString);
         }
         return Optional.empty();

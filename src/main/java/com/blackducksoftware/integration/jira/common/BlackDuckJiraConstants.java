@@ -28,6 +28,7 @@ public class BlackDuckJiraConstants {
     public static final String BLACKDUCK_JIRA_WORKFLOW_RESOURCE = "Hub Workflow.xml";
     // Issue type names (user visible)
     public static final String BLACKDUCK_POLICY_VIOLATION_ISSUE = "Black Duck Policy Violation";
+    public static final String BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE = "Black Duck Security Policy Violation";
     public static final String BLACKDUCK_VULNERABILITY_ISSUE = "Black Duck Security Vulnerability";
     // Field names (user visible)
     public static final String BLACKDUCK_CUSTOM_FIELD_PROJECT = "Black Duck Project";

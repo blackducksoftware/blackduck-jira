@@ -55,6 +55,9 @@ public class BlackDuckIssueModelTest {
         if (blackDuckIssueModel.isPolicy()) {
             issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
             suffix = String.format(" [Rule: '%s']", blackDuckIssueFieldTemplate.getPolicyRuleName());
+        } else if (blackDuckIssueModel.isSecurityPolicy()) {
+            issueType = BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE;
+            suffix = String.format(" [Rule: '%s']", blackDuckIssueFieldTemplate.getPolicyRuleName());
         }
         final String issueSummary = String.format("%s: Project '%s' / '%s', Component '%s' / '%s'",
             issueType, blackDuckIssueFieldTemplate.getProjectName(), blackDuckIssueFieldTemplate.getProjectVersionName(), blackDuckIssueFieldTemplate.getComponentName(), blackDuckIssueFieldTemplate.getComponentVersionName());
@@ -122,7 +125,7 @@ public class BlackDuckIssueModelTest {
     private BlackDuckIssueModel createBlackDuckIssueModel(final IssueCategory issueCategory, final Set<ProjectFieldCopyMapping> jiraFieldCopyMappings) {
         final String jiraIssueSummary;
         final BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate;
-        if (IssueCategory.POLICY.equals(issueCategory)) {
+        if (IssueCategory.POLICY.equals(issueCategory) || IssueCategory.SECURITY_POLICY.equals(issueCategory)) {
             blackDuckIssueFieldTemplate = BlackDuckIssueFieldTemplate.createPolicyIssueFieldTemplate(null,
                 "blackDuckProjectName",
                 "blackDuckProjectVersion",

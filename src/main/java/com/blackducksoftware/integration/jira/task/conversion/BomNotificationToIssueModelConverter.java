@@ -209,11 +209,10 @@ public class BomNotificationToIssueModelConverter {
         blackDuckIssueModelBuilder.setPolicyFields(policyRule);
         blackDuckIssueModelBuilder.setPolicyComments(notificationType);
 
-        final IssueCategory issueCategory = IssueCategory.POLICY;
-        blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
-        blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
+        IssueCategory issueCategory = IssueCategory.POLICY;
 
         if (hasVulnerabilityRule(policyRule)) {
+            issueCategory = IssueCategory.SECURITY_POLICY;
             final List<VulnerableComponentView> vulnerableComponentViews = blackDuckDataHelper.getAllResponses(projectVersionView, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE);
             final Set<NotificationVulnerability> notificationVulnerabilities = vulnerableComponentViews.stream()
                                                                                    .filter(vulnerableComponentView -> vulnerableComponentView.getComponentName().equals(componentName))
@@ -223,6 +222,8 @@ public class BomNotificationToIssueModelConverter {
                                                                                    .collect(Collectors.toSet());
             addVulnerabilityInfo(blackDuckIssueModelBuilder, notificationVulnerabilities);
         }
+        blackDuckIssueModelBuilder.setIssueCategory(issueCategory);
+        blackDuckIssueModelBuilder.setJiraIssueTypeId(getIssueTypeId(issueCategory));
 
         return Optional.of(blackDuckIssueModelBuilder.build());
     }
@@ -364,7 +365,9 @@ public class BomNotificationToIssueModelConverter {
 
     private String getIssueTypeId(final IssueCategory category) throws ConfigurationException {
         String issueType = BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE;
-        if (IssueCategory.VULNERABILITY.equals(category)) {
+        if (IssueCategory.SECURITY_POLICY.equals(category)) {
+            issueType = BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE;
+        } else if (IssueCategory.VULNERABILITY.equals(category)) {
             issueType = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE;
         }
         return lookUpIssueTypeId(issueType);
