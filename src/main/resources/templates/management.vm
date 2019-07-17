@@ -1,0 +1,28 @@
+<div id="aui-hub-message-field" class="aui-message hidden">
+    <p class="title">
+        <span id="aui-hub-message-title" class="aui-icon"></span>
+        <strong id="aui-hub-message-title-text"></strong>
+    </p>
+    <p id="aui-hub-message-text"></p>
+</div>
+
+<div id="configurationErrorRow" class="field-group hidden">
+    <label> </label>
+    <div id="configurationError" class="error"></div>
+</div>
+
+<fieldset class="fieldSection">
+    <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'managementArea');"> </i>Management</legend>
+    <div id="managementArea">
+        <div class="blackduck-details-field-group">
+            <label class="blackDuckDetailsLabel" for="jiraCleanOldIssues">Old BlackDuck server URL</label>
+            <input type="text" id="jiraCleanOldIssues" name="jiraCleanOldIssues" />
+            <span class="fa fa-info-circle infoIcon" title="This button will remove any old issues in your Jira instance that are associated with the BlackDuck host name you pass here."></span>
+            <input id="testConnectionButton" onclick="closeOldIssues(), startProgressSpinner('managementProgressSpinner');" type="button" value="Close Old Issues"
+                   class="aui-button aui-button-primary" />
+            <div id="managementProgressSpinner" style="display: inline-block;">
+                <i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</fieldset>
