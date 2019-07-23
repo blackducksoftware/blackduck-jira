@@ -28,6 +28,8 @@ import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.serverError;
 import static javax.ws.rs.core.Response.status;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,13 +75,13 @@ public class ManagementController extends ConfigController {
             if (userKey.isPresent()) {
                 final Gson gson = new GsonBuilder().create();
                 final JsonObject jsonObject = gson.fromJson(oldUrl, JsonObject.class);
-                final String url = jsonObject.get("oldUrl").getAsString();
+                final String url = new URL(jsonObject.get("oldUrl").getAsString()).toString();
                 if (StringUtils.isBlank(url)) {
                     return Response.status(Status.BAD_REQUEST).build();
                 }
                 manageOldIssues.closeAllIssues(userKey.get(), url);
             }
-        } catch (final JiraIssueException e) {
+        } catch (final JiraIssueException | MalformedURLException e) {
             return serverError().build();
         }
 
