@@ -38,6 +38,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.jql.parser.DefaultJqlQueryParser;
 import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.jql.parser.JqlQueryParser;
@@ -76,7 +77,7 @@ public class ManageOldIssues {
         final ApplicationUser adminUser = userManager.getUserByKey(userKey.getStringValue());
         List<Issue> issues = retrievePagedOldIssues(adminUser, offset, resultLimit);
 
-        while (issues.size() >= resultLimit) {
+        while (issues.size() > 0) {
             for (final Issue issue : issues) {
                 if (shouldIssueBeTransitioned(issue.getId(), adminUser, oldUrl)) {
                     transitionIssue(issue);
@@ -103,11 +104,13 @@ public class ManageOldIssues {
 
     private Optional<Query> createIssueQuery() {
         final StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("(");
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         queryBuilder.append(JIRA_QUERY_DISJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
         queryBuilder.append(JIRA_QUERY_DISJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+        queryBuilder.append(") ");
         queryBuilder.append(JIRA_QUERY_CONJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_STATUS, "Open");
         // Query from least recently updated to most
@@ -128,10 +131,6 @@ public class ManageOldIssues {
         queryBuilder.append(createComparisonCheck(key, value, "="));
     }
 
-    private void appendContainsCheck(final StringBuilder queryBuilder, final String key, final String value) {
-        queryBuilder.append(createComparisonCheck(key, value, "~"));
-    }
-
     private String createComparisonCheck(final String key, final String value, final String comparison) {
         final StringBuilder queryBuilder = new StringBuilder();
 
@@ -146,10 +145,11 @@ public class ManageOldIssues {
     }
 
     private boolean shouldIssueBeTransitioned(final Long issueId, final ApplicationUser user, final String oldUrl) {
-        return getIssueProperties(issueId, user)
+        final Map<String, String> issueProperties = getIssueProperties(issueId, user);
+        return issueProperties
                    .keySet()
                    .stream()
-                   .anyMatch(key -> key.contains(oldUrl));
+                   .anyMatch(key -> key.startsWith(oldUrl));
     }
 
     private void transitionIssue(final Issue issue) throws JiraIssueException {
@@ -164,14 +164,16 @@ public class ManageOldIssues {
             if (errors.hasAnyErrors()) {
                 throw new JiraIssueException("transitionIssue", errors);
             }
+        } else {
+            throw new JiraIssueException("transitionIssue", validationResult.getErrorCollection());
         }
-        throw new JiraIssueException("transitionIssue", validationResult.getErrorCollection());
     }
 
     private int getTransitionId(final Issue issue) throws JiraIssueException {
         final WorkflowManager workflowManager = jiraServices.getWorkflowManager();
         final JiraWorkflow workflow = workflowManager.getWorkflow(issue);
-        final List<ActionDescriptor> actions = workflow.getLinkedStep(issue.getStatus()).getActions();
+        final Status status = issue.getStatus();
+        final List<ActionDescriptor> actions = workflow.getLinkedStep(status).getActions();
 
         for (final ActionDescriptor descriptor : actions) {
             if (descriptor.getName() != null && descriptor.getName().equals(BlackDuckJiraConstants.BLACKDUCK_WORKFLOW_TRANSITION_REMOVE_OR_OVERRIDE)) {

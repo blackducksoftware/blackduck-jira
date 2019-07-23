@@ -104,6 +104,7 @@
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="fonts/" location="/font-awesome-4.5.0/fonts"/>
         <resource type="download" name="font-awesome.min.css" location="/font-awesome-4.5.0/css/font-awesome.min.css"/>
+        <resource type="download" name="management-request.js" location="/js/management/management-request.js"/>
         <context>hub-jira</context>
     </web-resource>
 

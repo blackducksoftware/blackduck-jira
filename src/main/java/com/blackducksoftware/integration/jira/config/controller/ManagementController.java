@@ -32,11 +32,13 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
@@ -45,6 +47,9 @@ import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.config.JiraServices;
 import com.blackducksoftware.integration.jira.config.controller.action.ManageOldIssues;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 @Path("/config/management")
 public class ManagementController extends ConfigController {
@@ -55,9 +60,9 @@ public class ManagementController extends ConfigController {
         this.manageOldIssues = new ManageOldIssues(new JiraServices(), jiraUserManager);
     }
 
-    @PUT
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response put(final String oldUrl, @Context final HttpServletRequest request) {
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response post(final String oldUrl, @Context final HttpServletRequest request) {
         final boolean validAuthentication = isAuthorized(request);
         if (!validAuthentication) {
             return status(Status.UNAUTHORIZED).build();
@@ -66,7 +71,13 @@ public class ManagementController extends ConfigController {
         try {
             final Optional<UserKey> userKey = getAuthorizationChecker().getUserKey(request);
             if (userKey.isPresent()) {
-                manageOldIssues.closeAllIssues(userKey.get(), oldUrl);
+                final Gson gson = new GsonBuilder().create();
+                final JsonObject jsonObject = gson.fromJson(oldUrl, JsonObject.class);
+                final String url = jsonObject.get("oldUrl").getAsString();
+                if (StringUtils.isBlank(url)) {
+                    return Response.status(Status.BAD_REQUEST).build();
+                }
+                manageOldIssues.closeAllIssues(userKey.get(), url);
             }
         } catch (final JiraIssueException e) {
             return serverError().build();
