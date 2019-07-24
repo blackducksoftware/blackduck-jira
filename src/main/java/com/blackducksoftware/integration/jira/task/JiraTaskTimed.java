@@ -36,15 +36,15 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
-import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.common.settings.PluginConfigurationAccessor;
-import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.common.settings.model.PluginGroupsConfigModel;
-import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.task.setup.PreTaskSetup;
+import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.dal.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.dal.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.dal.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.dal.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.dal.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.web.JiraServices;
+import com.blackducksoftware.integration.jira.workflow.setup.PreTaskSetup;
 
 public class JiraTaskTimed implements Callable<String> {
     private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));

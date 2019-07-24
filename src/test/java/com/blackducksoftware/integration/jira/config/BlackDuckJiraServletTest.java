@@ -27,14 +27,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.config.controller.servlet.BlackDuckJiraServlet;
+import com.blackducksoftware.integration.jira.dal.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.mocks.HttpServletRequestMock;
 import com.blackducksoftware.integration.jira.mocks.HttpServletResponseMock;
 import com.blackducksoftware.integration.jira.mocks.LoginUriProviderMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsFactoryMock;
 import com.blackducksoftware.integration.jira.mocks.TemplateRendererMock;
 import com.blackducksoftware.integration.jira.mocks.UserManagerUIMock;
+import com.blackducksoftware.integration.jira.web.servlet.BlackDuckJiraServlet;
 
 public class BlackDuckJiraServletTest {
     private static final String TEMPLATE_NAME = "templates/blackduck-jira.vm";

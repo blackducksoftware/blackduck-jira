@@ -29,9 +29,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.JiraVersionCheck;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.mocks.MockBuildUtilsInfoImpl;
+import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class JiraVersionTest {
 

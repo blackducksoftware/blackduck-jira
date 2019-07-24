@@ -30,6 +30,8 @@ import java.time.LocalDateTime;
 
 import org.junit.Test;
 
+import com.blackducksoftware.integration.jira.web.TicketCreationError;
+
 public class TicketCreationErrorTest {
     public static final String DATE_TIME_SINGLE_DIGIT_FIELDS_WITHOUT_LEADING_ZERO_STRING = "5/5/2005 5:05PM";
     public static final LocalDateTime DATE_TIME_SINGLE_DIGIT_FILEDS_WITHOUT_LEADING_ZERO_OBJECT = LocalDateTime.of(2005, 5, 5, 17, 5);

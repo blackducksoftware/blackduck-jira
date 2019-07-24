@@ -29,11 +29,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.scheduler.JobRunner;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
-import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
+import com.blackducksoftware.integration.jira.web.BlackDuckPluginVersion;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckJobRunner implements JobRunner {
     public static final String HUMAN_READABLE_TASK_NAME = "Black Duck notification check task";

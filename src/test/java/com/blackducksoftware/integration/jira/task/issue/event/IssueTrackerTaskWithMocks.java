@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.task.issue.event;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
-import com.blackducksoftware.integration.jira.task.issue.tracker.IssueTrackerTask;
+import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.issue.tracker.IssueTrackerTask;
 import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 

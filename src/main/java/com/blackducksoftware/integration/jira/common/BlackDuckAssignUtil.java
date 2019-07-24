@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.blackduck.BlackDuckConnectionHelper;
+import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.common.settings.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.common.settings.model.PluginBlackDuckServerConfigModel;
-import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.dal.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.dal.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.synopsys.integration.blackduck.api.generated.component.AssignedUserRequest;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.response.AssignedProjectView;

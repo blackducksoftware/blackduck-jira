@@ -31,8 +31,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraFieldCopyConfigSerializable;
-import com.blackducksoftware.integration.jira.config.model.ProjectFieldCopyMapping;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraFieldCopyConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.ProjectFieldCopyMapping;
 
 public class BlackDuckJiraFieldCopyConfigSerializableTest {
     private static final String TARGET_FIELD_ID = "targetFieldId";

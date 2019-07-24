@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.jira.mocks.issue;
 import java.lang.reflect.Field;
 
 import com.atlassian.jira.entity.property.EntityProperty;
-import com.blackducksoftware.integration.jira.config.JiraServices;
-import com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class JiraIssuePropertyWrapperMock extends JiraIssuePropertyWrapper {
     private final JiraServices jiraServices;

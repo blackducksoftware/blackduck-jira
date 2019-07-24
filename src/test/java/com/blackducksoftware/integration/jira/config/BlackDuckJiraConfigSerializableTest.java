@@ -39,7 +39,7 @@ import org.junit.Test;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.config.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class BlackDuckProjectMappings {

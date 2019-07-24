@@ -42,6 +42,7 @@ import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class BlackDuckProjectMappingsTest {

@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.jira.common;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.jira.BlackDuckPluginVersion;
+import com.blackducksoftware.integration.jira.web.BlackDuckPluginVersion;
 
 public class PluginVersionTest {
 
