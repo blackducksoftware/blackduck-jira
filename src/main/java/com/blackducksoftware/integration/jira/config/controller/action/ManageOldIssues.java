@@ -91,14 +91,14 @@ public class ManageOldIssues {
 
     private List<Issue> retrievePagedOldIssues(final ApplicationUser adminUser, final int startingOffset, final int resultLimit) throws JiraIssueException {
         final PagerFilter queryPageLimiter = PagerFilter.newPageAlignedFilter(startingOffset, resultLimit);
-        final Query jqlQuery = createIssueQuery().orElseThrow(() -> new JiraIssueException("The generated Issues search query was invalid.", "queryForIssues"));
+        final Query jqlQuery = createIssueQuery().orElseThrow(() -> new JiraIssueException("The generated Issues search query was invalid.", "retrievePagedOldIssues"));
 
         try {
             final SearchService jiraSearchService = jiraServices.getSearchService();
             final SearchResults searchResults = jiraSearchService.search(adminUser, jqlQuery, queryPageLimiter);
             return searchResults.getIssues();
         } catch (final SearchException e) {
-            throw new JiraIssueException("Error executing query: " + jqlQuery.getQueryString() + " | Error Message: " + e.getMessage(), "queryForIssues");
+            throw new JiraIssueException("Error executing query: " + jqlQuery.getQueryString() + " | Error Message: " + e.getMessage(), "retrievePagedOldIssues");
         }
     }
 
@@ -180,7 +180,7 @@ public class ManageOldIssues {
                 return descriptor.getId();
             }
         }
-        throw new JiraIssueException("Was unable to find the expected transition for workflow.", "retrieveTransition");
+        throw new JiraIssueException("Unable to find the expected transition for workflow.", "getTransitionId");
     }
 
     public Map<String, String> getIssueProperties(final Long issueId, final ApplicationUser user) {

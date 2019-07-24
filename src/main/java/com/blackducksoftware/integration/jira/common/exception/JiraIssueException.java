@@ -31,6 +31,7 @@ public class JiraIssueException extends JiraException {
 
     private ErrorCollection errorCollection = ErrorCollections.empty();
 
+    // FIXME make the constructor methodAttempt param in the same place for both constructors.
     public JiraIssueException(final String message, final String methodAttempt) {
         super(message);
         super.setMethodAttempt(methodAttempt);
