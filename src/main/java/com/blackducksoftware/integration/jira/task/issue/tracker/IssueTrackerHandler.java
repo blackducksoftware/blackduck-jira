@@ -122,7 +122,6 @@ public class IssueTrackerHandler {
             }
         } catch (final IntegrationException ex) {
             logger.error("Error deleting Black Duck Issue", ex);
-            pluginErrorAccessor.addBlackDuckError(ex, "deleteBlackDuckIssue");
         }
     }
 
