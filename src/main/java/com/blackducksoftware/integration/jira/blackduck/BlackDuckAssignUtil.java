@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.blackduck;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.data.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.synopsys.integration.blackduck.api.generated.component.AssignedUserRequest;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;
 import com.synopsys.integration.blackduck.api.generated.response.AssignedProjectView;

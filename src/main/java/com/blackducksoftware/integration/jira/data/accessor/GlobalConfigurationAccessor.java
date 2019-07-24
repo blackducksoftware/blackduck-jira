@@ -21,20 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.data;
+package com.blackducksoftware.integration.jira.data.accessor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.jira.data.model.GeneralIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginBlackDuckServerConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginGroupsConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginIssueFieldConfigModel;
-import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
-import com.blackducksoftware.integration.jira.data.model.TicketCriteriaConfigModel;
+import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.common.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.data.BlackDuckConfigKeys;
+import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueFieldConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.TicketCriteriaConfigModel;
 
 public class GlobalConfigurationAccessor {
     private final JiraSettingsAccessor jiraSettingsAccessor;

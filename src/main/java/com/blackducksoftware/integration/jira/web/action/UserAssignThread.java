@@ -29,11 +29,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckAssignUtil;
+import com.blackducksoftware.integration.jira.blackduck.BlackDuckAssignUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectView;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.service.BlackDuckService;

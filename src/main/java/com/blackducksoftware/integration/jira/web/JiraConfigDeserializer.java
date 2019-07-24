@@ -26,9 +26,9 @@ package com.blackducksoftware.integration.jira.web;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
-import com.blackducksoftware.integration.jira.data.model.TicketCriteriaConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraFieldCopyConfigSerializable;
 

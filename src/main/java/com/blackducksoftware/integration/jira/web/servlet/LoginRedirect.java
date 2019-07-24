@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.data.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.common.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.web.controller.AuthorizationChecker;
 
 public class LoginRedirect {

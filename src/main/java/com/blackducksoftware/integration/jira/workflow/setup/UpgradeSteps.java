@@ -31,18 +31,18 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.BlackDuckAssignUtil;
+import com.blackducksoftware.integration.jira.blackduck.BlackDuckAssignUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.data.PluginConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 
 public class UpgradeSteps {
     private final BlackDuckJiraLogger logger;

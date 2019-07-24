@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.common.model.NotificationVulnerability;
 import com.blackducksoftware.integration.jira.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;

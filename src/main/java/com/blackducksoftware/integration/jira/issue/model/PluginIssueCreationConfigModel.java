@@ -21,32 +21,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common.model;
+package com.blackducksoftware.integration.jira.issue.model;
 
-import com.synopsys.integration.util.Stringable;
+public class PluginIssueCreationConfigModel {
+    private final GeneralIssueCreationConfigModel general;
+    private final ProjectMappingConfigModel projectMapping;
+    private final TicketCriteriaConfigModel ticketCriteria;
 
-public class NotificationVulnerability extends Stringable {
-    private String source;
-    private String vulnerabilityId;
-
-    public NotificationVulnerability(final String source, final String vulnerabilityId) {
-        this.source = source;
-        this.vulnerabilityId = vulnerabilityId;
+    public PluginIssueCreationConfigModel(final GeneralIssueCreationConfigModel general, final ProjectMappingConfigModel projectMapping, final TicketCriteriaConfigModel ticketCriteria) {
+        this.general = general;
+        this.projectMapping = projectMapping;
+        this.ticketCriteria = ticketCriteria;
     }
 
-    public String getSource() {
-        return source;
+    public GeneralIssueCreationConfigModel getGeneral() {
+        return general;
     }
 
-    public void setSource(final String source) {
-        this.source = source;
+    public ProjectMappingConfigModel getProjectMapping() {
+        return projectMapping;
     }
 
-    public String getVulnerabilityId() {
-        return vulnerabilityId;
+    public TicketCriteriaConfigModel getTicketCriteria() {
+        return ticketCriteria;
     }
 
-    public void setVulnerabilityId(final String vulnerabilityId) {
-        this.vulnerabilityId = vulnerabilityId;
-    }
 }

@@ -45,7 +45,7 @@ import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;

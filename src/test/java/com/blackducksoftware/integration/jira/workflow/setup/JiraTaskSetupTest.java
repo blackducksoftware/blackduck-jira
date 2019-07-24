@@ -70,13 +70,11 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;
@@ -114,6 +112,8 @@ import com.blackducksoftware.integration.jira.mocks.workflow.WorkflowSchemeManag
 import com.blackducksoftware.integration.jira.task.JiraTaskTimed;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class JiraTaskSetupTest {

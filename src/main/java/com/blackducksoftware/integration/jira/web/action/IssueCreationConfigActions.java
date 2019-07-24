@@ -48,21 +48,21 @@ import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatte
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.data.PluginConfigurationAccessor;
-import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.data.model.GeneralIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginGroupsConfigModel;
-import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
-import com.blackducksoftware.integration.jira.data.model.TicketCriteriaConfigModel;
+import com.blackducksoftware.integration.jira.common.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.TicketCriteriaConfigModel;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.blackducksoftware.integration.jira.web.model.ProjectPatternRestModel;
 
 public class IssueCreationConfigActions {

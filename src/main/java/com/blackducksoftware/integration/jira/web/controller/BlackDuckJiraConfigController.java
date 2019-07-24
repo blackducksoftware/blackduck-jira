@@ -53,7 +53,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.data.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
 import com.blackducksoftware.integration.jira.web.BlackDuckPluginVersion;
 import com.blackducksoftware.integration.jira.web.TicketCreationError;

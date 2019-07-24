@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.common;
+package com.blackducksoftware.integration.jira.issue.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,9 +32,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
+import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.web.JiraServices;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class BlackDuckProjectMappings {

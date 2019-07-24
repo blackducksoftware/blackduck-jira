@@ -33,9 +33,9 @@ import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.mocks.ProjectManagerMock;
 import com.blackducksoftware.integration.jira.web.JiraServices;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 public class ConverterTestUtils {

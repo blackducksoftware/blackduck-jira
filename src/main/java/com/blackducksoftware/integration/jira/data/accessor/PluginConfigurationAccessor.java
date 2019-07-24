@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.data;
+package com.blackducksoftware.integration.jira.data.accessor;
 
 import java.time.LocalDate;
 
@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
 
 public class PluginConfigurationAccessor {
     private final JiraSettingsAccessor jiraSettingsAccessor;

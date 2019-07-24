@@ -67,8 +67,8 @@ import com.atlassian.jira.util.InjectableComponent;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
-import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 @InjectableComponent

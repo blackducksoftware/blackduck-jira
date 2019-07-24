@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.data.model;
+package com.blackducksoftware.integration.jira.common.model;
 
 import java.util.Arrays;
 import java.util.Collection;

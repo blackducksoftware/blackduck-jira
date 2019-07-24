@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.data;
+package com.blackducksoftware.integration.jira.data.accessor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
