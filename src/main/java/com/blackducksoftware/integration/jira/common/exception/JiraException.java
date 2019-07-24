@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.common.exception;
 public class JiraException extends Exception {
     private static final long serialVersionUID = -8266124446156847454L;
 
+    // This value stores the name of the method that was called and resulted in error.
     private String methodAttempt = "unknown";
 
     public JiraException() {

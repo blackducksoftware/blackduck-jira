@@ -241,11 +241,13 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
 
     private Optional<Query> createOrphanedTicketQuery() {
         final StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("(");
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
         queryBuilder.append(JIRA_QUERY_DISJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
         queryBuilder.append(JIRA_QUERY_DISJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_TYPE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
+        queryBuilder.append(") ");
         queryBuilder.append(JIRA_QUERY_CONJUNCTION);
         appendEqualityCheck(queryBuilder, JIRA_QUERY_PARAM_NAME_ISSUE_STATUS, "Open");
         // Query from least recently updated to most
