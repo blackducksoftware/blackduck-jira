@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.task.issue.event;
+package com.blackducksoftware.integration.jira.issue.event;
 
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.issue.Issue;

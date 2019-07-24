@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.web;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,7 +40,6 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.blackducksoftware.integration.jira.issue.handler.BlackDuckProjectMappings;
-import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;

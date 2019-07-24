@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.web;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,8 +29,6 @@ import static org.junit.Assert.assertTrue;
 import java.time.LocalDateTime;
 
 import org.junit.Test;
-
-import com.blackducksoftware.integration.jira.web.TicketCreationError;
 
 public class TicketCreationErrorTest {
     public static final String DATE_TIME_SINGLE_DIGIT_FIELDS_WITHOUT_LEADING_ZERO_STRING = "5/5/2005 5:05PM";

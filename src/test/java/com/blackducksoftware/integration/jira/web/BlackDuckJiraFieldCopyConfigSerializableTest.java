@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.config;
+package com.blackducksoftware.integration.jira.web;
 
 import java.util.HashSet;
 import java.util.Set;
