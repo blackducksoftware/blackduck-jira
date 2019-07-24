@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.dal.model;
+package com.blackducksoftware.integration.jira.data.model;
 
 import java.util.Optional;
 import java.util.function.Function;

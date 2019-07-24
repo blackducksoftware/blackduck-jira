@@ -33,9 +33,9 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginGroupsConfigModel;
 
 public class ConfigController {
     // This must be "package protected" to avoid synthetic access

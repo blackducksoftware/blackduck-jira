@@ -36,9 +36,9 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.synopsys.integration.blackduck.api.generated.component.AssignedUserRequest;
 import com.synopsys.integration.blackduck.api.generated.discovery.ApiDiscovery;

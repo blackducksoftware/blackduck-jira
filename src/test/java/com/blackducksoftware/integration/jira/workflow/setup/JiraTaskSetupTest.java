@@ -73,10 +73,10 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.dal.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.dal.PluginErrorAccessor;
-import com.blackducksoftware.integration.jira.dal.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.mocks.ApplicationUserMock;
 import com.blackducksoftware.integration.jira.mocks.AvatarManagerMock;
 import com.blackducksoftware.integration.jira.mocks.ConstantsManagerMock;

@@ -37,9 +37,9 @@ import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 

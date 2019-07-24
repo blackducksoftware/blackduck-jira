@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginGroupsConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginGroupsConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.controller.AuthorizationChecker;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckAdminConfigSerializable;

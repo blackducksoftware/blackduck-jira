@@ -35,10 +35,10 @@ import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelpe
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckProjectMappings;
 import com.blackducksoftware.integration.jira.common.model.PolicyRuleSerializable;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginBlackDuckServerConfigModel;
-import com.blackducksoftware.integration.jira.dal.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckServerConfigSerializable;

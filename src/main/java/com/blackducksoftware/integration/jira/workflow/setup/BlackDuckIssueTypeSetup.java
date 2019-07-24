@@ -50,7 +50,7 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
-import com.blackducksoftware.integration.jira.dal.PluginErrorAccessor;
+import com.blackducksoftware.integration.jira.data.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckIssueTypeSetup {

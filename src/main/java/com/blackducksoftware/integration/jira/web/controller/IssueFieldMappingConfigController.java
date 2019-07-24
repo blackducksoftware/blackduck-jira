@@ -44,7 +44,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.web.action.IssueFieldMappingConfigActions;
 import com.blackducksoftware.integration.jira.web.action.ProjectMappingConfigActions;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;

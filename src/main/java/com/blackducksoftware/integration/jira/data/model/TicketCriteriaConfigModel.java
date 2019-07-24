@@ -21,17 +21,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.dal.model;
+package com.blackducksoftware.integration.jira.data.model;
 
-public class ProjectMappingConfigModel {
-    private final String mappingsJson;
+public class TicketCriteriaConfigModel {
+    private final String policyRulesJson;
+    private final Boolean commentOnIssueUpdates;
+    private final Boolean addComponentReviewerToTickets;
 
-    public ProjectMappingConfigModel(final String mappingsJson) {
-        this.mappingsJson = mappingsJson;
+    public TicketCriteriaConfigModel(final String policyRulesJson, final Boolean commentOnIssueUpdates, final Boolean addComponentReviewerToTickets) {
+        this.policyRulesJson = policyRulesJson;
+        this.commentOnIssueUpdates = commentOnIssueUpdates;
+        this.addComponentReviewerToTickets = addComponentReviewerToTickets;
     }
 
-    public String getMappingsJson() {
-        return mappingsJson;
+    public String getPolicyRulesJson() {
+        return policyRulesJson;
+    }
+
+    public Boolean getCommentOnIssueUpdates() {
+        return commentOnIssueUpdates;
+    }
+
+    public Boolean getAddComponentReviewerToTickets() {
+        return addComponentReviewerToTickets;
     }
 
 }

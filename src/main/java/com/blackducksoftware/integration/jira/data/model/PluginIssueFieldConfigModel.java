@@ -21,25 +21,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.jira.dal.model;
+package com.blackducksoftware.integration.jira.data.model;
 
-import java.util.Optional;
+public class PluginIssueFieldConfigModel {
+    private final String fieldMappingJson;
 
-public class GeneralIssueCreationConfigModel {
-    private final Integer interval;
-    private final String defaultIssueCreator;
-
-    public GeneralIssueCreationConfigModel(final Integer interval, final String defaultIssueCreator) {
-        this.interval = interval;
-        this.defaultIssueCreator = defaultIssueCreator;
+    public PluginIssueFieldConfigModel(final String fieldMappingJson) {
+        this.fieldMappingJson = fieldMappingJson;
     }
 
-    public Optional<Integer> getInterval() {
-        return Optional.ofNullable(interval);
-    }
-
-    public String getDefaultIssueCreator() {
-        return defaultIssueCreator;
+    public String getFieldMappingJson() {
+        return fieldMappingJson;
     }
 
 }

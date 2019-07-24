@@ -30,7 +30,7 @@ import com.atlassian.scheduler.JobRunner;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.task.BlackDuckJobRunnerUtil;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 

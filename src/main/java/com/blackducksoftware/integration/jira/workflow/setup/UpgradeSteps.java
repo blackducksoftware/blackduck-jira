@@ -36,12 +36,12 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.common.model.JiraProject;
-import com.blackducksoftware.integration.jira.dal.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.dal.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.dal.PluginConfigurationAccessor;
-import com.blackducksoftware.integration.jira.dal.model.PluginIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.dal.model.ProjectMappingConfigModel;
+import com.blackducksoftware.integration.jira.data.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.data.PluginConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.data.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 
 public class UpgradeSteps {
