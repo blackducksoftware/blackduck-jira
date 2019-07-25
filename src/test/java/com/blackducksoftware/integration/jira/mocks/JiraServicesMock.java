@@ -50,7 +50,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.user.util.UserUtil;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
-import com.blackducksoftware.integration.jira.config.JiraServices;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class JiraServicesMock extends JiraServices {
     private ConstantsManager constantsManager;
@@ -286,5 +286,5 @@ public class JiraServicesMock extends JiraServices {
     public String getJiraBaseUrl() {
         return "jira-base-url";
     }
-    
+
 }

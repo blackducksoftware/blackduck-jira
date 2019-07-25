@@ -107,7 +107,7 @@
         <context>hub-jira</context>
     </web-resource>
 
-    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.config.controller.servlet.BlackDuckJiraServlet">
+    <servlet name="Black Duck Jira Servlet" key="admin-servlet" class="com.blackducksoftware.integration.jira.web.servlet.BlackDuckJiraServlet">
         <url-pattern>/blackduck-jira-integration</url-pattern>
     </servlet>
 
@@ -131,15 +131,15 @@
 
     <web-panel name="Black Duck Issue Panel" key="blackDuckIssuePanel" location="atl.jira.view.issue.left.context" weight="150">
         <label key="blackduck.issue.panel.title"/>
-        <context-provider class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanel"/>
+        <context-provider class="com.blackducksoftware.integration.jira.issue.ui.BlackDuckIssuePanel"/>
         <resource name="view" type="velocity" location="/templates/blackduck-issue-panel.vm"/>
-        <condition class="com.blackducksoftware.integration.jira.task.issue.ui.BlackDuckIssuePanelCondition"/>
+        <condition class="com.blackducksoftware.integration.jira.issue.ui.BlackDuckIssuePanelCondition"/>
     </web-panel>
 
     <!-- publish our component -->
 
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
-    <component key="eventListener" class="com.blackducksoftware.integration.jira.task.issue.tracker.IssueEventListener">
+    <component key="eventListener" class="com.blackducksoftware.integration.jira.issue.tracker.IssueEventListener">
         <description>Class that processes Jira issue events to modify Black Duck Issues</description>
     </component>
 
@@ -153,7 +153,7 @@
         <description>A thread manager for scheduled tasks.</description>
     </component>
 
-    <component key="issuePropertyAccessor" class="com.blackducksoftware.integration.jira.task.issue.handler.JiraIssuePropertyWrapper">
+    <component key="issuePropertyAccessor" class="com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper">
         <description>A wrapper component to access various issue properties.</description>
     </component>
 

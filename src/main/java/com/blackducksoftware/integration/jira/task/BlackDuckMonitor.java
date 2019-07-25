@@ -44,14 +44,14 @@ import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
-import com.blackducksoftware.integration.jira.common.settings.GlobalConfigurationAccessor;
-import com.blackducksoftware.integration.jira.common.settings.JiraSettingsAccessor;
-import com.blackducksoftware.integration.jira.common.settings.PluginConfigKeys;
-import com.blackducksoftware.integration.jira.common.settings.model.GeneralIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.common.settings.model.PluginIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
+import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationConfigModel;
+import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.task.maintenance.BlackDuckMaintenanceJobRunner;
-import com.blackducksoftware.integration.jira.task.setup.UpgradeSteps;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
+import com.blackducksoftware.integration.jira.workflow.setup.UpgradeSteps;
 
 public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     public static final String KEY_CONFIGURED_INTERVAL_MINUTES = BlackDuckMonitor.class.getName() + ":configuredIntervalMinutes";
